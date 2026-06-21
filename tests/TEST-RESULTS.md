@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-06-21 19:44:45
+**Run:** 2026-06-21 19:49:58
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 112 | **Pass:** 112 | **Fail:** 0
+**Total:** 96 | **Pass:** 95 | **Fail:** 1
 
 ## Fixes applied this run
 
@@ -14,13 +14,13 @@
 - `js/app.js`: `copyTextSafe()` / improved `fallbackCopy()` for clipboard reliability
 - `js/app.js`: `applyTranslations()` calls `updatePersonaUI()` (was broken `renderPersonaBar`)
 - `tests/e2e_comprehensive.py`: E09 checks analytics opt-in checkbox (separate from ToS)
-- `sw.js`: cache bump v26 → v44
+- `js/app.js`: `saveComplaintId()` uses city-specific PMC/TMC complaint warn toast
+- `sw.js`: cache bump v44 → v45
 
 ## Summary by category
 
 - **API:** 5 pass / 0 fail
 - **Admin:** 2 pass / 0 fail
-- **BMC:** 9 pass / 0 fail
 - **Citizen:** 37 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
@@ -29,7 +29,7 @@
 - **Legal:** 2 pass / 0 fail
 - **Load:** 5 pass / 0 fail
 - **Map:** 4 pass / 0 fail
-- **NGO:** 10 pass / 0 fail
+- **NGO:** 2 pass / 0 fail
 - **PWA:** 2 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
@@ -37,12 +37,16 @@
 - **Report:** 3 pass / 0 fail
 - **Storage:** 2 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
+- **System:** 0 pass / 1 fail
 - **UI:** 2 pass / 0 fail
 - **i18n:** 1 pass / 0 fail
 
 ## Failures
 
-_None_
+- `ERR-NGO/Admin` **Suite NGO/Admin crashed** — Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#btnLeadSubmit")
+    - locator resolved to <but
 
 ## Limitations
 
@@ -92,23 +96,10 @@ _None_
 | C32 | Citizen | Pledge saved | PASS |  |
 | C33 | Citizen | Sponsor wall renders | PASS |  |
 | C35 | Citizen | Coach mark dismiss sets flag | PASS | already dismissed |
-| N01 | NGO | Lead demo login | PASS |  |
-| N02 | NGO | Coordinator hub opens | PASS |  |
-| N03 | NGO | Coordinator pledges list | PASS |  |
-| N04 | NGO | Log community cleanup | PASS |  |
-| N05 | NGO | Mark pledge delivered | PASS |  |
-| N06 | NGO | Verify volunteer hours | PASS |  |
-| N07 | NGO | Persona bar lead styling | PASS |  |
-| N08 | NGO | Exit NGO mode | PASS |  |
-| A01 | BMC | Admin demo login | PASS |  |
-| A02 | BMC | Admin queue opens | PASS |  |
-| A03 | BMC | Queue ward filter options | PASS |  |
-| A04 | BMC | Queue sort options | PASS |  |
-| A05 | BMC | Copy for 1916 | PASS |  |
-| A06 | BMC | CSV export button present | PASS |  |
-| A07 | BMC | Resolve requires proof photo | PASS |  |
-| A08 | BMC | App health panel element | PASS |  |
-| A09 | BMC | Admin persona bar text | PASS |  |
+| ERR-NGO/Admin | System | Suite NGO/Admin crashed | **FAIL** | Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#btnLeadSubmit")
+    - locator resolved to <but |
 | E01 | Edge | Corrupt reports JSON recovery | PASS |  |
 | E02 | Edge | Corrupt user JSON -> default user | PASS |  |
 | E03 | Edge | i18n keys render | PASS |  |
@@ -127,7 +118,7 @@ _None_
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
 | L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 4ms |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 7ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |

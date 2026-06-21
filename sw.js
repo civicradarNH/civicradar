@@ -1,4 +1,4 @@
-const CACHE = 'civicradar-v47';
+const CACHE = 'civicradar-v48';
 // Runtime config — never precache; always fetch fresh (see network-first below).
 const NETWORK_FIRST = ['/js/config.js'];
 const ASSETS = [

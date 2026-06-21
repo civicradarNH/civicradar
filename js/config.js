@@ -119,12 +119,12 @@ window.CIVICRADAR_CONFIG = {
     // **[YOU]** Nilesh's email — legal/hosting contact until founder turns 18
     operatorEmail: 'nilesh.hadawale@gmail.com',
     operatorRelation: 'Parent / legal operator until founder turns 18',
-    tagline: 'Community hazard map for Mumbai monsoon — built from New Jersey with family on the ground.',
-    story: 'CivicRadar was built by Nihira Hadawale, a high school student in New Jersey with family in Mumbai, to help neighbours see and report stagnant-water hazards each monsoon. Every year I hear from relatives about dengue in their wards — from far away, I wanted to help in a way that lasts. CivicRadar is a free community app: ward map pins, Me too corroboration, and volunteer cleanup logging. Official BMC filing is an optional next step when you want the government clock — not a BMC product, just tools I wish my family\'s neighbourhoods had years ago.',
+    tagline: 'Community hazard map for Mumbai, Pune & Thane monsoon — built from New Jersey with family on the ground.',
+    story: 'CivicRadar was built by Nihira Hadawale, a high school student in New Jersey with family in Mumbai, to help neighbours see and report stagnant-water hazards each monsoon across Mumbai, Pune, and Thane. Every year I hear from relatives about dengue in their wards — from far away, I wanted to help in a way that lasts. CivicRadar is a free community app: ward map pins, Me too corroboration, and volunteer cleanup logging. Official corporation filing (BMC, PMC, or TMC) is an optional next step when you want the government clock — not a government product, just tools I wish my family\'s neighbourhoods had years ago.',
     highlights: [
-      'Built for Mumbai wards where family and community face dengue from stagnant water each monsoon',
+      'Built for Mumbai, Pune, and Thane wards facing dengue from stagnant water each monsoon',
       'Community-first ward map with Me too corroboration and volunteer cleanup logging',
-      'Optional BMC filing when you choose (1916, MyBMC, Aaple Sarkar) — with complaint number tracking',
+      'Optional corporation filing when you choose (BMC 1916/MyBMC, PMC CARE, TMC portal) — with complaint number tracking',
       '4-language UI (English, Hindi, Marathi, Gujarati) for inclusive access',
       'PWA with offline support — works on basic phones without an app store',
       'NGO coordinator hub for pledges, volunteer hours, and community cleanup dispatch',
@@ -159,7 +159,7 @@ window.CIVICRADAR_CONFIG = {
     ],
     // **[OPTIONAL]** defaults to founder.email if empty
     partnerInquiryEmail: '',  // e.g. 'partners@yourdomain.com'
-    partnerNote: 'CivicRadar stays free for Mumbai residents. Local partners help with hosting, moderation, and ward outreach — never paywalls on public safety.',
+    partnerNote: 'CivicRadar stays free for Mumbai, Pune, and Thane residents. Local partners help with hosting, moderation, and ward outreach — never paywalls on public safety.',
   },
 
   /* ----- Scale & free-tier limits (tune as you grow — see ARCHITECTURE.md) ----- */

@@ -184,6 +184,7 @@ async def goto_app(page, query='', wait_map=False):
           }
         }"""
     )
+    await ensure_local_mode(page)
     await page.wait_for_function('() => typeof window.openReportModal === "function"', timeout=30000)
     await page.evaluate(
         '() => { if (window.CIVICRADAR_CONFIG) window.CIVICRADAR_CONFIG.moderation = { enabled: false }; }'
@@ -265,19 +266,37 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
     return rid
 
 
+async def ensure_local_mode(page):
+    """Force local/demo auth — config.js may restore Supabase keys after init-script bypass."""
+    await page.evaluate(
+        """() => {
+          if (window.CIVICRADAR_CONFIG) {
+            window.CIVICRADAR_CONFIG.supabaseUrl = '';
+            window.CIVICRADAR_CONFIG.supabaseAnonKey = '';
+          }
+          if (window.Backend) window.Backend.enabled = false;
+          if (typeof updateAuthMode === 'function') updateAuthMode();
+        }"""
+    )
+
+
 async def login_admin(page):
+    await ensure_local_mode(page)
     await page.evaluate('() => window.openAdminModal()')
+    await page.wait_for_timeout(200)
     await page.fill('#adminUser', 'admin')
     await page.fill('#adminPass', 'password')
-    await page.click('#btnAdminSubmit')
+    await js_click(page, '#btnAdminSubmit')
     await page.wait_for_timeout(500)
 
 
 async def login_lead(page):
+    await ensure_local_mode(page)
     await page.evaluate('() => window.openLeadModal()')
+    await page.wait_for_timeout(200)
     await page.fill('#leadUser', 'lead')
     await page.fill('#leadPass', 'password')
-    await page.click('#btnLeadSubmit')
+    await js_click(page, '#btnLeadSubmit')
     await page.wait_for_timeout(500)
 
 
@@ -961,6 +980,7 @@ def write_report(s: Suite, path: Path):
         '- `js/app.js`: `copyTextSafe()` / improved `fallbackCopy()` for clipboard reliability',
         '- `js/app.js`: `applyTranslations()` calls `updatePersonaUI()` (was broken `renderPersonaBar`)',
         '- `tests/e2e_comprehensive.py`: E09 checks analytics opt-in checkbox (separate from ToS)',
+        '- `tests/e2e_comprehensive.py`: `ensure_local_mode()` stabilizes NGO/BMC demo login when Supabase configured',
         '- `js/app.js`: BMC pilot gated to Mumbai; admin queue scoped to Mumbai reports',
         '- `js/app.js`: NGO grantLeadAccess sets city from invite assignment',
         '- `tests/e2e_comprehensive.py`: C34/C34b Pune citizen BMC entry hidden',
