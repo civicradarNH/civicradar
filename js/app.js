@@ -222,6 +222,15 @@ document.addEventListener('DOMContentLoaded', function () {
     return city.corpChannels || {};
   }
 
+  function getCorpShortName(cityId) {
+    const corp = getCityCorpChannels(cityId);
+    return corp.name || getCityLabel(cityId);
+  }
+
+  function getComplaintRefPrefix(cityId) {
+    return getCorpShortName(cityId);
+  }
+
   function getReportCity(report) {
     if (report && report.city && CITIES[report.city]) return report.city;
     if (report && report.ward && window.CivicWardDetect && CivicWardDetect.isKnownWard) {
@@ -450,6 +459,72 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.corpBtn': 'Open {corp} portal',
       'esc.corpSubtitle': 'CivicRadar shows hazards on the community map. Filing with your local corporation is optional — it starts the official clock.',
       'esc.titleCorp': 'File with {corp} (optional)',
+      'esc.tmc.recommended': 'Recommended: file on thanecity.gov.in or call TMC helpline 022-25331590.',
+      'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — use any official TMC channel below.',
+      'esc.tmc.channelPortal': 'TMC online portal',
+      'esc.tmc.channelCall': 'TMC helpline',
+      'esc.tmc.channelEmail': 'Email Municipal Commissioner',
+      'esc.tmc.channelTweet': 'Tag @TMCaTweetAway',
+      'esc.tmc.channelCitizenCall': 'Citizen Call Center (155300)',
+      'esc.tmc.copyBlock': 'Details for TMC portal / helpline / email',
+      'esc.tmc.copyAllDone': 'Copied — paste when you file with TMC',
+      'esc.tmc.portalHint': 'On thanecity.gov.in: login → Online citizen services → File a complaint. Paste details below.',
+      'esc.tmc.filedConsent': 'I filed on an official TMC channel (portal / helpline / email / 155300 / Aaple Sarkar)',
+      'esc.tmc.complaintLabel': 'TMC complaint / reference number',
+      'esc.tmc.complaintPh': 'e.g. TMC/2026/123456',
+      'esc.tmc.complaintWarn': 'This doesn’t look like a typical TMC reference — you can still save if it’s correct.',
+      'esc.tmc.filedNote': 'Filed with TMC — escalation steps unlock as deadlines pass.',
+      'esc.tmc.daysSince': '{n} days since you filed with TMC',
+      'esc.tmc.selfTitle': 'TMC fixed it?',
+      'esc.tmc.selfBody': 'Confirm yourself once TMC fixes it (your complaint number is proof). Turns the pin green for everyone.',
+      'esc.tmc.aaple': 'Aaple Sarkar — select TMC as local body',
+      'esc.tmc.deptTitle': 'Department contacts (escalation)',
+      'esc.tmc.deptHint': 'For stagnant-water follow-ups — Water, Health, or Pollution Control.',
+      'esc.tmc.dept.water': 'Water',
+      'esc.tmc.dept.health': 'Health',
+      'esc.tmc.dept.pollution': 'Pollution Control',
+      'esc.tmc.tier.file.body': 'Free. File on thanecity.gov.in, call 022-25331590 / 022-25331211, email mc@thanecity.gov.in, or use Citizen Call Center 155300. Save your reference number here.',
+      'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department (022-25332685). Quote your TMC reference number.',
+      'esc.tmc.tier.zonal.body': 'Escalate to the Municipal Commissioner (mc@thanecity.gov.in). Tag @TMCaTweetAway on X with the photo for public visibility.',
+      'esc.tmc.tier.grievance.body': 'Still ignored after a month? File with Aaple Sarkar (grievances.maharashtra.gov.in) — select Thane Municipal Corporation as local body.',
+      'esc.tmc.tier.openCall': 'Call TMC',
+      'esc.tmc.tier.openTweet': 'Tag @TMCaTweetAway',
+      'esc.tmc.tier.openEmail': 'Email MC',
+      'esc.tmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.tmc.consentRequired': 'Confirm you filed on an official TMC channel before saving.',
+      'esc.pmc.subtitle': 'CivicRadar shows hazards on the community map. Filing with PMC is your choice — it starts the official clock. This is not a PMC channel.',
+      'esc.pmc.recommended': 'Recommended: PMC CARE WhatsApp — fastest for most Pune wards.',
+      'esc.pmc.fileHint': 'Stagnant water and mosquito breeding go through PMC CARE. Use any channel:',
+      'esc.pmc.channelWa': 'PMC CARE WhatsApp',
+      'esc.pmc.channelWaSmall': 'Chat · pre-fill below',
+      'esc.pmc.channelCall': 'Toll-free helpline',
+      'esc.pmc.channelPortal': 'PMC CARE portal',
+      'esc.pmc.channelApp': 'PMC CARE app',
+      'esc.pmc.channelAppSmall': 'Play Store · App Store (replaces PuneConnect)',
+      'esc.pmc.copyBlock': 'Details for PMC CARE / WhatsApp / helpline',
+      'esc.pmc.copyAllDone': 'Copied — paste when you file on PMC CARE, WhatsApp, or the helpline',
+      'esc.pmc.portalHint': 'On PMC CARE portal or app: register a grievance for stagnant water / mosquito breeding. Paste the details below.',
+      'esc.pmc.filedConsent': 'I filed on an official PMC channel (PMC CARE / WhatsApp / helpline / app)',
+      'esc.pmc.complaintLabel': 'PMC complaint / reference number',
+      'esc.pmc.complaintPh': 'e.g. PMC/2026/123456',
+      'esc.pmc.complaintWarn': 'This doesn’t look like a typical PMC reference — you can still save if it’s correct.',
+      'esc.pmc.filedNote': 'Filed with PMC — escalation steps unlock as deadlines pass.',
+      'esc.pmc.daysSince': '{n} days since you filed with PMC',
+      'esc.pmc.selfTitle': 'PMC fixed it?',
+      'esc.pmc.selfBody': 'Confirm yourself once PMC fixes it (your complaint number is proof). Turns the pin green for everyone.',
+      'esc.pmc.tier.file.body': 'Free. File on PMC CARE portal, WhatsApp, toll-free 1800 1030 222, or the PMC CARE app. Save your reference number here.',
+      'esc.pmc.tier.matrix.body': 'Follow up via PMC CARE or the toll-free helpline, quoting your complaint number.',
+      'esc.pmc.tier.zonal.body': 'Escalate through PMC CARE portal or WhatsApp if your ward has not acted.',
+      'esc.pmc.tier.grievance.body': 'Still ignored after a month? File with Aaple Sarkar (grievances.maharashtra.gov.in) — select Pune Municipal Corporation as local body.',
+      'esc.pmc.tier.openWa': 'Open WhatsApp',
+      'esc.pmc.tier.openCall': 'Call PMC helpline',
+      'esc.pmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.pmc.consentRequired': 'Confirm you filed on an official PMC channel before saving.',
+      'esc.pmc.aaple': 'Aaple Sarkar — select Pune Municipal Corporation as local body',
+      'copy1916.pmc.header': 'PMC complaint details (copy & paste for PMC CARE / WhatsApp / helpline)',
+      'copy1916.pmc.complaintNotFiled': 'PMC complaint #: (not yet filed)',
+      'copy1916.pmc.complaintFiled': 'PMC complaint #: {id}',
+      'profile.fileCorp': 'File with {corp}',
       'community.title': 'Community',
       'community.subtitle': "Fix it together in {ward} — volunteer, pledge supplies, or file with BMC separately.",
       'community.subtitleActive': '{ward}: {pending} open on the map · {resolved} fixed — rally neighbours or volunteer.',
@@ -1189,6 +1264,52 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.complaintHint': 'नंबर सहेजने से जवाबदेही घड़ी शुरू होती है।', 'esc.filedNote': 'BMC में दर्ज — समय सीमा पर आगे बढ़ाएँ।',
       'esc.ladderTitle': 'आगे बढ़ाने की सीढ़ी', 'esc.selfTitle': 'BMC ने ठीक किया?', 'esc.selfBody': 'खुद पुष्टि करें — सभी के लिए हरा चिह्न।',
       'esc.selfBtn': 'हल चिह्नित करें', 'esc.aaple': 'Aaple Sarkar (राज्य)', 'esc.close': 'बंद', 'esc.save': 'सहेजें',
+      'esc.tmc.recommended': 'अनुशंसित: thanecity.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
+      'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — नीचे किसी भी आधिकारिक TMC चैनल का उपयोग करें।',
+      'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल', 'esc.tmc.channelCall': 'TMC हेल्पलाइन',
+      'esc.tmc.channelEmail': 'नगर आयुक्त को ईमेल', 'esc.tmc.channelTweet': '@TMCaTweetAway को टैग करें',
+      'esc.tmc.channelCitizenCall': 'नागरिक कॉल सेंटर (155300)',
+      'esc.tmc.copyBlock': 'TMC पोर्टल / हेल्पलाइन / ईमेल के लिए विवरण',
+      'esc.tmc.copyAllDone': 'कॉपी हो गया — TMC में दर्ज करते समय चिपकाएँ',
+      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
+      'esc.tmc.filedConsent': 'मैंने आधिकारिक TMC चैनल पर दर्ज किया (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
+      'esc.tmc.complaintLabel': 'TMC शिकायत / संदर्भ संख्या', 'esc.tmc.complaintPh': 'उदा. TMC/2026/123456',
+      'esc.tmc.complaintWarn': 'यह सामान्य TMC संदर्भ जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
+      'esc.tmc.filedNote': 'TMC में दर्ज — समय सीमा पर आगे बढ़ाएँ।', 'esc.tmc.daysSince': 'TMC में दर्ज किए {n} दिन',
+      'esc.tmc.selfTitle': 'TMC ने ठीक किया?', 'esc.tmc.selfBody': 'TMC द्वारा ठीक होने पर खुद पुष्टि करें — सभी के लिए हरा चिह्न।',
+      'esc.tmc.aaple': 'Aaple Sarkar — TMC को स्थानीय निकाय चुनें',
+      'esc.tmc.deptTitle': 'विभाग संपर्क (एस्केलेशन)', 'esc.tmc.deptHint': 'ठहरा पानी फॉलो-अप — जल, स्वास्थ्य, या प्रदूषण नियंत्रण।',
+      'esc.tmc.dept.water': 'जल', 'esc.tmc.dept.health': 'स्वास्थ्य', 'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
+      'esc.tmc.tier.file.body': 'निःशुल्क। thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, या 155300। संदर्भ संख्या यहाँ सहेजें।',
+      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय या स्वास्थ्य (022-25332685) से फॉलो-अप। TMC संदर्भ संख्या उद्धृत करें।',
+      'esc.tmc.tier.zonal.body': 'नगर आयुक्त (mc@thanecity.gov.in) तक एस्केलेट। @TMCaTweetAway पर फोटो के साथ टैग करें।',
+      'esc.tmc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar (grievances.maharashtra.gov.in) — Thane Municipal Corporation चुनें।',
+      'esc.tmc.tier.openCall': 'TMC कॉल', 'esc.tmc.tier.openTweet': '@TMCaTweetAway', 'esc.tmc.tier.openEmail': 'MC ईमेल', 'esc.tmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.tmc.consentRequired': 'सहेजने से पहले आधिकारिक TMC चैनल पर दर्ज की पुष्टि करें।',
+      'esc.pmc.subtitle': 'CivicRadar खतरे सामुदायिक मानचित्र पर दिखाता है। PMC में दर्ज करना वैकल्पिक है — यह आधिकारिक घड़ी शुरू करता है। यह PMC चैनल नहीं है।',
+      'esc.pmc.recommended': 'अनुशंसित: PMC CARE WhatsApp — अधिकांश Pune वार्डों के लिए सबसे तेज़।',
+      'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन PMC CARE के माध्यम से जाता है। कोई भी चैनल:',
+      'esc.pmc.channelWa': 'PMC CARE WhatsApp', 'esc.pmc.channelWaSmall': 'चैट · नीचे से कॉपी',
+      'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन', 'esc.pmc.channelPortal': 'PMC CARE पोर्टल',
+      'esc.pmc.channelApp': 'PMC CARE ऐप', 'esc.pmc.channelAppSmall': 'Play Store · App Store',
+      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / हेल्पलाइन के लिए विवरण',
+      'esc.pmc.copyAllDone': 'कॉपी हो गया — PMC CARE / WhatsApp पर दर्ज करते समय चिपकाएँ',
+      'esc.pmc.portalHint': 'PMC CARE पोर्टल या ऐप: ठहरा पानी / मच्छर शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
+      'esc.pmc.filedConsent': 'मैंने आधिकारिक PMC चैनल पर दर्ज किया (PMC CARE / WhatsApp / हेल्पलाइन / ऐप)',
+      'esc.pmc.complaintLabel': 'PMC शिकायत / संदर्भ संख्या', 'esc.pmc.complaintPh': 'उदा. PMC/2026/123456',
+      'esc.pmc.complaintWarn': 'यह सामान्य PMC संदर्भ जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
+      'esc.pmc.filedNote': 'PMC में दर्ज — समय सीमा पर आगे बढ़ाएँ।', 'esc.pmc.daysSince': 'PMC में दर्ज किए {n} दिन',
+      'esc.pmc.selfTitle': 'PMC ने ठीक किया?', 'esc.pmc.selfBody': 'PMC द्वारा ठीक होने पर खुद पुष्टि करें — सभी के लिए हरा चिह्न।',
+      'esc.pmc.tier.file.body': 'निःशुल्क। PMC CARE पोर्टल, WhatsApp, 1800 1030 222, या PMC CARE ऐप। संदर्भ संख्या यहाँ सहेजें।',
+      'esc.pmc.tier.matrix.body': 'PMC CARE या टोल-फ्री हेल्पलाइन से फॉलो-अप। शिकायत संख्या उद्धृत करें।',
+      'esc.pmc.tier.zonal.body': 'वार्ड ने कार्रवाई नहीं की? PMC CARE पोर्टल या WhatsApp से एस्केलेट करें।',
+      'esc.pmc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar — Pune Municipal Corporation चुनें।',
+      'esc.pmc.tier.openWa': 'WhatsApp', 'esc.pmc.tier.openCall': 'PMC हेल्पलाइन', 'esc.pmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.pmc.consentRequired': 'सहेजने से पहले आधिकारिक PMC चैनल पर दर्ज की पुष्टि करें।',
+      'esc.pmc.aaple': 'Aaple Sarkar — Pune Municipal Corporation को स्थानीय निकाय चुनें',
+      'copy1916.pmc.header': 'PMC शिकायत विवरण (PMC CARE / WhatsApp / हेल्पलाइन पर कॉपी-पेस्ट)',
+      'copy1916.pmc.complaintNotFiled': 'PMC शिकायत #: (अभी दर्ज नहीं)', 'copy1916.pmc.complaintFiled': 'PMC शिकायत #: {id}',
+      'profile.fileCorp': '{corp} में दर्ज करें',
       'esc.tier.file.title': '1 · आधिकारिक शिकायत दर्ज करें', 'esc.tier.file.body': 'निःशुल्क। वार्ड PCO तक। नंबर यहाँ सहेजें।',
       'esc.tier.matrix.title': '2 · दिन {n}+ — वार्ड', 'esc.tier.matrix.body': '7 दिन पर BMC ऑटो-एस्केलेट। WCO / AMC से संपर्क करें।',
       'esc.tier.zonal.title': '3 · दिन {n}+ — ज़ोनल', 'esc.tier.zonal.body': 'Zonal DMC और @mybmc पर सार्वजनिक दबाव।',
@@ -1720,6 +1841,52 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.complaintHint': 'क्रमांक जतन केल्यावर जबाबदारी घड्याळ सुरू.', 'esc.filedNote': 'BMC कडे नोंद — मुदतीनुसार पुढे न्या.',
       'esc.ladderTitle': 'पुढे नेण्याची पायऱ्या', 'esc.selfTitle': 'BMC ने सोडवले?', 'esc.selfBody': 'स्वतः पुष्टी करा — सर्वांसाठी हिरवा.',
       'esc.selfBtn': 'सोडवले चिन्हांकित', 'esc.aaple': 'Aaple Sarkar (राज्य)', 'esc.close': 'बंद', 'esc.save': 'जतन',
+      'esc.tmc.recommended': 'शिफारस: thanecity.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
+      'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — खालील कोणत्याही अधिकृत TMC चॅनेल वापरा.',
+      'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल', 'esc.tmc.channelCall': 'TMC हेल्पलाइन',
+      'esc.tmc.channelEmail': 'महापालिका आयुक्ताला ईमेल', 'esc.tmc.channelTweet': '@TMCaTweetAway टॅग',
+      'esc.tmc.channelCitizenCall': 'नागरिक कॉल सेंटर (155300)',
+      'esc.tmc.copyBlock': 'TMC पोर्टल / हेल्पलाइन / ईमेलसाठी तपशील',
+      'esc.tmc.copyAllDone': 'कॉपी झाले — TMC मध्ये नोंदवताना पेस्ट करा',
+      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
+      'esc.tmc.filedConsent': 'मी अधिकृत TMC चॅनेलवर नोंदवले (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
+      'esc.tmc.complaintLabel': 'TMC तक्रार / संदर्भ क्रमांक', 'esc.tmc.complaintPh': 'उदा. TMC/2026/123456',
+      'esc.tmc.complaintWarn': 'हे सामान्य TMC संदर्भ सारखे नाही — बरोबर असल्यास जतन करा.',
+      'esc.tmc.filedNote': 'TMC मध्ये नोंदवले — मुदतीनुसार पुढे वाढवा.', 'esc.tmc.daysSince': 'TMC मध्ये नोंदवल्यापासून {n} दिवस',
+      'esc.tmc.selfTitle': 'TMC ने सोडवले?', 'esc.tmc.selfBody': 'TMC ने सोडवल्यावर स्वतः पुष्टी करा — सर्वांसाठी हिरवा चिन्ह.',
+      'esc.tmc.aaple': 'Aaple Sarkar — TMC स्थानिक संस्था निवडा',
+      'esc.tmc.deptTitle': 'विभाग संपर्क (एस्केलेशन)', 'esc.tmc.deptHint': 'स्थिर पाणी फॉलो-अप — पाणी, आरोग्य, प्रदूषण नियंत्रण.',
+      'esc.tmc.dept.water': 'पाणी', 'esc.tmc.dept.health': 'आरोग्य', 'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
+      'esc.tmc.tier.file.body': 'मोफत. thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, किंवा 155300. संदर्भ क्रमांक येथे जतन करा.',
+      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय किंवा आरोग्य (022-25332685) यांना फॉलो-अप. TMC संदर्भ क्रमांक द्या.',
+      'esc.tmc.tier.zonal.body': 'महापालिका आयुक्त (mc@thanecity.gov.in) पर्यंत वाढवा. @TMCaTweetAway वर फोटोसह टॅग.',
+      'esc.tmc.tier.grievance.body': 'एक महिन्यानंतरही? Aaple Sarkar (grievances.maharashtra.gov.in) — Thane Municipal Corporation निवडा.',
+      'esc.tmc.tier.openCall': 'TMC कॉल', 'esc.tmc.tier.openTweet': '@TMCaTweetAway', 'esc.tmc.tier.openEmail': 'MC ईमेल', 'esc.tmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.tmc.consentRequired': 'जतन करण्यापूर्वी अधिकृत TMC चॅनेलवर नोंदवल्याची पुष्टी करा.',
+      'esc.pmc.subtitle': 'CivicRadar धोके सामुदायिक नकाशावर दाखवते. PMC मध्ये नोंदवणे पर्यायी — अधिकृत घड्याळ सुरू करते. हे PMC चॅनेल नाही.',
+      'esc.pmc.recommended': 'शिफारस: PMC CARE WhatsApp — बहुतेक Pune वॉर्डांसाठी सर्वात जलद.',
+      'esc.pmc.fileHint': 'साचलेले पाणी आणि डास PMC CARE मार्फत जातात. कोणताही चॅनेल:',
+      'esc.pmc.channelWa': 'PMC CARE WhatsApp', 'esc.pmc.channelWaSmall': 'चॅट · खाली कॉपी',
+      'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन', 'esc.pmc.channelPortal': 'PMC CARE पोर्टल',
+      'esc.pmc.channelApp': 'PMC CARE अॅप', 'esc.pmc.channelAppSmall': 'Play Store · App Store',
+      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / हेल्पलाइनसाठी तपशील',
+      'esc.pmc.copyAllDone': 'कॉपी झाले — PMC CARE / WhatsApp वर नोंदवताना पेस्ट करा',
+      'esc.pmc.portalHint': 'PMC CARE पोर्टल किंवा अॅप: साचलेले पाणी / डास तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
+      'esc.pmc.filedConsent': 'मी अधिकृत PMC चॅनेलवर नोंदवले (PMC CARE / WhatsApp / हेल्पलाइन / अॅप)',
+      'esc.pmc.complaintLabel': 'PMC तक्रार / संदर्भ क्रमांक', 'esc.pmc.complaintPh': 'उदा. PMC/2026/123456',
+      'esc.pmc.complaintWarn': 'हे सामान्य PMC संदर्भ सारखे नाही — बरोबर असल्यास जतन करा.',
+      'esc.pmc.filedNote': 'PMC मध्ये नोंदवले — मुदतीनुसार पुढे वाढवा.', 'esc.pmc.daysSince': 'PMC मध्ये नोंदवल्यापासून {n} दिवस',
+      'esc.pmc.selfTitle': 'PMC ने सोडवले?', 'esc.pmc.selfBody': 'PMC ने सोडवल्यावर स्वतः पुष्टी करा — सर्वांसाठी हिरवा चिन्ह.',
+      'esc.pmc.tier.file.body': 'मोफत. PMC CARE पोर्टल, WhatsApp, 1800 1030 222, किंवा PMC CARE अॅप. संदर्भ क्रमांक येथे जतन करा.',
+      'esc.pmc.tier.matrix.body': 'PMC CARE किंवा टोल-फ्री हेल्पलाइनद्वारे फॉलो-अप. तक्रार क्रमांक द्या.',
+      'esc.pmc.tier.zonal.body': 'वॉर्डने कारवाई नाही? PMC CARE पोर्टल किंवा WhatsApp वरून वाढवा.',
+      'esc.pmc.tier.grievance.body': 'एक महिन्यानंतरही? Aaple Sarkar — Pune Municipal Corporation निवडा.',
+      'esc.pmc.tier.openWa': 'WhatsApp', 'esc.pmc.tier.openCall': 'PMC हेल्पलाइन', 'esc.pmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.pmc.consentRequired': 'जतन करण्यापूर्वी अधिकृत PMC चॅनेलवर नोंदवल्याची पुष्टी करा.',
+      'esc.pmc.aaple': 'Aaple Sarkar — Pune Municipal Corporation स्थानिक संस्था निवडा',
+      'copy1916.pmc.header': 'PMC तक्रार तपशील (PMC CARE / WhatsApp / हेल्पलाइनवर कॉपी-पेस्ट)',
+      'copy1916.pmc.complaintNotFiled': 'PMC तक्रार #: (अद्याप नोंद नाही)', 'copy1916.pmc.complaintFiled': 'PMC तक्रार #: {id}',
+      'profile.fileCorp': '{corp} कडे नोंदवा',
       'esc.tier.file.title': '1 · अधिकृत तक्रार', 'esc.tier.file.body': 'मोफत. वॉर्ड PCO. क्रमांक येथे जतन करा.',
       'esc.tier.matrix.title': '2 · दिवस {n}+ — वॉर्ड', 'esc.tier.matrix.body': '7 दिवसांवर BMC ऑटो-एस्केलेट. WCO / AMC.',
       'esc.tier.zonal.title': '3 · दिवस {n}+ — झोनल', 'esc.tier.zonal.body': 'Zonal DMC आणि @mybmc सार्वजनिक दबाव.',
@@ -2252,6 +2419,52 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.complaintHint': 'નંબર સાચવતાં જવાબદારી ઘડિયાળ શરૂ.', 'esc.filedNote': 'BMC માં નોંધ — મુદત પર આગળ.',
       'esc.ladderTitle': 'એસ્કેલેશન પગથિયાં', 'esc.selfTitle': 'BMC એ ઠીક કર્યું?', 'esc.selfBody': 'પોતે પુષ્ટિ કરો — બધા માટે લીલું.',
       'esc.selfBtn': 'ઉકેલ ચિહ્નિત', 'esc.aaple': 'Aaple Sarkar (રાજ્ય)', 'esc.close': 'બંધ', 'esc.save': 'સાચવો',
+      'esc.tmc.recommended': 'ભલામણ: thanecity.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
+      'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — નીચેના કોઈ પણ અધિકૃત TMC ચેનલનો ઉપયોગ કરો.',
+      'esc.tmc.channelPortal': 'TMC ઑનલાઇન પોર્ટલ', 'esc.tmc.channelCall': 'TMC હેલ્પલાઇન',
+      'esc.tmc.channelEmail': 'મ્યુનિસિપલ કમિશનરને ઈમેલ', 'esc.tmc.channelTweet': '@TMCaTweetAway ટૅગ',
+      'esc.tmc.channelCitizenCall': 'નાગરિક કૉલ સેન્ટર (155300)',
+      'esc.tmc.copyBlock': 'TMC પોર્ટલ / હેલ્પલાઇન / ઈમેલ માટે વિગતો',
+      'esc.tmc.copyAllDone': 'કૉપી થયું — TMC માં નોંધાવતી વખતે પેસ્ટ કરો',
+      'esc.tmc.portalHint': 'thanecity.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
+      'esc.tmc.filedConsent': 'મેં અધિકૃત TMC ચેનલ પર નોંધાવ્યું (પોર્ટલ / હેલ્પલાઇન / ઈમેલ / 155300 / Aaple Sarkar)',
+      'esc.tmc.complaintLabel': 'TMC ફરિયાદ / સંદર્ભ નંબર', 'esc.tmc.complaintPh': 'ઉદા. TMC/2026/123456',
+      'esc.tmc.complaintWarn': 'આ સામાન્ય TMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવી શકો.',
+      'esc.tmc.filedNote': 'TMC માં નોંધાવ્યું — મુદત પસાર થતાં આગળ વધારો.', 'esc.tmc.daysSince': 'TMC માં નોંધાવ્યાના {n} દિવસ',
+      'esc.tmc.selfTitle': 'TMC એ ઠીક કર્યું?', 'esc.tmc.selfBody': 'TMC ઠીક કરે ત્યારે પુષ્ટિ કરો — બધા માટે લીલો ચિહ્ન.',
+      'esc.tmc.aaple': 'Aaple Sarkar — TMC સ્થાનિક સંસ્થા પસંદ કરો',
+      'esc.tmc.deptTitle': 'વિભાગ સંપર્ક (એસ્કેલેશન)', 'esc.tmc.deptHint': 'અટકેલા પાણી માટે — પાણી, આરોગ્ય, પ્રદૂષણ નિયંત્રણ.',
+      'esc.tmc.dept.water': 'પાણી', 'esc.tmc.dept.health': 'આરોગ્ય', 'esc.tmc.dept.pollution': 'પ્રદૂષણ નિયંત્રણ',
+      'esc.tmc.tier.file.body': 'મફત. thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, અથવા 155300. સંદર્ભ અહીં સાચવો.',
+      'esc.tmc.tier.matrix.body': 'વોર્ડ ઑફિસ અથવા આરોગ્ય (022-25332685) ને ફોલો-અપ. TMC સંદર્ભ આપો.',
+      'esc.tmc.tier.zonal.body': 'મ્યુનિસિપલ કમિશનર (mc@thanecity.gov.in) સુધી એસ્કેલેટ. @TMCaTweetAway પર ફોટો સાથે ટૅગ.',
+      'esc.tmc.tier.grievance.body': 'એક મહિના પછી પણ? Aaple Sarkar (grievances.maharashtra.gov.in) — Thane Municipal Corporation પસંદ કરો.',
+      'esc.tmc.tier.openCall': 'TMC કૉલ', 'esc.tmc.tier.openTweet': '@TMCaTweetAway', 'esc.tmc.tier.openEmail': 'MC ઈમેલ', 'esc.tmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.tmc.consentRequired': 'સાચવતા પહેલાં અધિકૃત TMC ચેનલ પર નોંધાવ્યાની પુષ્ટિ કરો.',
+      'esc.pmc.subtitle': 'CivicRadar જોખમો સામુદાયિક નકશા પર બતાવે છે. PMC માં નોંધાવવું વૈકલ્પિક — અધિકૃત ઘડિયાળ શરૂ કરે. આ PMC ચેનલ નથી.',
+      'esc.pmc.recommended': 'ભલામણ: PMC CARE WhatsApp — મોટાભાગના Pune વોર્ડ માટે સૌથી ઝડપી.',
+      'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર PMC CARE દ્વારા જાય છે. કોઈ પણ ચેનલ:',
+      'esc.pmc.channelWa': 'PMC CARE WhatsApp', 'esc.pmc.channelWaSmall': 'ચેટ · નીચેથી કૉપી',
+      'esc.pmc.channelCall': 'ટોલ-ફ્રી હેલ્પલાઇન', 'esc.pmc.channelPortal': 'PMC CARE પોર્ટલ',
+      'esc.pmc.channelApp': 'PMC CARE એપ', 'esc.pmc.channelAppSmall': 'Play Store · App Store',
+      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / હેલ્પલાઇન માટે વિગતો',
+      'esc.pmc.copyAllDone': 'કૉપી થયું — PMC CARE / WhatsApp પર નોંધાવતી વખતે પેસ્ટ કરો',
+      'esc.pmc.portalHint': 'PMC CARE પોર્ટલ અથવા એપ: અટકેલા પાણી / મચ્છર ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
+      'esc.pmc.filedConsent': 'મેં અધિકૃત PMC ચેનલ પર નોંધાવ્યું (PMC CARE / WhatsApp / હેલ્પલાઇન / એપ)',
+      'esc.pmc.complaintLabel': 'PMC ફરિયાદ / સંદર્ભ નંબર', 'esc.pmc.complaintPh': 'ઉદા. PMC/2026/123456',
+      'esc.pmc.complaintWarn': 'આ સામાન્ય PMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવી શકો.',
+      'esc.pmc.filedNote': 'PMC માં નોંધાવ્યું — મુદત પસાર થતાં આગળ વધારો.', 'esc.pmc.daysSince': 'PMC માં નોંધાવ્યાના {n} દિવસ',
+      'esc.pmc.selfTitle': 'PMC એ ઠીક કર્યું?', 'esc.pmc.selfBody': 'PMC ઠીક કરે ત્યારે પુષ્ટિ કરો — બધા માટે લીલો ચિહ્ન.',
+      'esc.pmc.tier.file.body': 'મફત. PMC CARE પોર્ટલ, WhatsApp, 1800 1030 222, અથવા PMC CARE એપ. સંદર્ભ અહીં સાચવો.',
+      'esc.pmc.tier.matrix.body': 'PMC CARE અથવા ટોલ-ફ્રી હેલ્પલાઇન દ્વારા ફોલો-અપ. ફરિયાદ નંબર આપો.',
+      'esc.pmc.tier.zonal.body': 'વોર્ડે કાર્યવાહી નહીં? PMC CARE પોર્ટલ અથવા WhatsApp દ્વારા એસ્કેલેટ.',
+      'esc.pmc.tier.grievance.body': 'એક મહિના પછી પણ? Aaple Sarkar — Pune Municipal Corporation પસંદ કરો.',
+      'esc.pmc.tier.openWa': 'WhatsApp', 'esc.pmc.tier.openCall': 'PMC હેલ્પલાઇન', 'esc.pmc.tier.openAaple': 'Aaple Sarkar',
+      'esc.pmc.consentRequired': 'સાચવતા પહેલાં અધિકૃત PMC ચેનલ પર નોંધાવ્યાની પુષ્ટિ કરો.',
+      'esc.pmc.aaple': 'Aaple Sarkar — Pune Municipal Corporation સ્થાનિક સંસ્થા પસંદ કરો',
+      'copy1916.pmc.header': 'PMC ફરિયાદ વિગત (PMC CARE / WhatsApp / હેલ્પલાઇન પર કૉપી-પેસ્ટ)',
+      'copy1916.pmc.complaintNotFiled': 'PMC ફરિયાદ #: (હજુ નોંધ નથી)', 'copy1916.pmc.complaintFiled': 'PMC ફરિયાદ #: {id}',
+      'profile.fileCorp': '{corp} માં નોંધાવો',
       'esc.tier.file.title': '1 · અધિકૃત ફરિયાદ', 'esc.tier.file.body': 'મફત. વોર્ડ PCO. નંબર અહીં સાચવો.',
       'esc.tier.matrix.title': '2 · દિવસ {n}+ — વોર્ડ', 'esc.tier.matrix.body': '7 દિવસે BMC ઑટો-એસ્કેલેટ. WCO / AMC.',
       'esc.tier.zonal.title': '3 · દિવસ {n}+ — ઝોનલ', 'esc.tier.zonal.body': 'Zonal DMC અને @mybmc જાહેર દબાણ.',
@@ -4616,7 +4829,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Short status line used on report cards and the admin detail modal.
   function getClockLine(report) {
     const s = getReportStage(report);
-    if (s.filed && report.complaintId) return `BMC #${report.complaintId} · ${s.headline}`;
+    const city = getReportCity(report);
+    if (s.filed && report.complaintId) {
+      return `${getComplaintRefPrefix(city)} #${report.complaintId} · ${s.headline}`;
+    }
     return s.headline;
   }
 
@@ -5874,6 +6090,10 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#btnEscParticipate').addEventListener('click', escalationOpenParticipateMumbai);
     const btnEscCorp = $('#btnEscCorpPortal');
     if (btnEscCorp) btnEscCorp.addEventListener('click', escalationOpenCorpPortal);
+    const btnEscCorpAaple = $('#btnEscCorpAaple');
+    if (btnEscCorpAaple) btnEscCorpAaple.addEventListener('click', escalationOpenCorpAaple);
+    const escModal = $('#escalationModal');
+    if (escModal) escModal.addEventListener('click', handleCorpChannelClick);
     $('#btnEscResolveOwn').addEventListener('click', (e) => resolveOwnReport(e.currentTarget.dataset.reportId));
     $('#btnEscClose').addEventListener('click', tryCloseEscalation);
     const escLadder = $('#escLadder');
@@ -7166,11 +7386,40 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function buildFollowUpText(report, tier) {
-    const wardName = getWardShortName(report.ward) || getCityLabel(getReportCity(report));
+    const city = getReportCity(report);
+    if (city === 'thane') return buildTmcFollowUpText(report, tier);
+    if (city === 'pune') return buildPmcFollowUpText(report, tier);
+    const wardName = getWardShortName(report.ward) || getCityLabel(city);
     const wardFull = report.ward || wardName;
     const cid = report.complaintId || '(complaint number)';
     const hazard = hazardLabel(report.hazard);
     const link = reportDeepLink(report.id);
+    const corp = getCorpShortName(city);
+    if (city !== 'mumbai') {
+      if (tier === 'matrix') {
+        return [
+          `Follow-up — ${corp} complaint ${cid}`,
+          `Ward: ${wardFull}`,
+          `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+          `Request: Please escalate for pest-control / drainage action.`,
+          `CivicRadar: ${link}`,
+        ].join('\n');
+      }
+      if (tier === 'zonal') {
+        return `${corp} complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to senior officer. ${link} #CivicRadar`;
+      }
+      if (tier === 'grievance') {
+        return [
+          'RTI / grievance follow-up (informational draft — not legal advice)',
+          `Complaint reference: ${cid}`,
+          `Ward: ${wardFull}`,
+          `Subject: Status of stagnant water / pest-control complaint filed with ${corp}`,
+          `Question: Please provide current status, assigned officer, and expected resolution date.`,
+          `Citizen report: ${link}`,
+        ].join('\n');
+      }
+      return buildCitizenComplaintText(report);
+    }
     if (tier === 'matrix') {
       return [
         `Follow-up — BMC complaint ${cid}`,
@@ -7194,6 +7443,398 @@ document.addEventListener('DOMContentLoaded', function () {
       ].join('\n');
     }
     return buildCitizenComplaintText(report);
+  }
+
+  function buildTmcFollowUpText(report, tier) {
+    const wardName = getWardShortName(report.ward) || getCityLabel('thane');
+    const wardFull = report.ward || wardName;
+    const cid = report.complaintId || '(reference number)';
+    const hazard = hazardLabel(report.hazard);
+    const link = reportDeepLink(report.id);
+    if (tier === 'matrix') {
+      return [
+        `Follow-up — TMC complaint ${cid}`,
+        `Ward: ${wardFull}`,
+        `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+        `Request: Please escalate to ward office / Health dept (022-25332685) for anti-larval treatment.`,
+        `CivicRadar: ${link}`,
+      ].join('\n');
+    }
+    if (tier === 'zonal') {
+      return `@TMCaTweetAway Complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to Municipal Commissioner (mc@thanecity.gov.in). ${link} #CivicRadar #ThaneMonsoon`;
+    }
+    if (tier === 'grievance') {
+      return [
+        'Aaple Sarkar follow-up (informational draft — not legal advice)',
+        `TMC complaint reference: ${cid}`,
+        `Ward: ${wardFull}`,
+        `Local body: Thane Municipal Corporation`,
+        `Subject: Status of stagnant water / mosquito breeding complaint`,
+        `Question: Please provide current status, assigned officer, and expected resolution date.`,
+        `Citizen report: ${link}`,
+        `Portal: https://grievances.maharashtra.gov.in/en`,
+      ].join('\n');
+    }
+    return buildCitizenComplaintText(report);
+  }
+
+  function buildPmcFollowUpText(report, tier) {
+    const wardName = getWardShortName(report.ward) || getCityLabel('pune');
+    const wardFull = report.ward || wardName;
+    const cid = report.complaintId || '(reference number)';
+    const hazard = hazardLabel(report.hazard);
+    const link = reportDeepLink(report.id);
+    if (tier === 'matrix') {
+      return [
+        `Follow-up — PMC complaint ${cid}`,
+        `Ward: ${wardFull}`,
+        `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+        `Request: Please escalate via PMC CARE or toll-free helpline 1800 1030 222 for anti-larval treatment.`,
+        `CivicRadar: ${link}`,
+      ].join('\n');
+    }
+    if (tier === 'zonal') {
+      return [
+        `PMC CARE follow-up — complaint ${cid}`,
+        `Ward: ${wardFull}`,
+        `Issue: ${hazard} still unresolved after ${ESCALATION_DAYS.zonal}+ days.`,
+        `Please escalate through PMC CARE portal (pmccare.in) or WhatsApp 9689900002.`,
+        `CivicRadar: ${link}`,
+      ].join('\n');
+    }
+    if (tier === 'grievance') {
+      return [
+        'Aaple Sarkar follow-up (informational draft — not legal advice)',
+        `PMC complaint reference: ${cid}`,
+        `Ward: ${wardFull}`,
+        `Local body: Pune Municipal Corporation`,
+        `Subject: Status of stagnant water / mosquito breeding complaint`,
+        `Question: Please provide current status, assigned officer, and expected resolution date.`,
+        `Citizen report: ${link}`,
+        `Portal: https://grievances.maharashtra.gov.in/en`,
+      ].join('\n');
+    }
+    return buildCitizenComplaintText(report);
+  }
+
+  function updateEscCityLabels(city, corp) {
+    const isMumbai = city === 'mumbai';
+    const isThane = city === 'thane';
+    const isPune = city === 'pune';
+    const copyLabel = $('#escCopyBlockLabel');
+    const portalHint = $('#escPortalHint');
+    const complaintLabel = $('#escComplaintLabel');
+    const consentLabel = $('#escFiledConsentLabel');
+    const filedNoteText = $('#escFiledNoteText');
+    const selfTitle = $('#escSelfConfirm strong');
+    const selfBody = $('#escSelfConfirm p');
+    if (copyLabel) copyLabel.textContent = isThane ? t('esc.tmc.copyBlock') : isPune ? t('esc.pmc.copyBlock') : isMumbai ? t('esc.copyBlock') : t('esc.copyBlock');
+    if (portalHint) {
+      portalHint.textContent = isThane ? t('esc.tmc.portalHint') : isPune ? t('esc.pmc.portalHint') : isMumbai ? t('esc.portalHint') : t('esc.corpHint').replace('{corp}', corp.name || getCityLabel(city));
+    }
+    if (complaintLabel) complaintLabel.textContent = isThane ? t('esc.tmc.complaintLabel') : isPune ? t('esc.pmc.complaintLabel') : t('esc.complaintLabel');
+    if (consentLabel) {
+      consentLabel.textContent = isThane ? t('esc.tmc.filedConsent') : isPune ? t('esc.pmc.filedConsent') : isMumbai ? t('esc.filedConsent') : t('esc.filedConsent').replace('BMC', corp.name || getCityLabel(city));
+    }
+    if (filedNoteText) filedNoteText.textContent = isThane ? t('esc.tmc.filedNote') : isPune ? t('esc.pmc.filedNote') : isMumbai ? t('esc.filedNote') : t('esc.filedNote').replace('BMC', corp.name || getCityLabel(city));
+    if (selfTitle) selfTitle.textContent = isThane ? t('esc.tmc.selfTitle') : isPune ? t('esc.pmc.selfTitle') : isMumbai ? t('esc.selfTitle') : t('esc.selfTitle').replace('BMC', corp.name || getCityLabel(city));
+    if (selfBody) selfBody.textContent = isThane ? t('esc.tmc.selfBody') : isPune ? t('esc.pmc.selfBody') : isMumbai ? t('esc.selfBody') : t('esc.selfBody').replace('BMC', corp.name || getCityLabel(city));
+    const warnEl = $('#escComplaintWarn');
+    if (warnEl && isThane) warnEl.textContent = t('esc.tmc.complaintWarn');
+    else if (warnEl && isPune) warnEl.textContent = t('esc.pmc.complaintWarn');
+    else if (warnEl && isMumbai) warnEl.textContent = t('esc.complaintWarn');
+    const input = $('#escComplaintId');
+    if (input && isThane) input.placeholder = t('esc.tmc.complaintPh');
+    else if (input && isPune) input.placeholder = t('esc.pmc.complaintPh');
+    else if (input) input.placeholder = t('esc.complaintPh');
+  }
+
+  function renderTmcChannels(corp) {
+    const container = $('#escCorpChannels');
+    const legacyBtn = $('#btnEscCorpPortal');
+    const helplineEl = $('#escCorpHelpline');
+    const deptsWrap = $('#escCorpDepts');
+    const deptList = $('#escCorpDeptList');
+    const aapleBtn = $('#btnEscCorpAaple');
+    const recommended = $('#escCorpRecommended');
+    if (recommended) {
+      recommended.textContent = t('esc.tmc.recommended');
+      recommended.classList.remove('hidden');
+    }
+    if (legacyBtn) legacyBtn.classList.add('hidden');
+    if (helplineEl) {
+      if (corp.helplineDisplay) {
+        helplineEl.textContent = `${t('esc.tmc.channelCall')}: ${corp.helplineDisplay}`;
+        helplineEl.classList.remove('hidden');
+      } else {
+        helplineEl.classList.add('hidden');
+      }
+    }
+    if (!container) return;
+    const channels = [];
+    if (corp.grievanceUrl) {
+      channels.push({
+        type: 'portal',
+        icon: 'globe',
+        label: t('esc.tmc.channelPortal'),
+        small: 'thanecity.gov.in',
+        recommended: true,
+      });
+    }
+    if (corp.helplines && corp.helplines[0]) {
+      channels.push({
+        type: 'call',
+        phone: corp.helplines[0],
+        icon: 'phone-call',
+        label: t('esc.tmc.channelCall'),
+        small: corp.helplineDisplay || corp.helplines[0],
+      });
+    }
+    if (corp.email) {
+      channels.push({
+        type: 'email',
+        email: corp.email,
+        icon: 'envelope',
+        label: t('esc.tmc.channelEmail'),
+        small: corp.email,
+      });
+    }
+    if (corp.twitter) {
+      channels.push({
+        type: 'tweet',
+        handle: corp.twitter,
+        icon: 'x-logo',
+        label: t('esc.tmc.channelTweet'),
+        small: `@${corp.twitter}`,
+      });
+    }
+    if (corp.citizenCallCenter) {
+      channels.push({
+        type: 'call',
+        phone: corp.citizenCallCenter,
+        icon: 'headset',
+        label: t('esc.tmc.channelCitizenCall'),
+        small: corp.citizenCallCenter,
+      });
+    }
+    container.innerHTML = channels.map((ch) => {
+      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
+      const attrs = ch.type === 'call'
+        ? `data-corp-channel="call" data-corp-phone="${escapeHtml(ch.phone)}"`
+        : ch.type === 'email'
+          ? `data-corp-channel="email" data-corp-email="${escapeHtml(ch.email)}"`
+          : ch.type === 'tweet'
+            ? `data-corp-channel="tweet" data-corp-twitter="${escapeHtml(ch.handle)}"`
+            : `data-corp-channel="portal"`;
+      return `<button type="button" class="esc-channel${recCls}" ${attrs}>
+        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
+      </button>`;
+    }).join('');
+    if (deptsWrap && deptList && corp.departments && corp.departments.length) {
+      deptList.innerHTML = corp.departments.map((dept) => {
+        const label = t(`esc.tmc.dept.${dept.key}`) || dept.key;
+        const actions = [];
+        if (dept.phone) {
+          actions.push(`<button type="button" class="btn btn--outline btn--sm" data-corp-channel="call" data-corp-phone="${escapeHtml(dept.phone)}">${escapeHtml(dept.phoneDisplay || dept.phone)}</button>`);
+        }
+        if (dept.email) {
+          actions.push(`<button type="button" class="btn btn--outline btn--sm" data-corp-channel="email" data-corp-email="${escapeHtml(dept.email)}">${escapeHtml(t('esc.tmc.tier.openEmail'))}</button>`);
+        }
+        return `<li><span class="esc-dept-list__label">${escapeHtml(label)}</span><span class="esc-dept-list__actions">${actions.join('')}</span></li>`;
+      }).join('');
+      deptsWrap.classList.remove('hidden');
+    } else if (deptsWrap) {
+      deptsWrap.classList.add('hidden');
+    }
+    if (aapleBtn) aapleBtn.classList.toggle('hidden', !corp.aapleSarkarUrl);
+  }
+
+  function renderPmcChannels(corp) {
+    const container = $('#escCorpChannels');
+    const legacyBtn = $('#btnEscCorpPortal');
+    const helplineEl = $('#escCorpHelpline');
+    const deptsWrap = $('#escCorpDepts');
+    const aapleBtn = $('#btnEscCorpAaple');
+    const recommended = $('#escCorpRecommended');
+    if (recommended) {
+      recommended.textContent = t('esc.pmc.recommended');
+      recommended.classList.remove('hidden');
+    }
+    if (legacyBtn) legacyBtn.classList.add('hidden');
+    if (helplineEl) {
+      if (corp.helplineDisplay) {
+        helplineEl.textContent = `${t('esc.pmc.channelCall')}: ${corp.helplineDisplay}`;
+        helplineEl.classList.remove('hidden');
+      } else {
+        helplineEl.classList.add('hidden');
+      }
+    }
+    if (deptsWrap) deptsWrap.classList.add('hidden');
+    if (!container) return;
+    const channels = [];
+    if (corp.whatsapp) {
+      channels.push({
+        type: 'whatsapp',
+        icon: 'whatsapp-logo',
+        label: t('esc.pmc.channelWa'),
+        small: t('esc.pmc.channelWaSmall'),
+        recommended: true,
+      });
+    }
+    if (corp.grievanceUrl) {
+      channels.push({
+        type: 'portal',
+        icon: 'globe',
+        label: t('esc.pmc.channelPortal'),
+        small: 'pmccare.in',
+      });
+    }
+    if (corp.helpline) {
+      channels.push({
+        type: 'call',
+        phone: corp.helpline,
+        icon: 'phone-call',
+        label: t('esc.pmc.channelCall'),
+        small: corp.helplineDisplay || corp.helpline,
+      });
+    }
+    if (corp.playStoreUrl || corp.appStoreUrl) {
+      channels.push({
+        type: 'app',
+        icon: 'device-mobile',
+        label: t('esc.pmc.channelApp'),
+        small: t('esc.pmc.channelAppSmall'),
+      });
+    }
+    container.innerHTML = channels.map((ch) => {
+      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
+      const attrs = ch.type === 'call'
+        ? `data-corp-channel="call" data-corp-phone="${escapeHtml(ch.phone)}"`
+        : ch.type === 'whatsapp'
+          ? `data-corp-channel="whatsapp"`
+          : ch.type === 'app'
+            ? `data-corp-channel="app"`
+            : `data-corp-channel="portal"`;
+      return `<button type="button" class="esc-channel${recCls}" ${attrs}>
+        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
+      </button>`;
+    }).join('');
+    if (aapleBtn) {
+      aapleBtn.classList.toggle('hidden', !corp.aapleSarkarUrl);
+      const span = aapleBtn.querySelector('span');
+      if (span) span.textContent = t('esc.pmc.aaple');
+    }
+  }
+
+  function renderSimpleCorpChannels(corp) {
+    const container = $('#escCorpChannels');
+    const legacyBtn = $('#btnEscCorpPortal');
+    const helplineEl = $('#escCorpHelpline');
+    const deptsWrap = $('#escCorpDepts');
+    const aapleBtn = $('#btnEscCorpAaple');
+    const recommended = $('#escCorpRecommended');
+    if (recommended) recommended.classList.add('hidden');
+    if (container) container.innerHTML = '';
+    if (deptsWrap) deptsWrap.classList.add('hidden');
+    if (aapleBtn) aapleBtn.classList.add('hidden');
+    if (legacyBtn) legacyBtn.classList.toggle('hidden', !corp.grievanceUrl);
+    if (helplineEl) {
+      if (corp.helpline) {
+        helplineEl.textContent = `Helpline: ${corp.helpline}`;
+        helplineEl.classList.remove('hidden');
+      } else {
+        helplineEl.classList.add('hidden');
+      }
+    }
+  }
+
+  function openCorpWhatsApp(report, corp) {
+    const wa = corp && corp.whatsapp;
+    if (!wa) return;
+    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Stagnant water hazard in Pune.');
+    window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
+  }
+
+  function openCorpApp(corp) {
+    if (!corp) return;
+    const ua = navigator.userAgent || '';
+    let url = corp.playStoreUrl || corp.playStoreSearchUrl;
+    if (/iPhone|iPad|iPod/i.test(ua) && corp.appStoreUrl) url = corp.appStoreUrl;
+    else if (/Android/i.test(ua) && corp.playStoreUrl) url = corp.playStoreUrl;
+    if (url) window.open(url, '_blank');
+  }
+
+  function openCorpPhone(phone) {
+    if (!phone) return;
+    const digits = String(phone).replace(/\D/g, '');
+    window.open(`tel:${digits}`, '_self');
+  }
+
+  function openCorpEmail(email, report) {
+    if (!email) return;
+    const subject = encodeURIComponent(`Stagnant water complaint — ${getWardShortName(report?.ward) || 'Thane'}`);
+    const body = encodeURIComponent(report ? buildCitizenComplaintText(report) : '');
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
+  }
+
+  function openCorpTweet(handle, report, tier) {
+    const h = handle || 'TMCaTweetAway';
+    const text = encodeURIComponent(report ? buildFollowUpText(report, tier || 'zonal') : `Stagnant water hazard in Thane. @${h} #CivicRadar`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  }
+
+  function handleCorpChannelClick(e) {
+    const btn = e.target.closest('[data-corp-channel]');
+    if (!btn) return;
+    const report = findReportById(activeEscalationId);
+    const ch = btn.dataset.corpChannel;
+    const city = getReportCity(report || {});
+    const corp = getCityCorpChannels(city);
+    if (ch === 'portal') escalationOpenCorpPortal();
+    else if (ch === 'whatsapp') openCorpWhatsApp(report, corp);
+    else if (ch === 'app') openCorpApp(corp);
+    else if (ch === 'call') openCorpPhone(btn.dataset.corpPhone);
+    else if (ch === 'email') openCorpEmail(btn.dataset.corpEmail, report);
+    else if (ch === 'tweet') openCorpTweet(btn.dataset.corpTwitter || corp.twitter, report);
+  }
+
+  function escalationOpenCorpAaple() {
+    const report = findReportById(activeEscalationId);
+    const corp = getCityCorpChannels(getReportCity(report || {}));
+    const url = corp.aapleSarkarUrl || BMC.aapleSarkar;
+    window.open(url, '_blank');
+  }
+
+  function getEscTierCopy(city, tierKey) {
+    if (city === 'thane' && tierKey !== 'file') {
+      const tmcKey = `esc.tmc.tier.${tierKey}.body`;
+      if (I18N[LANG] && I18N[LANG][tmcKey]) return t(tmcKey);
+    }
+    if (city === 'pune' && tierKey !== 'file') {
+      const pmcKey = `esc.pmc.tier.${tierKey}.body`;
+      if (I18N[LANG] && I18N[LANG][pmcKey]) return t(pmcKey);
+    }
+    return t(`esc.tier.${tierKey}.body`);
+  }
+
+  function getEscTierActionLabels(city, tierKey) {
+    if (city === 'thane') {
+      if (tierKey === 'matrix') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.tmc.tier.openCall'), channel: 'corp-call', phone: '02225331590' };
+      if (tierKey === 'zonal') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.tmc.tier.openTweet'), channel: 'corp-tweet' };
+      if (tierKey === 'grievance') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.tmc.tier.openAaple'), channel: 'corp-aaple' };
+    }
+    if (city === 'pune') {
+      const corp = getCityCorpChannels('pune');
+      if (tierKey === 'matrix') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.pmc.tier.openCall'), channel: 'corp-call', phone: corp.helpline || '18001030222' };
+      if (tierKey === 'zonal') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.pmc.tier.openWa'), channel: 'corp-wa' };
+      if (tierKey === 'grievance') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.pmc.tier.openAaple'), channel: 'corp-aaple' };
+    }
+    if (city !== 'mumbai') {
+      if (tierKey === 'matrix') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.tier.openCall'), channel: 'corp-portal' };
+      if (tierKey === 'zonal') return { copy: t('esc.tier.copyFollowUp'), action: t('profile.trackEscalate'), channel: 'corp-portal' };
+      if (tierKey === 'grievance') return { copy: t('esc.tier.copyFollowUp'), action: t('esc.tier.openAaple'), channel: 'corp-aaple' };
+    }
+    return null;
   }
 
   function copyEscText(text, toastKey) {
@@ -7262,23 +7903,26 @@ document.addEventListener('DOMContentLoaded', function () {
         : t('esc.titleCorp').replace('{corp}', corp.name || getCityLabel(city));
     }
     if (subtitleEl) {
-      subtitleEl.textContent = isMumbai ? t('esc.subtitle') : t('esc.corpSubtitle');
+      if (isMumbai) subtitleEl.textContent = t('esc.subtitle');
+      else if (city === 'pune') subtitleEl.textContent = t('esc.pmc.subtitle');
+      else subtitleEl.textContent = t('esc.corpSubtitle');
     }
     if (!isMumbai && corpPanel) {
       const hint = $('#escCorpHint');
-      if (hint) hint.textContent = t('esc.corpHint').replace('{corp}', corp.name || getCityLabel(city));
+      if (hint) {
+        hint.textContent = city === 'thane'
+          ? t('esc.tmc.fileHint')
+          : city === 'pune'
+            ? t('esc.pmc.fileHint')
+            : t('esc.corpHint').replace('{corp}', corp.name || getCityLabel(city));
+      }
       const btnLabel = $('#escCorpBtnLabel');
       if (btnLabel) btnLabel.textContent = t('esc.corpBtn').replace('{corp}', corp.name || getCityLabel(city));
-      const helplineEl = $('#escCorpHelpline');
-      if (helplineEl) {
-        if (corp.helpline) {
-          helplineEl.textContent = `Helpline: ${corp.helpline}`;
-          helplineEl.classList.remove('hidden');
-        } else {
-          helplineEl.classList.add('hidden');
-        }
-      }
+      if (city === 'thane') renderTmcChannels(corp);
+      else if (city === 'pune') renderPmcChannels(corp);
+      else renderSimpleCorpChannels(corp);
     }
+    updateEscCityLabels(city, corp);
     const stage = getReportStage(report);
     $('#escClock').textContent = getClockLine(report);
     $('#escComplaintId').value = report.complaintId || '';
@@ -7288,7 +7932,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const daysEl = $('#escDaysSince');
     if (daysEl) {
       if (stage.filed && report.status === 'pending') {
-        daysEl.textContent = t('esc.daysSince').replace('{n}', String(stage.days));
+        const daysKey = city === 'thane' ? 'esc.tmc.daysSince' : city === 'pune' ? 'esc.pmc.daysSince' : 'esc.daysSince';
+        daysEl.textContent = t(daysKey).replace('{n}', String(stage.days));
         daysEl.classList.remove('hidden');
       } else {
         daysEl.classList.add('hidden');
@@ -7307,26 +7952,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const days = stage.filed ? stage.days : 0;
+    const fileBody = city === 'thane' ? t('esc.tmc.tier.file.body') : city === 'pune' ? t('esc.pmc.tier.file.body') : t('esc.tier.file.body');
     const tiers = [
       {
         key: 'file', threshold: 0,
         title: t('esc.tier.file.title'),
-        body: t('esc.tier.file.body'),
+        body: fileBody,
       },
       {
         key: 'matrix', threshold: ESCALATION_DAYS.matrix,
         title: t('esc.tier.matrix.title').replace('{n}', String(ESCALATION_DAYS.matrix)),
-        body: t('esc.tier.matrix.body'),
+        body: getEscTierCopy(city, 'matrix'),
       },
       {
         key: 'zonal', threshold: ESCALATION_DAYS.zonal,
         title: t('esc.tier.zonal.title').replace('{n}', String(ESCALATION_DAYS.zonal)),
-        body: t('esc.tier.zonal.body'),
+        body: getEscTierCopy(city, 'zonal'),
       },
       {
         key: 'grievance', threshold: ESCALATION_DAYS.grievance,
         title: t('esc.tier.grievance.title').replace('{n}', String(ESCALATION_DAYS.grievance)),
-        body: t('esc.tier.grievance.body'),
+        body: getEscTierCopy(city, 'grievance'),
       },
     ];
 
@@ -7339,12 +7985,37 @@ document.addEventListener('DOMContentLoaded', function () {
         const icon = state === 'done' ? 'check-circle' : state === 'active' ? 'arrow-circle-right' : 'lock-simple';
         let actions = '';
         if (state === 'active' || (tobj.key === 'file' && !stage.filed)) {
+          const corpActions = getEscTierActionLabels(city, tobj.key);
           if (tobj.key === 'file') {
-            actions = `
+            if (isMumbai) {
+              actions = `
               <div class="esc-step__actions">
                 <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="whatsapp">${escapeHtml(t('esc.tier.openWa'))}</button>
               </div>`;
+            } else if (city === 'pune') {
+              actions = `
+              <div class="esc-step__actions">
+                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
+                <button type="button" class="btn btn--primary btn--sm" data-corp-channel="whatsapp">${escapeHtml(t('esc.pmc.tier.openWa'))}</button>
+              </div>`;
+            } else {
+              actions = `
+              <div class="esc-step__actions">
+                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
+                <button type="button" class="btn btn--primary btn--sm" data-corp-channel="portal">${escapeHtml(t('esc.corpBtn').replace('{corp}', corp.name || getCityLabel(city)))}</button>
+              </div>`;
+            }
+          } else if (corpActions) {
+            const phoneAttr = corpActions.phone ? ` data-corp-phone="${escapeHtml(corpActions.phone)}"` : '';
+            actions = `
+              <div class="esc-step__actions">
+                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="${escapeHtml(tobj.key)}">${escapeHtml(corpActions.copy)}</button>
+                <button type="button" class="btn btn--primary btn--sm" data-esc-channel="${escapeHtml(corpActions.channel)}"${phoneAttr}>${escapeHtml(corpActions.action)}</button>
+              </div>`;
+            if (tobj.key === 'grievance') {
+              actions += `<p class="esc-step__rti-note">${escapeHtml(t('esc.rtiDisclaimer'))}</p>`;
+            }
           } else if (tobj.key === 'matrix') {
             actions = `
               <div class="esc-step__actions">
@@ -7433,28 +8104,45 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleEscLadderAction(e) {
+    const corpBtn = e.target.closest('[data-corp-channel]');
+    if (corpBtn) {
+      handleCorpChannelClick(e);
+      return;
+    }
     const copyBtn = e.target.closest('[data-esc-copy]');
     if (copyBtn) {
       const report = findReportById(activeEscalationId);
       if (!report) return;
       const tier = copyBtn.dataset.escCopy;
       const text = tier === 'file' ? buildCitizenComplaintText(report) : buildFollowUpText(report, tier);
-      copyEscText(text, tier === 'file' ? 'esc.copyAllDone' : 'esc.copyFollowUpDone');
+      const copyKey = tier === 'file'
+        ? (getReportCity(report) === 'thane' ? 'esc.tmc.copyAllDone' : getReportCity(report) === 'pune' ? 'esc.pmc.copyAllDone' : 'esc.copyAllDone')
+        : 'esc.copyFollowUpDone';
+      copyEscText(text, copyKey);
       return;
     }
     const chBtn = e.target.closest('[data-esc-channel]');
     if (!chBtn) return;
     const ch = chBtn.dataset.escChannel;
+    const report = findReportById(activeEscalationId);
+    const corp = getCityCorpChannels(getReportCity(report || {}));
     if (ch === 'whatsapp') escalationFileWhatsApp();
     else if (ch === 'call') escalationFileCall();
     else if (ch === 'tweet') escalationFileTweet();
     else if (ch === 'aaple') escalationOpenAapleSarkar();
+    else if (ch === 'corp-call') openCorpPhone(chBtn.dataset.corpPhone || (corp.helplines && corp.helplines[0]));
+    else if (ch === 'corp-tweet') openCorpTweet(corp.twitter, report, 'zonal');
+    else if (ch === 'corp-aaple') escalationOpenCorpAaple();
+    else if (ch === 'corp-wa') openCorpWhatsApp(report, corp);
+    else if (ch === 'corp-portal') escalationOpenCorpPortal();
   }
 
   function copyEscAllDetails() {
     const report = findReportById(activeEscalationId);
     if (!report) return;
-    copyEscText(buildCitizenComplaintText(report), 'esc.copyAllDone');
+    const city = getReportCity(report);
+    const copyKey = city === 'thane' ? 'esc.tmc.copyAllDone' : city === 'pune' ? 'esc.pmc.copyAllDone' : 'esc.copyAllDone';
+    copyEscText(buildCitizenComplaintText(report), copyKey);
   }
 
   function saveComplaintId() {
@@ -7468,7 +8156,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const alreadyFiled = !!report.complaintId;
     const consent = $('#escFiledConsent');
     if (!alreadyFiled && consent && !consent.checked) {
-      showToast(t('esc.consentRequired'), 'error', 4000);
+      const city = getReportCity(report);
+      const consentKey = city === 'thane' ? 'esc.tmc.consentRequired' : city === 'pune' ? 'esc.pmc.consentRequired' : 'esc.consentRequired';
+      showToast(t(consentKey), 'error', 4000);
       return;
     }
     if (!looksLikeBmcComplaintId(val)) {
@@ -8142,14 +8832,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const statusText = resolved
           ? resolutionStatusLabel(r)
           : stage.filed
-            ? `BMC #${escapeHtml(r.complaintId)}`
+            ? `${getComplaintRefPrefix(getReportCity(r))} #${escapeHtml(r.complaintId)}`
             : t('profile.status.notFiled');
         const clock = !resolved
           ? `<span class="report-card__clock">${escapeHtml(getClockLine(r))}</span>`
           : '';
         let action = '';
         if (!resolved) {
-          const label = stage.filed ? t('profile.trackEscalate') : t('profile.fileBmc');
+          const rCity = getReportCity(r);
+          const label = stage.filed
+            ? t('profile.trackEscalate')
+            : (rCity === 'mumbai' ? t('profile.fileBmc') : t('profile.fileCorp').replace('{corp}', getCorpShortName(rCity)));
           const cls = stage.key === 'matrix' || stage.key === 'zonal' || stage.key === 'grievance'
             ? 'btn--primary' : 'btn--outline';
           action = `<button type="button" class="btn ${cls} btn--sm report-card__cta" data-escalate="${escapeHtml(String(r.id))}">${label}</button>`;
@@ -8430,6 +9123,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function buildBmcComplaintCopyText(report) {
+    const city = getReportCity(report);
+    const headerKey = city === 'pune' ? 'copy1916.pmc.header' : 'copy1916.header';
+    const complaintFiledKey = city === 'pune' ? 'copy1916.pmc.complaintFiled' : 'copy1916.complaintFiled';
+    const complaintNotFiledKey = city === 'pune' ? 'copy1916.pmc.complaintNotFiled' : 'copy1916.complaintNotFiled';
     const wardParts = parseWardParts(report.ward);
     const wardLine = formatWardForCopy(wardParts);
     const category = bmcCategoryLabel(report.hazard);
@@ -8437,7 +9134,7 @@ document.addEventListener('DOMContentLoaded', function () {
       day: 'numeric', month: 'short', year: 'numeric',
     });
     const lines = [
-      te('copy1916.header'),
+      te(headerKey),
       '',
       `${te('copy1916.categoryLabel')}: ${category}`,
       `${te('copy1916.wardLabel')}: ${wardLine}`,
@@ -8445,16 +9142,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (report.notes) lines.push(`${te('copy1916.landmarkLabel')}: ${report.notes}`);
     if (report.lat != null && report.lng != null) {
       lines.push(`${te('copy1916.gpsLabel')}: ${report.lat.toFixed(6)}, ${report.lng.toFixed(6)}`);
-      if (isGpsOutsideCity(report.lat, report.lng, getReportCity(report))) {
-        lines.push(te('copy1916.gpsWarning').replace('{city}', getCityLabel(getReportCity(report))));
+      if (isGpsOutsideCity(report.lat, report.lng, city)) {
+        lines.push(te('copy1916.gpsWarning').replace('{city}', getCityLabel(city)));
       }
       lines.push(`${te('copy1916.mapsLabel')}: https://maps.google.com/?q=${report.lat},${report.lng}`);
     }
     lines.push(`${te('copy1916.dateLabel')}: ${dateStr}`);
     lines.push(
       report.complaintId
-        ? te('copy1916.complaintFiled').replace('{id}', report.complaintId)
-        : te('copy1916.complaintNotFiled')
+        ? te(complaintFiledKey).replace('{id}', report.complaintId)
+        : te(complaintNotFiledKey)
     );
     const link = reportCopyDeepLink(report.id);
     const linkLine = `${te('copy1916.civicradarLinkLabel')}: ${link}`;

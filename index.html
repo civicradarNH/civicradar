@@ -819,36 +819,6 @@
         </button>
       </div>
 
-      <div class="esc-copy-block">
-        <label for="escComplaintText" class="esc-copy-block__label" data-i18n="esc.copyBlock">Details for 1916 / portal / app</label>
-        <textarea id="escComplaintText" class="esc-copy-block__text" rows="7" readonly aria-readonly="true"></textarea>
-        <p class="field-hint" data-i18n="esc.copyBilingual">For the call centre: you can read the Marathi line in the text block.</p>
-        <p class="field-hint" data-i18n="esc.portalHint">On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.</p>
-        <button type="button" class="btn btn--outline btn--sm btn--full" id="btnEscCopyAll">
-          <i class="ph ph-copy"></i> <span data-i18n="esc.copyAll">Copy all details</span>
-        </button>
-      </div>
-
-      <div class="form-group esc-complaint">
-        <label for="escComplaintId" data-i18n="esc.complaintLabel">Complaint number</label>
-        <label class="esc-consent" id="escConsentWrap">
-          <input type="checkbox" id="escFiledConsent">
-          <span data-i18n="esc.filedConsent">I filed on an official BMC channel (1916 / MyBMC / portal / app)</span>
-        </label>
-        <div class="esc-complaint__row">
-          <input type="text" id="escComplaintId" data-i18n-ph="esc.complaintPh" placeholder="e.g. N/2026/123456" autocomplete="off">
-          <button type="button" class="btn btn--primary btn--sm" id="btnEscSaveId" data-i18n="esc.save" disabled>Save</button>
-        </div>
-        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
-        <p class="field-hint" data-i18n="esc.complaintHint">Saving your complaint number starts the official clock and unlocks follow-up steps.</p>
-        <p class="field-hint" data-i18n="esc.saveUnlock">After save: escalation ladder, days-since-filed tracker, and follow-up copy templates unlock.</p>
-        <p class="field-hint hidden" id="escFiledNote"><i class="ph ph-check-circle"></i> <span data-i18n="esc.filedNote">Filed with BMC — escalation steps unlock as deadlines pass.</span></p>
-        <p class="field-hint hidden" id="escDaysSince"></p>
-      </div>
-
-      <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
-      <ul class="esc-ladder" id="escLadder"></ul>
-
       <div id="escParticipateBlock">
         <h3 class="section-title" data-i18n="esc.participate.title">Community action (optional)</h3>
         <p class="field-hint" data-i18n="esc.participate.hint">Participate Mumbai is BMC’s official portal for volunteering and CSR — not for filing pest-control complaints. Use it to join clean-ups or propose ward projects.</p>
@@ -865,14 +835,54 @@
       </div>
 
       <div id="escCorpPanel" class="hidden">
-        <h3 class="section-title" data-i18n="esc.corpTitle">File with local corporation (optional)</h3>
+        <h3 class="section-title" id="escCorpTitle" data-i18n="esc.corpTitle">File with local corporation (optional)</h3>
+        <p class="field-hint esc-recommended hidden" id="escCorpRecommended"></p>
         <p class="field-hint" id="escCorpHint" data-i18n="esc.corpHint">Use your city's official grievance portal to file stagnant-water / pest-control complaints.</p>
-        <button type="button" class="esc-channel esc-channel--wide" id="btnEscCorpPortal">
+        <div class="esc-channels" id="escCorpChannels"></div>
+        <button type="button" class="esc-channel esc-channel--wide hidden" id="btnEscCorpPortal">
           <i class="ph ph-globe"></i>
           <span id="escCorpBtnLabel" data-i18n="esc.corpBtn">Open corporation portal</span>
         </button>
         <p class="field-hint hidden" id="escCorpHelpline"></p>
+        <div id="escCorpDepts" class="hidden">
+          <h3 class="section-title" data-i18n="esc.tmc.deptTitle">Department contacts (escalation)</h3>
+          <p class="field-hint" data-i18n="esc.tmc.deptHint">For stagnant-water follow-ups — Water, Health, or Pollution Control.</p>
+          <ul class="esc-dept-list" id="escCorpDeptList"></ul>
+        </div>
+        <button type="button" class="btn btn--outline btn--full hidden" id="btnEscCorpAaple">
+          <i class="ph ph-bank"></i> <span data-i18n="esc.tmc.aaple">Aaple Sarkar — select TMC as local body</span>
+        </button>
       </div>
+
+      <div class="esc-copy-block">
+        <label for="escComplaintText" class="esc-copy-block__label" id="escCopyBlockLabel" data-i18n="esc.copyBlock">Details for 1916 / portal / app</label>
+        <textarea id="escComplaintText" class="esc-copy-block__text" rows="7" readonly aria-readonly="true"></textarea>
+        <p class="field-hint" data-i18n="esc.copyBilingual">For the call centre: you can read the Marathi line in the text block.</p>
+        <p class="field-hint" id="escPortalHint" data-i18n="esc.portalHint">On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.</p>
+        <button type="button" class="btn btn--outline btn--sm btn--full" id="btnEscCopyAll">
+          <i class="ph ph-copy"></i> <span data-i18n="esc.copyAll">Copy all details</span>
+        </button>
+      </div>
+
+      <div class="form-group esc-complaint">
+        <label for="escComplaintId" id="escComplaintLabel" data-i18n="esc.complaintLabel">Complaint number</label>
+        <label class="esc-consent" id="escConsentWrap">
+          <input type="checkbox" id="escFiledConsent">
+          <span id="escFiledConsentLabel" data-i18n="esc.filedConsent">I filed on an official BMC channel (1916 / MyBMC / portal / app)</span>
+        </label>
+        <div class="esc-complaint__row">
+          <input type="text" id="escComplaintId" data-i18n-ph="esc.complaintPh" placeholder="e.g. N/2026/123456" autocomplete="off">
+          <button type="button" class="btn btn--primary btn--sm" id="btnEscSaveId" data-i18n="esc.save" disabled>Save</button>
+        </div>
+        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
+        <p class="field-hint" data-i18n="esc.complaintHint">Saving your complaint number starts the official clock and unlocks follow-up steps.</p>
+        <p class="field-hint" data-i18n="esc.saveUnlock">After save: escalation ladder, days-since-filed tracker, and follow-up copy templates unlock.</p>
+        <p class="field-hint hidden" id="escFiledNote"><i class="ph ph-check-circle"></i> <span id="escFiledNoteText" data-i18n="esc.filedNote">Filed with BMC — escalation steps unlock as deadlines pass.</span></p>
+        <p class="field-hint hidden" id="escDaysSince"></p>
+      </div>
+
+      <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
+      <ul class="esc-ladder" id="escLadder"></ul>
 
       <div class="esc-self-confirm hidden" id="escSelfConfirm">
         <div>

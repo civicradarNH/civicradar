@@ -2685,6 +2685,33 @@ body.persona-lead .map-empty-cta {
   margin-bottom: 4px;
 }
 
+.esc-dept-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+
+.esc-dept-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  font-size: 0.8125rem;
+}
+
+.esc-dept-list__label {
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.esc-dept-list__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .esc-copy-block {
   margin: 0 0 16px;
   padding: 10px 12px;

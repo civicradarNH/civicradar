@@ -47,8 +47,17 @@ window.CIVICRADAR_CONFIG = {
       detectRadiusKm: 6,
       corpChannels: {
         name: 'PMC',
-        grievanceUrl: 'https://pmc.gov.in/en/online-grievance',
+        fullName: 'Pune Municipal Corporation',
+        // PMC CARE portal — log and track grievances online (official citizen-services link)
+        grievanceUrl: 'https://pmccare.in/cep/home',
+        whatsapp: '919689900002',
         helpline: '18001030222',
+        helplineDisplay: '1800 1030 222',
+        appName: 'PMC CARE',
+        playStoreUrl: 'https://play.google.com/store/apps/details?id=in.gov.pmc.pmccare',
+        appStoreUrl: 'https://apps.apple.com/in/app/pmc-care/id1330880892',
+        playStoreSearchUrl: 'https://play.google.com/store/search?q=PMC+CARE&c=apps',
+        aapleSarkarUrl: 'https://grievances.maharashtra.gov.in/en',
       },
     },
     thane: {
@@ -59,8 +68,21 @@ window.CIVICRADAR_CONFIG = {
       detectRadiusKm: 6,
       corpChannels: {
         name: 'TMC',
+        fullName: 'Thane Municipal Corporation',
+        // TMC citizen portal — login → Online citizen services → File a complaint
         grievanceUrl: 'https://thanecity.gov.in/',
-        helpline: '',
+        // Maharashtra Aaple Sarkar (IGRS) — select TMC as local body when filing
+        aapleSarkarUrl: 'https://grievances.maharashtra.gov.in/en',
+        helplines: ['02225331590', '02225331211'],
+        helplineDisplay: '022-25331590 · 022-25331211',
+        citizenCallCenter: '155300',
+        email: 'mc@thanecity.gov.in',
+        twitter: 'TMCaTweetAway',
+        departments: [
+          { key: 'water', phone: '02225363580', phoneDisplay: '022-25363580', email: 'ce@thanecity.gov.in' },
+          { key: 'health', phone: '02225332685', phoneDisplay: '022-25332685', email: 'mho@thanecity.gov.in' },
+          { key: 'pollution', phone: '02225362916', phoneDisplay: '022-25362916' },
+        ],
       },
     },
   },
