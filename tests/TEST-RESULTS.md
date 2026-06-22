@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-06-21 19:53:40
+**Run:** 2026-06-21 20:50:14
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 114 | **Pass:** 114 | **Fail:** 0
+**Total:** 125 | **Pass:** 125 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -25,11 +25,12 @@
 - **API:** 5 pass / 0 fail
 - **Admin:** 2 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
-- **Citizen:** 39 pass / 0 fail
+- **Celebration:** 1 pass / 0 fail
+- **Citizen:** 41 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
-- **Edge:** 16 pass / 0 fail
-- **Escalation:** 1 pass / 0 fail
+- **Edge:** 17 pass / 0 fail
+- **Escalation:** 6 pass / 0 fail
 - **Legal:** 2 pass / 0 fail
 - **Load:** 5 pass / 0 fail
 - **Map:** 4 pass / 0 fail
@@ -37,11 +38,13 @@
 - **PWA:** 2 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
+- **Pledge:** 1 pass / 0 fail
 - **Profile:** 4 pass / 0 fail
 - **Report:** 3 pass / 0 fail
 - **Storage:** 2 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
 - **UI:** 2 pass / 0 fail
+- **Volunteer:** 1 pass / 0 fail
 - **i18n:** 1 pass / 0 fail
 
 ## Failures
@@ -73,6 +76,7 @@ _None_
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
+| C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
 | C10-hi | Citizen | Language switch HI | PASS |  |
 | C10-mr | Citizen | Language switch MR | PASS |  |
 | C10-gu | Citizen | Language switch GU | PASS |  |
@@ -82,6 +86,7 @@ _None_
 | C16 | Citizen | Report submit success modal | PASS | rid=None |
 | C17 | Citizen | Success modal WhatsApp + File BMC | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
+| C19b | Citizen | PWA nudge after first report | PASS |  |
 | C19 | Citizen | Map shows markers after report | PASS | markers=2 |
 | C20 | Citizen | Duplicate nearby Me too prompt | PASS |  |
 | C21 | Citizen | Profile civic points visible | PASS |  |
@@ -130,10 +135,11 @@ _None_
 | E13 | Edge | Empty community stats zero | PASS |  |
 | E14 | Edge | Local demo sync status shown | PASS |  |
 | E15 | Edge | Map empty CTA visible | PASS |  |
+| E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
 | L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 4ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -173,3 +179,11 @@ _None_
 | X18 | Legal | Terms page linked | PASS |  |
 | X19 | Persona | Citizen default mode | PASS |  |
 | X20 | Sync | Local mode label | PASS |  |
+| X21 | Escalation | PMC modal opens (Pune) | PASS |  |
+| X22 | Escalation | TMC modal opens (Thane) | PASS |  |
+| X23 | Escalation | PMC complaint ID saved | PASS |  |
+| X26 | Escalation | TMC Aaple label after PMC | PASS |  |
+| X27 | Volunteer | Skill checkbox compact width | PASS |  |
+| X24 | Escalation | Consent checkbox compact width | PASS |  |
+| X25 | Pledge | Sticky footer present | PASS |  |
+| X28 | Celebration | Success celebrate element present | PASS |  |

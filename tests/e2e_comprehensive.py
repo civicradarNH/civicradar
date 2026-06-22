@@ -396,6 +396,15 @@ async def run_citizen_tests(s: Suite, browser):
         }"""
     )
     s.record('C34b', 'Citizen', 'Pune blocks BMC admin modal', admin_blocked)
+    pune_subtitle = await page_pune.evaluate(
+        """() => {
+          window.openCommunityModal();
+          const el = document.getElementById('communitySubtitle');
+          const txt = el ? el.textContent : '';
+          return txt.includes('PMC') && !/\\bBMC\\b/.test(txt);
+        }"""
+    )
+    s.record('C34c', 'Citizen', 'Pune community subtitle uses PMC', pune_subtitle)
     await ctx_pune.close()
 
     await page.evaluate('() => { if (!localStorage.getItem("civicradar_coach_seen")) localStorage.setItem("civicradar_coach_seen","1"); }')
@@ -949,6 +958,47 @@ async def run_extra_scenarios(s: Suite, browser):
         ('X19', 'Persona', 'Citizen default mode', '() => !window.isAdmin && !window.isLead'),
         ('X20', 'Sync', 'Local mode label', '() => (document.getElementById("syncStatus").textContent||"").length > 0'),
         ('X21', 'Escalation', 'PMC modal opens (Pune)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "pmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Aundh — Baner, Pashan", city: "pune", reporter: "Test", lat: 18.55, lng: 73.80, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
+        ('X22', 'Escalation', 'TMC modal opens (Thane)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "tmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "TMC Ward 1 — Kopri", city: "thane", reporter: "Test", lat: 19.20, lng: 72.98, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); const title = document.getElementById("escTitleText"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && title && title.textContent.includes("TMC") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
+        ('X23', 'Escalation', 'PMC complaint ID saved', """() => {
+          const uid = JSON.parse(localStorage.getItem('civicradar_user')).id;
+          const r = { id: 'pmc-save-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Aundh — Baner, Pashan', city: 'pune', reporter: 'Test', lat: 18.55, lng: 73.80, status: 'pending', timestamp: new Date().toISOString() };
+          localStorage.setItem('mosquiTrackReports', JSON.stringify([r]));
+          window.openEscalationModal(r.id);
+          const consent = document.getElementById('escFiledConsent');
+          const inp = document.getElementById('escComplaintId');
+          consent.checked = true;
+          consent.dispatchEvent(new Event('change', { bubbles: true }));
+          inp.value = 'PMC/2026/999888';
+          inp.dispatchEvent(new Event('input', { bubbles: true }));
+          document.getElementById('btnEscSaveId').click();
+          const reps = JSON.parse(localStorage.getItem('mosquiTrackReports') || '[]');
+          return reps.some(x => x.id === 'pmc-save-test' && x.complaintId === 'PMC/2026/999888' && x.filedAt);
+        }"""),
+        ('X26', 'Escalation', 'TMC Aaple label after PMC', """() => {
+          const uid = JSON.parse(localStorage.getItem('civicradar_user')).id;
+          const pmc = { id: 'pmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Aundh — Baner, Pashan', city: 'pune', reporter: 'Test', lat: 18.55, lng: 73.80, status: 'pending', timestamp: new Date().toISOString() };
+          const tmc = { id: 'tmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'TMC Ward 1 — Kopri', city: 'thane', reporter: 'Test', lat: 19.20, lng: 72.98, status: 'pending', timestamp: new Date().toISOString() };
+          localStorage.setItem('mosquiTrackReports', JSON.stringify([pmc, tmc]));
+          window.openEscalationModal('pmc-aaple-test');
+          window.openEscalationModal('tmc-aaple-test');
+          const span = document.querySelector('#btnEscCorpAaple span');
+          const txt = span ? span.textContent : '';
+          return txt.includes('TMC') && !/Pune Municipal/i.test(txt);
+        }"""),
+        ('X27', 'Volunteer', 'Skill checkbox compact width', """() => {
+          window.openVolunteerModal();
+          const cb = document.getElementById('volSkillCleanup');
+          if (!cb) return false;
+          const w = cb.getBoundingClientRect().width;
+          return w > 0 && w < 60;
+        }"""),
+        ('X24', 'Escalation', 'Consent checkbox compact width', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "esc-consent-test", reporterId: uid, hazard: "stagnant-water", ward: "G/N Ward — Dadar, Shivaji Park", city: "mumbai", reporter: "Test", lat: 19.076, lng: 72.877, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const cb = document.getElementById("escFiledConsent"); if (!cb) return false; const w = cb.getBoundingClientRect().width; return w > 0 && w < 60; }'),
+        ('X25', 'Pledge', 'Sticky footer present', '() => { window.openPledgeModal(); const m = document.getElementById("pledgeModal"); return m && !!m.querySelector(".modal__sticky-footer #btnSubmitPledge"); }'),
+        ('X28', 'Celebration', 'Success celebrate element present', '() => !!document.getElementById("successCelebrate")'),
+        ('V40', 'Viral', 'Referral welcome banner present + hidden by default', '() => { const el = document.getElementById("referralWelcome"); return !!el && el.classList.contains("hidden"); }'),
+        ('V41', 'Viral', 'Seasonal hook element present in community', '() => { window.openCommunityModal(); return !!document.getElementById("seasonHook"); }'),
+        ('V42', 'Viral', 'Ward weekly social proof line populated', '() => { window.openCommunityModal(); const el = document.getElementById("wardWeekSocial"); return !!el && el.textContent.trim().length > 0; }'),
+        ('V43', 'Viral', 'Weekly recap share shown when recent reports', '() => { window.openCommunityModal(); const b = document.getElementById("btnShareWeeklyRecap"); return !!b && !b.classList.contains("hidden"); }'),
     ]
     await page.evaluate(
         """() => {
@@ -982,18 +1032,16 @@ def write_report(s: Suite, path: Path):
         '',
         '## Fixes applied this run',
         '',
-        '- `js/app.js`: `loadUser()` clears invalid/corrupt ward values on load',
-        '- `js/app.js`: `openAdminReportModal()` string-safe id match',
-        '- `js/app.js`: `handleReportDeepLink()` toast for missing report (`toast.reportNotFound`)',
-        '- `js/app.js`: `getModCfg()` reads moderation config live at submit time',
-        '- `js/app.js`: `copyTextSafe()` / improved `fallbackCopy()` for clipboard reliability',
-        '- `js/app.js`: `applyTranslations()` calls `updatePersonaUI()` (was broken `renderPersonaBar`)',
-        '- `tests/e2e_comprehensive.py`: E09 checks analytics opt-in checkbox (separate from ToS)',
-        '- `tests/e2e_comprehensive.py`: `ensure_local_mode()` stabilizes NGO/BMC demo login when Supabase configured',
-        '- `js/app.js`: BMC pilot gated to Mumbai; admin queue scoped to Mumbai reports',
-        '- `js/app.js`: NGO grantLeadAccess sets city from invite assignment',
-        '- `tests/e2e_comprehensive.py`: C34/C34b Pune citizen BMC entry hidden',
-        '- `sw.js`: cache bump v45 → v46',
+        '- `css/styles.css`: checkbox inputs excluded from full-width form-group rule; esc-consent + volunteer checkbox sizing',
+        '- `css/styles.css`: celebration animations + `prefers-reduced-motion` guard for confetti/success pop',
+        '- `index.html`: pledge + escalation sticky footers; success celebrate line',
+        '- `js/app.js`: celebration UX (confetti milestones, share brag copy, Monsoon Guardian toast)',
+        '- `js/app.js`: `openEscalationModal` applies translations before render; PMC/TMC city labels',
+        '- `js/app.js`: TMC Aaple Sarkar label reset when switching from PMC escalation',
+        '- `js/app.js`: success icon animation skipped when `prefers-reduced-motion`',
+        '- `js/app.js`: multi-city i18n (`{corp}` community subtitle, city picker labels, celebration strings)',
+        '- `tests/e2e_comprehensive.py`: PMC/TMC escalation, complaint save, checkbox width, PWA nudge tests',
+        '- `sw.js`: cache bump → v59',
         '',
         '## Summary by category',
         '',

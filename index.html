@@ -99,6 +99,17 @@
     <i class="ph ph-crosshair"></i>
   </button>
 
+  <!-- Referral welcome (shown once when arriving via ?ref= from a neighbour) -->
+  <div id="referralWelcome" class="ref-welcome hidden" role="region" aria-labelledby="refWelcomeTitle">
+    <button type="button" class="ref-welcome__dismiss" id="btnRefWelcomeDismiss" data-i18n-aria="ref.dismiss" aria-label="Dismiss invite">&times;</button>
+    <p class="ref-welcome__title" id="refWelcomeTitle" data-i18n="ref.welcomeTitle">A neighbour invited you 👋</p>
+    <p class="ref-welcome__body" id="refWelcomeBody"></p>
+    <div class="ref-welcome__actions">
+      <button type="button" class="ref-welcome__btn ref-welcome__btn--primary" id="btnRefWelcomeReport" data-i18n="ref.welcomeReport">Report a spot</button>
+      <button type="button" class="ref-welcome__btn ref-welcome__btn--ghost" id="btnRefWelcomeMap" data-i18n="ref.welcomeCta">See the map</button>
+    </div>
+  </div>
+
   <!-- Toast notifications -->
   <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -290,6 +301,7 @@
         <i class="ph ph-check-circle"></i>
       </div>
       <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
+      <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
       <h2 id="successTitle" data-i18n="success.title">Report Logged</h2>
       <p class="success-tagline" id="successTagline" data-i18n="success.tagline">Pinned on your ward map</p>
       <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
@@ -359,6 +371,13 @@
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, or file with your corporation separately.</p>
 
+      <!-- Seasonal monsoon / festival hook (date-aware, dismissible) -->
+      <div class="season-hook hidden" id="seasonHook" role="note">
+        <i class="ph ph-cloud-rain season-hook__icon" id="seasonHookIcon" aria-hidden="true"></i>
+        <p class="season-hook__text" id="seasonHookText"></p>
+        <button type="button" class="season-hook__dismiss" id="btnSeasonHookDismiss" data-i18n-aria="season.dismiss" aria-label="Dismiss seasonal tip">&times;</button>
+      </div>
+
       <!-- Live community impact (great for demos & college portfolios) -->
       <div class="impact-stats" id="communityImpactStats" aria-live="polite">
         <div class="impact-stat"><span id="impactReports">0</span><label data-i18n="impact.reports">Reports</label></div>
@@ -367,7 +386,11 @@
         <div class="impact-stat"><span id="impactPledges">0</span><label data-i18n="impact.pledges">Pledges</label></div>
       </div>
       <p class="impact-week" id="impactWeekLine" aria-live="polite"></p>
+      <p class="ward-week-social" id="wardWeekSocial" aria-live="polite"></p>
       <p class="impact-breakdown" id="impactResolvedBreakdown" aria-live="polite"></p>
+      <button type="button" class="btn btn--whatsapp btn--full ward-recap-share hidden" id="btnShareWeeklyRecap">
+        <i class="ph ph-chart-line-up"></i> <span data-i18n="recap.share">Share weekly recap</span>
+      </button>
 
       <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
         <h3 class="success-stories__title" id="successStoriesTitle">
@@ -479,7 +502,7 @@
 
   <!-- Pledge Modal -->
   <div class="modal-overlay" id="pledgeOverlay" aria-hidden="true">
-    <div class="modal" id="pledgeModal" role="dialog" aria-labelledby="pledgeTitle">
+    <div class="modal modal--tall" id="pledgeModal" role="dialog" aria-labelledby="pledgeTitle">
       <div class="modal__handle"></div>
       <h2 id="pledgeTitle" data-i18n="pledge.title">Pledge support</h2>
       <p class="modal__subtitle" data-i18n="pledge.subtitle">Help volunteers in your ward with supplies.</p>
@@ -500,7 +523,9 @@
         <label for="pledgeMessage" data-i18n="pledge.message">Message</label>
         <textarea id="pledgeMessage" rows="3" maxlength="300" placeholder="Note for volunteers…" data-i18n-ph="pledge.messagePh"></textarea>
       </div>
-      <button type="button" class="btn btn--primary btn--full" id="btnSubmitPledge" data-i18n="pledge.submit">Submit pledge</button>
+      <div class="modal__sticky-footer">
+        <button type="button" class="btn btn--primary btn--full" id="btnSubmitPledge" data-i18n="pledge.submit">Submit pledge</button>
+      </div>
     </div>
   </div>
 
@@ -555,6 +580,8 @@
           <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
           <span aria-hidden="true">·</span>
           <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
+          <span aria-hidden="true">·</span>
+          <a id="btnPrivacyContact" href="#" data-i18n="profile.privacyContact">Privacy / grievance contact</a>
         </div>
         <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
           <i class="ph ph-trash"></i> <span data-i18n="profile.deleteData">Delete my data</span>
@@ -912,15 +939,16 @@
       <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
       <ul class="esc-ladder" id="escLadder"></ul>
 
-      <div class="esc-self-confirm hidden" id="escSelfConfirm">
-        <div>
-          <strong data-i18n="esc.selfTitle">BMC fixed it?</strong>
-          <p data-i18n="esc.selfBody">Confirm resolution yourself (your complaint number is the proof). Marks the hazard green for everyone.</p>
+      <div class="modal__sticky-footer">
+        <div class="esc-self-confirm hidden" id="escSelfConfirm">
+          <div>
+            <strong data-i18n="esc.selfTitle">BMC fixed it?</strong>
+            <p data-i18n="esc.selfBody">Confirm resolution yourself (your complaint number is the proof). Marks the hazard green for everyone.</p>
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" id="btnEscResolveOwn" data-i18n="esc.selfBtn">Mark resolved</button>
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btnEscResolveOwn" data-i18n="esc.selfBtn">Mark resolved</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnEscClose" data-i18n="esc.close">Close</button>
       </div>
-
-      <button type="button" class="btn btn--ghost btn--full" id="btnEscClose" data-i18n="esc.close">Close</button>
     </div>
   </div>
 

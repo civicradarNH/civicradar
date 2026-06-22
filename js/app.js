@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const POINTS_FIRST_SHARE = 10;
   const POINTS_COMMUNITY_RESOLVE_REPORTER = 25;
   const POINTS_FIX_CONFIRM = 10;
+  const REPORT_CELEBRATION_MILESTONES = [1, 3, 5, 10];
   const VERIFY_HOURS_BONUS = 200;
   const NEARBY_CORROB_M = 50;
   const DEFAULT_CITY = 'mumbai';
@@ -445,6 +446,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.winsCleanup': '{hazard} cleared · {ward}',
       'community.winsResolved': '{hazard} fixed · {ward}',
       'success.points': 'Civic Points earned', 'success.weekBonus': '+{n} first report this week!',
+      'success.celebrateFirst': 'You’re protecting your ward — neighbours will thank you.',
+      'success.celebrateMilestone': '{n} reports logged — your lane is safer because of you!',
+      'success.shareBrag': 'You just helped your ward — tell neighbours on WhatsApp!',
+      'success.shareBragFirst': 'First pin on the map! Share now — Monsoon Guardian energy spreads fast.',
+      'toast.badgeMonsoon': 'Welcome, Monsoon Guardian! 🛡️',
+      'confirm.meTooThanks': 'Me too counted — neighbours see the pressure building.',
+      'toast.reportMilestone': '{n} reports — keep the momentum going!',
       'map.empty': 'Clean map in {ward} — be the #MonsoonGuardian! Report stagnant water before dengue spreads.',
       'map.emptyAction': 'Report first hazard',
       'map.emptyShare': 'Invite neighbours on WhatsApp',
@@ -552,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.pmc.complaintFiled': 'PMC complaint #: {id}',
       'profile.fileCorp': 'File with {corp}',
       'community.title': 'Community',
-      'community.subtitle': "Fix it together in {ward} — volunteer, pledge supplies, or file with BMC separately.",
+      'community.subtitle': "Fix it together in {ward} — volunteer, pledge supplies, or file with {corp} separately.",
       'community.subtitleActive': '{ward}: {pending} open on the map · {resolved} fixed — rally neighbours or volunteer.',
       'community.topWards': 'Top Wards', 'community.localCitizens': 'Local Citizens',
       'community.supportTitle': 'Support Volunteers',
@@ -1010,6 +1018,23 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.health.resolved': 'Fixed',
       'about.founderDefault': 'Student founder',
       'config.contactMissing': '(Contact not configured)',
+      'ref.welcomeTitle': 'A neighbour invited you 👋',
+      'ref.welcomeBody': '{n} hazard reports already on the {city} map. See open spots in your ward — or pin one in 30 seconds.',
+      'ref.welcomeBodyEmpty': 'Be one of the first to map stagnant water in {city} this monsoon — it takes 30 seconds.',
+      'ref.welcomeCta': 'See the map',
+      'ref.welcomeReport': 'Report a spot',
+      'ref.dismiss': 'Dismiss invite',
+      'season.monsoonPrep': 'Monsoon’s coming 🌧️ Clear stagnant water early — pin spots before the first heavy rain.',
+      'season.monsoonPeak': 'Peak monsoon 🌧️ Stagnant water breeds dengue. Report spots in your ward today.',
+      'season.ganesh': 'Ganesh Chaturthi 🙏 Keep your ward clean for the festival — report stagnant water near pandals and immersion routes.',
+      'season.denguePeak': 'Dengue season ⚠️ Mosquitoes breed in still water. A 30-second report protects your lane.',
+      'season.dismiss': 'Dismiss seasonal tip',
+      'social.wardWeek': '👥 {n} neighbour(s) reported in {ward} this week',
+      'social.wardWeekBacked': '👥 {n} reported · {c} backed in {ward} this week',
+      'social.wardWeekEmpty': 'Be the first in {ward} to report this week — neighbours follow leaders.',
+      'recap.title': 'Your ward this week',
+      'recap.share': 'Share weekly recap',
+      'share.weeklyRecap': '📊 {ward} this monsoon week: {reports} new report(s), {resolved} fixed, {backed} backed by neighbours. Join us on CivicRadar 👇\n{link}\n\n{marathi}\n{hashtags}',
     },
     hi: {
       'lang.name': 'हिन्दी', 'lang.native': 'हिन्दी',
@@ -1032,6 +1057,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardHint': '{city} के {n} आधिकारिक वार्डों में से चुनें।',
       'onboard.city': 'आपका शहर',
       'onboard.cityHint': 'चुनें कि आप कहाँ रहते हैं — अगला कदम GPS से वार्ड पहचान।',
+      'city.mumbai': 'मुंबई',
+      'city.pune': 'पुणे',
+      'city.thane': 'ठाणे',
       'onboard.wardDetecting': 'आपके स्थान से वार्ड पहचाना जा रहा है…',
       'onboard.wardDetectedHint': 'GPS से अनुमानित वार्ड — आधिकारिक सीमा सर्वेक्षण नहीं।',
       'onboard.wardManual': 'गलत है? मैन्युअल चुनें',
@@ -1061,6 +1089,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.step2': 'वैकल्पिक: {corp} में दर्ज करें और शिकायत नंबर सहेजें',
       'success.step3': 'स्वयंसेवक या {corp} ठीक होने पर पुष्टि कर सकते हैं — सिविक अंक मिलेंगे',
       'success.file': 'आधिकारिक शिकायत दर्ज करें (वैकल्पिक)',
+      'success.fileCorp': '{corp} में आधिकारिक शिकायत (वैकल्पिक)',
       'success.tag': '@mybmc को टैग करें', 'success.alert': 'पड़ोसियों को सूचित करें', 'success.done': 'हो गया',
       'success.sharePrompt': 'अभी WhatsApp पर भेजें — ज़्यादा नज़र = जल्दी ठीक। डेंगू से बचना है तो शेयर करें!',
       'success.shareWhatsapp': 'WhatsApp पर साझा करें',
@@ -1102,6 +1131,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.winsCleanup': '{hazard} साफ · {ward}',
       'community.winsResolved': '{hazard} हल · {ward}',
       'success.points': 'सिविक अंक मिले', 'success.weekBonus': '+{n} इस सप्ताह की पहली रिपोर्ट!',
+      'success.celebrateFirst': 'आप अपने वार्ड की रक्षा कर रहे हैं — पड़ोसी आभारी होंगे।',
+      'success.celebrateMilestone': '{n} रिपोर्ट — आपकी गली आपकी वजह से सुरक्षित!',
+      'success.shareBrag': 'आपने अपने वार्ड की मदद की — पड़ोसियों को WhatsApp पर बताएँ!',
+      'success.shareBragFirst': 'नक्शे पर पहला पिन! अभी शेयर करें — Monsoon Guardian की ऊर्जा फैलती है।',
+      'toast.badgeMonsoon': 'स्वागत है, Monsoon Guardian! 🛡️',
+      'confirm.meTooThanks': 'Me too दर्ज — पड़ोसी दबाव देख रहे हैं।',
+      'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
       'map.empty': '{ward} में साफ नक्शा — #MonsoonGuardian बनें! डेंगू फैलने से पहले रुका पानी रिपोर्ट करें।',
       'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
       'map.emptyShare': 'WhatsApp पर पड़ोसियों को बुलाएँ',
@@ -1133,6 +1169,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.participate.hint': 'Participate Mumbai BMC का आधिकारिक स्वयंसेवा/CSR पोर्टल है — कीट नियंत्रण शिकायतों के लिए नहीं। सफाई अभियान या वार्ड परियोजनाओं के लिए उपयोग करें।',
       'esc.participate.btn': 'Participate Mumbai',
       'esc.participate.small': 'स्वयंसेवा · CSR · परियोजनाएँ',
+      'esc.corpTitle': 'स्थानीय नगर निगम में दर्ज करें (वैकल्पिक)',
+      'esc.corpHint': '{corp} के आधिकारिक पोर्टल पर ठहरा पानी / कीट नियंत्रण शिकायत दर्ज करें।',
+      'esc.corpBtn': '{corp} पोर्टल खोलें',
+      'esc.corpSubtitle': 'CivicRadar खतरे सामुदायिक मानचित्र पर दिखाता है। नगर निगम में दर्ज करना वैकल्पिक है — यह आधिकारिक घड़ी शुरू करता है।',
+      'esc.titleCorp': '{corp} में दर्ज करें (वैकल्पिक)',
       'community.title': 'समुदाय',
       'community.subtitle': '{ward} में साथ मिलकर ठीक करें — स्वयंसेवा, सामान दान, या अलग से {corp} में दर्ज करें।',
       'community.topWards': 'शीर्ष वार्ड', 'community.localCitizens': 'स्थानीय नागरिक',
@@ -1430,6 +1471,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.refId': 'संदर्भ (वैकल्पिक): CivicRadar ID {id}',
       'copy1916.wardLabel': 'वार्ड + इलाका',
       'flow.legal': 'कानूनी',
+      'flow.city': 'शहर',
       'flow.ready': 'तैयार',
       'flow.ward': 'वार्ड',
       'inquiry.coordBody': 'अपनी RWA/सोसायटी या वार्ड NGO की अगुवाई करें — स्वयंसेवक देखें, सफ़ाई मिलाएँ, दान घंटे सत्यापित करें। ऑपरेटर से इनवाइट कोड लें।',
@@ -1603,6 +1645,23 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.health.bufferedEvents': 'बफर इवेंट (डिवाइस)',
       'profile.neighbourOne': 'पड़ोसी ने मुझे भी कहा',
       'profile.neighbourMany': 'पड़ोसियों ने मुझे भी कहा',
+      'ref.welcomeTitle': 'एक पड़ोसी ने आपको बुलाया 👋',
+      'ref.welcomeBody': '{city} के नक्शे पर पहले से {n} रिपोर्ट हैं। अपने वार्ड के खुले स्पॉट देखें — या 30 सेकंड में एक पिन करें।',
+      'ref.welcomeBodyEmpty': 'इस मानसून {city} में रुके पानी का नक्शा बनाने वालों में सबसे पहले बनें — सिर्फ़ 30 सेकंड।',
+      'ref.welcomeCta': 'नक्शा देखें',
+      'ref.welcomeReport': 'स्पॉट रिपोर्ट करें',
+      'ref.dismiss': 'निमंत्रण बंद करें',
+      'season.monsoonPrep': 'मानसून आ रहा है 🌧️ पहली तेज़ बारिश से पहले रुका पानी साफ़ करें — स्पॉट पिन करें।',
+      'season.monsoonPeak': 'चरम मानसून 🌧️ रुका पानी डेंगू फैलाता है। आज अपने वार्ड में स्पॉट रिपोर्ट करें।',
+      'season.ganesh': 'गणेश चतुर्थी 🙏 त्योहार के लिए अपना वार्ड साफ़ रखें — पंडाल और विसर्जन मार्ग के पास रुका पानी रिपोर्ट करें।',
+      'season.denguePeak': 'डेंगू का मौसम ⚠️ मच्छर रुके पानी में पनपते हैं। 30 सेकंड की रिपोर्ट आपकी गली की रक्षा करती है।',
+      'season.dismiss': 'मौसमी सुझाव बंद करें',
+      'social.wardWeek': '👥 इस सप्ताह {ward} में {n} पड़ोसियों ने रिपोर्ट की',
+      'social.wardWeekBacked': '👥 इस सप्ताह {ward} में {n} रिपोर्ट · {c} समर्थन',
+      'social.wardWeekEmpty': 'इस सप्ताह {ward} में सबसे पहले रिपोर्ट करें — पड़ोसी नेताओं का अनुसरण करते हैं।',
+      'recap.title': 'इस सप्ताह आपका वार्ड',
+      'recap.share': 'साप्ताहिक सारांश शेयर करें',
+      'share.weeklyRecap': '📊 इस मानसून सप्ताह {ward}: {reports} नई रिपोर्ट, {resolved} ठीक, {backed} पड़ोसियों ने समर्थन किया। CivicRadar पर जुड़ें 👇\n{link}\n\n{marathi}\n{hashtags}',
     },
     mr: {
       'lang.name': 'मराठी', 'lang.native': 'मराठी',
@@ -1625,6 +1684,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardHint': '{city} च्या {n} अधिकृत वॉर्डांमधून निवडा.',
       'onboard.city': 'तुमचे शहर',
       'onboard.cityHint': 'कुठे राहता ते निवडा — पुढे GPS वरून वॉर्ड शोधू.',
+      'city.mumbai': 'मुंबई',
+      'city.pune': 'पुणे',
+      'city.thane': 'ठाणे',
       'onboard.wardDetecting': 'तुमच्या स्थानावरून वॉर्ड शोधत आहे…',
       'onboard.wardDetectedHint': 'GPS वरून अंदाजे वॉर्ड — अधिकृत सीमा सर्वेक्षण नाही.',
       'onboard.wardManual': 'चुकीचे? स्वतः निवडा',
@@ -1654,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.step2': 'पर्यायी: {corp} कडे नोंदवा आणि तक्रार क्रमांक जतन करा',
       'success.step3': 'स्वयंसेवक किंवा {corp} निराकरण झाल्यावर पुष्टी करू शकतात — सिव्हिक गुण मिळतील',
       'success.file': 'अधिकृत तक्रार नोंदवा (पर्यायी)',
+      'success.fileCorp': '{corp} मध्ये अधिकृत तक्रार (पर्यायी)',
       'success.tag': '@mybmc ला टॅग करा', 'success.alert': 'शेजाऱ्यांना कळवा', 'success.done': 'झाले',
       'success.sharePrompt': 'आत्ताच WhatsApp वर पाठवा — जास्त डोळे = लवकर सोडवणे. डेंगू टाळायचा असेल तर शेअर करा!',
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
@@ -1695,6 +1758,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.winsCleanup': '{hazard} साफ · {ward}',
       'community.winsResolved': '{hazard} सोडवले · {ward}',
       'success.points': 'सिव्हिक गुण मिळाले', 'success.weekBonus': '+{n} या आठवड्याची पहिली तक्रार!',
+      'success.celebrateFirst': 'तुम्ही वॉर्डचे रक्षण करत आहात — शेजारी आभारी असतील.',
+      'success.celebrateMilestone': '{n} तक्रारी — तुमच्या मुळे लेन सुरक्षित!',
+      'success.shareBrag': 'तुम्ही वॉर्डला मदत केली — शेजाऱ्यांना WhatsApp वर सांगा!',
+      'success.shareBragFirst': 'नकाशावर पहिला पिन! आत्ताच शेअर करा — Monsoon Guardian ऊर्जा पसरते.',
+      'toast.badgeMonsoon': 'स्वागत, Monsoon Guardian! 🛡️',
+      'confirm.meTooThanks': 'Me too नोंद — शेजाऱ्यांना दबाव दिसतो.',
+      'toast.reportMilestone': '{n} तक्रारी — चालू ठेवा!',
       'map.empty': '{ward} मध्ये स्वच्छ नकाशा — #MonsoonGuardian व्हा! डेंगू पसरण्यापूर्वी साचलेले पाणी रिपोर्ट करा.',
       'map.emptyAction': 'पहिला धोका रिपोर्ट करा',
       'map.emptyShare': 'WhatsApp वर शेजाऱ्यांना बोलवा',
@@ -1726,6 +1796,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.participate.hint': 'Participate Mumbai हे BMC चे अधिकृत स्वयंसेवा/CSR पोर्टल आहे — कीटक नियंत्रण तक्रारीसाठी नाही. स्वच्छता मोहिमा किंवा वॉर्ड प्रकल्पांसाठी वापरा.',
       'esc.participate.btn': 'Participate Mumbai',
       'esc.participate.small': 'स्वयंसेवा · CSR · प्रकल्प',
+      'esc.corpTitle': 'स्थानिक महानगरपालिकेत नोंदवा (पर्यायी)',
+      'esc.corpHint': '{corp} च्या अधिकृत पोर्टलवर ठिबकलेले पाणी / कीट नियंत्रण तक्रार नोंदवा.',
+      'esc.corpBtn': '{corp} पोर्टल उघडा',
+      'esc.corpSubtitle': 'CivicRadar धोके समुदाय नकाशावर दाखवते. महानगरपालिकेत नोंदवणे पर्यायी — अधिकृत घड्याळ सुरू होते.',
+      'esc.titleCorp': '{corp} मध्ये नोंदवा (पर्यायी)',
       'community.title': 'समुदाय',
       'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — स्वयंसेवा, साहित्य देणगी, किंवा वेगळ्याने {corp} कडे नोंद.',
       'community.topWards': 'अव्वल वॉर्ड', 'community.localCitizens': 'स्थानिक नागरिक',
@@ -2016,6 +2091,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.refId': 'संदर्भ (पर्यायी): CivicRadar ID {id}',
       'copy1916.wardLabel': 'वॉर्ड + परिसर',
       'flow.legal': 'कायदेशीर',
+      'flow.city': 'शहर',
       'flow.ready': 'तयार',
       'flow.ward': 'वॉर्ड',
       'inquiry.coordBody': 'RWA/सोसायटी किंवा वॉर्ड NGO चे नेतृत्व करा — स्वयंसेवक पाहा, सफाई जुळवा, देणगी तास सत्यापित करा. ऑपरेटरकडून इनवाइट कोड मागा.',
@@ -2193,6 +2269,23 @@ document.addEventListener('DOMContentLoaded', function () {
       'volunteer.skill.cleanup': 'साचलेले पाणी साफ करणे',
       'volunteer.skill.pledge': 'देणगी वितरण (साहित्य)',
       'profile.neighbourMany': 'शेजाऱ्यांनी मला पण म्हटले',
+      'ref.welcomeTitle': 'एका शेजाऱ्याने तुम्हाला बोलावले 👋',
+      'ref.welcomeBody': '{city} नकाशावर आधीच {n} तक्रारी आहेत. तुमच्या वॉर्डमधील खुले स्पॉट पाहा — किंवा 30 सेकंदात एक पिन करा.',
+      'ref.welcomeBodyEmpty': 'या पावसाळ्यात {city} मध्ये साचलेल्या पाण्याचा नकाशा करणाऱ्यांत पहिले व्हा — फक्त 30 सेकंद.',
+      'ref.welcomeCta': 'नकाशा पाहा',
+      'ref.welcomeReport': 'स्पॉट नोंदवा',
+      'ref.dismiss': 'आमंत्रण बंद करा',
+      'season.monsoonPrep': 'पावसाळा येतोय 🌧️ पहिल्या जोरदार पावसाआधी साचलेले पाणी साफ करा — स्पॉट पिन करा.',
+      'season.monsoonPeak': 'ऐन पावसाळा 🌧️ साचलेले पाणी डेंग्यू पसरवते. आज तुमच्या वॉर्डमध्ये स्पॉट नोंदवा.',
+      'season.ganesh': 'गणेश चतुर्थी 🙏 सणासाठी तुमचा वॉर्ड स्वच्छ ठेवा — मंडप व विसर्जन मार्गाजवळ साचलेले पाणी नोंदवा.',
+      'season.denguePeak': 'डेंग्यूचा हंगाम ⚠️ डास साचलेल्या पाण्यात वाढतात. 30 सेकंदांची तक्रार तुमची गल्ली वाचवते.',
+      'season.dismiss': 'हंगामी सूचना बंद करा',
+      'social.wardWeek': '👥 या आठवड्यात {ward} मध्ये {n} शेजाऱ्यांनी नोंद केली',
+      'social.wardWeekBacked': '👥 या आठवड्यात {ward}: {n} नोंदी · {c} पाठिंबा',
+      'social.wardWeekEmpty': 'या आठवड्यात {ward} मध्ये पहिली नोंद करा — शेजारी नेत्यांचे अनुसरण करतात.',
+      'recap.title': 'या आठवड्यात तुमचा वॉर्ड',
+      'recap.share': 'साप्ताहिक आढावा शेअर करा',
+      'share.weeklyRecap': '📊 या पावसाळी आठवड्यात {ward}: {reports} नवीन तक्रारी, {resolved} दुरुस्त, {backed} शेजाऱ्यांचा पाठिंबा. CivicRadar वर सामील व्हा 👇\n{link}\n\n{marathi}\n{hashtags}',
     },    gu: {
       'lang.name': 'Gujarati', 'lang.native': 'ગુજરાતી',
       'nav.map': 'નકશો', 'nav.community': 'સમુદાય', 'nav.profile': 'પ્રોફાઇલ',
@@ -2214,6 +2307,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardHint': '{city}ના {n} સત્તાવાર વોર્ડમાંથી પસંદ કરો.',
       'onboard.city': 'તમારું શહેર',
       'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછી GPS થી વોર્ડ શોધીશું.',
+      'city.mumbai': 'મુંબઈ',
+      'city.pune': 'પુણે',
+      'city.thane': 'ઠાણે',
       'onboard.wardDetecting': 'તમારા સ્થાનથી વોર્ડ શોધી રહ્યા છીએ…',
       'onboard.wardDetectedHint': 'GPS થી અંદાજિત વોર્ડ — અધિકૃત સીમા સર્વેક્ષણ નથી.',
       'onboard.wardManual': 'ખોટું? જાતે પસંદ કરો',
@@ -2243,6 +2339,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.step2': 'વૈકલ્પિક: {corp} પર નોંધાવો અને ફરિયાદ નંબર સાચવો',
       'success.step3': 'સ્વયંસેવકો અથવા {corp} ઠીક થાય ત્યારે પુષ્ટિ કરી શકે — સિવિક પોઈન્ટ મળે',
       'success.file': 'અધિકૃત ફરિયાદ નોંધાવો (વૈકલ્પિક)',
+      'success.fileCorp': '{corp} માં અધિકૃત ફરિયાદ (વૈકલ્પિક)',
       'success.tag': '@mybmc ને ટૅગ કરો', 'success.alert': 'પડોશીઓને જાણ કરો', 'success.done': 'થઈ ગયું',
       'success.sharePrompt': 'હમણાં WhatsApp પર મોકલો — વધુ નજર = ઝડપથી ઠીક. ડેંગુ ટાળવું હોય તો શેર કરો!',
       'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
@@ -2284,6 +2381,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.winsCleanup': '{hazard} સાફ · {ward}',
       'community.winsResolved': '{hazard} ઉકેલાયું · {ward}',
       'success.points': 'સિવિક પોઈન્ટ મળ્યા', 'success.weekBonus': '+{n} આ અઠવાડિયાની પહેલી ફરિયાદ!',
+      'success.celebrateFirst': 'તમે વોર્ડનું રક્ષણ કરો છો — પડોશીઓ આભારી રહેશે.',
+      'success.celebrateMilestone': '{n} ફરિયાદો — તમારા કારણે લેન સુરક્ષિત!',
+      'success.shareBrag': 'તમે વોર્ડને મદદ કરી — પડોશીઓને WhatsApp પર કહો!',
+      'success.shareBragFirst': 'નકશા પર પહેલું પિન! હમણાં શેર કરો — Monsoon Guardian ઊર્જા ફેલાય.',
+      'toast.badgeMonsoon': 'સ્વાગત, Monsoon Guardian! 🛡️',
+      'confirm.meTooThanks': 'Me too નોંધાયું — પડોશીઓ દબાણ જોઈ રહ્યા છે.',
+      'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
       'map.empty': '{ward} માં સ્વચ્છ નકશો — #MonsoonGuardian બનો! ડેંગુ ફેલાય તે પહેલાં ભરાયેલું પાણી રિપોર્ટ કરો.',
       'map.emptyAction': 'પહેલો જોખમ રિપોર્ટ કરો',
       'map.emptyShare': 'WhatsApp પર પડોશીઓને બોલાવો',
@@ -2315,6 +2419,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.participate.hint': 'Participate Mumbai BMC નું અધિકૃત સ્વયંસેવા/CSR પોર્ટલ છે — જંતુ નિયંત્રણ ફરિયાદો માટે નહીં. સફાઈ અભિયાન અથવા વોર્ડ પ્રોજેક્ટ માટે વાપરો.',
       'esc.participate.btn': 'Participate Mumbai',
       'esc.participate.small': 'સ્વયંસેવા · CSR · પ્રોજેક્ટ',
+      'esc.corpTitle': 'સ્થાનિક મહાનગરપાલિકામાં નોંધાવો (વૈકલ્પિક)',
+      'esc.corpHint': '{corp} ના અધિકૃત પોર્ટલ પર ઠેર પાણી / કીટ નિયંત્રણ ફરિયાદ નોંધાવો.',
+      'esc.corpBtn': '{corp} પોર્ટલ ખોલો',
+      'esc.corpSubtitle': 'CivicRadar જોખમો સમુદાય નકશા પર બતાવે છે. મહાનગરપાલિકામાં નોંધવું વૈકલ્પિક — અધિકૃત ઘડિયાળ શરૂ થાય.',
+      'esc.titleCorp': '{corp} માં નોંધાવો (વૈકલ્પિક)',
       'community.title': 'સમુદાય',
       'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — સ્વયંસેવા, સામગ્રી દાન, અથવા અલગથી {corp} પર નોંધ.',
       'community.topWards': 'ટોચના વોર્ડ', 'community.localCitizens': 'સ્થાનિક નાગરિકો',
@@ -2603,6 +2712,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.refId': 'સંદર્ભ (વૈકલ્પિક): CivicRadar ID {id}',
       'copy1916.wardLabel': 'વોર્ડ + વિસ્તાર',
       'flow.legal': 'કાયદાકીય',
+      'flow.city': 'શહેર',
       'flow.ready': 'તૈયાર',
       'flow.ward': 'વોર્ડ',
       'inquiry.coordBody': 'RWA/સોસાયટી અથવા વોર્ડ NGO નું નેતૃત્વ કરો — સ્વયંસેવક જુઓ, સફાઈ મેળવો, દાન કલાક ચકાસો. ઑપરેટર પાસેથી ઇનવાઇટ કોડ માંગો.',
@@ -2780,6 +2890,23 @@ document.addEventListener('DOMContentLoaded', function () {
       'volunteer.skill.cleanup': 'ભરાયેલું પાણી સાફ કરવું',
       'volunteer.skill.pledge': 'દાન વિતરણ (સામગ્રી)',
       'profile.neighbourMany': 'પડોશીઓએ મને પણ કહ્યું',
+      'ref.welcomeTitle': 'એક પડોશીએ તમને આમંત્રણ આપ્યું 👋',
+      'ref.welcomeBody': '{city} નકશા પર પહેલેથી {n} ફરિયાદ છે. તમારા વોર્ડના ખુલ્લા સ્પોટ જુઓ — અથવા 30 સેકન્ડમાં એક પિન કરો.',
+      'ref.welcomeBodyEmpty': 'આ ચોમાસામાં {city} માં ભરાયેલા પાણીનો નકશો બનાવનારાઓમાં પહેલા બનો — માત્ર 30 સેકન્ડ.',
+      'ref.welcomeCta': 'નકશો જુઓ',
+      'ref.welcomeReport': 'સ્પોટ નોંધો',
+      'ref.dismiss': 'આમંત્રણ બંધ કરો',
+      'season.monsoonPrep': 'ચોમાસું આવી રહ્યું છે 🌧️ પહેલા ભારે વરસાદ પહેલાં ભરાયેલું પાણી સાફ કરો — સ્પોટ પિન કરો.',
+      'season.monsoonPeak': 'ભરચોમાસું 🌧️ ભરાયેલું પાણી ડેન્ગ્યુ ફેલાવે છે. આજે તમારા વોર્ડમાં સ્પોટ નોંધો.',
+      'season.ganesh': 'ગણેશ ચતુર્થી 🙏 તહેવાર માટે તમારો વોર્ડ સ્વચ્છ રાખો — પંડાલ અને વિસર્જન માર્ગ પાસે ભરાયેલું પાણી નોંધો.',
+      'season.denguePeak': 'ડેન્ગ્યુની મોસમ ⚠️ મચ્છર ભરાયેલા પાણીમાં ઊછરે છે. 30 સેકન્ડની ફરિયાદ તમારી ગલીને બચાવે છે.',
+      'season.dismiss': 'મોસમી સૂચન બંધ કરો',
+      'social.wardWeek': '👥 આ અઠવાડિયે {ward} માં {n} પડોશીઓએ નોંધ્યું',
+      'social.wardWeekBacked': '👥 આ અઠવાડિયે {ward}: {n} નોંધ · {c} સમર્થન',
+      'social.wardWeekEmpty': 'આ અઠવાડિયે {ward} માં પહેલા નોંધો — પડોશીઓ આગેવાનોને અનુસરે છે.',
+      'recap.title': 'આ અઠવાડિયે તમારો વોર્ડ',
+      'recap.share': 'સાપ્તાહિક સારાંશ શેર કરો',
+      'share.weeklyRecap': '📊 આ ચોમાસા અઠવાડિયે {ward}: {reports} નવી ફરિયાદ, {resolved} ઠીક, {backed} પડોશીઓનું સમર્થન. CivicRadar પર જોડાઓ 👇\n{link}\n\n{marathi}\n{hashtags}',
     },  };
   const LANG_ORDER = ['en', 'hi', 'mr', 'gu'];
   let currentLang = localStorage.getItem(LANG_KEY) || 'en';
@@ -2958,6 +3085,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (typeof renderLeaderboard === 'function') { renderLeaderboard('wards'); renderLeaderboard('citizens'); }
       if (typeof renderCommunityImpactStats === 'function') renderCommunityImpactStats();
       if ($('#hazardGrid')) renderHazardPicker();
+      if (activeEscalationId) {
+        const escReport = findReportById(activeEscalationId);
+        if (escReport) renderEscalation(escReport);
+      }
     } catch (e) { /* views may not be mounted */ }
   }
 
@@ -4602,7 +4733,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (reportMarkerLayer) refreshReportMarkers();
     updateProfileUI();
     if (isAdmin) renderAdminQueue();
-    showToast(t('confirm.thanks'), 'success', 3200, {
+    launchConfetti({ intensity: 'mini' });
+    showToast(t('confirm.meTooThanks'), 'success', 3200, {
       label: t('share.meTooBtn'),
       onClick: () => shareMeTooWhatsApp(reportId),
     });
@@ -4731,6 +4863,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (reportMarkerLayer) refreshReportMarkers();
     updateProfileUI();
+    launchConfetti({ intensity: 'mini' });
     showToast(t('toast.fixConfirmed'), 'success', 3200);
 
     const finishResolve = (resolutionSource) => {
@@ -5554,7 +5687,10 @@ document.addEventListener('DOMContentLoaded', function () {
     closeModal('profile');
     renderLeaderboard('wards');
     updateCommunitySubtitle();
+    renderSeasonalHook();
     renderCommunityImpactStats();
+    renderWardWeekSocialProof();
+    renderWeeklyRecapButton();
     renderSuccessStories();
     renderWardChallenge();
     renderImpactWall();
@@ -5576,6 +5712,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateProfileUI();
     setNavTab('profile');
     openModal('profile');
+    pulseProfilePointsStat();
     checkResolvedWins();
     checkConfirmedResolved();
     checkFixConfirmedResolved();
@@ -5773,6 +5910,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setupInstallPrompt();
   warnIfShareUrlNotProduction();
   trackShareRefLanding();
+  maybeShowReferralWelcome();
   trackVisitCount();
   updateMapEmptyCta();
   deferNonCritical(() => {
@@ -6180,11 +6318,37 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnWithdrawAnalytics) btnWithdrawAnalytics.addEventListener('click', withdrawAnalyticsConsent);
     const btnWithdrawGps = $('#btnWithdrawGps');
     if (btnWithdrawGps) btnWithdrawGps.addEventListener('click', withdrawGpsConsent);
+    const btnPrivacyContact = $('#btnPrivacyContact');
+    if (btnPrivacyContact) {
+      const grievanceEmail = getGrievanceEmail();
+      if (grievanceEmail) {
+        btnPrivacyContact.href = 'mailto:' + grievanceEmail
+          + '?subject=' + encodeURIComponent('CivicRadar — privacy / DPDP grievance');
+      } else {
+        btnPrivacyContact.style.display = 'none';
+      }
+    }
     $('#btnCopyImpact').addEventListener('click', copyImpactSummary);
     const btnCopyPitch = $('#btnCopySharePitch');
     if (btnCopyPitch) btnCopyPitch.addEventListener('click', copySharePitch);
     const btnShareWard = $('#btnShareWardChallenge');
     if (btnShareWard) btnShareWard.addEventListener('click', shareWardChallengeWhatsApp);
+    const btnShareRecap = $('#btnShareWeeklyRecap');
+    if (btnShareRecap) btnShareRecap.addEventListener('click', shareWeeklyRecapWhatsApp);
+    const btnSeasonDismiss = $('#btnSeasonHookDismiss');
+    if (btnSeasonDismiss) btnSeasonDismiss.addEventListener('click', dismissSeasonHook);
+    const btnRefDismiss = $('#btnRefWelcomeDismiss');
+    if (btnRefDismiss) btnRefDismiss.addEventListener('click', dismissReferralWelcome);
+    const btnRefMap = $('#btnRefWelcomeMap');
+    if (btnRefMap) btnRefMap.addEventListener('click', dismissReferralWelcome);
+    const btnRefReport = $('#btnRefWelcomeReport');
+    if (btnRefReport) {
+      btnRefReport.addEventListener('click', () => {
+        dismissReferralWelcome();
+        if (typeof window.openReportModal === 'function') window.openReportModal();
+        else $('#btnCamera')?.click();
+      });
+    }
     const btnShareWinWa = $('#btnShareWinWhatsApp');
     if (btnShareWinWa) {
       btnShareWinWa.addEventListener('click', () => {
@@ -6804,6 +6968,34 @@ document.addEventListener('DOMContentLoaded', function () {
         ? t('success.taglineNeighbours').replace('{n}', String(wardConfirms))
         : t('success.tagline');
     }
+    const reportCount = getUserReports().length;
+    const celebrateEl = $('#successCelebrate');
+    if (celebrateEl) {
+      if (reportCount === 1) {
+        celebrateEl.textContent = t('success.celebrateFirst');
+        celebrateEl.classList.remove('hidden');
+      } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
+        celebrateEl.textContent = t('success.celebrateMilestone').replace('{n}', String(reportCount));
+        celebrateEl.classList.remove('hidden');
+      } else {
+        celebrateEl.textContent = '';
+        celebrateEl.classList.add('hidden');
+      }
+    }
+    const sharePromptEl = document.querySelector('#successModal .success-share-prompt');
+    if (sharePromptEl) {
+      sharePromptEl.textContent = reportCount === 1
+        ? t('success.shareBragFirst')
+        : t('success.shareBrag');
+    }
+    const successIcon = document.querySelector('#successModal .success-icon');
+    if (successIcon && !prefersReducedMotion()) {
+      successIcon.classList.remove('is-celebrating');
+      void successIcon.offsetWidth;
+      successIcon.classList.add('is-celebrating');
+    } else if (successIcon) {
+      successIcon.classList.remove('is-celebrating');
+    }
     const ptsEl = $('#successPoints');
     if (ptsEl) {
       const total = POINTS_PER_REPORT + weekBonus;
@@ -6825,6 +7017,10 @@ document.addEventListener('DOMContentLoaded', function () {
         : t('success.fileCorp').replace('{corp}', corp.name || getCityLabel());
     }
     applyCorpAwareI18n();
+    requestAnimationFrame(() => {
+      celebrateReportSubmit(reportCount);
+      pulseProfilePointsStat();
+    });
   }
 
   function resetReportForm() {
@@ -7005,11 +7201,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function launchConfetti() {
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function launchConfetti(opts = {}) {
+    if (prefersReducedMotion()) return;
+    const intensity = opts.intensity || 'normal';
+    const counts = { mini: 14, normal: 28, celebrate: 36 };
+    const count = counts[intensity] || counts.normal;
     const wrap = document.createElement('div');
     wrap.className = 'confetti-burst';
     wrap.setAttribute('aria-hidden', 'true');
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < count; i++) {
       const p = document.createElement('span');
       p.className = 'confetti-burst__piece';
       p.style.setProperty('--x', `${Math.random() * 100}%`);
@@ -7019,6 +7223,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     document.body.appendChild(wrap);
     setTimeout(() => wrap.remove(), 2600);
+  }
+
+  function celebrateReportSubmit(reportCount) {
+    const isFirst = reportCount === 1;
+    const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(reportCount);
+    launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
+    if (isFirst) {
+      setTimeout(() => showToast(t('toast.badgeMonsoon'), 'success', 4500), 700);
+    } else if (isMilestone && reportCount > 1) {
+      setTimeout(
+        () => showToast(t('toast.reportMilestone').replace('{n}', String(reportCount)), 'success', 4000),
+        600
+      );
+    }
+  }
+
+  function pulseProfilePointsStat() {
+    const el = $('#profilePoints');
+    if (!el || getTotalCivicPoints() <= 0) return;
+    el.classList.remove('profile-stat-pop');
+    void el.offsetWidth;
+    el.classList.add('profile-stat-pop');
   }
 
   function celebrateFirstShare() {
@@ -7925,7 +8151,11 @@ document.addEventListener('DOMContentLoaded', function () {
     } else if (deptsWrap) {
       deptsWrap.classList.add('hidden');
     }
-    if (aapleBtn) aapleBtn.classList.toggle('hidden', !corp.aapleSarkarUrl);
+    if (aapleBtn) {
+      aapleBtn.classList.toggle('hidden', !corp.aapleSarkarUrl);
+      const span = aapleBtn.querySelector('span');
+      if (span) span.textContent = t('esc.tmc.aaple');
+    }
   }
 
   function renderPmcChannels(corp) {
@@ -8158,8 +8388,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const report = findReportById(reportId);
     if (!report) return;
     activeEscalationId = report.id;
-    renderEscalation(report);
     applyTranslations();
+    renderEscalation(report);
     openModal('escalation');
   }
 
@@ -8931,6 +9161,143 @@ document.addEventListener('DOMContentLoaded', function () {
     el.innerHTML = `<i class="ph ph-lightning"></i><p class="ward-challenge__text">${escapeHtml(message)}</p>`;
     const shareBtn = $('#btnShareWardChallenge');
     if (shareBtn) shareBtn.classList.remove('hidden');
+  }
+
+  /* ---------- Viral: seasonal hooks, ward social proof & weekly recap ---------- */
+  const SEASON_HOOK_DISMISS_KEY = 'civicradar_season_hook_dismissed';
+  const REF_WELCOME_KEY = 'civicradar_ref_welcome_seen';
+
+  // Reports in a ward (or whole city when ward is empty) over the trailing 7 days.
+  function getWardWeekStats(ward) {
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recent = cityScopedReports(loadReports()).filter((r) => {
+      if (isReportHidden(r.id)) return false;
+      if (ward && r.ward !== ward) return false;
+      return new Date(r.timestamp).getTime() >= weekAgo;
+    });
+    return {
+      reports: recent.length,
+      resolved: recent.filter((r) => r.status === 'resolved').length,
+      backed: recent.reduce((s, r) => s + (Number(r.confirmations) || 0), 0),
+    };
+  }
+
+  function renderWardWeekSocialProof() {
+    const el = $('#wardWeekSocial');
+    if (!el) return;
+    const wardLabel = user.ward ? getWardShortName(user.ward) : getCityLabel();
+    const w = getWardWeekStats(user.ward);
+    if (w.reports === 0) {
+      el.textContent = t('social.wardWeekEmpty').replace('{ward}', wardLabel);
+      el.classList.add('ward-week-social--empty');
+    } else if (w.backed > 0) {
+      el.textContent = t('social.wardWeekBacked')
+        .replace('{n}', String(w.reports))
+        .replace('{c}', String(w.backed))
+        .replace('{ward}', wardLabel);
+      el.classList.remove('ward-week-social--empty');
+    } else {
+      el.textContent = t('social.wardWeek')
+        .replace('{n}', String(w.reports))
+        .replace('{ward}', wardLabel);
+      el.classList.remove('ward-week-social--empty');
+    }
+  }
+
+  // Date-aware, India-context seasonal nudge. Returns null off-season (Nov–Apr).
+  function getSeasonalHook() {
+    const m = new Date().getMonth(); // 0 = Jan
+    if (m === 4 || m === 5) return { key: 'season.monsoonPrep', icon: 'ph-cloud-rain' };
+    if (m === 6 || m === 7) return { key: 'season.monsoonPeak', icon: 'ph-cloud-rain' };
+    if (m === 8) return { key: 'season.ganesh', icon: 'ph-flower-lotus' };
+    if (m === 9) return { key: 'season.denguePeak', icon: 'ph-bug-beetle' };
+    return null;
+  }
+
+  function renderSeasonalHook() {
+    const el = $('#seasonHook');
+    if (!el) return;
+    const hook = getSeasonalHook();
+    if (!hook || localStorage.getItem(SEASON_HOOK_DISMISS_KEY) === hook.key) {
+      el.classList.add('hidden');
+      return;
+    }
+    const icon = $('#seasonHookIcon');
+    const text = $('#seasonHookText');
+    if (icon) icon.className = `ph ${hook.icon} season-hook__icon`;
+    if (text) text.textContent = t(hook.key);
+    el.dataset.hookKey = hook.key;
+    el.classList.remove('hidden');
+  }
+
+  function dismissSeasonHook() {
+    const el = $('#seasonHook');
+    const key = el && el.dataset.hookKey;
+    if (key) localStorage.setItem(SEASON_HOOK_DISMISS_KEY, key);
+    if (el) el.classList.add('hidden');
+  }
+
+  function buildWeeklyRecapMessage() {
+    const wardLabel = user.ward ? getWardShortName(user.ward) : getCityLabel();
+    const w = getWardWeekStats(user.ward);
+    return fillShareTemplate(t('share.weeklyRecap'), {
+      ward: wardLabel,
+      link: shareAppLink('recap'),
+      wardFull: user.ward,
+    })
+      .replace('{reports}', String(w.reports))
+      .replace('{resolved}', String(w.resolved))
+      .replace('{backed}', String(w.backed));
+  }
+
+  function shareWeeklyRecapWhatsApp() {
+    if (window.CivicAnalytics) CivicAnalytics.track('share_weekly_recap', { ward: user.ward || '' }, user.ward);
+    shareWhatsApp(buildWeeklyRecapMessage(), { context: 'recap', ward: user.ward });
+  }
+
+  function renderWeeklyRecapButton() {
+    const btn = $('#btnShareWeeklyRecap');
+    if (!btn) return;
+    const w = getWardWeekStats(user.ward);
+    // Only surface the recap share when there's something worth bragging about.
+    btn.classList.toggle('hidden', !(w.reports > 0 || w.resolved > 0));
+  }
+
+  // Welcomes visitors who arrive via a neighbour's ?ref= link with social proof.
+  function renderReferralWelcome() {
+    const el = $('#referralWelcome');
+    if (!el) return;
+    const bodyEl = $('#refWelcomeBody');
+    const city = getCityLabel();
+    const total = cityScopedReports(loadReports()).filter((r) => !isReportHidden(r.id)).length;
+    if (bodyEl) {
+      bodyEl.textContent = total > 0
+        ? t('ref.welcomeBody').replace('{n}', String(total)).replace('{city}', city)
+        : t('ref.welcomeBodyEmpty').replace('{city}', city);
+    }
+    el.classList.remove('hidden');
+  }
+
+  function dismissReferralWelcome() {
+    localStorage.setItem(REF_WELCOME_KEY, '1');
+    const el = $('#referralWelcome');
+    if (el) el.classList.add('hidden');
+  }
+
+  function maybeShowReferralWelcome() {
+    let ref = null;
+    try { ref = new URLSearchParams(location.search).get('ref'); } catch { ref = null; }
+    if (!ref) return;
+    const demo = new URLSearchParams(location.search).get('demo');
+    if (demo === 'tour' || demo === 'persona' || demo === 'video') return;
+    if (localStorage.getItem(REF_WELCOME_KEY)) return;
+    // Brand-new users get onboarding (already neighbour-friendly); welcome returning
+    // visitors arriving via a friend's link. Skip anyone who already reported.
+    if (!user.tosAccepted) return;
+    if (isAdmin || isLead) return;
+    if (loadReports().some(ownsReport)) { localStorage.setItem(REF_WELCOME_KEY, '1'); return; }
+    if (window.CivicAnalytics) CivicAnalytics.track('ref_welcome_shown', { ref: String(ref).slice(0, 64) });
+    renderReferralWelcome();
   }
 
   /* ---------- Leaderboard Engine ---------- */
