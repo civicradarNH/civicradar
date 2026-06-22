@@ -945,6 +945,7 @@ async def run_extra_scenarios(s: Suite, browser):
         ('X18', 'Legal', 'Terms page linked', '() => !!document.querySelector("a[href*=\\"terms\\"]")'),
         ('X19', 'Persona', 'Citizen default mode', '() => !window.isAdmin && !window.isLead'),
         ('X20', 'Sync', 'Local mode label', '() => (document.getElementById("syncStatus").textContent||"").length > 0'),
+        ('X21', 'Escalation', 'PMC modal opens (Pune)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "pmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Aundh — Baner, Pashan", city: "pune", reporter: "Test", lat: 18.55, lng: 73.80, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
     ]
     await page.evaluate(
         """() => {

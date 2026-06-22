@@ -8072,11 +8072,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function getEscTierCopy(city, tierKey) {
     if (city === 'thane' && tierKey !== 'file') {
       const tmcKey = `esc.tmc.tier.${tierKey}.body`;
-      if (I18N[LANG] && I18N[LANG][tmcKey]) return t(tmcKey);
+      if (I18N[currentLang] && I18N[currentLang][tmcKey]) return t(tmcKey);
     }
     if (city === 'pune' && tierKey !== 'file') {
       const pmcKey = `esc.pmc.tier.${tierKey}.body`;
-      if (I18N[LANG] && I18N[LANG][pmcKey]) return t(pmcKey);
+      if (I18N[currentLang] && I18N[currentLang][pmcKey]) return t(pmcKey);
     }
     return t(`esc.tier.${tierKey}.body`);
   }
