@@ -8,7 +8,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Constants ---------- */
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
-  const CIVIC_APP_VERSION = 'v73';
+  const CIVIC_APP_VERSION = 'v76';
+  const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
+  const PENDING_NGO_CODE_KEY = 'civicradar_pending_ngo_code';
+
+  function persistPendingAuth(flow, ngoCode) {
+    sessionStorage.setItem(PENDING_AUTH_FLOW_KEY, flow);
+    if (ngoCode) sessionStorage.setItem(PENDING_NGO_CODE_KEY, ngoCode);
+  }
+
+  function clearPendingAuth() {
+    sessionStorage.removeItem(PENDING_AUTH_FLOW_KEY);
+    sessionStorage.removeItem(PENDING_NGO_CODE_KEY);
+  }
+
+  function showAuthLinkSent(prefix) {
+    const linkRow = document.getElementById(`${prefix}LinkSentRow`);
+    const otpFallback = document.getElementById(`${prefix}OtpFallback`);
+    if (linkRow) linkRow.classList.remove('hidden');
+    if (otpFallback) otpFallback.classList.remove('hidden');
+  }
   const REPORTS_KEY = 'mosquiTrackReports';
   const USER_KEY = 'civicradar_user';
   const PLEDGES_KEY = 'mosquiTrackPledges';
@@ -346,6 +365,53 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  function isUselessAuthMessage(value) {
+    if (value == null) return true;
+    const s = String(value).trim();
+    return !s || s === '{}' || s === '[object Object]' || s === 'undefined' || s === 'null';
+  }
+
+  function authErrorCodeHint(code) {
+    const hints = {
+      over_email_send_rate_limit: 'toast.authEmailRateLimit',
+      email_rate_limit_exceeded: 'toast.authEmailRateLimit',
+      validation_failed: 'toast.authEmailInvalid',
+      email_address_invalid: 'toast.authEmailInvalid',
+      redirect_url_not_allowed: 'toast.authEmailRedirect',
+      unexpected_failure: 'toast.authEmailFail',
+    };
+    const key = hints[code];
+    return key ? t(key) : '';
+  }
+
+  function formatAuthError(err, fallbackKey) {
+    const fb = t(fallbackKey || 'toast.authEmailFail');
+    if (err == null) return fb;
+    if (typeof err === 'string') {
+      return isUselessAuthMessage(err) ? fb : err.trim();
+    }
+    const parts = [];
+    const candidates = [err.message, err.msg, err.error_description, err.description];
+    for (const c of candidates) {
+      if (typeof c === 'string' && !isUselessAuthMessage(c)) {
+        parts.push(c.trim());
+        break;
+      }
+    }
+    const code = err.code || err.error_code;
+    if (typeof code === 'string' && code) {
+      const hint = authErrorCodeHint(code);
+      if (hint && !parts.includes(hint)) parts.push(hint);
+    }
+    if (parts.length) return parts.join(' — ');
+    const status = err.status || err.statusCode;
+    if (status === 429) return t('toast.authEmailRateLimit');
+    if (/rate.?limit/i.test(String(err.message || ''))) return t('toast.authEmailRateLimit');
+    if (/smtp|mail|email/i.test(String(err.message || ''))) return fb;
+    console.warn('[CivicRadar] Auth error:', err);
+    return fb;
   }
 
   // Strip markup from user-entered text before storing or displaying.
@@ -899,6 +965,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.govEmail': 'Use your official gov.in / mcgm.gov.in email.',
       'toast.codeSent': 'Code sent — check your inbox.',
       'toast.codeInvalid': 'Invalid or expired code.',
+      'toast.linkSent': 'Sign-in link sent — check your inbox.',
+      'toast.authEmailFail': 'Could not send sign-in email. Check Supabase SMTP settings and try again.',
+      'toast.authEmailOffline': 'Cloud sign-in is unavailable — check your connection and try again.',
+      'toast.authEmailRateLimit': 'Too many sign-in emails — wait a few minutes and try again.',
+      'toast.authEmailInvalid': 'That email address looks invalid — check and try again.',
+      'toast.authEmailRedirect': 'Sign-in redirect URL is not allowed — add your site URL in Supabase Authentication settings.',
+      'toast.linkExpired': 'That sign-in link expired — request a new one.',
       'toast.bmcUnauthorized': 'This email is not authorised for BMC access.',
       'toast.ngoCodeRequired': 'Enter your email and NGO access code.',
       'toast.ngoCodeInvalid': 'That NGO access code is invalid or used up.',
@@ -1016,7 +1089,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'auth.demoTag.lead': 'Demo access — production uses email + NGO invite code',
       'auth.officialEmail': 'Official email',
       'auth.emailHint': 'Only verified gov.in / mcgm.gov.in addresses get BMC access.',
-      'auth.sendCode': 'Send sign-in code',
+      'auth.sendCode': 'Send sign-in link',
+      'auth.linkInstructions': 'Check your email and tap the sign-in link. Keep this tab open — you\'ll return here signed in.',
+      'auth.otpFallback': 'Have a 6-digit code instead?',
       'auth.otp': '6-digit code',
       'auth.verifyEnter': 'Verify & enter',
       'auth.email': 'Email',
@@ -1093,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.contactLabel': 'Contact — email or phone',
       'access.emailPh': 'you@example.com',
       'access.phonePh': 'Phone',
-      'access.contactHint': 'Give at least one. If you add an email, that is how we send your claim code.',
+      'access.contactHint': 'Give at least one. Claim codes go to email; if you only add a phone, we contact you there.',
       'access.proofLabel': 'ID / proof',
       'access.proofOptional': '(optional — encouraged for BMC)',
       'access.proofAdd': 'Attach proof photo',
@@ -1102,14 +1177,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.submit': 'Submit request',
       'access.haveCode': 'I already have a claim code',
       'access.confirmTitle': 'Request received',
-      'access.confirmBody': 'Thanks! The CivicRadar team will review your request and email you a claim code, usually within a few days. Enter that code in the app to unlock your access.',
+      'access.confirmBody': 'Thanks! The CivicRadar team will review your request and reach you with a claim code, usually within a few days. Enter that code in the app to unlock your access.',
       'access.confirmLocal': 'Saved on this device — it will sync to the team when you are back online.',
       'access.done': 'Done',
       'access.profileCta': 'For NGOs & BMC: Request coordinator access',
       'access.partnerCta': 'Don’t have access yet? Request coordinator access',
       'access.partnerClaim': 'I have a claim code',
       'access.claimTitle': 'Enter your claim code',
-      'access.claimSubtitle': 'Approved by the CivicRadar team? Enter the code we sent to unlock your access.',
+      'access.claimSubtitle': 'Approved by the CivicRadar team? Enter the claim code we sent to unlock your access.',
       'access.claimLabel': 'Claim code',
       'access.claimPh': 'CR-XXXXXX',
       'access.claimSubmit': 'Unlock access',
@@ -1124,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.approve': 'Approve',
       'access.reject': 'Reject',
       'access.copyCode': 'Copy code',
-      'access.codeCopied': 'Claim code copied — send it from {email}.',
+      'access.codeCopied': 'Claim code copied — share it with the applicant using their contact details.',
       'access.roleNgoTag': 'NGO coordinator',
       'access.roleBmcTag': 'BMC official',
       'access.statusApproved': 'Approved',
@@ -1132,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.statusPending': 'Pending',
       'access.errName': 'Please add your name.',
       'access.errContact': 'Add an email or phone so we can reach you.',
-      'access.submitted': 'Request sent — we will review and email your claim code.',
+      'access.submitted': 'Request sent — we will review and reach you with your claim code.',
       'access.submittedLocal': 'Request saved — we will sync and review it when you are online.',
       'access.submitError': 'Could not send — your details are safe. Please try again.',
       'access.claimErrEmpty': 'Enter the claim code we sent you.',
@@ -1621,6 +1696,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत आधिकारिक रूप से खुली रह सकती है।',
       'toast.codeInvalid': 'अमान्य या समाप्त कोड।',
       'toast.codeSent': 'कोड भेजा — इनबॉक्स देखें।',
+      'toast.linkSent': 'साइन-इन लिंक भेजा — इनबॉक्स देखें।',
+      'toast.authEmailFail': 'साइन-इन ईमेल नहीं भेजा जा सका — Supabase SMTP सेटिंग जाँचें और फिर कोशिश करें।',
+      'toast.authEmailOffline': 'क्लाउड साइन-इन उपलब्ध नहीं — कनेक्शन जाँचें और फिर कोशिश करें।',
+      'toast.authEmailRateLimit': 'बहुत सारे साइन-इन ईमेल — कुछ मिनट रुकें और फिर कोशिश करें।',
+      'toast.authEmailInvalid': 'ईमेल पता अमान्य लगता है — जाँचें और फिर कोशिश करें।',
+      'toast.authEmailRedirect': 'साइन-इन रीडायरेक्ट URL अनुमत नहीं — Supabase Authentication में अपनी साइट URL जोड़ें।',
+      'toast.linkExpired': 'साइन-इन लिंक समाप्त — नया लिंक मांगें।',
       'toast.complaintFirst': 'पहले शिकायत नंबर जोड़ें — यही आपका प्रमाण।',
       'toast.complaintRequired': 'ट्रैकिंग के लिए शिकायत नंबर दर्ज करें।',
       'toast.complaintSaved': 'शिकायत नंबर सहेजा — आधिकारिक घड़ी चालू।',
@@ -1712,7 +1794,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'auth.demoTag.lead': 'डेमो एक्सेस — प्रोडक्शन में ईमेल + NGO इनवाइट',
       'auth.officialEmail': 'आधिकारिक ईमेल',
       'auth.emailHint': 'केवल gov.in / mcgm.gov.in पर BMC एक्सेस।',
-      'auth.sendCode': 'साइन-इन कोड भेजें',
+      'auth.sendCode': 'साइन-इन लिंक भेजें',
+      'auth.linkInstructions': 'अपना ईमेल देखें और साइन-इन लिंक पर टैप करें। यह टैब खुला रखें — आप साइन-इन होकर यहीं लौटेंगे।',
+      'auth.otpFallback': '6-अंक का कोड है?',
       'auth.otp': '6-अंक कोड',
       'auth.verifyEnter': 'सत्यापित करें और प्रवेश',
       'auth.email': 'ईमेल',
@@ -1812,7 +1896,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.contactLabel': 'संपर्क — ईमेल या फ़ोन',
       'access.emailPh': 'you@example.com',
       'access.phonePh': 'फ़ोन',
-      'access.contactHint': 'कम से कम एक दें। ईमेल देने पर हम उसी पर क्लेम कोड भेजेंगे।',
+      'access.contactHint': 'कम से कम एक दें। क्लेम कोड ईमेल पर; केवल फ़ोन देने पर हम वहीं संपर्क करेंगे।',
       'access.proofLabel': 'पहचान / प्रमाण',
       'access.proofOptional': '(वैकल्पिक — BMC के लिए सुझाया गया)',
       'access.proofAdd': 'प्रमाण फ़ोटो जोड़ें',
@@ -1821,7 +1905,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.submit': 'अनुरोध भेजें',
       'access.haveCode': 'मेरे पास पहले से क्लेम कोड है',
       'access.confirmTitle': 'अनुरोध प्राप्त हुआ',
-      'access.confirmBody': 'धन्यवाद! CivicRadar टीम आपके अनुरोध की समीक्षा करेगी और आमतौर पर कुछ दिनों में आपको क्लेम कोड ईमेल करेगी। एक्सेस अनलॉक करने के लिए वह कोड ऐप में दर्ज करें।',
+      'access.confirmBody': 'धन्यवाद! CivicRadar टीम आपके अनुरोध की समीक्षा करेगी और आमतौर पर कुछ दिनों में आपको क्लेम कोड भेजेगी (ईमेल या फ़ोन)। एक्सेस अनलॉक करने के लिए वह कोड ऐप में दर्ज करें।',
       'access.confirmLocal': 'इस डिवाइस पर सहेजा गया — ऑनलाइन होने पर टीम को सिंक हो जाएगा।',
       'access.done': 'पूर्ण',
       'access.profileCta': 'NGO व BMC के लिए: समन्वयक एक्सेस का अनुरोध करें',
@@ -1843,7 +1927,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.approve': 'मंज़ूर करें',
       'access.reject': 'अस्वीकार करें',
       'access.copyCode': 'कोड कॉपी करें',
-      'access.codeCopied': 'क्लेम कोड कॉपी हुआ — {email} से भेजें।',
+      'access.codeCopied': 'क्लेम कोड कॉपी हुआ — आवेदक को उनके संपर्क विवरण से साझा करें।',
       'access.roleNgoTag': 'NGO समन्वयक',
       'access.roleBmcTag': 'BMC अधिकारी',
       'access.statusApproved': 'मंज़ूर',
@@ -1851,7 +1935,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.statusPending': 'लंबित',
       'access.errName': 'कृपया अपना नाम जोड़ें।',
       'access.errContact': 'संपर्क के लिए ईमेल या फ़ोन जोड़ें।',
-      'access.submitted': 'अनुरोध भेजा गया — हम समीक्षा कर आपको क्लेम कोड ईमेल करेंगे।',
+      'access.submitted': 'अनुरोध भेजा गया — हम समीक्षा कर आपको क्लेम कोड भेजेंगे।',
       'access.submittedLocal': 'अनुरोध सहेजा गया — ऑनलाइन होने पर सिंक व समीक्षा होगी।',
       'access.submitError': 'भेजा नहीं जा सका — आपकी जानकारी सुरक्षित है। कृपया फिर प्रयास करें।',
       'access.claimErrEmpty': 'भेजा गया क्लेम कोड दर्ज करें।',
@@ -2333,6 +2417,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार अधिकृतपणे उघडी राहू शकते.',
       'toast.codeInvalid': 'अवैध किंवा कालबाह्य कोड.',
       'toast.codeSent': 'कोड पाठवला — इनबॉक्स पाहा.',
+      'toast.linkSent': 'साइन-इन लिंक पाठवला — इनबॉक्स पाहा.',
+      'toast.authEmailFail': 'साइन-इन ईमेल पाठवता आला नाही — Supabase SMTP सेटिंग्ज तपासा आणि पुन्हा प्रयत्न करा.',
+      'toast.authEmailOffline': 'क्लाउड साइन-इन उपलब्ध नाही — कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.',
+      'toast.authEmailRateLimit': 'खूप साइन-इन ईमेल — काही मिनिट थांबा आणि पुन्हा प्रयत्न करा.',
+      'toast.authEmailInvalid': 'ईमेल पत्ता अवैध वाटतो — तपासा आणि पुन्हा प्रयत्न करा.',
+      'toast.authEmailRedirect': 'साइन-इन रीडायरेक्ट URL परवानगी नाही — Supabase Authentication मध्ये तुमची साइट URL जोडा.',
+      'toast.linkExpired': 'साइन-इन लिंक कालबाह्य — नवीन लिंक मागा.',
       'toast.complaintFirst': 'प्रथम तक्रार क्रमांक जोडा — तोच पुरावा.',
       'toast.complaintRequired': 'ट्रॅकिंगसाठी तक्रार क्रमांक भरा.',
       'toast.complaintSaved': 'तक्रार क्रमांक जतन — अधिकृत घड्याळ सुरू.',
@@ -2424,7 +2515,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'auth.demoTag.lead': 'डेमो प्रवेश — प्रोडक्शनमध्ये ईमेल + NGO इनवाइट',
       'auth.officialEmail': 'अधिकृत ईमेल',
       'auth.emailHint': 'फक्त gov.in / mcgm.gov.in वर BMC प्रवेश.',
-      'auth.sendCode': 'साइन-इन कोड पाठवा',
+      'auth.sendCode': 'साइन-इन लिंक पाठवा',
+      'auth.linkInstructions': 'तुमचा ईमेल पाहा आणि साइन-इन लिंकवर टॅप करा. हा टॅब उघडा ठेवा — तुम्ही साइन-इन होऊन येथेच परत या.',
+      'auth.otpFallback': '6-अंकी कोड आहे?',
       'auth.otp': '6-अंकी कोड',
       'auth.verifyEnter': 'सत्यापित करा आणि प्रवेश',
       'auth.email': 'ईमेल',
@@ -2528,7 +2621,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.contactLabel': 'संपर्क — ईमेल किंवा फोन',
       'access.emailPh': 'you@example.com',
       'access.phonePh': 'फोन',
-      'access.contactHint': 'किमान एक द्या. ईमेल दिल्यास त्यावरच आम्ही क्लेम कोड पाठवू.',
+      'access.contactHint': 'किमान एक द्या. क्लेम कोड ईमेलवर; फक्त फोन दिल्यास तिथेच संपर्क करू.',
       'access.proofLabel': 'ओळख / पुरावा',
       'access.proofOptional': '(पर्यायी — BMC साठी सुचवलेले)',
       'access.proofAdd': 'पुरावा फोटो जोडा',
@@ -2537,7 +2630,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.submit': 'विनंती पाठवा',
       'access.haveCode': 'माझ्याकडे आधीच क्लेम कोड आहे',
       'access.confirmTitle': 'विनंती मिळाली',
-      'access.confirmBody': 'धन्यवाद! CivicRadar टीम तुमच्या विनंतीचे पुनरावलोकन करेल आणि सहसा काही दिवसांत तुम्हाला क्लेम कोड ईमेल करेल. प्रवेश अनलॉक करण्यासाठी तो कोड अॅपमध्ये टाका.',
+      'access.confirmBody': 'धन्यवाद! CivicRadar टीम तुमच्या विनंतीचे पुनरावलोकन करेल आणि सहसा काही दिवसांत तुम्हाला क्लेम कोड पाठवेल (ईमेल किंवा फोन). प्रवेश अनलॉक करण्यासाठी तो कोड अॅपमध्ये टाका.',
       'access.confirmLocal': 'या डिव्हाइसवर जतन — ऑनलाइन झाल्यावर टीमकडे सिंक होईल.',
       'access.done': 'पूर्ण',
       'access.profileCta': 'NGO व BMC साठी: समन्वयक प्रवेशाची विनंती करा',
@@ -2559,7 +2652,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.approve': 'मंजूर करा',
       'access.reject': 'नाकारा',
       'access.copyCode': 'कोड कॉपी करा',
-      'access.codeCopied': 'क्लेम कोड कॉपी झाला — {email} वरून पाठवा.',
+      'access.codeCopied': 'क्लेम कोड कॉपी झाला — अर्जदाराला त्यांच्या संपर्क तपशीलांद्वारे पाठवा.',
       'access.roleNgoTag': 'NGO समन्वयक',
       'access.roleBmcTag': 'BMC अधिकारी',
       'access.statusApproved': 'मंजूर',
@@ -2567,7 +2660,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.statusPending': 'प्रलंबित',
       'access.errName': 'कृपया तुमचे नाव जोडा.',
       'access.errContact': 'संपर्कासाठी ईमेल किंवा फोन जोडा.',
-      'access.submitted': 'विनंती पाठवली — आम्ही पुनरावलोकन करून तुम्हाला क्लेम कोड ईमेल करू.',
+      'access.submitted': 'विनंती पाठवली — आम्ही पुनरावलोकन करून तुम्हाला क्लेम कोड पाठवू.',
       'access.submittedLocal': 'विनंती जतन — ऑनलाइन झाल्यावर सिंक व पुनरावलोकन होईल.',
       'access.submitError': 'पाठवता आले नाही — तुमचे तपशील सुरक्षित आहेत. कृपया पुन्हा प्रयत्न करा.',
       'access.claimErrEmpty': 'पाठवलेला क्लेम कोड टाका.',
@@ -3046,6 +3139,13 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.cleanupLogged': 'સમુદાય સફાઈ લોગ — BMC ફરિયાદ અધિકૃત રીતે ખુલ્લી રહી શકે.',
       'toast.codeInvalid': 'અમાન્ય અથવા સમાપ્ત કોડ.',
       'toast.codeSent': 'કોડ મોકલ્યો — ઇનબૉક્સ જુઓ.',
+      'toast.linkSent': 'સાઇન-ઇન લિંક મોકલ્યું — ઇનબૉક્સ જુઓ.',
+      'toast.authEmailFail': 'સાઇન-ઇન ઇમેઇલ મોકલી શકાઈ નહીં — Supabase SMTP સેટિંગ્સ તપાસો અને ફરી પ્રયાસ કરો.',
+      'toast.authEmailOffline': 'ક્લાઉડ સાઇન-ઇન ઉપલબ્ધ નથી — કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.',
+      'toast.authEmailRateLimit': 'ઘણા બધા સાઇન-ઇન ઇમેઇલ — થોડી મિનિટ રાહ જુઓ અને ફરી પ્રયાસ કરો.',
+      'toast.authEmailInvalid': 'ઇમેઇલ સરનામું અમાન્ય લાગે છે — તપાસો અને ફરી પ્રયાસ કરો.',
+      'toast.authEmailRedirect': 'સાઇન-ઇન રીડાયરેક્ટ URL મંજૂર નથી — Supabase Authentication માં તમારી સાઇટ URL ઉમેરો.',
+      'toast.linkExpired': 'સાઇન-ઇન લિંક સમાપ્ત — નવી લિંક માગો.',
       'toast.complaintFirst': 'પહેલા ફરિયાદ નંબર ઉમેરો — તે જ પુરાવો.',
       'toast.complaintRequired': 'ટ્રેકિંગ માટે ફરિયાદ નંબર દાખલ કરો.',
       'toast.complaintSaved': 'ફરિયાદ નંબર સાચવ્યો — સરકારી ઘડિયાળ શરૂ.',
@@ -3137,7 +3237,9 @@ document.addEventListener('DOMContentLoaded', function () {
       'auth.demoTag.lead': 'ડેમો ઍક્સેસ — પ્રોડક્શનમાં ઇમેઇલ + NGO ઇનવાઇટ',
       'auth.officialEmail': 'અધિકૃત ઇમેઇલ',
       'auth.emailHint': 'ફક્ત gov.in / mcgm.gov.in પર BMC ઍક્સેસ.',
-      'auth.sendCode': 'સાઇન-ઇન કોડ મોકલો',
+      'auth.sendCode': 'સાઇન-ઇન લિંક મોકલો',
+      'auth.linkInstructions': 'તમારું ઇમેઇલ તપાસો અને સાઇન-ઇન લિંક પર ટેપ કરો. આ ટેબ ખુલ્લું રાખો — તમે સાઇન-ઇન થઈને અહીં પાછા આવશો.',
+      'auth.otpFallback': '6-અંકનો કોડ છે?',
       'auth.otp': '6-અંક કોડ',
       'auth.verifyEnter': 'ચકાસો અને પ્રવેશ',
       'auth.email': 'ઇમેઇલ',
@@ -3241,7 +3343,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.contactLabel': 'સંપર્ક — ઈમેલ અથવા ફોન',
       'access.emailPh': 'you@example.com',
       'access.phonePh': 'ફોન',
-      'access.contactHint': 'ઓછામાં ઓછું એક આપો. ઈમેલ આપશો તો તેના પર જ અમે ક્લેમ કોડ મોકલીશું.',
+      'access.contactHint': 'ઓછામાં ઓછું એક આપો. ક્લેમ કોડ ઈમેલ પર; ફક્ત ફોન આપશો તો ત્યાં જ સંપર્ક કરીશું.',
       'access.proofLabel': 'ઓળખ / પુરાવો',
       'access.proofOptional': '(વૈકલ્પિક — BMC માટે ભલામણ)',
       'access.proofAdd': 'પુરાવો ફોટો જોડો',
@@ -3250,7 +3352,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.submit': 'વિનંતી મોકલો',
       'access.haveCode': 'મારી પાસે પહેલેથી ક્લેમ કોડ છે',
       'access.confirmTitle': 'વિનંતી મળી',
-      'access.confirmBody': 'આભાર! CivicRadar ટીમ તમારી વિનંતીની સમીક્ષા કરશે અને સામાન્ય રીતે થોડા દિવસોમાં તમને ક્લેમ કોડ ઈમેલ કરશે. ઍક્સેસ અનલૉક કરવા તે કોડ ઍપમાં દાખલ કરો.',
+      'access.confirmBody': 'આભાર! CivicRadar ટીમ તમારી વિનંતીની સમીક્ષા કરશે અને સામાન્ય રીતે થોડા દિવસોમાં તમને ક્લેમ કોડ મોકલશે (ઈમેલ અથવા ફોન). ઍક્સેસ અનલૉક કરવા તે કોડ ઍપમાં દાખલ કરો.',
       'access.confirmLocal': 'આ ડિવાઇસ પર સાચવ્યું — ઓનલાઈન થશો ત્યારે ટીમ સુધી સિંક થશે.',
       'access.done': 'પૂર્ણ',
       'access.profileCta': 'NGO અને BMC માટે: સંયોજક ઍક્સેસ માટે વિનંતી કરો',
@@ -3272,7 +3374,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.approve': 'મંજૂર કરો',
       'access.reject': 'નકારો',
       'access.copyCode': 'કોડ કૉપિ કરો',
-      'access.codeCopied': 'ક્લેમ કોડ કૉપિ થયો — {email} પરથી મોકલો.',
+      'access.codeCopied': 'ક્લેમ કોડ કૉપિ થયો — અરજદારને તેમના સંપર્ક વિગતો દ્વારા શેર કરો.',
       'access.roleNgoTag': 'NGO સંયોજક',
       'access.roleBmcTag': 'BMC અધિકારી',
       'access.statusApproved': 'મંજૂર',
@@ -3280,7 +3382,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.statusPending': 'બાકી',
       'access.errName': 'કૃપા કરી તમારું નામ ઉમેરો.',
       'access.errContact': 'સંપર્ક માટે ઈમેલ અથવા ફોન ઉમેરો.',
-      'access.submitted': 'વિનંતી મોકલાઈ — અમે સમીક્ષા કરી તમને ક્લેમ કોડ ઈમેલ કરીશું.',
+      'access.submitted': 'વિનંતી મોકલાઈ — અમે સમીક્ષા કરી તમને ક્લેમ કોડ મોકલીશું.',
       'access.submittedLocal': 'વિનંતી સાચવી — ઓનલાઈન થશો ત્યારે સિંક અને સમીક્ષા થશે.',
       'access.submitError': 'મોકલી શકાયું નહીં — તમારી વિગતો સુરક્ષિત છે. કૃપા કરી ફરી પ્રયાસ કરો.',
       'access.claimErrEmpty': 'મોકલેલ ક્લેમ કોડ દાખલ કરો.',
@@ -3745,6 +3847,136 @@ document.addEventListener('DOMContentLoaded', function () {
   const Backend = {
     client: null,
     enabled: false,
+    _authListenerBound: false,
+    _finishSignInLock: false,
+
+    hasAuthCallbackInUrl() {
+      const hash = location.hash || '';
+      const search = location.search || '';
+      return /access_token=|refresh_token=|type=magiclink|error=/.test(hash) || /[?&]code=/.test(search);
+    },
+
+    parseAuthCallbackError() {
+      const raw = (location.hash || '').replace(/^#/, '');
+      if (!raw) return null;
+      const params = new URLSearchParams(raw);
+      const error = params.get('error');
+      if (!error) return null;
+      return {
+        error,
+        code: params.get('error_code') || error,
+        description: params.get('error_description') || '',
+      };
+    },
+
+    clearAuthCallbackFromUrl() {
+      try {
+        const u = new URL(location.href);
+        u.hash = '';
+        u.searchParams.delete('code');
+        history.replaceState(history.state, '', u.pathname + u.search);
+      } catch { /* ignore */ }
+    },
+
+    async recoverSessionFromUrl() {
+      if (!this.client) return null;
+      const authErr = this.parseAuthCallbackError();
+      if (authErr) {
+        this.clearAuthCallbackFromUrl();
+        const msg = authErr.code === 'otp_expired' || /expired|invalid/i.test(authErr.description)
+          ? t('toast.linkExpired')
+          : formatAuthError(authErr);
+        showToast(msg, 'error', 5000);
+        return null;
+      }
+      if (!this.hasAuthCallbackInUrl()) return null;
+
+      const code = new URLSearchParams(location.search).get('code');
+      if (code) {
+        const { data, error } = await this.client.auth.exchangeCodeForSession(code);
+        this.clearAuthCallbackFromUrl();
+        if (error) {
+          showToast(t('toast.linkExpired'), 'error', 5000);
+          return null;
+        }
+        return data.session;
+      }
+
+      const { data: { session }, error } = await this.client.auth.getSession();
+      this.clearAuthCallbackFromUrl();
+      if (error) {
+        showToast(t('toast.linkExpired'), 'error', 5000);
+        return null;
+      }
+      return session;
+    },
+
+    bindAuthStateListener() {
+      if (this._authListenerBound || !this.client) return;
+      this._authListenerBound = true;
+      this.client.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session && !session.user.is_anonymous) {
+          this.finishEmailSignIn(session).catch((e) => {
+            console.warn('Magic-link sign-in handling failed:', e && e.message);
+          });
+        }
+      });
+    },
+
+    async finishEmailSignIn(session) {
+      if (!session || session.user.is_anonymous || this._finishSignInLock) return;
+      this._finishSignInLock = true;
+      try {
+        adoptBackendUserId(session.user.id);
+        const flow = sessionStorage.getItem(PENDING_AUTH_FLOW_KEY);
+        if (flow === 'lead') {
+          const code = sessionStorage.getItem(PENDING_NGO_CODE_KEY) || ($('#leadCode') && $('#leadCode').value.trim());
+          clearPendingAuth();
+          if (!code) {
+            showToast(t('toast.ngoCodeRequired'), 'error', 5000);
+            return;
+          }
+          const { data, error: rpcError } = await this.redeemNgoCode(code);
+          if (rpcError || !data) {
+            await this.signOut();
+            showToast(t('toast.ngoCodeInvalid'), 'error', 5000);
+            return;
+          }
+          const assignment = typeof data === 'object' ? data : { ward: data };
+          const profile = await this.getMyRole();
+          grantLeadAccess(
+            assignment.ward || (profile && profile.ward),
+            (profile && profile.coordinator_scope) || assignment.coordinator_scope || 'ward',
+            (profile && profile.neighbourhood_label) || assignment.neighbourhood_label || '',
+            assignment.city || (profile && profile.city) || ''
+          );
+          return;
+        }
+        if (flow === 'admin') {
+          clearPendingAuth();
+          const profile = await this.getMyRole();
+          if (profile && profile.role === 'admin') {
+            isSuperAdmin = true;
+            window.isSuperAdmin = true;
+            refreshAccessReviewBadge();
+          }
+          if (profile && (profile.role === 'bmc' || profile.role === 'admin')) {
+            grantBmcAccess();
+          } else {
+            await this.signOut();
+            showToast(t('toast.bmcUnauthorized'), 'error', 5000);
+          }
+          return;
+        }
+        await restoreElevatedRole();
+        if (isAdmin || isLead) {
+          closeAllModals();
+          showToast(isAdmin ? t('toast.adminVerified') : t('toast.ngoVerified'), 'success', 4500);
+        }
+      } finally {
+        this._finishSignInLock = false;
+      }
+    },
 
     async init() {
       const cfg = window.CIVICRADAR_CONFIG || {};
@@ -3754,10 +3986,16 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       try {
         this.client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-          auth: { persistSession: true, autoRefreshToken: true },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
         });
+        this.bindAuthStateListener();
 
-        let { data: { session } } = await this.client.auth.getSession();
+        let session = await this.recoverSessionFromUrl();
+        if (!session) {
+          const { data: { session: stored } } = await this.client.auth.getSession();
+          session = stored;
+        }
+
         if (!session) {
           const { data, error } = await this.client.auth.signInAnonymously();
           if (error) throw error;
@@ -3774,7 +4012,11 @@ document.addEventListener('DOMContentLoaded', function () {
         this.subscribe();
         updateAuthMode();
         updateSyncStatus();
-        await restoreElevatedRole();
+        if (session && !session.user.is_anonymous) {
+          await this.finishEmailSignIn(session);
+        } else {
+          await restoreElevatedRole();
+        }
         if (window.CivicAnalytics) CivicAnalytics.setSupabaseClient(this.client);
         showToast(t('toast.syncConnected'), 'success', 3000);
         return true;
@@ -4228,8 +4470,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Auth / roles ----
     async sendEmailCode(email) {
-      // Passwordless OTP. shouldCreateUser lets new officials onboard via the trigger.
-      return this.client.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      // Passwordless email sign-in. Default Supabase templates send magic links
+      // (ConfirmationURL); OTP codes need custom SMTP + {{ .Token }} in the template.
+      // emailRedirectTo must match Authentication → URL Configuration redirect allowlist.
+      if (!this.enabled || !this.client) {
+        return { data: null, error: { message: 'offline', code: 'backend_offline' } };
+      }
+      const publicUrl = ((window.CIVICRADAR_CONFIG || {}).publicUrl || '').replace(/\/$/, '');
+      try {
+        return await this.client.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: true,
+            ...(publicUrl ? { emailRedirectTo: publicUrl } : {}),
+          },
+        });
+      } catch (e) {
+        console.warn('sendEmailCode failed:', e);
+        return { data: null, error: e };
+      }
     },
 
     async verifyEmailCode(email, token) {
@@ -4280,12 +4539,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     },
   };
+  window.Backend = Backend;
 
   /* ---------- Auth (elevated-role sign-in) ----------
-   * BMC officials authenticate with an official government email (OTP); the
-   * server grants the 'bmc' role only for allowlisted gov domains.
-   * NGO coordinators authenticate with email (OTP) + an invite code that the
-   * platform issues; redeeming it server-side grants the 'ngo_lead' role.
+   * BMC officials authenticate with an official government email (magic link or OTP
+   * when custom SMTP is configured); the server grants the 'bmc' role only for
+   * allowlisted gov domains. NGO coordinators authenticate with email + an invite
+   * code that the platform issues; redeeming it server-side grants the 'ngo_lead' role.
    * In local/demo mode (no backend) we fall back to the labelled demo logins.
    */
   const Auth = {
@@ -6122,7 +6382,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Role model. Elevated roles are granted only after authentication
-  // (gov-email OTP for BMC, NGO invite code for coordinators) — see the login
+  // (gov-email magic link for BMC, NGO invite code for coordinators) — see the login
   // handlers and BACKEND_SETUP.md. In demo mode they map to the demo logins.
   function getRole() {
     if (isAdmin) return 'bmc';
@@ -6341,6 +6601,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   window.showToast = showToast;
+  window.formatAuthError = formatAuthError;
 
   function setAdminMode(enabled) {
     isAdmin = enabled;
@@ -6360,7 +6621,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePersonaUI();
   }
 
-  // Shows the correct sign-in method per environment: real email-OTP when the
+  // Shows the correct sign-in method per environment: real email magic link when the
   // backend is connected, labelled demo logins otherwise.
   function updateAuthMode() {
     const connected = Backend.enabled;
@@ -6371,6 +6632,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (demo) demo.classList.toggle('hidden', connected);
     });
   }
+  window.updateAuthMode = updateAuthMode;
 
   // On reload in connected mode, re-apply an elevated role from the persisted session.
   async function restoreElevatedRole() {
@@ -6427,17 +6689,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function adminSendCode() {
     const email = $('#adminEmail').value.trim();
-    if (!Auth.isGovEmail(email)) {
+    const founderEmail = ((window.CIVICRADAR_CONFIG || {}).founder || {}).email || '';
+    const isTeamEmail = founderEmail && email.toLowerCase() === founderEmail.toLowerCase();
+    if (!Auth.isGovEmail(email) && !isTeamEmail) {
       showToast(t('toast.govEmail'), 'error', 4500);
       return;
     }
     const btn = $('#btnAdminSendCode');
     btn.disabled = true;
-    const { error } = await Backend.sendEmailCode(email);
-    btn.disabled = false;
-    if (error) { showToast(error.message || 'Could not send code.', 'error'); return; }
-    $('#adminOtpRow').classList.remove('hidden');
-    showToast(t('toast.codeSent'), 'info', 4000);
+    persistPendingAuth('admin');
+    try {
+      const { error } = await Backend.sendEmailCode(email);
+      if (error) {
+        clearPendingAuth();
+        const msg = error.code === 'backend_offline'
+          ? t('toast.authEmailOffline')
+          : formatAuthError(error);
+        showToast(msg, 'error', 5500);
+        return;
+      }
+      showAuthLinkSent('admin');
+      showToast(t('toast.linkSent'), 'info', 4000);
+    } catch (e) {
+      clearPendingAuth();
+      showToast(formatAuthError(e), 'error', 5500);
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function adminVerify() {
@@ -6449,7 +6727,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (error) { btn.disabled = false; showToast(t('toast.codeInvalid'), 'error'); return; }
     const profile = await Backend.getMyRole();
     btn.disabled = false;
-    if (profile && profile.role === 'bmc') {
+    if (profile && profile.role === 'admin') {
+      isSuperAdmin = true;
+      window.isSuperAdmin = true;
+      refreshAccessReviewBadge();
+      grantBmcAccess();
+    } else if (profile && profile.role === 'bmc') {
       grantBmcAccess();
     } else {
       await Backend.signOut();
@@ -6463,11 +6746,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!email || !code) { showToast(t('toast.ngoCodeRequired'), 'error'); return; }
     const btn = $('#btnLeadSendCode');
     btn.disabled = true;
-    const { error } = await Backend.sendEmailCode(email);
-    btn.disabled = false;
-    if (error) { showToast(error.message || 'Could not send code.', 'error'); return; }
-    $('#leadOtpRow').classList.remove('hidden');
-    showToast(t('toast.codeSent'), 'info', 4000);
+    persistPendingAuth('lead', code);
+    try {
+      const { error } = await Backend.sendEmailCode(email);
+      if (error) {
+        clearPendingAuth();
+        const msg = error.code === 'backend_offline'
+          ? t('toast.authEmailOffline')
+          : formatAuthError(error);
+        showToast(msg, 'error', 5500);
+        return;
+      }
+      showAuthLinkSent('lead');
+      showToast(t('toast.linkSent'), 'info', 4000);
+    } catch (e) {
+      clearPendingAuth();
+      showToast(formatAuthError(e), 'error', 5500);
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function leadVerify() {
@@ -7486,9 +7783,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (action === 'approve') approveAccessReq(btn.dataset.accessId);
         else if (action === 'reject') rejectAccessReq(btn.dataset.accessId);
         else if (action === 'copy') {
-          const email = getGrievanceEmail() || getPartnerEmail() || '';
           copyTextSafe(btn.dataset.accessCode, null);
-          showToast(t('access.codeCopied').replace('{email}', email), 'success', 5000);
+          showToast(t('access.codeCopied'), 'success', 5000);
         }
       });
     }
@@ -7768,6 +8064,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $$('#bottomNav .nav-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
+        if (isReportPhotoPickerActive()) return;
         setNavTab(tab.dataset.tab);
         const target = tab.dataset.tab;
         if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: target });
@@ -7879,6 +8176,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     $('#btnAdminSendCode').addEventListener('click', adminSendCode);
     $('#btnAdminVerify').addEventListener('click', adminVerify);
+    $('#btnAdminOtpToggle')?.addEventListener('click', () => {
+      $('#adminOtpRow')?.classList.toggle('hidden');
+    });
 
     $('#btnLeadSubmit').addEventListener('click', () => {
       const u = $('#leadUser').value.trim();
@@ -7901,6 +8201,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     $('#btnLeadSendCode').addEventListener('click', leadSendCode);
     $('#btnLeadVerify').addEventListener('click', leadVerify);
+    $('#btnLeadOtpToggle')?.addEventListener('click', () => {
+      $('#leadOtpRow')?.classList.toggle('hidden');
+    });
 
     $('#aqWardFilter').addEventListener('change', renderAdminQueue);
     $('#aqSort').addEventListener('change', renderAdminQueue);
@@ -8544,7 +8847,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function shareTwitter(message) {
     const base = typeof message === 'string' ? message : buildDefaultShareMessage();
-    const text = encodeURIComponent(`${base} ${buildHashtagLine(user.ward)}`);
+    const text = encodeURIComponent(base);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   }
 

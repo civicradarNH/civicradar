@@ -2,17 +2,21 @@
 """CivicRadar comprehensive E2E test suite (200+ scenarios)."""
 import asyncio
 import json
-import shutil
+import os
 import socket
 import subprocess
 import sys
 import time
 import traceback
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PORT = 8095
+PORT = int(os.environ.get('CIVICRADAR_TEST_PORT', '8095'))
+# Windows often reserves 8095–8096 (HTTP.sys); try these if the preferred port is wrong.
+SERVER_FALLBACK_PORTS = (8097, 8098, 8099, 8787, 9080)
 BASE = f'http://localhost:{PORT}/'
 WARD = 'G/N Ward — Dadar, Shivaji Park'
 PUNE_WARD = 'Ward 1 — Kasba Vishrambag'
@@ -77,6 +81,28 @@ def port_open(port: int) -> bool:
         return s.connect_ex(('127.0.0.1', port)) == 0
 
 
+def server_serves_app(port: int) -> bool:
+    """True when port returns CivicRadar index (not a stale/wrong listener)."""
+    try:
+        with urllib.request.urlopen(f'http://127.0.0.1:{port}/', timeout=1.5) as resp:
+            if resp.status != 200:
+                return False
+            chunk = resp.read(8192).decode('utf-8', errors='replace')
+            return 'CivicRadar' in chunk or 'civicradar' in chunk.lower()
+    except urllib.error.HTTPError:
+        return False
+    except (urllib.error.URLError, OSError, TimeoutError, ValueError):
+        return False
+
+
+def candidate_server_ports():
+    seen = set()
+    for p in (PORT, *SERVER_FALLBACK_PORTS):
+        if p not in seen:
+            seen.add(p)
+            yield p
+
+
 def supabase_configured() -> bool:
     cfg = ROOT / 'js' / 'config.js'
     if not cfg.is_file():
@@ -90,31 +116,33 @@ def supabase_configured() -> bool:
     )
 
 
-def _server_cmd() -> list[str]:
-    if sys.platform == 'win32':
-        ps1 = ROOT / 'serve.ps1'
-        if ps1.is_file():
-            shell = 'pwsh' if shutil.which('pwsh') else 'powershell'
-            if shutil.which(shell):
-                return [shell, '-ExecutionPolicy', 'Bypass', '-File', str(ps1), '-Port', str(PORT)]
-    return [sys.executable, '-m', 'http.server', str(PORT), '--bind', '127.0.0.1']
+def _server_cmd(port: int) -> list[str]:
+    # Stdlib server: predictable bind, no serve.ps1 port-scan loop (8095 can hang on Windows).
+    return [sys.executable, '-m', 'http.server', str(port), '--bind', '127.0.0.1']
 
 
 def ensure_server():
-    if port_open(PORT):
-        return None
-    proc = subprocess.Popen(
-        _server_cmd(),
-        cwd=str(ROOT),
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    for _ in range(40):
-        if port_open(PORT):
-            return proc
-        time.sleep(0.5)
-    proc.kill()
-    raise SystemExit(f'Could not start server on port {PORT}')
+    global PORT, BASE
+    for p in candidate_server_ports():
+        if server_serves_app(p):
+            PORT = p
+            BASE = f'http://localhost:{PORT}/'
+            return None
+    for start_port in candidate_server_ports():
+        proc = subprocess.Popen(
+            _server_cmd(start_port),
+            cwd=str(ROOT),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        for _ in range(20):
+            if server_serves_app(start_port):
+                PORT = start_port
+                BASE = f'http://localhost:{PORT}/'
+                return proc
+            time.sleep(0.25)
+        proc.kill()
+    raise SystemExit(f'Could not start CivicRadar server (tried {PORT} and fallbacks)')
 
 
 def default_user(**kw):
@@ -1330,6 +1358,7 @@ async def run_extended_scenarios(s: Suite, browser):
     page = await ctx.new_page()
     await goto_app(page)
     await page.evaluate('() => window.openReportModal(false)')
+    await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
     live_count = await page.evaluate(
         '() => document.querySelectorAll("#hazardGrid .hazard-tile[data-live=\\"true\\"]").length'
     )
@@ -1661,12 +1690,98 @@ async def run_extended_scenarios(s: Suite, browser):
     # GitHub Pages /civicradar/ subpath (root-absolute paths would 404 there).
     sw_src = await page.evaluate('() => fetch("sw.js").then(r => r.text())')
     sw_ok = (
-        "civicradar-v73" in sw_src
+        "civicradar-v77" in sw_src
         and "'/index.html'" not in sw_src
         and "'/js/app.js'" not in sw_src
         and "'index.html'" in sw_src
     )
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
+    await ctx.close()
+
+    # --- Magic-link auth UI (ML) — official auth surface when backend connected ---
+    ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='ml-auth')})
+    page = await ctx.new_page()
+    await goto_app(page)
+    ml = await page.evaluate(
+        """() => {
+          if (window.CIVICRADAR_CONFIG) {
+            window.CIVICRADAR_CONFIG.publicUrl = window.CIVICRADAR_CONFIG.publicUrl
+              || 'https://civicradarnh.github.io/civicradar';
+          }
+          if (window.Backend) window.Backend.enabled = true;
+          if (typeof updateAuthMode === 'function') updateAuthMode();
+          window.openLeadModal();
+          const official = document.getElementById('leadAuthOfficial');
+          const sendBtn = document.getElementById('btnLeadSendCode');
+          const linkRow = document.getElementById('leadLinkSentRow');
+          const otpFallback = document.getElementById('leadOtpFallback');
+          const otpRow = document.getElementById('leadOtpRow');
+          const sendLabel = sendBtn ? sendBtn.textContent.trim() : '';
+          return {
+            officialVisible: official && !official.classList.contains('hidden'),
+            sendHasLink: /link/i.test(sendLabel),
+            linkHidden: linkRow && linkRow.classList.contains('hidden'),
+            otpFallbackHidden: otpFallback && otpFallback.classList.contains('hidden'),
+            otpRowHidden: otpRow && otpRow.classList.contains('hidden'),
+            publicUrl: !!(window.CIVICRADAR_CONFIG && window.CIVICRADAR_CONFIG.publicUrl),
+          };
+        }"""
+    )
+    s.record('ML01', 'Auth', 'Official lead auth visible when connected', ml['officialVisible'])
+    s.record('ML02', 'Auth', 'Send button says sign-in link', ml['sendHasLink'])
+    s.record('ML03', 'Auth', 'Link instructions hidden before send', ml['linkHidden'])
+    s.record('ML04', 'Auth', 'OTP fallback hidden before send', ml['otpFallbackHidden'])
+    s.record('ML05', 'Auth', 'OTP input collapsed by default', ml['otpRowHidden'])
+    s.record('ML06', 'Auth', 'publicUrl configured for redirect', ml['publicUrl'])
+    ml_after = await page.evaluate(
+        """() => {
+          if (typeof showAuthLinkSent === 'function') showAuthLinkSent('lead');
+          else {
+            document.getElementById('leadLinkSentRow')?.classList.remove('hidden');
+            document.getElementById('leadOtpFallback')?.classList.remove('hidden');
+          }
+          const otpFallback = document.getElementById('leadOtpFallback');
+          const linkRow = document.getElementById('leadLinkSentRow');
+          return {
+            linkVisible: linkRow && !linkRow.classList.contains('hidden'),
+            otpToggleVisible: otpFallback && !otpFallback.classList.contains('hidden'),
+          };
+        }"""
+    )
+    s.record('ML07', 'Auth', 'Link instructions shown after send', ml_after['linkVisible'])
+    s.record('ML08', 'Auth', 'OTP fallback shown after send', ml_after['otpToggleVisible'])
+    ml_err = await page.evaluate(
+        """() => {
+          if (typeof formatAuthError !== 'function') return { ok: false };
+          const emptyObj = formatAuthError({});
+          const emptyMsg = formatAuthError({ message: '{}' });
+          const rate = formatAuthError({ code: 'over_email_send_rate_limit', status: 429 });
+          return {
+            ok: true,
+            emptyNotBrace: emptyObj !== '{}',
+            emptyMsgNotBrace: emptyMsg !== '{}',
+            emptyHasText: emptyObj.length > 12,
+            rateHasHint: /minute|wait|rate|मिन|मि|મિ/i.test(rate),
+          };
+        }"""
+    )
+    s.record(
+        'ML09',
+        'Auth',
+        'Auth errors never show raw {}',
+        ml_err.get('ok')
+        and ml_err.get('emptyNotBrace')
+        and ml_err.get('emptyMsgNotBrace')
+        and ml_err.get('emptyHasText'),
+    )
+    au_ok = await page.evaluate(
+        """async () => {
+          const src = await fetch('js/app.js').then(r => r.text());
+          const chunk = (src.split('async function adminVerify')[1] || '').split('async function leadSendCode')[0];
+          return chunk.includes("profile.role === 'admin'") && chunk.includes('grantBmcAccess()');
+        }"""
+    )
+    s.record('AU01', 'Auth', 'BMC OTP verify accepts admin super-admin role', au_ok)
     await ctx.close()
 
     # --- Legal pages (LG) ---
@@ -1883,7 +1998,7 @@ def write_report(s: Suite, path: Path, fixes=None):
 
     lines.extend(['', '## Limitations', ''])
     lines.extend([
-        '- Supabase backend not configured — cloud sync, OTP auth, and cross-device tests are local-only.',
+        '- Supabase backend not configured — cloud sync, magic-link auth, and cross-device tests are local-only.',
         '- Photo moderation NSFW model skipped in headless (solid-color test images pass).',
         '- PWA offline shell and service-worker stale-cache tests limited (SW blocked in automation).',
         '- Camera permission denial uses geolocation mock proxy; real device camera not tested.',
@@ -2138,6 +2253,30 @@ async def run_access_request_scenarios(s: Suite, browser):
         '() => { const e = document.getElementById("accessClaimError"); return !!(e && !e.classList.contains("hidden")); }'
     )
     s.record('AR11', 'Access', 'Invalid claim code rejected', bad_err)
+
+    # AR12: phone-only submit uses contact-neutral confirm copy (not "email you").
+    await ensure_local_mode(page)
+    await page.evaluate('() => window.openAccessRequestModal()')
+    await page.wait_for_timeout(250)
+    await page.evaluate(
+        """() => {
+          document.getElementById('accessName').value = 'Phone Applicant';
+          document.getElementById('accessEmail').value = '';
+          document.getElementById('accessPhone').value = '9876543210';
+        }"""
+    )
+    await js_click(page, '#btnAccessSubmit')
+    await page.wait_for_timeout(400)
+    phone_confirm_ok = await page.evaluate(
+        """() => {
+          const confirm = document.getElementById('accessRequestConfirm');
+          const body = confirm ? confirm.querySelector('[data-i18n="access.confirmBody"]') : null;
+          const text = body ? body.textContent.toLowerCase() : '';
+          return !!(confirm && !confirm.classList.contains('hidden')
+            && text.includes('reach you') && !text.includes('email you'));
+        }"""
+    )
+    s.record('AR12', 'Access', 'Phone-only confirm uses contact-neutral copy', phone_confirm_ok)
     await ctx.close()
 
 
@@ -2184,6 +2323,13 @@ async def main():
         '`sw.js` + `tests/e2e_comprehensive.py`: v73 cache bump; RP11/RP12 photo→submit regression tests; SW06 → v73',
         '`js/app.js`: export `window.closeAllModals` for automation/E2E callers',
         '`tests/e2e_comprehensive.py`: Access AR06/AR10 use safe modal close; hardened Leaflet waits (`wait_for_map_ready`, popup/marker waits)',
+        '`js/app.js` + `index.html` + `css/styles.css`: magic-link primary auth UX — send sign-in link, post-send instructions, collapsed OTP fallback; callback handler for hash errors + NGO code redeem; `emailRedirectTo: publicUrl`',
+        '`RELEASE.md`: §10 Supabase URL config + optional SMTP/OTP note',
+        '`sw.js` + `tests/e2e_comprehensive.py`: v76 cache bump; ML01–ML09 magic-link auth UI + error tests; SW06 → v76',
+        '`tests/e2e_comprehensive.py`: ensure_server verifies CivicRadar content (not Windows-reserved 8095 listener); port fallbacks 8097–8787; RP05 waits for report modal open',
+        '`js/app.js` + `index.html`: second-pass review — contact-neutral coordinator access copy (phone-only path); admin OTP verify accepts super-admin role; magic-link callback errors via formatAuthError; claim-code copy toast fixed; bottom-nav ghost-tap guard during camera; Twitter share no duplicate hashtags',
+        '`sw.js` + `tests/e2e_comprehensive.py`: v77 cache bump; AR12 phone-only confirm copy; AU01 admin OTP role check; SW06 → v77',
+        '`tests/e2e_comprehensive.py`: ensure_server uses stdlib http.server + shorter probe timeout (fixes Windows 8095 HTTP.sys hang during test startup)',
     ]
     passed, failed, total = write_report(s, out, fixes=fixes)
     print(f'\n=== Done: {passed}/{total} passed, {failed} failed ===', flush=True)

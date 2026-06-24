@@ -3424,6 +3424,34 @@ body.persona-lead .ref-welcome { display: none; }
   padding: 6px 10px;
   margin-bottom: 12px;
 }
+.auth-link-sent {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 8px;
+  border-left: 3px solid var(--success);
+}
+.auth-link-sent__hint { margin: 0; }
+.auth-otp-fallback {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.auth-otp-toggle {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-otp-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 .auth-otp { margin-top: 8px; }
 
 /* ---------- Dashboard stat variants ---------- */

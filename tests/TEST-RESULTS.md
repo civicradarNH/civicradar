@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-06-22 17:25:35
-**Server:** http://localhost:8095/
+**Run:** 2026-06-23 23:15:26
+**Server:** http://localhost:9080/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 267 | **Pass:** 267 | **Fail:** 0
+**Total:** 278 | **Pass:** 278 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -22,13 +22,21 @@
 - `sw.js` + `tests/e2e_comprehensive.py`: v73 cache bump; RP11/RP12 photo→submit regression tests; SW06 → v73
 - `js/app.js`: export `window.closeAllModals` for automation/E2E callers
 - `tests/e2e_comprehensive.py`: Access AR06/AR10 use safe modal close; hardened Leaflet waits (`wait_for_map_ready`, popup/marker waits)
+- `js/app.js` + `index.html` + `css/styles.css`: magic-link primary auth UX — send sign-in link, post-send instructions, collapsed OTP fallback; callback handler for hash errors + NGO code redeem; `emailRedirectTo: publicUrl`
+- `RELEASE.md`: §10 Supabase URL config + optional SMTP/OTP note
+- `sw.js` + `tests/e2e_comprehensive.py`: v76 cache bump; ML01–ML09 magic-link auth UI + error tests; SW06 → v76
+- `tests/e2e_comprehensive.py`: ensure_server verifies CivicRadar content (not Windows-reserved 8095 listener); port fallbacks 8097–8787; RP05 waits for report modal open
+- `js/app.js` + `index.html`: second-pass review — contact-neutral coordinator access copy (phone-only path); admin OTP verify accepts super-admin role; magic-link callback errors via formatAuthError; claim-code copy toast fixed; bottom-nav ghost-tap guard during camera; Twitter share no duplicate hashtags
+- `sw.js` + `tests/e2e_comprehensive.py`: v77 cache bump; AR12 phone-only confirm copy; AU01 admin OTP role check; SW06 → v77
+- `tests/e2e_comprehensive.py`: ensure_server uses stdlib http.server + shorter probe timeout (fixes Windows 8095 HTTP.sys hang during test startup)
 
 ## Summary by category
 
 - **API:** 5 pass / 0 fail
-- **Access:** 11 pass / 0 fail
+- **Access:** 12 pass / 0 fail
 - **Admin:** 8 pass / 0 fail
 - **Analytics:** 5 pass / 0 fail
+- **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
 - **Celebration:** 5 pass / 0 fail
 - **Citizen:** 42 pass / 0 fail
@@ -67,7 +75,7 @@ _None_
 
 ## Limitations
 
-- Supabase backend not configured — cloud sync, OTP auth, and cross-device tests are local-only.
+- Supabase backend not configured — cloud sync, magic-link auth, and cross-device tests are local-only.
 - Photo moderation NSFW model skipped in headless (solid-color test images pass).
 - PWA offline shell and service-worker stale-cache tests limited (SW blocked in automation).
 - Camera permission denial uses geolocation mock proxy; real device camera not tested.
@@ -154,7 +162,7 @@ _None_
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
 | L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 9ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -308,6 +316,16 @@ _None_
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
 | SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| ML01 | Auth | Official lead auth visible when connected | PASS |  |
+| ML02 | Auth | Send button says sign-in link | PASS |  |
+| ML03 | Auth | Link instructions hidden before send | PASS |  |
+| ML04 | Auth | OTP fallback hidden before send | PASS |  |
+| ML05 | Auth | OTP input collapsed by default | PASS |  |
+| ML06 | Auth | publicUrl configured for redirect | PASS |  |
+| ML07 | Auth | Link instructions shown after send | PASS |  |
+| ML08 | Auth | OTP fallback shown after send | PASS |  |
+| ML09 | Auth | Auth errors never show raw {} | PASS |  |
+| AU01 | Auth | BMC OTP verify accepts admin super-admin role | PASS |  |
 | LG01 | Legal | Privacy page loads | PASS |  |
 | LG02 | Legal | Privacy mentions DPDP | PASS |  |
 | LG03 | Legal | Terms page loads | PASS |  |
@@ -343,3 +361,4 @@ _None_
 | AR09 | Access | Reject marks request rejected | PASS |  |
 | AR10 | Access | Claim code unlocks NGO coordinator role | PASS |  |
 | AR11 | Access | Invalid claim code rejected | PASS |  |
+| AR12 | Access | Phone-only confirm uses contact-neutral copy | PASS |  |

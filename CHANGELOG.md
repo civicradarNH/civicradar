@@ -54,5 +54,12 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
   across multiple languages.
 - Accessibility fixes.
 - Offline / service-worker reliability fixes.
+- Coordinator access copy no longer promises email when the applicant only
+  provides a phone number; claim-code copy toast no longer references the team
+  inbox instead of the applicant.
+- BMC OTP fallback now accepts `admin` super-admin profiles (was signing them out).
+- Magic-link callback hash errors routed through `formatAuthError` (no raw `{}`).
+- Bottom-nav ghost taps ignored while the native camera / file picker is active.
+- Twitter share no longer duplicates hashtag lines already in the template.
 
 [Unreleased]: https://github.com/civicradarnh/civicradar/commits/main

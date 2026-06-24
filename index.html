@@ -686,20 +686,26 @@
       <h2 id="adminTitle"><i class="ph ph-shield-check"></i> <span data-i18n="admin.title">BMC Admin</span></h2>
       <p class="modal__subtitle" data-i18n="admin.subtitle">Resolve citizen hazard reports and manage your ward queue.</p>
 
-      <!-- Official sign-in (email OTP, gov-domain gated) — shown when backend is connected -->
+      <!-- Official sign-in (email magic link, gov-domain gated) — shown when backend is connected -->
       <div class="auth-official hidden" id="adminAuthOfficial">
         <div class="form-group">
           <label for="adminEmail" data-i18n="auth.officialEmail">Official email</label>
           <input type="email" id="adminEmail" placeholder="name@mcgm.gov.in" autocomplete="email">
           <p class="field-hint" data-i18n="auth.emailHint">Only verified gov.in / mcgm.gov.in addresses get BMC access.</p>
         </div>
-        <button type="button" class="btn btn--primary btn--full" id="btnAdminSendCode" data-i18n="auth.sendCode">Send sign-in code</button>
-        <div class="auth-otp hidden" id="adminOtpRow">
-          <div class="form-group">
-            <label for="adminOtp" data-i18n="auth.otp">6-digit code</label>
-            <input type="text" id="adminOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+        <button type="button" class="btn btn--primary btn--full" id="btnAdminSendCode" data-i18n="auth.sendCode">Send sign-in link</button>
+        <div class="auth-link-sent hidden" id="adminLinkSentRow">
+          <p class="field-hint auth-link-sent__hint" data-i18n="auth.linkInstructions">Check your email and tap the sign-in link. Keep this tab open — you'll return here signed in.</p>
+        </div>
+        <div class="auth-otp-fallback hidden" id="adminOtpFallback">
+          <button type="button" class="auth-otp-toggle" id="btnAdminOtpToggle" data-i18n="auth.otpFallback">Have a 6-digit code instead?</button>
+          <div class="auth-otp hidden" id="adminOtpRow">
+            <div class="form-group">
+              <label for="adminOtp" data-i18n="auth.otp">6-digit code</label>
+              <input type="text" id="adminOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+            </div>
+            <button type="button" class="btn btn--primary btn--full" id="btnAdminVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
           </div>
-          <button type="button" class="btn btn--primary btn--full" id="btnAdminVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
         </div>
       </div>
 
@@ -728,7 +734,7 @@
       <h2 id="leadTitle"><i class="ph ph-users"></i> <span data-i18n="coord.title">Coordinator login</span></h2>
       <p class="modal__subtitle" data-i18n="coord.subtitle">Review pledges, send volunteers, verify hours.</p>
 
-      <!-- Official sign-in (email OTP + NGO invite code) — shown when backend is connected -->
+      <!-- Official sign-in (email magic link + NGO invite code) — shown when backend is connected -->
       <div class="auth-official hidden" id="leadAuthOfficial">
         <div class="form-group">
           <label for="leadEmail" data-i18n="auth.email">Email</label>
@@ -739,13 +745,19 @@
           <input type="text" id="leadCode" placeholder="Issued by CivicRadar operator" data-i18n-ph="auth.ngoCodePh" autocomplete="off">
           <p class="field-hint" data-i18n="coord.codeHint">Coordinators receive a code when onboarded — ward-wide or neighbourhood (RWA/society) scope.</p>
         </div>
-        <button type="button" class="btn btn--primary btn--full" id="btnLeadSendCode" data-i18n="auth.sendCode">Send sign-in code</button>
-        <div class="auth-otp hidden" id="leadOtpRow">
-          <div class="form-group">
-            <label for="leadOtp" data-i18n="auth.otp">6-digit code</label>
-            <input type="text" id="leadOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+        <button type="button" class="btn btn--primary btn--full" id="btnLeadSendCode" data-i18n="auth.sendCode">Send sign-in link</button>
+        <div class="auth-link-sent hidden" id="leadLinkSentRow">
+          <p class="field-hint auth-link-sent__hint" data-i18n="auth.linkInstructions">Check your email and tap the sign-in link. Keep this tab open — you'll return here signed in.</p>
+        </div>
+        <div class="auth-otp-fallback hidden" id="leadOtpFallback">
+          <button type="button" class="auth-otp-toggle" id="btnLeadOtpToggle" data-i18n="auth.otpFallback">Have a 6-digit code instead?</button>
+          <div class="auth-otp hidden" id="leadOtpRow">
+            <div class="form-group">
+              <label for="leadOtp" data-i18n="auth.otp">6-digit code</label>
+              <input type="text" id="leadOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+            </div>
+            <button type="button" class="btn btn--primary btn--full" id="btnLeadVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
           </div>
-          <button type="button" class="btn btn--primary btn--full" id="btnLeadVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
         </div>
       </div>
 
@@ -1233,7 +1245,7 @@
             <label class="form-label" for="accessEmail" data-i18n="access.contactLabel">Contact — email or phone</label>
             <input type="email" id="accessEmail" maxlength="160" autocomplete="email" inputmode="email" data-i18n-ph="access.emailPh" placeholder="you@example.com">
             <input type="tel" id="accessPhone" class="mt-8" maxlength="40" autocomplete="tel" inputmode="tel" data-i18n-ph="access.phonePh" placeholder="Phone">
-            <p class="field-hint" data-i18n="access.contactHint">Give at least one. If you add an email, that is how we send your claim code.</p>
+            <p class="field-hint" data-i18n="access.contactHint">Give at least one. Claim codes go to email; if you only add a phone, we contact you there.</p>
           </div>
 
           <div class="form-group">
@@ -1260,7 +1272,7 @@
       <div id="accessRequestConfirm" class="access-confirm hidden">
         <div class="access-confirm__icon"><i class="ph ph-check-circle"></i></div>
         <h3 data-i18n="access.confirmTitle">Request received</h3>
-        <p data-i18n="access.confirmBody">Thanks! The CivicRadar team will review your request and email you a claim code, usually within a few days. Enter that code in the app to unlock your access.</p>
+        <p data-i18n="access.confirmBody">Thanks! The CivicRadar team will review your request and reach you with a claim code, usually within a few days. Enter that code in the app to unlock your access.</p>
         <p class="access-confirm__note hidden" id="accessConfirmLocalNote" data-i18n="access.confirmLocal">Saved on this device — it will sync to the team when you are back online.</p>
         <button type="button" class="btn btn--outline btn--full" id="btnAccessConfirmCode" data-i18n="access.haveCode">I already have a claim code</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnAccessDone" data-i18n="access.done">Done</button>

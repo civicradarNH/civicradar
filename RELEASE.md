@@ -282,3 +282,44 @@ operational roles so all current role-gating keeps working.
   approve, and claim are queued on-device) so the experience is never broken and
   is fully testable. Connected-mode submissions made while offline are queued and
   flushed on reconnect.
+
+---
+
+## 10. Supabase auth URLs & magic-link sign-in
+
+Passwordless sign-in uses **magic links** by default (Supabase built-in email).
+No custom SMTP is required for links to work. Six-digit OTP codes only appear if
+you configure custom SMTP and edit the email template to include `{{ .Token }}`.
+
+### URL configuration (required for production magic links)
+
+In Supabase → **Authentication → URL Configuration**:
+
+| Setting | Production value |
+| --- | --- |
+| **Site URL** | `https://civicradarnh.github.io/civicradar` |
+| **Redirect URLs** | `https://civicradarnh.github.io/civicradar/**` |
+
+Staging should use the Cloudflare Pages domain from `js/config.js` →
+`staging.publicUrl` (e.g. `https://civicradar-staging.pages.dev/**`).
+
+The app passes `emailRedirectTo: publicUrl` from config when sending sign-in
+emails, so the redirect allowlist must include that exact origin.
+
+### Sign-in flows
+
+| Persona | Steps |
+| --- | --- |
+| **BMC official** | BMC Admin login → enter gov email → **Send sign-in link** → tap link in email → BMC queue unlocks if role is `bmc`. |
+| **NGO coordinator** | Coordinator login → email + NGO invite code → **Send sign-in link** → tap link → code is redeemed automatically after sign-in. |
+| **CivicRadar super-admin** | Same BMC modal; use the founder inbox (`civicradarnh@gmail.com` in config). After first magic-link sign-in, `profiles.role = 'admin'` grants the review screen on reload. |
+
+### Optional: enable 6-digit OTP (custom SMTP)
+
+1. Supabase → **Project Settings → Auth → SMTP** — configure your mail provider.
+2. **Authentication → Email Templates → Magic Link** — add `{{ .Token }}` if you
+   want codes in the same email, or use a separate OTP template.
+3. In-app, users can expand **"Have a 6-digit code instead?"** after the link is
+   sent and enter the code manually.
+
+Until SMTP is configured, ignore OTP — magic links are the supported path.
