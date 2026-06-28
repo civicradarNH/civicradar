@@ -291,6 +291,27 @@
     }
   }
 
+  async function fetchTrackingDashboard(days, scope) {
+    if (!supabaseClient) return null;
+    const opts = scope || {};
+    try {
+      const { data, error } = await supabaseClient.rpc('get_tracking_dashboard', {
+        p_days: days || 7,
+        p_ward: opts.ward || null,
+        p_city: opts.city || null,
+        p_neighbourhood: opts.neighbourhood || null,
+      });
+      if (error) {
+        logDebug('tracking dashboard error', error.message);
+        return null;
+      }
+      return data;
+    } catch (e) {
+      logDebug('tracking dashboard exception', e);
+      return null;
+    }
+  }
+
   function captureNavigationTiming() {
     try {
       if (!global.performance || !performance.timing) return;
@@ -430,6 +451,7 @@
     wrapAsync,
     getLocalSummary,
     fetchServerSummary,
+    fetchTrackingDashboard,
     getSessionId,
     clearLocalData,
   };

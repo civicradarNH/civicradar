@@ -277,19 +277,10 @@
     staleCheckDays: 7,          // prompt reporter to re-check old pending spots
   },
 
-  /* ----- Society / neighbourhood suggestions (free-text fallback; not a full registry) ----- */
+  /* ----- Society / neighbourhood suggestions (ward-keyed; see js/society-suggestions-data.js) ----- */
   cooperativeRegistryUrl: 'https://cooperatives.gov.in/en/state-dashboard/cooperative-list-reports/state/27',
-  societySuggestions: [
-    'Worli West — Phoenix Mills area',
-    'Hill Road — St Andrews area',
-    'Shivaji Park — Cadell Road',
-    'Dadar West — Hindu Colony',
-    'Bandra West — Pali Hill',
-    'Kurla — Sakinaka CHS',
-    'Powai — Hiranandani Gardens',
-    'Thane West — Ghodbunder Road',
-    'Pune — Koregaon Park',
-  ],
+  // Populated at runtime from CIVICRADAR_SOCIETY_BY_WARD (loaded before app.js).
+  societySuggestionsByCityWard: null,
 
   /* ----- Demo NGO invite codes (local testing — production codes live in Supabase) ----- */
   demoNgoCodes: [

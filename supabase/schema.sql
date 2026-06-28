@@ -914,3 +914,519 @@ begin
     alter publication supabase_realtime add table public.access_requests;
   end if;
 end $$;
+
+-- =====================================================================
+-- Peer voting for NGO ward lead + neighbourhood lead — migration v91
+-- Democratic role grant: 2 community supports by default; 5 each when
+-- multiple active candidates compete for the same scope (co-leads allowed).
+-- BMC officials still use access_requests + admin approval above.
+-- Additive and safe to re-run.
+-- =====================================================================
+
+create table if not exists public.lead_nominations (
+  id                  uuid primary key default gen_random_uuid(),
+  created_at          timestamptz not null default now(),
+  nominee_id          uuid not null references auth.users (id) on delete cascade,
+  display_name        text not null,
+  org_name            text,
+  role_type           text not null check (role_type in ('ngo_ward', 'neighbourhood')),
+  city                text not null default 'mumbai',
+  ward                text not null,
+  neighbourhood_label text,
+  status              text not null default 'active'
+                      check (status in ('active', 'granted', 'withdrawn')),
+  vote_count          int not null default 0,
+  granted_at          timestamptz,
+  constraint lead_nominations_neighbourhood_chk check (
+    role_type <> 'neighbourhood' or coalesce(btrim(neighbourhood_label), '') <> ''
+  )
+);
+
+create index if not exists lead_nominations_scope_idx
+  on public.lead_nominations (role_type, city, ward, neighbourhood_label, status);
+
+create unique index if not exists lead_nominations_active_nominee_scope_idx
+  on public.lead_nominations (
+    nominee_id, role_type, city, ward, coalesce(neighbourhood_label, '')
+  )
+  where status = 'active';
+
+create table if not exists public.lead_votes (
+  id             uuid primary key default gen_random_uuid(),
+  created_at     timestamptz not null default now(),
+  nomination_id  uuid not null references public.lead_nominations (id) on delete cascade,
+  voter_id       uuid not null references auth.users (id) on delete cascade,
+  unique (nomination_id, voter_id)
+);
+
+create index if not exists lead_votes_nomination_idx on public.lead_votes (nomination_id);
+
+alter table public.lead_nominations enable row level security;
+alter table public.lead_votes enable row level security;
+
+-- Anyone signed in may read nominations (community candidate list).
+drop policy if exists "lead_nominations_select_auth" on public.lead_nominations;
+create policy "lead_nominations_select_auth"
+  on public.lead_nominations for select
+  to authenticated
+  using (true);
+
+-- Voters may see their own votes (dedup / UI state).
+drop policy if exists "lead_votes_select_own" on public.lead_votes;
+create policy "lead_votes_select_own"
+  on public.lead_votes for select
+  to authenticated
+  using (auth.uid() = voter_id);
+
+-- Vote threshold: 2 normally; 5 when another active candidate shares the scope.
+create or replace function public.lead_vote_threshold(p_nomination_id uuid)
+returns int
+language plpgsql stable security definer set search_path = public as $$
+declare n record;
+        others int;
+begin
+  select * into n from public.lead_nominations where id = p_nomination_id;
+  if not found then return 2; end if;
+  select count(*)::int into others
+    from public.lead_nominations
+    where status = 'active'
+      and role_type = n.role_type
+      and city = n.city
+      and ward = n.ward
+      and coalesce(neighbourhood_label, '') = coalesce(n.neighbourhood_label, '')
+      and id <> n.id;
+  if others >= 1 then return 5; else return 2; end if;
+end $$;
+
+-- Grant role when threshold met (SECURITY DEFINER — only callable from vote path).
+create or replace function public.maybe_grant_lead(p_nomination_id uuid)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare n record;
+        thresh int;
+        scope text;
+begin
+  select * into n from public.lead_nominations where id = p_nomination_id for update;
+  if not found or n.status <> 'active' then return; end if;
+  thresh := public.lead_vote_threshold(p_nomination_id);
+  if n.vote_count < thresh then return; end if;
+  scope := case when n.role_type = 'neighbourhood' then 'neighbourhood' else 'ward' end;
+  update public.lead_nominations
+    set status = 'granted', granted_at = now()
+    where id = p_nomination_id;
+  update public.profiles set
+    role = 'ngo_lead',
+    ward = n.ward,
+    city = n.city,
+    coordinator_scope = scope,
+    neighbourhood_label = case when scope = 'neighbourhood' then n.neighbourhood_label else null end
+  where id = n.nominee_id;
+end $$;
+
+create or replace function public.lead_vote_after_insert()
+returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.lead_nominations
+    set vote_count = vote_count + 1
+    where id = new.nomination_id;
+  perform public.maybe_grant_lead(new.nomination_id);
+  return new;
+end $$;
+
+drop trigger if exists lead_vote_after_insert_trg on public.lead_votes;
+create trigger lead_vote_after_insert_trg
+  after insert on public.lead_votes
+  for each row execute function public.lead_vote_after_insert();
+
+-- Nominate self for a lead role (auth required).
+create or replace function public.nominate_for_lead(
+  p_role_type text,
+  p_display_name text,
+  p_org_name text default null,
+  p_city text default 'mumbai',
+  p_ward text default null,
+  p_neighbourhood text default null
+)
+returns uuid
+language plpgsql security definer set search_path = public as $$
+declare new_id uuid;
+        rt text := lower(coalesce(p_role_type, 'ngo_ward'));
+        nbh text;
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+  if rt not in ('ngo_ward', 'neighbourhood') then rt := 'ngo_ward'; end if;
+  if coalesce(btrim(p_display_name), '') = '' then raise exception 'name_required'; end if;
+  if coalesce(btrim(p_ward), '') = '' then raise exception 'ward_required'; end if;
+  nbh := nullif(btrim(coalesce(p_neighbourhood, '')), '');
+  if rt = 'neighbourhood' and nbh is null then raise exception 'neighbourhood_required'; end if;
+  if exists (
+    select 1 from public.lead_nominations
+    where nominee_id = auth.uid() and status = 'active'
+      and role_type = rt and city = coalesce(nullif(btrim(coalesce(p_city, '')), ''), 'mumbai')
+      and ward = btrim(p_ward)
+      and coalesce(neighbourhood_label, '') = coalesce(nbh, '')
+  ) then raise exception 'already_nominated'; end if;
+  if exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'ngo_lead'
+      and ward = btrim(p_ward)
+      and coordinator_scope = case when rt = 'neighbourhood' then 'neighbourhood' else 'ward' end
+      and coalesce(neighbourhood_label, '') = coalesce(nbh, '')
+  ) then raise exception 'already_lead'; end if;
+  insert into public.lead_nominations (
+    nominee_id, display_name, org_name, role_type, city, ward, neighbourhood_label
+  ) values (
+    auth.uid(),
+    btrim(p_display_name),
+    nullif(btrim(coalesce(p_org_name, '')), ''),
+    rt,
+    coalesce(nullif(btrim(coalesce(p_city, '')), ''), 'mumbai'),
+    btrim(p_ward),
+    nbh
+  ) returning id into new_id;
+  return new_id;
+end $$;
+
+grant execute on function public.nominate_for_lead(text, text, text, text, text, text)
+  to authenticated;
+
+-- Cast a support vote (one per voter per nomination; no self-votes).
+create or replace function public.vote_for_lead(p_nomination_id uuid)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare n record;
+        thresh int;
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+  select * into n from public.lead_nominations where id = p_nomination_id for update;
+  if not found then raise exception 'not_found'; end if;
+  if n.status <> 'active' then raise exception 'not_active'; end if;
+  if n.nominee_id = auth.uid() then raise exception 'self_vote'; end if;
+  insert into public.lead_votes (nomination_id, voter_id)
+    values (p_nomination_id, auth.uid());
+  select * into n from public.lead_nominations where id = p_nomination_id;
+  thresh := public.lead_vote_threshold(p_nomination_id);
+  return jsonb_build_object(
+    'nomination_id', p_nomination_id,
+    'vote_count', n.vote_count,
+    'threshold', thresh,
+    'granted', n.status = 'granted'
+  );
+exception
+  when unique_violation then raise exception 'already_voted';
+end $$;
+
+grant execute on function public.vote_for_lead(uuid) to authenticated;
+
+-- List active candidates for a ward (optional neighbourhood filter).
+create or replace function public.list_lead_nominations(
+  p_city text default 'mumbai',
+  p_ward text default null,
+  p_neighbourhood text default null
+)
+returns table (
+  id uuid,
+  created_at timestamptz,
+  nominee_id uuid,
+  display_name text,
+  org_name text,
+  role_type text,
+  city text,
+  ward text,
+  neighbourhood_label text,
+  status text,
+  vote_count int,
+  threshold int,
+  i_voted boolean
+)
+language sql stable security definer set search_path = public as $$
+  select
+    n.id,
+    n.created_at,
+    n.nominee_id,
+    n.display_name,
+    n.org_name,
+    n.role_type,
+    n.city,
+    n.ward,
+    n.neighbourhood_label,
+    n.status,
+    n.vote_count,
+    public.lead_vote_threshold(n.id) as threshold,
+    exists (
+      select 1 from public.lead_votes v
+      where v.nomination_id = n.id and v.voter_id = auth.uid()
+    ) as i_voted
+  from public.lead_nominations n
+  where n.status = 'active'
+    and n.city = coalesce(nullif(btrim(coalesce(p_city, '')), ''), 'mumbai')
+    and (p_ward is null or btrim(p_ward) = '' or n.ward = btrim(p_ward))
+    and (
+      p_neighbourhood is null or btrim(p_neighbourhood) = ''
+      or n.role_type = 'ngo_ward'
+      or coalesce(n.neighbourhood_label, '') = btrim(p_neighbourhood)
+    )
+  order by n.vote_count desc, n.created_at asc;
+$$;
+
+grant execute on function public.list_lead_nominations(text, text, text)
+  to authenticated;
+
+-- Realtime for live candidate counts in Community.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'lead_nominations'
+  ) then
+    alter publication supabase_realtime add table public.lead_nominations;
+  end if;
+end $$;
+
+-- =====================================================================
+-- Tracking dashboard aggregates — migration v92
+-- Role-gated RPC for admin / BMC / NGO coordinator analytics.
+-- Privacy: counts only — no PII, photos, or GPS in responses.
+-- PWA install counts are best-effort (appinstalled / standalone sessions).
+-- Additive and safe to re-run.
+-- =====================================================================
+
+create or replace function public.get_tracking_dashboard(
+  p_days int default 7,
+  p_ward text default null,
+  p_city text default null,
+  p_neighbourhood text default null
+)
+returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  prof record;
+  days int := greatest(1, least(coalesce(p_days, 7), 90));
+  since timestamptz := now() - (days || ' days')::interval;
+  filt_ward text;
+  filt_city text;
+  filt_nbh text;
+  ward_code text;
+  traffic jsonb;
+  reports_agg jsonb;
+  escalations jsonb;
+  community jsonb;
+  neighbourhoods jsonb;
+  leads jsonb;
+begin
+  if auth.uid() is null then raise exception 'not_authorized'; end if;
+  select * into prof from public.profiles where id = auth.uid();
+  if not found or prof.role not in ('admin', 'bmc', 'ngo_lead') then
+    raise exception 'not_authorized';
+  end if;
+
+  if prof.role = 'ngo_lead' then
+    filt_ward := prof.ward;
+    filt_city := coalesce(prof.city, 'mumbai');
+    if prof.coordinator_scope = 'neighbourhood' then
+      filt_nbh := prof.neighbourhood_label;
+    end if;
+  elsif prof.role = 'bmc' then
+    filt_ward := nullif(btrim(coalesce(p_ward, '')), '');
+    filt_city := coalesce(nullif(btrim(coalesce(p_city, '')), ''), 'mumbai');
+  else
+    filt_ward := nullif(btrim(coalesce(p_ward, '')), '');
+    filt_city := nullif(btrim(coalesce(p_city, '')), '');
+    filt_nbh := nullif(btrim(coalesce(p_neighbourhood, '')), '');
+  end if;
+
+  ward_code := case when filt_ward is null then null else split_part(filt_ward, '—', 1) end;
+
+  select jsonb_build_object(
+    'sessions', count(distinct session_id) filter (where event_type = 'session_start'),
+    'page_views', count(*) filter (where event_type in ('session_start', 'tab_view')),
+    'pwa_installs', count(*) filter (where event_type = 'pwa_installed'),
+    'pwa_install_prompts', count(*) filter (where event_type = 'pwa_install_prompt'),
+    'pwa_standalone_sessions', count(*) filter (where event_type = 'pwa_standalone_session'),
+    'unique_visitors', count(distinct session_id)
+  ) into traffic
+  from public.analytics_events
+  where created_at >= since
+    and (
+      ward_code is null
+      or ward = ward_code
+      or ward = filt_ward
+    );
+
+  with scoped as (
+    select * from public.reports r
+    where (filt_city is null or r.city = filt_city)
+      and (filt_ward is null or r.ward = filt_ward)
+      and (
+        filt_nbh is null
+        or coalesce(r.neighbourhood, r.society, '') ilike '%' || filt_nbh || '%'
+        or filt_nbh ilike '%' || coalesce(r.neighbourhood, r.society, '') || '%'
+      )
+  ),
+  by_hazard as (
+    select coalesce(hazard, 'unknown') as hazard,
+      count(*)::int as total,
+      count(*) filter (where status = 'pending')::int as pending,
+      count(*) filter (where status = 'resolved')::int as resolved
+    from scoped group by 1
+  )
+  select jsonb_build_object(
+    'total', (select count(*)::int from scoped),
+    'pending', (select count(*)::int from scoped where status = 'pending'),
+    'resolved', (select count(*)::int from scoped where status = 'resolved'),
+    'filed', (select count(*)::int from scoped where coalesce(btrim(complaint_id), '') <> ''),
+    'reporters', (select count(distinct reporter_id)::int from scoped),
+    'confirmations', (select coalesce(sum(confirmations), 0)::int from scoped),
+    'by_hazard', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'hazard', hazard, 'total', total, 'pending', pending, 'resolved', resolved
+      ) order by total desc) from by_hazard
+    ), '[]'::jsonb)
+  ) into reports_agg;
+
+  select jsonb_build_object(
+    'official_opens', coalesce((
+      select jsonb_object_agg(ch, cnt)
+      from (
+        select coalesce(nullif(btrim(payload->>'channel'), ''), 'unknown') as ch,
+          count(*)::int as cnt
+        from public.analytics_events
+        where created_at >= since
+          and event_type in ('official_channel_open', 'bmc_channel_opened')
+          and (
+            ward_code is null
+            or ward = ward_code
+            or ward = filt_ward
+          )
+        group by 1
+      ) x
+    ), '{}'::jsonb),
+    'bmc_filed_events', (
+      select count(*)::int from public.analytics_events
+      where created_at >= since and event_type = 'bmc_filed'
+        and (
+          ward_code is null
+          or ward = ward_code
+          or ward = filt_ward
+        )
+    ),
+    'reports_with_complaint', (reports_agg->>'filed')::int
+  ) into escalations;
+
+  select jsonb_build_object(
+    'corroborations', (
+      select count(*)::int from public.analytics_events
+      where created_at >= since and event_type = 'report_corroborated'
+        and (
+          ward_code is null
+          or ward = ward_code
+          or ward = filt_ward
+        )
+    ),
+    'volunteer_signups', (
+      select count(*)::int from public.analytics_events
+      where created_at >= since and event_type = 'volunteer_signup_created'
+        and (
+          ward_code is null
+          or ward = ward_code
+          or ward = filt_ward
+        )
+    ),
+    'community_cleanups', (
+      select count(*)::int from public.analytics_events
+      where created_at >= since and event_type = 'community_cleanup'
+        and (
+          ward_code is null
+          or ward = ward_code
+          or ward = filt_ward
+        )
+    ),
+    'pledges', (
+      select count(*)::int from public.pledges p
+      where p.created_at >= since
+        and (filt_city is null or p.city = filt_city)
+        and (filt_ward is null or p.ward = filt_ward)
+    )
+  ) into community;
+
+  select coalesce(jsonb_agg(jsonb_build_object('label', label, 'count', cnt) order by cnt desc), '[]'::jsonb)
+  into neighbourhoods
+  from (
+    select coalesce(nullif(btrim(society), ''), nullif(btrim(neighbourhood), ''), '—') as label,
+      count(*)::int as cnt
+    from public.reports r
+    where (filt_city is null or r.city = filt_city)
+      and (filt_ward is null or r.ward = filt_ward)
+      and coalesce(nullif(btrim(society), ''), nullif(btrim(neighbourhood), '')) is not null
+      and (
+        filt_nbh is null
+        or coalesce(r.neighbourhood, r.society, '') ilike '%' || filt_nbh || '%'
+      )
+    group by 1
+    order by cnt desc
+    limit 12
+  ) nb;
+
+  select jsonb_build_object(
+    'ward_leads', (
+      select count(*)::int from public.profiles
+      where role = 'ngo_lead' and coordinator_scope = 'ward'
+        and (filt_city is null or city = filt_city)
+        and (filt_ward is null or ward = filt_ward)
+    ),
+    'neighbourhood_leads', (
+      select count(*)::int from public.profiles
+      where role = 'ngo_lead' and coordinator_scope = 'neighbourhood'
+        and (filt_city is null or city = filt_city)
+        and (filt_ward is null or ward = filt_ward)
+        and (filt_nbh is null or neighbourhood_label = filt_nbh)
+    )
+  ) into leads;
+
+  return jsonb_build_object(
+    'days', days,
+    'scope', jsonb_build_object('ward', filt_ward, 'city', filt_city, 'neighbourhood', filt_nbh),
+    'traffic', traffic,
+    'reports', reports_agg,
+    'escalations', escalations,
+    'community', community,
+    'neighbourhoods', neighbourhoods,
+    'leads', leads,
+    'source', 'cloud'
+  );
+end $$;
+
+grant execute on function public.get_tracking_dashboard(int, text, text, text) to authenticated;
+
+-- Extend public analytics summary with PWA + official-channel counts (v92).
+create or replace function public.get_analytics_summary(p_days int default 7)
+returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'days', greatest(1, least(coalesce(p_days, 7), 90)),
+    'total_events', count(*),
+    'sessions', count(*) filter (where event_type = 'session_start'),
+    'tab_views', count(*) filter (where event_type = 'tab_view'),
+    'page_views', count(*) filter (where event_type in ('session_start', 'tab_view')),
+    'pwa_installs', count(*) filter (where event_type = 'pwa_installed'),
+    'pwa_standalone_sessions', count(*) filter (where event_type = 'pwa_standalone_session'),
+    'official_channel_opens', count(*) filter (where event_type in ('official_channel_open', 'bmc_channel_opened')),
+    'reports_submitted', count(*) filter (where event_type = 'report_submitted'),
+    'corroborations', count(*) filter (where event_type = 'report_corroborated'),
+    'fix_confirmed', count(*) filter (where event_type = 'fix_confirmed'),
+    'community_auto_resolved', count(*) filter (where event_type = 'community_auto_resolved'),
+    'stale_check_fixed', count(*) filter (where event_type = 'stale_check_fixed'),
+    'bmc_filed', count(*) filter (where event_type = 'bmc_filed'),
+    'resolved', count(*) filter (where event_type = 'report_resolved'),
+    'community_cleanups', count(*) filter (where event_type = 'community_cleanup'),
+    'volunteer_signups', count(*) filter (where event_type = 'volunteer_signup_created'),
+    'volunteer_tasks_offered', count(*) filter (where event_type = 'volunteer_task_offered'),
+    'volunteer_tasks_completed', count(*) filter (where event_type = 'volunteer_task_completed'),
+    'whatsapp_shares', count(*) filter (where event_type = 'whatsapp_share'),
+    'errors', count(*) filter (where event_type = 'error'),
+    'perf_samples', count(*) filter (where event_type = 'perf')
+  )
+  from public.analytics_events
+  where created_at >= now() - (greatest(1, least(coalesce(p_days, 7), 90)) || ' days')::interval;
+$$;

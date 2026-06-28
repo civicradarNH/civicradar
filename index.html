@@ -90,7 +90,7 @@
   <div id="personaBar" class="persona-bar persona-bar--citizen" role="status">
     <div class="persona-bar__main">
       <i class="ph ph-info persona-bar__icon" id="personaBarIcon"></i>
-      <p id="personaBarText" data-i18n="persona.citizen.idle">Stagnant water nearby? Tap Report — put it on the ward map for neighbours.</p>
+      <p id="personaBarText" data-i18n="persona.citizen.idle">Monsoon standing water = dengue. Report now — pin your ward map in 30 sec.</p>
     </div>
     <button type="button" class="persona-bar__action hidden" id="personaBarAction"></button>
   </div>
@@ -106,7 +106,7 @@
       <span data-i18n="home.hero.badge">#MonsoonGuardian</span>
     </div>
     <h2 class="home-hero__title" id="homeHeroTitle" data-i18n="home.hero.headline">Report stagnant water on your ward map</h2>
-    <p class="home-hero__sub" data-i18n="home.hero.subline">Stop dengue — alert neighbours &amp; BMC, track fixes together.</p>
+    <p class="home-hero__sub" data-i18n="home.hero.subline">Monsoon is here — pin stagnant water on the spot: snap a photo, neighbours Me too.</p>
     <ul class="home-hero__benefits">
       <li><i class="ph ph-timer" aria-hidden="true"></i><span data-i18n="home.hero.benefit1">30-sec report</span></li>
       <li><i class="ph ph-users-three" aria-hidden="true"></i><span data-i18n="home.hero.benefit2">Neighbours alerted</span></li>
@@ -121,8 +121,9 @@
     <div class="map-empty-cta__icon-wrap" aria-hidden="true">
       <i class="ph ph-drop"></i>
     </div>
-    <p class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No stagnant-water pins on your map yet.</p>
-    <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Pin on the spot → snap a photo → submit in ~30 seconds.</p>
+    <p class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</p>
+    <p class="map-empty-cta__encourage" data-i18n="map.emptyEncourage">Every pin helps your ward beat dengue this monsoon.</p>
+    <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Photo on the spot · ~30 sec</p>
     <button type="button" class="btn btn--primary btn--sm" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first one</button>
     <button type="button" class="btn btn--whatsapp btn--sm map-empty-cta__share hidden" id="btnMapEmptyShare">
       <i class="ph ph-whatsapp-logo"></i> <span data-i18n="map.emptyShare">Invite neighbours on WhatsApp</span>
@@ -175,10 +176,9 @@
   <!-- First-run coach mark (Citizen persona) -->
   <div id="coachMark" class="coach-mark hidden" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
     <div class="coach-mark__card">
-      <span class="coach-mark__step" data-i18n="coach.step">Step 1 of 3</span>
-      <h3 id="coachTitle" data-i18n="coach.title">Spot stagnant water?</h3>
-      <p data-i18n="coach.body">Stand near the spot, tap Report, snap a photo. We pin it on your ward map so neighbours can back it.</p>
-      <p class="coach-mark__spot" id="coachSpotTip" data-i18n="coach.spotTip">No need to report right now. When you pass stagnant water — a puddle, clogged drain, or open tank — open CivicRadar and pin it on the spot so the location is accurate.</p>
+      <span class="coach-mark__step" data-i18n="coach.step">#MonsoonGuardian · 30 sec</span>
+      <h3 id="coachTitle" data-i18n="coach.title">Standing water nearby? Pin it now.</h3>
+      <p data-i18n="coach.body">Tap Report, snap a photo — we pin your ward map.</p>
       <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="coach.got">Got it</button>
     </div>
   </div>
@@ -187,7 +187,7 @@
   <div id="tourOverlay" class="tour hidden" role="dialog" aria-modal="true" aria-labelledby="tourTitle" aria-describedby="tourBody">
     <div class="tour__spotlight" id="tourSpotlight" aria-hidden="true"></div>
     <div class="tour__bubble" id="tourBubble" tabindex="-1">
-      <span class="tour__step" id="tourStep">1 / 4</span>
+      <span class="tour__step" id="tourStep">1 / 3</span>
       <h3 class="tour__title" id="tourTitle" data-i18n="tour.map.title">Your ward map</h3>
       <p class="tour__body" id="tourBody" data-i18n="tour.map.body">This is your ward map. Hazards near you show up here as pins.</p>
       <div class="tour__actions">
@@ -199,7 +199,7 @@
 
   <!-- PWA install nudge (shown once after first report or 2nd visit) -->
   <div id="pwaInstallNudge" class="pwa-nudge hidden" role="region" aria-labelledby="pwaNudgeText">
-    <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">Monsoon-ready: Add CivicRadar to Home Screen for one-tap reporting.</p>
+    <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">Monsoon season 🌧️ Add CivicRadar to Home Screen — one-tap reporting.</p>
     <div class="pwa-nudge__actions">
       <button type="button" class="pwa-nudge__btn pwa-nudge__btn--primary" id="btnPwaNudgeInstall" data-i18n="pwa.nudgeAction">Add to Home Screen</button>
       <button type="button" class="pwa-nudge__btn pwa-nudge__btn--ghost" id="btnPwaNudgeDismiss" data-i18n="pwa.nudgeDismiss">Not now</button>
@@ -284,32 +284,7 @@
         <span class="flow-step" data-i18n="flow.ward">Ward</span>
         <span class="flow-step" data-i18n="flow.ready">Ready</span>
       </div>
-      <p class="modal__subtitle" data-i18n="onboard.subtitle">See hazards in your ward, rally neighbours, and earn Civic Points together.</p>
-      <div class="onboard-explainer" id="onboardHowItWorks">
-        <p class="onboard-explainer__why">
-          <i class="ph ph-shield-warning" aria-hidden="true"></i>
-          <span data-i18n="onboard.why">Stagnant water breeds dengue &amp; malaria. Your report puts the spot on your ward map and into the BMC queue — and alerts neighbours.</span>
-        </p>
-        <p class="onboard-explainer__title" data-i18n="onboard.howTitle">How it works</p>
-        <ol class="onboard-steps">
-          <li class="onboard-step">
-            <span class="onboard-step__num" aria-hidden="true">1</span>
-            <span data-i18n="onboard.how1">Spot stagnant water or a civic hazard</span>
-          </li>
-          <li class="onboard-step">
-            <span class="onboard-step__num" aria-hidden="true">2</span>
-            <span data-i18n="onboard.how2">Pin it &amp; snap a photo on the spot</span>
-          </li>
-          <li class="onboard-step">
-            <span class="onboard-step__num" aria-hidden="true">3</span>
-            <span data-i18n="onboard.how3">Submit — neighbours &amp; BMC see it, you earn Civic Points</span>
-          </li>
-        </ol>
-        <p class="onboard-explainer__note">
-          <i class="ph ph-map-pin" aria-hidden="true"></i>
-          <span data-i18n="onboard.spotNote">Best reported on the spot, so the location is accurate.</span>
-        </p>
-      </div>
+      <p class="modal__subtitle" data-i18n="onboard.subtitle">Pin hazards on your ward map in 30 sec.</p>
       <div class="form-group" id="onboardCityGroup">
         <label for="onboardCity" data-i18n="onboard.city">Your city</label>
         <select id="onboardCity" aria-describedby="onboardCityHint">
@@ -340,8 +315,8 @@
       </div>
       <div class="form-group">
         <label for="onboardSociety" data-i18n="onboard.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="onboardSociety" list="societySuggestions" maxlength="120" placeholder="e.g. Phoenix Mills CHS, Worli" data-i18n-ph="onboard.societyPh" autocomplete="off">
-        <p class="field-hint" data-i18n="onboard.societyHint">Your housing society, RWA, or lane — helps group reports nearby.</p>
+        <input type="text" id="onboardSociety" list="societySuggestions" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyHint">
+        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
       </div>
       <div class="form-group">
         <label for="displayName" data-i18n="onboard.name">Display Name</label>
@@ -381,11 +356,10 @@
         </div>
       </div>
       <div class="form-group photo-confirm hidden" id="photoConfirmGroup">
-        <label class="photo-confirm__label" for="confirmRelevant">
-          <input type="checkbox" id="confirmRelevant" aria-describedby="confirmRelevantError">
-          <span data-i18n="report.confirmRelevant.label">Yes, this photo shows the actual hazard — not faces, documents, or unrelated objects.</span>
-        </label>
-        <p class="photo-confirm__error hidden" id="confirmRelevantError" role="alert" aria-live="assertive" data-i18n="report.confirmRelevant.error">Please confirm the photo shows the hazard, or retake it.</p>
+        <p class="photo-confirm__hint" id="photoConfirmHint" data-i18n="report.photoHint">Photo shows the hazard? Tap Submit — or retake if not.</p>
+        <button type="button" class="btn btn--ghost btn--sm photo-confirm__retake" id="btnRetakePhoto">
+          <i class="ph ph-camera"></i> <span data-i18n="report.retake">Retake photo</span>
+        </button>
       </div>
       <div class="form-group">
         <label for="reportNotes" data-i18n="report.notes">Notes (optional)</label>
@@ -407,6 +381,8 @@
         <i class="ph ph-check-circle"></i>
       </div>
       <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
+      <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
+      <p class="success-badge-unlock hidden" id="successBadgeUnlock" aria-live="polite"></p>
       <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
       <p class="success-progress hidden" id="successProgress" aria-live="polite"></p>
       <h2 id="successTitle" data-i18n="success.title">Report Logged</h2>
@@ -425,19 +401,19 @@
         </button>
       </div>
       <div class="success-optional-block">
-        <p class="modal__subtitle" data-i18n="success.subtitle">Optional: file with your local corporation (free) to start the official clock.</p>
-        <ol class="next-steps">
-          <li data-i18n="success.step1">Share on WhatsApp so neighbours see the pin on the ward map</li>
-          <li data-i18n="success.step2">Optional: file with your corporation and save your complaint number</li>
-          <li data-i18n="success.step3">Volunteers or officials can confirm when fixed — earn Civic Points</li>
-        </ol>
+        <p class="modal__subtitle" data-i18n="success.subtitle">Optional: file with your corporation to start the official clock.</p>
         <button type="button" class="btn btn--outline btn--full" id="btnSuccessFile">
-          <i class="ph ph-megaphone"></i> <span data-i18n="success.file">File official complaint (optional)</span>
+          <i class="ph ph-megaphone"></i> <span data-i18n="success.file">File with BMC (optional)</span>
         </button>
-        <div class="official-channels-block" id="successOfficialBlock">
-          <p class="official-channels-block__title" data-i18n="success.alsoOfficial">Also file officially</p>
-          <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
-          <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
+        <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
+          <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
+            <span data-i18n="success.alsoOfficial">Also file officially</span>
+            <i class="ph ph-caret-down" aria-hidden="true"></i>
+          </button>
+          <div class="official-channels-block__body hidden" id="successOfficialBody">
+            <p class="field-hint" data-i18n="official.subtitle">Gov apps — CivicRadar does not file for you.</p>
+            <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
+          </div>
         </div>
         <div class="share-buttons">
           <button type="button" class="btn btn--dark btn--full" id="btnShareTwitter">
@@ -445,7 +421,7 @@
           </button>
         </div>
       </div>
-      <button type="button" class="btn btn--ghost btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
+      <button type="button" class="btn btn--primary btn--full" id="btnSuccessClose" data-i18n="success.done">Back to map</button>
     </div>
   </div>
 
@@ -534,6 +510,20 @@
       <div class="leaderboard-panel hidden" id="citizensPanel">
         <ul class="leaderboard-list" id="citizensList"></ul>
       </div>
+
+      <!-- Community lead candidates (peer voting) -->
+      <section class="lead-candidates" id="leadCandidatesSection" aria-labelledby="leadCandidatesTitle">
+        <h3 class="section-title" id="leadCandidatesTitle">
+          <i class="ph ph-users-three"></i>
+          <span data-i18n="lead.communityTitle">Community leads</span>
+        </h3>
+        <p class="field-hint" data-i18n="lead.communityHint">Support neighbours who volunteer to coordinate cleanups. 2 supports grants the role; 5 each if multiple candidates.</p>
+        <ul class="lead-candidates__list" id="leadCandidatesList" role="list"></ul>
+        <p class="lead-candidates__empty hidden" id="leadCandidatesEmpty" data-i18n="lead.communityEmpty">No candidates yet in your ward — nominate yourself to get started.</p>
+        <button type="button" class="btn btn--outline btn--full" id="btnCommunityBecomeLead">
+          <i class="ph ph-hand-heart"></i> <span data-i18n="lead.becomeCta">Become a community lead</span>
+        </button>
+      </section>
 
       <!-- Volunteer self-help Card -->
       <div class="pledge-card pledge-card--volunteer">
@@ -664,8 +654,15 @@
         <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
         <div class="profile-card__ward" id="profileWard">—</div>
         <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
+        <div class="profile-rewards hidden" id="profileRewards" aria-label="Rewards progress">
+          <div class="profile-rewards__streak" id="profileStreakLine"></div>
+          <div class="profile-rewards__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileBadgeTrack">
+            <div class="profile-rewards__fill" id="profileBadgeProgress"></div>
+          </div>
+          <p class="profile-rewards__hint" id="profileNextBadgeHint"></p>
+        </div>
         <div class="profile-card__stats">
-          <div class="stat">
+          <div class="stat stat--points">
             <span class="stat__value" id="profilePoints">0</span>
             <span class="stat__label" data-i18n="profile.points">Total Civic Points</span>
           </div>
@@ -683,8 +680,8 @@
 
       <div class="profile-society form-group">
         <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="profileSocietyInput" list="societySuggestions" maxlength="120" placeholder="e.g. Phoenix Mills CHS, Worli" data-i18n-ph="profile.societyPh" autocomplete="off">
-        <p class="field-hint" data-i18n="profile.societyHint">Helps neighbours and RWA leads group reports in your lane.</p>
+        <input type="text" id="profileSocietyInput" list="societySuggestions" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+        <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
         <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
       </div>
 
@@ -752,8 +749,11 @@
         <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
           <i class="ph ph-handshake"></i> <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
         </button>
-        <button type="button" class="partner-link partner-link--cta" id="btnProfileAccessRequest">
-          <i class="ph ph-identification-card"></i> <span data-i18n="access.profileCta">For NGOs &amp; BMC: Request coordinator access</span>
+        <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
+          <i class="ph ph-hand-heart"></i> <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
+        </button>
+        <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
+          <i class="ph ph-identification-card"></i> <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
         </button>
       </div>
     </div>
@@ -782,11 +782,14 @@
           </div>
         </button>
       </div>
-      <button type="button" class="partner-link partner-link--cta" id="btnPartnerRequest">
-        <i class="ph ph-identification-card"></i> <span data-i18n="access.partnerCta">Don’t have access yet? Request coordinator access</span>
+      <button type="button" class="partner-link partner-link--cta" id="btnPartnerLeadNominate">
+        <i class="ph ph-hand-heart"></i> <span data-i18n="lead.partnerCta">Become a community lead — earn it with peer support</span>
+      </button>
+      <button type="button" class="partner-link partner-link--muted" id="btnPartnerBmcRequest">
+        <i class="ph ph-identification-card"></i> <span data-i18n="access.partnerBmcCta">BMC official? Request access</span>
       </button>
       <button type="button" class="partner-link partner-link--muted" id="btnPartnerClaim">
-        <i class="ph ph-key"></i> <span data-i18n="access.partnerClaim">I have a claim code</span>
+        <i class="ph ph-key"></i> <span data-i18n="access.partnerClaim">I have a BMC claim code</span>
       </button>
     </div>
   </div>
@@ -912,6 +915,10 @@
         <div class="health-panel__body" id="adminHealthStats" aria-live="polite" data-i18n="admin.healthLoading">Loading usage…</div>
       </details>
 
+      <button type="button" class="btn btn--outline btn--full" id="btnOpenTracking">
+        <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
+      </button>
+
       <div class="queue-toolbar">
         <div class="queue-controls">
           <select id="aqWardFilter" data-i18n-aria="aria.filterWard" aria-label="Filter by ward">
@@ -960,6 +967,10 @@
       <div class="workflow-hint" data-i18n="coord.workflow">
         Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 pts)
       </div>
+
+      <button type="button" class="btn btn--outline btn--full" id="btnCoordTracking">
+        <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
+      </button>
 
       <h3 class="section-title" data-i18n="coord.volunteers">Volunteers in your scope</h3>
       <ul class="pledge-list pledge-list--compact" id="coordVolunteerList"></ul>
@@ -1171,10 +1182,9 @@
 
       <h3 class="section-title" data-i18n="about.differentTitle">What makes CivicRadar different</h3>
       <ul class="about-different">
-        <li data-i18n="about.different1">Live ward map with photo pins — neighbours tap Me too to corroborate, not anonymous helpline drops</li>
-        <li data-i18n="about.different2">Dual path: pin on CivicRadar first, then one-tap official filing (BMC 1916/MyBMC, PMC CARE, TMC) when you choose</li>
-        <li data-i18n="about.different3">Works offline — install to Home Screen, no login, 4 languages across Mumbai, Pune &amp; Thane</li>
-        <li data-i18n="about.different4">Track until fixed — escalation timeline, Civic Points, and community wins when spots get cleaned</li>
+        <li data-i18n="about.different1">Ward map + Me too — not anonymous helpline drops</li>
+        <li data-i18n="about.different2">Pin first, file officially when you choose</li>
+        <li data-i18n="about.different3">Offline, no login, 4 languages · Mumbai, Pune &amp; Thane</li>
       </ul>
 
       <h3 class="section-title" data-i18n="about.builtTitle">What we built</h3>
@@ -1315,13 +1325,13 @@
     </div>
   </div>
 
-  <!-- Request coordinator access (NGO / BMC) -->
+  <!-- Request BMC access (admin approval — officials only) -->
   <div class="modal-overlay" id="accessRequestOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="accessRequestModal" role="dialog" aria-labelledby="accessRequestTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="accessRequest" aria-label="Close">&times;</button>
-      <h2 id="accessRequestTitle"><i class="ph ph-identification-card"></i> <span data-i18n="access.title">Request coordinator access</span></h2>
-      <p class="modal__subtitle" data-i18n="access.subtitle">For NGO &amp; community coordinators and BMC officials.</p>
+      <h2 id="accessRequestTitle"><i class="ph ph-identification-card"></i> <span data-i18n="access.title">Request BMC access</span></h2>
+      <p class="modal__subtitle" data-i18n="access.subtitle">For invited BMC officials — community leads use peer voting instead.</p>
 
       <div id="accessRequestForm">
         <ol class="access-steps">
@@ -1331,19 +1341,7 @@
         </ol>
 
         <form id="accessForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" id="accessRoleLabel" data-i18n="access.roleLabel">I am a…</label>
-            <div class="segmented" role="radiogroup" aria-labelledby="accessRoleLabel">
-              <label class="segmented__option">
-                <input type="radio" name="accessRole" value="ngo_coordinator" checked>
-                <span><i class="ph ph-hand-heart"></i> <span data-i18n="access.roleNgo">NGO coordinator</span></span>
-              </label>
-              <label class="segmented__option">
-                <input type="radio" name="accessRole" value="bmc_official">
-                <span><i class="ph ph-shield-check"></i> <span data-i18n="access.roleBmc">BMC official</span></span>
-              </label>
-            </div>
-          </div>
+          <input type="hidden" name="accessRole" value="bmc_official">
 
           <div class="form-group">
             <label class="form-label" for="accessName" data-i18n="access.nameLabel">Your name</label>
@@ -1405,7 +1403,87 @@
     </div>
   </div>
 
-  <!-- Enter claim code (unlock approved access) -->
+  <!-- Peer voting: become NGO / neighbourhood lead -->
+  <div class="modal-overlay" id="leadNomOverlay" aria-hidden="true">
+    <div class="modal modal--sm" id="leadNomModal" role="dialog" aria-labelledby="leadNomTitle">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="leadNom" aria-label="Close">&times;</button>
+      <h2 id="leadNomTitle"><i class="ph ph-hand-heart"></i> <span data-i18n="lead.title">Become a community lead</span></h2>
+      <p class="modal__subtitle" data-i18n="lead.subtitle">Nominate yourself — neighbours vote to grant access. No admin approval needed.</p>
+
+      <div id="leadNomFormWrap">
+        <ol class="access-steps">
+          <li data-i18n="lead.step1">Nominate with your ward &amp; scope</li>
+          <li data-i18n="lead.step2">Neighbours tap Support</li>
+          <li data-i18n="lead.step3">2 supports unlocks your role (5 each if co-leads)</li>
+        </ol>
+
+        <form id="leadNomForm" novalidate>
+          <div class="form-group">
+            <label class="form-label" id="leadRoleLabel" data-i18n="lead.roleLabel">Lead type</label>
+            <div class="segmented" role="radiogroup" aria-labelledby="leadRoleLabel">
+              <label class="segmented__option">
+                <input type="radio" name="leadRoleType" value="ngo_ward" checked>
+                <span><i class="ph ph-map-trifold"></i> <span data-i18n="lead.roleWard">Ward NGO lead</span></span>
+              </label>
+              <label class="segmented__option">
+                <input type="radio" name="leadRoleType" value="neighbourhood">
+                <span><i class="ph ph-house-line"></i> <span data-i18n="lead.roleNbh">Neighbourhood lead</span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="leadNomName" data-i18n="lead.nameLabel">Your name</label>
+            <input type="text" id="leadNomName" maxlength="120" autocomplete="name" data-i18n-ph="lead.namePh" placeholder="How neighbours know you">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="leadNomOrg"><span data-i18n="lead.orgLabel">Organization / RWA</span> <span class="field-optional" data-i18n="access.optional">(optional)</span></label>
+            <input type="text" id="leadNomOrg" maxlength="160" data-i18n-ph="lead.orgPh" placeholder="NGO or society name">
+          </div>
+
+          <div class="form-row form-row--split">
+            <div class="form-group">
+              <label class="form-label" for="leadNomCity" data-i18n="access.cityLabel">City</label>
+              <select id="leadNomCity"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="leadNomWard" data-i18n="access.wardLabel">Ward</label>
+              <input type="text" id="leadNomWard" maxlength="120" list="mumbaiCommunities" data-i18n-ph="access.wardPh" placeholder="Your ward" autocomplete="off" required>
+            </div>
+          </div>
+
+          <div class="form-group hidden" id="leadNomNeighbourhoodGroup">
+            <label class="form-label" for="leadNomNeighbourhood" data-i18n="lead.neighbourhoodLabel">Neighbourhood / society / lane</label>
+            <input type="text" id="leadNomNeighbourhood" maxlength="120" data-i18n-ph="volunteer.neighbourhoodPh" placeholder="e.g. Phoenix Mills lane">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="leadNomPitch"><span data-i18n="lead.pitchLabel">Why you?</span> <span class="field-optional" data-i18n="access.optional">(optional)</span></label>
+            <textarea id="leadNomPitch" rows="2" maxlength="300" data-i18n-ph="lead.pitchPh" placeholder="Brief note for voters"></textarea>
+          </div>
+
+          <p class="form-error hidden" id="leadNomError" role="alert" aria-live="assertive"></p>
+
+          <button type="submit" class="btn btn--primary btn--full" id="btnLeadNomSubmit">
+            <span class="btn__label" data-i18n="lead.submit">Nominate me</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="leadNomConfirm" class="access-confirm hidden">
+        <div class="access-confirm__icon"><i class="ph ph-check-circle"></i></div>
+        <h3 data-i18n="lead.confirmTitle">You're on the ballot!</h3>
+        <p data-i18n="lead.confirmBody">Share CivicRadar with neighbours — you need 2 supports to unlock coordinator tools. If someone else runs for the same slot, you both need 5.</p>
+        <p class="access-confirm__note hidden" id="leadNomConfirmLocal" data-i18n="lead.confirmLocal">Saved on this device — syncs when you're online.</p>
+        <button type="button" class="btn btn--outline btn--full" id="btnLeadNomViewCommunity" data-i18n="lead.viewCommunity">See candidates in Community</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnLeadNomDone" data-i18n="access.done">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enter claim code (unlock approved BMC access) -->
   <div class="modal-overlay" id="accessClaimOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="accessClaimModal" role="dialog" aria-labelledby="accessClaimTitle">
       <div class="modal__handle"></div>
@@ -1425,6 +1503,68 @@
     </div>
   </div>
 
+  <!-- Tracking dashboard (admin / coordinator) -->
+  <div class="modal-overlay" id="trackingOverlay" aria-hidden="true">
+    <div class="modal modal--tall" id="trackingModal" role="dialog" aria-labelledby="trackingTitle">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="tracking" aria-label="Close">&times;</button>
+      <h2 id="trackingTitle"><i class="ph ph-chart-bar"></i> <span data-i18n="tracking.title">Analytics &amp; tracking</span></h2>
+      <p class="modal__subtitle" id="trackingSubtitle" data-i18n="tracking.subtitle">Aggregate civic metrics — visits, reports, escalations, and resolutions.</p>
+      <p class="tracking-scope-tag hidden" id="trackingScopeTag"></p>
+
+      <div class="tracking-toolbar">
+        <label class="tracking-toolbar__field">
+          <span data-i18n="tracking.period">Period</span>
+          <select id="trackingDays" aria-label="Date range">
+            <option value="7" data-i18n-option="tracking.days7">Last 7 days</option>
+            <option value="30" data-i18n-option="tracking.days30">Last 30 days</option>
+            <option value="90" data-i18n-option="tracking.days90">Last 90 days</option>
+          </select>
+        </label>
+        <label class="tracking-toolbar__field hidden" id="trackingWardWrap">
+          <span data-i18n="tracking.wardFilter">Ward</span>
+          <select id="trackingWardFilter" aria-label="Filter by ward">
+            <option value="" data-i18n-option="admin.allWards">All wards</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="dashboard-stats dashboard-stats--4" id="trackingHeadline">
+        <div class="dashboard-stat"><span id="trSessions">—</span><label data-i18n="tracking.sessions">Visits</label></div>
+        <div class="dashboard-stat"><span id="trPwa">—</span><label data-i18n="tracking.pwaInstalls">PWA installs</label></div>
+        <div class="dashboard-stat"><span id="trReports">—</span><label data-i18n="tracking.reports">Reports</label></div>
+        <div class="dashboard-stat dashboard-stat--ok"><span id="trResolved">—</span><label data-i18n="tracking.resolved">Resolved</label></div>
+      </div>
+
+      <p class="tracking-note hidden" id="trackingPwaNote" data-i18n="tracking.pwaNote">PWA install counts are approximate (Add to Home Screen / standalone mode). Store downloads cannot be measured on GitHub Pages.</p>
+      <p class="tracking-source" id="trackingSource" data-i18n="tracking.loading">Loading metrics…</p>
+
+      <section class="tracking-section">
+        <h3 class="section-title" data-i18n="tracking.reportsByCategory">Reports by category</h3>
+        <ul class="tracking-breakdown" id="trackingByCategory"></ul>
+      </section>
+
+      <section class="tracking-section">
+        <h3 class="section-title" data-i18n="tracking.escalations">Official channel opens</h3>
+        <ul class="tracking-breakdown" id="trackingEscalations"></ul>
+      </section>
+
+      <section class="tracking-section">
+        <h3 class="section-title" data-i18n="tracking.neighbourhoods">By neighbourhood / society</h3>
+        <ul class="tracking-breakdown" id="trackingNeighbourhoods"></ul>
+      </section>
+
+      <div class="dashboard-stats dashboard-stats--4 tracking-section">
+        <div class="dashboard-stat"><span id="trReporters">—</span><label data-i18n="tracking.reporters">Active reporters</label></div>
+        <div class="dashboard-stat"><span id="trMeToo">—</span><label data-i18n="tracking.meToo">Me too</label></div>
+        <div class="dashboard-stat"><span id="trFiled">—</span><label data-i18n="tracking.filed">Official filings</label></div>
+        <div class="dashboard-stat"><span id="trLeads">—</span><label data-i18n="tracking.leads">Neighbourhood leads</label></div>
+      </div>
+
+      <button type="button" class="btn btn--ghost btn--full" id="btnTrackingClose" data-i18n="admin.returnMap">Return to map</button>
+    </div>
+  </div>
+
   <!-- Access requests review (super-admin) -->
   <div class="modal-overlay" id="accessReviewOverlay" aria-hidden="true">
     <div class="modal modal--tall modal--persona-admin" id="accessReviewModal" role="dialog" aria-labelledby="accessReviewTitle">
@@ -1439,6 +1579,9 @@
         <div class="dashboard-stat"><span id="arRejected">0</span><label data-i18n="access.rejected">Rejected</label></div>
       </div>
       <ul class="queue-list" id="accessReviewList"></ul>
+      <button type="button" class="btn btn--outline btn--full" id="btnAccessReviewTracking">
+        <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
+      </button>
       <button type="button" class="btn btn--ghost btn--full" id="btnAccessReviewClose" data-i18n="admin.returnMap">Return to map</button>
     </div>
   </div>
@@ -1469,6 +1612,7 @@
   <script src="js/wards/pune.js"></script>
   <script src="js/wards/thane.js"></script>
   <script src="js/ward-detect.js"></script>
+  <script src="js/society-suggestions-data.js"></script>
   <script src="js/app.js"></script>
   <script>
     (function () {

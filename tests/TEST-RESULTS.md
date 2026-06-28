@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-06-28 16:13:47
-**Server:** http://localhost:9080/
+**Run:** 2026-06-28 17:44:17
+**Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 336 | **Pass:** 336 | **Fail:** 0
+**Total:** 330 | **Pass:** 323 | **Fail:** 7
 
 ## Fixes applied this run
 
@@ -46,7 +46,11 @@
 - `tests/e2e_comprehensive.py`: RP17 varied canvas (moderation-safe); RP05 modal wait; clear reports before kudos block; RP15 progress assertion; OC01b/OC02b desktop store URLs; OC04 execCommand copy stub
 - `index.html` + `js/app.js` + `js/config.js` + `css/styles.css` + `supabase/schema.sql`: society/neighbourhood MVP (v86) — optional onboarding + Profile field with datalist suggestions + free-text; stored on user profile and attached to reports; shown on map popup; National Cooperative Database link-out; localized en/hi/mr/gu (SO01–SO04)
 - `js/app.js`: i18n audit complete — `rerenderDynamicViews()` re-localizes open modals (success, community, profile, about, tour); `refreshSuccessModalStrings()`; map popup `You are here` localized; child-screen i18n E2E (I06–I08)
-- `sw.js` + `tests/e2e_comprehensive.py`: v86 cache bump; SW06 → v86
+- `index.html` + `js/app.js` + `js/config.js` + `js/society-suggestions-data.js` + `css/styles.css`: ward-filtered society lists (v89) + onboarding explainer trim; custom society cache; OB10–OB13 + SO05–SO08
+- `sw.js` + `tests/e2e_comprehensive.py`: v89 cache bump; SW06 → v89
+- `js/app.js` + `index.html`: active monsoon messaging (v90) + report photo reset on reopen (IS03); hero spot-guidance subline; cache v90
+- `sw.js` + `tests/e2e_comprehensive.py`: v90 cache bump; OB10–OB13 hero-based (post v89 explainer trim); SW06 → v90; browser restart before late suites
+- `supabase/schema.sql` + `js/analytics.js` + `js/app.js` + `index.html` + `css/styles.css`: analytics & tracking dashboard (v93) — `get_tracking_dashboard` RPC, role-gated UI, PWA install instrumentation, localized en/hi/mr/gu; TK01–TK05; SW06 → v93
 
 ## Summary by category
 
@@ -54,9 +58,8 @@
 - **Access:** 12 pass / 0 fail
 - **Admin:** 8 pass / 0 fail
 - **Analytics:** 5 pass / 0 fail
-- **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
-- **Celebration:** 6 pass / 0 fail
+- **Celebration:** 4 pass / 0 fail
 - **Citizen:** 43 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
@@ -66,17 +69,18 @@
 - **Escalation:** 6 pass / 0 fail
 - **Feedback:** 7 pass / 0 fail
 - **HomeHero:** 7 pass / 0 fail
-- **ImageSafety:** 8 pass / 0 fail
-- **Legal:** 6 pass / 0 fail
-- **Load:** 5 pass / 0 fail
-- **LocationBanner:** 6 pass / 0 fail
-- **Map:** 5 pass / 0 fail
+- **ImageSafety:** 7 pass / 0 fail
+- **LeadVote:** 8 pass / 0 fail
+- **Legal:** 2 pass / 0 fail
+- **Load:** 4 pass / 1 fail
+- **LocationBanner:** 4 pass / 2 fail
+- **Map:** 4 pass / 0 fail
 - **MultiCity:** 10 pass / 0 fail
 - **NGO:** 10 pass / 0 fail
 - **Negative:** 8 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 8 pass / 0 fail
+- **PWA:** 2 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -84,20 +88,32 @@
 - **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
 - **Report:** 21 pass / 0 fail
+- **Rewards:** 2 pass / 0 fail
 - **Share:** 1 pass / 0 fail
-- **Society:** 4 pass / 0 fail
+- **Society:** 6 pass / 0 fail
 - **Storage:** 2 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
+- **System:** 0 pass / 1 fail
 - **Tour:** 9 pass / 0 fail
+- **Tracking:** 5 pass / 0 fail
 - **UI:** 25 pass / 0 fail
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
-- **i18n:** 9 pass / 0 fail
+- **i18n:** 6 pass / 3 fail
 
 ## Failures
 
-_None_
+- `L01` **15 parallel report contexts** — 11/15
+- `I06` **Profile title localized (mr)** — failed
+- `I07` **Community title localized (mr)** — failed
+- `I08` **About subtitle localized (hi)** — failed
+- `ERR-Extended` **Suite Extended crashed** — Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#profileSocietyInput")
+    - locator resolved to
+- `LB05` **Banner text localized (Marathi, not hardcoded EN)** — failed
+- `LB06` **Dismiss control has localized aria-label** — failed
 
 ## Limitations
 
@@ -148,7 +164,7 @@ _None_
 | C27 | Citizen | Complaint ID saved | PASS |  |
 | C28 | Citizen | Invalid complaint # handled | PASS |  |
 | C29 | Citizen | Community modal opens | PASS |  |
-| C30 | Citizen | Leaderboard wards populated | PASS | items=5 |
+| C30 | Citizen | Leaderboard wards populated | PASS | items=6 |
 | C31 | Citizen | Pledge modal opens | PASS |  |
 | C32 | Citizen | Pledge saved | PASS |  |
 | C33 | Citizen | Sponsor wall renders | PASS |  |
@@ -187,9 +203,9 @@ _None_
 | E15 | Edge | Map empty CTA visible | PASS |  |
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
-| L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.00s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 3ms |
+| L01 | Load | 15 parallel report contexts | **FAIL** | 11/15 |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -236,12 +252,14 @@ _None_
 | X27 | Volunteer | Skill checkbox compact width | PASS |  |
 | X24 | Escalation | Consent checkbox compact width | PASS |  |
 | X25 | Pledge | Sticky footer present | PASS |  |
-| OB10 | Onboarding | How-it-works explainer present | PASS |  |
-| OB11 | Onboarding | Explainer renders 3 how-it-works steps | PASS |  |
-| OB12 | Onboarding | Why line populated | PASS |  |
-| OB13 | Onboarding | Report-on-the-spot guidance present + populated | PASS |  |
+| OB10 | Onboarding | Hero welcome card present (explainer trim v89) | PASS |  |
+| OB11 | Onboarding | Hero renders 3 benefit pills | PASS |  |
+| OB12 | Onboarding | Hero subline populated (terse) | PASS |  |
+| OB13 | Onboarding | Spot guidance in hero subline | PASS |  |
 | X28 | Celebration | Success celebrate element present | PASS |  |
 | X29 | Celebration | Success progress nudge element present | PASS |  |
+| X30 | Celebration | Success streak callout element present | PASS |  |
+| X31 | Celebration | Profile rewards dashboard present | PASS |  |
 | V40 | Viral | Referral welcome banner present + hidden by default | PASS |  |
 | V41 | Viral | Seasonal hook element present in community | PASS |  |
 | V42 | Viral | Ward weekly social proof line populated | PASS |  |
@@ -276,7 +294,7 @@ _None_
 | U01 | UI | Language overlay opens | PASS |  |
 | U02 | UI | Language overlay closes | PASS |  |
 | U03 | UI | About modal opens | PASS |  |
-| DF01 | Differentiation | About different section has 4 bullets | PASS | count=4 |
+| DF01 | Differentiation | About different section has 3 bullets | PASS | count=3 |
 | DF02 | Differentiation | About copy mentions Me too not helpline | PASS |  |
 | U04 | UI | About modal closes | PASS |  |
 | U05 | UI | Volunteer modal opens | PASS |  |
@@ -310,9 +328,11 @@ _None_
 | RP06 | Report | Close without submit saves nothing | PASS |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
-| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="You’re protecting your ward — " progress="Badge unlocked! 2 more to your" |
+| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="Youï¿½re protecting your ward " progress="Badge unlocked! 2 more to your" |
 | RP14 | Report | Non-milestone report shows rotating kudos | PASS | celebrate="Logged! Thanks for looking out for your " |
 | RP15 | Report | Non-milestone report shows progress-to-badge nudge | PASS | progress="Just 1 more report to your next badge." |
+| RW01 | Rewards | Second report shows week streak callout | PASS |  |
+| RW02 | Rewards | Profile rewards bar visible after reports | PASS |  |
 | RP09 | Report | Near-duplicate triggers Me too | PASS |  |
 | RP10 | Report | Report notes maxlength enforced | PASS |  |
 | RP11 | Report | Photo accept stays on submit step | PASS |  |
@@ -336,6 +356,11 @@ _None_
 | AD03 | Admin | Queue sort element | PASS |  |
 | AD04 | Admin | Admin health corroborations stat | PASS |  |
 | AD05 | Admin | Admin queue closes | PASS |  |
+| TK01 | Tracking | Tracking button in admin queue | PASS |  |
+| TK02 | Tracking | Tracking modal opens | PASS |  |
+| TK03 | Tracking | Tracking headline stats render | PASS |  |
+| TK04 | Tracking | Category breakdown list element | PASS |  |
+| TK05 | Tracking | Tracking modal closes | PASS |  |
 | AD06 | Admin | Exit admin via persona bar | PASS |  |
 | WD01 | Ward | CivicWardDetect module exported | PASS |  |
 | WD02 | Ward | CivicWardData mumbai loaded | PASS |  |
@@ -350,44 +375,24 @@ _None_
 | I03 | i18n | FAB label non-English (gu) | PASS |  |
 | I04 | i18n | Lang button shows EN code | PASS |  |
 | I05 | i18n | Header context translated | PASS |  |
-| I06 | i18n | Profile title localized (mr) | PASS |  |
-| I07 | i18n | Community title localized (mr) | PASS |  |
-| I08 | i18n | About subtitle localized (hi) | PASS |  |
+| I06 | i18n | Profile title localized (mr) | **FAIL** |  |
+| I07 | i18n | Community title localized (mr) | **FAIL** |  |
+| I08 | i18n | About subtitle localized (hi) | **FAIL** |  |
 | SO01 | Society | Profile society field saves to user | PASS |  |
 | SO02 | Society | Report inherits user society | PASS |  |
 | SO03 | Society | Report popup shows society when set | PASS |  |
 | SO04 | Society | Cooperative registry link configured | PASS |  |
-| SW01 | PWA | CIVICRADAR_CONFIG loaded | PASS |  |
-| SW02 | PWA | Config has cities object | PASS |  |
-| SW03 | PWA | Manifest href valid | PASS |  |
-| SW04 | PWA | Theme color meta | PASS |  |
-| SW05 | PWA | App icons linked | PASS |  |
-| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
-| ML01 | Auth | Official lead auth visible when connected | PASS |  |
-| ML02 | Auth | Send button says sign-in link | PASS |  |
-| ML03 | Auth | Link instructions hidden before send | PASS |  |
-| ML04 | Auth | OTP fallback hidden before send | PASS |  |
-| ML05 | Auth | OTP input collapsed by default | PASS |  |
-| ML06 | Auth | publicUrl configured for redirect | PASS |  |
-| ML07 | Auth | Link instructions shown after send | PASS |  |
-| ML08 | Auth | OTP fallback shown after send | PASS |  |
-| ML09 | Auth | Auth errors never show raw {} | PASS |  |
-| AU01 | Auth | BMC OTP verify accepts admin super-admin role | PASS |  |
-| LG01 | Legal | Privacy page loads | PASS |  |
-| LG02 | Legal | Privacy mentions DPDP | PASS |  |
-| LG03 | Legal | Terms page loads | PASS |  |
-| LG04 | Legal | Terms mentions not government | PASS |  |
-| HF01 | Map | Hidden report excluded from count | PASS |  |
-| CL01 | Celebration | Success modal open after report | PASS |  |
-| CL02 | Celebration | WhatsApp share btn present | PASS |  |
-| CL03 | Celebration | File BMC btn present | PASS |  |
-| CL04 | Celebration | Success close btn present | PASS |  |
-| IS01 | ImageSafety | Submit blocked without relevance confirm | PASS |  |
-| IS02 | ImageSafety | Confirm prompt toast shown | PASS |  |
-| IS03 | ImageSafety | Confirm checkbox clears inline error | PASS |  |
-| IS04 | ImageSafety | Submit succeeds after relevance confirm | PASS |  |
-| IS05 | ImageSafety | Affirmation resets on modal reopen | PASS |  |
-| IS05b | ImageSafety | Confirm group hidden with no photo | PASS |  |
+| SO05 | Society | Ward-keyed society data loaded (10+ per major ward) | PASS |  |
+| SO06 | Society | Datalist differs by ward | PASS |  |
+| ERR-Extended | System | Suite Extended crashed | **FAIL** | Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#profileSocietyInput")
+    - locator resolved to |
+| IS01 | ImageSafety | Photo hint visible after capture | PASS |  |
+| IS02 | ImageSafety | Submit succeeds without checkbox confirm | PASS |  |
+| IS03 | ImageSafety | Hint hidden on modal reopen without photo | PASS |  |
+| IS04 | ImageSafety | Hint shows again after new photo | PASS |  |
+| IS05 | ImageSafety | Retake photo button present | PASS |  |
 | IS06 | ImageSafety | Admin proof accepted when scan passes | PASS |  |
 | IS07 | ImageSafety | Admin proof blocked when scan fails (blank) | PASS |  |
 | FB01 | Feedback | Feedback entry points present (Profile + About) | PASS |  |
@@ -413,24 +418,32 @@ _None_
 | RR05 | Reminder | Reminder respects cadence (not re-shown same day) | PASS |  |
 | RR06 | Reminder | No location nudge when hazard is far away | PASS |  |
 | RR07 | Reminder | Nearby pending hazard triggers location nudge | PASS |  |
-| AR01 | Access | Request entry points present (Profile + Partner) | PASS |  |
-| AR02 | Access | Request modal opens with explainer | PASS |  |
+| AR01 | Access | Lead + BMC entry points present | PASS |  |
+| AR02 | Access | BMC request modal opens with explainer | PASS |  |
 | AR03 | Access | Empty name blocked with inline error | PASS |  |
 | AR04 | Access | Contact required (email or phone) | PASS |  |
-| AR05 | Access | Low-friction NGO submit (name+email) confirms + stores | PASS |  |
+| AR05 | Access | BMC submit (name+email) confirms + stores | PASS |  |
 | AR06 | Access | Access strings render (i18n, no key leak) | PASS |  |
-| AR07 | Access | Admin review lists pending request | PASS |  |
+| AR07 | Access | Admin review lists pending BMC request | PASS |  |
 | AR08 | Access | Approve issues claim code | PASS |  |
 | AR09 | Access | Reject marks request rejected | PASS |  |
-| AR10 | Access | Claim code unlocks NGO coordinator role | PASS |  |
+| AR10 | Access | Claim code unlocks BMC role | PASS |  |
 | AR11 | Access | Invalid claim code rejected | PASS |  |
 | AR12 | Access | Phone-only confirm uses contact-neutral copy | PASS |  |
+| LV01 | LeadVote | Nomination modal opens with explainer | PASS |  |
+| LV02 | LeadVote | Ward required for nomination | PASS |  |
+| LV03 | LeadVote | Nomination confirms + stores locally | PASS |  |
+| LV04 | LeadVote | Candidate listed in Community | PASS |  |
+| LV05 | LeadVote | Self-vote blocked | PASS |  |
+| LV06 | LeadVote | 2 peer votes grant NGO lead role | PASS |  |
+| LV07 | LeadVote | Conflict shows 5-vote co-lead threshold | PASS |  |
+| LV08 | LeadVote | Lead strings render (i18n, no key leak) | PASS |  |
 | LB01 | LocationBanner | Banner shows when consent missing | PASS |  |
 | LB02 | LocationBanner | Dismiss hides banner + sets snooze + shows pill | PASS |  |
 | LB03 | LocationBanner | Banner does not reappear while snoozed | PASS |  |
 | LB04 | LocationBanner | Locate pill re-triggers enable flow | PASS |  |
-| LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | PASS |  |
-| LB06 | LocationBanner | Dismiss control has localized aria-label | PASS |  |
+| LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | **FAIL** |  |
+| LB06 | LocationBanner | Dismiss control has localized aria-label | **FAIL** |  |
 | HM01 | HomeHero | Hero visible for onboarded user with no reports | PASS |  |
 | HM02 | HomeHero | Purpose headline + subline visible | PASS |  |
 | HM03 | HomeHero | Primary CTA present | PASS |  |

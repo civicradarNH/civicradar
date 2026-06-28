@@ -10,6 +10,27 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 ## [Unreleased]
 
 ### Added
+- **Analytics & tracking dashboard (v93)** — role-gated dashboard for BMC admin, super-admin, and NGO coordinators: visits/sessions, PWA installs (best-effort), reports by hazard category, official channel opens, neighbourhood/society breakdown, resolved counts, active reporters, Me too, and lead counts. Server aggregates via new `get_tracking_dashboard` RPC; local fallback for demo/offline. Period filter (7/30/90 days) and ward filter for admins. Instrumentation: `pwa_installed`, `pwa_standalone_session`. Cache v93. FOUNDER MUST RE-RUN `supabase/schema.sql` once.
+- **Peer voting for community leads (v91/v92)** — NGO ward lead and neighbourhood lead roles are now granted democratically via neighbour supports instead of admin approval. Nominate yourself (Profile, Partner, Community, About), neighbours tap Support in Community; **2 supports** auto-grants the role; **5 supports each** when multiple active candidates share the same scope (co-leads allowed). BMC officials still use the admin-reviewed claim-code flow. New Supabase tables `lead_nominations` + `lead_votes` with RLS and RPCs `nominate_for_lead`, `vote_for_lead`, `list_lead_nominations`. Works in local/no-Supabase mode. Localized en/hi/mr/gu. Cache v92. E2E LV01–LV08; Access suite updated for BMC-only (AR01–AR12).
+
+### Changed
+- **Active monsoon messaging (v90)** — seasonal copy shifted from pre-monsoon prep ("coming", "before first rain", "Monsoon-ready") to active monsoon urgency across en/hi/mr/gu: community season hook, persona bar, hero, coach mark, map empty CTA, PWA nudge, onboarding subtitle. `getSeasonalHook()` now shows peak messaging Jun–Aug (June was incorrectly on prep key). Cache v90.
+
+### Added
+- **Ward-filtered society lists + onboarding trim (v89)** — comprehensive ward-keyed society/neighbourhood
+  suggestions for Mumbai (24 wards), Pune (41), and Thane (66) in `js/society-suggestions-data.js`;
+  datalist filters by city+ward on onboarding and Profile; custom entries cached in
+  `civicradar_custom_societies`; free-text always allowed. Removed redundant onboarding
+  how-it-works explainer (hero + app tour cover it); single-line subtitle kept. Cache v89.
+  E2E SO05–SO08, OB10–OB13 updated.
+- **Rewards & delight polish (v88)** — richer success moment: scaled confetti by report count,
+  count-up Civic Points animation (reduced-motion safe), week streak callout, inline milestone
+  badge unlock in success modal. Profile rewards dashboard with progress bar, streak weeks, next
+  badge hint, subtle points glow. Map pin-drop pulse after submit; empty-map encourage line.
+  Me Too awards +5 Civic Points with warmer toast. Playful Hinglish-friendly kudos in en/hi/mr/gu.
+  Cache v88. E2E RW01–RW02, X30–X31.
+- **Launch polish (v93)** — tighter copy en/hi/mr/gu; hero skips duplicate coach; tour 3 steps; photo inline hint (no checkbox tap); success modal streamlined + collapsible official channels; hero/modal/empty-map CSS refresh. Cache v93.
+- **Launch polish (v87)** — tighter copy across en/hi/mr/gu (hero, coach, onboarding, success, tour, About, reminders, official channels); hero skips duplicate coach overlay; tour 4→3 steps (Me too merged into map); photo confirm checkbox replaced with inline hint + Retake (one fewer tap); success modal drops redundant next-steps list, collapsible official channels, primary "Back to map" CTA; visual refresh for hero card, modals, map empty state, tour Skip. Cache v87. E2E IS01–IS05, DF01 (3 bullets), C09b/OB13 updated.
 - **Society / neighbourhood layer (MVP, v86)** — optional society/neighbourhood on onboarding
   (after ward) and Profile: searchable text + datalist from config suggestions + free-text
   fallback. Stored on user profile (`society`) and attached to new reports; shown on map

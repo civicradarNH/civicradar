@@ -1,0 +1,1 @@
+{'text': 'Snap a photo on the spot � neighbours Me too, BMC sees it.', 'ob13': True, 'heroHidden': False}

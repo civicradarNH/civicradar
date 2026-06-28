@@ -1,0 +1,2652 @@
+﻿diff --git a/js/app.js b/js/app.js
+index ea7a459..71e8e38 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
+ 
+   /* ---------- Constants ---------- */
+   // Build tag attached to feedback rows. Kept in step with the SW cache version.
+-  const CIVIC_APP_VERSION = 'v86';
++  const CIVIC_APP_VERSION = 'v92';
+   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
+   const PENDING_NGO_CODE_KEY = 'civicradar_pending_ngo_code';
+ 
+@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
+   const POINTS_FIRST_SHARE = 10;
+   const POINTS_COMMUNITY_RESOLVE_REPORTER = 25;
+   const POINTS_FIX_CONFIRM = 10;
++  const POINTS_ME_TOO = 5;
+   const REPORT_CELEBRATION_MILESTONES = [1, 3, 5, 10];
+   const VERIFY_HOURS_BONUS = 200;
+   const NEARBY_CORROB_M = 50;
+@@ -217,6 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
+     accessRequest: $('#accessRequestOverlay'),
+     accessClaim: $('#accessClaimOverlay'),
+     accessReview: $('#accessReviewOverlay'),
++    leadNom: $('#leadNomOverlay'),
++    tracking: $('#trackingOverlay'),
+   };
+ 
+   let user;
+@@ -604,6 +607,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     if (hdr && getActivePersona() === 'citizen') {
+       hdr.textContent = t('header.contextCity').replace('{city}', getCityLabel(city));
+     }
++    refreshSocietyForOnboarding();
+   }
+ 
+   function getOnboardingCity() {
+@@ -620,22 +624,124 @@ document.addEventListener('DOMContentLoaded', function () {
+ 
+   populateWardDatalists();
+ 
+-  function populateSocietyDatalist() {
++  const CUSTOM_SOCIETIES_KEY = 'civicradar_custom_societies';
++
++  function getSocietyDataByCityWard() {
++    const cfg = window.CIVICRADAR_CONFIG || {};
++    return cfg.societySuggestionsByCityWard
++      || window.CIVICRADAR_SOCIETY_BY_WARD
++      || {};
++  }
++
++  function loadCustomSocieties() {
++    try {
++      return JSON.parse(localStorage.getItem(CUSTOM_SOCIETIES_KEY) || '{}');
++    } catch {
++      return {};
++    }
++  }
++
++  function saveCustomSocietyEntry(cityId, ward, name) {
++    const trimmed = sanitizeText(name, 120);
++    if (!trimmed || !ward || !cityId) return;
++    const store = loadCustomSocieties();
++    if (!store[cityId]) store[cityId] = {};
++    if (!store[cityId][ward]) store[cityId][ward] = [];
++    if (store[cityId][ward].includes(trimmed)) return;
++    store[cityId][ward].unshift(trimmed);
++    if (store[cityId][ward].length > 20) store[cityId][ward] = store[cityId][ward].slice(0, 20);
++    localStorage.setItem(CUSTOM_SOCIETIES_KEY, JSON.stringify(store));
++  }
++
++  function wardLabelShort(ward) {
++    if (!ward) return '';
++    const parts = String(ward).split('ΓÇö');
++    return parts.length > 1 ? parts[parts.length - 1].trim() : String(ward).trim();
++  }
++
++  function getConfiguredSocieties(cityId, ward) {
++    if (!cityId || !ward) return [];
++    const byCity = getSocietyDataByCityWard()[cityId] || {};
++    return Array.isArray(byCity[ward]) ? byCity[ward] : [];
++  }
++
++  function getSocietySuggestions(cityId, ward) {
++    if (!cityId || !ward) return [];
++    const custom = ((loadCustomSocieties()[cityId] || {})[ward] || []);
++    const configured = getConfiguredSocieties(cityId, ward);
++    const demoNbh = ((window.CIVICRADAR_CONFIG || {}).demoNgoCodes || [])
++      .filter((c) => c.ward === ward && c.neighbourhood)
++      .map((c) => c.neighbourhood);
++    return [...new Set([...custom, ...configured, ...demoNbh])];
++  }
++
++  function updateSocietyHint(cityId, ward, count) {
++    if (typeof t !== 'function') return;
++    const onboardHint = document.getElementById('onboardSocietyHint');
++    const profileHint = document.getElementById('profileSocietyHint');
++    const wardLabel = wardLabelShort(ward);
++    if (onboardHint) {
++      if (!ward) {
++        onboardHint.textContent = t('onboard.societyHintNoWard');
++      } else if (count > 0) {
++        onboardHint.textContent = t('onboard.societyHintWard')
++          .replace('{ward}', wardLabel)
++          .replace('{n}', String(count));
++      } else {
++        onboardHint.textContent = t('onboard.societyHintCustom');
++      }
++    }
++    if (profileHint) {
++      if (!ward) {
++        profileHint.textContent = t('profile.societyHintNoWard');
++      } else if (count > 0) {
++        profileHint.textContent = t('profile.societyHintWard')
++          .replace('{ward}', wardLabel)
++          .replace('{n}', String(count));
++      } else {
++        profileHint.textContent = t('profile.societyHintCustom');
++      }
++    }
++  }
++
++  function refreshSocietyDatalist(cityId, ward) {
+     const list = document.getElementById('societySuggestions');
+     if (!list) return;
+-    const cfg = window.CIVICRADAR_CONFIG || {};
+-    const suggestions = Array.isArray(cfg.societySuggestions) ? cfg.societySuggestions : [];
+-    const demoNbh = (cfg.demoNgoCodes || [])
+-      .map((c) => c.neighbourhood)
+-      .filter(Boolean);
+-    const merged = [...new Set([...suggestions, ...demoNbh])];
+-    list.innerHTML = merged.map((n) => {
++    const suggestions = getSocietySuggestions(cityId, ward);
++    list.innerHTML = suggestions.map((n) => {
+       const safe = String(n).replace(/"/g, '&quot;');
+       return `<option value="${safe}"></option>`;
+     }).join('');
++    updateSocietyHint(cityId, ward, suggestions.length);
+   }
+ 
+-  populateSocietyDatalist();
++  function cacheSocietyIfCustom(cityId, ward, value) {
++    const val = sanitizeText(value, 120);
++    if (!val || !ward || !cityId) return;
++    const known = getSocietySuggestions(cityId, ward);
++    if (!known.includes(val)) {
++      saveCustomSocietyEntry(cityId, ward, val);
++      refreshSocietyDatalist(cityId, ward);
++    }
++  }
++
++  function refreshSocietyForOnboarding() {
++    const cityId = getOnboardingCity();
++    const ward = getOnboardingWard();
++    if (ward && isValidWard(ward, cityId)) {
++      refreshSocietyDatalist(cityId, ward);
++    } else {
++      refreshSocietyDatalist(cityId, '');
++    }
++  }
++
++  function refreshSocietyForProfile() {
++    refreshSocietyDatalist(user.city || DEFAULT_CITY, user.ward || '');
++  }
++
++  if (window.CIVICRADAR_CONFIG && window.CIVICRADAR_SOCIETY_BY_WARD) {
++    window.CIVICRADAR_CONFIG.societySuggestionsByCityWard = window.CIVICRADAR_SOCIETY_BY_WARD;
++  }
+   function getModCfg() {
+     return window.ImageModeration
+       ? ImageModeration.mergeConfig((window.CIVICRADAR_CONFIG || {}).moderation)
+@@ -731,21 +837,18 @@ document.addEventListener('DOMContentLoaded', function () {
+       'location.locate': 'Locate me',
+       'location.locateAria': 'Turn on location',
+       'location.enable': 'Turn on',
+-      'coach.step': '#MonsoonGuardian ┬╖ 30 sec', 'coach.title': 'Dengue\'s enemy? Stagnant water!',
+-      'coach.body': 'Tap Report, snap a photo ΓÇö we pin it on your ward map. Neighbours can say Me too. Share on WhatsApp so more eyes see it.',
+-      'coach.spotTip': 'No need to report right now. When you pass stagnant water ΓÇö a puddle, clogged drain, or open tank ΓÇö open CivicRadar and pin it on the spot so the location is accurate.',
++      'coach.step': '#MonsoonGuardian ┬╖ 30 sec', 'coach.title': 'Standing water nearby? Pin it now.',
++      'coach.body': 'Tap Report, snap a photo ΓÇö we pin your ward map.',
+       'coach.got': 'Got it',
+-      'tour.skip': 'Skip', 'tour.next': 'Next', 'tour.done': 'Got it',
+-      'tour.replay': 'Replay app tour',
++      'tour.skip': 'Skip tour', 'tour.next': 'Next', 'tour.done': 'Got it',
++      'tour.replay': 'Replay tour',
+       'tour.map.title': 'Your ward map',
+-      'tour.map.body': 'This is your ward map. Hazards near you show up here as pins.',
+-      'tour.report.title': 'Report in 30 seconds',
+-      'tour.report.body': 'Tap here to report stagnant water ΓÇö it takes about 30 seconds.',
+-      'tour.metoo.title': 'Back your neighbours',
+-      'tour.metoo.body': 'Already pinned nearby? Tap ΓÇ£Me tooΓÇ¥ on a hazard so {corp} sees the pressure building.',
+-      'tour.profile.title': 'Civic Points & reports',
+-      'tour.profile.body': 'Track your Civic Points and find your reports here in Profile.',
+-      'persona.citizen.idle': '≡ƒªƒ Stagnant water = dengue risk. Tap Report ΓÇö pin it on your ward map in 30 sec, then share on WhatsApp.',
++      'tour.map.body': 'Hazard pins show here ΓÇö tap Me too to back neighbours.',
++      'tour.report.title': 'Report in 30 sec',
++      'tour.report.body': 'Tap here when you spot stagnant water.',
++      'tour.profile.title': 'Profile',
++      'tour.profile.body': 'Civic Points and your reports live here.',
++      'persona.citizen.idle': '≡ƒªƒ Monsoon standing water = dengue. Report now ΓÇö pin your ward map in 30 sec.',
+       'persona.wardImpact': '{ward}: {n} monsoon reports ΓÇö dengue starts in stagnant lanes. #MonsoonGuardian',
+       'persona.unfiled': '{n} open on the ward map ΓÇö share with neighbours or file officially from Profile.',
+       'persona.pendingFiled': '{n} open on the ward map ΓÇö check Profile if overdue.',
+@@ -755,37 +858,33 @@ document.addEventListener('DOMContentLoaded', function () {
+       'persona.admin.exit': 'Exit BMC mode',
+       'persona.ngo.header': 'NGO coordinator mode',
+       'persona.ngo.exit': 'Exit NGO mode',
+-      'onboard.title': 'Welcome to CivicRadar',
+-      'onboard.subtitle': 'Pin stagnant water in 30 sec ┬╖ rally neighbours ┬╖ beat rival wards. #MonsoonGuardian',
++      'onboard.title': 'Welcome',
++      'onboard.subtitle': 'Report stagnant water on your ward map in 30 sec.',
+       'onboard.city': 'Your city',
+-      'onboard.cityHint': 'Choose where you live ΓÇö we detect your ward from GPS next.',
++      'onboard.cityHint': 'We find your ward from GPS next.',
+       'onboard.ward': 'Your Ward', 'onboard.wardPh': 'Start typing your wardΓÇª',
+       'onboard.wardHint': 'Pick from {city}\'s {n} official wards.',
+-      'onboard.wardDetecting': 'Detecting your ward from locationΓÇª',
+-      'onboard.wardDetectedHint': 'Approximate ward from GPS ΓÇö not an official boundary survey.',
++      'onboard.wardDetecting': 'Finding your ward from locationΓÇª',
++      'onboard.wardDetectedHint': 'GPS estimate ΓÇö not an official survey.',
+       'onboard.wardManual': 'Not right? Pick manually',
+-      'onboard.wardRetry': 'Try detecting again',
+-      'onboard.wardDetectFailed': 'Could not detect ward ΓÇö pick manually or allow location.',
++      'onboard.wardRetry': 'Try again',
++      'onboard.wardDetectFailed': 'Ward not found ΓÇö pick manually or allow location.',
+       'onboard.name': 'Display Name', 'onboard.namePh': 'What should neighbours call you?',
+       'onboard.join': 'Join your ward',
+-      'onboard.wardError': 'Pick a ward from the list or allow location.',
++      'onboard.wardError': 'Pick a ward or allow location.',
+       'onboard.society': 'Society / neighbourhood (optional)',
+-      'onboard.societyPh': 'e.g. Phoenix Mills CHS, Worli',
+-      'onboard.societyHint': 'Your housing society, RWA, or lane ΓÇö helps group reports nearby.',
+-      'onboard.why': 'Stagnant water breeds dengue & malaria. CivicRadar puts hazards on a shared ward map so neighbours can Me too ΓÇö filing with your corporation is optional, not the whole product.',
+-      'onboard.howTitle': 'How it works',
+-      'onboard.how1': 'Spot stagnant water or a civic hazard',
+-      'onboard.how2': 'Pin it & snap a photo on the spot',
+-      'onboard.how3': 'Submit ΓÇö neighbours & BMC see it, you earn Civic Points',
+-      'onboard.spotNote': 'Best reported on the spot, so the location is accurate.',
++      'onboard.societyPh': 'Type your society / RWA name if not listed',
++      'onboard.societyHintNoWard': 'Pick your ward first for local suggestions.',
++      'onboard.societyHintWard': 'Showing {n} societies in {ward} ΓÇö type to add yours.',
++      'onboard.societyHintCustom': 'Type your society / RWA name if not listed.',
+       'report.title': 'Report a hazard',
+       'report.step.photo': 'Photo', 'report.step.details': 'Details', 'report.step.submit': 'Submit',
+       'report.hazardType': 'Hazard Type', 'report.photoEvidence': 'Photo',
+       'report.capture': 'Take photo',
+       'report.notes': 'Notes (optional)', 'report.notesPh': 'Add a note ΓÇö lane, building, landmarkΓÇª',
+       'report.submit': 'Submit report',
+-      'report.confirmRelevant.label': 'Yes, this photo shows the actual hazard ΓÇö not faces, documents, or unrelated objects.',
+-      'report.confirmRelevant.error': 'Please confirm the photo shows the hazard, or retake it.',
++      'report.photoHint': 'Photo shows the hazard? Tap Submit ΓÇö or retake if not.',
++      'report.retake': 'Retake photo',
+       'moderation.guidelines': 'Photograph the actual stagnant water ΓÇö not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+       'moderation.scanning': 'Checking photoΓÇª',
+       'moderation.blocked.fileType': 'Only JPEG, PNG, or WebP hazard photos are allowed.',
+@@ -796,18 +895,15 @@ document.addEventListener('DOMContentLoaded', function () {
+       'moderation.blocked.nsfw': 'This photo was blocked for inappropriate content.',
+       'moderation.blocked.offline': 'Connect to the internet to verify photo safety.',
+       'success.title': 'Report logged', 'success.tagline': 'On your ward map',
+-      'success.taglineNeighbours': '{n} neighbour(s) already backing nearby spots ΓÇö yours is on the ward map too!',
+-      'success.subtitle': 'Optional: file with {corp} (free) to start the official clock.',
+-      'success.step1': 'Share on WhatsApp so neighbours see the ward pin',
+-      'success.step2': 'Optional: file with {corp} and save your complaint number',
+-      'success.step3': 'Volunteers or {corp} can confirm when fixed ΓÇö earn Civic Points',
++      'success.taglineNeighbours': '{n} neighbour(s) backing nearby ΓÇö yours is pinned too!',
++      'success.subtitle': 'Optional: file with {corp} for the official clock.',
+       'success.file': 'File with BMC (optional)',
+       'success.fileCorp': 'File with {corp} (optional)',
+-      'success.tag': 'Tag @mybmc', 'success.alert': 'Alert neighbours', 'success.done': 'Done',
+-      'success.sharePrompt': 'Share on WhatsApp now ΓÇö more neighbours on the ward map helps pressure for a fix.',
++      'success.tag': 'Tag @mybmc', 'success.alert': 'Alert neighbours', 'success.done': 'Back to map',
++      'success.sharePrompt': 'Share on WhatsApp ΓÇö more eyes, faster fixes.',
+       'success.shareWhatsapp': 'Share on WhatsApp',
+       'share.nativeShare': 'Share',
+-      'success.shareNudge': 'Neighbours may not know yet ΓÇö share on WhatsApp so the ward map gets more eyes.',
++      'success.shareNudge': 'Neighbours may not know ΓÇö share on WhatsApp?',
+       'success.shareMsg': '≡ƒªƒ {hazard} in {ward} ΓÇö dengue risk! Pinned on CivicRadar ward map.\nTap Me too and report hazards in your lane:\n{link}\n{hashtags}',
+       'share.appMsg': '≡ƒù║∩╕Å {city} monsoon map ΓÇö pin stagnant water, tap Me too, beat rival wards!\n{link}\n{hashtags}',
+       'share.defaultArea': 'my area',
+@@ -834,7 +930,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.sharePitch': 'Free {city} monsoon map ΓÇö pin stagnant water in 30 sec, say Me too, beat rival wards.\nBuilt for Mumbai, Pune & Thane. No login, 4 languages.\n{link}\nForward to your RWA / society WhatsApp group ΓåÆ',
+       'about.copyPitch': 'Copy WhatsApp pitch',
+       'about.pitchCopied': 'Pitch copied ΓÇö paste in your RWA / school group!',
+-      'pwa.nudge': 'Monsoon-ready: Add CivicRadar to Home Screen for one-tap reporting.',
++      'pwa.nudge': 'Monsoon season ≡ƒîº∩╕Å Add CivicRadar to Home Screen ΓÇö one-tap reporting.',
+       'pwa.nudgeAction': 'Add to Home Screen',
+       'pwa.nudgeDismiss': 'Not now',
+       'community.challengeShare': 'Challenge a friend ΓÇö share ward map',
+@@ -844,50 +940,53 @@ document.addEventListener('DOMContentLoaded', function () {
+       'community.winsCleanup': '{hazard} cleared ┬╖ {ward}',
+       'community.winsResolved': '{hazard} fixed ┬╖ {ward}',
+       'success.points': 'Civic Points earned', 'success.weekBonus': '+{n} first report this week!',
+-      'success.celebrateFirst': 'YouΓÇÖre protecting your ward ΓÇö neighbours will thank you.',
+-      'success.celebrateMilestone': '{n} reports logged ΓÇö your lane is safer because of you!',
+-      'success.kudos1': 'Kudos! Another hazard on the radar.',
+-      'success.kudos2': 'Nice work ΓÇö your ward just got a little safer.',
+-      'success.kudos3': 'Logged! Thanks for looking out for your neighbours.',
+-      'success.kudos4': 'You showed up again ΓÇö thatΓÇÖs how lanes get fixed.',
+-      'success.kudos5': 'Another pin down ΓÇö your street thanks you.',
+-      'success.progressOne': 'Just 1 more report to your next badge.',
+-      'success.progressMany': '{n} more reports to your next badge.',
+-      'success.progressMilestone': 'Badge unlocked! {n} more to your next one.',
+-      'success.progressGuardian': '{n} reports and counting ΓÇö a true Monsoon Guardian.',
+-      'success.shareBrag': 'You just helped your ward ΓÇö tell neighbours on WhatsApp!',
+-      'success.shareBragFirst': 'First pin on the map! Share now ΓÇö Monsoon Guardian energy spreads fast.',
++      'success.celebrateFirst': 'Shabash ΓÇö you\'re protecting your ward!',
++      'success.celebrateMilestone': '{n} reports ΓÇö ward hero territory!',
++      'success.kudos1': 'Shabash! Another hazard on the radar.',
++      'success.kudos2': 'Ward hero ΓÇö your lane got safer.',
++      'success.kudos3': 'Logged! Neighbours noticed.',
++      'success.kudos4': 'You showed up again ΓÇö that\'s how lanes get fixed.',
++      'success.kudos5': 'Another pin down ΓÇö shabash!',
++      'success.streakWeek': '{n} report(s) this week ΓÇö keep it up!',
++      'success.badgeUnlock': '≡ƒÅà {n} reports ΓÇö milestone unlocked!',
++      'success.progressOne': '1 more report to your next badge.',
++      'success.progressMany': '{n} more to your next badge.',
++      'success.progressMilestone': 'Badge unlocked! {n} more to go.',
++      'success.progressGuardian': '{n} reports ΓÇö true Monsoon Guardian.',
++      'success.shareBrag': 'Helped your ward ΓÇö tell neighbours on WhatsApp!',
++      'success.shareBragFirst': 'First pin! Share now ΓÇö spread Monsoon Guardian energy.',
+       'toast.badgeMonsoon': 'Welcome, Monsoon Guardian! ≡ƒ¢í∩╕Å',
+-      'confirm.meTooThanks': 'Me too counted ΓÇö neighbours see the pressure building.',
++      'confirm.meTooThanks': '+{n} pts ΓÇö neighbours noticed! Shabash!',
+       'toast.reportMilestone': '{n} reports ΓÇö keep the momentum going!',
+-      'map.empty': 'Clean map in {ward} ΓÇö be the #MonsoonGuardian! Report stagnant water before dengue spreads.',
+-      'map.emptyHint': 'Pin on the spot ΓåÆ snap a photo ΓåÆ submit in ~30 seconds.',
+-      'map.emptyAction': 'Report first hazard',
+-      'map.emptyShare': 'Invite neighbours on WhatsApp',
+-      'map.emptyRival': '{ward} vs {rival} ΓÇö they have {pending} open spots. Report or rally neighbours!',
++      'map.empty': 'No pins in {ward} yet ΓÇö be first!',
++      'map.emptyEncourage': 'Every pin helps your ward beat dengue this monsoon.',
++      'map.emptyHint': 'Photo on the spot ┬╖ ~30 sec',
++      'map.emptyAction': 'Report now',
++      'map.emptyShare': 'Invite neighbours',
++      'map.emptyRival': '{ward} vs {rival} ΓÇö {pending} open spots. Report or rally!',
+       'home.hero.badge': '#MonsoonGuardian',
+       'home.hero.headline': 'Report stagnant water on your ward map',
+-      'home.hero.subline': 'Stop dengue ΓÇö alert neighbours & BMC, track fixes together.',
+-      'home.hero.benefit1': '30-sec report',
+-      'home.hero.benefit2': 'Neighbours alerted',
+-      'home.hero.benefit3': 'BMC queue',
+-      'home.hero.cta': 'Report stagnant water',
+-      'home.hero.tour': 'See how it works',
+-      'home.hero.trust': 'Free ┬╖ No login ┬╖ Works offline ┬╖ Mumbai, Pune & Thane',
+-      'home.hero.dismiss': 'Dismiss welcome card',
++      'home.hero.subline': 'Monsoon is here ΓÇö pin stagnant water on the spot: snap a photo, neighbours Me too.',
++      'home.hero.benefit1': '30 sec',
++      'home.hero.benefit2': 'Me too',
++      'home.hero.benefit3': 'Track fixes',
++      'home.hero.cta': 'Report now',
++      'home.hero.tour': 'Quick tour',
++      'home.hero.trust': 'Free ┬╖ offline ┬╖ 3 cities ┬╖ 4 langs',
++      'home.hero.dismiss': 'Dismiss',
+       'map.legend.pending': 'Open',
+       'map.legend.resolved': 'Fixed',
+       'map.legend.you': 'You',
+       'map.legend.aria': 'Map legend: open, fixed, and your pins',
+-      'reminder.unfiled': '{n} open on the map ΓÇö share with neighbours or file from Profile.',
++      'reminder.unfiled': '{n} open ΓÇö share or file from Profile.',
+       'reminder.file': 'File now',
+-      'reminder.snooze3d': 'Remind me in 3 days',
++      'reminder.snooze3d': 'Remind in 3 days',
+       'reminder.gotIt': 'Got it',
+-      'reminder.esc7': 'Day {n}+ since filing ΓÇö ward escalation due for {hazard} in {ward}.',
+-      'reminder.esc14': 'Day {n}+ since filing ΓÇö zonal escalation due for {hazard} in {ward}.',
+-      'reminder.esc30': 'Day {n}+ since filing ΓÇö grievance/RTI due for {hazard} in {ward}.',
++      'reminder.esc7': 'Day {n}+ ΓÇö ward escalation for {hazard} in {ward}.',
++      'reminder.esc14': 'Day {n}+ ΓÇö zonal escalation for {hazard} in {ward}.',
++      'reminder.esc30': 'Day {n}+ ΓÇö grievance/RTI for {hazard} in {ward}.',
+       'reminder.escAction': 'Escalate',
+-      'reminder.corroboration': '{n} neighbour(s) said Me too on your {hazard} report ΓÇö more eyes on the ward map helps.',
++      'reminder.corroboration': '{n} Me too on your {hazard} ΓÇö more eyes helps.',
+       'reminder.corroAction': 'View report',
+       'reminder.cleanup': 'Neighbours cleared {hazard} in {ward} ΓÇö your BMC complaint may still be open until officially closed.',
+       'reminder.cleanupAction': 'View status',
+@@ -901,6 +1000,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.badge.monsoon': 'Monsoon Guardian',
+       'profile.wardImpact': 'Your ward: {n} reports this monsoon',
+       'profile.streak': '{n}-week reporting streak',
++      'profile.milestoneOne': '1 more report to your next milestone',
++      'profile.milestoneMany': '{n} more reports to your next milestone',
++      'profile.milestoneMax': 'Monsoon Guardian ΓÇö keep reporting!',
++      'profile.nextStreakBadge': '{n} more week(s) for {badge}',
+       'confirm.nearby': 'Pin {m}m away{backing}. Tap Me too instead of duplicating ΓÇö get updates when fixed.',
+       'esc.participate.title': 'Community action (optional)',
+       'esc.participate.hint': 'Participate Mumbai is BMCΓÇÖs official portal for volunteering and CSR ΓÇö not for filing pest-control complaints. Use it to join clean-ups or propose ward projects.',
+@@ -1022,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       'toast.coordScopeWard': 'Ward coordinator ΓÇö all of {ward}',
+       'toast.coordScopeNbh': 'Neighbourhood lead ΓÇö {label}',
+       'inquiry.coordTitle': 'Become a ward or neighbourhood coordinator',
+-      'inquiry.coordBody': 'Lead your RWA/society or ward NGO ΓÇö see volunteers, match cleanup offers, verify pledge hours. Request an invite code from the operator.',
++      'inquiry.coordBody': 'Lead your RWA/society or ward NGO ΓÇö see volunteers, match cleanup offers, verify pledge hours. Earn the role with 2 neighbour supports (5 each if co-leads).',
+       'about.becomeCoord': 'Become a ward or neighbourhood coordinator',
+       'coord.codeHint': 'Coordinators receive a code when onboarded ΓÇö ward-wide or neighbourhood (RWA/society) scope.',
+       'coord.volunteers': 'Volunteers in your scope',
+@@ -1058,10 +1161,9 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.subtitle': 'Community-powered ward map for Mumbai, Pune & Thane ΓÇö not an anonymous helpline router.',
+       'about.impactTitle': 'Community impact', 'about.builtTitle': 'What we built',
+       'about.differentTitle': 'What makes CivicRadar different',
+-      'about.different1': 'Live ward map with photo pins ΓÇö neighbours tap Me too to corroborate, not anonymous helpline drops',
+-      'about.different2': 'Dual path: pin on CivicRadar first, then one-tap official filing (BMC 1916/MyBMC, PMC CARE, TMC) when you choose',
+-      'about.different3': 'Works offline ΓÇö install to Home Screen, no login, 4 languages across Mumbai, Pune & Thane',
+-      'about.different4': 'Track until fixed ΓÇö escalation timeline, Civic Points, and community wins when spots get cleaned',
++      'about.different1': 'Ward map + Me too ΓÇö not anonymous helpline drops',
++      'about.different2': 'Pin first, file officially when you choose',
++      'about.different3': 'Offline, no login, 4 languages ┬╖ Mumbai, Pune & Thane',
+       'about.sustainTitle': 'Sustainable & free for citizens',
+       'about.sustainBody': 'CivicRadar stays free for residents. Future support comes from local partners ΓÇö not paywalls on public safety.',
+       'about.copyImpact': 'Copy impact summary', 'about.contact': 'Contact us', 'about.contactOperator': 'Contact us', 'about.close': 'Close',
+@@ -1114,10 +1216,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'reminder.addPhoto': 'Add a photo',
+       'settings.title': 'Reminders',
+       'settings.reminder.label': 'Remind me to report stagnant water nearby',
+-      'settings.reminder.sub': 'A gentle monsoon-season nudge when you open CivicRadar. No background tracking.',
+-      'settings.reminder.on': 'Reminders on ΓÇö we\'ll gently nudge you when you open CivicRadar.',
++      'settings.reminder.sub': 'Gentle nudge when you open CivicRadar. No tracking.',
++      'settings.reminder.on': 'Reminders on.',
+       'settings.reminder.off': 'Reminders off.',
+-      'settings.reminder.denied': 'Notifications are blocked ΓÇö we\'ll show a gentle in-app reminder instead.',
++      'settings.reminder.denied': 'Notifications blocked ΓÇö in-app nudge instead.',
+       'notify.report.title': 'Spotted stagnant water today?',
+       'notify.report.body': 'If you pass a puddle, clogged drain, or open tank, take 30 seconds to report it.',
+       'notify.report.cta': 'Report now',
+@@ -1227,21 +1329,21 @@ document.addEventListener('DOMContentLoaded', function () {
+       'esc.selfBtn': 'Mark resolved',
+       'esc.aaple': 'Aaple Sarkar (state grievance)',
+       'esc.officialHint': 'Suggested category: {hint}',
+-      'official.title': 'Official grievance channels',
+-      'official.subtitle': 'Verified government apps and portals ΓÇö CivicRadar does not file on your behalf.',
++      'official.title': 'Official channels',
++      'official.subtitle': 'Gov apps ΓÇö CivicRadar does not file for you.',
+       'official.alsoFile': 'Also file officially (optional)',
+       'official.copyDone': 'Official filing summary copied ΓÇö paste in the app or portal',
+       'official.categoryHint': 'Suggested category: {hint}',
+       'official.reportDate': 'Report date',
+       'official.photoGuidance': 'Tip: attach your CivicRadar photo in the official app for faster action.',
+       'official.marg.label': 'MyBMC MARG',
+-      'official.marg.small': '114 categories ┬╖ geo photos ┬╖ tracking',
++      'official.marg.small': '114 categories ┬╖ geo photos',
+       'official.swachhata.label': 'Swachhata-MoHUA',
+-      'official.swachhata.small': 'MoHUA sanitation ┬╖ ward inspector',
++      'official.swachhata.small': 'MoHUA sanitation',
+       'official.aaple.label': 'Aaple Sarkar',
+-      'official.aaple.small': 'Maharashtra state grievance portal',
++      'official.aaple.small': 'Maharashtra grievance portal',
+       'official.pmc.label': 'PMC CARE',
+-      'official.pmc.small': 'Pune Municipal Corporation app',
++      'official.pmc.small': 'Pune corp app',
+       'official.tmc.label': 'TMC citizen portal',
+       'official.tmc.small': 'thanecity.gov.in',
+       'official.bmcWa.label': 'MyBMC WhatsApp',
+@@ -1284,8 +1386,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.greetingDefault': 'Hello, Citizen',
+       'profile.selectWard': 'Select your ward',
+       'profile.society': 'Society / neighbourhood (optional)',
+-      'profile.societyPh': 'e.g. Phoenix Mills CHS, Worli',
+-      'profile.societyHint': 'Helps neighbours and RWA leads group reports in your lane.',
++      'profile.societyPh': 'Type your society / RWA name if not listed',
++      'profile.societyHintWard': 'Showing {n} societies in {ward} ΓÇö type to add yours.',
++      'profile.societyHintNoWard': 'Set your ward for local society suggestions.',
++      'profile.societyHintCustom': 'Type your society / RWA name if not listed.',
+       'profile.societyRegistry': 'Find your registered cooperative society',
+       'map.youAreHere': 'You are here',
+       'about.subtitleNamed': 'Community tech for Mumbai, Pune & Thane monsoon ΓÇö built by {name}, free for citizens.',
+@@ -1461,6 +1565,33 @@ document.addEventListener('DOMContentLoaded', function () {
+       'admin.health.perfSamples': 'Perf samples',
+       'admin.health.avgPerf': 'Avg load time (local)',
+       'admin.health.bufferedEvents': 'Buffered events (device)',
++      'tracking.open': 'Analytics & tracking',
++      'tracking.title': 'Analytics & tracking',
++      'tracking.subtitle': 'Aggregate civic metrics ΓÇö visits, reports, escalations, and resolutions.',
++      'tracking.period': 'Period',
++      'tracking.days7': 'Last 7 days',
++      'tracking.days30': 'Last 30 days',
++      'tracking.days90': 'Last 90 days',
++      'tracking.wardFilter': 'Ward',
++      'tracking.sessions': 'Visits',
++      'tracking.pwaInstalls': 'PWA installs',
++      'tracking.reports': 'Reports',
++      'tracking.resolved': 'Resolved',
++      'tracking.pwaNote': 'PWA install counts are approximate (Add to Home Screen / standalone mode). Store downloads cannot be measured on GitHub Pages.',
++      'tracking.loading': 'Loading metricsΓÇª',
++      'tracking.sourceLocal': 'Device + local reports (demo / offline)',
++      'tracking.sourceCloud': 'Cloud aggregate (all users)',
++      'tracking.sourceCloudFail': 'Cloud metrics unavailable ΓÇö run v92 tracking SQL in Supabase.',
++      'tracking.reportsByCategory': 'Reports by category',
++      'tracking.escalations': 'Official channel opens',
++      'tracking.neighbourhoods': 'By neighbourhood / society',
++      'tracking.reporters': 'Active reporters',
++      'tracking.meToo': 'Me too',
++      'tracking.filed': 'Official filings',
++      'tracking.leads': 'Neighbourhood leads',
++      'tracking.empty': 'No data in this period.',
++      'tracking.pending': 'open',
++      'tracking.channelUnknown': 'Other channel',
+       'aria.close': 'Close',
+       'aria.lang': 'Change language',
+       'aria.recenter': 'Recenter map on your location',
+@@ -1505,8 +1636,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'ref.welcomeCta': 'See the map',
+       'ref.welcomeReport': 'Report a spot',
+       'ref.dismiss': 'Dismiss invite',
+-      'season.monsoonPrep': 'MonsoonΓÇÖs coming ≡ƒîº∩╕Å Clear stagnant water early ΓÇö pin spots before the first heavy rain.',
+-      'season.monsoonPeak': 'Peak monsoon ≡ƒîº∩╕Å Stagnant water breeds dengue. Report spots in your ward today.',
++      'season.monsoonPrep': 'Monsoon season ≡ƒîº∩╕Å Spot stagnant water on your ward map before it breeds mosquitoes.',
++      'season.monsoonPeak': 'Monsoon is here ≡ƒîº∩╕Å Report stagnant water near you ΓÇö dengue spreads fast in standing water.',
+       'season.ganesh': 'Ganesh Chaturthi ≡ƒÖÅ Keep your ward clean for the festival ΓÇö report stagnant water near pandals and immersion routes.',
+       'season.denguePeak': 'Dengue season ΓÜá∩╕Å Mosquitoes breed in still water. A 30-second report protects your lane.',
+       'season.dismiss': 'Dismiss seasonal tip',
+@@ -1533,8 +1664,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'feedback.error': 'Could not send ΓÇö your text is safe. Please try again.',
+       'feedback.success': 'Thanks! Your feedback was sent.',
+       'feedback.successLocal': 'Saved ΓÇö we will sync it when you are back online.',
+-      'access.title': 'Request coordinator access',
+-      'access.subtitle': 'For NGO & community coordinators and BMC officials.',
++      'access.title': 'Request BMC access',
++      'access.subtitle': 'For invited BMC officials ΓÇö community leads use peer voting instead.',
+       'access.step1': 'Apply with a few quick details',
+       'access.step2': 'The CivicRadar team reviews',
+       'access.step3': 'Get a claim code to unlock access',
+@@ -1564,9 +1695,9 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.confirmBody': 'Thanks! The CivicRadar team will review your request and reach you with a claim code, usually within a few days. Enter that code in the app to unlock your access.',
+       'access.confirmLocal': 'Saved on this device ΓÇö it will sync to the team when you are back online.',
+       'access.done': 'Done',
+-      'access.profileCta': 'For NGOs & BMC: Request coordinator access',
+-      'access.partnerCta': 'DonΓÇÖt have access yet? Request coordinator access',
+-      'access.partnerClaim': 'I have a claim code',
++      'access.profileBmcCta': 'BMC official? Request access',
++      'access.partnerBmcCta': 'BMC official? Request access',
++      'access.partnerClaim': 'I have a BMC claim code',
+       'access.claimTitle': 'Enter your claim code',
+       'access.claimSubtitle': 'Approved by the CivicRadar team? Enter the claim code we sent to unlock your access.',
+       'access.claimLabel': 'Claim code',
+@@ -1575,11 +1706,11 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.reviewOpen': 'Access requests',
+       'access.reviewTag': 'CivicRadar team',
+       'access.reviewTitle': 'Access requests',
+-      'access.reviewSubtitle': 'Approve or reject coordinator & BMC access requests. Approving issues a claim code to share.',
++      'access.reviewSubtitle': 'Approve or reject BMC access requests. Approving issues a claim code to share.',
+       'access.pending': 'Pending',
+       'access.approved': 'Approved',
+       'access.rejected': 'Rejected',
+-      'access.reviewEmpty': 'No requests yet. New coordinator and BMC requests appear here.',
++      'access.reviewEmpty': 'No BMC requests yet. New official requests appear here.',
+       'access.approve': 'Approve',
+       'access.reject': 'Reject',
+       'access.copyCode': 'Copy code',
+@@ -1603,6 +1734,52 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.rejectedToast': 'Request rejected.',
+       'access.proofAttached': 'Proof attached',
+       'access.proofTooBig': 'Image too large ΓÇö please attach a smaller photo.',
++      'lead.title': 'Become a community lead',
++      'lead.subtitle': 'Nominate yourself ΓÇö neighbours vote to grant access. No admin approval needed.',
++      'lead.step1': 'Nominate with your ward & scope',
++      'lead.step2': 'Neighbours tap Support',
++      'lead.step3': '2 supports unlocks your role (5 each if co-leads)',
++      'lead.roleLabel': 'Lead type',
++      'lead.roleWard': 'Ward NGO lead',
++      'lead.roleNbh': 'Neighbourhood lead',
++      'lead.nameLabel': 'Your name',
++      'lead.namePh': 'How neighbours know you',
++      'lead.orgLabel': 'Organization / RWA',
++      'lead.orgPh': 'NGO or society name',
++      'lead.neighbourhoodLabel': 'Neighbourhood / society / lane',
++      'lead.pitchLabel': 'Why you?',
++      'lead.pitchPh': 'Brief note for voters',
++      'lead.submit': 'Nominate me',
++      'lead.confirmTitle': "You're on the ballot!",
++      'lead.confirmBody': 'Share CivicRadar with neighbours ΓÇö you need 2 supports to unlock coordinator tools. If someone else runs for the same slot, you both need 5.',
++      'lead.confirmLocal': "Saved on this device ΓÇö syncs when you're online.",
++      'lead.viewCommunity': 'See candidates in Community',
++      'lead.profileCta': 'Become a ward or neighbourhood lead',
++      'lead.partnerCta': 'Become a community lead ΓÇö earn it with peer support',
++      'lead.communityTitle': 'Community leads',
++      'lead.communityHint': 'Support neighbours who volunteer to coordinate cleanups. 2 supports grants the role; 5 each if multiple candidates.',
++      'lead.communityEmpty': 'No candidates yet in your ward ΓÇö nominate yourself to get started.',
++      'lead.becomeCta': 'Become a community lead',
++      'lead.support': 'Support',
++      'lead.supported': 'Supported',
++      'lead.progress': '{count}/{threshold} supports',
++      'lead.progressCoLead': '{count}/{threshold} for co-lead',
++      'lead.tagWard': 'Ward lead',
++      'lead.tagNbh': 'Neighbourhood',
++      'lead.you': 'You',
++      'lead.errName': 'Please add your name.',
++      'lead.errWard': 'Pick your ward.',
++      'lead.errNeighbourhood': 'Enter your neighbourhood or society.',
++      'lead.errSelfVote': "You can't vote for yourself.",
++      'lead.errAlreadyVoted': 'You already supported this candidate.',
++      'lead.errAlreadyNominated': 'You already have an active nomination for this scope.',
++      'lead.errAlreadyLead': 'You already hold this lead role.',
++      'lead.nominated': 'Nomination submitted ΓÇö rally supports in Community!',
++      'lead.nominatedLocal': 'Nomination saved ΓÇö syncs when you are online.',
++      'lead.voted': 'Support counted ΓÇö thanks for backing a neighbour!',
++      'lead.granted': 'Threshold reached ΓÇö coordinator access unlocked!',
++      'lead.submitError': 'Could not submit ΓÇö please try again.',
++      'lead.voteError': 'Could not register support ΓÇö please try again.',
+     },
+     hi: {
+       'lang.name': 'αñ╣αñ┐αñ¿αÑìαñªαÑÇ', 'lang.native': 'αñ╣αñ┐αñ¿αÑìαñªαÑÇ',
+@@ -1618,30 +1795,27 @@ document.addEventListener('DOMContentLoaded', function () {
+       'location.locate': 'αñ«αÑçαñ░αñ╛ αñ╕αÑìαñÑαñ╛αñ¿',
+       'location.locateAria': 'αñ╕αÑìαñÑαñ╛αñ¿ αñÜαñ╛αñ▓αÑé αñòαñ░αÑçαñé',
+       'location.enable': 'αñÜαñ╛αñ▓αÑé αñòαñ░αÑçαñé',
+-      'coach.step': '#MonsoonGuardian ┬╖ 30 αñ╕αÑçαñò', 'coach.title': 'αñíαÑçαñéαñùαÑé αñòαñ╛ αñªαÑüαñ╢αÑìαñ«αñ¿? αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ!',
+-      'coach.body': 'αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñªαñ¼αñ╛αñÅαñü, αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé ΓÇö αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ¬αñ┐αñ¿αÑñ αñ¬αñíαñ╝αÑïαñ╕αÑÇ Me too αñ¼αÑïαñ▓αÑçαñéαñùαÑç, αñ£αñ▓αÑìαñªαÑÇ αñáαÑÇαñò αñ╣αÑïαñùαñ╛αÑñ WhatsApp αñ¬αñ░ αñ╢αÑçαñ»αñ░ αñòαñ░αÑçαñé!',
+-      'coach.spotTip': 'αñàαñ¡αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ¿αñ╛ αñ£αñ╝αñ░αÑéαñ░αÑÇ αñ¿αñ╣αÑÇαñéαÑñ αñ£αñ¼ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñªαñ┐αñûαÑç ΓÇö αñ¬αÑïαñûαñ░, αñ£αñ╛αñ« αñ¿αñ╛αñ▓αÑÇ αñ»αñ╛ αñûαÑüαñ▓αÑÇ αñƒαñéαñòαÑÇ ΓÇö CivicRadar αñûαÑïαñ▓αÑçαñé αñöαñ░ αñ«αÑîαñòαÑç αñ¬αñ░ αñ╣αÑÇ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñé αññαñ╛αñòαñ┐ αñ▓αÑïαñòαÑçαñ╢αñ¿ αñ╕αñ╣αÑÇ αñ░αñ╣αÑçαÑñ',
+-      'coach.got': 'αñÜαñ▓αÑï αñ╢αÑüαñ░αÑé αñòαñ░αÑçαñé',
+-      'tour.skip': 'αñ¢αÑïαñíαñ╝αÑçαñé', 'tour.next': 'αñåαñùαÑç', 'tour.done': 'αñ╕αñ«αñ¥ αñùαñ»αñ╛',
+-      'tour.replay': 'αñÉαñ¬ αñƒαÑéαñ░ αñ½αñ┐αñ░ αñªαÑçαñûαÑçαñé',
++      'coach.step': '#MonsoonGuardian ┬╖ 30 αñ╕αÑçαñò', 'coach.title': 'αñ¬αñ╛αñ╕ αñ«αÑçαñé αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ? αñàαñ¡αÑÇ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñéαÑñ',
++      'coach.body': 'αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñªαñ¼αñ╛αñÅαñü, αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé ΓÇö αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ¬αñ┐αñ¿αÑñ',
++      'coach.got': 'αñÜαñ▓αÑï',
++      'tour.skip': 'αñƒαÑéαñ░ αñ¢αÑïαñíαñ╝αÑçαñé', 'tour.next': 'αñåαñùαÑç', 'tour.done': 'αñ╕αñ«αñ¥ αñùαñ»αñ╛',
++      'tour.replay': 'αñƒαÑéαñ░ αñ½αñ┐αñ░ αñªαÑçαñûαÑçαñé',
+       'tour.map.title': 'αñåαñ¬αñòαñ╛ αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛',
+-      'tour.map.body': 'αñ»αñ╣ αñåαñ¬αñòαñ╛ αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛ αñ╣αÑêαÑñ αñåαñ╕αñ¬αñ╛αñ╕ αñòαÑç αñûαññαñ░αÑç αñ»αñ╣αñ╛αñü αñ¬αñ┐αñ¿ αñòαÑç αñ░αÑéαñ¬ αñ«αÑçαñé αñªαñ┐αñûαññαÑç αñ╣αÑêαñéαÑñ',
+-      'tour.report.title': '30 αñ╕αÑçαñòαñéαñí αñ«αÑçαñé αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
+-      'tour.report.body': 'αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ¿αÑç αñòαÑç αñ▓αñ┐αñÅ αñ»αñ╣αñ╛αñü αñªαñ¼αñ╛αñÅαñü ΓÇö αñ╕αñ┐αñ░αÑìαñ½αñ╝ 30 αñ╕αÑçαñòαñéαñí αñ▓αñùαññαÑç αñ╣αÑêαñéαÑñ',
+-      'tour.metoo.title': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαñ╛ αñ╕αñ╛αñÑ αñªαÑçαñé',
+-      'tour.metoo.body': 'αñ¬αñ╛αñ╕ αñ«αÑçαñé αñ¬αñ╣αñ▓αÑç αñ╕αÑç αñ¬αñ┐αñ¿ αñ╣αÑê? αñòαñ┐αñ╕αÑÇ αñûαññαñ░αÑç αñ¬αñ░ ΓÇ£Me tooΓÇ¥ αñªαñ¼αñ╛αñÅαñü αññαñ╛αñòαñ┐ {corp} αñòαÑï αñªαñ¼αñ╛αñ╡ αñªαñ┐αñûαÑçαÑñ',
+-      'tour.profile.title': 'Civic Points αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
+-      'tour.profile.body': 'αñàαñ¬αñ¿αÑç Civic Points αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ»αñ╣αñ╛αñü αñ¬αÑìαñ░αÑïαñ½αñ╝αñ╛αñçαñ▓ αñ«αÑçαñé αñªαÑçαñûαÑçαñéαÑñ',
+-      'persona.citizen.idle': '≡ƒªƒ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ = αñíαÑçαñéαñùαÑé αñòαñ╛ αñûαññαñ░αñ╛αÑñ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñªαñ¼αñ╛αñÅαñü ΓÇö 30 αñ╕αÑçαñò αñ«αÑçαñé αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░, WhatsApp αñ¬αñ░ αñ╢αÑçαñ»αñ░ αñòαñ░αÑçαñéαÑñ',
++      'tour.map.body': 'αñûαññαñ░αÑç αñ»αñ╣αñ╛αñü αñ¬αñ┐αñ¿ ΓÇö Me too αñ╕αÑç αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαñ╛ αñ╕αñ╛αñÑαÑñ',
++      'tour.report.title': '30 αñ╕αÑçαñò αñ«αÑçαñé αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'tour.report.body': 'αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñªαñ┐αñûαÑç αññαÑï αñ»αñ╣αñ╛αñü αñªαñ¼αñ╛αñÅαñüαÑñ',
++      'tour.profile.title': 'αñ¬αÑìαñ░αÑïαñ½αñ╝αñ╛αñçαñ▓',
++      'tour.profile.body': 'Civic Points αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ»αñ╣αñ╛αñüαÑñ',
++      'persona.citizen.idle': '≡ƒªƒ αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñ«αÑçαñé αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ = αñíαÑçαñéαñùαÑéαÑñ αñàαñ¡αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö 30 αñ╕αÑçαñò αñ«αÑçαñé αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ¬αñ┐αñ¿αÑñ',
+       'persona.wardImpact': '{ward}: {n} αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñªαñ░αÑìαñ£ ΓÇö αñàαñ¬αñ¿αÑÇ αñùαñ▓αÑÇ αñòαÑï αñíαÑçαñéαñùαÑé-αñ«αÑüαñòαÑìαññ αñ░αñûαÑçαñéαÑñ',
+       'persona.unfiled': '{n} αñûαÑüαñ▓αÑç αñûαññαñ░αÑç αñ╡αñ╛αñ░αÑìαñí αñ«αñ╛αñ¿αñÜαñ┐αññαÑìαñ░ αñ¬αñ░ ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑç αñ╕αñ╛αñÑ αñ╕αñ╛αñ¥αñ╛ αñòαñ░αÑçαñé αñ»αñ╛ αñ¬αÑìαñ░αÑïαñ½αñ╝αñ╛αñçαñ▓ αñ«αÑçαñé αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ╢αñ┐αñòαñ╛αñ»αññ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñéαÑñ',
+       'persona.pendingFiled': '{n} αñûαÑüαñ▓αÑç αñûαññαñ░αÑç αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñªαñ┐αñû αñ░αñ╣αÑç αñ╣αÑêαñé ΓÇö αñàαññαñ┐αñªαÑçαñ» αñ╣αÑï αññαÑï αñ¬αÑìαñ░αÑïαñ½αñ╝αñ╛αñçαñ▓ αñ«αÑçαñé αñåαñùαÑç αñ¼αñóαñ╝αñ╛αñÅαñüαÑñ',
+-      'onboard.title': 'CivicRadar αñ«αÑçαñé αñåαñ¬αñòαñ╛ αñ╕αÑìαñ╡αñ╛αñùαññ αñ╣αÑê',
+-      'onboard.subtitle': '30 αñ╕αÑçαñò αñ«αÑçαñé αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ¬αñ┐αñ¿ ┬╖ αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ¼αÑüαñ▓αñ╛αñÅαñü ┬╖ αñ¬αÑìαñ░αññαñ┐αñªαÑìαñ╡αñéαñªαÑìαñ╡αÑÇ αñ╡αñ╛αñ░αÑìαñí αñòαÑï αñ╣αñ░αñ╛αñÅαñüαÑñ #MonsoonGuardian',
++      'onboard.title': 'αñ╕αÑìαñ╡αñ╛αñùαññ αñ╣αÑê',
++      'onboard.subtitle': '30 αñ╕αÑçαñò αñ«αÑçαñé αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñéαÑñ',
+       'onboard.ward': 'αñåαñ¬αñòαñ╛ αñ╡αñ╛αñ░αÑìαñí', 'onboard.wardPh': 'αñàαñ¬αñ¿αñ╛ αñ╡αñ╛αñ░αÑìαñí αñƒαñ╛αñçαñ¬ αñòαñ░αñ¿αñ╛ αñ╢αÑüαñ░αÑé αñòαñ░αÑçαñéΓÇª',
+       'onboard.wardHint': '{city} αñòαÑç {n} αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ╡αñ╛αñ░αÑìαñíαÑïαñé αñ«αÑçαñé αñ╕αÑç αñÜαÑüαñ¿αÑçαñéαÑñ',
+       'onboard.city': 'αñåαñ¬αñòαñ╛ αñ╢αñ╣αñ░',
+-      'onboard.cityHint': 'αñÜαÑüαñ¿αÑçαñé αñòαñ┐ αñåαñ¬ αñòαñ╣αñ╛αñü αñ░αñ╣αññαÑç αñ╣αÑêαñé ΓÇö αñàαñùαñ▓αñ╛ αñòαñªαñ« GPS αñ╕αÑç αñ╡αñ╛αñ░αÑìαñí αñ¬αñ╣αñÜαñ╛αñ¿αÑñ',
++      'onboard.cityHint': 'αñàαñùαñ▓αñ╛ αñòαñªαñ« GPS αñ╕αÑç αñ╡αñ╛αñ░αÑìαñíαÑñ',
+       'city.mumbai': 'αñ«αÑüαñéαñ¼αñê',
+       'city.pune': 'αñ¬αÑüαñúαÑç',
+       'city.thane': 'αñáαñ╛αñúαÑç',
+@@ -1658,8 +1832,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'report.capture': 'αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé',
+       'report.notes': 'αñƒαñ┐αñ¬αÑìαñ¬αñúαÑÇ (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)', 'report.notesPh': 'αñûαññαñ░αÑç αñòαñ╛ αñ╡αñ░αÑìαñúαñ¿ αñòαñ░αÑçαñéΓÇª',
+       'report.submit': 'αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ¡αÑçαñ£αÑçαñé',
+-      'report.confirmRelevant.label': 'αñ╣αñ╛αñü, αñ»αñ╣ αñ½αñ╝αÑïαñƒαÑï αñ╡αñ╛αñ╕αÑìαññαñ╡αñ┐αñò αñûαññαñ░αñ╛ αñªαñ┐αñûαñ╛αññαÑÇ αñ╣αÑê ΓÇö αñÜαÑçαñ╣αñ░αÑç, αñªαñ╕αÑìαññαñ╛αñ╡αÑçαñ£αñ╝ αñ»αñ╛ αñàαñ╕αñéαñ¼αñéαñºαñ┐αññ αñ╡αñ╕αÑìαññαÑüαñÅαñü αñ¿αñ╣αÑÇαñéαÑñ',
+-      'report.confirmRelevant.error': 'αñòαÑâαñ¬αñ»αñ╛ αñ¬αÑüαñ╖αÑìαñƒαñ┐ αñòαñ░αÑçαñé αñòαñ┐ αñ½αñ╝αÑïαñƒαÑï αñûαññαñ░αñ╛ αñªαñ┐αñûαñ╛αññαÑÇ αñ╣αÑê, αñ»αñ╛ αñ½αñ┐αñ░ αñ╕αÑç αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñéαÑñ',
++      'report.photoHint': 'αñ½αñ╝αÑïαñƒαÑï αñ«αÑçαñé αñûαññαñ░αñ╛ αñªαñ┐αñû αñ░αñ╣αñ╛? αñ¡αÑçαñ£αÑçαñé ΓÇö αñ¿αñ╣αÑÇαñé αññαÑï αñ½αñ┐αñ░ αñ▓αÑçαñéαÑñ',
++      'report.retake': 'αñ½αñ┐αñ░ αñ╕αÑç αñ½αñ╝αÑïαñƒαÑï',
+       'moderation.guidelines': 'αñ╡αñ╛αñ╕αÑìαññαñ╡αñ┐αñò αñ░αÑüαñòαÑç αñ╣αÑüαñÅ αñ¬αñ╛αñ¿αÑÇ αñòαÑÇ αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé ΓÇö αñÜαÑçαñ╣αñ░αÑç, αñªαñ╕αÑìαññαñ╛αñ╡αÑçαñ£αñ╝ αñ»αñ╛ αñàαñ╕αñéαñ¼αñéαñºαñ┐αññ αñ╡αñ╕αÑìαññαÑüαñÅαñü αñ¿αñ╣αÑÇαñéαÑñ αñ╕αÑìαñÑαñ╛αñ¿ αñíαÑçαñƒαñ╛ αñùαÑïαñ¬αñ¿αÑÇαñ»αññαñ╛ αñòαÑç αñ▓αñ┐αñÅ αñ╣αñƒαñ╛αñ»αñ╛ αñ£αñ╛αññαñ╛ αñ╣αÑêαÑñ',
+       'moderation.scanning': 'αñ½αñ╝αÑïαñƒαÑï αñ╕αÑüαñ░αñòαÑìαñ╖αñ╛ αñ£αñ╛αñüαñÜ αñ╣αÑï αñ░αñ╣αÑÇ αñ╣αÑêΓÇª',
+       'moderation.blocked.fileType': 'αñòαÑçαñ╡αñ▓ JPEG, PNG αñ»αñ╛ WebP hazard αñ½αñ╝αÑïαñƒαÑï αñ╕αÑìαñ╡αÑÇαñòαñ╛αñ░ αñ╣αÑêαñéαÑñ',
+@@ -1677,8 +1851,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.step3': 'αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñò αñ»αñ╛ {corp} αñáαÑÇαñò αñ╣αÑïαñ¿αÑç αñ¬αñ░ αñ¬αÑüαñ╖αÑìαñƒαñ┐ αñòαñ░ αñ╕αñòαññαÑç αñ╣αÑêαñé ΓÇö αñ╕αñ┐αñ╡αñ┐αñò αñàαñéαñò αñ«αñ┐αñ▓αÑçαñéαñùαÑç',
+       'success.file': 'αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ╢αñ┐αñòαñ╛αñ»αññ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)',
+       'success.fileCorp': '{corp} αñ«αÑçαñé αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ╢αñ┐αñòαñ╛αñ»αññ (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)',
+-      'success.tag': '@mybmc αñòαÑï αñƒαÑêαñù αñòαñ░αÑçαñé', 'success.alert': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ╕αÑéαñÜαñ┐αññ αñòαñ░αÑçαñé', 'success.done': 'αñ╣αÑï αñùαñ»αñ╛',
+-      'success.sharePrompt': 'αñàαñ¡αÑÇ WhatsApp αñ¬αñ░ αñ¡αÑçαñ£αÑçαñé ΓÇö αñ£αñ╝αÑìαñ»αñ╛αñªαñ╛ αñ¿αñ£αñ╝αñ░ = αñ£αñ▓αÑìαñªαÑÇ αñáαÑÇαñòαÑñ αñíαÑçαñéαñùαÑé αñ╕αÑç αñ¼αñÜαñ¿αñ╛ αñ╣αÑê αññαÑï αñ╢αÑçαñ»αñ░ αñòαñ░αÑçαñé!',
++      'success.tag': '@mybmc αñòαÑï αñƒαÑêαñù αñòαñ░αÑçαñé', 'success.alert': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ╕αÑéαñÜαñ┐αññ αñòαñ░αÑçαñé', 'success.done': 'αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ╡αñ╛αñ¬αñ╕',
++      'success.sharePrompt': 'WhatsApp αñ¬αñ░ αñ╢αÑçαñ»αñ░ ΓÇö αñ£αñ╝αÑìαñ»αñ╛αñªαñ╛ αñ¿αñ£αñ╝αñ░, αñ£αñ▓αÑìαñªαÑÇ αñáαÑÇαñòαÑñ',
+       'success.shareWhatsapp': 'WhatsApp αñ¬αñ░ αñ╕αñ╛αñ¥αñ╛ αñòαñ░αÑçαñé',
+       'share.nativeShare': 'αñ╕αñ╛αñ¥αñ╛ αñòαñ░αÑçαñé',
+       'success.shareNudge': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñàαñ¡αÑÇ αñ¬αññαñ╛ αñ¿αñ╣αÑÇαñé ΓÇö WhatsApp αñ¬αñ░ αñ╢αÑçαñ»αñ░ αñòαñ░αÑçαñé, αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñöαñ░ αñ¿αñ£αñ╝αñ░αÑçαñé αñ«αñªαñª αñòαñ░αññαÑÇ αñ╣αÑêαñéαÑñ',
+@@ -1709,7 +1883,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.sharePitch': 'αñ«αÑüαñ½αñ╝αÑìαññ {city} αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñ¿αñòαÑìαñ╢αñ╛ ΓÇö 30 αñ╕αÑçαñò αñ«αÑçαñé αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ, Me too, αñ¬αÑìαñ░αññαñ┐αñªαÑìαñ╡αñéαñªαÑìαñ╡αÑÇ αñ╡αñ╛αñ░αÑìαñí αñòαÑï αñ╣αñ░αñ╛αñÅαñüαÑñ\nαñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñöαñ░ αñáαñ╛αñúαÑç αñòαÑç αñ▓αñ┐αñÅ αñ¼αñ¿αñ╛αñ»αñ╛ αñùαñ»αñ╛αÑñ αñ▓αÑëαñùαñ┐αñ¿ αñ¿αñ╣αÑÇαñé, 4 αñ¡αñ╛αñ╖αñ╛αñÅαñüαÑñ\n{link}\nRWA / αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ WhatsApp αñùαÑìαñ░αÑüαñ¬ αñ«αÑçαñé αñ½αÑëαñ░αñ╡αñ░αÑìαñí αñòαñ░αÑçαñé ΓåÆ',
+       'about.copyPitch': 'WhatsApp αñ¬αñ┐αñÜ αñòαÑëαñ¬αÑÇ αñòαñ░αÑçαñé',
+       'about.pitchCopied': 'αñ¬αñ┐αñÜ αñòαÑëαñ¬αÑÇ ΓÇö RWA / αñ╕αÑìαñòαÑéαñ▓ αñùαÑìαñ░αÑüαñ¬ αñ«αÑçαñé αñ¬αÑçαñ╕αÑìαñƒ αñòαñ░αÑçαñé!',
+-      'pwa.nudge': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿-αññαÑêαñ»αñ╛αñ░: αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ αñ¬αñ░ CivicRadar αñ£αÑïαñíαñ╝αÑçαñéαÑñ',
++      'pwa.nudge': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ ≡ƒîº∩╕Å αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ αñ¬αñ░ CivicRadar αñ£αÑïαñíαñ╝αÑçαñé ΓÇö αñÅαñò αñƒαÑêαñ¬ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒαÑñ',
+       'pwa.nudgeAction': 'αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ αñ¬αñ░ αñ£αÑïαñíαñ╝αÑçαñé',
+       'pwa.nudgeDismiss': 'αñàαñ¡αÑÇ αñ¿αñ╣αÑÇαñé',
+       'community.challengeShare': 'αñªαÑïαñ╕αÑìαññ αñòαÑï αñÜαÑüαñ¿αÑîαññαÑÇ ΓÇö αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛ αñ╕αñ╛αñ¥αñ╛ αñòαñ░αÑçαñé',
+@@ -1719,13 +1893,15 @@ document.addEventListener('DOMContentLoaded', function () {
+       'community.winsCleanup': '{hazard} αñ╕αñ╛αñ½ ┬╖ {ward}',
+       'community.winsResolved': '{hazard} αñ╣αñ▓ ┬╖ {ward}',
+       'success.points': 'αñ╕αñ┐αñ╡αñ┐αñò αñàαñéαñò αñ«αñ┐αñ▓αÑç', 'success.weekBonus': '+{n} αñçαñ╕ αñ╕αñ¬αÑìαññαñ╛αñ╣ αñòαÑÇ αñ¬αñ╣αñ▓αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ!',
+-      'success.celebrateFirst': 'αñåαñ¬ αñàαñ¬αñ¿αÑç αñ╡αñ╛αñ░αÑìαñí αñòαÑÇ αñ░αñòαÑìαñ╖αñ╛ αñòαñ░ αñ░αñ╣αÑç αñ╣αÑêαñé ΓÇö αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñåαñ¡αñ╛αñ░αÑÇ αñ╣αÑïαñéαñùαÑçαÑñ',
+-      'success.celebrateMilestone': '{n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö αñåαñ¬αñòαÑÇ αñùαñ▓αÑÇ αñåαñ¬αñòαÑÇ αñ╡αñ£αñ╣ αñ╕αÑç αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ!',
++      'success.celebrateFirst': 'αñ╢αñ╛αñ¼αñ╛αñ╢ ΓÇö αñåαñ¬ αñàαñ¬αñ¿αÑç αñ╡αñ╛αñ░αÑìαñí αñòαÑÇ αñ░αñòαÑìαñ╖αñ╛ αñòαñ░ αñ░αñ╣αÑç αñ╣αÑêαñé!',
++      'success.celebrateMilestone': '{n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö αñ╡αñ╛αñ░αÑìαñí αñ╣αÑÇαñ░αÑï!',
+       'success.kudos1': 'αñ╢αñ╛αñ¼αñ╛αñ╢! αñÅαñò αñöαñ░ αñûαññαñ░αñ╛ αñ░αñíαñ╛αñ░ αñ¬αñ░αÑñ',
+-      'success.kudos2': 'αñ¼αñóαñ╝αñ┐αñ»αñ╛ αñòαñ╛αñ« ΓÇö αñåαñ¬αñòαñ╛ αñ╡αñ╛αñ░αÑìαñí αñÑαÑïαñíαñ╝αñ╛ αñöαñ░ αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ αñ╣αÑüαñåαÑñ',
+-      'success.kudos3': 'αñªαñ░αÑìαñ£ αñ╣αÑüαñå! αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαñ╛ αñºαÑìαñ»αñ╛αñ¿ αñ░αñûαñ¿αÑç αñòαÑç αñ▓αñ┐αñÅ αñºαñ¿αÑìαñ»αñ╡αñ╛αñªαÑñ',
++      'success.kudos2': 'αñ╡αñ╛αñ░αÑìαñí αñ╣αÑÇαñ░αÑï ΓÇö αñåαñ¬αñòαÑÇ αñùαñ▓αÑÇ αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ αñ╣αÑüαñêαÑñ',
++      'success.kudos3': 'αñªαñ░αÑìαñ£! αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñ¿αÑç αñªαÑçαñûαñ╛αÑñ',
+       'success.kudos4': 'αñåαñ¬ αñ½αñ┐αñ░ αñåαñùαÑç αñåαñÅ ΓÇö αñçαñ╕αÑÇ αññαñ░αñ╣ αñùαñ▓αñ┐αñ»αñ╛αñü αñáαÑÇαñò αñ╣αÑïαññαÑÇ αñ╣αÑêαñéαÑñ',
+-      'success.kudos5': 'αñÅαñò αñöαñ░ αñ¬αñ┐αñ¿ ΓÇö αñåαñ¬αñòαÑÇ αñùαñ▓αÑÇ αñåαñ¬αñòαñ╛ αñ╢αÑüαñòαÑìαñ░αñ┐αñ»αñ╛ αñòαñ╣αññαÑÇ αñ╣αÑêαÑñ',
++      'success.kudos5': 'αñÅαñò αñöαñ░ αñ¬αñ┐αñ¿ ΓÇö αñ╢αñ╛αñ¼αñ╛αñ╢!',
++      'success.streakWeek': 'αñçαñ╕ αñ╣αñ½αÑìαññαÑç {n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö αñ£αñ╛αñ░αÑÇ αñ░αñûαÑçαñé!',
++      'success.badgeUnlock': '≡ƒÅà {n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿ αñàαñ¿αñ▓αÑëαñò!',
+       'success.progressOne': 'αñàαñùαñ▓αÑç αñ¼αÑêαñ£ αñòαÑç αñ▓αñ┐αñÅ αñ¼αñ╕ 1 αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒαÑñ',
+       'success.progressMany': 'αñàαñùαñ▓αÑç αñ¼αÑêαñ£ αñòαÑç αñ▓αñ┐αñÅ {n} αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒαÑñ',
+       'success.progressMilestone': 'αñ¼αÑêαñ£ αñ«αñ┐αñ▓αñ╛! αñàαñùαñ▓αÑç αñòαÑç αñ▓αñ┐αñÅ {n} αñöαñ░αÑñ',
+@@ -1733,22 +1909,23 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.shareBrag': 'αñåαñ¬αñ¿αÑç αñàαñ¬αñ¿αÑç αñ╡αñ╛αñ░αÑìαñí αñòαÑÇ αñ«αñªαñª αñòαÑÇ ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï WhatsApp αñ¬αñ░ αñ¼αññαñ╛αñÅαñü!',
+       'success.shareBragFirst': 'αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ¬αñ╣αñ▓αñ╛ αñ¬αñ┐αñ¿! αñàαñ¡αÑÇ αñ╢αÑçαñ»αñ░ αñòαñ░αÑçαñé ΓÇö Monsoon Guardian αñòαÑÇ αñèαñ░αÑìαñ£αñ╛ αñ½αÑêαñ▓αññαÑÇ αñ╣αÑêαÑñ',
+       'toast.badgeMonsoon': 'αñ╕αÑìαñ╡αñ╛αñùαññ αñ╣αÑê, Monsoon Guardian! ≡ƒ¢í∩╕Å',
+-      'confirm.meTooThanks': 'Me too αñªαñ░αÑìαñ£ ΓÇö αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñªαñ¼αñ╛αñ╡ αñªαÑçαñû αñ░αñ╣αÑç αñ╣αÑêαñéαÑñ',
++      'confirm.meTooThanks': '+{n} αñàαñéαñò ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñ¿αÑç αñªαÑçαñûαñ╛! αñ╢αñ╛αñ¼αñ╛αñ╢!',
+       'toast.reportMilestone': '{n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ΓÇö αñ£αñ╛αñ░αÑÇ αñ░αñûαÑçαñé!',
+-      'map.empty': '{ward} αñ«αÑçαñé αñ╕αñ╛αñ½ αñ¿αñòαÑìαñ╢αñ╛ ΓÇö #MonsoonGuardian αñ¼αñ¿αÑçαñé! αñíαÑçαñéαñùαÑé αñ½αÑêαñ▓αñ¿αÑç αñ╕αÑç αñ¬αñ╣αñ▓αÑç αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñéαÑñ',
+-      'map.emptyHint': 'αñ╕αÑìαñ¬αÑëαñƒ αñ¬αñ░ αñ¬αñ┐αñ¿ ΓåÆ αñ½αÑïαñƒαÑï ΓåÆ ~30 αñ╕αÑçαñòαñéαñí αñ«αÑçαñé αñ╕αñ¼αñ«αñ┐αñƒαÑñ αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñçαñ╕αÑç αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñªαÑçαñûαÑçαñéαñùαÑçαÑñ',
+-      'map.emptyAction': 'αñ¬αñ╣αñ▓αñ╛ αñûαññαñ░αñ╛ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé',
++      'map.empty': '{ward} αñ«αÑçαñé αñàαñ¡αÑÇ αñòαÑïαñê αñ¬αñ┐αñ¿ αñ¿αñ╣αÑÇαñé ΓÇö αñ¬αñ╣αñ▓αÑç αñ¼αñ¿αÑçαñé!',
++      'map.emptyEncourage': 'αñ╣αñ░ αñ¬αñ┐αñ¿ αñçαñ╕ αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñíαÑçαñéαñùαÑé αñ╕αÑç αñ▓αñíαñ╝αñ¿αÑç αñ«αÑçαñé αñ«αñªαñª αñòαñ░αññαñ╛ αñ╣αÑêαÑñ',
++      'map.emptyHint': 'αñ«αÑîαñòαÑç αñ¬αñ░ αñ½αñ╝αÑïαñƒαÑï ┬╖ ~30 αñ╕αÑçαñò',
++      'map.emptyAction': 'αñàαñ¡αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
+       'map.emptyShare': 'WhatsApp αñ¬αñ░ αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ¼αÑüαñ▓αñ╛αñÅαñü',
+-      'map.emptyRival': '{ward} αñ¼αñ¿αñ╛αñ« {rival} ΓÇö αñëαñ¿αñòαÑç {pending} αñûαÑüαñ▓αÑç αñ╕αÑìαñ¬αÑëαñƒαÑñ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé αñ»αñ╛ αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ¼αÑüαñ▓αñ╛αñÅαñü!',
++      'map.emptyRival': '{ward} αñ¼αñ¿αñ╛αñ« {rival} ΓÇö {pending} αñûαÑüαñ▓αÑç αñ╕αÑìαñ¬αÑëαñƒαÑñ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ»αñ╛ αñ¼αÑüαñ▓αñ╛αñÅαñü!',
+       'home.hero.badge': '#MonsoonGuardian',
+-      'home.hero.headline': 'αñàαñ¬αñ¿αÑç αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé',
+-      'home.hero.subline': 'αñíαÑçαñéαñùαÑé αñ░αÑïαñòαÑçαñé ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñöαñ░ BMC αñòαÑï αñ╕αñÜαÑçαññ αñòαñ░αÑçαñé, αñ╕αÑüαñºαñ╛αñ░ αñƒαÑìαñ░αÑêαñò αñòαñ░αÑçαñéαÑñ',
+-      'home.hero.benefit1': '30 αñ╕αÑçαñòαñéαñí αñ«αÑçαñé',
+-      'home.hero.benefit2': 'αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñ╕αñÜαÑçαññ',
+-      'home.hero.benefit3': 'BMC αñòαññαñ╛αñ░',
+-      'home.hero.cta': 'αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé',
+-      'home.hero.tour': 'αñòαÑêαñ╕αÑç αñòαñ╛αñ« αñòαñ░αññαñ╛ αñ╣αÑê',
+-      'home.hero.trust': 'αñ«αÑüαñ½αñ╝αÑìαññ ┬╖ αñ¼αñ┐αñ¿αñ╛ αñ▓αÑëαñùαñ┐αñ¿ ┬╖ αñæαñ½αñ╝αñ▓αñ╛αñçαñ¿ ┬╖ αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñöαñ░ αñáαñ╛αñúαÑç',
++      'home.hero.headline': 'αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé',
++      'home.hero.subline': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñÜαñ╛αñ▓αÑé ΓÇö αñ£αñùαñ╣ αñ¬αñ░ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñé: αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé, αñ¬αñíαñ╝αÑïαñ╕αÑÇ Me tooαÑñ',
++      'home.hero.benefit1': '30 αñ╕αÑçαñò',
++      'home.hero.benefit2': 'Me too',
++      'home.hero.benefit3': 'αñƒαÑìαñ░αÑêαñò',
++      'home.hero.cta': 'αñàαñ¡αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'home.hero.tour': 'αñ¢αÑïαñƒαñ╛ αñƒαÑéαñ░',
++      'home.hero.trust': 'αñ«αÑüαñ½αñ╝αÑìαññ ┬╖ αñæαñ½αñ╝αñ▓αñ╛αñçαñ¿ ┬╖ 3 αñ╢αñ╣αñ░ ┬╖ 4 αñ¡αñ╛αñ╖αñ╛',
+       'home.hero.dismiss': 'αñ╕αÑìαñ╡αñ╛αñùαññ αñòαñ╛αñ░αÑìαñí αñ¼αñéαñª αñòαñ░αÑçαñé',
+       'reminder.unfiled': '{n} αñûαÑüαñ▓αÑç αñûαññαñ░αÑç αñ«αñ╛αñ¿αñÜαñ┐αññαÑìαñ░ αñ¬αñ░ ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑç αñ╕αñ╛αñÑ αñ╕αñ╛αñ¥αñ╛ αñòαñ░αÑçαñé αñ»αñ╛ αñ¬αÑìαñ░αÑïαñ½αñ╝αñ╛αñçαñ▓ αñ«αÑçαñé αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ░αÑéαñ¬ αñ╕αÑç αñªαñ░αÑìαñ£ αñòαñ░αÑçαñéαÑñ',
+       'reminder.file': 'αñàαñ¡αÑÇ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+@@ -1772,6 +1949,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.badge.monsoon': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñ░αñòαÑìαñ╖αñò',
+       'profile.wardImpact': 'αñåαñ¬αñòαñ╛ αñ╡αñ╛αñ░αÑìαñí: αñçαñ╕ αñ«αñ╛αñ¿αñ╕αÑéαñ¿ {n} αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
+       'profile.streak': '{n}-αñ╕αñ¬αÑìαññαñ╛αñ╣ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒαñ┐αñéαñù αñ╕αÑìαñƒαÑìαñ░αÑÇαñò',
++      'profile.milestoneOne': 'αñàαñùαñ▓αÑç αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿ αñòαÑç αñ▓αñ┐αñÅ 1 αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'profile.milestoneMany': 'αñàαñùαñ▓αÑç αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿ αñòαÑç αñ▓αñ┐αñÅ {n} αñöαñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'profile.milestoneMax': 'Monsoon Guardian ΓÇö αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ£αñ╛αñ░αÑÇ αñ░αñûαÑçαñé!',
++      'profile.nextStreakBadge': '{badge} αñòαÑç αñ▓αñ┐αñÅ {n} αñöαñ░ αñ╣αñ½αÑìαññαÑç',
+       'confirm.nearby': 'αñ¬αñ┐αñ¿ {m} αñ«αÑÇ. αñªαÑéαñ░{backing}αÑñ αñíαÑüαñ¬αÑìαñ▓αñ┐αñòαÑçαñƒ αñòαÑÇ αñ£αñùαñ╣ αñ«αÑüαñ¥αÑç αñ¡αÑÇ αñªαñ¼αñ╛αñÅαñü ΓÇö αñáαÑÇαñò αñ╣αÑïαñ¿αÑç αñ¬αñ░ αñàαñ¬αñíαÑçαñƒαÑñ',
+       'esc.participate.title': 'αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñòαñ╛αñ░αÑìαñ░αñ╡αñ╛αñê (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)',
+       'esc.participate.hint': 'Participate Mumbai BMC αñòαñ╛ αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñ╛/CSR αñ¬αÑïαñ░αÑìαñƒαñ▓ αñ╣αÑê ΓÇö αñòαÑÇαñƒ αñ¿αñ┐αñ»αñéαññαÑìαñ░αñú αñ╢αñ┐αñòαñ╛αñ»αññαÑïαñé αñòαÑç αñ▓αñ┐αñÅ αñ¿αñ╣αÑÇαñéαÑñ αñ╕αñ½αñ╛αñê αñàαñ¡αñ┐αñ»αñ╛αñ¿ αñ»αñ╛ αñ╡αñ╛αñ░αÑìαñí αñ¬αñ░αñ┐αñ»αÑïαñ£αñ¿αñ╛αñôαñé αñòαÑç αñ▓αñ┐αñÅ αñëαñ¬αñ»αÑïαñù αñòαñ░αÑçαñéαÑñ',
+@@ -1840,10 +2021,9 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.subtitle': 'αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñöαñ░ αñáαñ╛αñúαÑç αñòαÑç αñ▓αñ┐αñÅ αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛ ΓÇö αñùαÑüαñ«αñ¿αñ╛αñ« αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñ░αñ╛αñëαñƒαñ░ αñ¿αñ╣αÑÇαñéαÑñ',
+       'about.impactTitle': 'αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¬αÑìαñ░αñ¡αñ╛αñ╡', 'about.builtTitle': 'αñ╣αñ«αñ¿αÑç αñòαÑìαñ»αñ╛ αñ¼αñ¿αñ╛αñ»αñ╛',
+       'about.differentTitle': 'CivicRadar αñàαñ▓αñù αñòαÑìαñ»αÑïαñé αñ╣αÑê',
+-      'about.different1': 'αñ▓αñ╛αñçαñ╡ αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛ + αñ½αÑïαñƒαÑï αñ¬αñ┐αñ¿ ΓÇö αñ¬αñíαñ╝αÑïαñ╕αÑÇ Me too αñ╕αÑç αñ¬αÑüαñ╖αÑìαñƒαñ┐ αñòαñ░αññαÑç αñ╣αÑêαñé, αñùαÑüαñ«αñ¿αñ╛αñ« αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñíαÑìαñ░αÑëαñ¬ αñ¿αñ╣αÑÇαñé',
+-      'about.different2': 'αñªαÑïαñ╣αñ░αñ╛ αñ░αñ╛αñ╕αÑìαññαñ╛: αñ¬αñ╣αñ▓αÑç CivicRadar αñ¬αñ░ αñ¬αñ┐αñ¿, αñ½αñ┐αñ░ αñÜαñ╛αñ╣αÑçαñé αññαÑï αñÅαñò-αñƒαÑêαñ¬ αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñªαñ░αÑìαñ£ (BMC 1916/MyBMC, PMC CARE, TMC)',
+-      'about.different3': 'αñæαñ½αñ╝αñ▓αñ╛αñçαñ¿ αñòαñ╛αñ« αñòαñ░αññαñ╛ αñ╣αÑê ΓÇö αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ αñ¬αñ░ αñ£αÑïαñíαñ╝αÑçαñé, αñ¼αñ┐αñ¿αñ╛ αñ▓αÑëαñùαñ┐αñ¿, 4 αñ¡αñ╛αñ╖αñ╛αñÅαñü',
+-      'about.different4': 'αñáαÑÇαñò αñ╣αÑïαñ¿αÑç αññαñò αñƒαÑìαñ░αÑêαñò ΓÇö αñÅαñ╕αÑìαñòαÑçαñ▓αÑçαñ╢αñ¿ αñƒαñ╛αñçαñ«αñ▓αñ╛αñçαñ¿, Civic Points, αñöαñ░ αñ╕αñ½αñ╛αñê αñ¬αñ░ αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ£αÑÇαññ',
++      'about.different1': 'αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αñ╛ + Me too ΓÇö αñùαÑüαñ«αñ¿αñ╛αñ« αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñ¿αñ╣αÑÇαñé',
++      'about.different2': 'αñ¬αñ╣αñ▓αÑç αñ¬αñ┐αñ¿, αñÜαñ╛αñ╣αÑçαñé αññαÑï αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñªαñ░αÑìαñ£',
++      'about.different3': 'αñæαñ½αñ╝αñ▓αñ╛αñçαñ¿, αñ¼αñ┐αñ¿αñ╛ αñ▓αÑëαñùαñ┐αñ¿, 4 αñ¡αñ╛αñ╖αñ╛ ┬╖ αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç, αñáαñ╛αñúαÑç',
+       'about.sustainTitle': 'αñƒαñ┐αñòαñ╛αñè αñöαñ░ αñ¿αñ╛αñùαñ░αñ┐αñòαÑïαñé αñòαÑç αñ▓αñ┐αñÅ αñ¿αñ┐αñâαñ╢αÑüαñ▓αÑìαñò',
+       'about.sustainBody': 'CivicRadar αñ¿αñ┐αñ╡αñ╛αñ╕αñ┐αñ»αÑïαñé αñòαÑç αñ▓αñ┐αñÅ αñ╣αñ«αÑçαñ╢αñ╛ αñ¿αñ┐αñâαñ╢αÑüαñ▓αÑìαñò αñ░αñ╣αÑçαñùαñ╛αÑñ αñ¡αñ╡αñ┐αñ╖αÑìαñ» αñòαÑÇ αñåαñ» αñ¿αÑêαññαñ┐αñò αñ╕αÑìαñÑαñ╛αñ¿αÑÇαñ» αñ╕αñ╛αñ¥αÑçαñªαñ╛αñ░αÑÇ αñ╕αÑç αñåαññαÑÇ αñ╣αÑê ΓÇö αñ╕αñ╛αñ░αÑìαñ╡αñ£αñ¿αñ┐αñò αñ╕αÑüαñ░αñòαÑìαñ╖αñ╛ αñ¬αñ░ αñ¬αÑçαñ╡αÑëαñ▓ αñ¿αñ╣αÑÇαñéαÑñ',
+       'about.copyImpact': 'αñ¬αÑìαñ░αñ¡αñ╛αñ╡ αñ╕αñ╛αñ░αñ╛αñéαñ╢ αñòαÑëαñ¬αÑÇ αñòαñ░αÑçαñé', 'about.contact': 'αñ╣αñ«αñ╕αÑç αñ╕αñéαñ¬αñ░αÑìαñò αñòαñ░αÑçαñé', 'about.contactOperator': 'αñ╣αñ«αñ╕αÑç αñ╕αñéαñ¬αñ░αÑìαñò αñòαñ░αÑçαñé', 'about.close': 'αñ¼αñéαñª',
+@@ -2042,8 +2222,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.pointsHint.base': '50 αñàαñéαñò/αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ ┬╖ +200 αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñ╛', 'profile.pointsHint.bonus': '{n} ├ù 50 ┬╖ +{bonus} αñ¼αÑïαñ¿αñ╕',
+       'profile.greeting': 'αñ¿αñ«αñ╕αÑìαññαÑç, {name}', 'profile.greetingDefault': 'αñ¿αñ«αñ╕αÑìαññαÑç, αñ¿αñ╛αñùαñ░αñ┐αñò', 'profile.selectWard': 'αñ╡αñ╛αñ░αÑìαñí αñÜαÑüαñ¿αÑçαñé',
+       'profile.society': 'αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / αñ¬αñíαñ╝αÑïαñ╕ (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)',
+-      'profile.societyPh': 'αñ£αÑêαñ╕αÑç Phoenix Mills CHS, Worli',
+-      'profile.societyHint': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñöαñ░ RWA αñ▓αÑÇαñí αñòαÑï αñåαñ¬αñòαÑÇ αñùαñ▓αÑÇ αñ«αÑçαñé αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ╕αñ«αÑéαñ╣αñ┐αññ αñòαñ░αñ¿αÑç αñ«αÑçαñé αñ«αñªαñªαÑñ',
++      'profile.societyPh': 'αñ╕αÑéαñÜαÑÇ αñ«αÑçαñé αñ¿ αñ╣αÑï αññαÑï αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / RWA αñ¿αñ╛αñ« αñ▓αñ┐αñûαÑçαñé',
++      'profile.societyHintWard': '{ward} αñ«αÑçαñé {n} αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ ΓÇö αñàαñ¬αñ¿αÑÇ αñ▓αñ┐αñûαÑçαñéαÑñ',
++      'profile.societyHintNoWard': 'αñ╕αÑìαñÑαñ╛αñ¿αÑÇαñ» αñ╕αÑüαñ¥αñ╛αñ╡ αñòαÑç αñ▓αñ┐αñÅ αñ╡αñ╛αñ░αÑìαñí αñ╕αÑçαñƒ αñòαñ░αÑçαñéαÑñ',
++      'profile.societyHintCustom': 'αñ╕αÑéαñÜαÑÇ αñ«αÑçαñé αñ¿ αñ╣αÑï αññαÑï αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / RWA αñ¿αñ╛αñ« αñ▓αñ┐αñûαÑçαñéαÑñ',
+       'profile.societyRegistry': 'αñàαñ¬αñ¿αÑÇ αñ¬αñéαñ£αÑÇαñòαÑâαññ αñ╕αñ╣αñòαñ╛αñ░αÑÇ αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ αñûαÑïαñ£αÑçαñé',
+       'map.youAreHere': 'αñåαñ¬ αñ»αñ╣αñ╛αñü αñ╣αÑêαñé',
+       'about.subtitleNamed': 'αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñöαñ░ αñáαñ╛αñúαÑç αñ«αñ╛αñ¿αñ╕αÑéαñ¿ ΓÇö {name} αñªαÑìαñ╡αñ╛αñ░αñ╛, αñ¿αñ╛αñùαñ░αñ┐αñòαÑïαñé αñòαÑç αñ▓αñ┐αñÅ αñ¿αñ┐αñâαñ╢αÑüαñ▓αÑìαñòαÑñ',
+@@ -2128,14 +2310,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'map.legend.you': 'αñåαñ¬',
+       'onboard.wardError': 'αñ╕αÑéαñÜαÑÇ αñ╕αÑç αñ╡αñ╛αñ░αÑìαñí αñÜαÑüαñ¿αÑçαñé αñ»αñ╛ αñ▓αÑïαñòαÑçαñ╢αñ¿ αñàαñ¿αÑüαñ«αññαñ┐ αñªαÑçαñéαÑñ',
+       'onboard.society': 'αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / αñ¬αñíαñ╝αÑïαñ╕ (αñ╡αÑêαñòαñ▓αÑìαñ¬αñ┐αñò)',
+-      'onboard.societyPh': 'αñ£αÑêαñ╕αÑç Phoenix Mills CHS, Worli',
+-      'onboard.societyHint': 'αñåαñ¬αñòαÑÇ αñ╣αñ╛αñëαñ╕αñ┐αñéαñù αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ, RWA αñ»αñ╛ αñùαñ▓αÑÇ ΓÇö αñ¬αñ╛αñ╕ αñòαÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ╕αñ«αÑéαñ╣αñ┐αññ αñòαñ░αñ¿αÑç αñ«αÑçαñé αñ«αñªαñªαÑñ',
+-      'onboard.why': 'αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñíαÑçαñéαñùαÑé αñöαñ░ αñ«αñ▓αÑçαñ░αñ┐αñ»αñ╛ αñ½αÑêαñ▓αñ╛αññαñ╛ αñ╣αÑêαÑñ αñåαñ¬αñòαÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñëαñ╕ αñ£αñùαñ╣ αñòαÑï αñ╡αñ╛αñ░αÑìαñí αñ¿αñòαÑìαñ╢αÑç αñöαñ░ BMC αñòαññαñ╛αñ░ αñ«αÑçαñé αñíαñ╛αñ▓αññαÑÇ αñ╣αÑê ΓÇö αñöαñ░ αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑï αñ╕αñÜαÑçαññ αñòαñ░αññαÑÇ αñ╣αÑêαÑñ',
+-      'onboard.howTitle': 'αñ»αñ╣ αñòαÑêαñ╕αÑç αñòαñ╛αñ« αñòαñ░αññαñ╛ αñ╣αÑê',
+-      'onboard.how1': 'αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ»αñ╛ αñòαÑïαñê αñ¿αñ╛αñùαñ░αñ┐αñò αñûαññαñ░αñ╛ αñªαÑçαñûαÑçαñé',
+-      'onboard.how2': 'αñ«αÑîαñòαÑç αñ¬αñ░ αñ╣αÑÇ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñé αñöαñ░ αñ½αñ╝αÑïαñƒαÑï αñ▓αÑçαñé',
+-      'onboard.how3': 'αñ╕αñ¼αñ«αñ┐αñƒ αñòαñ░αÑçαñé ΓÇö αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñöαñ░ BMC αñªαÑçαñûαÑçαñéαñùαÑç, αñåαñ¬αñòαÑï Civic Points αñ«αñ┐αñ▓αÑçαñéαñùαÑç',
+-      'onboard.spotNote': 'αñ«αÑîαñòαÑç αñ¬αñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ¿αñ╛ αñ╕αñ¼αñ╕αÑç αñàαñÜαÑìαñ¢αñ╛, αññαñ╛αñòαñ┐ αñ▓αÑïαñòαÑçαñ╢αñ¿ αñ╕αñƒαÑÇαñò αñ░αñ╣αÑçαÑñ',
++      'onboard.societyPh': 'αñ╕αÑéαñÜαÑÇ αñ«αÑçαñé αñ¿ αñ╣αÑï αññαÑï αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / RWA αñ¿αñ╛αñ« αñ▓αñ┐αñûαÑçαñé',
++      'onboard.societyHintNoWard': 'αñ¬αñ╣αñ▓αÑç αñ╡αñ╛αñ░αÑìαñí αñÜαÑüαñ¿αÑçαñé ΓÇö αñ½αñ┐αñ░ αñ╕αÑìαñÑαñ╛αñ¿αÑÇαñ» αñ╕αÑüαñ¥αñ╛αñ╡αÑñ',
++      'onboard.societyHintWard': '{ward} αñ«αÑçαñé {n} αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ ΓÇö αñàαñ¬αñ¿αÑÇ αñ▓αñ┐αñûαÑçαñéαÑñ',
++      'onboard.societyHintCustom': 'αñ╕αÑéαñÜαÑÇ αñ«αÑçαñé αñ¿ αñ╣αÑï αññαÑï αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ / RWA αñ¿αñ╛αñ« αñ▓αñ┐αñûαÑçαñéαÑñ',
+       'persona.admin.exit': 'BMC αñ«αÑïαñí αñ¼αñéαñª',
+       'persona.admin.header': 'BMC αñ╕αñ«αÑÇαñòαÑìαñ╖αñ╛ αñ«αÑïαñí',
+       'persona.admin.idleEmpty': 'αñòαÑïαñê αñ▓αñéαñ¼αñ┐αññ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñ¿αñ╣αÑÇαñéαÑñ αñ¿αñÅ αñ¬αñ┐αñ¿ αñ»αñ╣αñ╛αñü αñªαñ┐αñûαÑçαñéαñùαÑçαÑñ',
+@@ -2311,6 +2489,33 @@ document.addEventListener('DOMContentLoaded', function () {
+       'admin.health.perfSamples': 'αñ¬αÑìαñ░αñªαñ░αÑìαñ╢αñ¿ αñ¿αñ«αÑéαñ¿αÑç',
+       'admin.health.avgPerf': 'αñöαñ╕αññ αñ▓αÑïαñí αñ╕αñ«αñ» (αñ╕αÑìαñÑαñ╛αñ¿αÑÇαñ»)',
+       'admin.health.bufferedEvents': 'αñ¼αñ½αñ░ αñçαñ╡αÑçαñéαñƒ (αñíαñ┐αñ╡αñ╛αñçαñ╕)',
++      'tracking.open': 'αñÅαñ¿αñ╛αñ▓αñ┐αñƒαñ┐αñòαÑìαñ╕ αñöαñ░ αñƒαÑìαñ░αÑêαñòαñ┐αñéαñù',
++      'tracking.title': 'αñÅαñ¿αñ╛αñ▓αñ┐αñƒαñ┐αñòαÑìαñ╕ αñöαñ░ αñƒαÑìαñ░αÑêαñòαñ┐αñéαñù',
++      'tracking.subtitle': 'αñÅαñòαññαÑìαñ░αñ┐αññ αñ¿αñ╛αñùαñ░αñ┐αñò αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ ΓÇö αñ╡αñ┐αñ£αñ╝αñ┐αñƒ, αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ, αñÅαñ╕αÑìαñòαÑçαñ▓αÑçαñ╢αñ¿, αñ¿αñ┐αñ░αñ╛αñòαñ░αñúαÑñ',
++      'tracking.period': 'αñàαñ╡αñºαñ┐',
++      'tracking.days7': 'αñ¬αñ┐αñ¢αñ▓αÑç 7 αñªαñ┐αñ¿',
++      'tracking.days30': 'αñ¬αñ┐αñ¢αñ▓αÑç 30 αñªαñ┐αñ¿',
++      'tracking.days90': 'αñ¬αñ┐αñ¢αñ▓αÑç 90 αñªαñ┐αñ¿',
++      'tracking.wardFilter': 'αñ╡αñ╛αñ░αÑìαñí',
++      'tracking.sessions': 'αñ╡αñ┐αñ£αñ╝αñ┐αñƒ',
++      'tracking.pwaInstalls': 'PWA αñçαñéαñ╕αÑìαñƒαÑëαñ▓',
++      'tracking.reports': 'αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'tracking.resolved': 'αñ¿αñ┐αñ░αñ╛αñòαÑâαññ',
++      'tracking.pwaNote': 'PWA αñçαñéαñ╕αÑìαñƒαÑëαñ▓ αñàαñ¿αÑüαñ«αñ╛αñ¿αñ┐αññ αñ╣αÑêαñé (αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ / standalone)αÑñ GitHub Pages αñ¬αñ░ αñ╕αÑìαñƒαÑïαñ░ αñíαñ╛αñëαñ¿αñ▓αÑïαñí αñ¿αñ╣αÑÇαñé αñ«αñ╛αñ¬αÑç αñ£αñ╛ αñ╕αñòαññαÑçαÑñ',
++      'tracking.loading': 'αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ αñ▓αÑïαñí αñ╣αÑï αñ░αñ╣αÑçΓÇª',
++      'tracking.sourceLocal': 'αñíαñ┐αñ╡αñ╛αñçαñ╕ + αñ╕αÑìαñÑαñ╛αñ¿αÑÇαñ» αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ (αñíαÑçαñ«αÑï / αñæαñ½αñ▓αñ╛αñçαñ¿)',
++      'tracking.sourceCloud': 'αñòαÑìαñ▓αñ╛αñëαñí αñÅαñòαññαÑìαñ░ (αñ╕αñ¡αÑÇ αñëαñ¬αñ»αÑïαñùαñòαñ░αÑìαññαñ╛)',
++      'tracking.sourceCloudFail': 'αñòαÑìαñ▓αñ╛αñëαñí αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ αñëαñ¬αñ▓αñ¼αÑìαñº αñ¿αñ╣αÑÇαñé ΓÇö Supabase αñ«αÑçαñé v92 tracking SQL αñÜαñ▓αñ╛αñÅαñüαÑñ',
++      'tracking.reportsByCategory': 'αñ╢αÑìαñ░αÑçαñúαÑÇ αñàαñ¿αÑüαñ╕αñ╛αñ░ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ',
++      'tracking.escalations': 'αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñÜαÑêαñ¿αñ▓ αñûαÑüαñ▓αñ¿αÑç',
++      'tracking.neighbourhoods': 'αñ¬αñíαñ╝αÑïαñ╕ / αñ╕αÑïαñ╕αñ╛αñçαñƒαÑÇ αñàαñ¿αÑüαñ╕αñ╛αñ░',
++      'tracking.reporters': 'αñ╕αñòαÑìαñ░αñ┐αñ» αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒαñ░',
++      'tracking.meToo': 'αñ«αÑüαñ¥αÑç αñ¡αÑÇ',
++      'tracking.filed': 'αñåαñºαñ┐αñòαñ╛αñ░αñ┐αñò αñªαñ░αÑìαñ£',
++      'tracking.leads': 'αñ¬αñíαñ╝αÑïαñ╕ αñ▓αÑÇαñí',
++      'tracking.empty': 'αñçαñ╕ αñàαñ╡αñºαñ┐ αñ«αÑçαñé αñòαÑïαñê αñíαÑçαñƒαñ╛ αñ¿αñ╣αÑÇαñéαÑñ',
++      'tracking.pending': 'αñûαÑüαñ▓αÑç',
++      'tracking.channelUnknown': 'αñàαñ¿αÑìαñ» αñÜαÑêαñ¿αñ▓',
+       'profile.neighbourOne': 'αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñ¿αÑç αñ«αÑüαñ¥αÑç αñ¡αÑÇ αñòαñ╣αñ╛',
+       'profile.neighbourMany': 'αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñ¿αÑç αñ«αÑüαñ¥αÑç αñ¡αÑÇ αñòαñ╣αñ╛',
+       'ref.welcomeTitle': 'αñÅαñò αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñ¿αÑç αñåαñ¬αñòαÑï αñ¼αÑüαñ▓αñ╛αñ»αñ╛ ≡ƒæï',
+@@ -2319,8 +2524,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'ref.welcomeCta': 'αñ¿αñòαÑìαñ╢αñ╛ αñªαÑçαñûαÑçαñé',
+       'ref.welcomeReport': 'αñ╕αÑìαñ¬αÑëαñƒ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé',
+       'ref.dismiss': 'αñ¿αñ┐αñ«αñéαññαÑìαñ░αñú αñ¼αñéαñª αñòαñ░αÑçαñé',
+-      'season.monsoonPrep': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñå αñ░αñ╣αñ╛ αñ╣αÑê ≡ƒîº∩╕Å αñ¬αñ╣αñ▓αÑÇ αññαÑçαñ£αñ╝ αñ¼αñ╛αñ░αñ┐αñ╢ αñ╕αÑç αñ¬αñ╣αñ▓αÑç αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ╕αñ╛αñ½αñ╝ αñòαñ░αÑçαñé ΓÇö αñ╕αÑìαñ¬αÑëαñƒ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñéαÑñ',
+-      'season.monsoonPeak': 'αñÜαñ░αñ« αñ«αñ╛αñ¿αñ╕αÑéαñ¿ ≡ƒîº∩╕Å αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñíαÑçαñéαñùαÑé αñ½αÑêαñ▓αñ╛αññαñ╛ αñ╣αÑêαÑñ αñåαñ£ αñàαñ¬αñ¿αÑç αñ╡αñ╛αñ░αÑìαñí αñ«αÑçαñé αñ╕αÑìαñ¬αÑëαñƒ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñéαÑñ',
++      'season.monsoonPrep': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ ≡ƒîº∩╕Å αñ░αÑüαñòαÑç αñ¬αñ╛αñ¿αÑÇ αñòαÑï αñ¿αñòαÑìαñ╢αÑç αñ¬αñ░ αñ¬αñ┐αñ¿ αñòαñ░αÑçαñé ΓÇö αñ«αñÜαÑìαñ¢αñ░αÑïαñé αñòαñ╛ αñûαññαñ░αñ╛ αñƒαñ╛αñ▓αÑçαñéαÑñ',
++      'season.monsoonPeak': 'αñ«αñ╛αñ¿αñ╕αÑéαñ¿ αñå αñùαñ»αñ╛ ≡ƒîº∩╕Å αñ¬αñ╛αñ╕ αñòαñ╛ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñé ΓÇö αñíαÑçαñéαñùαÑé αñûαñíαñ╝αÑç αñ¬αñ╛αñ¿αÑÇ αñ«αÑçαñé αñ½αÑêαñ▓αññαñ╛ αñ╣αÑêαÑñ',
+       'season.ganesh': 'αñùαñúαÑçαñ╢ αñÜαññαÑüαñ░αÑìαñÑαÑÇ ≡ƒÖÅ αññαÑìαñ»αÑïαñ╣αñ╛αñ░ αñòαÑç αñ▓αñ┐αñÅ αñàαñ¬αñ¿αñ╛ αñ╡αñ╛αñ░αÑìαñí αñ╕αñ╛αñ½αñ╝ αñ░αñûαÑçαñé ΓÇö αñ¬αñéαñíαñ╛αñ▓ αñöαñ░ αñ╡αñ┐αñ╕αñ░αÑìαñ£αñ¿ αñ«αñ╛αñ░αÑìαñù αñòαÑç αñ¬αñ╛αñ╕ αñ░αÑüαñòαñ╛ αñ¬αñ╛αñ¿αÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αÑçαñéαÑñ',
+       'season.denguePeak': 'αñíαÑçαñéαñùαÑé αñòαñ╛ αñ«αÑîαñ╕αñ« ΓÜá∩╕Å αñ«αñÜαÑìαñ¢αñ░ αñ░αÑüαñòαÑç αñ¬αñ╛αñ¿αÑÇ αñ«αÑçαñé αñ¬αñ¿αñ¬αññαÑç αñ╣αÑêαñéαÑñ 30 αñ╕αÑçαñòαñéαñí αñòαÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñåαñ¬αñòαÑÇ αñùαñ▓αÑÇ αñòαÑÇ αñ░αñòαÑìαñ╖αñ╛ αñòαñ░αññαÑÇ αñ╣αÑêαÑñ',
+       'season.dismiss': 'αñ«αÑîαñ╕αñ«αÑÇ αñ╕αÑüαñ¥αñ╛αñ╡ αñ¼αñéαñª αñòαñ░αÑçαñé',
+@@ -2417,8 +2622,30 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.rejectedToast': 'αñàαñ¿αÑüαñ░αÑïαñº αñàαñ╕αÑìαñ╡αÑÇαñòαÑâαññαÑñ',
+       'access.proofAttached': 'αñ¬αÑìαñ░αñ«αñ╛αñú αñ£αÑïαñíαñ╝αñ╛ αñùαñ»αñ╛',
+       'access.proofTooBig': 'αñ¢αñ╡αñ┐ αñ¼αñ╣αÑüαññ αñ¼αñíαñ╝αÑÇ ΓÇö αñòαÑâαñ¬αñ»αñ╛ αñ¢αÑïαñƒαÑÇ αñ½αñ╝αÑïαñƒαÑï αñ£αÑïαñíαñ╝αÑçαñéαÑñ',
++      'lead.title': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñàαñùαÑüαñ╡αñ╛ αñ¼αñ¿αÑçαñé',
++      'lead.subtitle': 'αñûαÑüαñª αñòαÑï αñ¿αñ╛αñ«αñ╛αñéαñòαñ┐αññ αñòαñ░αÑçαñé ΓÇö αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñ╡αÑïαñƒ αñ╕αÑç αñ¡αÑéαñ«αñ┐αñòαñ╛ αñ«αñ┐αñ▓αññαÑÇ αñ╣αÑêαÑñ αñÅαñíαñ«αñ┐αñ¿ αñòαÑÇ αñ£αñ╝αñ░αÑéαñ░αññ αñ¿αñ╣αÑÇαñéαÑñ',
++      'lead.step1': 'αñ╡αñ╛αñ░αÑìαñí αñöαñ░ αñªαñ╛αñ»αñ░αñ╛ αñÜαÑüαñ¿αÑçαñé',
++      'lead.step2': 'αñ¬αñíαñ╝αÑïαñ╕αÑÇ αñ╕αñ╣αñ»αÑïαñù αñªαñ¼αñ╛αñÅαñü',
++      'lead.step3': '2 αñ╕αñ«αñ░αÑìαñÑαñ¿ = αñ¡αÑéαñ«αñ┐αñòαñ╛ (αñ╕αñ╣-αñàαñùαÑüαñ╡αñ╛ αñ¬αñ░ 5-5)',
++      'lead.roleWard': 'αñ╡αñ╛αñ░αÑìαñí NGO αñàαñùαÑüαñ╡αñ╛',
++      'lead.roleNbh': 'αñ¬αñíαñ╝αÑïαñ╕ αñàαñùαÑüαñ╡αñ╛',
++      'lead.submit': 'αñ«αÑçαñ░αñ╛ αñ¿αñ╛αñ«αñ╛αñéαñòαñ¿',
++      'lead.confirmTitle': 'αñåαñ¬ αñ«αññαñªαñ╛αñ¿ αñ«αÑçαñé αñ╣αÑêαñé!',
++      'lead.profileCta': 'αñ╡αñ╛αñ░αÑìαñí αñ»αñ╛ αñ¬αñíαñ╝αÑïαñ╕ αñàαñùαÑüαñ╡αñ╛ αñ¼αñ¿αÑçαñé',
++      'lead.partnerCta': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñàαñùαÑüαñ╡αñ╛ αñ¼αñ¿αÑçαñé ΓÇö αñ¬αñíαñ╝αÑïαñ╕αñ┐αñ»αÑïαñé αñòαÑç αñ╕αñ«αñ░αÑìαñÑαñ¿ αñ╕αÑç',
++      'lead.communityTitle': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñàαñùαÑüαñ╡αÑç',
++      'lead.communityHint': 'αñ╕αñ½αñ╝αñ╛αñê αñ╕αñ«αñ¿αÑìαñ╡αñ» αñòαÑç αñ▓αñ┐αñÅ volunteers αñòαñ╛ αñ╕αñ«αñ░αÑìαñÑαñ¿ αñòαñ░αÑçαñéαÑñ 2 = αñ¡αÑéαñ«αñ┐αñòαñ╛; αñ¬αÑìαñ░αññαñ┐αñ╕αÑìαñ¬αñ░αÑìαñºαñ╛ αñ«αÑçαñé 5-5αÑñ',
++      'lead.communityEmpty': 'αñåαñ¬αñòαÑç αñ╡αñ╛αñ░αÑìαñí αñ«αÑçαñé αñàαñ¡αÑÇ αñòαÑïαñê αñëαñ«αÑìαñ«αÑÇαñªαñ╡αñ╛αñ░ αñ¿αñ╣αÑÇαñé ΓÇö αñûαÑüαñª αñòαÑï αñ¿αñ╛αñ«αñ╛αñéαñòαñ┐αññ αñòαñ░αÑçαñéαÑñ',
++      'lead.becomeCta': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñàαñùαÑüαñ╡αñ╛ αñ¼αñ¿αÑçαñé',
++      'lead.support': 'αñ╕αñ╣αñ»αÑïαñù',
++      'lead.supported': 'αñ╕αñ«αñ░αÑìαñÑαñ┐αññ',
++      'lead.progress': '{count}/{threshold} αñ╕αñ«αñ░αÑìαñÑαñ¿',
++      'lead.progressCoLead': 'αñ╕αñ╣-αñàαñùαÑüαñ╡αñ╛ {count}/{threshold}',
++      'lead.tagWard': 'αñ╡αñ╛αñ░αÑìαñí αñàαñùαÑüαñ╡αñ╛',
++      'lead.tagNbh': 'αñ¬αñíαñ╝αÑïαñ╕',
++      'lead.you': 'αñåαñ¬',
++      'lead.granted': 'αñ╕αÑÇαñ«αñ╛ αñ¬αÑéαñ░αÑÇ ΓÇö αñ╕αñ«αñ¿αÑìαñ╡αñ»αñò αñÅαñòαÑìαñ╕αÑçαñ╕ αñàαñ¿αñ▓αÑëαñò!',
+     },
+-    mr: {
+       'lang.name': 'αñ«αñ░αñ╛αñáαÑÇ', 'lang.native': 'αñ«αñ░αñ╛αñáαÑÇ',
+       'nav.map': 'αñ¿αñòαñ╛αñ╢αñ╛', 'nav.community': 'αñ╕αñ«αÑüαñªαñ╛αñ»', 'nav.profile': 'αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓',
+       'fab.report': 'αññαñòαÑìαñ░αñ╛αñ░',
+@@ -2432,26 +2659,23 @@ document.addEventListener('DOMContentLoaded', function () {
+       'location.locate': 'αñ«αñ╛αñ¥αÑç αñ╕αÑìαñÑαñ╛αñ¿',
+       'location.locateAria': 'αñ╕αÑìαñÑαñ╛αñ¿ αñÜαñ╛αñ▓αÑé αñòαñ░αñ╛',
+       'location.enable': 'αñÜαñ╛αñ▓αÑé αñòαñ░αñ╛',
+-      'coach.step': '#MonsoonGuardian ┬╖ 30 αñ╕αÑçαñò', 'coach.title': 'αñíαÑçαñéαñùαÑéαñÜαñ╛ αñ╢αññαÑìαñ░αÑé? αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ!',
+-      'coach.body': 'αññαñòαÑìαñ░αñ╛αñ░ αñªαñ╛αñ¼αñ╛, αñ½αÑïαñƒαÑï αñòαñ╛αñóαñ╛ ΓÇö αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ¬αñ┐αñ¿. αñ╢αÑçαñ£αñ╛αñ░αÑÇ Me too αñ«αÑìαñ╣αñúαññαÑÇαñ▓, αñ▓αñ╡αñòαñ░ αñ╕αÑïαñíαñ╡αñ▓αÑç αñ£αñ╛αñêαñ▓. WhatsApp αñ╡αñ░ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛!',
+-      'coach.spotTip': 'αñåαññαÑìαññαñ╛αñÜ αñ¿αÑïαñéαñªαñ╡αñ╛αñ»αñÜαÑÇ αñùαñ░αñ£ αñ¿αñ╛αñ╣αÑÇ. αñ£αÑçαñ╡αÑìαñ╣αñ╛ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñªαñ┐αñ╕αÑçαñ▓ ΓÇö αñíαñ¼αñòαÑç, αññαÑüαñéαñ¼αñ▓αÑçαñ▓αÑç αñùαñƒαñ╛αñ░ αñòαñ┐αñéαñ╡αñ╛ αñëαñÿαñíαÑÇ αñƒαñ╛αñòαÑÇ ΓÇö CivicRadar αñëαñÿαñíαñ╛ αñåαñúαñ┐ αñ£αñ╛αñùαÑçαñ╡αñ░αñÜ αñ¬αñ┐αñ¿ αñòαñ░αñ╛ αñ£αÑçαñúαÑçαñòαñ░αÑéαñ¿ αñáαñ┐αñòαñ╛αñú αñàαñÜαÑéαñò αñ░αñ╛αñ╣αÑÇαñ▓.',
+-      'coach.got': 'αñÜαñ▓αñ╛ αñ╕αÑüαñ░αÑé αñòαñ░αÑé',
+-      'tour.skip': 'αñ╡αñùαñ│αñ╛', 'tour.next': 'αñ¬αÑüαñóαÑç', 'tour.done': 'αñ╕αñ«αñ£αñ▓αÑç',
+-      'tour.replay': 'αñàΓÇìαÑàαñ¬ αñƒαÑéαñ░ αñ¬αÑüαñ¿αÑìαñ╣αñ╛ αñ¬αñ╛αñ╣αñ╛',
++      'coach.step': '#MonsoonGuardian ┬╖ 30 αñ╕αÑçαñò', 'coach.title': 'αñ£αñ╡αñ│ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ? αñåαññαÑìαññαñ╛αñÜ αñ¬αñ┐αñ¿ αñòαñ░αñ╛.',
++      'coach.body': 'αññαñòαÑìαñ░αñ╛αñ░, αñ½αÑïαñƒαÑï ΓÇö αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ¬αñ┐αñ¿.',
++      'coach.got': 'αñÜαñ▓αñ╛',
++      'tour.skip': 'αñƒαÑéαñ░ αñ╡αñùαñ│αñ╛', 'tour.next': 'αñ¬αÑüαñóαÑç', 'tour.done': 'αñ╕αñ«αñ£αñ▓αÑç',
++      'tour.replay': 'αñƒαÑéαñ░ αñ¬αÑüαñ¿αÑìαñ╣αñ╛',
+       'tour.map.title': 'αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛',
+-      'tour.map.body': 'αñ╣αñ╛ αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛ αñåαñ╣αÑç. αñ£αñ╡αñ│αñÜαÑç αñºαÑïαñòαÑç αñçαñÑαÑç αñ¬αñ┐αñ¿ αñ«αÑìαñ╣αñúαÑéαñ¿ αñªαñ┐αñ╕αññαñ╛αññ.',
++      'tour.map.body': 'αñºαÑïαñòαÑç αñçαñÑαÑç αñ¬αñ┐αñ¿ ΓÇö Me too αñ¿αÑç αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ╕αñ╛αñÑ.',
+       'tour.report.title': '30 αñ╕αÑçαñòαñéαñªαñ╛αññ αññαñòαÑìαñ░αñ╛αñ░',
+-      'tour.report.body': 'αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñúαÑìαñ»αñ╛αñ╕αñ╛αñáαÑÇ αñçαñÑαÑç αñªαñ╛αñ¼αñ╛ ΓÇö αñ½αñòαÑìαññ 30 αñ╕αÑçαñòαñéαñª αñ▓αñ╛αñùαññαñ╛αññ.',
+-      'tour.metoo.title': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ╕αñ╛αñÑ αñªαÑìαñ»αñ╛',
+-      'tour.metoo.body': 'αñ£αñ╡αñ│ αñåαñºαÑÇαñÜ αñ¬αñ┐αñ¿ αñåαñ╣αÑç? αñÅαñûαñ╛αñªαÑìαñ»αñ╛ αñºαÑïαñòαÑìαñ»αñ╛αñ╡αñ░ ΓÇ£Me tooΓÇ¥ αñªαñ╛αñ¼αñ╛ αñ£αÑçαñúαÑçαñòαñ░αÑéαñ¿ {corp} αñ▓αñ╛ αñªαñ¼αñ╛αñ╡ αñªαñ┐αñ╕αÑçαñ▓.',
+-      'tour.profile.title': 'Civic Points αñåαñúαñ┐ αññαñòαÑìαñ░αñ╛αñ░αÑÇ',
+-      'tour.profile.body': 'αññαÑüαñ«αñÜαÑç Civic Points αñåαñúαñ┐ αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñçαñÑαÑç αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓αñ«αñºαÑìαñ»αÑç αñ¬αñ╛αñ╣αñ╛.',
+-      'persona.citizen.idle': '≡ƒªƒ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ = αñíαÑçαñéαñùαÑé αñºαÑïαñòαñ╛. αññαñòαÑìαñ░αñ╛αñ░ αñªαñ╛αñ¼αñ╛ ΓÇö 30 αñ╕αÑçαñòαñéαñªαñ╛αññ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░, WhatsApp αñ╡αñ░ αñ╢αÑçαñàαñ░.',
++      'tour.report.body': 'αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñªαñ┐αñ╕αÑçαñ▓ αññαñ░ αñçαñÑαÑç αñªαñ╛αñ¼αñ╛.',
++      'tour.profile.title': 'αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓',
++      'tour.profile.body': 'Civic Points αñåαñúαñ┐ αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñçαñÑαÑç.',
++      'persona.citizen.idle': '≡ƒªƒ αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αÑìαñ»αñ╛αññ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ = αñíαÑçαñéαñùαÑé. αñåαññαÑìαññαñ╛αñÜ αñ¿αÑïαñéαñªαñ╡αñ╛ ΓÇö 30 αñ╕αÑçαñòαñéαñªαñ╛αññ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░.',
+       'persona.wardImpact': '{ward}: {n} αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αÑÇ αññαñòαÑìαñ░αñ╛αñ░αÑÇ ΓÇö αñíαÑçαñéαñùαÑé αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑìαñ»αñ╛ αñ▓αÑçαñ¿αñ«αñºαÑéαñ¿ αñ╕αÑüαñ░αÑé. #MonsoonGuardian',
+       'persona.unfiled': '{n} αñûαÑüαñ▓αÑç αñºαÑïαñòαÑç αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ╕αÑïαñ¼αññ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓αñ«αñºαÑìαñ»αÑç αñàαñºαñ┐αñòαÑâαññ αññαñòαÑìαñ░αñ╛αñ░ αñ¿αÑïαñéαñªαñ╡αñ╛.',
+       'persona.pendingFiled': '{n} αñûαÑüαñ▓αÑç αñºαÑïαñòαÑç αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñªαñ┐αñ╕αññ αñåαñ╣αÑçαññ ΓÇö αñ«αÑüαñªαññ αñôαñ▓αñ╛αñéαñíαñ▓αÑìαñ»αñ╛αñ╕ αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓αñ«αñºαÑìαñ»αÑç αñ¬αÑüαñóαÑç αñ¿αÑìαñ»αñ╛.',
+-      'onboard.title': 'CivicRadar αñ«αñºαÑìαñ»αÑç αñ╕αÑìαñ╡αñ╛αñùαññ αñåαñ╣αÑç',
+-      'onboard.subtitle': '30 αñ╕αÑçαñòαñéαñªαñ╛αññ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¬αñ┐αñ¿ ┬╖ αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ¼αÑïαñ▓αñ╡αñ╛ ┬╖ αñ¬αÑìαñ░αññαñ┐αñ╕αÑìαñ¬αñ░αÑìαñºαÑÇ αñ╡αÑëαñ░αÑìαñíαñ▓αñ╛ αñ╣αñ░αñ╡αñ╛. #MonsoonGuardian',
++      'onboard.title': 'αñ╕αÑìαñ╡αñ╛αñùαññ',
++      'onboard.subtitle': 'αÑ⌐αÑª αñ╕αÑçαñòαñéαñªαñ╛αññ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛.',
+       'onboard.ward': 'αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí', 'onboard.wardPh': 'αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí αñƒαñ╛αñçαñ¬ αñòαñ░αñ╛αñ»αñ▓αñ╛ αñ╕αÑüαñ░αÑüαñ╡αñ╛αññ αñòαñ░αñ╛ΓÇª',
+       'onboard.wardHint': '{city} αñÜαÑìαñ»αñ╛ {n} αñàαñºαñ┐αñòαÑâαññ αñ╡αÑëαñ░αÑìαñíαñ╛αñéαñ«αñºαÑéαñ¿ αñ¿αñ┐αñ╡αñíαñ╛.',
+       'onboard.city': 'αññαÑüαñ«αñÜαÑç αñ╢αñ╣αñ░',
+@@ -2472,8 +2696,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'report.capture': 'αñ½αÑïαñƒαÑï αñòαñ╛αñóαñ╛',
+       'report.notes': 'αñƒαÑÇαñ¬ (αñÉαñÜαÑìαñ¢αñ┐αñò)', 'report.notesPh': 'αñºαÑïαñòαÑìαñ»αñ╛αñÜαÑç αñ╡αñ░αÑìαñúαñ¿ αñòαñ░αñ╛ΓÇª',
+       'report.submit': 'αññαñòαÑìαñ░αñ╛αñ░ αñ¬αñ╛αñáαñ╡αñ╛',
+-      'report.confirmRelevant.label': 'αñ╣αÑïαñ», αñ╣αñ╛ αñ½αÑïαñƒαÑï αñûαñ░αñ╛ αñºαÑïαñòαñ╛ αñªαñ╛αñûαñ╡αññαÑï ΓÇö αñÜαÑçαñ╣αñ░αÑç, αñòαñ╛αñùαñªαñ¬αññαÑìαñ░αÑç αñòαñ┐αñéαñ╡αñ╛ αñàαñ╕αñéαñ¼αñéαñºαñ┐αññ αñ╡αñ╕αÑìαññαÑé αñ¿αñ╛αñ╣αÑÇαññ.',
+-      'report.confirmRelevant.error': 'αñòαÑâαñ¬αñ»αñ╛ αñ½αÑïαñƒαÑï αñºαÑïαñòαñ╛ αñªαñ╛αñûαñ╡αññαÑï αñ»αñ╛αñÜαÑÇ αñ¬αÑüαñ╖αÑìαñƒαÑÇ αñòαñ░αñ╛, αñòαñ┐αñéαñ╡αñ╛ αñ¬αÑüαñ¿αÑìαñ╣αñ╛ αñ½αÑïαñƒαÑï αñòαñ╛αñóαñ╛.',
++      'report.photoHint': 'αñ½αÑïαñƒαÑï αñºαÑïαñòαñ╛ αñªαñ╛αñûαñ╡αññαÑï? αñ¬αñ╛αñáαñ╡αñ╛ ΓÇö αñ¿αñ╛αñ╣αÑÇαññαñ░ αñ¬αÑüαñ¿αÑìαñ╣αñ╛ αñòαñ╛αñóαñ╛.',
++      'report.retake': 'αñ¬αÑüαñ¿αÑìαñ╣αñ╛ αñ½αÑïαñƒαÑï',
+       'moderation.guidelines': 'αñ¬αÑìαñ░αññαÑìαñ»αñòαÑìαñ╖ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑìαñ»αñ╛ αñ¬αñ╛αñúαÑìαñ»αñ╛αñÜαñ╛ αñ½αÑïαñƒαÑï αñòαñ╛αñóαñ╛ ΓÇö αñÜαÑçαñ╣αñ░αÑç, αñòαñ╛αñùαñªαñ¬αññαÑìαñ░αÑç αñòαñ┐αñéαñ╡αñ╛ αñàαñ╕αñéαñ¼αñéαñºαñ┐αññ αñ╡αñ╕αÑìαññαÑé αñ¿αñ╛αñ╣αÑÇαññ. αñ╕αÑìαñÑαñ╛αñ¿ αñíαÑçαñƒαñ╛ αñùαÑïαñ¬αñ¿αÑÇαñ»αññαÑçαñ╕αñ╛αñáαÑÇ αñòαñ╛αñóαñ▓αñ╛ αñ£αñ╛αññαÑï.',
+       'moderation.scanning': 'αñ½αÑïαñƒαÑï αñ╕αÑüαñ░αñòαÑìαñ╖αñ╛ αññαñ¬αñ╛αñ╕αñúαÑÇΓÇª',
+       'moderation.blocked.fileType': 'αñ½αñòαÑìαññ JPEG, PNG αñòαñ┐αñéαñ╡αñ╛ WebP hazard αñ½αÑïαñƒαÑï αñ╕αÑìαñ╡αÑÇαñòαñ╛αñ░αñ▓αÑç αñ£αñ╛αññαñ╛αññ.',
+@@ -2491,8 +2715,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.step3': 'αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñò αñòαñ┐αñéαñ╡αñ╛ {corp} αñ¿αñ┐αñ░αñ╛αñòαñ░αñú αñ¥αñ╛αñ▓αÑìαñ»αñ╛αñ╡αñ░ αñ¬αÑüαñ╖αÑìαñƒαÑÇ αñòαñ░αÑé αñ╢αñòαññαñ╛αññ ΓÇö αñ╕αñ┐αñ╡αÑìαñ╣αñ┐αñò αñùαÑüαñú αñ«αñ┐αñ│αññαÑÇαñ▓',
+       'success.file': 'αñàαñºαñ┐αñòαÑâαññ αññαñòαÑìαñ░αñ╛αñ░ αñ¿αÑïαñéαñªαñ╡αñ╛ (αñ¬αñ░αÑìαñ»αñ╛αñ»αÑÇ)',
+       'success.fileCorp': '{corp} αñ«αñºαÑìαñ»αÑç αñàαñºαñ┐αñòαÑâαññ αññαñòαÑìαñ░αñ╛αñ░ (αñ¬αñ░αÑìαñ»αñ╛αñ»αÑÇ)',
+-      'success.tag': '@mybmc αñ▓αñ╛ αñƒαÑàαñù αñòαñ░αñ╛', 'success.alert': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñòαñ│αñ╡αñ╛', 'success.done': 'αñ¥αñ╛αñ▓αÑç',
+-      'success.sharePrompt': 'αñåαññαÑìαññαñ╛αñÜ WhatsApp αñ╡αñ░ αñ¬αñ╛αñáαñ╡αñ╛ ΓÇö αñ£αñ╛αñ╕αÑìαññ αñíαÑïαñ│αÑç = αñ▓αñ╡αñòαñ░ αñ╕αÑïαñíαñ╡αñúαÑç. αñíαÑçαñéαñùαÑé αñƒαñ╛αñ│αñ╛αñ»αñÜαñ╛ αñàαñ╕αÑçαñ▓ αññαñ░ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛!',
++      'success.tag': '@mybmc αñ▓αñ╛ αñƒαÑàαñù αñòαñ░αñ╛', 'success.alert': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñòαñ│αñ╡αñ╛',       'success.done': 'αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ¬αñ░αññ',
++      'success.sharePrompt': 'WhatsApp αñ╡αñ░ αñ╢αÑçαñàαñ░ ΓÇö αñ£αñ╛αñ╕αÑìαññ αñ¿αñ£αñ░, αñ▓αñ╡αñòαñ░ αñ╕αÑïαñíαñ╡αñúαÑç.',
+       'success.shareWhatsapp': 'WhatsApp αñ╡αñ░ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛',
+       'share.nativeShare': 'αñ╢αÑçαñàαñ░ αñòαñ░αñ╛',
+       'success.shareNudge': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñàαñ£αÑéαñ¿ αñòαñ│αñ▓αÑç αñ¿αñ╛αñ╣αÑÇ ΓÇö WhatsApp αñ╡αñ░ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛, αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñàαñºαñ┐αñò αñ¿αñ£αñ░ αñ«αñªαññ αñòαñ░αññαÑç.',
+@@ -2523,7 +2747,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.sharePitch': 'αñ«αÑïαñ½αññ {city} αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ αñ¿αñòαñ╛αñ╢αñ╛ ΓÇö 30 αñ╕αÑçαñòαñéαñªαñ╛αññ αññαñòαÑìαñ░αñ╛αñ░, Me too, αñ¬αÑìαñ░αññαñ┐αñ╕αÑìαñ¬αñ░αÑìαñºαÑÇ αñ╡αÑëαñ░αÑìαñíαñ▓αñ╛ αñ╣αñ░αñ╡αñ╛.\nαñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñåαñúαñ┐ αñáαñ╛αñúαÑçαñ╕αñ╛αñáαÑÇ αñ¼αñ╛αñéαñºαñ▓αÑç. αñ▓αÑëαñùαñ┐αñ¿ αñ¿αñ╛αñ╣αÑÇ, 4 αñ¡αñ╛αñ╖αñ╛.\n{link}\nRWA / αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ WhatsApp αñùαÑìαñ░αÑüαñ¬αñ▓αñ╛ αñ½αÑëαñ░αñ╡αñ░αÑìαñí αñòαñ░αñ╛ ΓåÆ',
+       'about.copyPitch': 'WhatsApp αñ¬αñ┐αñÜ αñòαÑëαñ¬αÑÇ αñòαñ░αñ╛',
+       'about.pitchCopied': 'αñ¬αñ┐αñÜ αñòαÑëαñ¬αÑÇ ΓÇö RWA αñùαÑìαñ░αÑüαñ¬αñ«αñºαÑìαñ»αÑç αñ¬αÑçαñ╕αÑìαñƒ αñòαñ░αñ╛!',
+-      'pwa.nudge': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛-αññαñ»αñ╛αñ░: αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿αñ╡αñ░ CivicRadar αñ£αÑïαñíαñ╛.',
++      'pwa.nudge': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ ≡ƒîº∩╕Å αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿αñ╡αñ░ CivicRadar αñ£αÑïαñíαñ╛ ΓÇö αñÅαñò αñƒαÑàαñ¬ αñ¿αÑïαñéαñª.',
+       'pwa.nudgeAction': 'αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿αñ╡αñ░ αñ£αÑïαñíαñ╛',
+       'pwa.nudgeDismiss': 'αñåαññαÑìαññαñ╛ αñ¿αñ╛αñ╣αÑÇ',
+       'community.challengeShare': 'αñ«αñ┐αññαÑìαñ░αñ╛αñ▓αñ╛ αñåαñ╡αÑìαñ╣αñ╛αñ¿ ΓÇö αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛',
+@@ -2533,13 +2757,15 @@ document.addEventListener('DOMContentLoaded', function () {
+       'community.winsCleanup': '{hazard} αñ╕αñ╛αñ½ ┬╖ {ward}',
+       'community.winsResolved': '{hazard} αñ╕αÑïαñíαñ╡αñ▓αÑç ┬╖ {ward}',
+       'success.points': 'αñ╕αñ┐αñ╡αÑìαñ╣αñ┐αñò αñùαÑüαñú αñ«αñ┐αñ│αñ╛αñ▓αÑç', 'success.weekBonus': '+{n} αñ»αñ╛ αñåαñáαñ╡αñíαÑìαñ»αñ╛αñÜαÑÇ αñ¬αñ╣αñ┐αñ▓αÑÇ αññαñòαÑìαñ░αñ╛αñ░!',
+-      'success.celebrateFirst': 'αññαÑüαñ«αÑìαñ╣αÑÇ αñ╡αÑëαñ░αÑìαñíαñÜαÑç αñ░αñòαÑìαñ╖αñú αñòαñ░αññ αñåαñ╣αñ╛αññ ΓÇö αñ╢αÑçαñ£αñ╛αñ░αÑÇ αñåαñ¡αñ╛αñ░αÑÇ αñàαñ╕αññαÑÇαñ▓.',
+-      'success.celebrateMilestone': '{n} αññαñòαÑìαñ░αñ╛αñ░αÑÇ ΓÇö αññαÑüαñ«αñÜαÑìαñ»αñ╛ αñ«αÑüαñ│αÑç αñ▓αÑçαñ¿ αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ!',
++      'success.celebrateFirst': 'αñ╢αñ╛αñ¼αÑìαñ¼αñ╛αñ╕ ΓÇö αññαÑüαñ«αÑìαñ╣αÑÇ αñ╡αÑëαñ░αÑìαñíαñÜαÑç αñ░αñòαÑìαñ╖αñú αñòαñ░αññ αñåαñ╣αñ╛αññ!',
++      'success.celebrateMilestone': '{n} αññαñòαÑìαñ░αñ╛αñ░αÑÇ ΓÇö αñ╡αÑëαñ░αÑìαñí αñ╣αÑÇαñ░αÑï!',
+       'success.kudos1': 'αñ╢αñ╛αñ¼αÑìαñ¼αñ╛αñ╕! αñåαñúαñûαÑÇ αñÅαñò αñºαÑïαñòαñ╛ αñ░αñíαñ╛αñ░αñ╡αñ░.',
+-      'success.kudos2': 'αñ¢αñ╛αñ¿ αñòαñ╛αñ« ΓÇö αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí αñÑαÑïαñíαñ╛ αñàαñºαñ┐αñò αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ αñ¥αñ╛αñ▓αñ╛.',
+-      'success.kudos3': 'αñ¿αÑïαñéαñªαñ╡αñ▓αÑç! αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñÜαÑÇ αñòαñ╛αñ│αñ£αÑÇ αñÿαÑçαññαñ▓αÑìαñ»αñ╛αñ¼αñªαÑìαñªαñ▓ αñºαñ¿αÑìαñ»αñ╡αñ╛αñª.',
++      'success.kudos2': 'αñ╡αÑëαñ░αÑìαñí αñ╣αÑÇαñ░αÑï ΓÇö αññαÑüαñ«αñÜαÑÇ αñ▓αÑçαñ¿ αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ αñ¥αñ╛αñ▓αÑÇ.',
++      'success.kudos3': 'αñ¿αÑïαñéαñªαñ╡αñ▓αÑç! αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αÑÇ αñ¬αñ╛αñ╣αñ┐αñ▓αÑç.',
+       'success.kudos4': 'αññαÑüαñ«αÑìαñ╣αÑÇ αñ¬αÑüαñ¿αÑìαñ╣αñ╛ αñ¬αÑüαñóαÑç αñåαñ▓αñ╛αññ ΓÇö αñàαñ╢αñ╛αñÜ αñ▓αÑçαñ¿ αñªαÑüαñ░αÑüαñ╕αÑìαññ αñ╣αÑïαññαñ╛αññ.',
+-      'success.kudos5': 'αñåαñúαñûαÑÇ αñÅαñò αñ¬αñ┐αñ¿ ΓÇö αññαÑüαñ«αñÜαÑÇ αñùαñ▓αÑìαñ▓αÑÇ αññαÑüαñ«αñÜαÑç αñåαñ¡αñ╛αñ░ αñ«αñ╛αñ¿αññαÑç.',
++      'success.kudos5': 'αñåαñúαñûαÑÇ αñÅαñò αñ¬αñ┐αñ¿ ΓÇö αñ╢αñ╛αñ¼αÑìαñ¼αñ╛αñ╕!',
++      'success.streakWeek': 'αñ»αñ╛ αñåαñáαñ╡αñíαÑìαñ»αñ╛αññ {n} αññαñòαÑìαñ░αñ╛αñ░ ΓÇö αñÜαñ╛αñ▓αÑé αñáαÑçαñ╡αñ╛!',
++      'success.badgeUnlock': '≡ƒÅà {n} αññαñòαÑìαñ░αñ╛αñ░αÑÇ ΓÇö αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿ αñàαñ¿αñ▓αÑëαñò!',
+       'success.progressOne': 'αñ¬αÑüαñóαñÜαÑìαñ»αñ╛ αñ¼αÑàαñ£αñ╕αñ╛αñáαÑÇ αñ½αñòαÑìαññ 1 αñåαñúαñûαÑÇ αññαñòαÑìαñ░αñ╛αñ░.',
+       'success.progressMany': 'αñ¬αÑüαñóαñÜαÑìαñ»αñ╛ αñ¼αÑàαñ£αñ╕αñ╛αñáαÑÇ {n} αñåαñúαñûαÑÇ αññαñòαÑìαñ░αñ╛αñ░αÑÇ.',
+       'success.progressMilestone': 'αñ¼αÑàαñ£ αñ«αñ┐αñ│αñ╛αñ▓αñ╛! αñ¬αÑüαñóαñÜαÑìαñ»αñ╛αñ╕αñ╛αñáαÑÇ {n} αñåαñúαñûαÑÇ.',
+@@ -2547,22 +2773,23 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.shareBrag': 'αññαÑüαñ«αÑìαñ╣αÑÇ αñ╡αÑëαñ░αÑìαñíαñ▓αñ╛ αñ«αñªαññ αñòαÑçαñ▓αÑÇ ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ WhatsApp αñ╡αñ░ αñ╕αñ╛αñéαñùαñ╛!',
+       'success.shareBragFirst': 'αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ¬αñ╣αñ┐αñ▓αñ╛ αñ¬αñ┐αñ¿! αñåαññαÑìαññαñ╛αñÜ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛ ΓÇö Monsoon Guardian αñèαñ░αÑìαñ£αñ╛ αñ¬αñ╕αñ░αññαÑç.',
+       'toast.badgeMonsoon': 'αñ╕αÑìαñ╡αñ╛αñùαññ, Monsoon Guardian! ≡ƒ¢í∩╕Å',
+-      'confirm.meTooThanks': 'Me too αñ¿αÑïαñéαñª ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñªαñ¼αñ╛αñ╡ αñªαñ┐αñ╕αññαÑï.',
++      'confirm.meTooThanks': '+{n} αñùαÑüαñú ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αÑÇ αñ¬αñ╛αñ╣αñ┐αñ▓αÑç! αñ╢αñ╛αñ¼αÑìαñ¼αñ╛αñ╕!',
+       'toast.reportMilestone': '{n} αññαñòαÑìαñ░αñ╛αñ░αÑÇ ΓÇö αñÜαñ╛αñ▓αÑé αñáαÑçαñ╡αñ╛!',
+-      'map.empty': '{ward} αñ«αñºαÑìαñ»αÑç αñ╕αÑìαñ╡αñÜαÑìαñ¢ αñ¿αñòαñ╛αñ╢αñ╛ ΓÇö #MonsoonGuardian αñ╡αÑìαñ╣αñ╛! αñíαÑçαñéαñùαÑé αñ¬αñ╕αñ░αñúαÑìαñ»αñ╛αñ¬αÑéαñ░αÑìαñ╡αÑÇ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ╛.',
+-      'map.emptyHint': 'αñ╕αÑìαñ¬αÑëαñƒαñ╡αñ░ αñ¬αñ┐αñ¿ ΓåÆ αñ½αÑïαñƒαÑï ΓåÆ ~30 αñ╕αÑçαñòαñéαñªαñ╛αññ αñ╕αñ¼αñ«αñ┐αñƒ. αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñªαñ┐αñ╕αÑçαñ▓.',
+-      'map.emptyAction': 'αñ¬αñ╣αñ┐αñ▓αñ╛ αñºαÑïαñòαñ╛ αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ╛',
++      'map.empty': '{ward} αñ«αñºαÑìαñ»αÑç αñàαñ£αÑéαñ¿ αñ¬αñ┐αñ¿ αñ¿αñ╛αñ╣αÑÇ ΓÇö αñ¬αñ╣αñ┐αñ▓αÑç αñ╡αÑìαñ╣αñ╛!',
++      'map.emptyEncourage': 'αñ¬αÑìαñ░αññαÑìαñ»αÑçαñò αñ¬αñ┐αñ¿ αñ»αñ╛ αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αÑìαñ»αñ╛αññ αñíαÑçαñéαñùαÑìαñ»αÑéαñ╡αñ░ αñ«αñ╛αññ αñòαñ░αñúαÑìαñ»αñ╛αññ αñ«αñªαññ αñòαñ░αññαÑï.',
++      'map.emptyHint': 'αñ£αñ╛αñùαÑçαñ╡αñ░ αñ½αÑïαñƒαÑï ┬╖ ~30 αñ╕αÑçαñò',
++      'map.emptyAction': 'αñåαññαÑìαññαñ╛ αñ¿αÑïαñéαñªαñ╡αñ╛',
+       'map.emptyShare': 'WhatsApp αñ╡αñ░ αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ¼αÑïαñ▓αñ╡αñ╛',
+-      'map.emptyRival': '{ward} αñ╡αñ┐αñ░αÑüαñªαÑìαñº {rival} ΓÇö αññαÑìαñ»αñ╛αñéαñÜαÑç {pending} αñëαñÿαñíαÑç αñ╕αÑìαñ¬αÑëαñƒ. αñ░αñ┐αñ¬αÑïαñ░αÑìαñƒ αñòαñ░αñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ¼αÑïαñ▓αñ╡αñ╛!',
++      'map.emptyRival': '{ward} αñ╡αñ┐αñ░αÑüαñªαÑìαñº {rival} ΓÇö {pending} αñëαñÿαñíαÑç αñ╕αÑìαñ¬αÑëαñƒ. αñ¿αÑïαñéαñªαñ╡αñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ¼αÑïαñ▓αñ╡αñ╛!',
+       'home.hero.badge': '#MonsoonGuardian',
+-      'home.hero.headline': 'αññαÑüαñ«αñÜαÑìαñ»αñ╛ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛',
+-      'home.hero.subline': 'αñíαÑçαñéαñùαÑé αñÑαñ╛αñéαñ¼αñ╡αñ╛ ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñåαñúαñ┐ BMC αñ▓αñ╛ αñ╕αññαñ░αÑìαñò αñòαñ░αñ╛, αñªαÑüαñ░αÑüαñ╕αÑìαññαÑÇ αñƒαÑìαñ░αÑàαñò αñòαñ░αñ╛.',
+-      'home.hero.benefit1': '30 αñ╕αÑçαñòαñéαñªαñ╛αññ',
+-      'home.hero.benefit2': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ╕αÑéαñÜαñ¿αñ╛',
+-      'home.hero.benefit3': 'BMC αñ░αñ╛αñéαñù',
+-      'home.hero.cta': 'αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛',
+-      'home.hero.tour': 'αñòαñ╕αÑç αñòαñ╛αñ« αñòαñ░αññαÑç',
+-      'home.hero.trust': 'αñ«αÑïαñ½αññ ┬╖ αñ▓αÑëαñùαñ┐αñ¿ αñ¿αñ╛αñ╣αÑÇ ┬╖ αñæαñ½αñ▓αñ╛αñçαñ¿ ┬╖ αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñåαñúαñ┐ αñáαñ╛αñúαÑç',
++      'home.hero.headline': 'αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛',
++      'home.hero.subline': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ αñ╕αÑüαñ░αÑé ΓÇö αñ£αñ╛αñùαÑÇ αñ¬αñ┐αñ¿ αñòαñ░αñ╛: αñ½αÑïαñƒαÑï, Me too.',
++      'home.hero.benefit1': '30 αñ╕αÑçαñò',
++      'home.hero.benefit2': 'Me too',
++      'home.hero.benefit3': 'αñƒαÑìαñ░αÑàαñò',
++      'home.hero.cta': 'αñåαññαÑìαññαñ╛ αñ¿αÑïαñéαñªαñ╡αñ╛',
++      'home.hero.tour': 'αñ¢αÑïαñƒαñ╛ αñƒαÑéαñ░',
++      'home.hero.trust': 'αñ«αÑïαñ½αññ ┬╖ αñæαñ½αñ▓αñ╛αñçαñ¿ ┬╖ 3 αñ╢αñ╣αñ░αÑç ┬╖ 4 αñ¡αñ╛αñ╖αñ╛',
+       'home.hero.dismiss': 'αñ╕αÑìαñ╡αñ╛αñùαññ αñòαñ╛αñ░αÑìαñí αñ¼αñéαñª αñòαñ░αñ╛',
+       'reminder.unfiled': '{n} αñûαÑüαñ▓αÑç αñºαÑïαñòαÑç αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ ΓÇö αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ╕αÑïαñ¼αññ αñ╢αÑçαñàαñ░ αñòαñ░αñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ¬αÑìαñ░αÑïαñ½αñ╛αñçαñ▓αñ«αñºαÑìαñ»αÑç αñàαñºαñ┐αñòαÑâαññαñ¬αñúαÑç αñ¿αÑïαñéαñªαñ╡αñ╛.',
+       'reminder.file': 'αñåαññαÑìαññαñ╛ αñ¿αÑïαñéαñªαñ╡αñ╛',
+@@ -2586,6 +2813,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.badge.monsoon': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αÑÇ αñ░αñòαÑìαñ╖αñò',
+       'profile.wardImpact': 'αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí: αñ»αñ╛ αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αÑìαñ»αñ╛αññ {n} αññαñòαÑìαñ░αñ╛αñ░αÑÇ',
+       'profile.streak': '{n}-αñåαñáαñ╡αñíαÑìαñ»αñ╛αñéαñÜαÑÇ αññαñòαÑìαñ░αñ╛αñ░ αñ╕αñ╛αñûαñ│αÑÇ',
++      'profile.milestoneOne': 'αñ¬αÑüαñóαñÜαÑìαñ»αñ╛ αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿αñ╕αñ╛αñáαÑÇ 1 αñåαñúαñûαÑÇ αññαñòαÑìαñ░αñ╛αñ░',
++      'profile.milestoneMany': 'αñ¬αÑüαñóαñÜαÑìαñ»αñ╛ αñ«αñ╛αñçαñ▓αñ╕αÑìαñƒαÑïαñ¿αñ╕αñ╛αñáαÑÇ {n} αñåαñúαñûαÑÇ αññαñòαÑìαñ░αñ╛αñ░αÑÇ',
++      'profile.milestoneMax': 'Monsoon Guardian ΓÇö αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñÜαñ╛αñ▓αÑé αñáαÑçαñ╡αñ╛!',
++      'profile.nextStreakBadge': '{badge} αñ╕αñ╛αñáαÑÇ {n} αñåαñúαñûαÑÇ αñåαñáαñ╡αñíαÑç',
+       'confirm.nearby': 'αñ¬αñ┐αñ¿ {m} αñ«αÑÇ. αñ▓αñ╛αñéαñ¼{backing}. αñíαÑüαñ¬αÑìαñ▓αñ┐αñòαÑçαñƒ αñÉαñ╡αñ£αÑÇ αñ«αñ▓αñ╛ αñ¬αñú αñªαñ╛αñ¼αñ╛ ΓÇö αñ¿αñ┐αñ░αñ╛αñòαñ░αñú αñ¥αñ╛αñ▓αÑìαñ»αñ╛αñ╡αñ░ αñàαñ¬αñíαÑçαñƒ.',
+       'esc.participate.title': 'αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñëαñ¬αñòαÑìαñ░αñ« (αñ¬αñ░αÑìαñ»αñ╛αñ»αÑÇ)',
+       'esc.participate.hint': 'Participate Mumbai αñ╣αÑç BMC αñÜαÑç αñàαñºαñ┐αñòαÑâαññ αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñ╛/CSR αñ¬αÑïαñ░αÑìαñƒαñ▓ αñåαñ╣αÑç ΓÇö αñòαÑÇαñƒαñò αñ¿αñ┐αñ»αñéαññαÑìαñ░αñú αññαñòαÑìαñ░αñ╛αñ░αÑÇαñ╕αñ╛αñáαÑÇ αñ¿αñ╛αñ╣αÑÇ. αñ╕αÑìαñ╡αñÜαÑìαñ¢αññαñ╛ αñ«αÑïαñ╣αñ┐αñ«αñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ╡αÑëαñ░αÑìαñí αñ¬αÑìαñ░αñòαñ▓αÑìαñ¬αñ╛αñéαñ╕αñ╛αñáαÑÇ αñ╡αñ╛αñ¬αñ░αñ╛.',
+@@ -2649,10 +2880,9 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.subtitle': 'αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñåαñúαñ┐ αñáαñ╛αñúαÑçαñ╕αñ╛αñáαÑÇ αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛ ΓÇö αñùαÑüαñ¬αÑìαññ αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñ░αñ╛αñèαñƒαñ░ αñ¿αñ╛αñ╣αÑÇ.',
+       'about.impactTitle': 'αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¬αÑìαñ░αñ¡αñ╛αñ╡', 'about.builtTitle': 'αñåαñ«αÑìαñ╣αÑÇ αñòαñ╛αñ» αñ¼αñ╛αñéαñºαñ▓αÑç',
+       'about.differentTitle': 'CivicRadar αñ╡αÑçαñùαñ│αÑç αñòαñ╛',
+-      'about.different1': 'αñ▓αñ╛αñçαñ╡αÑìαñ╣ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛ + αñ½αÑïαñƒαÑï αñ¬αñ┐αñ¿ ΓÇö αñ╢αÑçαñ£αñ╛αñ░αÑÇ Me too αñ¿αÑç αñ¬αÑüαñ╖αÑìαñƒαÑÇ, αñùαÑüαñ¬αÑìαññ αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñíαÑìαñ░αÑëαñ¬ αñ¿αñ╛αñ╣αÑÇ',
+-      'about.different2': 'αñªαÑüαñ╣αÑçαñ░αÑÇ αñ«αñ╛αñ░αÑìαñù: αñåαñºαÑÇ CivicRadar αñ╡αñ░ αñ¬αñ┐αñ¿, αñ¿αñéαññαñ░ αñÅαñò-αñƒαÑàαñ¬ αñàαñºαñ┐αñòαÑâαññ αñ¿αÑïαñéαñª (BMC 1916/MyBMC, PMC CARE, TMC)',
+-      'about.different3': 'αñæαñ½αñ▓αñ╛αñçαñ¿ αñòαñ╛αñ« αñòαñ░αññαÑç ΓÇö αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿αñ╡αñ░ αñ£αÑïαñíαñ╛, αñ▓αÑëαñùαñ┐αñ¿ αñ¿αñ╛αñ╣αÑÇ, 4 αñ¡αñ╛αñ╖αñ╛',
+-      'about.different4': 'αñáαÑÇαñò αñ╣αÑïαñêαñ¬αñ░αÑìαñ»αñéαññ αñƒαÑìαñ░αÑàαñò ΓÇö αñÅαñ╕αÑìαñòαÑçαñ▓αÑçαñ╢αñ¿ αñƒαñ╛αñçαñ«αñ▓αñ╛αñçαñ¿, Civic Points, αñåαñúαñ┐ αñ╕αñ½αñ╛αñêαñ╡αñ░ αñ╕αñ╛αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ╡αñ┐αñ£αñ»',
++      'about.different1': 'αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛ + Me too ΓÇö αñùαÑüαñ¬αÑìαññ αñ╣αÑçαñ▓αÑìαñ¬αñ▓αñ╛αñçαñ¿ αñ¿αñ╛αñ╣αÑÇ',
++      'about.different2': 'αñåαñºαÑÇ αñ¬αñ┐αñ¿, αñ¿αñéαññαñ░ αñàαñºαñ┐αñòαÑâαññ αñ¿αÑïαñéαñª',
++      'about.different3': 'αñæαñ½αñ▓αñ╛αñçαñ¿, αñ▓αÑëαñùαñ┐αñ¿ αñ¿αñ╛αñ╣αÑÇ, 4 αñ¡αñ╛αñ╖αñ╛ ┬╖ αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç, αñáαñ╛αñúαÑç',
+       'about.sustainTitle': 'αñ╢αñ╛αñ╢αÑìαñ╡αññ αñåαñúαñ┐ αñ¿αñ╛αñùαñ░αñ┐αñòαñ╛αñéαñ╕αñ╛αñáαÑÇ αñ«αÑïαñ½αññ',
+       'about.sustainBody': 'CivicRadar αñ░αñ╣αñ┐αñ╡αñ╛αñ╢αñ╛αñéαñ╕αñ╛αñáαÑÇ αñ¿αÑçαñ╣αñ«αÑÇ αñ«αÑïαñ½αññ αñ░αñ╛αñ╣αÑÇαñ▓. αñ¡αñ╡αñ┐αñ╖αÑìαñ»αñ╛αññαÑÇαñ▓ αñëαññαÑìαñ¬αñ¿αÑìαñ¿ αñ¿αÑêαññαñ┐αñò αñ╕αÑìαñÑαñ╛αñ¿αñ┐αñò αñ¡αñ╛αñùαÑÇαñªαñ╛αñ░αÑÇαññαÑéαñ¿ αñ»αÑçαññαÑç.',
+       'about.copyImpact': 'αñ¬αÑìαñ░αñ¡αñ╛αñ╡ αñ╕αñ╛αñ░αñ╛αñéαñ╢ αñòαÑëαñ¬αÑÇ αñòαñ░αñ╛', 'about.contact': 'αñåαñ«αñÜαÑìαñ»αñ╛αñ╢αÑÇ αñ╕αñéαñ¬αñ░αÑìαñò', 'about.contactOperator': 'αñåαñ«αñÜαÑìαñ»αñ╛αñ╢αÑÇ αñ╕αñéαñ¬αñ░αÑìαñò', 'about.close': 'αñ¼αñéαñª αñòαñ░αñ╛',
+@@ -2851,8 +3081,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.pointsHint.base': '50 αñùαÑüαñú/αññαñòαÑìαñ░αñ╛αñ░ ┬╖ +200 αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñ╛', 'profile.pointsHint.bonus': '{n} ├ù 50 ┬╖ +{bonus} αñ¼αÑïαñ¿αñ╕',
+       'profile.greeting': 'αñ¿αñ«αñ╕αÑìαñòαñ╛αñ░, {name}', 'profile.greetingDefault': 'αñ¿αñ«αñ╕αÑìαñòαñ╛αñ░, αñ¿αñ╛αñùαñ░αñ┐αñò', 'profile.selectWard': 'αñ╡αÑëαñ░αÑìαñí αñ¿αñ┐αñ╡αñíαñ╛',
+       'profile.society': 'αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / αñ¬αñ░αñ┐αñ╕αñ░ (αñ¬αñ░αÑìαñ»αñ╛αñ»αÑÇ)',
+-      'profile.societyPh': 'αñëαñªαñ╛. Phoenix Mills CHS, Worli',
+-      'profile.societyHint': 'αñ╢αÑçαñ£αñ╛αñ░αÑÇ αñåαñúαñ┐ RWA αñ▓αÑÇαñíαñ▓αñ╛ αññαÑüαñ«αñÜαÑìαñ»αñ╛ αñ▓αÑçαñ¿αñ«αñºαÑÇαñ▓ αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñùαñƒαñ¼αñªαÑìαñº αñòαñ░αñúαÑìαñ»αñ╛αñ╕ αñ«αñªαññ.',
++      'profile.societyPh': 'αñ»αñ╛αñªαÑÇαññ αñ¿αñ╕αÑçαñ▓ αññαñ░ αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / RWA αñ¿αñ╛αñ╡ αñ▓αñ┐αñ╣αñ╛',
++      'profile.societyHintWard': '{ward} αñ«αñºαÑìαñ»αÑç {n} αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ ΓÇö αññαÑüαñ«αñÜαÑÇ αñ£αÑïαñíαñ╛.',
++      'profile.societyHintNoWard': 'αñ╕αÑìαñÑαñ╛αñ¿αñ┐αñò αñ╕αÑéαñÜαñ¿αñ╛αñéαñ╕αñ╛αñáαÑÇ αñ╡αÑëαñ░αÑìαñí αñ╕αÑçαñƒ αñòαñ░αñ╛.',
++      'profile.societyHintCustom': 'αñ»αñ╛αñªαÑÇαññ αñ¿αñ╕αÑçαñ▓ αññαñ░ αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / RWA αñ¿αñ╛αñ╡ αñ▓αñ┐αñ╣αñ╛.',
+       'profile.societyRegistry': 'αññαÑüαñ«αñÜαÑÇ αñ¿αÑïαñéαñªαñúαÑÇαñòαÑâαññ αñ╕αñ╣αñòαñ╛αñ░αÑÇ αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ αñ╢αÑïαñºαñ╛',
+       'map.youAreHere': 'αññαÑüαñ«αÑìαñ╣αÑÇ αñ»αÑçαñÑαÑç αñåαñ╣αñ╛αññ',
+       'about.subtitleNamed': 'αñ«αÑüαñéαñ¼αñê, αñ¬αÑüαñúαÑç αñåαñúαñ┐ αñáαñ╛αñúαÑç αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ ΓÇö {name} αñªαÑìαñ╡αñ╛αñ░αÑç, αñ¿αñ╛αñùαñ░αñ┐αñòαñ╛αñéαñ╕αñ╛αñáαÑÇ αñ«αÑïαñ½αññ.',
+@@ -2935,14 +3167,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'map.legend.you': 'αññαÑüαñ«αÑìαñ╣αÑÇ',
+       'onboard.wardError': 'αñ»αñ╛αñªαÑÇαññαÑéαñ¿ αñ╡αÑëαñ░αÑìαñí αñ¿αñ┐αñ╡αñíαñ╛ αñòαñ┐αñéαñ╡αñ╛ αñ▓αÑïαñòαÑçαñ╢αñ¿ αñ¬αñ░αñ╡αñ╛αñ¿αñùαÑÇ αñªαÑìαñ»αñ╛.',
+       'onboard.society': 'αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / αñ¬αñ░αñ┐αñ╕αñ░ (αñ¬αñ░αÑìαñ»αñ╛αñ»αÑÇ)',
+-      'onboard.societyPh': 'αñëαñªαñ╛. Phoenix Mills CHS, Worli',
+-      'onboard.societyHint': 'αññαÑüαñ«αñÜαÑÇ αñ╣αñ╛αñèαñ╕αñ┐αñéαñù αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ, RWA αñòαñ┐αñéαñ╡αñ╛ αñ▓αÑçαñ¿ ΓÇö αñ£αñ╡αñ│αñÜαÑìαñ»αñ╛ αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñùαñƒαñ¼αñªαÑìαñº αñòαñ░αñúαÑìαñ»αñ╛αñ╕ αñ«αñªαññ.',
+-      'onboard.why': 'αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñíαÑçαñéαñùαÑé αñ╡ αñ«αñ▓αÑçαñ░αñ┐αñ»αñ╛ αñ¬αñ╕αñ░αñ╡αññαÑç. αññαÑüαñ«αñÜαÑÇ αññαñòαÑìαñ░αñ╛αñ░ αññαÑÇ αñ£αñ╛αñùαñ╛ αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ╡ BMC αñ░αñ╛αñéαñùαÑçαññ αñåαñúαññαÑç ΓÇö αñåαñúαñ┐ αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ¿αñ╛ αñ╕αÑéαñÜαñ┐αññ αñòαñ░αññαÑç.',
+-      'onboard.howTitle': 'αñ╣αÑç αñòαñ╕αÑç αñÜαñ╛αñ▓αññαÑç',
+-      'onboard.how1': 'αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñòαñ┐αñéαñ╡αñ╛ αñ¿αñ╛αñùαñ░αÑÇ αñºαÑïαñòαñ╛ αñ¬αñ╣αñ╛',
+-      'onboard.how2': 'αñ£αñ╛αñùαÑçαñ╡αñ░αñÜ αñ¬αñ┐αñ¿ αñòαñ░αñ╛ αñåαñúαñ┐ αñ½αÑïαñƒαÑï αñòαñ╛αñóαñ╛',
+-      'onboard.how3': 'αñ╕αñ¼αñ«αñ┐αñƒ αñòαñ░αñ╛ ΓÇö αñ╢αÑçαñ£αñ╛αñ░αÑÇ αñ╡ BMC αñ¬αñ╛αñ╣αññαÑÇαñ▓, αññαÑüαñ«αÑìαñ╣αñ╛αñ▓αñ╛ Civic Points αñ«αñ┐αñ│αññαÑÇαñ▓',
+-      'onboard.spotNote': 'αñ£αñ╛αñùαÑçαñ╡αñ░ αñ¿αÑïαñéαñªαñ╡αñúαÑç αñ╕αñ░αÑìαñ╡αÑïαññαÑìαññαñ«, αñ£αÑçαñúαÑçαñòαñ░αÑéαñ¿ αñáαñ┐αñòαñ╛αñú αñàαñÜαÑéαñò αñ░αñ╛αñ╣αññαÑç.',
++      'onboard.societyPh': 'αñ»αñ╛αñªαÑÇαññ αñ¿αñ╕αÑçαñ▓ αññαñ░ αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / RWA αñ¿αñ╛αñ╡ αñ▓αñ┐αñ╣αñ╛',
++      'onboard.societyHintNoWard': 'αñ¬αÑìαñ░αñÑαñ« αñ╡αÑëαñ░αÑìαñí αñ¿αñ┐αñ╡αñíαñ╛ ΓÇö αñ¿αñéαññαñ░ αñ╕αÑìαñÑαñ╛αñ¿αñ┐αñò αñ╕αÑéαñÜαñ¿αñ╛.',
++      'onboard.societyHintWard': '{ward} αñ«αñºαÑìαñ»αÑç {n} αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ ΓÇö αññαÑüαñ«αñÜαÑÇ αñ£αÑïαñíαñ╛.',
++      'onboard.societyHintCustom': 'αñ»αñ╛αñªαÑÇαññ αñ¿αñ╕αÑçαñ▓ αññαñ░ αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / RWA αñ¿αñ╛αñ╡ αñ▓αñ┐αñ╣αñ╛.',
+       'persona.admin.exit': 'BMC αñ«αÑïαñí αñ¼αñéαñª',
+       'persona.admin.header': 'BMC αñ¬αÑüαñ¿αñ░αñ╛αñ╡αñ▓αÑïαñòαñ¿ αñ«αÑïαñí',
+       'persona.admin.idleEmpty': 'αñ¬αÑìαñ░αñ▓αñéαñ¼αñ┐αññ αññαñòαÑìαñ░αñ╛αñ░αÑÇ αñ¿αñ╛αñ╣αÑÇαññ. αñ¿αñ╡αÑÇαñ¿ αñ¬αñ┐αñ¿ αñ»αÑçαñÑαÑç αñªαñ┐αñ╕αññαÑÇαñ▓.',
+@@ -3118,6 +3346,33 @@ document.addEventListener('DOMContentLoaded', function () {
+       'admin.health.perfSamples': 'αñòαñ╛αñ░αÑìαñ»αñ¬αÑìαñ░αñªαñ░αÑìαñ╢αñ¿ αñ¿αñ«αÑüαñ¿αÑç',
+       'admin.health.avgPerf': 'αñ╕αñ░αñ╛αñ╕αñ░αÑÇ αñ▓αÑïαñí αñ╡αÑçαñ│ (αñ╕αÑìαñÑαñ╛αñ¿αñ┐αñò)',
+       'admin.health.bufferedEvents': 'αñ¼αñ½αñ░ αñçαñ╡αÑìαñ╣αÑçαñéαñƒ (αñíαñ┐αñ╡αÑìαñ╣αñ╛αñçαñ╕)',
++      'tracking.open': 'αñàΓÇìαÑàαñ¿αñ╛αñ▓αñ┐αñƒαñ┐αñòαÑìαñ╕ αñåαñúαñ┐ αñƒαÑìαñ░αÑàαñòαñ┐αñéαñù',
++      'tracking.title': 'αñàΓÇìαÑàαñ¿αñ╛αñ▓αñ┐αñƒαñ┐αñòαÑìαñ╕ αñåαñúαñ┐ αñƒαÑìαñ░αÑàαñòαñ┐αñéαñù',
++      'tracking.subtitle': 'αñÅαñòαññαÑìαñ░αñ┐αññ αñ¿αñ╛αñùαñ░αñ┐αñò αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ ΓÇö αñ¡αÑçαñƒαÑÇ, αññαñòαÑìαñ░αñ╛αñ░αÑÇ, αñÅαñ╕αÑìαñòαÑçαñ▓αÑçαñ╢αñ¿, αñ¿αñ┐αñ░αñ╛αñòαñ░αñú.',
++      'tracking.period': 'αñòαñ╛αñ▓αñ╛αñ╡αñºαÑÇ',
++      'tracking.days7': 'αñùαÑçαñ▓αÑç 7 αñªαñ┐αñ╡αñ╕',
++      'tracking.days30': 'αñùαÑçαñ▓αÑç 30 αñªαñ┐αñ╡αñ╕',
++      'tracking.days90': 'αñùαÑçαñ▓αÑç 90 αñªαñ┐αñ╡αñ╕',
++      'tracking.wardFilter': 'αñ╡αñ╛αñ░αÑìαñí',
++      'tracking.sessions': 'αñ¡αÑçαñƒαÑÇ',
++      'tracking.pwaInstalls': 'PWA αñçαñéαñ╕αÑìαñƒαÑëαñ▓',
++      'tracking.reports': 'αññαñòαÑìαñ░αñ╛αñ░αÑÇ',
++      'tracking.resolved': 'αñ¿αñ┐αñ░αñ╛αñòαÑâαññ',
++      'tracking.pwaNote': 'PWA αñçαñéαñ╕αÑìαñƒαÑëαñ▓ αñàαñéαñªαñ╛αñ£αÑç (αñ╣αÑïαñ« αñ╕αÑìαñòαÑìαñ░αÑÇαñ¿ / standalone). GitHub Pages αñ╡αñ░ αñ╕αÑìαñƒαÑïαñàαñ░ αñíαñ╛αñëαñ¿αñ▓αÑïαñí αñ«αÑïαñ£αññαñ╛ αñ»αÑçαññ αñ¿αñ╛αñ╣αÑÇαññ.',
++      'tracking.loading': 'αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ αñ▓αÑïαñí αñ╣αÑïαññ αñåαñ╣αÑçαññΓÇª',
++      'tracking.sourceLocal': 'αñíαñ┐αñ╡αÑìαñ╣αñ╛αñçαñ╕ + αñ╕αÑìαñÑαñ╛αñ¿αñ┐αñò αññαñòαÑìαñ░αñ╛αñ░αÑÇ (αñíαÑçαñ«αÑï / αñæαñ½αñ▓αñ╛αñçαñ¿)',
++      'tracking.sourceCloud': 'αñòαÑìαñ▓αñ╛αñëαñí αñÅαñòαññαÑìαñ░ (αñ╕αñ░αÑìαñ╡ αñ╡αñ╛αñ¬αñ░αñòαñ░αÑìαññαÑç)',
++      'tracking.sourceCloudFail': 'αñòαÑìαñ▓αñ╛αñëαñí αñ«αÑçαñƒαÑìαñ░αñ┐αñòαÑìαñ╕ αñëαñ¬αñ▓αñ¼αÑìαñº αñ¿αñ╛αñ╣αÑÇαññ ΓÇö Supabase αñ«αñºαÑìαñ»αÑç v92 tracking SQL αñÜαñ╛αñ▓αñ╡αñ╛.',
++      'tracking.reportsByCategory': 'αñ¬αÑìαñ░αñòαñ╛αñ░αñ╛αñ¿αÑüαñ╕αñ╛αñ░ αññαñòαÑìαñ░αñ╛αñ░αÑÇ',
++      'tracking.escalations': 'αñàαñºαñ┐αñòαÑâαññ αñÜαÑàαñ¿αÑçαñ▓ αñëαñÿαñíαñúαÑç',
++      'tracking.neighbourhoods': 'αñ¬αñ░αñ┐αñ╕αñ░ / αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ αñ¿αÑüαñ╕αñ╛αñ░',
++      'tracking.reporters': 'αñ╕αñòαÑìαñ░αñ┐αñ» αññαñòαÑìαñ░αñ╛αñ░αñªαñ╛αñ░',
++      'tracking.meToo': 'αñ«αñ▓αñ╛ αñ¬αñú',
++      'tracking.filed': 'αñàαñºαñ┐αñòαÑâαññ αñ¿αÑïαñéαñª',
++      'tracking.leads': 'αñ¬αñ░αñ┐αñ╕αñ░ αñ▓αÑÇαñí',
++      'tracking.empty': 'αñ»αñ╛ αñòαñ╛αñ▓αñ╛αñ╡αñºαÑÇαññ αñíαÑçαñƒαñ╛ αñ¿αñ╛αñ╣αÑÇ.',
++      'tracking.pending': 'αñëαñÿαñíαÑç',
++      'tracking.channelUnknown': 'αñçαññαñ░ αñÜαÑàαñ¿αÑçαñ▓',
+       'volunteer.neighbourhood': 'αñ¬αñ░αñ┐αñ╕αñ░ / αñ╕αÑïαñ╕αñ╛αñ»αñƒαÑÇ / αñ▓αÑçαñ¿',
+       'volunteer.subtitle': 'αñ╢αÑçαñ£αñ╛αñ▒αÑìαñ»αñ╛αñéαñ╕αÑïαñ¼αññ αñÅαñòαññαÑìαñ░ ΓÇö αñ╕αñ░αñòαñ╛αñ░αÑÇ αñ╕αÑìαñ╡αñ»αñéαñ╕αÑçαñ╡αñ╛ αñòαñ╛αñ░αÑìαñ»αñòαÑìαñ░αñ« αñ¿αñ╛αñ╣αÑÇ.',
+       'volunteer.skill.awareness': 'αñ£αñ╛αñùαñ░αÑéαñòαññαñ╛ αñåαñúαñ┐ WhatsApp outreach',
+@@ -3130,8 +3385,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'ref.welcomeCta': 'αñ¿αñòαñ╛αñ╢αñ╛ αñ¬αñ╛αñ╣αñ╛',
+       'ref.welcomeReport': 'αñ╕αÑìαñ¬αÑëαñƒ αñ¿αÑïαñéαñªαñ╡αñ╛',
+       'ref.dismiss': 'αñåαñ«αñéαññαÑìαñ░αñú αñ¼αñéαñª αñòαñ░αñ╛',
+-      'season.monsoonPrep': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ αñ»αÑçαññαÑïαñ» ≡ƒîº∩╕Å αñ¬αñ╣αñ┐αñ▓αÑìαñ»αñ╛ αñ£αÑïαñ░αñªαñ╛αñ░ αñ¬αñ╛αñ╡αñ╕αñ╛αñåαñºαÑÇ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ╕αñ╛αñ½ αñòαñ░αñ╛ ΓÇö αñ╕αÑìαñ¬αÑëαñƒ αñ¬αñ┐αñ¿ αñòαñ░αñ╛.',
+-      'season.monsoonPeak': 'αñÉαñ¿ αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ ≡ƒîº∩╕Å αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñíαÑçαñéαñùαÑìαñ»αÑé αñ¬αñ╕αñ░αñ╡αññαÑç. αñåαñ£ αññαÑüαñ«αñÜαÑìαñ»αñ╛ αñ╡αÑëαñ░αÑìαñíαñ«αñºαÑìαñ»αÑç αñ╕αÑìαñ¬αÑëαñƒ αñ¿αÑïαñéαñªαñ╡αñ╛.',
++      'season.monsoonPrep': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ ≡ƒîº∩╕Å αñ╡αÑëαñ░αÑìαñí αñ¿αñòαñ╛αñ╢αñ╛αñ╡αñ░ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¬αñ┐αñ¿ αñòαñ░αñ╛ ΓÇö αñíαñ╛αñ╕αñ╛αñéαñÜαñ╛ αñºαÑïαñòαñ╛ αñƒαñ╛αñ│αñ╛.',
++      'season.monsoonPeak': 'αñ¬αñ╛αñ╡αñ╕αñ╛αñ│αñ╛ αñ╕αÑüαñ░αÑé ≡ƒîº∩╕Å αñ£αñ╡αñ│αñÜαÑç αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛ ΓÇö αñíαÑçαñéαñùαÑìαñ»αÑé αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑìαñ»αñ╛ αñ¬αñ╛αñúαÑìαñ»αñ╛αññ αñ¬αñ╕αñ░αññαÑç.',
+       'season.ganesh': 'αñùαñúαÑçαñ╢ αñÜαññαÑüαñ░αÑìαñÑαÑÇ ≡ƒÖÅ αñ╕αñúαñ╛αñ╕αñ╛αñáαÑÇ αññαÑüαñ«αñÜαñ╛ αñ╡αÑëαñ░αÑìαñí αñ╕αÑìαñ╡αñÜαÑìαñ¢ αñáαÑçαñ╡αñ╛ ΓÇö αñ«αñéαñíαñ¬ αñ╡ αñ╡αñ┐αñ╕αñ░αÑìαñ£αñ¿ αñ«αñ╛αñ░αÑìαñùαñ╛αñ£αñ╡αñ│ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑç αñ¬αñ╛αñúαÑÇ αñ¿αÑïαñéαñªαñ╡αñ╛.',
+       'season.denguePeak': 'αñíαÑçαñéαñùαÑìαñ»αÑéαñÜαñ╛ αñ╣αñéαñùαñ╛αñ« ΓÜá∩╕Å αñíαñ╛αñ╕ αñ╕αñ╛αñÜαñ▓αÑçαñ▓αÑìαñ»αñ╛ αñ¬αñ╛αñúαÑìαñ»αñ╛αññ αñ╡αñ╛αñóαññαñ╛αññ. 30 αñ╕αÑçαñòαñéαñªαñ╛αñéαñÜαÑÇ αññαñòαÑìαñ░αñ╛αñ░ αññαÑüαñ«αñÜαÑÇ αñùαñ▓αÑìαñ▓αÑÇ αñ╡αñ╛αñÜαñ╡αññαÑç.',
+       'season.dismiss': 'αñ╣αñéαñùαñ╛αñ«αÑÇ αñ╕αÑéαñÜαñ¿αñ╛ αñ¼αñéαñª αñòαñ░αñ╛',
+@@ -3228,6 +3483,29 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.rejectedToast': 'αñ╡αñ┐αñ¿αñéαññαÑÇ αñ¿αñ╛αñòαñ╛αñ░αñ▓αÑÇ.',
+       'access.proofAttached': 'αñ¬αÑüαñ░αñ╛αñ╡αñ╛ αñ£αÑïαñíαñ▓αñ╛',
+       'access.proofTooBig': 'αñ¬αÑìαñ░αññαñ┐αñ«αñ╛ αñûαÑéαñ¬ αñ«αÑïαñáαÑÇ ΓÇö αñòαÑâαñ¬αñ»αñ╛ αñ▓αñ╣αñ╛αñ¿ αñ½αÑïαñƒαÑï αñ£αÑïαñíαñ╛.',
++      'lead.title': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¿αÑçαññαñ╛ αñ╡αÑìαñ╣αñ╛',
++      'lead.subtitle': 'αñ╕αÑìαñ╡αññαñâ αñ¿αñ╛αñ«αñ╛αñéαñòαñ¿ ΓÇö αñ╢αÑçαñ£αñ╛αñ░αÑÇ αñ«αññαñªαñ╛αñ¿αñ╛αñ¿αÑç αñ¡αÑéαñ«αñ┐αñòαñ╛. αñ¬αÑìαñ░αñ╢αñ╛αñ╕αñò αñ¿αñòαÑï.',
++      'lead.step1': 'αñ╡αÑëαñ░αÑìαñí αñåαñúαñ┐ αñ╡αÑìαñ»αñ╛αñ¬αÑìαññαÑÇ αñ¿αñ┐αñ╡αñíαñ╛',
++      'lead.step2': 'αñ╢αÑçαñ£αñ╛αñ░αÑÇ αñ¬αñ╛αñáαñ┐αñéαñ¼αñ╛ αñªαÑçαññαñ╛αññ',
++      'lead.step3': '2 αñ¬αñ╛αñáαñ┐αñéαñ¼αÑç = αñ¡αÑéαñ«αñ┐αñòαñ╛ (αñ╕αñ╣-αñ¿αÑçαññαÑç 5-5)',
++      'lead.roleWard': 'αñ╡αÑëαñ░αÑìαñí NGO αñ¿αÑçαññαñ╛',
++      'lead.roleNbh': 'αñ¬αñ░αñ┐αñ╕αñ░ αñ¿αÑçαññαñ╛',
++      'lead.submit': 'αñ«αñ╛αñ¥αÑç αñ¿αñ╛αñ«αñ╛αñéαñòαñ¿',
++      'lead.confirmTitle': 'αññαÑüαñ«αÑìαñ╣αÑÇ αñ«αññαñªαñ╛αñ¿αñ╛αññ αñåαñ╣αñ╛αññ!',
++      'lead.profileCta': 'αñ╡αÑëαñ░αÑìαñí αñòαñ┐αñéαñ╡αñ╛ αñ¬αñ░αñ┐αñ╕αñ░ αñ¿αÑçαññαñ╛ αñ╡αÑìαñ╣αñ╛',
++      'lead.partnerCta': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¿αÑçαññαñ╛ αñ╡αÑìαñ╣αñ╛ ΓÇö αñ╢αÑçαñ£αñ╛αñ░αÑìΓÇìαñ»αñ╛αñéαñÜαÑìαñ»αñ╛ αñ¬αñ╛αñáαñ┐αñéαñ¼αÑìαñ»αñ╛αñ¿αÑç',
++      'lead.communityTitle': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¿αÑçαññαÑç',
++      'lead.communityHint': 'αñ╕αñ½αñ╛αñê αñ╕αñ«αñ¿αÑìαñ╡αñ»αñ╛αñ╕αñ╛αñáαÑÇ αñ¬αñ╛αñáαñ┐αñéαñ¼αñ╛ αñªαÑìαñ»αñ╛. 2 = αñ¡αÑéαñ«αñ┐αñòαñ╛; αñ╕αÑìαñ¬αñ░αÑìαñºαÑçαññ 5-5.',
++      'lead.communityEmpty': 'αññαÑüαñ«αñÜαÑìαñ»αñ╛ αñ╡αÑëαñ░αÑìαñíαñ«αñºαÑìαñ»αÑç αñàαñªαÑìαñ»αñ╛αñ¬ αñëαñ«αÑçαñªαñ╡αñ╛αñ░ αñ¿αñ╛αñ╣αÑÇαññ.',
++      'lead.becomeCta': 'αñ╕αñ«αÑüαñªαñ╛αñ»αñ┐αñò αñ¿αÑçαññαñ╛ αñ╡αÑìαñ╣αñ╛',
++      'lead.support': 'αñ¬αñ╛αñáαñ┐αñéαñ¼αñ╛',
++      'lead.supported': 'αñ¬αñ╛αñáαñ┐αñéαñ¼αñ╛ αñªαñ┐αñ▓αñ╛',
++      'lead.progress': '{count}/{threshold} αñ¬αñ╛αñáαñ┐αñéαñ¼αÑç',
++      'lead.progressCoLead': 'αñ╕αñ╣-αñ¿αÑçαññαñ╛ {count}/{threshold}',
++      'lead.tagWard': 'αñ╡αÑëαñ░αÑìαñí αñ¿αÑçαññαñ╛',
++      'lead.tagNbh': 'αñ¬αñ░αñ┐αñ╕αñ░',
++      'lead.you': 'αññαÑüαñ«αÑìαñ╣αÑÇ',
++      'lead.granted': 'αñ«αñ░αÑìαñ»αñ╛αñªαñ╛ αñ¬αÑéαñ░αÑìαñú ΓÇö αñ╕αñ«αñ¿αÑìαñ╡αñ»αñò αñ¬αÑìαñ░αñ╡αÑçαñ╢ αñàαñ¿αñ▓αÑëαñò!',
+     },    gu: {
+       'lang.name': 'Gujarati', 'lang.native': 'α¬ùα½üα¬£α¬░α¬╛α¬ñα½Ç',
+       'nav.map': 'α¬¿α¬òα¬╢α½ï', 'nav.community': 'α¬╕α¬«α½üα¬ªα¬╛α¬»', 'nav.profile': 'α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓',
+@@ -3242,26 +3520,23 @@ document.addEventListener('DOMContentLoaded', function () {
+       'location.locate': 'α¬«α¬╛α¬░α½üα¬é α¬╕α½ìα¬Ñα¬╛α¬¿',
+       'location.locateAria': 'α¬╕α½ìα¬Ñα¬╛α¬¿ α¬Üα¬╛α¬▓α½ü α¬òα¬░α½ï',
+       'location.enable': 'α¬Üα¬╛α¬▓α½ü α¬òα¬░α½ï',
+-      'coach.step': '#MonsoonGuardian ┬╖ 30 α¬╕α½çα¬ò', 'coach.title': 'α¬íα½çα¬éα¬ùα½üα¬¿α½ï α¬ªα½üα¬╢α½ìα¬«α¬¿? α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç!',
+-      'coach.body': 'α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬ªα¬¼α¬╛α¬╡α½ï, α¬½α½ïα¬ƒα½ï α¬▓α½ï ΓÇö α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¬α¬┐α¬¿. α¬¬α¬íα½ïα¬╢α½Çα¬ô Me too α¬òα¬╣α½çα¬╢α½ç, α¬¥α¬íα¬¬α¬Ñα½Ç α¬áα½Çα¬ò α¬Ñα¬╢α½ç. WhatsApp α¬¬α¬░ α¬╢α½çα¬░ α¬òα¬░α½ï!',
+-      'coach.spotTip': 'α¬àα¬ñα½ìα¬»α¬╛α¬░α½ç α¬£ α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬òα¬░α¬╡α½Ç α¬£α¬░α½éα¬░α½Ç α¬¿α¬Ñα½Ç. α¬£α½ìα¬»α¬╛α¬░α½ç α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬£α½üα¬ô ΓÇö α¬ûα¬╛α¬¼α½ïα¬Üα¬┐α¬»α½üα¬é, α¬¡α¬░α¬╛α¬»α½çα¬▓α½Ç α¬ùα¬ƒα¬░ α¬òα½ç α¬ûα½üα¬▓α½ìα¬▓α½Ç α¬ƒα¬╛α¬éα¬òα½Ç ΓÇö CivicRadar α¬ûα½ïα¬▓α½ï α¬àα¬¿α½ç α¬£α¬ùα½ìα¬»α¬╛ α¬¬α¬░ α¬£ α¬¬α¬┐α¬¿ α¬òα¬░α½ï α¬£α½çα¬Ñα½Ç α¬╕α½ìα¬Ñα¬╛α¬¿ α¬╕α¬Üα½ïα¬ƒ α¬░α¬╣α½ç.',
+-      'coach.got': 'α¬Üα¬╛α¬▓α½ï α¬╢α¬░α½é α¬òα¬░α½Çα¬Å',
+-      'tour.skip': 'α¬¢α½ïα¬íα½ï', 'tour.next': 'α¬åα¬ùα¬│', 'tour.done': 'α¬╕α¬«α¬£α¬╛α¬ê α¬ùα¬»α½üα¬é',
+-      'tour.replay': 'α¬Åα¬¬ α¬ƒα½éα¬░ α¬½α¬░α½Ç α¬£α½üα¬ô',
++      'coach.step': '#MonsoonGuardian ┬╖ 30 α¬╕α½çα¬ò', 'coach.title': 'α¬¿α¬£α½Çα¬ò α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç? α¬╣α¬«α¬úα¬╛α¬é α¬¬α¬┐α¬¿ α¬òα¬░α½ï.',
++      'coach.body': 'α¬½α¬░α¬┐α¬»α¬╛α¬ª, α¬½α½ïα¬ƒα½ï ΓÇö α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¬α¬┐α¬¿.',
++      'coach.got': 'α¬Üα¬╛α¬▓α½ï',
++      'tour.skip': 'α¬ƒα½éα¬░ α¬¢α½ïα¬íα½ï', 'tour.next': 'α¬åα¬ùα¬│', 'tour.done': 'α¬╕α¬«α¬£α¬╛α¬ê α¬ùα¬»α½üα¬é',
++      'tour.replay': 'α¬ƒα½éα¬░ α¬½α¬░α½Ç',
+       'tour.map.title': 'α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï',
+-      'tour.map.body': 'α¬å α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï α¬¢α½ç. α¬¿α¬£α½Çα¬òα¬¿α¬╛ α¬£α½ïα¬ûα¬«α½ï α¬àα¬╣α½Çα¬é α¬¬α¬┐α¬¿ α¬ñα¬░α½Çα¬òα½ç α¬ªα½çα¬ûα¬╛α¬» α¬¢α½ç.',
+-      'tour.report.title': '30 α¬╕α½çα¬òα¬¿α½ìα¬íα¬«α¬╛α¬é α¬½α¬░α¬┐α¬»α¬╛α¬ª',
+-      'tour.report.body': 'α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬¿α½ïα¬éα¬ºα¬╡α¬╛ α¬àα¬╣α½Çα¬é α¬ªα¬¼α¬╛α¬╡α½ï ΓÇö α¬«α¬╛α¬ñα½ìα¬░ 30 α¬╕α½çα¬òα¬¿α½ìα¬í α¬▓α¬╛α¬ùα½ç α¬¢α½ç.',
+-      'tour.metoo.title': 'α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬ƒα½çα¬òα½ï α¬åα¬¬α½ï',
+-      'tour.metoo.body': 'α¬¿α¬£α½Çα¬òα¬«α¬╛α¬é α¬¬α¬╣α½çα¬▓α½çα¬Ñα½Ç α¬¬α¬┐α¬¿ α¬¢α½ç? α¬òα½ïα¬ê α¬£α½ïα¬ûα¬« α¬¬α¬░ ΓÇ£Me tooΓÇ¥ α¬ªα¬¼α¬╛α¬╡α½ï α¬£α½çα¬Ñα½Ç {corp} α¬¿α½ç α¬ªα¬¼α¬╛α¬ú α¬ªα½çα¬ûα¬╛α¬».',
+-      'tour.profile.title': 'Civic Points α¬àα¬¿α½ç α¬½α¬░α¬┐α¬»α¬╛α¬ª',
+-      'tour.profile.body': 'α¬ñα¬«α¬╛α¬░α¬╛ Civic Points α¬àα¬¿α½ç α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬àα¬╣α½Çα¬é α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓α¬«α¬╛α¬é α¬£α½üα¬ô.',
+-      'persona.citizen.idle': '≡ƒªƒ α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç = α¬íα½çα¬éα¬ùα½ü α¬£α½ïα¬ûα¬«. α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬ªα¬¼α¬╛α¬╡α½ï ΓÇö 30 α¬╕α½çα¬òα¬«α¬╛α¬é α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░, WhatsApp α¬¬α¬░ α¬╢α½çα¬░.',
++      'tour.map.body': 'α¬£α½ïα¬ûα¬«α½ï α¬àα¬╣α½Çα¬é α¬¬α¬┐α¬¿ ΓÇö Me too α¬Ñα½Ç α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬ƒα½çα¬òα½ï.',
++      'tour.report.title': '30 α¬╕α½çα¬òα¬«α¬╛α¬é α¬½α¬░α¬┐α¬»α¬╛α¬ª',
++      'tour.report.body': 'α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬ªα½çα¬ûα¬╛α¬» α¬ñα½ï α¬àα¬╣α½Çα¬é α¬ªα¬¼α¬╛α¬╡α½ï.',
++      'tour.profile.title': 'α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓',
++      'tour.profile.body': 'Civic Points α¬àα¬¿α½ç α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬àα¬╣α½Çα¬é.',
++      'persona.citizen.idle': '≡ƒªƒ α¬Üα½ïα¬«α¬╛α¬╕α¬╛α¬«α¬╛α¬é α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç = α¬íα½çα¬éα¬ùα½ü. α¬╣α¬«α¬úα¬╛α¬é α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ ΓÇö 30 α¬╕α½çα¬òα¬«α¬╛α¬é α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░.',
+       'persona.wardImpact': '{ward}: {n} α¬Üα½ïα¬«α¬╛α¬╕α½ü α¬½α¬░α¬┐α¬»α¬╛α¬ª ΓÇö α¬íα½çα¬éα¬ùα½ü α¬╕α½ìα¬Ñα¬┐α¬░ α¬ùα¬▓α½Çα¬ôα¬«α¬╛α¬éα¬Ñα½Ç α¬╢α¬░α½é. #MonsoonGuardian',
+       'persona.unfiled': '{n} α¬ûα½üα¬▓α½ìα¬▓α¬╛ α¬£α½ïα¬ûα¬«α½ï α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬╕α¬╛α¬Ñα½ç α¬╢α½çα¬░ α¬òα¬░α½ï α¬àα¬Ñα¬╡α¬╛ α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓α¬«α¬╛α¬é α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬¿α½ïα¬éα¬ºα¬╛α¬╡α½ï.',
+       'persona.pendingFiled': '{n} α¬ûα½üα¬▓α½ìα¬▓α¬╛ α¬£α½ïα¬ûα¬«α½ï α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬ªα½çα¬ûα¬╛α¬» α¬¢α½ç ΓÇö α¬«α½üα¬ªα¬ñ α¬ôα¬│α¬éα¬íα½ç α¬ñα½ï α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓α¬«α¬╛α¬é α¬åα¬ùα¬│ α¬╡α¬ºα¬╛α¬░α½ï.',
+-      'onboard.title': 'CivicRadar α¬«α¬╛α¬é α¬åα¬¬α¬¿α½üα¬é α¬╕α½ìα¬╡α¬╛α¬ùα¬ñ α¬¢α½ç',
+-      'onboard.subtitle': '30 α¬╕α½çα¬òα¬«α¬╛α¬é α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬¬α¬┐α¬¿ ┬╖ α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬¼α½ïα¬▓α¬╛α¬╡α½ï ┬╖ α¬¬α½ìα¬░α¬ñα¬┐α¬╕α½ìα¬¬α¬░α½ìα¬ºα½Ç α¬╡α½ïα¬░α½ìα¬íα¬¿α½ç α¬╣α¬░α¬╛α¬╡α½ï. #MonsoonGuardian',
++      'onboard.title': 'α¬╕α½ìα¬╡α¬╛α¬ùα¬ñ',
++      'onboard.subtitle': 'α½⌐α½ª α¬╕α½çα¬òα¬«α¬╛α¬é α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï.',
+       'onboard.ward': 'α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í', 'onboard.wardPh': 'α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í α¬ƒα¬╛α¬êα¬¬ α¬òα¬░α¬╡α¬╛α¬¿α½üα¬é α¬╢α¬░α½é α¬òα¬░α½ïΓÇª',
+       'onboard.wardHint': '{city}α¬¿α¬╛ {n} α¬╕α¬ñα½ìα¬ñα¬╛α¬╡α¬╛α¬░ α¬╡α½ïα¬░α½ìα¬íα¬«α¬╛α¬éα¬Ñα½Ç α¬¬α¬╕α¬éα¬ª α¬òα¬░α½ï.',
+       'onboard.city': 'α¬ñα¬«α¬╛α¬░α½üα¬é α¬╢α¬╣α½çα¬░',
+@@ -3282,8 +3557,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'report.capture': 'α¬½α½ïα¬ƒα½ï α¬▓α½ï',
+       'report.notes': 'α¬¿α½ïα¬éα¬º (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)', 'report.notesPh': 'α¬£α½ïα¬ûα¬«α¬¿α½üα¬é α¬╡α¬░α½ìα¬úα¬¿ α¬òα¬░α½ïΓÇª',
+       'report.submit': 'α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬«α½ïα¬òα¬▓α½ï',
+-      'report.confirmRelevant.label': 'α¬╣α¬╛, α¬å α¬½α½ïα¬ƒα½ï α¬ûα¬░α½ï α¬ûα¬ñα¬░α½ï α¬¼α¬ñα¬╛α¬╡α½ç α¬¢α½ç ΓÇö α¬Üα¬╣α½çα¬░α¬╛, α¬ªα¬╕α½ìα¬ñα¬╛α¬╡α½çα¬£α½ï α¬òα½ç α¬àα¬╕α¬éα¬¼α¬éα¬ºα¬┐α¬ñ α¬╡α¬╕α½ìα¬ñα½üα¬ô α¬¿α¬╣α½Çα¬é.',
+-      'report.confirmRelevant.error': 'α¬òα½âα¬¬α¬╛ α¬òα¬░α½Ç α¬ûα¬╛α¬ñα¬░α½Ç α¬òα¬░α½ï α¬òα½ç α¬½α½ïα¬ƒα½ï α¬ûα¬ñα¬░α½ï α¬¼α¬ñα¬╛α¬╡α½ç α¬¢α½ç, α¬àα¬Ñα¬╡α¬╛ α¬½α¬░α½Ç α¬½α½ïα¬ƒα½ï α¬▓α½ï.',
++      'report.photoHint': 'α¬½α½ïα¬ƒα½ï α¬ûα¬ñα¬░α½ï α¬¼α¬ñα¬╛α¬╡α½ç? α¬«α½ïα¬òα¬▓α½ï ΓÇö α¬¿α¬╣α½Çα¬é α¬ñα½ï α¬½α¬░α½Ç α¬▓α½ï.',
++      'report.retake': 'α¬½α¬░α½Ç α¬½α½ïα¬ƒα½ï',
+       'moderation.guidelines': 'α¬ûα¬░α½çα¬ûα¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α¬╛ α¬¬α¬╛α¬úα½Çα¬¿α½ï α¬½α½ïα¬ƒα½ï α¬▓α½ï ΓÇö α¬Üα¬╣α½çα¬░α¬╛, α¬ªα¬╕α½ìα¬ñα¬╛α¬╡α½çα¬£α½ï α¬òα½ç α¬àα¬╕α¬éα¬¼α¬éα¬ºα¬┐α¬ñ α¬╡α¬╕α½ìα¬ñα½üα¬ô α¬¿α¬╣α½Çα¬é. α¬╕α½ìα¬Ñα¬╛α¬¿ α¬íα½çα¬ƒα¬╛ α¬ùα½ïα¬¬α¬¿α½Çα¬»α¬ñα¬╛ α¬«α¬╛α¬ƒα½ç α¬ªα½éα¬░ α¬òα¬░α¬╡α¬╛α¬«α¬╛α¬é α¬åα¬╡α½ç α¬¢α½ç.',
+       'moderation.scanning': 'α¬½α½ïα¬ƒα½ï α¬╕α¬▓α¬╛α¬«α¬ñα½Ç α¬ñα¬¬α¬╛α¬╕ΓÇª',
+       'moderation.blocked.fileType': 'α¬½α¬òα½ìα¬ñ JPEG, PNG α¬àα¬Ñα¬╡α¬╛ WebP hazard α¬½α½ïα¬ƒα½ï α¬╕α½ìα¬╡α½Çα¬òα¬╛α¬░α½ìα¬» α¬¢α½ç.',
+@@ -3301,8 +3576,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.step3': 'α¬╕α½ìα¬╡α¬»α¬éα¬╕α½çα¬╡α¬òα½ï α¬àα¬Ñα¬╡α¬╛ {corp} α¬áα½Çα¬ò α¬Ñα¬╛α¬» α¬ñα½ìα¬»α¬╛α¬░α½ç α¬¬α½üα¬╖α½ìα¬ƒα¬┐ α¬òα¬░α½Ç α¬╢α¬òα½ç ΓÇö α¬╕α¬┐α¬╡α¬┐α¬ò α¬¬α½ïα¬êα¬¿α½ìα¬ƒ α¬«α¬│α½ç',
+       'success.file': 'α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬¿α½ïα¬éα¬ºα¬╛α¬╡α½ï (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)',
+       'success.fileCorp': '{corp} α¬«α¬╛α¬é α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬½α¬░α¬┐α¬»α¬╛α¬ª (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)',
+-      'success.tag': '@mybmc α¬¿α½ç α¬ƒα½àα¬ù α¬òα¬░α½ï', 'success.alert': 'α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬£α¬╛α¬ú α¬òα¬░α½ï', 'success.done': 'α¬Ñα¬ê α¬ùα¬»α½üα¬é',
+-      'success.sharePrompt': 'α¬╣α¬«α¬úα¬╛α¬é WhatsApp α¬¬α¬░ α¬«α½ïα¬òα¬▓α½ï ΓÇö α¬╡α¬ºα½ü α¬¿α¬£α¬░ = α¬¥α¬íα¬¬α¬Ñα½Ç α¬áα½Çα¬ò. α¬íα½çα¬éα¬ùα½ü α¬ƒα¬╛α¬│α¬╡α½üα¬é α¬╣α½ïα¬» α¬ñα½ï α¬╢α½çα¬░ α¬òα¬░α½ï!',
++      'success.tag': '@mybmc α¬¿α½ç α¬ƒα½àα¬ù α¬òα¬░α½ï', 'success.alert': 'α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬£α¬╛α¬ú α¬òα¬░α½ï',       'success.done': 'α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¬α¬╛α¬¢α¬╛',
++      'success.sharePrompt': 'WhatsApp α¬¬α¬░ α¬╢α½çα¬░ ΓÇö α¬╡α¬ºα½ü α¬¿α¬£α¬░, α¬¥α¬íα¬¬α¬Ñα½Ç α¬áα½Çα¬ò.',
+       'success.shareWhatsapp': 'WhatsApp α¬¬α¬░ α¬╢α½çα¬░ α¬òα¬░α½ï',
+       'share.nativeShare': 'α¬╢α½çα¬░ α¬òα¬░α½ï',
+       'success.shareNudge': 'α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬╣α¬£α½ü α¬ûα¬¼α¬░ α¬¿α¬Ñα½Ç ΓÇö WhatsApp α¬¬α¬░ α¬╢α½çα¬░ α¬òα¬░α½ï, α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬╡α¬ºα½ü α¬¿α¬£α¬░ α¬«α¬ªα¬ª α¬òα¬░α½ç.',
+@@ -3333,7 +3608,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.sharePitch': 'α¬«α¬½α¬ñ {city} α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é α¬¿α¬òα¬╢α½ï ΓÇö 30 α¬╕α½çα¬òα¬«α¬╛α¬é α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ, Me too, α¬¬α½ìα¬░α¬ñα¬┐α¬╕α½ìα¬¬α¬░α½ìα¬ºα½Ç α¬╡α½ïα¬░α½ìα¬íα¬¿α½ç α¬╣α¬░α¬╛α¬╡α½ï.\nα¬«α½üα¬éα¬¼α¬ê, α¬¬α½üα¬úα½ç α¬àα¬¿α½ç α¬áα¬╛α¬úα½ç α¬«α¬╛α¬ƒα½ç α¬¼α¬¿α¬╛α¬╡α½ìα¬»α½üα¬é. α¬▓α½ïα¬ùα¬┐α¬¿ α¬¿α¬╣α½Çα¬é, 4 α¬¡α¬╛α¬╖α¬╛α¬ô.\n{link}\nRWA / α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç WhatsApp α¬ùα½ìα¬░α½üα¬¬α¬«α¬╛α¬é α¬½α½ïα¬░α¬╡α¬░α½ìα¬í α¬òα¬░α½ï ΓåÆ',
+       'about.copyPitch': 'WhatsApp α¬¬α¬┐α¬Ü α¬òα½ëα¬¬α½Ç α¬òα¬░α½ï',
+       'about.pitchCopied': 'α¬¬α¬┐α¬Ü α¬òα½ëα¬¬α½Ç ΓÇö RWA α¬ùα½ìα¬░α½üα¬¬α¬«α¬╛α¬é α¬¬α½çα¬╕α½ìα¬ƒ α¬òα¬░α½ï!',
+-      'pwa.nudge': 'α¬Üα½ïα¬«α¬╛α¬╕α¬╛-α¬ñα½êα¬»α¬╛α¬░: α¬╣α½ïα¬« α¬╕α½ìα¬òα½ìα¬░α½Çα¬¿ α¬¬α¬░ CivicRadar α¬ëα¬«α½çα¬░α½ï.',
++      'pwa.nudge': 'α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é ≡ƒîº∩╕Å α¬╣α½ïα¬« α¬╕α½ìα¬òα½ìα¬░α½Çα¬¿ α¬¬α¬░ CivicRadar α¬ëα¬«α½çα¬░α½ï ΓÇö α¬Åα¬ò α¬ƒα½àα¬¬ α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ.',
+       'pwa.nudgeAction': 'α¬╣α½ïα¬« α¬╕α½ìα¬òα½ìα¬░α½Çα¬¿ α¬¬α¬░ α¬ëα¬«α½çα¬░α½ï',
+       'pwa.nudgeDismiss': 'α¬╣α¬«α¬úα¬╛α¬é α¬¿α¬╣α½Çα¬é',
+       'community.challengeShare': 'α¬«α¬┐α¬ñα½ìα¬░α¬¿α½ç α¬¬α¬íα¬òα¬╛α¬░ ΓÇö α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï α¬╢α½çα¬░ α¬òα¬░α½ï',
+@@ -3343,13 +3618,15 @@ document.addEventListener('DOMContentLoaded', function () {
+       'community.winsCleanup': '{hazard} α¬╕α¬╛α¬½ ┬╖ {ward}',
+       'community.winsResolved': '{hazard} α¬ëα¬òα½çα¬▓α¬╛α¬»α½üα¬é ┬╖ {ward}',
+       'success.points': 'α¬╕α¬┐α¬╡α¬┐α¬ò α¬¬α½ïα¬êα¬¿α½ìα¬ƒ α¬«α¬│α½ìα¬»α¬╛', 'success.weekBonus': '+{n} α¬å α¬àα¬áα¬╡α¬╛α¬íα¬┐α¬»α¬╛α¬¿α½Ç α¬¬α¬╣α½çα¬▓α½Ç α¬½α¬░α¬┐α¬»α¬╛α¬ª!',
+-      'success.celebrateFirst': 'α¬ñα¬«α½ç α¬╡α½ïα¬░α½ìα¬íα¬¿α½üα¬é α¬░α¬òα½ìα¬╖α¬ú α¬òα¬░α½ï α¬¢α½ï ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬åα¬¡α¬╛α¬░α½Ç α¬░α¬╣α½çα¬╢α½ç.',
+-      'success.celebrateMilestone': '{n} α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï ΓÇö α¬ñα¬«α¬╛α¬░α¬╛ α¬òα¬╛α¬░α¬úα½ç α¬▓α½çα¬¿ α¬╕α½üα¬░α¬òα½ìα¬╖α¬┐α¬ñ!',
++      'success.celebrateFirst': 'α¬╢α¬╛α¬¼α¬╛α¬╢ ΓÇö α¬ñα¬«α½ç α¬╡α½ïα¬░α½ìα¬íα¬¿α½üα¬é α¬░α¬òα½ìα¬╖α¬ú α¬òα¬░α½ï α¬¢α½ï!',
++      'success.celebrateMilestone': '{n} α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï ΓÇö α¬╡α½ïα¬░α½ìα¬í α¬╣α½Çα¬░α½ï!',
+       'success.kudos1': 'α¬╢α¬╛α¬¼α¬╛α¬╢! α¬╡α¬ºα½ü α¬Åα¬ò α¬ûα¬ñα¬░α½ï α¬░α¬íα¬╛α¬░ α¬¬α¬░.',
+-      'success.kudos2': 'α¬╕α¬░α¬╕ α¬òα¬╛α¬« ΓÇö α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í α¬Ñα½ïα¬íα½ï α¬╡α¬ºα½ü α¬╕α½üα¬░α¬òα½ìα¬╖α¬┐α¬ñ α¬Ñα¬»α½ï.',
+-      'success.kudos3': 'α¬¿α½ïα¬éα¬ºα¬╛α¬»α½üα¬é! α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½Ç α¬òα¬╛α¬│α¬£α½Ç α¬▓α½çα¬╡α¬╛ α¬¼α¬ªα¬▓ α¬åα¬¡α¬╛α¬░.',
++      'success.kudos2': 'α¬╡α½ïα¬░α½ìα¬í α¬╣α½Çα¬░α½ï ΓÇö α¬ñα¬«α¬╛α¬░α½Ç α¬▓α½çα¬¿ α¬╕α½üα¬░α¬òα½ìα¬╖α¬┐α¬ñ α¬Ñα¬ê.',
++      'success.kudos3': 'α¬¿α½ïα¬éα¬ºα¬╛α¬»α½üα¬é! α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬Å α¬£α½ïα¬»α½üα¬é.',
+       'success.kudos4': 'α¬ñα¬«α½ç α¬½α¬░α½Ç α¬åα¬ùα¬│ α¬åα¬╡α½ìα¬»α¬╛ ΓÇö α¬å α¬░α½Çα¬ñα½ç α¬▓α½çα¬¿ α¬╕α½üα¬ºα¬░α½ç α¬¢α½ç.',
+-      'success.kudos5': 'α¬╡α¬ºα½ü α¬Åα¬ò α¬¬α¬┐α¬¿ ΓÇö α¬ñα¬«α¬╛α¬░α½Ç α¬╢α½çα¬░α½Ç α¬ñα¬«α¬╛α¬░α½ï α¬åα¬¡α¬╛α¬░ α¬«α¬╛α¬¿α½ç α¬¢α½ç.',
++      'success.kudos5': 'α¬╡α¬ºα½ü α¬Åα¬ò α¬¬α¬┐α¬¿ ΓÇö α¬╢α¬╛α¬¼α¬╛α¬╢!',
++      'success.streakWeek': 'α¬å α¬àα¬áα¬╡α¬╛α¬íα¬┐α¬»α½ç {n} α¬½α¬░α¬┐α¬»α¬╛α¬ª ΓÇö α¬Üα¬╛α¬▓α½ü α¬░α¬╛α¬ûα½ï!',
++      'success.badgeUnlock': '≡ƒÅà {n} α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï ΓÇö α¬«α¬╛α¬çα¬▓α¬╕α½ìα¬ƒα½ïα¬¿ α¬àα¬¿α¬▓α½ëα¬ò!',
+       'success.progressOne': 'α¬åα¬ùα¬▓α¬╛ α¬¼α½çα¬£ α¬«α¬╛α¬ƒα½ç α¬½α¬òα½ìα¬ñ 1 α¬╡α¬ºα½ü α¬½α¬░α¬┐α¬»α¬╛α¬ª.',
+       'success.progressMany': 'α¬åα¬ùα¬▓α¬╛ α¬¼α½çα¬£ α¬«α¬╛α¬ƒα½ç {n} α¬╡α¬ºα½ü α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï.',
+       'success.progressMilestone': 'α¬¼α½çα¬£ α¬«α¬│α½ìα¬»α½ï! α¬åα¬ùα¬▓α¬╛ α¬«α¬╛α¬ƒα½ç {n} α¬╡α¬ºα½ü.',
+@@ -3357,22 +3634,23 @@ document.addEventListener('DOMContentLoaded', function () {
+       'success.shareBrag': 'α¬ñα¬«α½ç α¬╡α½ïα¬░α½ìα¬íα¬¿α½ç α¬«α¬ªα¬ª α¬òα¬░α½Ç ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç WhatsApp α¬¬α¬░ α¬òα¬╣α½ï!',
+       'success.shareBragFirst': 'α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¬α¬╣α½çα¬▓α½üα¬é α¬¬α¬┐α¬¿! α¬╣α¬«α¬úα¬╛α¬é α¬╢α½çα¬░ α¬òα¬░α½ï ΓÇö Monsoon Guardian α¬èα¬░α½ìα¬£α¬╛ α¬½α½çα¬▓α¬╛α¬».',
+       'toast.badgeMonsoon': 'α¬╕α½ìα¬╡α¬╛α¬ùα¬ñ, Monsoon Guardian! ≡ƒ¢í∩╕Å',
+-      'confirm.meTooThanks': 'Me too α¬¿α½ïα¬éα¬ºα¬╛α¬»α½üα¬é ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬ªα¬¼α¬╛α¬ú α¬£α½ïα¬ê α¬░α¬╣α½ìα¬»α¬╛ α¬¢α½ç.',
++      'confirm.meTooThanks': '+{n} α¬¬α½ïα¬êα¬¿α½ìα¬ƒ ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬Å α¬£α½ïα¬»α½üα¬é! α¬╢α¬╛α¬¼α¬╛α¬╢!',
+       'toast.reportMilestone': '{n} α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï ΓÇö α¬Üα¬╛α¬▓α½ü α¬░α¬╛α¬ûα½ï!',
+-      'map.empty': '{ward} α¬«α¬╛α¬é α¬╕α½ìα¬╡α¬Üα½ìα¬¢ α¬¿α¬òα¬╢α½ï ΓÇö #MonsoonGuardian α¬¼α¬¿α½ï! α¬íα½çα¬éα¬ùα½ü α¬½α½çα¬▓α¬╛α¬» α¬ñα½ç α¬¬α¬╣α½çα¬▓α¬╛α¬é α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï.',
+-      'map.emptyHint': 'α¬╕α½ìα¬¬α½ïα¬ƒ α¬¬α¬░ α¬¬α¬┐α¬¿ ΓåÆ α¬½α½ïα¬ƒα½ï ΓåÆ ~30 α¬╕α½çα¬òα¬¿α½ìα¬íα¬«α¬╛α¬é α¬╕α¬¼α¬«α¬┐α¬ƒ. α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬£α½ïα¬╢α½ç.',
+-      'map.emptyAction': 'α¬¬α¬╣α½çα¬▓α½ï α¬£α½ïα¬ûα¬« α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï',
++      'map.empty': '{ward} α¬«α¬╛α¬é α¬╣α¬£α½ü α¬¬α¬┐α¬¿ α¬¿α¬Ñα½Ç ΓÇö α¬¬α¬╣α½çα¬▓α¬╛ α¬¼α¬¿α½ï!',
++      'map.emptyEncourage': 'α¬ªα¬░α½çα¬ò α¬¬α¬┐α¬¿ α¬å α¬Üα½ïα¬«α¬╛α¬╕α¬╛α¬«α¬╛α¬é α¬íα½çα¬éα¬ùα½ü α¬╕α¬╛α¬«α½ç α¬«α¬ªα¬ª α¬òα¬░α½ç α¬¢α½ç.',
++      'map.emptyHint': 'α¬£α¬ùα½ìα¬»α¬╛ α¬¬α¬░ α¬½α½ïα¬ƒα½ï ┬╖ ~30 α¬╕α½çα¬ò',
++      'map.emptyAction': 'α¬╣α¬«α¬úα¬╛α¬é α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ',
+       'map.emptyShare': 'WhatsApp α¬¬α¬░ α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬¼α½ïα¬▓α¬╛α¬╡α½ï',
+-      'map.emptyRival': '{ward} α¬╡α¬┐.{rival} ΓÇö α¬ñα½çα¬«α¬¿α¬╛ {pending} α¬ûα½üα¬▓α½ìα¬▓α¬╛ α¬╕α½ìα¬¬α½ïα¬ƒ. α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï α¬àα¬Ñα¬╡α¬╛ α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬¼α½ïα¬▓α¬╛α¬╡α½ï!',
++      'map.emptyRival': '{ward} α¬╡α¬┐.{rival} ΓÇö {pending} α¬ûα½üα¬▓α½ìα¬▓α¬╛ α¬╕α½ìα¬¬α½ïα¬ƒ. α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï!',
+       'home.hero.badge': '#MonsoonGuardian',
+-      'home.hero.headline': 'α¬ñα¬«α¬╛α¬░α¬╛ α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï',
+-      'home.hero.subline': 'α¬íα½çα¬éα¬ùα½ü α¬░α½ïα¬òα½ï ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬àα¬¿α½ç BMC α¬¿α½ç α¬╕α¬ñα¬░α½ìα¬ò α¬òα¬░α½ï, α¬╕α½üα¬ºα¬╛α¬░α¬╛ α¬ƒα½ìα¬░α½çα¬ò α¬òα¬░α½ï.',
+-      'home.hero.benefit1': '30 α¬╕α½çα¬òα¬¿α½ìα¬íα¬«α¬╛α¬é',
+-      'home.hero.benefit2': 'α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬╕α¬ñα¬░α½ìα¬ò',
+-      'home.hero.benefit3': 'BMC α¬òα¬ñα¬╛α¬░',
+-      'home.hero.cta': 'α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï',
+-      'home.hero.tour': 'α¬òα½çα¬╡α½Ç α¬░α½Çα¬ñα½ç α¬òα¬╛α¬« α¬òα¬░α½ç',
+-      'home.hero.trust': 'α¬«α¬½α¬ñ ┬╖ α¬▓α½ëα¬ùα¬┐α¬¿ α¬╡α¬ùα¬░ ┬╖ α¬æα¬½α¬▓α¬╛α¬çα¬¿ ┬╖ α¬«α½üα¬éα¬¼α¬ê, α¬¬α½üα¬úα½ç α¬àα¬¿α½ç α¬áα¬╛α¬úα½ç',
++      'home.hero.headline': 'α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬òα¬░α½ï',
++      'home.hero.subline': 'α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é α¬╢α¬░α½é ΓÇö α¬£α¬ùα½ìα¬»α¬╛α¬Å α¬¬α¬┐α¬¿ α¬òα¬░α½ï: α¬½α½ïα¬ƒα½ï, Me too.',
++      'home.hero.benefit1': '30 α¬╕α½çα¬ò',
++      'home.hero.benefit2': 'Me too',
++      'home.hero.benefit3': 'α¬ƒα½ìα¬░α½çα¬ò',
++      'home.hero.cta': 'α¬╣α¬«α¬úα¬╛α¬é α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ',
++      'home.hero.tour': 'α¬ƒα½éα¬éα¬òα½ï α¬ƒα½éα¬░',
++      'home.hero.trust': 'α¬«α¬½α¬ñ ┬╖ α¬æα¬½α¬▓α¬╛α¬çα¬¿ ┬╖ 3 α¬╢α¬╣α½çα¬░ ┬╖ 4 α¬¡α¬╛α¬╖α¬╛',
+       'home.hero.dismiss': 'α¬╕α½ìα¬╡α¬╛α¬ùα¬ñ α¬òα¬╛α¬░α½ìα¬í α¬¼α¬éα¬º α¬òα¬░α½ï',
+       'reminder.unfiled': '{n} α¬ûα½üα¬▓α½ìα¬▓α¬╛ α¬£α½ïα¬ûα¬«α½ï α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬╕α¬╛α¬Ñα½ç α¬╢α½çα¬░ α¬òα¬░α½ï α¬àα¬Ñα¬╡α¬╛ α¬¬α½ìα¬░α½ïα¬½α¬╛α¬çα¬▓α¬«α¬╛α¬é α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬░α½Çα¬ñα½ç α¬¿α½ïα¬éα¬ºα¬╛α¬╡α½ï.',
+       'reminder.file': 'α¬╣α¬«α¬úα¬╛α¬é α¬¿α½ïα¬éα¬ºα¬╛α¬╡α½ï',
+@@ -3396,6 +3674,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.badge.monsoon': 'α¬Üα½ïα¬«α¬╛α¬╕α½ü α¬░α¬òα½ìα¬╖α¬ò',
+       'profile.wardImpact': 'α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í: α¬å α¬Üα½ïα¬«α¬╛α¬╕α½ç {n} α¬½α¬░α¬┐α¬»α¬╛α¬ª',
+       'profile.streak': '{n}-α¬àα¬áα¬╡α¬╛α¬íα¬┐α¬»α¬╛α¬¿α½Ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒα¬┐α¬éα¬ù α¬╕α½ìα¬ƒα½ìα¬░α½Çα¬ò',
++      'profile.milestoneOne': 'α¬åα¬ùα¬▓α¬╛ α¬«α¬╛α¬çα¬▓α¬╕α½ìα¬ƒα½ïα¬¿ α¬«α¬╛α¬ƒα½ç 1 α¬╡α¬ºα½ü α¬½α¬░α¬┐α¬»α¬╛α¬ª',
++      'profile.milestoneMany': 'α¬åα¬ùα¬▓α¬╛ α¬«α¬╛α¬çα¬▓α¬╕α½ìα¬ƒα½ïα¬¿ α¬«α¬╛α¬ƒα½ç {n} α¬╡α¬ºα½ü α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï',
++      'profile.milestoneMax': 'Monsoon Guardian ΓÇö α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ α¬Üα¬╛α¬▓α½ü α¬░α¬╛α¬ûα½ï!',
++      'profile.nextStreakBadge': '{badge} α¬«α¬╛α¬ƒα½ç {n} α¬╡α¬ºα½ü α¬àα¬áα¬╡α¬╛α¬íα¬┐α¬»α¬╛',
+       'confirm.nearby': 'α¬¬α¬┐α¬¿ {m} α¬«α½Ç. α¬ªα½éα¬░{backing}. α¬íα½üα¬¬α½ìα¬▓α¬┐α¬òα½çα¬ƒ α¬¼α¬ªα¬▓α½ç α¬«α¬¿α½ç α¬¬α¬ú α¬ªα¬¼α¬╛α¬╡α½ï ΓÇö α¬áα½Çα¬ò α¬Ñα¬╛α¬» α¬ñα½ìα¬»α¬╛α¬░α½ç α¬àα¬¬α¬íα½çα¬ƒ.',
+       'esc.participate.title': 'α¬╕α¬╛α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬òα½ìα¬░α¬┐α¬»α¬╛ (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)',
+       'esc.participate.hint': 'Participate Mumbai BMC α¬¿α½üα¬é α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬╕α½ìα¬╡α¬»α¬éα¬╕α½çα¬╡α¬╛/CSR α¬¬α½ïα¬░α½ìα¬ƒα¬▓ α¬¢α½ç ΓÇö α¬£α¬éα¬ñα½ü α¬¿α¬┐α¬»α¬éα¬ñα½ìα¬░α¬ú α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï α¬«α¬╛α¬ƒα½ç α¬¿α¬╣α½Çα¬é. α¬╕α¬½α¬╛α¬ê α¬àα¬¡α¬┐α¬»α¬╛α¬¿ α¬àα¬Ñα¬╡α¬╛ α¬╡α½ïα¬░α½ìα¬í α¬¬α½ìα¬░α½ïα¬£α½çα¬òα½ìα¬ƒ α¬«α¬╛α¬ƒα½ç α¬╡α¬╛α¬¬α¬░α½ï.',
+@@ -3459,10 +3741,9 @@ document.addEventListener('DOMContentLoaded', function () {
+       'about.subtitle': 'α¬«α½üα¬éα¬¼α¬ê, α¬¬α½üα¬úα½ç α¬àα¬¿α½ç α¬áα¬╛α¬úα½ç α¬«α¬╛α¬ƒα½ç α¬╕α¬╛α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï ΓÇö α¬ùα½üα¬¬α½ìα¬ñ α¬╣α½çα¬▓α½ìα¬¬α¬▓α¬╛α¬çα¬¿ α¬░α¬╛α¬ëα¬ƒα¬░ α¬¿α¬╣α½Çα¬é.',
+       'about.impactTitle': 'α¬╕α¬╛α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬¬α½ìα¬░α¬¡α¬╛α¬╡', 'about.builtTitle': 'α¬àα¬«α½ç α¬╢α½üα¬é α¬¼α¬¿α¬╛α¬╡α½ìα¬»α½üα¬é',
+       'about.differentTitle': 'CivicRadar α¬àα¬▓α¬ù α¬òα½çα¬«',
+-      'about.different1': 'α¬▓α¬╛α¬çα¬╡ α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï + α¬½α½ïα¬ƒα½ï α¬¬α¬┐α¬¿ ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô Me too α¬Ñα½Ç α¬¬α½üα¬╖α½ìα¬ƒα¬┐, α¬ùα½üα¬¬α½ìα¬ñ α¬╣α½çα¬▓α½ìα¬¬α¬▓α¬╛α¬çα¬¿ α¬íα½ìα¬░α½ïα¬¬ α¬¿α¬╣α½Çα¬é',
+-      'about.different2': 'α¬ªα½ìα¬╡α¬┐ α¬«α¬╛α¬░α½ìα¬ù: α¬¬α¬╣α½çα¬▓α¬╛ CivicRadar α¬¬α¬░ α¬¬α¬┐α¬¿, α¬¬α¬¢α½Ç α¬Åα¬ò-α¬ƒα½çα¬¬ α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬¿α½ïα¬éα¬º (BMC 1916/MyBMC, PMC CARE, TMC)',
+-      'about.different3': 'α¬æα¬½α¬▓α¬╛α¬çα¬¿ α¬òα¬╛α¬« α¬òα¬░α½ç ΓÇö α¬╣α½ïα¬« α¬╕α½ìα¬òα½ìα¬░α½Çα¬¿ α¬¬α¬░ α¬ëα¬«α½çα¬░α½ï, α¬▓α½ëα¬ùα¬┐α¬¿ α¬╡α¬ùα¬░, 4 α¬¡α¬╛α¬╖α¬╛α¬ô',
+-      'about.different4': 'α¬áα½Çα¬ò α¬Ñα¬╛α¬» α¬ñα½ìα¬»α¬╛α¬é α¬╕α½üα¬ºα½Ç α¬ƒα½ìα¬░α½çα¬ò ΓÇö α¬Åα¬╕α½ìα¬òα½çα¬▓α½çα¬╢α¬¿ α¬ƒα¬╛α¬çα¬«α¬▓α¬╛α¬çα¬¿, Civic Points, α¬àα¬¿α½ç α¬╕α¬½α¬╛α¬ê α¬¬α¬░ α¬╕α¬╛α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬£α½Çα¬ñ',
++      'about.different1': 'α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α½ï + Me too ΓÇö α¬ùα½üα¬¬α½ìα¬ñ α¬╣α½çα¬▓α½ìα¬¬α¬▓α¬╛α¬çα¬¿ α¬¿α¬╣α½Çα¬é',
++      'about.different2': 'α¬¬α¬╣α½çα¬▓α¬╛ α¬¬α¬┐α¬¿, α¬¬α¬¢α½Ç α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬¿α½ïα¬éα¬º',
++      'about.different3': 'α¬æα¬½α¬▓α¬╛α¬çα¬¿, α¬▓α½ëα¬ùα¬┐α¬¿ α¬╡α¬ùα¬░, 4 α¬¡α¬╛α¬╖α¬╛ ┬╖ α¬«α½üα¬éα¬¼α¬ê, α¬¬α½üα¬úα½ç, α¬áα¬╛α¬úα½ç',
+       'about.sustainTitle': 'α¬ƒα¬òα¬╛α¬ë α¬àα¬¿α½ç α¬¿α¬╛α¬ùα¬░α¬┐α¬òα½ï α¬«α¬╛α¬ƒα½ç α¬«α¬½α¬ñ',
+       'about.sustainBody': 'CivicRadar α¬░α¬╣α½çα¬╡α¬╛α¬╕α½Çα¬ô α¬«α¬╛α¬ƒα½ç α¬╣α¬éα¬«α½çα¬╢α¬╛ α¬«α¬½α¬ñ α¬░α¬╣α½çα¬╢α½ç. α¬¡α¬╡α¬┐α¬╖α½ìα¬»α¬¿α½Ç α¬åα¬╡α¬ò α¬¿α½êα¬ñα¬┐α¬ò α¬╕α½ìα¬Ñα¬╛α¬¿α¬┐α¬ò α¬¡α¬╛α¬ùα½Çα¬ªα¬╛α¬░α½Çα¬«α¬╛α¬éα¬Ñα½Ç α¬åα¬╡α½ç α¬¢α½ç.',
+       'about.copyImpact': 'α¬¬α½ìα¬░α¬¡α¬╛α¬╡ α¬╕α¬╛α¬░α¬╛α¬éα¬╢ α¬òα½ëα¬¬α½Ç α¬òα¬░α½ï', 'about.contact': 'α¬àα¬«α¬╛α¬░α½ï α¬╕α¬éα¬¬α¬░α½ìα¬ò', 'about.contactOperator': 'α¬àα¬«α¬╛α¬░α½ï α¬╕α¬éα¬¬α¬░α½ìα¬ò', 'about.close': 'α¬¼α¬éα¬º',
+@@ -3659,8 +3940,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'profile.pointsHint.base': '50 α¬¬α½ïα¬êα¬¿α½ìα¬ƒ/α¬½α¬░α¬┐α¬»α¬╛α¬ª ┬╖ +200 α¬╕α½ìα¬╡α¬»α¬éα¬╕α½çα¬╡α¬╛', 'profile.pointsHint.bonus': '{n} ├ù 50 ┬╖ +{bonus} α¬¼α½ïα¬¿α¬╕',
+       'profile.greeting': 'α¬¿α¬«α¬╕α½ìα¬ñα½ç, {name}', 'profile.greetingDefault': 'α¬¿α¬«α¬╕α½ìα¬ñα½ç, α¬¿α¬╛α¬ùα¬░α¬┐α¬ò', 'profile.selectWard': 'α¬╡α½ïα¬░α½ìα¬í α¬¬α¬╕α¬éα¬ª α¬òα¬░α½ï',
+       'profile.society': 'α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / α¬¬α¬íα½ïα¬╢ (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)',
+-      'profile.societyPh': 'α¬ªα¬╛.α¬ñ. Phoenix Mills CHS, Worli',
+-      'profile.societyHint': 'α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬àα¬¿α½ç RWA α¬▓α½Çα¬íα¬¿α½ç α¬ñα¬«α¬╛α¬░α½Ç α¬ùα¬▓α½Çα¬«α¬╛α¬é α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï α¬£α½éα¬Ñα¬¼α¬ªα½ìα¬º α¬òα¬░α¬╡α¬╛α¬«α¬╛α¬é α¬«α¬ªα¬ª.',
++      'profile.societyPh': 'α¬»α¬╛α¬ªα½Çα¬«α¬╛α¬é α¬¿ α¬╣α½ïα¬» α¬ñα½ï α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / RWA α¬¿α¬╛α¬« α¬▓α¬ûα½ï',
++      'profile.societyHintWard': '{ward} α¬«α¬╛α¬é {n} α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç ΓÇö α¬ñα¬«α¬╛α¬░α½Ç α¬ëα¬«α½çα¬░α½ï.',
++      'profile.societyHintNoWard': 'α¬╕α½ìα¬Ñα¬╛α¬¿α¬┐α¬ò α¬╕α½éα¬Üα¬¿α½ï α¬«α¬╛α¬ƒα½ç α¬╡α½ïα¬░α½ìα¬í α¬╕α½çα¬ƒ α¬òα¬░α½ï.',
++      'profile.societyHintCustom': 'α¬»α¬╛α¬ªα½Çα¬«α¬╛α¬é α¬¿ α¬╣α½ïα¬» α¬ñα½ï α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / RWA α¬¿α¬╛α¬« α¬▓α¬ûα½ï.',
+       'profile.societyRegistry': 'α¬ñα¬«α¬╛α¬░α½Ç α¬¿α½ïα¬éα¬ºα¬╛α¬»α½çα¬▓ α¬╕α¬╣α¬òα¬╛α¬░α½Ç α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç α¬╢α½ïα¬ºα½ï',
+       'map.youAreHere': 'α¬ñα¬«α½ç α¬àα¬╣α½Çα¬é α¬¢α½ï',
+       'about.subtitleNamed': 'α¬«α½üα¬éα¬¼α¬ê, α¬¬α½üα¬úα½ç α¬àα¬¿α½ç α¬áα¬╛α¬úα½ç α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é ΓÇö {name} α¬ªα½ìα¬╡α¬╛α¬░α¬╛, α¬¿α¬╛α¬ùα¬░α¬┐α¬òα½ï α¬«α¬╛α¬ƒα½ç α¬«α¬½α¬ñ.',
+@@ -3743,14 +4026,10 @@ document.addEventListener('DOMContentLoaded', function () {
+       'map.legend.you': 'α¬ñα¬«α½ç',
+       'onboard.wardError': 'α¬»α¬╛α¬ªα½Çα¬«α¬╛α¬éα¬Ñα½Ç α¬╡α½ïα¬░α½ìα¬í α¬¬α¬╕α¬éα¬ª α¬òα¬░α½ï α¬àα¬Ñα¬╡α¬╛ α¬▓α½ïα¬òα½çα¬╢α¬¿ α¬«α¬éα¬£α½éα¬░α½Ç α¬åα¬¬α½ï.',
+       'onboard.society': 'α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / α¬¬α¬íα½ïα¬╢ (α¬╡α½êα¬òα¬▓α½ìα¬¬α¬┐α¬ò)',
+-      'onboard.societyPh': 'α¬ªα¬╛.α¬ñ. Phoenix Mills CHS, Worli',
+-      'onboard.societyHint': 'α¬ñα¬«α¬╛α¬░α½Ç α¬╣α¬╛α¬ëα¬╕α¬┐α¬éα¬ù α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç, RWA α¬àα¬Ñα¬╡α¬╛ α¬ùα¬▓α½Ç ΓÇö α¬¿α¬£α½Çα¬òα¬¿α½Ç α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï α¬£α½éα¬Ñα¬¼α¬ªα½ìα¬º α¬òα¬░α¬╡α¬╛α¬«α¬╛α¬é α¬«α¬ªα¬ª.',
+-      'onboard.why': 'α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬íα½çα¬éα¬ùα½ü α¬àα¬¿α½ç α¬«α¬▓α½çα¬░α¬┐α¬»α¬╛ α¬½α½çα¬▓α¬╛α¬╡α½ç α¬¢α½ç. α¬ñα¬«α¬╛α¬░α½Ç α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬Å α¬£α¬ùα½ìα¬»α¬╛α¬¿α½ç α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬àα¬¿α½ç BMC α¬òα¬ñα¬╛α¬░α¬«α¬╛α¬é α¬«α½éα¬òα½ç α¬¢α½ç ΓÇö α¬àα¬¿α½ç α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α½ç α¬£α¬╛α¬ú α¬òα¬░α½ç α¬¢α½ç.',
+-      'onboard.howTitle': 'α¬å α¬òα½çα¬╡α½Ç α¬░α½Çα¬ñα½ç α¬òα¬╛α¬« α¬òα¬░α½ç α¬¢α½ç',
+-      'onboard.how1': 'α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬òα½ç α¬¿α¬╛α¬ùα¬░α¬┐α¬ò α¬£α½ïα¬ûα¬« α¬£α½üα¬ô',
+-      'onboard.how2': 'α¬£α¬ùα½ìα¬»α¬╛ α¬¬α¬░ α¬£ α¬¬α¬┐α¬¿ α¬òα¬░α½ï α¬àα¬¿α½ç α¬½α½ïα¬ƒα½ï α¬▓α½ï',
+-      'onboard.how3': 'α¬╕α¬¼α¬«α¬┐α¬ƒ α¬òα¬░α½ï ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬àα¬¿α½ç BMC α¬£α½ïα¬╢α½ç, α¬ñα¬«α¬¿α½ç Civic Points α¬«α¬│α¬╢α½ç',
+-      'onboard.spotNote': 'α¬£α¬ùα½ìα¬»α¬╛ α¬¬α¬░ α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬òα¬░α¬╡α½Ç α¬╢α½ìα¬░α½çα¬╖α½ìα¬á, α¬£α½çα¬Ñα½Ç α¬╕α½ìα¬Ñα¬╛α¬¿ α¬╕α¬Üα½ïα¬ƒ α¬░α¬╣α½ç.',
++      'onboard.societyPh': 'α¬»α¬╛α¬ªα½Çα¬«α¬╛α¬é α¬¿ α¬╣α½ïα¬» α¬ñα½ï α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / RWA α¬¿α¬╛α¬« α¬▓α¬ûα½ï',
++      'onboard.societyHintNoWard': 'α¬¬α¬╣α½çα¬▓α¬╛ α¬╡α½ïα¬░α½ìα¬í α¬¬α¬╕α¬éα¬ª α¬òα¬░α½ï ΓÇö α¬¬α¬¢α½Ç α¬╕α½ìα¬Ñα¬╛α¬¿α¬┐α¬ò α¬╕α½éα¬Üα¬¿α½ï.',
++      'onboard.societyHintWard': '{ward} α¬«α¬╛α¬é {n} α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç ΓÇö α¬ñα¬«α¬╛α¬░α½Ç α¬ëα¬«α½çα¬░α½ï.',
++      'onboard.societyHintCustom': 'α¬»α¬╛α¬ªα½Çα¬«α¬╛α¬é α¬¿ α¬╣α½ïα¬» α¬ñα½ï α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / RWA α¬¿α¬╛α¬« α¬▓α¬ûα½ï.',
+       'persona.admin.exit': 'BMC α¬«α½ïα¬í α¬¼α¬éα¬º',
+       'persona.admin.header': 'BMC α¬╕α¬«α½Çα¬òα½ìα¬╖α¬╛ α¬«α½ïα¬í',
+       'persona.admin.idleEmpty': 'α¬¼α¬╛α¬òα½Ç α¬½α¬░α¬┐α¬»α¬╛α¬ªα½ï α¬¿α¬Ñα½Ç. α¬¿α¬╡α¬╛ α¬¬α¬┐α¬¿ α¬àα¬╣α½Çα¬é α¬ªα½çα¬ûα¬╛α¬╢α½ç.',
+@@ -3926,6 +4205,33 @@ document.addEventListener('DOMContentLoaded', function () {
+       'admin.health.perfSamples': 'α¬¬α¬░α¬½α½ïα¬░α½ìα¬«α¬¿α½ìα¬╕ α¬¿α¬«α½éα¬¿α¬╛',
+       'admin.health.avgPerf': 'α¬╕α¬░α½çα¬░α¬╛α¬╢ α¬▓α½ïα¬í α¬╕α¬«α¬» (α¬╕α½ìα¬Ñα¬╛α¬¿α¬┐α¬ò)',
+       'admin.health.bufferedEvents': 'α¬¼α¬½α¬░ α¬çα¬╡α½çα¬¿α½ìα¬ƒ (α¬ëα¬¬α¬òα¬░α¬ú)',
++      'tracking.open': 'α¬Åα¬¿α¬╛α¬▓α¬┐α¬ƒα¬┐α¬òα½ìα¬╕ α¬àα¬¿α½ç α¬ƒα½ìα¬░α½çα¬òα¬┐α¬éα¬ù',
++      'tracking.title': 'α¬Åα¬¿α¬╛α¬▓α¬┐α¬ƒα¬┐α¬òα½ìα¬╕ α¬àα¬¿α½ç α¬ƒα½ìα¬░α½çα¬òα¬┐α¬éα¬ù',
++      'tracking.subtitle': 'α¬Åα¬òα¬ñα½ìα¬░α¬┐α¬ñ α¬¿α¬╛α¬ùα¬░α¬┐α¬ò α¬«α½çα¬ƒα½ìα¬░α¬┐α¬òα½ìα¬╕ ΓÇö α¬«α½üα¬▓α¬╛α¬òα¬╛α¬ñ, α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ, α¬Åα¬╕α½ìα¬òα½çα¬▓α½çα¬╢α¬¿, α¬¿α¬┐α¬░α¬╛α¬òα¬░α¬ú.',
++      'tracking.period': 'α¬╕α¬«α¬»α¬ùα¬╛α¬│α½ï',
++      'tracking.days7': 'α¬¢α½çα¬▓α½ìα¬▓α¬╛ 7 α¬ªα¬┐α¬╡α¬╕',
++      'tracking.days30': 'α¬¢α½çα¬▓α½ìα¬▓α¬╛ 30 α¬ªα¬┐α¬╡α¬╕',
++      'tracking.days90': 'α¬¢α½çα¬▓α½ìα¬▓α¬╛ 90 α¬ªα¬┐α¬╡α¬╕',
++      'tracking.wardFilter': 'α¬╡α½ïα¬░α½ìα¬í',
++      'tracking.sessions': 'α¬«α½üα¬▓α¬╛α¬òα¬╛α¬ñ',
++      'tracking.pwaInstalls': 'PWA α¬çα¬¿α½ìα¬╕α½ìα¬ƒα½ïα¬▓',
++      'tracking.reports': 'α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ',
++      'tracking.resolved': 'α¬ëα¬òα½çα¬▓α¬╛α¬»α¬╛',
++      'tracking.pwaNote': 'PWA α¬çα¬¿α½ìα¬╕α½ìα¬ƒα½ïα¬▓ α¬àα¬éα¬ªα¬╛α¬£α¬┐α¬ñ (α¬╣α½ïα¬« α¬╕α½ìα¬òα½ìα¬░α½Çα¬¿ / standalone). GitHub Pages α¬¬α¬░ α¬╕α½ìα¬ƒα½ïα¬░ α¬íα¬╛α¬ëα¬¿α¬▓α½ïα¬í α¬«α¬╛α¬¬α½Ç α¬╢α¬òα¬╛α¬ñα¬╛ α¬¿α¬Ñα½Ç.',
++      'tracking.loading': 'α¬«α½çα¬ƒα½ìα¬░α¬┐α¬òα½ìα¬╕ α¬▓α½ïα¬í α¬Ñα¬ê α¬░α¬╣α½ìα¬»α¬╛ΓÇª',
++      'tracking.sourceLocal': 'α¬ëα¬¬α¬òα¬░α¬ú + α¬╕α½ìα¬Ñα¬╛α¬¿α¬┐α¬ò α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ (α¬íα½çα¬«α½ï / α¬æα¬½α¬▓α¬╛α¬çα¬¿)',
++      'tracking.sourceCloud': 'α¬òα½ìα¬▓α¬╛α¬ëα¬í α¬Åα¬ùα½ìα¬░α¬┐α¬ùα½çα¬ƒ (α¬¼α¬ºα¬╛ α¬╡α¬¬α¬░α¬╛α¬╢α¬òα¬░α½ìα¬ñα¬╛)',
++      'tracking.sourceCloudFail': 'α¬òα½ìα¬▓α¬╛α¬ëα¬í α¬«α½çα¬ƒα½ìα¬░α¬┐α¬òα½ìα¬╕ α¬ëα¬¬α¬▓α¬¼α½ìα¬º α¬¿α¬Ñα½Ç ΓÇö Supabase α¬«α¬╛α¬é v92 tracking SQL α¬Üα¬▓α¬╛α¬╡α½ï.',
++      'tracking.reportsByCategory': 'α¬╢α½ìα¬░α½çα¬úα½Ç α¬¬α½ìα¬░α¬«α¬╛α¬úα½ç α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒ',
++      'tracking.escalations': 'α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬Üα½çα¬¿α¬▓ α¬ûα½ïα¬▓α¬╡α¬╛',
++      'tracking.neighbourhoods': 'α¬¬α¬íα½ïα¬╢ / α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç α¬¬α½ìα¬░α¬«α¬╛α¬úα½ç',
++      'tracking.reporters': 'α¬╕α¬òα½ìα¬░α¬┐α¬» α¬░α¬┐α¬¬α½ïα¬░α½ìα¬ƒα¬░',
++      'tracking.meToo': 'α¬«α¬¿α½ç α¬¬α¬ú',
++      'tracking.filed': 'α¬àα¬ºα¬┐α¬òα½âα¬ñ α¬ªα¬╛α¬ûα¬▓',
++      'tracking.leads': 'α¬¬α¬íα½ïα¬╢ α¬▓α½Çα¬í',
++      'tracking.empty': 'α¬å α¬╕α¬«α¬»α¬ùα¬╛α¬│α¬╛α¬«α¬╛α¬é α¬íα½çα¬ƒα¬╛ α¬¿α¬Ñα½Ç.',
++      'tracking.pending': 'α¬ûα½üα¬▓α½ìα¬▓α¬╛',
++      'tracking.channelUnknown': 'α¬àα¬¿α½ìα¬» α¬Üα½çα¬¿α¬▓',
+       'volunteer.neighbourhood': 'α¬¬α¬íα½ïα¬╢ / α¬╕α½ïα¬╕α¬╛α¬»α¬ƒα½Ç / α¬ùα¬▓α½Ç',
+       'volunteer.subtitle': 'α¬¬α¬íα½ïα¬╢α½Çα¬ô α¬╕α¬╛α¬Ñα½ç α¬«α¬│α½Çα¬¿α½ç ΓÇö α¬╕α¬░α¬òα¬╛α¬░α½Ç α¬╕α½ìα¬╡α¬»α¬éα¬╕α½çα¬╡α¬ò α¬òα¬╛α¬░α½ìα¬»α¬òα½ìα¬░α¬« α¬¿α¬Ñα½Ç.',
+       'volunteer.skill.awareness': 'α¬£α¬╛α¬ùα½âα¬ñα¬┐ α¬àα¬¿α½ç WhatsApp outreach',
+@@ -3938,8 +4244,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       'ref.welcomeCta': 'α¬¿α¬òα¬╢α½ï α¬£α½üα¬ô',
+       'ref.welcomeReport': 'α¬╕α½ìα¬¬α½ïα¬ƒ α¬¿α½ïα¬éα¬ºα½ï',
+       'ref.dismiss': 'α¬åα¬«α¬éα¬ñα½ìα¬░α¬ú α¬¼α¬éα¬º α¬òα¬░α½ï',
+-      'season.monsoonPrep': 'α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é α¬åα¬╡α½Ç α¬░α¬╣α½ìα¬»α½üα¬é α¬¢α½ç ≡ƒîº∩╕Å α¬¬α¬╣α½çα¬▓α¬╛ α¬¡α¬╛α¬░α½ç α¬╡α¬░α¬╕α¬╛α¬ª α¬¬α¬╣α½çα¬▓α¬╛α¬é α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬╕α¬╛α¬½ α¬òα¬░α½ï ΓÇö α¬╕α½ìα¬¬α½ïα¬ƒ α¬¬α¬┐α¬¿ α¬òα¬░α½ï.',
+-      'season.monsoonPeak': 'α¬¡α¬░α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é ≡ƒîº∩╕Å α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬íα½çα¬¿α½ìα¬ùα½ìα¬»α½ü α¬½α½çα¬▓α¬╛α¬╡α½ç α¬¢α½ç. α¬åα¬£α½ç α¬ñα¬«α¬╛α¬░α¬╛ α¬╡α½ïα¬░α½ìα¬íα¬«α¬╛α¬é α¬╕α½ìα¬¬α½ïα¬ƒ α¬¿α½ïα¬éα¬ºα½ï.',
++      'season.monsoonPrep': 'α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é ≡ƒîº∩╕Å α¬╡α½ïα¬░α½ìα¬í α¬¿α¬òα¬╢α¬╛ α¬¬α¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬¬α¬┐α¬¿ α¬òα¬░α½ï ΓÇö α¬«α¬Üα½ìα¬¢α¬░α½ïα¬¿α½ï α¬£α½ïα¬ûα¬« α¬ƒα¬╛α¬│α½ï.',
++      'season.monsoonPeak': 'α¬Üα½ïα¬«α¬╛α¬╕α½üα¬é α¬╢α¬░α½é ≡ƒîº∩╕Å α¬¿α¬£α½Çα¬òα¬¿α½üα¬é α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬¿α½ïα¬éα¬ºα½ï ΓÇö α¬íα½çα¬éα¬ùα½ìα¬»α½ü α¬èα¬¡α¬╛ α¬¬α¬╛α¬úα½Çα¬«α¬╛α¬é α¬½α½çα¬▓α¬╛α¬» α¬¢α½ç.',
+       'season.ganesh': 'α¬ùα¬úα½çα¬╢ α¬Üα¬ñα½üα¬░α½ìα¬Ñα½Ç ≡ƒÖÅ α¬ñα¬╣α½çα¬╡α¬╛α¬░ α¬«α¬╛α¬ƒα½ç α¬ñα¬«α¬╛α¬░α½ï α¬╡α½ïα¬░α½ìα¬í α¬╕α½ìα¬╡α¬Üα½ìα¬¢ α¬░α¬╛α¬ûα½ï ΓÇö α¬¬α¬éα¬íα¬╛α¬▓ α¬àα¬¿α½ç α¬╡α¬┐α¬╕α¬░α½ìα¬£α¬¿ α¬«α¬╛α¬░α½ìα¬ù α¬¬α¬╛α¬╕α½ç α¬¡α¬░α¬╛α¬»α½çα¬▓α½üα¬é α¬¬α¬╛α¬úα½Ç α¬¿α½ïα¬éα¬ºα½ï.',
+       'season.denguePeak': 'α¬íα½çα¬¿α½ìα¬ùα½ìα¬»α½üα¬¿α½Ç α¬«α½ïα¬╕α¬« ΓÜá∩╕Å α¬«α¬Üα½ìα¬¢α¬░ α¬¡α¬░α¬╛α¬»α½çα¬▓α¬╛ α¬¬α¬╛α¬úα½Çα¬«α¬╛α¬é α¬èα¬¢α¬░α½ç α¬¢α½ç. 30 α¬╕α½çα¬òα¬¿α½ìα¬íα¬¿α½Ç α¬½α¬░α¬┐α¬»α¬╛α¬ª α¬ñα¬«α¬╛α¬░α½Ç α¬ùα¬▓α½Çα¬¿α½ç α¬¼α¬Üα¬╛α¬╡α½ç α¬¢α½ç.',
+       'season.dismiss': 'α¬«α½ïα¬╕α¬«α½Ç α¬╕α½éα¬Üα¬¿ α¬¼α¬éα¬º α¬òα¬░α½ï',
+@@ -4036,6 +4342,29 @@ document.addEventListener('DOMContentLoaded', function () {
+       'access.rejectedToast': 'α¬╡α¬┐α¬¿α¬éα¬ñα½Ç α¬¿α¬òα¬╛α¬░α½Ç.',
+       'access.proofAttached': 'α¬¬α½üα¬░α¬╛α¬╡α½ï α¬£α½ïα¬íα½ìα¬»α½ï',
+       'access.proofTooBig': 'α¬¢α¬¼α½Ç α¬ÿα¬úα½Ç α¬«α½ïα¬ƒα½Ç ΓÇö α¬òα½âα¬¬α¬╛ α¬òα¬░α½Ç α¬¿α¬╛α¬¿α½ï α¬½α½ïα¬ƒα½ï α¬£α½ïα¬íα½ï.',
++      'lead.title': 'α¬╕α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬¿α½çα¬ñα¬╛ α¬¼α¬¿α½ï',
++      'lead.subtitle': 'α¬¬α½ïα¬ñα¬╛α¬¿α½üα¬é α¬¿α¬╛α¬«α¬╛α¬éα¬òα¬¿ ΓÇö α¬¬α¬íα½ïα¬╢α½Ç α¬«α¬ñα¬Ñα½Ç α¬¡α½éα¬«α¬┐α¬òα¬╛. α¬Åα¬íα¬«α¬┐α¬¿ α¬£α¬░α½éα¬░ α¬¿α¬╣α½Çα¬é.',
++      'lead.step1': 'α¬╡α½ïα¬░α½ìα¬í α¬àα¬¿α½ç α¬╡α½ìα¬»α¬╛α¬¬α½ìα¬ñα¬┐ α¬¬α¬╕α¬éα¬ª α¬òα¬░α½ï',
++      'lead.step2': 'α¬¬α¬íα½ïα¬╢α½Ç α¬╕α¬╣α¬╛α¬» α¬ªα¬¼α¬╛α¬╡α½ç',
++      'lead.step3': '2 α¬╕α¬╣α¬╛α¬» = α¬¡α½éα¬«α¬┐α¬òα¬╛ (α¬╕α¬╣-α¬¿α½çα¬ñα¬╛ 5-5)',
++      'lead.roleWard': 'α¬╡α½ïα¬░α½ìα¬í NGO α¬¿α½çα¬ñα¬╛',
++      'lead.roleNbh': 'α¬¬α¬íα½ïα¬╢ α¬¿α½çα¬ñα¬╛',
++      'lead.submit': 'α¬«α¬╛α¬░α½üα¬é α¬¿α¬╛α¬«α¬╛α¬éα¬òα¬¿',
++      'lead.confirmTitle': 'α¬ñα¬«α½ç α¬«α¬ñα¬¬α½çα¬ƒα½Ç α¬¬α¬░ α¬¢α½ï!',
++      'lead.profileCta': 'α¬╡α½ïα¬░α½ìα¬í α¬àα¬Ñα¬╡α¬╛ α¬¬α¬íα½ïα¬╢ α¬¿α½çα¬ñα¬╛ α¬¼α¬¿α½ï',
++      'lead.partnerCta': 'α¬╕α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬¿α½çα¬ñα¬╛ α¬¼α¬¿α½ï ΓÇö α¬¬α¬íα½ïα¬╢α½Çα¬ôα¬¿α¬╛ α¬╕α¬«α¬░α½ìα¬Ñα¬¿α¬Ñα½Ç',
++      'lead.communityTitle': 'α¬╕α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬¿α½çα¬ñα¬╛α¬ô',
++      'lead.communityHint': 'α¬╕α¬½α¬╛α¬ê α¬╕α¬éα¬òα¬▓α¬¿ α¬«α¬╛α¬ƒα½ç α¬╕α¬╣α¬╛α¬» α¬òα¬░α½ï. 2 = α¬¡α½éα¬«α¬┐α¬òα¬╛; α¬╕α½ìα¬¬α¬░α½ìα¬ºα¬╛α¬«α¬╛α¬é 5-5.',
++      'lead.communityEmpty': 'α¬ñα¬«α¬╛α¬░α¬╛ α¬╡α½ïα¬░α½ìα¬íα¬«α¬╛α¬é α¬╣α¬£α½Ç α¬ëα¬«α½çα¬ªα¬╡α¬╛α¬░ α¬¿α¬Ñα½Ç.',
++      'lead.becomeCta': 'α¬╕α¬«α½üα¬ªα¬╛α¬»α¬┐α¬ò α¬¿α½çα¬ñα¬╛ α¬¼α¬¿α½ï',
++      'lead.support': 'α¬╕α¬╣α¬╛α¬»',
++      'lead.supported': 'α¬╕α¬╣α¬╛α¬» α¬òα¬░α½Ç',
++      'lead.progress': '{count}/{threshold} α¬╕α¬╣α¬╛α¬»',
++      'lead.progressCoLead': 'α¬╕α¬╣-α¬¿α½çα¬ñα¬╛ {count}/{threshold}',
++      'lead.tagWard': 'α¬╡α½ïα¬░α½ìα¬í α¬¿α½çα¬ñα¬╛',
++      'lead.tagNbh': 'α¬¬α¬íα½ïα¬╢',
++      'lead.you': 'α¬ñα¬«α½ç',
++      'lead.granted': 'α¬Ñreshold α¬¬α½éα¬░α½ìα¬ú ΓÇö α¬╕α¬éα¬»α½ïα¬£α¬ò α¬ìα¬òα½ìα¬╕α½çα¬╕ α¬àα¬¿α¬▓α½ëα¬ò!',
+     },  };
+   const LANG_ORDER = ['en', 'hi', 'mr', 'gu'];
+   let currentLang = localStorage.getItem(LANG_KEY) || 'en';
+@@ -4643,6 +4972,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       const cfg = window.CIVICRADAR_CONFIG || {};
+       if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase) {
+         updateSyncStatus();
++        applyLocalLeadGrants();
+         return false; // local-only mode
+       }
+       try {
+@@ -4687,6 +5017,7 @@ document.addEventListener('DOMContentLoaded', function () {
+         console.warn('Supabase unavailable, running in local mode:', msg, code ? `[${code}]` : '');
+         this.enabled = false;
+         updateSyncStatus();
++        applyLocalLeadGrants();
+         showToast(t('toast.syncLocal'), 'info', 3500);
+         return false;
+       }
+@@ -5033,6 +5364,29 @@ document.addEventListener('DOMContentLoaded', function () {
+       savePendingAccessSync(remaining);
+     },
+ 
++    // ---- Peer voting for NGO / neighbourhood leads ----
++    async nominateForLead(payload) {
++      if (!this.enabled) return { data: null, error: { message: 'offline' } };
++      const { data, error } = await this.client.rpc('nominate_for_lead', payload);
++      return { data, error: error || null };
++    },
++
++    async voteForLead(nominationId) {
++      if (!this.enabled) return { data: null, error: { message: 'offline' } };
++      const { data, error } = await this.client.rpc('vote_for_lead', { p_nomination_id: nominationId });
++      return { data, error: error || null };
++    },
++
++    async listLeadNominations(city, ward, neighbourhood) {
++      if (!this.enabled) return { data: [], error: { message: 'offline' } };
++      const { data, error } = await this.client.rpc('list_lead_nominations', {
++        p_city: city || 'mumbai',
++        p_ward: ward || null,
++        p_neighbourhood: neighbourhood || null,
++      });
++      return { data: data || [], error: error || null };
++    },
++
+     async updateReportStatus(id, status) {
+       if (!this.enabled) return;
+       const { error } = await this.client.from('reports').update({ status }).eq('id', id);
+@@ -5701,7 +6055,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     const confirm = $('#accessRequestConfirm');
+     if (formWrap) formWrap.classList.remove('hidden');
+     if (confirm) confirm.classList.add('hidden');
+-    const ngoRadio = $('#accessForm input[name="accessRole"][value="ngo_coordinator"]');
++    const ngoRadio = $('#accessForm input[name="accessRole"][value="bmc_official"]');
+     if (ngoRadio) ngoRadio.checked = true;
+     populateAccessCitySelect();
+   }
+@@ -5762,8 +6116,8 @@ document.addEventListener('DOMContentLoaded', function () {
+   }
+ 
+   function buildAccessRequestPayload() {
+-    const checked = $('#accessForm input[name="accessRole"]:checked');
+-    const roleRequested = (checked && checked.value) || 'ngo_coordinator';
++    const hidden = $('#accessForm input[name="accessRole"]');
++    const roleRequested = (hidden && hidden.value) || 'bmc_official';
+     return {
+       p_full_name: ($('#accessName').value || '').trim(),
+       p_role_requested: roleRequested,
+@@ -5953,6 +6307,388 @@ document.addEventListener('DOMContentLoaded', function () {
+     }
+   }
+ 
++  /* ---------- Peer voting for NGO / neighbourhood leads ----------
++   * Democratic role grant: 2 community supports by default; 5 each when
++   * multiple active candidates share the same ward/neighbourhood scope.
++   * BMC officials still use access_requests + admin approval above.
++   */
++  const LEAD_NOM_LOCAL_KEY = 'civicradar_lead_nominations';
++  const LEAD_VOTES_LOCAL_KEY = 'civicradar_lead_votes';
++  const LEAD_VOTE_THRESHOLD = 2;
++  const LEAD_COLEAD_THRESHOLD = 5;
++
++  function getLocalLeadNominations() {
++    try { return JSON.parse(localStorage.getItem(LEAD_NOM_LOCAL_KEY) || '[]'); }
++    catch { return []; }
++  }
++  function saveLocalLeadNominations(list) {
++    try { localStorage.setItem(LEAD_NOM_LOCAL_KEY, JSON.stringify(list.slice(-200))); }
++    catch { /* non-fatal */ }
++  }
++  function getLocalLeadVotes() {
++    try { return JSON.parse(localStorage.getItem(LEAD_VOTES_LOCAL_KEY) || '[]'); }
++    catch { return []; }
++  }
++  function saveLocalLeadVotes(list) {
++    try { localStorage.setItem(LEAD_VOTES_LOCAL_KEY, JSON.stringify(list.slice(-500))); }
++    catch { /* non-fatal */ }
++  }
++
++  function leadScopeKey(n) {
++    return [
++      n.role_type || '',
++      n.city || 'mumbai',
++      n.ward || '',
++      n.neighbourhood_label || '',
++    ].join('|');
++  }
++
++  function computeLeadThreshold(nomination, allActive) {
++    const key = leadScopeKey(nomination);
++    const others = allActive.filter(
++      (n) => n.status === 'active' && n.id !== nomination.id && leadScopeKey(n) === key
++    );
++    return others.length >= 1 ? LEAD_COLEAD_THRESHOLD : LEAD_VOTE_THRESHOLD;
++  }
++
++  function localLeadVoteCount(nominationId) {
++    return getLocalLeadVotes().filter((v) => v.nomination_id === nominationId).length;
++  }
++
++  function localIVoted(nominationId) {
++    return getLocalLeadVotes().some(
++      (v) => v.nomination_id === nominationId && v.voter_id === user.id
++    );
++  }
++
++  function maybeGrantLeadLocal(nominationId) {
++    const nominations = getLocalLeadNominations();
++    const nom = nominations.find((n) => n.id === nominationId);
++    if (!nom || nom.status !== 'active') return false;
++    const active = nominations.filter((n) => n.status === 'active');
++    nom.vote_count = localLeadVoteCount(nominationId);
++    const thresh = computeLeadThreshold(nom, active);
++    if (nom.vote_count < thresh) {
++      saveLocalLeadNominations(nominations);
++      return false;
++    }
++    nom.status = 'granted';
++    nom.granted_at = new Date().toISOString();
++    saveLocalLeadNominations(nominations);
++    applyLocalLeadGrants();
++    return true;
++  }
++
++  function applyLocalLeadGrants() {
++    if (Backend.enabled || isLead) return;
++    const granted = getLocalLeadNominations().find(
++      (n) => n.status === 'granted' && n.nominee_id === user.id
++    );
++    if (!granted) return;
++    const scope = granted.role_type === 'neighbourhood' ? 'neighbourhood' : 'ward';
++    grantLeadAccess(granted.ward, scope, granted.neighbourhood_label || '', granted.city || DEFAULT_CITY);
++  }
++
++  function populateLeadNomCitySelect() {
++    const sel = $('#leadNomCity');
++    if (!sel) return;
++    const current = sel.value || user.city || DEFAULT_CITY;
++    sel.innerHTML = CITY_IDS.map((id) => {
++      const label = (CITIES[id] && CITIES[id].label) || id;
++      return `<option value="${id}">${escapeHtml(label)}</option>`;
++    }).join('');
++    sel.value = CITIES[current] ? current : DEFAULT_CITY;
++    syncLeadNomWardList();
++  }
++
++  function syncLeadNomWardList() {
++    const sel = $('#leadNomCity');
++    const wardInput = $('#leadNomWard');
++    if (!sel || !wardInput) return;
++    wardInput.setAttribute('list', wardDatalistId(sel.value));
++  }
++
++  function syncLeadNomNeighbourhoodVisibility() {
++    const checked = $('#leadNomForm input[name="leadRoleType"]:checked');
++    const roleType = (checked && checked.value) || 'ngo_ward';
++    const group = $('#leadNomNeighbourhoodGroup');
++    if (group) group.classList.toggle('hidden', roleType !== 'neighbourhood');
++  }
++
++  function resetLeadNominationForm() {
++    const form = $('#leadNomForm');
++    if (form) form.reset();
++    const err = $('#leadNomError');
++    if (err) { err.classList.add('hidden'); err.textContent = ''; }
++    const btn = $('#btnLeadNomSubmit');
++    if (btn) { btn.classList.remove('is-loading'); btn.disabled = false; }
++    const formWrap = $('#leadNomFormWrap');
++    const confirm = $('#leadNomConfirm');
++    if (formWrap) formWrap.classList.remove('hidden');
++    if (confirm) confirm.classList.add('hidden');
++    const wardRadio = $('#leadNomForm input[name="leadRoleType"][value="ngo_ward"]');
++    if (wardRadio) wardRadio.checked = true;
++    const nameEl = $('#leadNomName');
++    if (nameEl && user.displayName) nameEl.value = user.displayName;
++    const wardEl = $('#leadNomWard');
++    if (wardEl && user.ward) wardEl.value = user.ward;
++    if (user.society) {
++      const nbh = $('#leadNomNeighbourhood');
++      if (nbh) nbh.value = user.society;
++    }
++    populateLeadNomCitySelect();
++    syncLeadNomNeighbourhoodVisibility();
++  }
++
++  window.openLeadNominationModal = function () {
++    resetLeadNominationForm();
++    openModal('leadNom');
++  };
++  window.closeLeadNominationModal = function () { closeModal('leadNom'); };
++
++  function buildLeadNominationPayload() {
++    const checked = $('#leadNomForm input[name="leadRoleType"]:checked');
++    const roleType = (checked && checked.value) || 'ngo_ward';
++    return {
++      p_role_type: roleType,
++      p_display_name: ($('#leadNomName').value || '').trim(),
++      p_org_name: ($('#leadNomOrg').value || '').trim() || null,
++      p_city: ($('#leadNomCity').value || DEFAULT_CITY),
++      p_ward: ($('#leadNomWard').value || '').trim() || null,
++      p_neighbourhood: roleType === 'neighbourhood'
++        ? ($('#leadNomNeighbourhood').value || '').trim() || null
++        : null,
++      pitch: ($('#leadNomPitch').value || '').trim() || null,
++    };
++  }
++
++  function showLeadNomConfirm(local) {
++    const formWrap = $('#leadNomFormWrap');
++    const confirm = $('#leadNomConfirm');
++    const localNote = $('#leadNomConfirmLocal');
++    if (formWrap) formWrap.classList.add('hidden');
++    if (confirm) confirm.classList.remove('hidden');
++    if (localNote) localNote.classList.toggle('hidden', !local);
++  }
++
++  async function submitLeadNomination() {
++    const errEl = $('#leadNomError');
++    const btn = $('#btnLeadNomSubmit');
++    if (!btn) return;
++    if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
++
++    const payload = buildLeadNominationPayload();
++    if (!payload.p_display_name) {
++      if (errEl) { errEl.textContent = t('lead.errName'); errEl.classList.remove('hidden'); }
++      $('#leadNomName').focus();
++      return;
++    }
++    if (!payload.p_ward) {
++      if (errEl) { errEl.textContent = t('lead.errWard'); errEl.classList.remove('hidden'); }
++      $('#leadNomWard').focus();
++      return;
++    }
++    if (payload.p_role_type === 'neighbourhood' && !payload.p_neighbourhood) {
++      if (errEl) { errEl.textContent = t('lead.errNeighbourhood'); errEl.classList.remove('hidden'); }
++      $('#leadNomNeighbourhood').focus();
++      return;
++    }
++
++    btn.classList.add('is-loading');
++    btn.disabled = true;
++    try {
++      if (Backend.enabled) {
++        const rpcPayload = {
++          p_role_type: payload.p_role_type,
++          p_display_name: payload.p_display_name,
++          p_org_name: payload.p_org_name,
++          p_city: payload.p_city,
++          p_ward: payload.p_ward,
++          p_neighbourhood: payload.p_neighbourhood,
++        };
++        const { error } = await Backend.nominateForLead(rpcPayload);
++        if (error) {
++          const msg = (error.message || '').toLowerCase();
++          if (/already_nominated/.test(msg)) {
++            if (errEl) { errEl.textContent = t('lead.errAlreadyNominated'); errEl.classList.remove('hidden'); }
++            return;
++          }
++          if (/already_lead/.test(msg)) {
++            if (errEl) { errEl.textContent = t('lead.errAlreadyLead'); errEl.classList.remove('hidden'); }
++            return;
++          }
++          throw new Error(error.message || 'submit_failed');
++        }
++        showToast(t('lead.nominated'), 'success', 4500);
++        showLeadNomConfirm(false);
++      } else {
++        const list = getLocalLeadNominations();
++        const dup = list.some(
++          (n) => n.status === 'active' && n.nominee_id === user.id
++            && n.role_type === payload.p_role_type && n.city === payload.p_city
++            && n.ward === payload.p_ward
++            && (n.neighbourhood_label || '') === (payload.p_neighbourhood || '')
++        );
++        if (dup) {
++          if (errEl) { errEl.textContent = t('lead.errAlreadyNominated'); errEl.classList.remove('hidden'); }
++          return;
++        }
++        if (isLead && user.ward === payload.p_ward
++          && ((payload.p_role_type === 'neighbourhood' && user.coordinatorScope === 'neighbourhood')
++            || (payload.p_role_type === 'ngo_ward' && user.coordinatorScope === 'ward'))) {
++          if (errEl) { errEl.textContent = t('lead.errAlreadyLead'); errEl.classList.remove('hidden'); }
++          return;
++        }
++        list.push({
++          id: 'local-nom-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
++          created_at: new Date().toISOString(),
++          nominee_id: user.id,
++          display_name: payload.p_display_name,
++          org_name: payload.p_org_name,
++          role_type: payload.p_role_type,
++          city: payload.p_city,
++          ward: payload.p_ward,
++          neighbourhood_label: payload.p_neighbourhood,
++          pitch: payload.pitch,
++          status: 'active',
++          vote_count: 0,
++        });
++        saveLocalLeadNominations(list);
++        showToast(t('lead.nominatedLocal'), 'info', 4500);
++        showLeadNomConfirm(true);
++      }
++      if (window.CivicAnalytics) {
++        CivicAnalytics.track('lead_nomination_submitted', { role_type: payload.p_role_type }, payload.p_ward);
++      }
++    } catch (e) {
++      if (errEl) { errEl.textContent = t('lead.submitError'); errEl.classList.remove('hidden'); }
++      showToast(t('lead.submitError'), 'error', 4000);
++      console.warn('Lead nomination failed:', (e && e.message) || e);
++    } finally {
++      btn.classList.remove('is-loading');
++      btn.disabled = false;
++    }
++  }
++
++  async function loadLeadNominationsForWard() {
++    const city = user.city || DEFAULT_CITY;
++    const ward = user.ward || '';
++    if (Backend.enabled && ward) {
++      const { data } = await Backend.listLeadNominations(city, ward, null);
++      return data || [];
++    }
++    if (!ward) return [];
++    return getLocalLeadNominations()
++      .filter((n) => n.status === 'active' && n.city === city && n.ward === ward)
++      .map((n) => ({
++        ...n,
++        vote_count: localLeadVoteCount(n.id),
++        threshold: computeLeadThreshold(n, getLocalLeadNominations().filter((x) => x.status === 'active')),
++        i_voted: localIVoted(n.id),
++      }));
++  }
++
++  function leadCandidateCardHtml(n) {
++    const isMine = n.nominee_id === user.id;
++    const thresh = n.threshold != null ? n.threshold : computeLeadThreshold(
++      n, getLocalLeadNominations().filter((x) => x.status === 'active')
++    );
++    const count = n.vote_count || 0;
++    const pct = Math.min(100, Math.round((count / Math.max(thresh, 1)) * 100));
++    const coLead = thresh >= LEAD_COLEAD_THRESHOLD;
++    const progressKey = coLead ? 'lead.progressCoLead' : 'lead.progress';
++    const progressText = t(progressKey).replace('{count}', String(count)).replace('{threshold}', String(thresh));
++    const roleTag = n.role_type === 'neighbourhood' ? t('lead.tagNbh') : t('lead.tagWard');
++    const meta = [n.org_name, n.neighbourhood_label].filter(Boolean).map((m) => escapeHtml(m)).join(' ┬╖ ');
++    const voted = !!n.i_voted;
++    let action = '';
++    if (isMine) {
++      action = `<span class="lead-candidate__tag">${escapeHtml(t('lead.you'))}</span>`;
++    } else if (voted) {
++      action = `<button type="button" class="btn btn--outline btn--sm btn--support" disabled><i class="ph ph-check"></i> ${escapeHtml(t('lead.supported'))}</button>`;
++    } else {
++      action = `<button type="button" class="btn btn--primary btn--sm btn--support" data-lead-vote="${escapeHtml(n.id)}"><i class="ph ph-hand-heart"></i> ${escapeHtml(t('lead.support'))}</button>`;
++    }
++    return `
++      <li class="lead-candidate${isMine ? ' lead-candidate--mine' : ''}${voted ? ' lead-candidate--voted' : ''}" role="listitem">
++        <div class="lead-candidate__head">
++          <strong class="lead-candidate__name">${escapeHtml(n.display_name || '')}</strong>
++          <span class="lead-candidate__tag">${escapeHtml(roleTag)}</span>
++        </div>
++        ${meta ? `<p class="lead-candidate__meta">${meta}</p>` : ''}
++        <div class="lead-candidate__progress">
++          <div class="lead-candidate__bar" aria-hidden="true"><div class="lead-candidate__bar-fill" style="width:${pct}%"></div></div>
++          <span class="lead-candidate__count${coLead ? ' lead-candidate__count--colead' : ''}">${escapeHtml(progressText)}</span>
++        </div>
++        <div class="lead-candidate__actions">${action}</div>
++      </li>`;
++  }
++
++  async function renderLeadCandidates() {
++    const listEl = $('#leadCandidatesList');
++    const emptyEl = $('#leadCandidatesEmpty');
++    const section = $('#leadCandidatesSection');
++    if (!listEl) return;
++    if (!user.ward) {
++      if (section) section.classList.add('hidden');
++      return;
++    }
++    if (section) section.classList.remove('hidden');
++    const candidates = await loadLeadNominationsForWard();
++    listEl.innerHTML = candidates.length
++      ? candidates.map(leadCandidateCardHtml).join('')
++      : '';
++    if (emptyEl) emptyEl.classList.toggle('hidden', candidates.length > 0);
++  }
++
++  async function castLeadVote(nominationId) {
++    const nominations = getLocalLeadNominations();
++    const nom = nominations.find((n) => n.id === nominationId);
++    if (nom && nom.nominee_id === user.id) {
++      showToast(t('lead.errSelfVote'), 'error', 4000);
++      return;
++    }
++    try {
++      if (Backend.enabled) {
++        const { data, error } = await Backend.voteForLead(nominationId);
++        if (error) {
++          const msg = (error.message || '').toLowerCase();
++          if (/self_vote/.test(msg)) { showToast(t('lead.errSelfVote'), 'error', 4000); return; }
++          if (/already_voted/.test(msg)) { showToast(t('lead.errAlreadyVoted'), 'info', 3500); return; }
++          throw new Error(error.message || 'vote_failed');
++        }
++        showToast(t('lead.voted'), 'success', 3500);
++        if (data && data.granted && nom && nom.nominee_id === user.id) {
++          showToast(t('lead.granted'), 'success', 5000);
++        }
++        await restoreElevatedRole();
++      } else {
++        if (!nom || nom.status !== 'active') return;
++        if (localIVoted(nominationId)) {
++          showToast(t('lead.errAlreadyVoted'), 'info', 3500);
++          return;
++        }
++        const votes = getLocalLeadVotes();
++        votes.push({
++          id: 'local-vote-' + Date.now(),
++          nomination_id: nominationId,
++          voter_id: user.id,
++          created_at: new Date().toISOString(),
++        });
++        saveLocalLeadVotes(votes);
++        const granted = maybeGrantLeadLocal(nominationId);
++        showToast(granted ? t('lead.granted') : t('lead.voted'), 'success', granted ? 5000 : 3500);
++      }
++      if (window.CivicAnalytics) CivicAnalytics.track('lead_vote_cast', {}, user.ward);
++      await renderLeadCandidates();
++    } catch (e) {
++      showToast(t('lead.voteError'), 'error', 4000);
++      console.warn('Lead vote failed:', (e && e.message) || e);
++    }
++  }
++
++  window.castLeadVote = castLeadVote;
++
+   /* ---------- Super-admin review screen ---------- */
+   window.openAccessReview = function () {
+     if (!isAdmin && !isSuperAdmin) return; // server RLS is the real guard
+@@ -5964,9 +6700,9 @@ document.addEventListener('DOMContentLoaded', function () {
+   async function loadAccessRequestsForReview() {
+     if (Backend.enabled) {
+       const { data } = await Backend.listAccessRequests();
+-      return data || [];
++      return (data || []).filter((r) => r.role_requested === 'bmc_official');
+     }
+-    return getLocalAccessRequests().slice().reverse();
++    return getLocalAccessRequests().filter((r) => r.role_requested === 'bmc_official').slice().reverse();
+   }
+ 
+   function accessRequestCardHtml(req) {
+@@ -6201,6 +6937,82 @@ document.addEventListener('DOMContentLoaded', function () {
+     return streak;
+   }
+ 
++  function getReportsThisWeek() {
++    const wk = getWeekKey();
++    return getUserReports().filter((r) => getWeekKey(new Date(r.timestamp)) === wk).length;
++  }
++
++  function getReportMilestoneProgress(reportCount) {
++    const n = Number(reportCount) || 0;
++    const milestones = REPORT_CELEBRATION_MILESTONES;
++    const top = milestones[milestones.length - 1];
++    if (n >= top) {
++      return { pct: 100, remaining: 0, hintKey: 'profile.milestoneMax', next: null };
++    }
++    const next = milestones.find((m) => m > n) || top;
++    const prev = [...milestones].reverse().find((m) => m <= n) || 0;
++    const span = next - prev;
++    const pct = span <= 0 ? 100 : Math.round(((n - prev) / span) * 100);
++    const remaining = next - n;
++    return {
++      pct: Math.min(100, Math.max(0, pct)),
++      remaining,
++      hintKey: remaining === 1 ? 'profile.milestoneOne' : 'profile.milestoneMany',
++      next,
++    };
++  }
++
++  function getNextStreakBadgeInfo(streak) {
++    if (streak >= 4) return { nextKey: null, weeksToNext: 0, pct: 100 };
++    if (streak >= 3) return { nextKey: 'profile.badge.monsoon', weeksToNext: 4 - streak, pct: Math.round((streak / 4) * 100) };
++    if (streak >= 2) return { nextKey: 'profile.badge.3week', weeksToNext: 3 - streak, pct: Math.round((streak / 3) * 100) };
++    if (streak >= 1) return { nextKey: 'profile.badge.2week', weeksToNext: 2 - streak, pct: Math.round((streak / 2) * 100) };
++    return { nextKey: 'profile.badge.reporter', weeksToNext: 1, pct: 0 };
++  }
++
++  function getReportConfettiIntensity(reportCount) {
++    if (reportCount === 1 || REPORT_CELEBRATION_MILESTONES.includes(reportCount)) return 'celebrate';
++    if (reportCount >= 5) return 'normal';
++    return 'mini';
++  }
++
++  function animateSuccessPoints(el, earned, weekBonus) {
++    if (!el) return;
++    const label = escapeHtml(t('success.points'));
++    const bonusHtml = weekBonus > 0
++      ? `<span class="success-points__bonus">${escapeHtml(t('success.weekBonus').replace('{n}', String(weekBonus)))}</span>`
++      : '';
++    el.classList.remove('hidden', 'is-animating');
++    if (prefersReducedMotion()) {
++      el.innerHTML = `+${earned} <span class="success-points__label">${label}</span>${bonusHtml}`;
++      return;
++    }
++    const duration = 720;
++    const start = performance.now();
++    function tick(now) {
++      const p = Math.min((now - start) / duration, 1);
++      const eased = 1 - Math.pow(1 - p, 3);
++      const val = Math.round(earned * eased);
++      el.innerHTML = `+${val} <span class="success-points__label">${label}</span>${bonusHtml}`;
++      if (p < 1) requestAnimationFrame(tick);
++      else el.classList.add('is-animating');
++    }
++    requestAnimationFrame(tick);
++  }
++
++  function pulseUserPin(reportId) {
++    if (prefersReducedMotion()) return;
++    const marker = reportMarkerMap.get(reportId);
++    if (!marker) return;
++    const el = marker.getElement?.();
++    if (el) {
++      el.classList.remove('marker-pin-drop');
++      void el.offsetWidth;
++      el.classList.add('marker-pin-drop');
++      setTimeout(() => el.classList.remove('marker-pin-drop'), 900);
++    }
++  }
++
+   function getReporterBadges() {
+     const reports = getUserReports();
+     if (!reports.length) return [];
+@@ -6833,6 +7645,10 @@ document.addEventListener('DOMContentLoaded', function () {
+     try { localStorage.setItem(HERO_DISMISSED_KEY, '1'); } catch {}
+     updateHomeHero();
+     updateMapEmptyCta();
++    if (!localStorage.getItem(COACH_KEY)) {
++      localStorage.setItem(COACH_KEY, '1');
++      setTimeout(maybeStartTour, 350);
++    }
+   }
+ 
+   function updateMapEmptyCta() {
+@@ -6904,15 +7720,17 @@ document.addEventListener('DOMContentLoaded', function () {
+     set.add(String(reportId));
+     try { localStorage.setItem(CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
+ 
++    addPointsCache(POINTS_ME_TOO);
+     Backend.confirmReport(reportId);
+     if (window.CivicAnalytics) {
+       CivicAnalytics.track('report_corroborated', { reportId: String(reportId) }, report.ward);
+     }
+     if (reportMarkerLayer) refreshReportMarkers();
+     updateProfileUI();
++    pulseProfilePointsStat();
+     if (isAdmin) renderAdminQueue();
+     launchConfetti({ intensity: 'mini' });
+-    showToast(t('confirm.meTooThanks'), 'success', 3200, {
++    showToast(t('confirm.meTooThanks').replace('{n}', String(POINTS_ME_TOO)), 'success', 3200, {
+       label: t('share.meTooBtn'),
+       onClick: () => shareMeTooWhatsApp(reportId),
+     });
+@@ -7434,14 +8252,18 @@ document.addEventListener('DOMContentLoaded', function () {
+     const demo = new URLSearchParams(location.search).get('demo');
+     if (demo === 'video' || demo === 'tour' || demo === 'persona') return;
+     if (isAdmin || isLead) return;
++    // Hero card already covers welcome + spot guidance ΓÇö skip duplicate coach overlay.
++    if (shouldShowHomeHero()) {
++      localStorage.setItem(COACH_KEY, '1');
++      setTimeout(maybeStartTour, 600);
++      return;
++    }
+     $('#coachMark').classList.remove('hidden');
+   }
+ 
+   function dismissCoachMark() {
+     localStorage.setItem(COACH_KEY, '1');
+     $('#coachMark').classList.add('hidden');
+-    // Sequence the interactive tour right after the explainer so first-run users
+-    // never see two stacked pop-ups (gated for demo/referral/returning users).
+     setTimeout(maybeStartTour, 350);
+   }
+ 
+@@ -7462,7 +8284,6 @@ document.addEventListener('DOMContentLoaded', function () {
+     return [
+       { target: '#map', titleKey: 'tour.map.title', bodyKey: 'tour.map.body' },
+       { target: '#btnCamera', titleKey: 'tour.report.title', bodyKey: 'tour.report.body' },
+-      { target: null, titleKey: 'tour.metoo.title', bodyKey: 'tour.metoo.body' },
+       { target: '#bottomNav .nav-tab[data-tab="profile"]', titleKey: 'tour.profile.title', bodyKey: 'tour.profile.body' },
+     ];
+   }
+@@ -7906,6 +8727,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     $('#wardDetectedHint')?.classList.remove('hidden');
+     $('#btnWardManual')?.classList.remove('hidden');
+     $('#btnWardRetry')?.classList.add('hidden');
++    refreshSocietyForOnboarding();
+   }
+ 
+   function showOnboardingWardDetectFailed() {
+@@ -8113,11 +8935,15 @@ document.addEventListener('DOMContentLoaded', function () {
+     }
+     selectHazard('stagnant-water');
+     renderHazardPicker();
+-    resetSubmitReportButton();
+-    const canvas = $('#imageCanvas');
+-    if (canvas.classList.contains('visible')) showPhotoConfirm();
+-    else resetPhotoConfirm();
+-    updateReportFlowSteps(canvas.classList.contains('visible') ? 'submit' : 'photo');
++    if (!reportPhotoFlowActive && !reportPhotoProcessing) {
++      resetReportForm();
++    } else {
++      resetSubmitReportButton();
++      const canvas = $('#imageCanvas');
++      if (canvas.classList.contains('visible')) showPhotoConfirm();
++      else resetPhotoConfirm();
++      updateReportFlowSteps(canvas.classList.contains('visible') ? 'submit' : 'photo');
++    }
+     openModal('report');
+     if (openCamera) {
+       if (reportCameraTimer) clearTimeout(reportCameraTimer);
+@@ -8147,6 +8973,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     renderSuccessStories();
+     renderWardChallenge();
+     renderImpactWall();
++    renderLeadCandidates();
+     renderOfficialChannelsSurfaces(null);
+     markSuccessStoriesSeen();
+     setNavTab('community');
+@@ -8224,6 +9051,8 @@ document.addEventListener('DOMContentLoaded', function () {
+   window.renderOfficialChannelsSurfaces = renderOfficialChannelsSurfaces;
+   window.buildOfficialSummaryText = buildOfficialSummaryText;
+   window.buildReportPopup = buildReportPopup;
++  window.refreshSocietyDatalist = refreshSocietyDatalist;
++  window.getSocietySuggestions = getSocietySuggestions;
+   window.openAdminQueue = function () {
+     if (!hasRole('bmc')) return;
+     renderAdminQueue();
+@@ -8295,6 +9124,9 @@ document.addEventListener('DOMContentLoaded', function () {
+ 
+   function setupInstallPrompt() {
+     const btn = $('#btnInstall');
++    if (window.CivicAnalytics && user.tosAccepted && user.analyticsConsent && isStandalonePwa()) {
++      CivicAnalytics.track('pwa_standalone_session', {});
++    }
+     window.addEventListener('beforeinstallprompt', (e) => {
+       e.preventDefault();
+       deferredInstallPrompt = e;
+@@ -8306,6 +9138,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       if (btn) btn.classList.add('hidden');
+       hidePwaInstallNudge();
+       try { localStorage.setItem(PWA_NUDGE_KEY, '1'); } catch {}
++      if (window.CivicAnalytics) CivicAnalytics.track('pwa_installed', {});
+       showToast(t('toast.installed'), 'success');
+     });
+     if (btn) {
+@@ -8778,6 +9611,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       user.city = getOnboardingCity();
+       user.ward = ward;
+       user.society = sanitizeText($('#onboardSociety')?.value || '', 120);
++      cacheSocietyIfCustom(user.city, user.ward, user.society);
+       user.displayName = sanitizeDisplayName(name);
+       saveUser();
+       updatePartnerPortalUi();
+@@ -8791,6 +9625,8 @@ document.addEventListener('DOMContentLoaded', function () {
+       updateHeaderContext();
+       updateProfileUI();
+       updatePersonaUI();
++      updateHomeHero();
++      updateMapEmptyCta();
+       renderLeaderboard('wards');
+       renderLeaderboard('citizens');
+       showToast(t('toast.welcome').replace('{name}', name), 'success', 4500);
+@@ -8800,6 +9636,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     $('#wardInput').addEventListener('input', () => {
+       $('#wardError').classList.add('hidden');
+       onboardingDetectedWard = '';
++      refreshSocietyForOnboarding();
+     });
+ 
+     const btnWardManual = $('#btnWardManual');
+@@ -8861,7 +9698,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     if (btnBecomeCoord) {
+       btnBecomeCoord.addEventListener('click', () => {
+         closeModal('about');
+-        window.openAccessRequestModal('ngo_coordinator');
++        window.openLeadNominationModal();
+       });
+     }
+     $('#btnAbout').addEventListener('click', window.openAboutModal);
+@@ -8884,16 +9721,30 @@ document.addEventListener('DOMContentLoaded', function () {
+     }
+ 
+     /* ---- Coordinator access request / claim / review wiring ---- */
+-    const btnProfileAccess = $('#btnProfileAccessRequest');
+-    if (btnProfileAccess) {
+-      btnProfileAccess.addEventListener('click', () => {
++    const btnProfileLeadNominate = $('#btnProfileLeadNominate');
++    if (btnProfileLeadNominate) {
++      btnProfileLeadNominate.addEventListener('click', () => {
++        closeModal('profile');
++        window.openLeadNominationModal();
++      });
++    }
++    const btnProfileBmcAccess = $('#btnProfileBmcAccess');
++    if (btnProfileBmcAccess) {
++      btnProfileBmcAccess.addEventListener('click', () => {
+         closeModal('profile');
+         window.openAccessRequestModal();
+       });
+     }
+-    const btnPartnerRequest = $('#btnPartnerRequest');
+-    if (btnPartnerRequest) {
+-      btnPartnerRequest.addEventListener('click', () => {
++    const btnPartnerLeadNominate = $('#btnPartnerLeadNominate');
++    if (btnPartnerLeadNominate) {
++      btnPartnerLeadNominate.addEventListener('click', () => {
++        closeModal('partner');
++        window.openLeadNominationModal();
++      });
++    }
++    const btnPartnerBmcRequest = $('#btnPartnerBmcRequest');
++    if (btnPartnerBmcRequest) {
++      btnPartnerBmcRequest.addEventListener('click', () => {
+         closeModal('partner');
+         window.openAccessRequestModal();
+       });
+@@ -8927,12 +9778,56 @@ document.addEventListener('DOMContentLoaded', function () {
+       accessClaimForm.addEventListener('submit', (e) => { e.preventDefault(); submitAccessClaim(); });
+     }
+ 
++    /* ---- Peer voting for community leads ---- */
++    const leadNomForm = $('#leadNomForm');
++    if (leadNomForm) {
++      leadNomForm.addEventListener('submit', (e) => { e.preventDefault(); submitLeadNomination(); });
++      leadNomForm.addEventListener('change', (e) => {
++        if (e.target && e.target.name === 'leadRoleType') syncLeadNomNeighbourhoodVisibility();
++      });
++    }
++    const leadNomCity = $('#leadNomCity');
++    if (leadNomCity) leadNomCity.addEventListener('change', syncLeadNomWardList);
++    const btnLeadNomDone = $('#btnLeadNomDone');
++    if (btnLeadNomDone) btnLeadNomDone.addEventListener('click', () => closeModal('leadNom'));
++    const btnLeadNomViewCommunity = $('#btnLeadNomViewCommunity');
++    if (btnLeadNomViewCommunity) {
++      btnLeadNomViewCommunity.addEventListener('click', () => {
++        closeModal('leadNom');
++        window.openCommunityModal();
++      });
++    }
++    const btnCommunityBecomeLead = $('#btnCommunityBecomeLead');
++    if (btnCommunityBecomeLead) {
++      btnCommunityBecomeLead.addEventListener('click', () => window.openLeadNominationModal());
++    }
++    const leadCandidatesList = $('#leadCandidatesList');
++    if (leadCandidatesList) {
++      leadCandidatesList.addEventListener('click', (e) => {
++        const btn = e.target.closest('[data-lead-vote]');
++        if (!btn) return;
++        castLeadVote(btn.dataset.leadVote);
++      });
++    }
++
+     const btnAccessReviewOpen = $('#btnAccessReviewOpen');
+     if (btnAccessReviewOpen) btnAccessReviewOpen.addEventListener('click', () => window.openAccessReview());
++    const btnOpenTracking = $('#btnOpenTracking');
++    if (btnOpenTracking) btnOpenTracking.addEventListener('click', () => window.openTrackingDashboard());
++    const btnCoordTracking = $('#btnCoordTracking');
++    if (btnCoordTracking) btnCoordTracking.addEventListener('click', () => window.openTrackingDashboard());
++    const btnTrackingClose = $('#btnTrackingClose');
++    if (btnTrackingClose) btnTrackingClose.addEventListener('click', () => { closeModal('tracking'); setNavTab('map'); });
++    const trackingDays = $('#trackingDays');
++    if (trackingDays) trackingDays.addEventListener('change', () => renderTrackingDashboard());
++    const trackingWardFilter = $('#trackingWardFilter');
++    if (trackingWardFilter) trackingWardFilter.addEventListener('change', () => renderTrackingDashboard());
+     const btnAccessReviewClose = $('#btnAccessReviewClose');
+     if (btnAccessReviewClose) {
+       btnAccessReviewClose.addEventListener('click', () => { closeModal('accessReview'); setNavTab('map'); });
+     }
++    const btnAccessReviewTracking = $('#btnAccessReviewTracking');
++    if (btnAccessReviewTracking) btnAccessReviewTracking.addEventListener('click', () => window.openTrackingDashboard());
+     const accessReviewList = $('#accessReviewList');
+     if (accessReviewList) {
+       accessReviewList.addEventListener('click', (e) => {
+@@ -9090,13 +9985,32 @@ document.addEventListener('DOMContentLoaded', function () {
+     $('#photoInput').addEventListener('cancel', () => {
+       reportPhotoFlowActive = false;
+     });
+-    $('#confirmRelevant').addEventListener('change', (e) => {
+-      if (e.target.checked) {
+-        const error = $('#confirmRelevantError');
+-        if (error) error.classList.add('hidden');
+-        if ($('#imageCanvas').classList.contains('visible')) updateReportFlowSteps('submit');
+-      }
+-    });
++    const btnRetake = $('#btnRetakePhoto');
++    if (btnRetake) {
++      btnRetake.addEventListener('click', () => {
++        resetPhotoConfirm();
++        const canvas = $('#imageCanvas');
++        if (window.ImageModeration) {
++          ImageModeration.clearPhotoCanvas(canvas, $('#photoInput'));
++        } else {
++          canvas.classList.remove('visible');
++          $('#photoInput').value = '';
++        }
++        lastReportDataUrl = null;
++        updateReportFlowSteps('photo');
++        openReportPhotoPicker();
++      });
++    }
++    const btnOfficialToggle = $('#btnSuccessOfficialToggle');
++    if (btnOfficialToggle) {
++      btnOfficialToggle.addEventListener('click', () => {
++        const body = $('#successOfficialBody');
++        const block = $('#successOfficialBlock');
++        const open = body && body.classList.toggle('hidden') === false;
++        if (block) block.classList.toggle('official-channels-block--collapsed', !open);
++        btnOfficialToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
++      });
++    }
+     $('#reportNotes').addEventListener('input', () => {
+       if ($('#imageCanvas').classList.contains('visible')) {
+         updateReportFlowSteps('submit');
+@@ -9422,23 +10336,14 @@ document.addEventListener('DOMContentLoaded', function () {
+     if (status) status.classList.toggle('hidden', !active);
+   }
+ 
+-  // Soft relevance confirmation: a one-tap affirmation that the photo shows the
+-  // hazard. Not an automated classifier and never a hard block ΓÇö just a nudge.
++  // Inline photo reminder (no extra tap) ΓÇö moderation scan still gates unsafe images.
+   function resetPhotoConfirm() {
+-    const checkbox = $('#confirmRelevant');
+     const group = $('#photoConfirmGroup');
+-    const error = $('#confirmRelevantError');
+-    if (checkbox) checkbox.checked = false;
+-    if (error) error.classList.add('hidden');
+     if (group) group.classList.add('hidden');
+   }
+ 
+   function showPhotoConfirm() {
+-    const checkbox = $('#confirmRelevant');
+     const group = $('#photoConfirmGroup');
+-    const error = $('#confirmRelevantError');
+-    if (checkbox) checkbox.checked = false;
+-    if (error) error.classList.add('hidden');
+     if (group) group.classList.remove('hidden');
+   }
+ 
+@@ -9553,16 +10458,6 @@ document.addEventListener('DOMContentLoaded', function () {
+       return;
+     }
+ 
+-    const confirmRelevant = $('#confirmRelevant');
+-    if (confirmRelevant && !confirmRelevant.checked) {
+-      const error = $('#confirmRelevantError');
+-      if (error) error.classList.remove('hidden');
+-      showToast(t('report.confirmRelevant.error'), 'error');
+-      updateReportFlowSteps('details');
+-      try { confirmRelevant.focus(); } catch { /* ignore */ }
+-      return;
+-    }
+-
+     if (!navigator.geolocation) {
+       showToast(t('toast.gpsRequired'), 'error');
+       return;
+@@ -9682,8 +10577,10 @@ document.addEventListener('DOMContentLoaded', function () {
+           CivicAnalytics.perfEnd('report_submit_duration');
+         }
+         createReportMarker(report);
++        pulseUserPin(report.id);
+         const weekBonus = awardWeekBonus();
+         setButtonLoading(submitBtn, false);
++        resetReportForm();
+         closeModal('report');
+         showSuccessModal(weekBonus);
+         maybeShowPwaNudge('report');
+@@ -9764,6 +10661,27 @@ document.addEventListener('DOMContentLoaded', function () {
+       progressEl.textContent = progressMsg;
+       progressEl.classList.toggle('hidden', !progressMsg);
+     }
++    const streakEl = $('#successStreak');
++    if (streakEl) {
++      const weekCount = getReportsThisWeek();
++      if (weekCount >= 2) {
++        streakEl.textContent = t('success.streakWeek').replace('{n}', String(weekCount));
++        streakEl.classList.remove('hidden');
++      } else {
++        streakEl.textContent = '';
++        streakEl.classList.add('hidden');
++      }
++    }
++    const badgeEl = $('#successBadgeUnlock');
++    if (badgeEl) {
++      if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
++        badgeEl.textContent = t('success.badgeUnlock').replace('{n}', String(reportCount));
++        badgeEl.classList.remove('hidden');
++      } else {
++        badgeEl.textContent = '';
++        badgeEl.classList.add('hidden');
++      }
++    }
+     const sharePromptEl = document.querySelector('#successModal .success-share-prompt');
+     if (sharePromptEl) {
+       sharePromptEl.textContent = reportCount === 1
+@@ -9800,14 +10718,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     const ptsEl = $('#successPoints');
+     if (ptsEl) {
+       const total = POINTS_PER_REPORT + weekBonus;
+-      ptsEl.classList.remove('hidden', 'is-animating');
+-      ptsEl.innerHTML =
+-        `+${total} <span class="success-points__label">${escapeHtml(t('success.points'))}</span>` +
+-        (weekBonus > 0
+-          ? `<span class="success-points__bonus">${escapeHtml(t('success.weekBonus').replace('{n}', String(weekBonus)))}</span>`
+-          : '');
+-      void ptsEl.offsetWidth;
+-      ptsEl.classList.add('is-animating');
++      animateSuccessPoints(ptsEl, total, weekBonus);
+     }
+     updateSuccessNativeButton();
+     const reportCount = getUserReports().length;
+@@ -10022,12 +10933,10 @@ document.addEventListener('DOMContentLoaded', function () {
+   }
+ 
+   function celebrateReportSubmit(reportCount) {
+-    const isFirst = reportCount === 1;
+-    const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(reportCount);
+-    launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
+-    if (isFirst) {
++    launchConfetti({ intensity: getReportConfettiIntensity(reportCount) });
++    if (reportCount === 1) {
+       setTimeout(() => showToast(t('toast.badgeMonsoon'), 'success', 4500), 700);
+-    } else if (isMilestone && reportCount > 1) {
++    } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
+       setTimeout(
+         () => showToast(t('toast.reportMilestone').replace('{n}', String(reportCount)), 'success', 4000),
+         600
+@@ -10038,9 +10947,10 @@ document.addEventListener('DOMContentLoaded', function () {
+   function pulseProfilePointsStat() {
+     const el = $('#profilePoints');
+     if (!el || getTotalCivicPoints() <= 0) return;
+-    el.classList.remove('profile-stat-pop');
++    el.classList.remove('profile-stat-pop', 'profile-stat-glow');
+     void el.offsetWidth;
+-    el.classList.add('profile-stat-pop');
++    el.classList.add('profile-stat-pop', 'profile-stat-glow');
++    setTimeout(() => el.classList.remove('profile-stat-glow'), 1200);
+   }
+ 
+   function celebrateFirstShare() {
+@@ -12088,8 +12998,8 @@ document.addEventListener('DOMContentLoaded', function () {
+   // Date-aware, India-context seasonal nudge. Returns null off-season (NovΓÇôApr).
+   function getSeasonalHook() {
+     const m = new Date().getMonth(); // 0 = Jan
+-    if (m === 4 || m === 5) return { key: 'season.monsoonPrep', icon: 'ph-cloud-rain' };
+-    if (m === 6 || m === 7) return { key: 'season.monsoonPeak', icon: 'ph-cloud-rain' };
++    if (m === 4) return { key: 'season.monsoonPrep', icon: 'ph-cloud-rain' };
++    if (m === 5 || m === 6 || m === 7) return { key: 'season.monsoonPeak', icon: 'ph-cloud-rain' };
+     if (m === 8) return { key: 'season.ganesh', icon: 'ph-flower-lotus' };
+     if (m === 9) return { key: 'season.denguePeak', icon: 'ph-bug-beetle' };
+     return null;
+@@ -12292,6 +13202,7 @@ document.addEventListener('DOMContentLoaded', function () {
+     if (val === (user.society || '')) return;
+     user.society = val;
+     saveUser();
++    cacheSocietyIfCustom(user.city || DEFAULT_CITY, user.ward, val);
+   }
+ 
+   /* ---------- Profile Stats Calculator ---------- */
+@@ -12308,6 +13219,7 @@ document.addEventListener('DOMContentLoaded', function () {
+       ? t('profile.greeting').replace('{name}', user.displayName)
+       : t('profile.greetingDefault');
+     $('#profileWard').textContent = user.ward || t('profile.selectWard');
++    refreshSocietyForProfile();
+     const societyInput = $('#profileSocietyInput');
+     if (societyInput && document.activeElement !== societyInput) {
+       societyInput.value = user.society || '';
+@@ -12341,6 +13253,39 @@ document.addEventListener('DOMContentLoaded', function () {
+     $('#profilePoints').textContent = getTotalCivicPoints().toLocaleString();
+     $('#profileFixed').textContent = resolved.length;
+     $('#profilePending').textContent = pending.length;
++
++    const rewardsEl = $('#profileRewards');
++    const streakLineEl = $('#profileStreakLine');
++    const badgeTrackEl = $('#profileBadgeTrack');
++    const badgeProgressEl = $('#profileBadgeProgress');
++    const nextBadgeHintEl = $('#profileNextBadgeHint');
++    if (rewardsEl && reports.length > 0) {
++      rewardsEl.classList.remove('hidden');
++      const milestone = getReportMilestoneProgress(reports.length);
++      const streakInfo = getNextStreakBadgeInfo(streak);
++      if (streakLineEl) {
++        streakLineEl.textContent = streak >= 1
++          ? t('profile.streak').replace('{n}', String(streak))
++          : '';
++        streakLineEl.classList.toggle('hidden', streak < 1);
++      }
++      if (badgeProgressEl && badgeTrackEl) {
++        badgeProgressEl.style.width = `${milestone.pct}%`;
++        badgeTrackEl.setAttribute('aria-valuenow', String(milestone.pct));
++      }
++      if (nextBadgeHintEl) {
++        let hint = t(milestone.hintKey).replace('{n}', String(milestone.remaining));
++        if (streakInfo.nextKey && streakInfo.weeksToNext > 0) {
++          hint += ` ┬╖ ${t('profile.nextStreakBadge')
++            .replace('{n}', String(streakInfo.weeksToNext))
++            .replace('{badge}', t(streakInfo.nextKey))}`;
++        }
++        nextBadgeHintEl.textContent = hint;
++      }
++    } else if (rewardsEl) {
++      rewardsEl.classList.add('hidden');
++    }
++
+     $('#profilePointsHint').textContent =
+       bonus > 0
+         ? t('profile.pointsHint.bonus')
+@@ -12816,6 +13761,227 @@ document.addEventListener('DOMContentLoaded', function () {
+     el.innerHTML = html;
+   }
+ 
++  function canViewTracking() {
++    return isAdmin || isLead || isSuperAdmin;
++  }
++
++  function trackingScopedReports(reports, wardFilter) {
++    let rows = reports.slice();
++    if (isAdmin && !isSuperAdmin) rows = adminScopedReports(rows);
++    if (isLead) {
++      rows = rows.filter((r) => matchesCoordinatorScope(
++        r.ward,
++        r.neighbourhood || r.society,
++        { wardOnly: false }
++      ));
++    }
++    if (wardFilter) rows = rows.filter((r) => r.ward === wardFilter);
++    return rows;
++  }
++
++  function trackingChannelLabel(channelId) {
++    const id = String(channelId || '').trim();
++    if (!id) return t('tracking.channelUnknown');
++    const cities = CITY_IDS || ['mumbai', 'pune', 'thane'];
++    for (let i = 0; i < cities.length; i++) {
++      const list = getOfficialChannelsForCity(cities[i]);
++      const hit = list.find((c) => c.id === id);
++      if (hit) return hit.label;
++    }
++    return id.replace(/_/g, ' ');
++  }
++
++  function buildLocalTrackingDashboard(days, wardFilter) {
++    const since = Date.now() - (days || 7) * 86400000;
++    const reports = trackingScopedReports(loadReports(), wardFilter)
++      .filter((r) => new Date(r.timestamp).getTime() >= since);
++    const byHazardMap = {};
++    const nbMap = {};
++    const reporterIds = new Set();
++    let confirmations = 0;
++    reports.forEach((r) => {
++      const h = r.hazard || 'unknown';
++      if (!byHazardMap[h]) byHazardMap[h] = { hazard: h, total: 0, pending: 0, resolved: 0 };
++      byHazardMap[h].total++;
++      if (r.status === 'resolved') byHazardMap[h].resolved++;
++      else byHazardMap[h].pending++;
++      if (r.reporterId) reporterIds.add(String(r.reporterId));
++      confirmations += Number(r.confirmations) || 0;
++      const label = (r.society || r.neighbourhood || '').trim();
++      if (label) nbMap[label] = (nbMap[label] || 0) + 1;
++    });
++    const byHazard = Object.values(byHazardMap).sort((a, b) => b.total - a.total);
++    const neighbourhoods = Object.entries(nbMap)
++      .map(([label, count]) => ({ label, count }))
++      .sort((a, b) => b.count - a.count)
++      .slice(0, 12);
++
++    let traffic = {
++      sessions: 0,
++      page_views: 0,
++      pwa_installs: 0,
++      pwa_standalone_sessions: 0,
++      unique_visitors: 0,
++    };
++    const officialOpens = {};
++    if (window.CivicAnalytics) {
++      const events = (CivicAnalytics.getLocalSummary(days).counts) || {};
++      traffic = {
++        sessions: events.session_start || 0,
++        page_views: (events.session_start || 0) + (events.tab_view || 0),
++        pwa_installs: events.pwa_installed || 0,
++        pwa_standalone_sessions: events.pwa_standalone_session || 0,
++        unique_visitors: events.session_start || 0,
++      };
++      try {
++        const raw = JSON.parse(localStorage.getItem('civicradar_analytics_buffer') || '[]');
++        raw.filter((e) => new Date(e.created_at).getTime() >= since).forEach((e) => {
++          if (e.event_type !== 'official_channel_open' && e.event_type !== 'bmc_channel_opened') return;
++          const ch = (e.payload && e.payload.channel) || 'unknown';
++          officialOpens[ch] = (officialOpens[ch] || 0) + 1;
++        });
++      } catch { /* ignore */ }
++    }
++
++    return {
++      days: days || 7,
++      source: 'local',
++      traffic,
++      reports: {
++        total: reports.length,
++        pending: reports.filter((r) => r.status === 'pending').length,
++        resolved: reports.filter((r) => r.status === 'resolved').length,
++        filed: reports.filter((r) => r.complaintId).length,
++        reporters: reporterIds.size,
++        confirmations,
++        by_hazard: byHazard,
++      },
++      escalations: {
++        official_opens: officialOpens,
++        bmc_filed_events: 0,
++        reports_with_complaint: reports.filter((r) => r.complaintId).length,
++      },
++      community: {
++        corroborations: confirmations,
++        pledges: loadPledges().filter((p) => new Date(p.timestamp || p.created_at || 0).getTime() >= since).length,
++      },
++      neighbourhoods,
++      leads: { ward_leads: 0, neighbourhood_leads: isLead && user.coordinatorScope === 'neighbourhood' ? 1 : 0 },
++    };
++  }
++
++  function renderTrackingBreakdownList(el, items, valueKey, labelFn) {
++    if (!el) return;
++    if (!items || !items.length) {
++      el.innerHTML = `<li class="tracking-breakdown__empty">${escapeHtml(t('tracking.empty'))}</li>`;
++      return;
++    }
++    const max = Math.max(...items.map((x) => Number(x[valueKey]) || 0), 1);
++    el.innerHTML = items.map((item) => {
++      const val = Number(item[valueKey]) || 0;
++      const label = labelFn ? labelFn(item) : item.label;
++      const pct = Math.round((val / max) * 100);
++      const extra = item.pending != null
++        ? ` ┬╖ ${item.pending} ${t('tracking.pending')}`
++        : '';
++      return `<li>
++        <span>${escapeHtml(label)}${extra}</span>
++        <div class="tracking-breakdown__bar" aria-hidden="true"><div class="tracking-breakdown__fill" style="width:${pct}%"></div></div>
++        <strong>${val}</strong>
++      </li>`;
++    }).join('');
++  }
++
++  async function renderTrackingDashboard() {
++    const days = parseInt($('#trackingDays')?.value || '7', 10) || 7;
++    const wardFilter = $('#trackingWardFilter')?.value || '';
++    const sourceEl = $('#trackingSource');
++    const noteEl = $('#trackingPwaNote');
++    if (sourceEl) sourceEl.textContent = t('tracking.loading');
++
++    const scopeTag = $('#trackingScopeTag');
++    if (scopeTag) {
++      if (isLead && user.coordinatorScope === 'neighbourhood' && user.neighbourhoodLabel) {
++        scopeTag.textContent = t('coord.scopeNbh').replace('{label}', user.neighbourhoodLabel);
++        scopeTag.classList.remove('hidden');
++      } else if (isLead && user.ward) {
++        scopeTag.textContent = t('coord.scopeWard').replace('{ward}', user.ward.split('ΓÇö')[0].trim());
++        scopeTag.classList.remove('hidden');
++      } else if (isAdmin && !isSuperAdmin) {
++        scopeTag.textContent = getCityLabel('mumbai');
++        scopeTag.classList.remove('hidden');
++      } else {
++        scopeTag.classList.add('hidden');
++      }
++    }
++
++    let data = null;
++    if (Backend.enabled && window.CivicAnalytics) {
++      data = await CivicAnalytics.fetchTrackingDashboard(days, {
++        ward: wardFilter || null,
++        city: isAdmin && !isSuperAdmin ? 'mumbai' : null,
++      });
++    }
++    if (!data) data = buildLocalTrackingDashboard(days, wardFilter);
++
++    const traffic = data.traffic || {};
++    const reports = data.reports || {};
++    const escalations = data.escalations || {};
++    const leads = data.leads || {};
++
++    const set = (id, val) => { const el = $(id); if (el) el.textContent = val != null ? String(val) : 'ΓÇö'; };
++    const pwaCount = (traffic.pwa_installs || 0) + (traffic.pwa_standalone_sessions || 0);
++    set('#trSessions', traffic.unique_visitors ?? traffic.sessions ?? 0);
++    set('#trPwa', pwaCount);
++    set('#trReports', reports.total ?? 0);
++    set('#trResolved', reports.resolved ?? 0);
++    set('#trReporters', reports.reporters ?? 0);
++    set('#trMeToo', reports.confirmations ?? data.community?.corroborations ?? 0);
++    set('#trFiled', reports.filed ?? escalations.reports_with_complaint ?? 0);
++    set('#trLeads', (leads.neighbourhood_leads || 0) + (leads.ward_leads || 0));
++
++    if (noteEl) noteEl.classList.remove('hidden');
++
++    if (sourceEl) {
++      if (data.source === 'cloud') {
++        sourceEl.textContent = t('tracking.sourceCloud');
++      } else if (Backend.enabled) {
++        sourceEl.textContent = t('tracking.sourceCloudFail');
++      } else {
++        sourceEl.textContent = t('tracking.sourceLocal');
++      }
++    }
++
++    const hazardItems = (reports.by_hazard || []).map((row) => ({
++      label: hazardLabel(row.hazard),
++      count: row.total,
++      pending: row.pending,
++      resolved: row.resolved,
++    }));
++    renderTrackingBreakdownList($('#trackingByCategory'), hazardItems, 'count', (item) => item.label);
++
++    const escItems = Object.entries(escalations.official_opens || {})
++      .map(([channel, count]) => ({ label: trackingChannelLabel(channel), count }))
++      .sort((a, b) => b.count - a.count);
++    renderTrackingBreakdownList($('#trackingEscalations'), escItems, 'count');
++
++    renderTrackingBreakdownList($('#trackingNeighbourhoods'), data.neighbourhoods || [], 'count');
++  }
++
++  window.openTrackingDashboard = function () {
++    if (!canViewTracking()) return;
++    const wardWrap = $('#trackingWardWrap');
++    const wardSel = $('#trackingWardFilter');
++    if (wardWrap && wardSel) {
++      const showWard = isAdmin || isSuperAdmin;
++      wardWrap.classList.toggle('hidden', !showWard);
++      if (showWard) populateWardFilter(wardSel, trackingScopedReports(loadReports()));
++    }
++    renderTrackingDashboard();
++    openModal('tracking');
++  };
++  window.closeTrackingDashboard = function () { closeModal('tracking'); };
++
+   function renderAdminQueue() {
+     const all = loadReports();
+     const pending = all.filter((r) => r.status === 'pending');
