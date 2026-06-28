@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-06-28 17:44:17
+**Run:** 2026-06-28 18:36:01
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 330 | **Pass:** 323 | **Fail:** 7
+**Total:** 356 | **Pass:** 356 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -58,8 +58,9 @@
 - **Access:** 12 pass / 0 fail
 - **Admin:** 8 pass / 0 fail
 - **Analytics:** 5 pass / 0 fail
+- **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
-- **Celebration:** 4 pass / 0 fail
+- **Celebration:** 8 pass / 0 fail
 - **Citizen:** 43 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
@@ -71,16 +72,16 @@
 - **HomeHero:** 7 pass / 0 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
-- **Legal:** 2 pass / 0 fail
-- **Load:** 4 pass / 1 fail
-- **LocationBanner:** 4 pass / 2 fail
-- **Map:** 4 pass / 0 fail
+- **Legal:** 6 pass / 0 fail
+- **Load:** 5 pass / 0 fail
+- **LocationBanner:** 6 pass / 0 fail
+- **Map:** 5 pass / 0 fail
 - **MultiCity:** 10 pass / 0 fail
 - **NGO:** 10 pass / 0 fail
 - **Negative:** 8 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 2 pass / 0 fail
+- **PWA:** 8 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -90,30 +91,20 @@
 - **Report:** 21 pass / 0 fail
 - **Rewards:** 2 pass / 0 fail
 - **Share:** 1 pass / 0 fail
-- **Society:** 6 pass / 0 fail
+- **Society:** 8 pass / 0 fail
 - **Storage:** 2 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
-- **System:** 0 pass / 1 fail
 - **Tour:** 9 pass / 0 fail
 - **Tracking:** 5 pass / 0 fail
 - **UI:** 25 pass / 0 fail
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
-- **i18n:** 6 pass / 3 fail
+- **i18n:** 9 pass / 0 fail
 
 ## Failures
 
-- `L01` **15 parallel report contexts** — 11/15
-- `I06` **Profile title localized (mr)** — failed
-- `I07` **Community title localized (mr)** — failed
-- `I08` **About subtitle localized (hi)** — failed
-- `ERR-Extended` **Suite Extended crashed** — Page.fill: Timeout 30000ms exceeded.
-Call log:
-  - waiting for locator("#profileSocietyInput")
-    - locator resolved to
-- `LB05` **Banner text localized (Marathi, not hardcoded EN)** — failed
-- `LB06` **Dismiss control has localized aria-label** — failed
+_None_
 
 ## Limitations
 
@@ -203,9 +194,9 @@ Call log:
 | E15 | Edge | Map empty CTA visible | PASS |  |
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
-| L01 | Load | 15 parallel report contexts | **FAIL** | 11/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L01 | Load | 15 parallel report contexts | PASS | 15/15 |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -375,19 +366,42 @@ Call log:
 | I03 | i18n | FAB label non-English (gu) | PASS |  |
 | I04 | i18n | Lang button shows EN code | PASS |  |
 | I05 | i18n | Header context translated | PASS |  |
-| I06 | i18n | Profile title localized (mr) | **FAIL** |  |
-| I07 | i18n | Community title localized (mr) | **FAIL** |  |
-| I08 | i18n | About subtitle localized (hi) | **FAIL** |  |
+| I06 | i18n | Profile title localized (mr) | PASS |  |
+| I07 | i18n | Community title localized (mr) | PASS |  |
+| I08 | i18n | About subtitle localized (hi) | PASS |  |
 | SO01 | Society | Profile society field saves to user | PASS |  |
 | SO02 | Society | Report inherits user society | PASS |  |
 | SO03 | Society | Report popup shows society when set | PASS |  |
 | SO04 | Society | Cooperative registry link configured | PASS |  |
 | SO05 | Society | Ward-keyed society data loaded (10+ per major ward) | PASS |  |
 | SO06 | Society | Datalist differs by ward | PASS |  |
-| ERR-Extended | System | Suite Extended crashed | **FAIL** | Page.fill: Timeout 30000ms exceeded.
-Call log:
-  - waiting for locator("#profileSocietyInput")
-    - locator resolved to |
+| SO07 | Society | Custom society cached by city+ward | PASS |  |
+| SO08 | Society | Ward-filter hint populated | PASS |  |
+| SW01 | PWA | CIVICRADAR_CONFIG loaded | PASS |  |
+| SW02 | PWA | Config has cities object | PASS |  |
+| SW03 | PWA | Manifest href valid | PASS |  |
+| SW04 | PWA | Theme color meta | PASS |  |
+| SW05 | PWA | App icons linked | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| ML01 | Auth | Official lead auth visible when connected | PASS |  |
+| ML02 | Auth | Send button says sign-in link | PASS |  |
+| ML03 | Auth | Link instructions hidden before send | PASS |  |
+| ML04 | Auth | OTP fallback hidden before send | PASS |  |
+| ML05 | Auth | OTP input collapsed by default | PASS |  |
+| ML06 | Auth | publicUrl configured for redirect | PASS |  |
+| ML07 | Auth | Link instructions shown after send | PASS |  |
+| ML08 | Auth | OTP fallback shown after send | PASS |  |
+| ML09 | Auth | Auth errors never show raw {} | PASS |  |
+| AU01 | Auth | BMC OTP verify accepts admin super-admin role | PASS |  |
+| LG01 | Legal | Privacy page loads | PASS |  |
+| LG02 | Legal | Privacy mentions DPDP | PASS |  |
+| LG03 | Legal | Terms page loads | PASS |  |
+| LG04 | Legal | Terms mentions not government | PASS |  |
+| HF01 | Map | Hidden report excluded from count | PASS |  |
+| CL01 | Celebration | Success modal open after report | PASS |  |
+| CL02 | Celebration | WhatsApp share btn present | PASS |  |
+| CL03 | Celebration | File BMC btn present | PASS |  |
+| CL04 | Celebration | Success close btn present | PASS |  |
 | IS01 | ImageSafety | Photo hint visible after capture | PASS |  |
 | IS02 | ImageSafety | Submit succeeds without checkbox confirm | PASS |  |
 | IS03 | ImageSafety | Hint hidden on modal reopen without photo | PASS |  |
@@ -442,8 +456,8 @@ Call log:
 | LB02 | LocationBanner | Dismiss hides banner + sets snooze + shows pill | PASS |  |
 | LB03 | LocationBanner | Banner does not reappear while snoozed | PASS |  |
 | LB04 | LocationBanner | Locate pill re-triggers enable flow | PASS |  |
-| LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | **FAIL** |  |
-| LB06 | LocationBanner | Dismiss control has localized aria-label | **FAIL** |  |
+| LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | PASS |  |
+| LB06 | LocationBanner | Dismiss control has localized aria-label | PASS |  |
 | HM01 | HomeHero | Hero visible for onboarded user with no reports | PASS |  |
 | HM02 | HomeHero | Purpose headline + subline visible | PASS |  |
 | HM03 | HomeHero | Primary CTA present | PASS |  |
