@@ -10,7 +10,8 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 ## [Unreleased]
 
 ### Fixed
-- **i18n polish (v98)** — fixed remaining English `?` arrow placeholders (share, esc, official hints, toast); translated hi/mr/gu official garbage/waste hints and report photo cue keys. Cache v98.
+- **i18n polish (v98)** — fixed remaining English `?` arrow placeholders (share, esc, official hints, toast); translated hi/mr/gu official garbage/waste hints and report photo cue keys; restored missing `community.subtitle` keys (fixes PMC/TMC subtitle in Community modal). Cache v98.
+- **First-run UX (v98)** — hide map-recenter while hero card is visible (dismiss no longer blocked); hero dismiss always chains to guided tour; location-banner E2E uses post-first-report state.
 - **i18n audit (v94)** — restored corrupted hi/mr/gu strings (legacy `?` placeholders and mojibake); fixed English em-dash/middle-dot encoding; added translations for peer-vote lead keys, analytics tracking dashboard, v93 hero/coach/tour polish, and society hints. Cache v94.
 - **Report flow & UX (v95)** — hazard picker redesign (checkmark, delegation, keyboard, photo cue); unified step-tab colors; photo return race fix; first-run overlay streamlining; garbage tile fix; "Map it · Snap it · Report it" tagline across hero/coach/tour/onboarding/about. Cache v95.
 

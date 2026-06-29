@@ -4643,7 +4643,7 @@ async def run_tour_scenarios(s: Suite, browser):
         '() => !document.getElementById("homeHero").classList.contains("hidden")'
     )
     if hero_shown:
-        await page.click('#btnHeroDismiss')
+        await js_click(page, '#btnHeroDismiss')
         await page.wait_for_timeout(1200)
     else:
         coach_shown = not await page.evaluate(
@@ -4727,7 +4727,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
     hero_up = not await page.evaluate('() => !document.getElementById("homeHero").classList.contains("hidden")')
     if hero_up:
-        await page.click('#btnHeroDismiss')
+        await js_click(page, '#btnHeroDismiss')
     elif not await page.evaluate('() => document.getElementById("coachMark").classList.contains("hidden")'):
         await page.click('#btnDismissCoach')
     await page.wait_for_timeout(1200)

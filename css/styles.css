@@ -1074,6 +1074,7 @@ body.persona-lead .map-empty-cta {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 
 .home-hero__dismiss:focus-visible {
@@ -1185,7 +1186,7 @@ body.persona-lead .map-empty-cta {
 }
 
 body.home-hero-visible .map-recenter {
-  bottom: calc(var(--nav-height) + var(--fab-size) + 210px + env(safe-area-inset-bottom, 0px));
+  display: none;
 }
 
 body.persona-admin .home-hero,
