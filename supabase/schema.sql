@@ -1438,6 +1438,10 @@ $$;
 alter table public.profiles add column if not exists neighbourhood_new_alerts_enabled boolean;
 alter table public.profiles add column if not exists neighbourhood_resolved_alerts_enabled boolean;
 
+-- Civic Hero XP (v101)
+alter table public.profiles add column if not exists civic_xp integer not null default 0;
+alter table public.profiles add column if not exists civic_level text;
+
 drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own"
   on public.profiles for update

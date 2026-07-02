@@ -9,7 +9,14 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Added
+- **Before/after share-win graphic (v101)** — When a report is marked resolved (reporter via `checkResolvedWins`, self-resolve, community verify, volunteer cleanup), the Share Win modal shows a live canvas preview with side-by-side before/after photos, green "Fixed" placeholder when no after photo, and footer "I helped clean up {location} using CivicRadar!" using society/ward area. Square 1080×1080 or Story 1080×1920 (9:16) toggle for WhatsApp status; download, native share, WhatsApp, and Instagram caption unchanged. Resolved neighbourhood FYI toasts add a secondary **Share win** action. Localized en/hi/mr/gu. E2E WIN01–WIN04. Cache v101.
+- **Civic Hero XP & certificates (v101)** — Civic Points rebranded to Civic Hero XP with 6-level ladder (Local Observer → Community Leader); XP for report (+50), Me too (+8), first share (+10), streak week (+25), resolved reporter (+20); Profile XP bar + level badge; shareable canvas certificates at Ward Watcher, Civic Champion, Monsoon Guardian, Community Leader; localized en/hi/mr/gu; Supabase `profiles.civic_xp` + `civic_level`; E2E XP01–XP03.
+
 ### Fixed
+- **Civic Hero certificate modal (v101 QA)** — level-up certificate now closes the success modal before opening so controls are not blocked; E2E XP03 uses cert dismiss; RP09 seeds nearby report after XP block clears storage.
+- **E2E load test L01 (v101 QA)** — staggered parallel browser contexts with retries so 15/15 contexts load reliably on Windows.
+- **Ward & neighbourhood re-selection (v100)** — Profile city + ward are editable anytime (datalist picker with validation); changing ward refreshes society/neighbourhood suggestions and i18n hints; GPS-detected onboarding ward shows an editable input immediately; reopening onboarding pre-fills saved ward instead of clearing it; datalist fields select-all on focus so users can pick a different suggestion. Empty display name auto-generates a unique civic/monsoon-themed default (e.g. "Ward Scout #A3F2"); editable in Profile. E2E SO09–SO10, C09c. Cache v100.
 - **Encoding fix (v99)** — eliminated remaining `ï¿½` mojibake across app.js (ward separators, split/join, user-facing strings); restored apostrophes mangled by v98 em-dash over-replacement (`You—re` → `You're`, etc.); cache v99.
 - **i18n polish (v98)** — fixed remaining English `?` arrow placeholders (share, esc, official hints, toast); translated hi/mr/gu official garbage/waste hints and report photo cue keys; restored missing `community.subtitle` keys (fixes PMC/TMC subtitle in Community modal). Cache v98.
 - **First-run UX (v98)** — hide map-recenter while hero card is visible (dismiss no longer blocked); hero dismiss always chains to guided tour; location-banner E2E uses post-first-report state.

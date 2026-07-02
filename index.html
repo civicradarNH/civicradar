@@ -437,6 +437,13 @@
       <h2 id="shareWinTitle" data-i18n="shareWin.title">Share the win!</h2>
       <p class="modal__subtitle" id="shareWinSubtitle" data-i18n="shareWin.subtitle">Before → after proof on your ward map — neighbours love seeing fixes.</p>
       <p class="share-win-impact hidden" id="shareWinImpact" aria-live="polite"></p>
+      <div class="share-win-preview" id="shareWinPreviewWrap" hidden>
+        <img id="shareWinCardPreview" class="share-win-preview__img" alt="">
+        <div class="share-win-aspect" role="group" aria-label="Card size">
+          <button type="button" class="share-win-aspect__btn share-win-aspect__btn--active" id="btnShareWinAspectSquare" data-aspect="square" data-i18n="shareWin.aspectSquare">Square</button>
+          <button type="button" class="share-win-aspect__btn" id="btnShareWinAspectStory" data-aspect="story" data-i18n="shareWin.aspectStory">Story</button>
+        </div>
+      </div>
       <div class="proof-compare share-win-proof" id="shareWinProof" hidden></div>
       <button type="button" class="btn btn--whatsapp btn--full" id="btnShareWinWhatsApp">
         <i class="ph ph-whatsapp-logo"></i> <span data-i18n="shareWin.whatsapp">Share win on WhatsApp</span>
@@ -454,6 +461,30 @@
         </button>
       </div>
       <button type="button" class="btn btn--ghost btn--full" id="btnShareWinClose" data-i18n="shareWin.done">Done</button>
+    </div>
+  </div>
+
+  <!-- Civic Hero XP certificate (level-up) -->
+  <div class="modal-overlay" id="certificateOverlay" aria-hidden="true">
+    <div class="modal" id="certificateModal" role="dialog" aria-labelledby="certificateTitle">
+      <div class="modal__handle"></div>
+      <div class="success-icon success-icon--cert">
+        <i class="ph ph-medal"></i>
+      </div>
+      <h2 id="certificateTitle" data-i18n="cert.title">Certificate unlocked!</h2>
+      <p class="modal__subtitle" id="certificateSubtitle" data-i18n="cert.subtitle">You reached a new Civic Hero level</p>
+      <button type="button" class="btn btn--whatsapp btn--full" id="btnCertWhatsApp">
+        <i class="ph ph-whatsapp-logo"></i> <span data-i18n="cert.whatsapp">Share on WhatsApp</span>
+      </button>
+      <div class="share-win-instagram">
+        <button type="button" class="btn btn--instagram btn--full" id="btnCertDownload">
+          <i class="ph ph-download-simple"></i> <span data-i18n="cert.download">Download certificate</span>
+        </button>
+        <button type="button" class="btn btn--outline btn--full" id="btnCertCopyCaption">
+          <i class="ph ph-copy"></i> <span data-i18n="cert.copyCaption">Copy caption</span>
+        </button>
+      </div>
+      <button type="button" class="btn btn--primary btn--full" id="btnCertClose" data-i18n="cert.done">Done</button>
     </div>
   </div>
 
@@ -654,9 +685,18 @@
       <div class="profile-card">
         <div class="profile-card__greeting" id="profileGreeting">Hello, Citizen</div>
         <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
-        <div class="profile-card__ward" id="profileWard">—</div>
         <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
         <div class="profile-rewards hidden" id="profileRewards" aria-label="Rewards progress">
+          <div class="profile-xp" id="profileXp" aria-label="Civic Hero XP level">
+            <div class="profile-xp__header">
+              <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
+              <span class="profile-xp__total" id="profileXpTotal">0 XP</span>
+            </div>
+            <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
+              <div class="profile-xp__fill" id="profileXpProgress"></div>
+            </div>
+            <p class="profile-xp__hint" id="profileXpHint"></p>
+          </div>
           <div class="profile-rewards__streak" id="profileStreakLine"></div>
           <div class="profile-rewards__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileBadgeTrack">
             <div class="profile-rewards__fill" id="profileBadgeProgress"></div>
@@ -666,7 +706,7 @@
         <div class="profile-card__stats">
           <div class="stat stat--points">
             <span class="stat__value" id="profilePoints">0</span>
-            <span class="stat__label" data-i18n="profile.points">Total Civic Points</span>
+            <span class="stat__label" data-i18n="profile.points">Civic Hero XP</span>
           </div>
           <div class="stat">
             <span class="stat__value" id="profileFixed">0</span>
@@ -678,6 +718,25 @@
           </div>
         </div>
         <p class="profile-card__hint" id="profilePointsHint">50 pts per report · +200 when volunteer hours verified</p>
+      </div>
+
+      <div class="profile-name form-group">
+        <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
+        <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+      </div>
+
+      <div class="profile-ward form-group">
+        <label for="profileCity" data-i18n="onboard.city">Your city</label>
+        <select id="profileCity" aria-describedby="profileWardHint">
+          <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+          <option value="pune" data-i18n-option="city.pune">Pune</option>
+          <option value="thane" data-i18n-option="city.thane">Thane</option>
+        </select>
+        <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
+        <input type="text" id="profileWardInput" list="mumbaiCommunities" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+        <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+        <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+        <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
       </div>
 
       <div class="profile-society form-group">

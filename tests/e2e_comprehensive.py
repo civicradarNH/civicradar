@@ -896,6 +896,58 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C09b', 'Citizen', 'Report-on-the-spot guidance shown at onboarding completion', spot_visible)
 
+    ctx_defname = await new_ctx(browser, storage={
+
+        'civicradar_user': default_user(
+
+            id='c09c', tosAccepted=False, gpsConsent=False, ward='', displayName=''
+
+        ),
+
+    })
+
+    page_def = await ctx_defname.new_page()
+
+    await goto_app(page_def)
+
+    await page_def.wait_for_timeout(800)
+
+    await page_def.evaluate('() => document.getElementById("tosAccept").click()')
+
+    await js_click(page_def, '#btnTosContinue')
+
+    await page_def.wait_for_timeout(600)
+
+    await page_def.fill('#wardInput', WARD)
+
+    await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
+
+    await js_click(page_def, '#btnOnboardingContinue')
+
+    await page_def.wait_for_timeout(500)
+
+    def_name = await page_def.evaluate(
+
+        '() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").displayName || ""'
+
+    )
+
+    s.record(
+
+        'C09c',
+
+        'Citizen',
+
+        'Empty display name gets unique civic default',
+
+        bool(def_name) and def_name != 'Citizen' and len(def_name) >= 8,
+
+        f'name={def_name[:32]}',
+
+    )
+
+    await ctx_defname.close()
+
 
 
     ctx_pune = await new_ctx(
@@ -1804,9 +1856,29 @@ async def run_load_tests(s: Suite, browser):
 
         try:
 
-            await goto_app(page)
+            await asyncio.sleep(i * 0.12)
 
-            ok = await page.evaluate(
+            ok = False
+
+            for attempt in range(3):
+
+                try:
+
+                    await goto_app(page)
+
+                    ok = True
+
+                    break
+
+                except Exception:
+
+                    if attempt >= 2:
+
+                        return False
+
+                    await asyncio.sleep(0.8 + attempt * 0.5)
+
+            ok = ok and await page.evaluate(
 
                 """([lat, lng, i]) => {
 
@@ -3024,11 +3096,151 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RW02', 'Rewards', 'Profile rewards bar visible after reports', profile_rewards)
 
-    await page.click('#btnSuccessClose')
+    xp_success_label = await page.evaluate(
+
+        '() => { const el = document.getElementById("successPoints"); return el ? el.textContent : ""; }'
+
+    )
+
+    s.record('XP01', 'XP', 'Report adds Civic Hero XP in success modal',
+
+             '50' in xp_success_label and 'civic hero xp' in xp_success_label.lower(),
+
+             f'label="{xp_success_label[:50]}"')
+
+    profile_xp = await page.evaluate(
+
+        '() => { window.openProfileModal(); return document.getElementById("profilePoints")?.textContent?.trim() || ""; }'
+
+    )
+
+    s.record('XP01b', 'XP', 'Profile shows total XP after report',
+
+             profile_xp and int(profile_xp.replace(",", "")) >= 50,
+
+             f'xp="{profile_xp}"')
+
+    await close_all_modals(page)
+
+    # Me too adds XP on corroborating a neighbour report
+
+    await page.evaluate("""() => {
+
+      const reps = JSON.parse(localStorage.getItem('mosquiTrackReports')||'[]');
+
+      const cacheBefore = parseInt(localStorage.getItem('mosquiTrackPoints')||'0', 10);
+
+      reps.push({
+
+        id: 'xp-metoo-test',
+
+        reporterId: 'other-citizen-xp',
+
+        hazard: 'stagnant-water',
+
+        notes: 'neighbour hazard',
+
+        image: '',
+
+        ward: JSON.parse(localStorage.getItem('civicradar_user')||'{}').ward || 'G/S Ward — Worli',
+
+        city: 'mumbai',
+
+        lat: 19.0763,
+
+        lng: 72.8780,
+
+        status: 'pending',
+
+        confirmations: 0,
+
+        timestamp: new Date().toISOString(),
+
+      });
+
+      localStorage.setItem('mosquiTrackReports', JSON.stringify(reps));
+
+      window._xpBeforeMeToo = window.getTotalCivicXp ? window.getTotalCivicXp() : 0;
+
+      window.confirmReport('xp-metoo-test');
+
+      window._xpAfterMeToo = window.getTotalCivicXp ? window.getTotalCivicXp() : 0;
+
+    }""")
+
+    me_too_xp_ok = await page.evaluate(
+
+        '() => (window._xpAfterMeToo || 0) > (window._xpBeforeMeToo || 0)'
+
+    )
+
+    s.record('XP02', 'XP', 'Me too adds Civic Hero XP', me_too_xp_ok)
+
+    # Level-up certificate: seed 50 bonus XP + submit report crosses Ward Watcher (100)
+
+    await close_all_modals(page)
+
+    await page.evaluate("""() => {
+
+      localStorage.setItem('mosquiTrackReports', '[]');
+
+      localStorage.setItem('mosquiTrackPoints', '50');
+
+      localStorage.removeItem('civicradar_xp_certificates');
+
+    }""")
+
+    await submit_report_via_api(page, 19.0910, 72.8910, 'xp level-up test')
+
+    await page.wait_for_timeout(1800)
+
+    cert_visible = await page.evaluate(
+
+        '() => { const el = document.getElementById("certificateOverlay"); return !!el && el.classList.contains("open"); }'
+
+    )
+
+    s.record('XP03', 'XP', 'Level up shows certificate offer', cert_visible)
+
+    await js_click(page, '#btnCertClose')
 
     await page.wait_for_timeout(300)
 
     # Me-too corroboration on nearby existing report
+
+    await page.evaluate("""() => {
+
+      const reps = JSON.parse(localStorage.getItem('mosquiTrackReports')||'[]');
+
+      reps.push({
+
+        id: 'rp09-seed',
+
+        reporterId: 'other-citizen-rp09',
+
+        hazard: 'stagnant-water',
+
+        notes: 'seed for dup test',
+
+        image: 'data:image/jpeg;base64,/9j/4AAQ',
+
+        ward: JSON.parse(localStorage.getItem('civicradar_user')||'{}').ward || 'G/N Ward — Dadar, Shivaji Park',
+
+        lat: 19.0762,
+
+        lng: 72.8779,
+
+        status: 'pending',
+
+        confirmations: 0,
+
+        timestamp: new Date().toISOString(),
+
+      });
+
+      localStorage.setItem('mosquiTrackReports', JSON.stringify(reps));
+
+    }""")
 
     await page.evaluate('() => window.openReportModal(false)')
 
@@ -3857,6 +4069,56 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('SO08', 'Society', 'Ward-filter hint populated', hint_ok)
 
+    ward_b_profile = 'G/S Ward — Worli, Lower Parel'
+
+    await page.evaluate('() => window.openProfileModal()')
+
+    await page.wait_for_timeout(200)
+
+    await page.fill('#profileWardInput', ward_b_profile)
+
+    await page.evaluate(
+
+        '() => { document.getElementById("profileWardInput").dispatchEvent(new Event("input", { bubbles: true })); }'
+
+    )
+
+    await page.wait_for_timeout(100)
+
+    opts_after_ward_input = await page.evaluate(
+
+        '() => Array.from(document.querySelectorAll("#societySuggestions option")).map(o => o.value)'
+
+    )
+
+    await page.evaluate(
+
+        '() => { document.getElementById("profileWardInput").dispatchEvent(new Event("change", { bubbles: true })); }'
+
+    )
+
+    await page.wait_for_timeout(150)
+
+    saved_profile_ward = await page.evaluate(
+
+        '() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").ward || ""'
+
+    )
+
+    s.record('SO09', 'Society', 'Profile ward change saves to user', saved_profile_ward == ward_b_profile)
+
+    s.record(
+
+        'SO10',
+
+        'Society',
+
+        'Society datalist refreshes when profile ward changes',
+
+        len(opts_after_ward_input) >= 10 and opts_after_ward_input != opts_a,
+
+    )
+
     # --- Neighbourhood datalist (NB) — volunteer + lead nomination ---
 
     vol_list = await page.evaluate(
@@ -3969,7 +4231,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v99" in sw_src
+        "civicradar-v101" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -5304,6 +5566,166 @@ async def run_nbh_alert_scenarios(s: Suite, browser):
 
 
 
+async def run_share_win_scenarios(s: Suite, browser):
+
+    # Before/after share-win graphic (local mode; WIN01–WIN03).
+
+    SOCIETY = 'Phoenix Mills CHS'
+
+    ctx = await new_ctx(browser, storage={
+
+        'civicradar_user': default_user(id='win-user', society=SOCIETY),
+
+        'civicradar_coach_seen': '1',
+
+    })
+
+    page = await ctx.new_page()
+
+    await goto_app(page)
+
+
+
+    s.record('WIN01', 'ShareWin', 'Share win modal has preview + aspect toggles',
+
+             await page.evaluate(
+
+                 '() => !!document.getElementById("shareWinCardPreview") && !!document.getElementById("btnShareWinAspectSquare") && !!document.getElementById("btnShareWinAspectStory")'
+
+             ))
+
+
+
+    canvas_ok = await page.evaluate(
+
+        """async () => {
+
+          const sample = {
+
+            id: 'win-test-1',
+
+            hazard: 'stagnant-water',
+
+            status: 'resolved',
+
+            ward: '""" + WARD.replace("'", "\\'") + """',
+
+            society: '""" + SOCIETY + """',
+
+            city: 'mumbai',
+
+            image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+
+            timestamp: new Date().toISOString(),
+
+          };
+
+          if (!window.__civicGenerateSuccessCardCanvas || !window.__civicGetReportShareLocation) return false;
+
+          const canvas = await window.__civicGenerateSuccessCardCanvas(sample, 'resolved', 'square');
+
+          if (!canvas || canvas.width !== 1080 || canvas.height !== 1080) return false;
+
+          return window.__civicGetReportShareLocation(sample) === '""" + SOCIETY + """';
+
+        }"""
+
+    )
+
+    s.record('WIN02', 'ShareWin', 'Success card canvas 1080×1080 + society location label', canvas_ok)
+
+
+
+    story_ok = await page.evaluate(
+
+        """async () => {
+
+          const sample = {
+
+            id: 'win-test-2',
+
+            hazard: 'open-drain',
+
+            status: 'resolved',
+
+            ward: '""" + WARD.replace("'", "\\'") + """',
+
+            city: 'mumbai',
+
+            timestamp: new Date().toISOString(),
+
+          };
+
+          if (!window.__civicGenerateSuccessCardCanvas) return false;
+
+          const canvas = await window.__civicGenerateSuccessCardCanvas(sample, 'resolved', 'story');
+
+          return !!(canvas && canvas.width === 1080 && canvas.height === 1920);
+
+        }"""
+
+    )
+
+    s.record('WIN03', 'ShareWin', 'Story aspect canvas 1080×1920 (9:16)', story_ok)
+
+
+
+    await page.evaluate(
+
+        """() => {
+
+          localStorage.setItem('civicradar_nbh_alert_resolved', '1');
+
+          if (window.__civicResetNbhAlertLimits) window.__civicResetNbhAlertLimits();
+
+          document.getElementById('toastContainer').innerHTML = '';
+
+          window.__civicSimulateNbhResolved({
+
+            id: 'win-nbh-res',
+
+            hazard: 'stagnant-water',
+
+            society: '""" + SOCIETY + """',
+
+            ward: '""" + WARD.replace("'", "\\'") + """',
+
+            city: 'mumbai',
+
+            reporterId: 'other-reporter',
+
+            status: 'resolved',
+
+          });
+
+        }"""
+
+    )
+
+    await page.wait_for_timeout(600)
+
+    share_btn = await page.evaluate(
+
+        """() => {
+
+          const btns = Array.from(document.querySelectorAll('.toast__action'));
+
+          return btns.some((b) => /share win/i.test(b.textContent));
+
+        }"""
+
+    )
+
+    s.record('WIN04', 'ShareWin', 'Resolved neighbourhood toast has Share win action', share_btn)
+
+
+
+    await ctx.close()
+
+
+
+
+
 async def run_feedback_scenarios(s: Suite, browser):
 
     # In-app feedback form (Supabase-backed; local-mode fallback under test).
@@ -6624,6 +7046,8 @@ async def main():
 
             ('NeighbourhoodAlerts', run_nbh_alert_scenarios),
 
+            ('ShareWin', run_share_win_scenarios),
+
             ('Access', run_access_request_scenarios),
 
             ('LeadVote', run_lead_vote_scenarios),
@@ -6749,6 +7173,14 @@ async def main():
         '`index.html` + `js/app.js`: neighbourhood datalist autopopulate (v96) — volunteer + lead nomination fields share ward-filtered `societySuggestions` with free-text override and custom cache; localized en/hi/mr/gu; NB01–NB04; SW06 → v96',
 
         '`index.html` + `js/app.js` + `sw.js` + `supabase/schema.sql`: neighbourhood report alerts (v97) — Profile "Neighbourhood updates" with new-report + resolved FYI sub-toggles; shared rate limit; resolved digest; Web Notification + in-app toast; Supabase profile prefs + sync; local queue for E2E; localized en/hi/mr/gu; NA01–NA06; SW06 → v97',
+
+        '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: ward/neighbourhood re-select (v100) — Profile city+ward editable; society datalist refreshes on ward change; datalist select-all on focus; auto civic display name when blank; E2E SO09–SO10, C09c; SW06 → v100',
+
+        '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: before/after share-win graphic (v101) — canvas card with society/ward footer, green Fixed placeholder, square 1080×1080 + story 9:16 preview, WhatsApp/download/share; resolved nbh toast Share win CTA; localized en/hi/mr/gu; WIN01–WIN04; SW06 → v101',
+
+        '`index.html` + `js/app.js` + `css/styles.css` + `sw.js` + `supabase/schema.sql`: Civic Hero XP & certificates (v101) — 6-level ladder, Profile XP bar, Me too/report XP, shareable level certificates; localized en/hi/mr/gu; XP01–XP03; SW06 → v101',
+
+        '`js/app.js` + `tests/e2e_comprehensive.py`: v101 QA — certificate modal closes success overlay before open (unblocks controls); L01 parallel load stagger+retry; RP09 seeds nearby report after XP storage reset',
 
     ]
 

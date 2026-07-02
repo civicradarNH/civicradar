@@ -386,7 +386,7 @@
         await tourClick($('#btnProfile'));
         await sleep(500);
         let taps = 0;
-        const ward = $('#profileWard');
+        const ward = $('#profileGreeting');
         for (let i = 0; i < 5; i++) {
           ward?.click();
           taps++;

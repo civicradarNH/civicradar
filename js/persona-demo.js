@@ -179,7 +179,7 @@
     window.setLeadMode?.(false);
     await tourClick($('#btnProfile'));
     await sleep(400);
-    const ward = $('#profileWard');
+    const ward = $('#profileGreeting');
     for (let i = 0; i < 5; i++) {
       ward?.click();
       await sleep(300);

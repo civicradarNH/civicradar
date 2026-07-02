@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v99';
+  const CIVIC_APP_VERSION = 'v101';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -169,11 +169,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const POINTS_FIRST_SHARE = 10;
 
-  const POINTS_COMMUNITY_RESOLVE_REPORTER = 25;
+  const POINTS_REPORT_RESOLVED = 20;
 
   const POINTS_FIX_CONFIRM = 10;
 
-  const POINTS_ME_TOO = 5;
+  const POINTS_ME_TOO = 8;
+
+  const XP_CERTS_SEEN_KEY = 'civicradar_xp_certificates';
+
+  const CIVIC_XP_LEVELS = [
+    { id: 'observer', min: 0, cert: false },
+    { id: 'wardWatcher', min: 100, cert: true },
+    { id: 'neighbourhoodVoice', min: 250, cert: false },
+    { id: 'civicChampion', min: 500, cert: true },
+    { id: 'monsoonGuardian', min: 1000, cert: true },
+    { id: 'communityLeader', min: 2000, cert: true },
+  ];
 
   const REPORT_CELEBRATION_MILESTONES = [1, 3, 5, 10];
 
@@ -347,6 +358,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let pendingSuccessCardBlob = null;
 
+  let pendingShareWinAspect = localStorage.getItem('civicradar_share_win_aspect') || 'square';
+
   let lastFocusedEl = null;
 
   let focusTrapHandler = null;
@@ -456,6 +469,10 @@ document.addEventListener('DOMContentLoaded', function () {
     tracking: $('#trackingOverlay'),
 
     accessReview: $('#accessReviewOverlay'),
+
+    shareWin: $('#shareWinOverlay'),
+
+    certificate: $('#certificateOverlay'),
 
   };
 
@@ -1483,6 +1500,136 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function getProfileCity() {
+
+    const sel = $('#profileCity');
+
+    const val = sel && sel.value;
+
+    return val && CITIES[val] ? val : (user.city || DEFAULT_CITY);
+
+  }
+
+
+
+  function syncProfileCityUi(cityId) {
+
+    const city = cityId || getProfileCity();
+
+    const input = $('#profileWardInput');
+
+    if (input) input.setAttribute('list', wardDatalistId(city));
+
+    const hint = $('#profileWardHint');
+
+    if (hint) {
+
+      const wardCount = (CivicWardDetect && CivicWardDetect.getWardNames)
+
+        ? CivicWardDetect.getWardNames(city).length
+
+        : 0;
+
+      hint.textContent = t('onboard.wardHint').replace('{city}', getCityLabel(city)).replace('{n}', String(wardCount));
+
+    }
+
+    const ward = ($('#profileWardInput') && $('#profileWardInput').value.trim()) || user.ward || '';
+
+    if (ward && isValidWard(ward, city)) refreshSocietyDatalist(city, ward);
+
+    else refreshSocietyDatalist(city, '');
+
+  }
+
+
+
+  function saveProfileWard() {
+
+    const wardInput = $('#profileWardInput');
+
+    if (!wardInput) return;
+
+    const city = getProfileCity();
+
+    const ward = wardInput.value.trim();
+
+    const wardErr = $('#profileWardError');
+
+    if (wardErr) wardErr.classList.add('hidden');
+
+    if (!ward) return;
+
+    if (!isValidWard(ward, city)) {
+
+      if (wardErr) revealFieldError(wardErr);
+
+      showToast(t('toast.wardRequired').replace('{city}', getCityLabel(city)), 'error');
+
+      return;
+
+    }
+
+    const cityChanged = city !== (user.city || DEFAULT_CITY);
+
+    const wardChanged = ward !== (user.ward || '');
+
+    if (!cityChanged && !wardChanged) return;
+
+    user.city = city;
+
+    user.ward = ward;
+
+    saveUser();
+
+    cacheSocietyIfCustom(city, ward, user.society);
+
+    refreshSocietyForProfile();
+
+    updateHeaderContext();
+
+    updatePersonaUI();
+
+    updateHomeHero();
+
+    updateMapEmptyCta();
+
+    updatePartnerPortalUi();
+
+    const wardImpactEl = $('#profileWardImpact');
+
+    if (wardImpactEl) {
+
+      const wardCount = getWardMonsoonCount(user.ward);
+
+      wardImpactEl.classList.remove('hidden');
+
+      const streak = getReportWeekStreak();
+
+      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount)) +
+
+        (streak >= 2 ? ` — ${t('profile.streak').replace('{n}', String(streak))}` : '');
+
+    }
+
+  }
+
+
+
+  function enableDatalistReselect(input) {
+
+    if (!input) return;
+
+    input.addEventListener('focus', () => {
+
+      try { input.select(); } catch (_) { /* noop */ }
+
+    });
+
+  }
+
+
+
   function refreshLeadNomNeighbourhoodDatalist() {
 
     const citySel = $('#leadNomCity');
@@ -1656,6 +1803,88 @@ document.addEventListener('DOMContentLoaded', function () {
   function sanitizeDisplayName(name) {
 
     return sanitizeText(name, 30) || 'Citizen';
+
+  }
+
+
+
+  const DEFAULT_DISPLAY_NAME_TITLES = [
+
+    'Ward Scout', 'Monsoon Guardian', 'Pin Pioneer', 'Ripple Ranger',
+
+    'Map Sherpa', 'Water Watch', 'Monsoon Mate', 'Civic Spotter',
+
+    'Drain Detective', 'Neighbour Ninja',
+
+  ];
+
+
+
+  function randomHex4() {
+
+    const bytes = new Uint8Array(2);
+
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+
+    else {
+
+      bytes[0] = Math.floor(Math.random() * 256);
+
+      bytes[1] = Math.floor(Math.random() * 256);
+
+    }
+
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+  }
+
+
+
+  function wardLabelForDisplayName(ward) {
+
+    const label = wardLabelShort(ward);
+
+    if (!label) return '';
+
+    return label.length > 12 ? label.slice(0, 12).trim() : label;
+
+  }
+
+
+
+  function generateDefaultDisplayName(opts) {
+
+    const titles = DEFAULT_DISPLAY_NAME_TITLES;
+
+    const title = titles[Math.floor(Math.random() * titles.length)];
+
+    const hex = randomHex4();
+
+    const wardBit = wardLabelForDisplayName(opts && opts.ward);
+
+    const pattern = wardBit ? Math.floor(Math.random() * 3) : Math.floor(Math.random() * 2);
+
+    let name;
+
+    if (pattern === 0 && wardBit) name = `${title} · ${wardBit} #${hex}`;
+
+    else if (pattern === 1) name = `${title} #${hex}`;
+
+    else name = `${title} ${hex}`;
+
+    return sanitizeText(name, 30) || `${title} #${hex}`.slice(0, 30);
+
+  }
+
+
+
+  function resolveDisplayName(raw, opts) {
+
+    const trimmed = sanitizeText(raw, 30);
+
+    if (trimmed) return trimmed;
+
+    return generateDefaultDisplayName(opts);
 
   }
 
@@ -1931,7 +2160,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.done': 'Done',
 
-      'about.shareTitle': 'Share this app',
+      'shareWin.footerMsg': 'I helped clean up {location} using {app}!',
+
+      'shareWin.fixedLabel': 'Fixed',
+
+      'shareWin.aspectSquare': 'Square',
+
+      'shareWin.aspectStory': 'Story',
+
+      'toast.shareWinBtn': 'Share win',
 
       'about.sharePitch': 'Free {city} monsoon map — pin stagnant water in 30 sec, say Me too, beat rival wards.\nBuilt for Mumbai, Pune & Thane. No login, 4 languages.\n{link}\nForward to your RWA / society WhatsApp group 👋',
 
@@ -1957,7 +2194,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} fixed — {ward}',
 
-      'success.points': 'Civic Points earned',
+      'success.points': 'Civic Hero XP',
+
+      'success.xpBonus': '+{n} Civic Hero XP',
 
       'success.weekBonus': '+{n} first report this week!',
 
@@ -2365,7 +2604,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'Citizen',
 
-      'profile.points': 'Total Civic Points',
+      'profile.points': 'Civic Hero XP',
+
+      'profile.xpTotalLabel': '{n} XP',
+
+      'profile.xpToNext': '{n} XP to {level}',
+
+      'profile.xpMax': 'Max level — Community Leader!',
+
+      'xp.level.observer': 'Local Observer',
+
+      'xp.level.wardWatcher': 'Ward Watcher',
+
+      'xp.level.neighbourhoodVoice': 'Neighbourhood Voice',
+
+      'xp.level.civicChampion': 'Civic Champion',
+
+      'xp.level.monsoonGuardian': 'Monsoon Guardian',
+
+      'xp.level.communityLeader': 'Community Leader',
+
+      'cert.title': 'Certificate unlocked!',
+
+      'cert.subtitle': 'You reached {level}',
+
+      'cert.cardHeading': 'Civic Hero Certificate',
+
+      'cert.awarded': 'Awarded to {name}',
+
+      'cert.date': '{date}',
+
+      'cert.tagline': 'Protecting our ward this monsoon',
+
+      'cert.download': 'Download certificate',
+
+      'cert.whatsapp': 'Share on WhatsApp',
+
+      'cert.copyCaption': 'Copy caption',
+
+      'cert.caption': 'I earned {level} on CivicRadar — join me protecting {ward} this monsoon!\n{link}',
+
+      'cert.captionCopied': 'Caption copied — paste on social media',
+
+      'cert.downloaded': 'Certificate saved — share your civic win!',
+
+      'cert.done': 'Done',
 
       'profile.fixed': 'Fixed',
 
@@ -2915,7 +3198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.neighbourMany': 'neighbours said Me too',
 
-      'profile.pointsHint.base': '50 pts per report — +200 when volunteer hours verified',
+      'profile.pointsHint.base': '50 XP per report · +8 Me too · +200 volunteer verified',
 
       'profile.pointsHint.bonus': '{n} reports — 50 pts — +{bonus} volunteer bonus',
 
@@ -3971,6 +4254,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.done': 'हो गया',
 
+      'shareWin.footerMsg': 'मैंने {app} से {location} साफ करने में मदद की!',
+
+      'shareWin.fixedLabel': 'ठीक',
+
+      'shareWin.aspectSquare': 'वर्ग',
+
+      'shareWin.aspectStory': 'स्टोरी',
+
+      'toast.shareWinBtn': 'जीत शेयर करें',
+
       'about.shareTitle': 'ऐप साझा करें',
 
       'about.sharePitch': 'मुफ़्त {city} मानसून नक्शा — 30 सेक में रिपोर्ट, Me too, प्रतिद्वंद्वी वार्ड को हराएँ।\nमुंबई, पुणे और ठाणे के लिए बनाया गया। लॉगिन नहीं, 4 भाषाएँ।\n{link}\nRWA / सोसायटी WhatsApp ग्रुप में फॉरवर्ड करें →',
@@ -3997,7 +4290,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} हल · {ward}',
 
-      'success.points': 'सिविक अंक मिले',
+      'success.points': 'Civic Hero XP',
+
+      'success.xpBonus': '+{n} Civic Hero XP',
 
       'success.weekBonus': '+{n} इस सप्ताह की पहली रिपोर्ट!',
 
@@ -4405,7 +4700,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'नागरिक',
 
-      'profile.points': 'कुल सिविक अंक',
+      'profile.points': 'Civic Hero XP',
+
+      'profile.xpTotalLabel': '{n} XP',
+
+      'profile.xpToNext': '{level} तक {n} XP',
+
+      'profile.xpMax': 'अधिकतम स्तर — Community Leader!',
+
+      'xp.level.observer': 'स्थानीय पर्यवेक्षक',
+
+      'xp.level.wardWatcher': 'वार्ड वॉचर',
+
+      'xp.level.neighbourhoodVoice': 'पड़ोस की आवाज़',
+
+      'xp.level.civicChampion': 'सिविक चैंपियन',
+
+      'xp.level.monsoonGuardian': 'मानसून रक्षक',
+
+      'xp.level.communityLeader': 'Community Leader',
+
+      'cert.title': 'प्रमाणपत्र अनलॉक!',
+
+      'cert.subtitle': 'आपने {level} हासिल किया',
+
+      'cert.cardHeading': 'Civic Hero प्रमाणपत्र',
+
+      'cert.awarded': '{name} को प्रदान',
+
+      'cert.date': '{date}',
+
+      'cert.tagline': 'इस मानसून में हमारे वार्ड की रक्षा',
+
+      'cert.download': 'प्रमाणपत्र डाउनलोड',
+
+      'cert.whatsapp': 'WhatsApp पर साझा',
+
+      'cert.copyCaption': 'कैप्शन कॉपी',
+
+      'cert.caption': 'मैंने CivicRadar पर {level} अर्जित किया — {ward} की रक्षा में जुड़ें!\n{link}',
+
+      'cert.captionCopied': 'कैप्शन कॉपी — सोशल पर पेस्ट करें',
+
+      'cert.downloaded': 'प्रमाणपत्र सेव — अपनी जीत साझा करें!',
+
+      'cert.done': 'हो गया',
 
       'profile.fixed': 'हल किए खतरे',
 
@@ -6010,6 +6349,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.done': 'झाले',
 
+      'shareWin.footerMsg': 'मी {app} वापरून {location} स्वच्छ केले!',
+
+      'shareWin.fixedLabel': 'ठीक',
+
+      'shareWin.aspectSquare': 'चौरस',
+
+      'shareWin.aspectStory': 'स्टोरी',
+
+      'toast.shareWinBtn': 'विजय शेअर करा',
+
       'about.shareTitle': 'अ‍ॅप शेअर करा',
 
       'about.sharePitch': 'मोफत {city} पावसाळा नकाशा — 30 सेकंदात तक्रार, Me too, प्रतिस्पर्धी वॉर्डला हरवा.\nमुंबई, पुणे आणि ठाणेसाठी बांधले. लॉगिन नाही, 4 भाषा.\n{link}\nRWA / सोसायटी WhatsApp ग्रुपला फॉरवर्ड करा →',
@@ -6036,7 +6385,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} सोडवले · {ward}',
 
-      'success.points': 'सिव्हिक गुण मिळाले',
+      'success.points': 'Civic Hero XP',
+
+      'success.xpBonus': '+{n} Civic Hero XP',
 
       'success.weekBonus': '+{n} या आठवड्याची पहिली तक्रार!',
 
@@ -6444,7 +6795,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'नागरिक',
 
-      'profile.points': 'एकूण सिव्हिक गुण',
+      'profile.points': 'Civic Hero XP',
+
+      'profile.xpTotalLabel': '{n} XP',
+
+      'profile.xpToNext': '{level} पर्यंत {n} XP',
+
+      'profile.xpMax': 'कमाल स्तर — Community Leader!',
+
+      'xp.level.observer': 'स्थानिक निरीक्षक',
+
+      'xp.level.wardWatcher': 'वार्ड वॉचर',
+
+      'xp.level.neighbourhoodVoice': 'शेजारचा आवाज',
+
+      'xp.level.civicChampion': 'सिविक चॅम्पियन',
+
+      'xp.level.monsoonGuardian': 'पावसाळी रक्षक',
+
+      'xp.level.communityLeader': 'Community Leader',
+
+      'cert.title': 'प्रमाणपत्र अनलॉक!',
+
+      'cert.subtitle': 'तुम्ही {level} गाठले',
+
+      'cert.cardHeading': 'Civic Hero प्रमाणपत्र',
+
+      'cert.awarded': '{name} ला प्रदान',
+
+      'cert.date': '{date}',
+
+      'cert.tagline': 'या पावसाळ्यात आमच्या वार्डाचे रक्षण',
+
+      'cert.download': 'प्रमाणपत्र डाउनलोड',
+
+      'cert.whatsapp': 'WhatsApp वर शेअर',
+
+      'cert.copyCaption': 'कॅप्शन कॉपी',
+
+      'cert.caption': 'मी CivicRadar वर {level} मिळवले — {ward} चे रक्षण करा!\n{link}',
+
+      'cert.captionCopied': 'कॅप्शन कॉपी — सोशलवर पेस्ट',
+
+      'cert.downloaded': 'प्रमाणपत्र जतन — विजय शेअर करा!',
+
+      'cert.done': 'झाले',
 
       'profile.fixed': 'सोडवलेले धोके',
 
@@ -8049,6 +8444,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.done': 'થઈ ગયું',
 
+      'shareWin.footerMsg': 'મેં {app} વડે {location} સાફ કરવામાં મદદ કરી!',
+
+      'shareWin.fixedLabel': 'ઠીક',
+
+      'shareWin.aspectSquare': 'ચોરસ',
+
+      'shareWin.aspectStory': 'સ્ટોરી',
+
+      'toast.shareWinBtn': 'જીત શેર કરો',
+
       'about.shareTitle': 'એપ શેર કરો',
 
       'about.sharePitch': 'મફત {city} ચોમાસું નકશો — 30 સેકમાં રિપોર્ટ, Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો.\nમુંબઈ, પુણે અને ઠાણે માટે બનાવ્યું. લોગિન નહીં, 4 ભાષાઓ.\n{link}\nRWA / સોસાયટી WhatsApp ગ્રુપમાં ફોરવર્ડ કરો →',
@@ -8075,7 +8480,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} ઉકેલાયું · {ward}',
 
-      'success.points': 'સિવિક પોઈન્ટ મળ્યા',
+      'success.points': 'Civic Hero XP',
+
+      'success.xpBonus': '+{n} Civic Hero XP',
 
       'success.weekBonus': '+{n} આ અઠવાડિયાની પહેલી ફરિયાદ!',
 
@@ -8483,7 +8890,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'નાગરિક',
 
-      'profile.points': 'કુલ સિવિક પોઈન્ટ',
+      'profile.points': 'Civic Hero XP',
+
+      'profile.xpTotalLabel': '{n} XP',
+
+      'profile.xpToNext': '{level} સુધી {n} XP',
+
+      'profile.xpMax': 'મહત્તમ સ્તર — Community Leader!',
+
+      'xp.level.observer': 'સ્થાનિક નિરીક્ષક',
+
+      'xp.level.wardWatcher': 'વાર્ડ વૉચર',
+
+      'xp.level.neighbourhoodVoice': 'પડોશની આવાજ',
+
+      'xp.level.civicChampion': 'સિવિક ચેમ્પિયન',
+
+      'xp.level.monsoonGuardian': 'ચોમાસુ રક્ષક',
+
+      'xp.level.communityLeader': 'Community Leader',
+
+      'cert.title': 'પ્રમાણપત્ર અનલૉક!',
+
+      'cert.subtitle': 'તમે {level} પ્રાપ્ત કર્યું',
+
+      'cert.cardHeading': 'Civic Hero પ્રમાણપત્ર',
+
+      'cert.awarded': '{name} ને પ્રદાન',
+
+      'cert.date': '{date}',
+
+      'cert.tagline': 'આ ચોમાસામાં અમારા વાર્ડનું રક્ષણ',
+
+      'cert.download': 'પ્રમાણપત્ર ડાઉનલોડ',
+
+      'cert.whatsapp': 'WhatsApp પર શેર',
+
+      'cert.copyCaption': 'કેપ્શન કૉપી',
+
+      'cert.caption': 'મેં CivicRadar પર {level} મેળવ્યું — {ward} નું રક્ષણ કરો!\n{link}',
+
+      'cert.captionCopied': 'કેપ્શન કૉપી — સોશલ પર પેસ્ટ',
+
+      'cert.downloaded': 'પ્રમાણપત્ર સાચવ્યું — જીત શેર કરો!',
+
+      'cert.done': 'થઈ ગયું',
 
       'profile.fixed': 'ઉકેલાયેલા જોખમો',
 
@@ -10123,6 +10574,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (parsed.displayName) parsed.displayName = sanitizeDisplayName(parsed.displayName);
       if (parsed.ward && !isValidWard(parsed.ward, parsed.city)) parsed.ward = '';
       if (parsed.society) parsed.society = sanitizeText(parsed.society, 120);
+      if (parsed.civicXp == null) parsed.civicXp = 0;
       migrateLegacyReports(parsed);
       localStorage.setItem(USER_KEY, JSON.stringify(parsed));
       return parsed;
@@ -10144,6 +10596,8 @@ document.addEventListener('DOMContentLoaded', function () {
       coordinatorScope: '',
       neighbourhoodLabel: '',
       society: '',
+      civicXp: 0,
+      civicLevel: 'observer',
     };
   }
 
@@ -10287,9 +10741,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function addPointsCache(amount) {
+    const prevXp = getTotalCivicXp();
     const next = loadPointsCache() + amount;
     localStorage.setItem(POINTS_CACHE_KEY, String(next));
-    return next;
+    checkXpLevelUp(prevXp, getTotalCivicXp());
+    return getTotalCivicXp();
   }
 
   /* ---------- Shared Backend (Supabase) ----------
@@ -11006,6 +11462,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!Object.keys(patch).length) return;
       const { error } = await this.client.from('profiles').update(patch).eq('id', user.id);
       if (error) console.warn('Notification prefs sync failed:', error.message);
+    },
+
+    async syncCivicXp(xp, level) {
+      if (!this.enabled || !this.client) return;
+      const uid = user.id;
+      if (!/^[0-9a-f-]{36}$/i.test(String(uid))) return;
+      const { error } = await this.client.from('profiles').update({
+        civic_xp: Number(xp) || 0,
+        civic_level: level || 'observer',
+      }).eq('id', uid);
+      if (error) console.warn('Civic XP sync failed:', error.message);
     },
 
     async signOut() {
@@ -13757,10 +14224,72 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function getTotalCivicPoints() {
-
-    return getUserReports().length * POINTS_PER_REPORT + loadPointsCache();
-
+    return getTotalCivicXp();
   }
+
+  function getTotalCivicXp() {
+    return getUserReports().length * POINTS_PER_REPORT + loadPointsCache();
+  }
+
+  function getCivicLevelInfo(xp) {
+    xp = Number(xp) || 0;
+    let level = CIVIC_XP_LEVELS[0];
+    for (let i = CIVIC_XP_LEVELS.length - 1; i >= 0; i--) {
+      if (xp >= CIVIC_XP_LEVELS[i].min) {
+        level = CIVIC_XP_LEVELS[i];
+        break;
+      }
+    }
+    const idx = CIVIC_XP_LEVELS.findIndex((l) => l.id === level.id);
+    const next = CIVIC_XP_LEVELS[idx + 1] || null;
+    const pct = next
+      ? Math.round(((xp - level.min) / (next.min - level.min)) * 100)
+      : 100;
+    const remaining = next ? Math.max(0, next.min - xp) : 0;
+    return { level, next, pct: Math.min(100, Math.max(0, pct)), remaining, xp };
+  }
+
+  function civicLevelName(levelId) {
+    return t('xp.level.' + levelId);
+  }
+
+  function loadXpCertificatesSeen() {
+    try { return new Set(JSON.parse(localStorage.getItem(XP_CERTS_SEEN_KEY)) || []); }
+    catch { return new Set(); }
+  }
+
+  function markXpCertificateSeen(levelId) {
+    const set = loadXpCertificatesSeen();
+    set.add(levelId);
+    try { localStorage.setItem(XP_CERTS_SEEN_KEY, JSON.stringify(Array.from(set))); } catch {}
+  }
+
+  function getNewlyUnlockedCertLevels(prevXp, newXp) {
+    return CIVIC_XP_LEVELS
+      .filter((l) => l.cert && newXp >= l.min && prevXp < l.min)
+      .map((l) => l.id);
+  }
+
+  function syncUserCivicXp() {
+    user.civicXp = getTotalCivicXp();
+    user.civicLevel = getCivicLevelInfo(user.civicXp).level.id;
+    saveUser();
+    Backend.syncCivicXp(user.civicXp, user.civicLevel);
+  }
+
+  let pendingCertificateLevelId = null;
+
+  function checkXpLevelUp(prevXp, newXp) {
+    syncUserCivicXp();
+    const seen = loadXpCertificatesSeen();
+    const toShow = getNewlyUnlockedCertLevels(prevXp, newXp).filter((id) => !seen.has(id));
+    const certEl = $('#certificateOverlay');
+    if (toShow.length && !(certEl && certEl.classList.contains('open'))) {
+      setTimeout(() => showCertificateModal(toShow[0]), 1400);
+    }
+  }
+
+  window.getTotalCivicXp = getTotalCivicXp;
 
 
 
@@ -15053,12 +15582,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function showNbhAlertInApp(title, body, reportId, ctaKey) {
+  function showNbhAlertInApp(title, body, reportId, ctaKey, secondaryAction) {
     window.__civicNbhAlertLast = body;
-    showToast(body, 'info', 9000, {
+    const action = {
       label: t(ctaKey || 'notify.nbh.new.cta'),
       onClick: () => focusReportOnMap(reportId),
-    });
+    };
+    if (secondaryAction && secondaryAction.label) action.secondary = [secondaryAction];
+    showToast(body, 'info', 9000, action);
   }
 
   function fireNbhAlertNotification(title, body, reportId, alertType) {
@@ -15104,7 +15635,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let perm = 'default';
     if (notificationsSupported()) { try { perm = Notification.permission; } catch {} }
     if (perm === 'granted' && fireNbhAlertNotification(title, body, report.id, kind)) return true;
-    showNbhAlertInApp(title, body, report.id, isResolved ? 'notify.nbh.resolved.cta' : 'notify.nbh.new.cta');
+    const shareWinAction = isResolved ? {
+      label: t('toast.shareWinBtn'),
+      onClick: () => showShareWinModal(report.id, 'resolved', { celebrate: false }),
+    } : null;
+    showNbhAlertInApp(title, body, report.id, isResolved ? 'notify.nbh.resolved.cta' : 'notify.nbh.new.cta', shareWinAction);
     return true;
   }
 
@@ -15229,6 +15764,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const r = report || { id: 'sim-nbh-res', hazard: 'stagnant-water', society: user.society, ward: user.ward, city: getUserCity(), reporterId: 'other-user', status: 'resolved' };
     maybeDeliverNbhResolvedAlert(r);
   };
+  window.__civicShowShareWinModal = showShareWinModal;
+  window.__civicGenerateSuccessCardCanvas = generateSuccessCardCanvas;
+  window.__civicGetReportShareLocation = getReportShareLocation;
   window.__civicResetNbhAlertLimits = function () {
     localStorage.removeItem(NBH_ALERT_LOG_KEY);
     localStorage.removeItem(NBH_ALERT_RESOLVE_DIGEST_KEY);
@@ -15727,6 +16265,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Backend.confirmReport(reportId);
 
+    addPointsCache(POINTS_ME_TOO);
+
     if (window.CivicAnalytics) {
 
       CivicAnalytics.track('report_corroborated', { reportId: String(reportId) }, report.ward);
@@ -15750,8 +16290,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     return true;
-
   }
+
+  window.confirmReport = confirmReport;
 
 
 
@@ -15901,7 +16442,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         saveResolvedSeen(seen);
 
-        addPointsCache(POINTS_COMMUNITY_RESOLVE_REPORTER);
+        addPointsCache(POINTS_REPORT_RESOLVED);
 
         showToast(t('toast.communityResolved'), 'success', 5000);
 
@@ -17855,7 +18396,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#wardDetectedHint')?.classList.remove('hidden');
 
-    $('#btnWardManual')?.classList.remove('hidden');
+    $('#wardManualGroup')?.classList.remove('hidden');
+
+    $('#btnWardManual')?.classList.add('hidden');
 
     $('#btnWardRetry')?.classList.add('hidden');
 
@@ -18065,7 +18608,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (societyInput) societyInput.value = user.society || '';
 
-      startOnboardingWardDetect();
+      if (user.ward) {
+
+        onboardingDetectedWard = user.ward;
+
+        const wardIn = $('#wardInput');
+
+        if (wardIn) wardIn.value = user.ward;
+
+        $('#wardDetectStatus')?.classList.add('hidden');
+
+        $('#wardDetected')?.classList.add('hidden');
+
+        $('#wardDetectedHint')?.classList.add('hidden');
+
+        $('#wardManualGroup')?.classList.remove('hidden');
+
+        $('#btnWardManual')?.classList.add('hidden');
+
+        $('#btnWardRetry')?.classList.remove('hidden');
+
+        refreshSocietyForOnboarding();
+
+      } else {
+
+        startOnboardingWardDetect();
+
+      }
 
     }
 
@@ -19741,7 +20310,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const ward = getOnboardingWard().trim();
 
-      const name = $('#displayName').value.trim() || 'Citizen';
+      const name = resolveDisplayName($('#displayName').value, { ward, city: getOnboardingCity() });
 
       $('#wardError').classList.add('hidden');
 
@@ -19775,7 +20344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       cacheSocietyIfCustom(user.city, user.ward, user.society);
 
-      user.displayName = sanitizeDisplayName(name);
+      user.displayName = name;
 
       saveUser();
 
@@ -19903,9 +20472,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (profileSocietyInput) {
 
+      enableDatalistReselect(profileSocietyInput);
+
       profileSocietyInput.addEventListener('change', saveProfileSociety);
 
       profileSocietyInput.addEventListener('blur', saveProfileSociety);
+
+    }
+
+    const profileDisplayNameInput = $('#profileDisplayNameInput');
+
+    if (profileDisplayNameInput) {
+
+      profileDisplayNameInput.addEventListener('change', saveProfileDisplayName);
+
+      profileDisplayNameInput.addEventListener('blur', saveProfileDisplayName);
 
     }
 
@@ -20382,6 +20963,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnShareWinNativeShare = $('#btnShareWinNativeShare');
 
     if (btnShareWinNativeShare) btnShareWinNativeShare.addEventListener('click', () => { nativeShareSuccessCard(); });
+
+    const btnShareWinAspectSquare = $('#btnShareWinAspectSquare');
+
+    const btnShareWinAspectStory = $('#btnShareWinAspectStory');
+
+    if (btnShareWinAspectSquare) btnShareWinAspectSquare.addEventListener('click', () => setShareWinAspect('square'));
+
+    if (btnShareWinAspectStory) btnShareWinAspectStory.addEventListener('click', () => setShareWinAspect('story'));
+
+    const btnCertClose = $('#btnCertClose');
+
+    if (btnCertClose) btnCertClose.addEventListener('click', () => closeModal('certificate'));
+
+    const btnCertWhatsApp = $('#btnCertWhatsApp');
+
+    if (btnCertWhatsApp) btnCertWhatsApp.addEventListener('click', shareCertificateWhatsApp);
+
+    const btnCertDownload = $('#btnCertDownload');
+
+    if (btnCertDownload) btnCertDownload.addEventListener('click', () => { downloadCertificate(); });
+
+    const btnCertCopyCaption = $('#btnCertCopyCaption');
+
+    if (btnCertCopyCaption) btnCertCopyCaption.addEventListener('click', copyCertificateCaption);
 
     $('#btnContactFounder').addEventListener('click', () => {
 
@@ -21043,7 +21648,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let leadTapCount = 0;
 
-    $('#profileWard').addEventListener('click', () => {
+    $('#profileGreeting').addEventListener('click', () => {
 
       adminTapCount++;
 
@@ -21058,6 +21663,58 @@ document.addEventListener('DOMContentLoaded', function () {
       setTimeout(() => { adminTapCount = 0; }, 2000);
 
     });
+
+
+
+    const profileCity = $('#profileCity');
+
+    if (profileCity) {
+
+      profileCity.addEventListener('change', () => {
+
+        syncProfileCityUi(getProfileCity());
+
+        saveProfileWard();
+
+      });
+
+    }
+
+    const profileWardInput = $('#profileWardInput');
+
+    if (profileWardInput) {
+
+      enableDatalistReselect(profileWardInput);
+
+      profileWardInput.addEventListener('input', () => {
+
+        $('#profileWardError')?.classList.add('hidden');
+
+        const city = getProfileCity();
+
+        const ward = profileWardInput.value.trim();
+
+        if (ward && isValidWard(ward, city)) refreshSocietyDatalist(city, ward);
+
+        else refreshSocietyDatalist(city, '');
+
+      });
+
+      profileWardInput.addEventListener('change', saveProfileWard);
+
+      profileWardInput.addEventListener('blur', saveProfileWard);
+
+    }
+
+    enableDatalistReselect($('#wardInput'));
+
+    enableDatalistReselect($('#onboardSociety'));
+
+    enableDatalistReselect($('#volunteerNeighbourhood'));
+
+    enableDatalistReselect($('#leadNomNeighbourhood'));
+
+
 
     $('#profilePoints').addEventListener('click', () => {
 
@@ -21683,7 +22340,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         reports.unshift(report);
 
-
+        const prevXp = getTotalCivicXp();
 
         try {
 
@@ -21732,6 +22389,8 @@ document.addEventListener('DOMContentLoaded', function () {
         createReportMarker(report);
 
         const weekBonus = awardWeekBonus();
+
+        checkXpLevelUp(prevXp, getTotalCivicXp());
 
         setButtonLoading(submitBtn, false);
 
@@ -22851,6 +23510,90 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function getReportShareLocation(report) {
+
+    if (!report) return t('header.context');
+
+    const soc = (report.society || report.neighbourhood || '').trim();
+
+    if (soc) return soc;
+
+    const parts = parseWardParts(report.ward);
+
+    if (parts.area) return parts.area;
+
+    return getWardShortName(report.ward) || t('header.context');
+
+  }
+
+
+
+  function getShareWinFooterText(report) {
+
+    return t('shareWin.footerMsg')
+
+      .replace('{location}', getReportShareLocation(report))
+
+      .replace('{app}', 'CivicRadar');
+
+  }
+
+
+
+  function setShareWinAspect(aspect) {
+
+    pendingShareWinAspect = aspect === 'story' ? 'story' : 'square';
+
+    try { localStorage.setItem('civicradar_share_win_aspect', pendingShareWinAspect); } catch {}
+
+    pendingSuccessCardBlob = null;
+
+    document.querySelectorAll('.share-win-aspect__btn').forEach((btn) => {
+
+      btn.classList.toggle('share-win-aspect__btn--active', btn.dataset.aspect === pendingShareWinAspect);
+
+    });
+
+    renderShareWinCardPreview();
+
+  }
+
+
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+
+    const words = String(text).split(/\s+/);
+
+    const lines = [];
+
+    let line = '';
+
+    words.forEach((word) => {
+
+      const test = line ? `${line} ${word}` : word;
+
+      if (ctx.measureText(test).width > maxWidth && line) {
+
+        lines.push(line);
+
+        line = word;
+
+      } else {
+
+        line = test;
+
+      }
+
+    });
+
+    if (line) lines.push(line);
+
+    return lines;
+
+  }
+
+
+
   function loadCanvasImage(src) {
 
     return new Promise((resolve, reject) => {
@@ -22915,11 +23658,316 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  async function generateSuccessCardCanvas(report, type) {
+  function drawFixedPlaceholder(ctx, x, y, w, h, label, dark) {
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    ctx.moveTo(x + 24, y);
+
+    ctx.arcTo(x + w, y, x + w, y + h, 24);
+
+    ctx.arcTo(x + w, y + h, x, y + h, 24);
+
+    ctx.arcTo(x, y + h, x, y, 24);
+
+    ctx.arcTo(x, y, x + w, y, 24);
+
+    ctx.closePath();
+
+    ctx.fillStyle = dark ? '#064e3b' : '#d1fae5';
+
+    ctx.fill();
+
+    ctx.fillStyle = dark ? '#34d399' : '#10b981';
+
+    ctx.font = '700 88px Outfit, system-ui, sans-serif';
+
+    ctx.textAlign = 'center';
+
+    ctx.fillText('✓', x + w / 2, y + h / 2 - 8);
+
+    ctx.fillStyle = dark ? '#ecfdf5' : '#065f46';
+
+    ctx.font = '600 34px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
+
+    ctx.fillText(label, x + w / 2, y + h / 2 + 44);
+
+    ctx.textAlign = 'left';
+
+    ctx.restore();
+
+  }
+
+
+
+  let pendingCertificateBlob = null;
+
+
+
+  async function generateCertificateCanvas(levelId) {
 
     const W = 1080;
 
     const H = 1350;
+
+    const canvas = document.createElement('canvas');
+
+    canvas.width = W;
+
+    canvas.height = H;
+
+    const ctx = canvas.getContext('2d');
+
+    const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    const levelTitle = civicLevelName(levelId);
+
+    const name = user.displayName || t('profile.greetingDefault');
+
+    const ward = getWardShortName(user.ward) || getCityLabel();
+
+    const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
+
+
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+
+    if (dark) {
+
+      grad.addColorStop(0, '#1e1b4b');
+
+      grad.addColorStop(1, '#0f172a');
+
+    } else {
+
+      grad.addColorStop(0, '#eef2ff');
+
+      grad.addColorStop(1, '#faf5ff');
+
+    }
+
+    ctx.fillStyle = grad;
+
+    ctx.fillRect(0, 0, W, H);
+
+
+
+    ctx.strokeStyle = dark ? '#6366f1' : '#4f46e5';
+
+    ctx.lineWidth = 6;
+
+    ctx.strokeRect(48, 48, W - 96, H - 96);
+
+
+
+    ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
+
+    ctx.font = '700 48px Outfit, system-ui, sans-serif';
+
+    ctx.textAlign = 'center';
+
+    ctx.fillText('CivicRadar', W / 2, 160);
+
+
+
+    ctx.fillStyle = dark ? '#c4b5fd' : '#7c3aed';
+
+    ctx.font = '600 36px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.cardHeading'), W / 2, 230);
+
+
+
+    ctx.fillStyle = dark ? '#f8fafc' : '#0f172a';
+
+    ctx.font = '700 72px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(levelTitle, W / 2, 420);
+
+
+
+    ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
+
+    ctx.font = '500 40px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.awarded').replace('{name}', name), W / 2, 540);
+
+
+
+    ctx.font = '500 36px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(ward, W / 2, 620);
+
+
+
+    ctx.font = '500 32px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.date').replace('{date}', dateStr), W / 2, 700);
+
+
+
+    ctx.fillStyle = dark ? '#94a3b8' : '#64748b';
+
+    ctx.font = '500 28px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.tagline'), W / 2, H - 120);
+
+
+
+    ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
+
+    ctx.font = '500 24px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(location.origin + location.pathname, W / 2, H - 72);
+
+
+
+    return canvas;
+
+  }
+
+
+
+  async function ensureCertificateBlob() {
+
+    if (pendingCertificateBlob) return pendingCertificateBlob;
+
+    const canvas = await generateCertificateCanvas(pendingCertificateLevelId);
+
+    pendingCertificateBlob = await new Promise((resolve) => {
+
+      canvas.toBlob((blob) => resolve(blob), 'image/png', 0.92);
+
+    });
+
+    return pendingCertificateBlob;
+
+  }
+
+
+
+  function buildCertificateCaption(levelId) {
+
+    const levelTitle = civicLevelName(levelId);
+
+    const ward = getWardShortName(user.ward) || getCityLabel();
+
+    const link = location.origin + location.pathname;
+
+    return t('cert.caption')
+
+      .replace('{level}', levelTitle)
+
+      .replace('{ward}', ward)
+
+      .replace('{link}', link);
+
+  }
+
+
+
+  function showCertificateModal(levelId) {
+
+    pendingCertificateLevelId = levelId;
+
+    pendingCertificateBlob = null;
+
+    markXpCertificateSeen(levelId);
+
+    const sub = $('#certificateSubtitle');
+
+    if (sub) {
+
+      sub.textContent = t('cert.subtitle').replace('{level}', civicLevelName(levelId));
+
+    }
+
+    // Certificate replaces the success modal — leaving both open blocks clicks on success controls.
+    closeModal('success');
+
+    openModal('certificate');
+
+    if (window.CivicAnalytics) {
+
+      CivicAnalytics.track('xp_certificate_unlocked', { level: levelId }, user.ward);
+
+    }
+
+  }
+
+
+
+  async function downloadCertificate() {
+
+    if (!pendingCertificateLevelId) return;
+
+    try {
+
+      const blob = await ensureCertificateBlob();
+
+      if (!blob) throw new Error('no blob');
+
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+
+      a.href = url;
+
+      a.download = `civicradar-cert-${pendingCertificateLevelId}.png`;
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(url);
+
+      showToast(t('cert.downloaded'), 'success', 4500);
+
+    } catch {
+
+      showToast(t('toast.saveFail'), 'error');
+
+    }
+
+  }
+
+
+
+  function copyCertificateCaption() {
+
+    if (!pendingCertificateLevelId) return;
+
+    copyTextSafe(buildCertificateCaption(pendingCertificateLevelId), 'cert.captionCopied');
+
+  }
+
+
+
+  function shareCertificateWhatsApp() {
+
+    if (!pendingCertificateLevelId) return;
+
+    const msg = buildCertificateCaption(pendingCertificateLevelId);
+
+    openWhatsAppShare(msg, { context: 'xp_certificate', level: pendingCertificateLevelId });
+
+  }
+
+
+
+  async function generateSuccessCardCanvas(report, type, aspect) {
+
+    aspect = aspect || pendingShareWinAspect || 'square';
+
+    const isStory = aspect === 'story';
+
+    const W = 1080;
+
+    const H = isStory ? 1920 : 1080;
 
     const canvas = document.createElement('canvas');
 
@@ -22967,33 +24015,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ctx.textAlign = 'left';
 
-    ctx.fillText('CivicRadar', 72, 110);
+    ctx.fillText('CivicRadar', 72, isStory ? 120 : 96);
+
+
+
+    ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
+
+    ctx.font = '500 24px Outfit, system-ui, sans-serif';
+
+    ctx.fillText('#MonsoonGuardian', W - 72 - ctx.measureText('#MonsoonGuardian').width, isStory ? 120 : 96);
 
 
 
     ctx.fillStyle = dark ? '#f8fafc' : '#0f172a';
 
-    ctx.font = '700 64px Outfit, system-ui, sans-serif';
+    ctx.font = '700 56px Outfit, system-ui, sans-serif';
 
-    const headLines = headline.length > 28 ? [headline.slice(0, 28), headline.slice(28)] : [headline];
+    const headLines = wrapCanvasText(ctx, headline, W - 144);
 
-    headLines.forEach((line, i) => ctx.fillText(line, 72, 210 + i * 72));
+    headLines.slice(0, 2).forEach((line, i) => ctx.fillText(line, 72, (isStory ? 210 : 190) + i * 64));
 
 
 
     ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
 
-    ctx.font = '500 40px Outfit, system-ui, sans-serif';
+    ctx.font = '500 36px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
 
-    ctx.fillText(hazard, 72, 210 + headLines.length * 72 + 24);
+    ctx.fillText(hazard, 72, (isStory ? 210 : 190) + Math.min(headLines.length, 2) * 64 + 20);
 
 
 
-    const imgY = 380;
+    const imgY = isStory ? 420 : 340;
 
-    const imgW = 460;
+    const imgW = isStory ? 460 : 440;
 
-    const imgH = 345;
+    const imgH = isStory ? 520 : 360;
 
     const gap = 40;
 
@@ -23016,6 +24072,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const hasBefore = report.image && /^data:image\//.test(report.image);
 
     const hasAfter = report.resolutionImage && /^data:image\//.test(report.resolutionImage);
+
+    const fixedLabel = t('shareWin.fixedLabel');
 
 
 
@@ -23051,39 +24109,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } catch {
 
-        drawImagePlaceholder(ctx, rightX, imgY, imgW, imgH, '?', dark);
+        drawFixedPlaceholder(ctx, rightX, imgY, imgW, imgH, fixedLabel, dark);
 
       }
 
     } else {
 
-      drawImagePlaceholder(ctx, rightX, imgY, imgW, imgH, '?', dark);
+      drawFixedPlaceholder(ctx, rightX, imgY, imgW, imgH, fixedLabel, dark);
 
     }
 
 
 
-    ctx.fillStyle = dark ? '#cbd5e1' : '#334155';
+    const footerY = imgY + imgH + (isStory ? 72 : 56);
 
-    ctx.font = '500 34px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
+    ctx.fillStyle = dark ? '#e2e8f0' : '#1e293b';
 
-    ctx.fillText(buildHashtagLine(report.ward), 72, imgY + imgH + 80);
+    ctx.font = '600 38px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
+
+    const footerLines = wrapCanvasText(ctx, getShareWinFooterText(report), W - 144);
+
+    footerLines.slice(0, isStory ? 3 : 2).forEach((line, i) => ctx.fillText(line, 72, footerY + i * 48));
 
 
 
     ctx.fillStyle = dark ? '#94a3b8' : '#64748b';
 
-    ctx.font = '500 30px Outfit, system-ui, sans-serif';
+    ctx.font = '500 28px Outfit, system-ui, sans-serif';
 
-    ctx.fillText(reportDeepLink(report.id), 72, H - 96);
-
-
-
-    ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
-
-    ctx.font = '500 26px Outfit, system-ui, sans-serif';
-
-    ctx.fillText('#MonsoonGuardian', 72, H - 52);
+    ctx.fillText(reportDeepLink(report.id), 72, H - (isStory ? 72 : 64));
 
 
 
@@ -23345,6 +24399,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  async function renderShareWinCardPreview() {
+
+    const wrap = $('#shareWinPreviewWrap');
+
+    const img = $('#shareWinCardPreview');
+
+    const report = findReportById(pendingShareWinReportId);
+
+    if (!wrap || !img || !report) {
+
+      if (wrap) wrap.hidden = true;
+
+      return;
+
+    }
+
+    wrap.hidden = false;
+
+    img.alt = getShareWinFooterText(report);
+
+    img.classList.toggle('share-win-preview__img--story', pendingShareWinAspect === 'story');
+
+    try {
+
+      const canvas = await generateSuccessCardCanvas(report, pendingShareWinType, pendingShareWinAspect);
+
+      img.src = canvas.toDataURL('image/png', 0.92);
+
+    } catch {
+
+      wrap.hidden = true;
+
+      img.removeAttribute('src');
+
+    }
+
+  }
+
+
+
   function showShareWinModal(reportId, type, opts) {
 
     opts = opts || {};
@@ -23425,7 +24519,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <span class="proof-compare__label">${escapeHtml(t('profile.proofAfter'))}</span>
 
-            ${hasAfter ? `<img src="${report.resolutionImage}" alt="">` : '<div class="proof-compare__placeholder">?</div>'}
+            ${hasAfter ? `<img src="${report.resolutionImage}" alt="">` : `<div class="proof-compare__placeholder proof-compare__placeholder--fixed"><span class="proof-compare__check">✓</span><span>${escapeHtml(t('shareWin.fixedLabel'))}</span></div>`}
 
           </div>`;
 
@@ -23440,6 +24534,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+
+    document.querySelectorAll('.share-win-aspect__btn').forEach((btn) => {
+
+      btn.classList.toggle('share-win-aspect__btn--active', btn.dataset.aspect === pendingShareWinAspect);
+
+    });
+
+    renderShareWinCardPreview();
 
     updateShareWinNativeButton();
 
@@ -27007,6 +28109,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function saveProfileDisplayName() {
+
+    const input = $('#profileDisplayNameInput');
+
+    if (!input) return;
+
+    const resolved = resolveDisplayName(input.value, { ward: user.ward, city: user.city || DEFAULT_CITY });
+
+    if (resolved === (user.displayName || '')) return;
+
+    user.displayName = resolved;
+
+    saveUser();
+
+    const greeting = $('#profileGreeting');
+
+    if (greeting) {
+
+      greeting.textContent = t('profile.greeting').replace('{name}', user.displayName);
+
+    }
+
+    if (document.activeElement !== input) input.value = user.displayName;
+
+  }
+
+
+
   /* ---------- Profile Stats Calculator ---------- */
 
   function updateProfileUI() {
@@ -27035,9 +28165,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       : t('profile.greetingDefault');
 
-    $('#profileWard').textContent = user.ward || t('profile.selectWard');
+    const profileDisplayNameInput = $('#profileDisplayNameInput');
 
-    refreshSocietyForProfile();
+    if (profileDisplayNameInput && document.activeElement !== profileDisplayNameInput) {
+
+      profileDisplayNameInput.value = user.displayName || '';
+
+    }
+
+    const profileCitySel = $('#profileCity');
+
+    if (profileCitySel && document.activeElement !== profileCitySel) {
+
+      profileCitySel.value = user.city || DEFAULT_CITY;
+
+    }
+
+    syncProfileCityUi(user.city || DEFAULT_CITY);
+
+    const profileWardInput = $('#profileWardInput');
+
+    if (profileWardInput && document.activeElement !== profileWardInput) {
+
+      profileWardInput.value = user.ward || '';
+
+    }
 
     const societyInput = $('#profileSocietyInput');
 
@@ -27099,11 +28251,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#profilePoints').textContent = getTotalCivicPoints().toLocaleString();
+    $('#profilePoints').textContent = getTotalCivicXp().toLocaleString();
 
     $('#profileFixed').textContent = resolved.length;
 
     $('#profilePending').textContent = pending.length;
+
+    syncUserCivicXp();
+
+    const xpInfo = getCivicLevelInfo(getTotalCivicXp());
+
+    const levelBadgeEl = $('#profileLevelBadge');
+
+    const xpTotalEl = $('#profileXpTotal');
+
+    const xpTrackEl = $('#profileXpTrack');
+
+    const xpProgressEl = $('#profileXpProgress');
+
+    const xpHintEl = $('#profileXpHint');
+
+    if (levelBadgeEl) levelBadgeEl.textContent = civicLevelName(xpInfo.level.id);
+
+    if (xpTotalEl) xpTotalEl.textContent = t('profile.xpTotalLabel').replace('{n}', String(xpInfo.xp));
+
+    if (xpProgressEl && xpTrackEl) {
+
+      xpProgressEl.style.width = `${xpInfo.pct}%`;
+
+      xpTrackEl.setAttribute('aria-valuenow', String(xpInfo.pct));
+
+    }
+
+    if (xpHintEl) {
+
+      xpHintEl.textContent = xpInfo.next
+
+        ? t('profile.xpToNext')
+
+          .replace('{n}', String(xpInfo.remaining))
+
+          .replace('{level}', civicLevelName(xpInfo.next.id))
+
+        : t('profile.xpMax');
+
+    }
 
 
 
@@ -27117,7 +28309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nextBadgeHintEl = $('#profileNextBadgeHint');
 
-    if (rewardsEl && reports.length > 0) {
+    if (rewardsEl && (reports.length > 0 || getTotalCivicXp() > 0)) {
 
       rewardsEl.classList.remove('hidden');
 
