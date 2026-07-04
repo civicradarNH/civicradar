@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v115" in sw_src
+        "civicradar-v116" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v115" in sw_src
+        "civicradar-v116" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7597,6 +7597,8 @@ async def main():
         '`css/styles.css` + `js/app.js` + `supabase/storage-migration.sql`: visual vibrancy + Storage scale-up (v114) — hazard picker tiles now color-coded per category (cyan/green/orange/gold) instead of flat gray, header icons tinted brand indigo; report/resolution photos now upload to a `report-photos` Supabase Storage bucket instead of embedding base64 in Postgres rows (`Backend.uploadReportImage`), fixing both the free-tier DB-size and sync-egress risk flagged for 10K-user scale; widened the `isSafeReportImage()` image-src guard (previously `data:` URL only) to also accept the resulting Storage URLs across all 13 render sites that check it; SW06 → v114',
 
         '`css/styles.css` + `index.html` + `js/app.js`: design polish pass (v115) — Community modal restructured from one long flat scroll into a clear hierarchy ("Your ward this week" / "Ward leaderboard" sections always visible, "Get involved" and "Resources" as collapsible groups reusing the existing official-channels accordion pattern); Profile\'s plain bordered form fields wrapped in an elevated `.profile-details-card` so the premium gradient stat card\'s tone carries down the screen, plus icons added to every Profile section header for visual consistency with Community; empty states (Reports, Volunteer, Pledges, Wins, Community leads) upgraded from flat muted icons to a warm gradient icon badge (shared `.empty-state--action i` style, one CSS change covers all five); removed the loud Instagram-gradient button style from two generic "Download" actions (certificate, share-win card) in favour of the existing outline style already used by their neighbouring "Copy caption" button, and deleted the now-unused `.btn--instagram` rule; SW06 → v115',
+
+        '`js/app.js` + `sw.js`: fix report-modal close button (v116) — `canDismissReportOverlay()` was blocking the report modal\'s × button, backdrop tap, and hardware back indefinitely once a photo had been captured (`hasReportPhotoPreview()` check had no time bound, unlike the sibling `isReportPhotoPickerActive()` camera-return race-condition guard it sat next to); closing with a photo present is safe — `closeModal(\'report\')` never clears the canvas, and `openReportModal()` already resumes straight to the photo/submit step on reopen — so the check was removed with no data-loss risk; audited all other modals/dismiss paths for the same indefinite-block pattern, found none; SW06 → v116',
 
     ]
 

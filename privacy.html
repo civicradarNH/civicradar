@@ -74,10 +74,10 @@
     <h2>5. Storage, processors &amp; cross-border transfer</h2>
     <ul>
       <li><strong>On your device</strong> — reports, profile, and preferences in browser storage when offline or in local-only mode.</li>
-      <li><strong>Supabase</strong> (when configured) — cloud database for reports, pledges, volunteer signups, and analytics. Our backend is hosted in the <strong>Mumbai (ap-south-1) region in India</strong>, so your data is primarily stored on servers in India. Supabase Inc. is a United States company acting as our data processor. Because project maintainers may administer the service from outside India, some processing involves <strong>cross-border transfer</strong> under the DPDP Act — we rely on your consent and on our contract with the processor for this. See <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</li>
+      <li><strong>Supabase</strong> (when configured) — cloud database for report/pledge/volunteer records and analytics, plus a separate object storage bucket for hazard photos (see below). Our backend is hosted in the <strong>Mumbai (ap-south-1) region in India</strong>, so your data is primarily stored on servers in India. Supabase Inc. is a United States company acting as our data processor. Because project maintainers may administer the service from outside India, some processing involves <strong>cross-border transfer</strong> under the DPDP Act — we rely on your consent and on our contract with the processor for this. See <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</li>
       <li><strong>Third-party CDNs</strong> — map tiles (OpenStreetMap/Leaflet), fonts, and optional safety-scan models loaded when online.</li>
     </ul>
-    <p>Photos are currently stored as compressed data in the database (MVP). Production deployments should migrate to object storage with access controls.</p>
+    <p>Photos are uploaded to a dedicated Supabase Storage bucket (not embedded in database rows), protected by access-controlled storage policies, in the same Mumbai (ap-south-1) region as the rest of our backend.</p>
     <p><strong>Security note:</strong> BMC partner accounts with official <code>*.gov.in</code> email domains may receive elevated dashboard access automatically when signing in — this is role assignment only, not a claim of government endorsement of CivicRadar.</p>
 
     <h2>6. Retention</h2>
