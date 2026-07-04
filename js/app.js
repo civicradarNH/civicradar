@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v108';
+  const CIVIC_APP_VERSION = 'v109';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -19047,7 +19047,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const prev = readReportDraft() || {};
 
-    writeReportDraft({
+    const modalOpen = overlays.report?.classList.contains('open');
+
+    const domDraft = modalOpen ? {
 
       hazardType: $('#hazardType')?.value || prev.hazardType || 'stagnant-water',
 
@@ -19055,7 +19057,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       notes: ($('#reportNotes')?.value ?? prev.notes ?? ''),
 
+    } : {};
+
+    writeReportDraft({
+
+      hazardType: prev.hazardType || 'stagnant-water',
+
+      step: prev.step || 'photo',
+
+      notes: prev.notes ?? '',
+
       awaitingPhoto: prev.awaitingPhoto || false,
+
+      ...domDraft,
 
       ...updates,
 
@@ -19067,9 +19081,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function persistReportDraftOnHide() {
 
-    if (!overlays.report?.classList.contains('open')
+    const modalOpen = overlays.report?.classList.contains('open');
+
+    if (!modalOpen
 
       && !reportPhotoFlowActive && !reportPhotoProcessing && !isReportDraftAwaitingPhoto()) return;
+
+    if (!modalOpen && !reportPhotoFlowActive && !reportPhotoProcessing) {
+
+      const draft = readReportDraft();
+
+      if (draft) writeReportDraft(draft);
+
+      return;
+
+    }
 
     touchReportDraft({
 

@@ -1,0 +1,8 @@
+﻿commit 650bacd04921fa7aca4343605d7481e681470af2
+Author: Nilesh Hadawale <nileshhadawale-oss@users.noreply.github.com>
+Date:   Sat Jul 4 10:53:43 2026 -0400
+
+    Update .gitignore
+
+ .gitignore | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)

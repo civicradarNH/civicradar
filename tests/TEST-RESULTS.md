@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 10:23:46
+**Run:** 2026-07-04 11:39:45
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 387 | **Fail:** 1
+**Total:** 388 | **Pass:** 388 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -97,7 +97,7 @@
 - **Profile:** 4 pass / 0 fail
 - **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
-- **Report:** 23 pass / 1 fail
+- **Report:** 24 pass / 0 fail
 - **Rewards:** 2 pass / 0 fail
 - **Share:** 1 pass / 0 fail
 - **ShareWin:** 4 pass / 0 fail
@@ -116,7 +116,7 @@
 
 ## Failures
 
-- `RP21` **Draft restores report modal after reload** — failed
+_None_
 
 ## Limitations
 
@@ -142,7 +142,7 @@
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch · Dadar, Shiva #6F |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ward Scout · Dadar, Shiva #93F |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -208,8 +208,8 @@
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.03s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -336,7 +336,7 @@
 | RP04 | Report | Photo input accepts images | PASS |  |
 | RP05 | Report | Capture photo button present | PASS |  |
 | RP06 | Report | Close without submit saves nothing | PASS |  |
-| RP21 | Report | Draft restores report modal after reload | **FAIL** |  |
+| RP21 | Report | Draft restores report modal after reload | PASS |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
 | RP13 | Report | First report shows celebrate + progress | PASS | celebrate="You're protecting your ward — " progress="Badge unlocked! 2 more to your" |
