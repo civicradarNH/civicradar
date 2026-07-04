@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v102';
+  const CIVIC_APP_VERSION = 'v104';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2872,27 +2872,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'About CivicRadar',
 
-      'about.subtitle': 'Map it · Snap it · Report it — community ward map for Mumbai, Pune & Thane.',
+      'about.subtitle': 'CivicRadar is a free community app for reporting civic hazards on a live ward map in Mumbai, Pune, and Thane. It is not a government service or an official municipal complaint channel.',
+
+      'about.featuresTitle': 'What you can do',
+
+      'about.feature1': 'Report hazards with a photo pin — stagnant water, garbage, potholes, or broken streetlights',
+
+      'about.feature2': 'Browse the ward map and tap Me too to corroborate nearby reports',
+
+      'about.feature3': 'Get help filing with BMC, PMC, or TMC when you choose — after pinning on CivicRadar',
+
+      'about.feature4': 'Track status, volunteer for cleanups, and see community progress on your ward',
+
+      'about.audienceTitle': 'Who it\'s for',
+
+      'about.audience': 'Residents, RWAs, and neighbourhood groups in Mumbai, Pune, and Thane — especially during monsoon when stagnant water and blocked drains matter most.',
+
+      'about.privacyTitle': 'Privacy & data',
+
+      'about.privacyNote': 'Photo location metadata (EXIF) is stripped before upload. GPS is used only to place your pin when you allow it. Reports are visible to the community on the map. Official complaints go through BMC, PMC, or TMC when you file there.',
 
       'about.impactTitle': 'Community impact',
 
-      'about.builtTitle': 'What we built',
-
-      'about.differentTitle': 'What makes CivicRadar different',
-
-      'about.different1': 'Live ward map with photo pins — neighbours tap Me too to corroborate, not anonymous helpline drops',
-
-      'about.different2': 'Dual path: pin on CivicRadar first, then one-tap official filing (BMC 1916/MyBMC, PMC CARE, TMC) when you choose',
-
-      'about.different3': 'Works offline — install to Home Screen, no login, 4 languages across Mumbai, Pune & Thane',
-
-      'about.different4': 'Track until fixed — escalation timeline, Civic Points, and community wins when spots get cleaned',
-
-      'about.sustainTitle': 'Sustainable & free for citizens',
-
-      'about.sustainBody': 'CivicRadar stays free for residents. Future support comes from local partners — not paywalls on public safety.',
-
-      'about.copyImpact': 'Copy impact summary',
+      'about.version': 'Version {version}',
 
       'about.contact': 'Contact us',
 
@@ -3188,6 +3190,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint': 'Stagnant water goes to your ward\'s Pest Control Officer. Use any channel:',
 
+      'esc.fileHint.garbage': 'Garbage / solid waste goes through Solid Waste Management. Use any channel:',
+
+      'esc.fileHint.potholes': 'Potholes and road damage go to Roads / Engineering. Use any channel:',
+
+      'esc.fileHint.streetlight': 'Broken streetlights go to the Electrical department. Use any channel:',
+
       'esc.recommended': 'Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.',
 
       'esc.channelWa': 'Chatbot — pre-fill below',
@@ -3211,6 +3219,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.copyBilingual': 'For the call centre: read the Marathi section at the bottom of the text block.',
 
       'esc.portalHint': 'On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.',
+
+      'esc.portalHint.garbage': 'On the portal or MARG app: Solid Waste Management → garbage / drainage. Paste the details below.',
+
+      'esc.portalHint.potholes': 'On the portal or MARG app: Roads / potholes. Paste the details below.',
+
+      'esc.portalHint.streetlight': 'On the portal or MARG app: Electrical → streetlight. Paste the details below.',
+
+      'esc.portalHintNav': 'On the portal or MARG app: {hint}. Paste the details below.',
 
       'esc.filedConsent': 'I filed on an official BMC channel (1916 / MyBMC / portal / app)',
 
@@ -3866,7 +3882,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.teamLabel': 'The CivicRadar team',
 
-      'about.teamRole': 'Community monsoon hazard map',
+      'about.teamRole': 'Community civic reporting',
 
       'ref.welcomeTitle': 'A neighbour invited you 👋',
 
@@ -4980,27 +4996,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar के बारे में',
 
-      'about.subtitle': 'नक्शे पर · फोटो · रिपोर्ट — मुंबई, पुणे और ठाणे का सामुदायिक वार्ड नक्शा।',
+      'about.subtitle': 'CivicRadar मुंबई, पुणे और ठाणे में नागरिक खतरों की रिपोर्ट करने के लिए एक मुफ़्त सामुदायिक ऐप है — लाइव वार्ड नक्शे पर। यह सरकारी सेवा या आधिकारिक नगर निगम शिकायत चैनल नहीं है।',
+
+      'about.featuresTitle': 'आप क्या कर सकते हैं',
+
+      'about.feature1': 'फोटो पिन से खतरे की रिपोर्ट — stagnant water, कचरा, गड्ढे, या टूटी स्ट्रीटलाइट',
+
+      'about.feature2': 'वार्ड नक्शा देखें और पास की रिपोर्ट पर Me too से पुष्टि करें',
+
+      'about.feature3': 'CivicRadar पर पिन के बाद, चाहें तो BMC, PMC या TMC में दर्ज करने में मदद',
+
+      'about.feature4': 'स्थिति ट्रैक करें, सफाई के लिए स्वयंसेवा करें, और अपने वार्ड की सामुदायिक प्रगति देखें',
+
+      'about.audienceTitle': 'किसके लिए',
+
+      'about.audience': 'मुंबई, पुणे और ठाणे के निवासी, RWA और पड़ोस समूह — खासकर मानसून में जब stagnant water और बंद नालियाँ महत्वपूर्ण हों।',
+
+      'about.privacyTitle': 'गोपनीयता और डेटा',
+
+      'about.privacyNote': 'अपलोड से पहले फोटो की location metadata (EXIF) हटा दी जाती है। GPS सिर्फ आपकी अनुमति पर पिन लगाने के लिए। रिपोर्ट नक्शे पर समुदाय को दिखती हैं। आधिकारिक शिकायत BMC, PMC या TMC चैनल से होती है।',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
-      'about.builtTitle': 'हमने क्या बनाया',
-
-      'about.differentTitle': 'CivicRadar अलग क्यों है',
-
-      'about.different1': 'लाइव वार्ड नक्शा + फोटो पिन — पड़ोसी Me too से पुष्टि करते हैं, गुमनाम हेल्पलाइन ड्रॉप नहीं',
-
-      'about.different2': 'दोहरा रास्ता: पहले CivicRadar पर पिन, फिर चाहें तो एक-टैप आधिकारिक दर्ज (BMC 1916/MyBMC, PMC CARE, TMC)',
-
-      'about.different3': 'ऑफ़लाइन काम करता है — होम स्क्रीन पर जोड़ें, बिना लॉगिन, 4 भाषाएँ',
-
-      'about.different4': 'ठीक होने तक ट्रैक — एस्केलेशन टाइमलाइन, Civic Points, और सफाई पर सामुदायिक जीत',
-
-      'about.sustainTitle': 'टिकाऊ और नागरिकों के लिए निःशुल्क',
-
-      'about.sustainBody': 'CivicRadar निवासियों के लिए हमेशा निःशुल्क रहेगा। भविष्य की आय नैतिक स्थानीय साझेदारी से आती है — सार्वजनिक सुरक्षा पर पेवॉल नहीं।',
-
-      'about.copyImpact': 'प्रभाव सारांश कॉपी करें',
+      'about.version': 'संस्करण {version}',
 
       'about.contact': 'हमसे संपर्क करें',
 
@@ -5296,6 +5314,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint': 'रुका पानी आपके वार्ड के कीट नियंत्रण अधिकारी तक जाता है। कोई भी चैनल:',
 
+      'esc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट Solid Waste Management से जाता है। कोई भी चैनल:',
+
+      'esc.fileHint.potholes': 'गड्ढे और सड़क क्षति Roads / Engineering को जाती है। कोई भी चैनल:',
+
+      'esc.fileHint.streetlight': 'खराब स्ट्रीटलाइट Electrical विभाग को जाती है। कोई भी चैनल:',
+
       'esc.recommended': 'अनुशंसित: MyBMC WhatsApp — अधिकांश Mumbai वार्डों के लिए सबसे तेज़।',
 
       'esc.channelWa': 'चैटबॉट · नीचे से कॉपी करें',
@@ -5319,6 +5343,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.copyBilingual': 'कॉल सेंटर: टेक्स्ट ब्लॉक में मराठी पंक्ति पढ़ सकते हैं।',
 
       'esc.portalHint': 'पोर्टल या MARG ऐप: Public Health → Pest Control → stagnant water चुनें। नीचे विवरण चिपकाएँ।',
+
+      'esc.portalHint.garbage': 'पोर्टल या MARG ऐप: Solid Waste Management → garbage / drainage। नीचे विवरण चिपकाएँ।',
+
+      'esc.portalHint.potholes': 'पोर्टल या MARG ऐप: Roads / potholes। नीचे विवरण चिपकाएँ।',
+
+      'esc.portalHint.streetlight': 'पोर्टल या MARG ऐप: Electrical → streetlight। नीचे विवरण चिपकाएँ।',
 
       'esc.filedConsent': 'मैंने आधिकारिक BMC चैनल पर दर्ज किया (1916 / MyBMC / पोर्टल / ऐप)',
 
@@ -5974,7 +6004,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.teamLabel': 'CivicRadar टीम',
 
-      'about.teamRole': 'सामुदायिक मानसून खतरा नक्शा',
+      'about.teamRole': 'सामुदायिक नागरिक रिपोर्टिंग',
 
       'ref.welcomeTitle': 'एक पड़ोसी ने आपको बुलाया 👋',
 
@@ -7087,27 +7117,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar बद्दल',
 
-      'about.subtitle': 'नकाशावर · फोटो · नोंदवा — मुंबई, पुणे आणि ठाणे साठी सामुदायिक वॉर्ड नकाशा.',
+      'about.subtitle': 'CivicRadar हा मुंबई, पुणे आणि ठाण्यात नागरी धोके नोंदवण्यासाठी एक मोफत सामुदायिक अ‍ॅप आहे — लाइव्ह वॉर्ड नकाशावर. ही सरकारी सेवा किंवा अधिकृत महानगरपालिका तक्रार चॅनेल नाही.',
+
+      'about.featuresTitle': 'तुम्ही काय करू शकता',
+
+      'about.feature1': 'फोटो पिनने धोका नोंदवा — stagnant water, कचरा, खड्डे, किंवा तुटलेली स्ट्रीटलाइट',
+
+      'about.feature2': 'वॉर्ड नकाशा पहा आणि जवळच्या तक्रारीवर Me too ने पुष्टी करा',
+
+      'about.feature3': 'CivicRadar वर पिन केल्यानंतर, इच्छित असल्यास BMC, PMC किंवा TMC मध्ये नोंदवण्यास मदत',
+
+      'about.feature4': 'स्थिती ट्रॅक करा, सफाईसाठी स्वयंसेवा करा, आणि तुमच्या वॉर्डची सामुदायिक प्रगती पहा',
+
+      'about.audienceTitle': 'कोणासाठी',
+
+      'about.audience': 'मुंबई, पुणे आणि ठाण्यातील रहिवासी, RWA आणि परिसर गट — विशेषतः पावसाळ्यात जेव्हा stagnant water आणि बंद नाले महत्त्वाचे असतात.',
+
+      'about.privacyTitle': 'गोपनीयता आणि डेटा',
+
+      'about.privacyNote': 'अपलोडपूर्वी फोटोची location metadata (EXIF) काढली जाते. GPS फक्त तुमच्या परवानगीने पिन ठेवण्यासाठी. तक्रारी नकाशावर समुदायाला दिसतात. अधिकृत तक्रार BMC, PMC किंवा TMC चॅनेलद्वारे होते.',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
-      'about.builtTitle': 'आम्ही काय बांधले',
-
-      'about.differentTitle': 'CivicRadar वेगळे का',
-
-      'about.different1': 'लाइव्ह वॉर्ड नकाशा + फोटो पिन — शेजारी Me too ने पुष्टी, गुप्त हेल्पलाइन ड्रॉप नाही',
-
-      'about.different2': 'दुहेरी मार्ग: आधी CivicRadar वर पिन, नंतर एक-टॅप अधिकृत नोंद (BMC 1916/MyBMC, PMC CARE, TMC)',
-
-      'about.different3': 'ऑफलाइन काम करते — होम स्क्रीनवर जोडा, लॉगिन नाही, 4 भाषा',
-
-      'about.different4': 'ठीक होईपर्यंत ट्रॅक — एस्केलेशन टाइमलाइन, Civic Points, आणि सफाईवर सामुदायिक विजय',
-
-      'about.sustainTitle': 'शाश्वत आणि नागरिकांसाठी मोफत',
-
-      'about.sustainBody': 'CivicRadar रहिवाशांसाठी नेहमी मोफत राहील. भविष्यातील उत्पन्न नैतिक स्थानिक भागीदारीतून येते.',
-
-      'about.copyImpact': 'प्रभाव सारांश कॉपी करा',
+      'about.version': 'आवृत्ती {version}',
 
       'about.contact': 'आमच्याशी संपर्क',
 
@@ -7403,6 +7435,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint': 'साचलेले पाणी वॉर्ड PCO कडे जाते. कोणताही चॅनेल:',
 
+      'esc.fileHint.garbage': 'कचरा / घन कचरा Solid Waste Management मार्गे जातो. कोणताही चॅनेल:',
+
+      'esc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान Roads / Engineering कडे जाते. कोणताही चॅनेल:',
+
+      'esc.fileHint.streetlight': 'बंद पथदिवे Electrical विभागाकडे जातात. कोणताही चॅनेल:',
+
       'esc.recommended': 'शिफारस: MyBMC WhatsApp — बहुतेक Mumbai वॉर्डांसाठी सर्वात जलद.',
 
       'esc.channelWa': 'चॅटबॉट · खाली कॉपी',
@@ -7426,6 +7464,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.copyBilingual': 'कॉल सेंटर: मजकुरात मराठी ओळ वाचू शकता.',
 
       'esc.portalHint': 'पोर्टल किंवा MARG: Public Health → Pest Control → stagnant water. खाली तपशील पेस्ट करा.',
+
+      'esc.portalHint.garbage': 'पोर्टल किंवा MARG: Solid Waste Management → garbage / drainage. खाली तपशील पेस्ट करा.',
+
+      'esc.portalHint.potholes': 'पोर्टल किंवा MARG: Roads / potholes. खाली तपशील पेस्ट करा.',
+
+      'esc.portalHint.streetlight': 'पोर्टल किंवा MARG: Electrical → streetlight. खाली तपशील पेस्ट करा.',
 
       'esc.filedConsent': 'मी अधिकृत BMC चॅनेलवर नोंदवले (1916 / MyBMC / पोर्टल / अॅप)',
 
@@ -8081,7 +8125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.teamLabel': 'CivicRadar संघ',
 
-      'about.teamRole': 'सामुदायिक पावसाळा धोका नकाशा',
+      'about.teamRole': 'सामुदायिक नागरी अहवाल',
 
       'ref.welcomeTitle': 'एका शेजाऱ्याने तुम्हाला बोलावले 👋',
 
@@ -9194,27 +9238,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar વિશે',
 
-      'about.subtitle': 'નકશા પર · ફોટો · રિપોર્ટ — મુંબઈ, પુણે અને ઠાણે માટે સામુદાયિક વોર્ડ નકશો.',
+      'about.subtitle': 'CivicRadar મુંબઈ, પુણે અને ઠાણેમાં નાગરિક જોખમોની રિપોર્ટ કરવા માટેનું મફત સામુદાયિક એપ છે — લાઇવ વોર્ડ નકશા પર. આ સરકારી સેવા કે અધિકૃત municipal ફરિયાદ ચેનલ નથી.',
+
+      'about.featuresTitle': 'તમે શું કરી શકો',
+
+      'about.feature1': 'ફોટો પિનથી જોખમની રિપોર્ટ — stagnant water, કચરો, ખાડા, કે તૂટેલી સ્ટ્રીટલાઇટ',
+
+      'about.feature2': 'વોર્ડ નકશો જુઓ અને નજીકની રિપોર્ટ પર Me too થી પુષ્ટિ કરો',
+
+      'about.feature3': 'CivicRadar પર પિન પછી, ઇચ્છો તો BMC, PMC કે TMC માં નોંધવામાં મદદ',
+
+      'about.feature4': 'સ્થિતિ ટ્રેક કરો, સફાઈ માટે સ્વયંસેવા કરો, અને તમારા વોર્ડની સામુદાયિક પ્રગતિ જુઓ',
+
+      'about.audienceTitle': 'કોના માટે',
+
+      'about.audience': 'મુંબઈ, પુણે અને ઠાણેના રહેવાસીઓ, RWA અને પડોશ જૂથો — ખાસ કરીને ચોમાસામાં જ્યારે stagnant water અને બંધ ગટરો મહત્વના હોય.',
+
+      'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
+
+      'about.privacyNote': 'અપલોડ પહેલાં ફોટોની location metadata (EXIF) દૂર થાય છે. GPS ફક્ત તમારી પરવાનગીથી પિન મૂકવા માટે. રિપોર્ટ નકશા પર સમુદાયને દેખાય છે. અધિકૃત ફરિયાદ BMC, PMC કે TMC ચેનલ દ્વારા થાય છે.',
 
       'about.impactTitle': 'સામુદાયિક પ્રભાવ',
 
-      'about.builtTitle': 'અમે શું બનાવ્યું',
-
-      'about.differentTitle': 'CivicRadar અલગ કેમ',
-
-      'about.different1': 'લાઇવ વોર્ડ નકશો + ફોટો પિન — પડોશીઓ Me too થી પુષ્ટિ, ગુપ્ત હેલ્પલાઇન ડ્રોપ નહીં',
-
-      'about.different2': 'દ્વિ માર્ગ: પહેલા CivicRadar પર પિન, પછી એક-ટેપ અધિકૃત નોંધ (BMC 1916/MyBMC, PMC CARE, TMC)',
-
-      'about.different3': 'ઑફલાઇન કામ કરે — હોમ સ્ક્રીન પર ઉમેરો, લૉગિન વગર, 4 ભાષાઓ',
-
-      'about.different4': 'ઠીક થાય ત્યાં સુધી ટ્રેક — એસ્કેલેશન ટાઇમલાઇન, Civic Points, અને સફાઈ પર સામુદાયિક જીત',
-
-      'about.sustainTitle': 'ટકાઉ અને નાગરિકો માટે મફત',
-
-      'about.sustainBody': 'CivicRadar રહેવાસીઓ માટે હંમેશા મફત રહેશે. ભવિષ્યની આવક નૈતિક સ્થાનિક ભાગીદારીમાંથી આવે છે.',
-
-      'about.copyImpact': 'પ્રભાવ સારાંશ કૉપી કરો',
+      'about.version': 'આવૃત્તિ {version}',
 
       'about.contact': 'અમારો સંપર્ક',
 
@@ -9510,6 +9556,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint': 'ભરાયેલું પાણી વોર્ડ PCO પાસે જાય છે. કોઈ પણ ચેનલ:',
 
+      'esc.fileHint.garbage': 'કચરો / ઘન કચરો Solid Waste Management દ્વારા જાય છે. કોઈ પણ ચેનલ:',
+
+      'esc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન Roads / Engineering પાસે જાય છે. કોઈ પણ ચેનલ:',
+
+      'esc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ Electrical વિભાગ પાસે જાય છે. કોઈ પણ ચેનલ:',
+
       'esc.recommended': 'ભલામણ: MyBMC WhatsApp — મોટાભાગના Mumbai વોર્ડ માટે સૌથી ઝડપી.',
 
       'esc.channelWa': 'ચેટબોટ · નીચેથી કૉપી',
@@ -9533,6 +9585,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.copyBilingual': 'કોલ સેન્ટર: ટેક્સ્ટ બ્લોકમાં મરાઠી લીટી વાંચી શકો.',
 
       'esc.portalHint': 'પોર્ટલ અથવા MARG: Public Health → Pest Control → stagnant water. નીચે વિગતો પેસ્ટ કરો.',
+
+      'esc.portalHint.garbage': 'પોર્ટલ અથવા MARG: Solid Waste Management → garbage / drainage. નીચે વિગતો પેસ્ટ કરો.',
+
+      'esc.portalHint.potholes': 'પોર્ટલ અથવા MARG: Roads / potholes. નીચે વિગતો પેસ્ટ કરો.',
+
+      'esc.portalHint.streetlight': 'પોર્ટલ અથવા MARG: Electrical → streetlight. નીચે વિગતો પેસ્ટ કરો.',
 
       'esc.filedConsent': 'મેં અધિકૃત BMC ચેનલ પર નોંધાવ્યું (1916 / MyBMC / પોર્ટલ / એપ)',
 
@@ -10188,7 +10246,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.teamLabel': 'CivicRadar ટીમ',
 
-      'about.teamRole': 'સામુદાયિક ચોમાસા જોખમ નકશો',
+      'about.teamRole': 'સામુદાયિક નાગરિક રિપોર્ટિંગ',
 
       'ref.welcomeTitle': 'એક પડોશીએ તમને આમંત્રણ આપ્યું 👋',
 
@@ -10526,6 +10584,30 @@ document.addEventListener('DOMContentLoaded', function () {
     return getUserReports().filter((r) => r.status === 'pending' && !r.complaintId);
   }
 
+  function refreshAllContextHints() {
+    syncOnboardingCityUi(getOnboardingCity());
+    syncProfileCityUi(getProfileCity());
+    refreshSocietyForOnboarding();
+    refreshSocietyForProfile();
+    const volWard = user.ward || '';
+    if (volWard) {
+      const volCount = getSocietySuggestions(getUserCity(), volWard).length;
+      setNeighbourhoodFieldHint('volunteerNeighbourhoodHint', 'volunteer.neighbourhoodHint', volWard, volCount);
+    } else {
+      setNeighbourhoodFieldHint('volunteerNeighbourhoodHint', 'volunteer.neighbourhoodHint', '', 0);
+    }
+    const leadWard = ($('#leadNomWard') && $('#leadNomWard').value.trim()) || user.ward || '';
+    const leadCity = ($('#leadNomCity') && $('#leadNomCity').value) || user.city || DEFAULT_CITY;
+    if (leadWard && isValidWard(leadWard, leadCity)) {
+      const leadCount = getSocietySuggestions(leadCity, leadWard).length;
+      setNeighbourhoodFieldHint('leadNomNeighbourhoodHint', 'lead.neighbourhoodHint', leadWard, leadCount);
+    } else {
+      setNeighbourhoodFieldHint('leadNomNeighbourhoodHint', 'lead.neighbourhoodHint', '', 0);
+    }
+    updateHazardSelectedCue($('#hazardType')?.value || '');
+    updateMapEmptyCta();
+  }
+
   function applyTranslations() {
     document.documentElement.lang = currentLang;
     $$('[data-i18n]').forEach((el) => {
@@ -10551,10 +10633,10 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSyncStatus();
     updatePersonaUI();
     updateHeaderContext();
-    if ($('#onboardCity')) syncOnboardingCityUi(getOnboardingCity());
     refreshWardComboboxes();
     refreshSocietyComboboxes();
     updatePhotoGuidelines($('#hazardType')?.value || 'stagnant-water');
+    refreshAllContextHints();
   }
 
   function updateSyncStatus() {
@@ -14266,48 +14348,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderCommunityImpactStats();
 
-    $('#founderName').textContent = FOUNDER.name || t('about.teamLabel');
-
-    $('#founderRole').textContent = FOUNDER.role || FOUNDER.tagline || t('about.teamRole');
-
-    const schoolLoc = [FOUNDER.school, FOUNDER.location].filter(Boolean).join(' — ');
-
-    const schoolEl = $('#founderSchool');
-
-    if (schoolEl) {
-
-      schoolEl.textContent = schoolLoc;
-
-      schoolEl.hidden = !schoolLoc;
-
-    }
-
-    $('#founderStory').textContent = FOUNDER.story || '';
-
-    const opEl = $('#founderOperator');
-
-    if (opEl) {
-
-      if (FOUNDER.operatorName && FOUNDER.name) {
-
-        opEl.textContent = t('about.operatorNote')
-
-          .replace('{name}', FOUNDER.name)
-
-          .replace('{operator}', FOUNDER.operatorName);
-
-        opEl.hidden = false;
-
-      } else {
-
-        opEl.hidden = true;
-
-        opEl.textContent = '';
-
-      }
-
-    }
-
     const aboutSub = $('#aboutSubtitle');
 
     if (aboutSub) {
@@ -14316,35 +14356,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const versionEl = $('#aboutVersion');
 
+    if (versionEl) {
 
-    const hl = $('#founderHighlights');
-
-    if (hl) {
-
-      hl.innerHTML = (FOUNDER.highlights || [])
-
-        .map((h) => `<li>${escapeHtml(h)}</li>`)
-
-        .join('');
+      versionEl.textContent = t('about.version').replace('{version}', CIVIC_APP_VERSION);
 
     }
-
-
-
-    const rev = $('#revenueModelList');
-
-    if (rev) {
-
-      rev.innerHTML = (MONET.revenueModel || [])
-
-        .map((r) => `<li>${escapeHtml(r)}</li>`)
-
-        .join('');
-
-    }
-
-
 
     const contactEmail = getFounderContactEmail();
 
@@ -14361,22 +14379,6 @@ document.addEventListener('DOMContentLoaded', function () {
         contactLabel.textContent = t('about.contact');
 
       }
-
-    }
-
-
-
-    const pitchEl = $('#aboutSharePitchText');
-
-    if (pitchEl) {
-
-      const pitch = t('about.sharePitch')
-
-        .replace(/\{city\}/g, getCityLabel())
-
-        .replace(/\{link\}/g, shareAppLink('about'));
-
-      pitchEl.textContent = pitch;
 
     }
 
@@ -17068,6 +17070,70 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el) return;
 
     el.textContent = photoGuidelinesForHazard(key || $('#hazardType')?.value || 'stagnant-water');
+
+  }
+
+
+
+  function escHintForHazard(keyBase, hazard) {
+
+    const specificKey = `${keyBase}.${hazard}`;
+
+    const specific = t(specificKey);
+
+    if (specific !== specificKey) return specific;
+
+    return t(keyBase);
+
+  }
+
+
+
+  function escPortalHintForHazard(hazard, city) {
+
+    const specificKey = `esc.portalHint.${hazard}`;
+
+    const specific = t(specificKey);
+
+    if (specific !== specificKey) return specific;
+
+    const navHint = getOfficialCategoryHint('marg', hazard, city);
+
+    if (navHint) {
+
+      const navKey = 'esc.portalHintNav';
+
+      const nav = t(navKey);
+
+      if (nav !== navKey) return nav.replace('{hint}', navHint);
+
+    }
+
+    return null;
+
+  }
+
+
+
+  function updateEscHazardHints(hazard, city) {
+
+    const h = hazard || 'stagnant-water';
+
+    if (city !== 'mumbai') return;
+
+    const fileEl = $('#escFileHint');
+
+    if (fileEl) fileEl.textContent = escHintForHazard('esc.fileHint', h);
+
+    const portalEl = $('#escPortalHint');
+
+    if (portalEl) {
+
+      const hazardPortal = escPortalHintForHazard(h, city);
+
+      if (hazardPortal) portalEl.textContent = hazardPortal;
+
+    }
 
   }
 
@@ -21121,7 +21187,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    $('#btnCopyImpact').addEventListener('click', copyImpactSummary);
+    const btnCopyImpact = $('#btnCopyImpact');
+
+    if (btnCopyImpact) btnCopyImpact.addEventListener('click', copyImpactSummary);
 
     const btnCopyPitch = $('#btnCopySharePitch');
 
@@ -26295,6 +26363,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderOfficialChannelsSurfaces(report);
 
     updateEscCityLabels(city, corp);
+
+    updateEscHazardHints(report.hazard, city);
 
     const stage = getReportStage(report);
 

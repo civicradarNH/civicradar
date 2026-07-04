@@ -332,6 +332,7 @@
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="reportModal" role="dialog" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="report" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="reportTitle" data-i18n="report.title">Report a Hazard</h2>
       <div class="flow-steps" id="reportFlowSteps" role="list" aria-label="Report progress">
         <span class="flow-step is-active" role="listitem" data-step="photo" data-i18n="report.step.photo">Photo</span>
@@ -492,7 +493,7 @@
   <div class="modal-overlay" id="communityOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="communityModal" role="dialog" aria-labelledby="communityTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="community" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, or file with your corporation separately.</p>
 
@@ -593,7 +594,7 @@
   <div class="modal-overlay" id="volunteerOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="volunteerModal" role="dialog" aria-labelledby="volunteerTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="volunteer" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="volunteer" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="volunteerTitle" data-i18n="volunteer.title">Volunteer in my ward</h2>
       <p class="modal__subtitle" data-i18n="volunteer.subtitle">Fix it together with neighbours — not a government volunteer programme.</p>
       <div class="form-group">
@@ -649,6 +650,7 @@
   <div class="modal-overlay" id="pledgeOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="pledgeModal" role="dialog" aria-labelledby="pledgeTitle">
       <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="pledge" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="pledgeTitle" data-i18n="pledge.title">Pledge support</h2>
       <p class="modal__subtitle" data-i18n="pledge.subtitle">Help volunteers in your ward with supplies.</p>
       <p class="pledge-notice" data-i18n="pledge.notice">Your ward NGO coordinator sees this in their hub — not BMC. They may follow up in-app; no automatic calls or SMS.</p>
@@ -678,7 +680,7 @@
   <div class="modal-overlay" id="profileOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="profileModal" role="dialog" aria-labelledby="profileTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="profile" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="profile" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="profileTitle" data-i18n="profile.title">Your Profile</h2>
       <p class="persona-tag persona-tag--citizen" id="profilePersonaTag" data-i18n="profile.persona">Citizen</p>
 
@@ -845,7 +847,7 @@
   <div class="modal-overlay" id="partnerOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="partnerModal" role="dialog" aria-labelledby="partnerTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="partner" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="partner" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="partnerTitle" data-i18n="partner.title">Volunteer login</h2>
       <p class="modal__subtitle" data-i18n="partner.subtitle">For NGO coordinators and volunteers. BMC access by invitation only.</p>
       <div class="partner-cards">
@@ -880,7 +882,7 @@
   <div class="modal-overlay" id="adminOverlay" aria-hidden="true">
     <div class="modal modal--sm modal--persona-admin" id="adminModal" role="dialog" aria-labelledby="adminTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="admin" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="admin" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="profile.persona.admin">BMC Admin</p>
       <h2 id="adminTitle"><i class="ph ph-shield-check"></i> <span data-i18n="admin.title">BMC Admin</span></h2>
       <p class="modal__subtitle" data-i18n="admin.subtitle">Resolve citizen hazard reports and manage your ward queue.</p>
@@ -928,7 +930,7 @@
   <div class="modal-overlay" id="leadOverlay" aria-hidden="true">
     <div class="modal modal--sm modal--persona-lead" id="leadModal" role="dialog" aria-labelledby="leadTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="lead" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="lead" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--lead" data-i18n="profile.persona.ngo">NGO Coordinator</p>
       <h2 id="leadTitle"><i class="ph ph-users"></i> <span data-i18n="coord.title">Coordinator login</span></h2>
       <p class="modal__subtitle" data-i18n="coord.subtitle">Review pledges, send volunteers, verify hours.</p>
@@ -980,7 +982,7 @@
   <div class="modal-overlay" id="adminQueueOverlay" aria-hidden="true">
     <div class="modal modal--tall modal--persona-admin" id="adminQueueModal" role="dialog" aria-labelledby="adminQueueTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="adminQueue" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="adminQueue" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="profile.persona.admin">BMC Admin</p>
       <h2 id="adminQueueTitle"><i class="ph ph-list-checks"></i> <span data-i18n="admin.queueTitle">Hazard queue</span></h2>
       <p class="modal__subtitle" data-i18n="admin.queueSubtitle">Review, prioritise, and resolve citizen reports.</p>
@@ -1033,7 +1035,7 @@
   <div class="modal-overlay" id="coordinatorOverlay" aria-hidden="true">
     <div class="modal modal--tall modal--persona-lead" id="coordinatorModal" role="dialog" aria-labelledby="coordinatorTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="coordinator" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="coordinator" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--lead" data-i18n="profile.persona.ngo">NGO Coordinator</p>
       <h2 id="coordinatorTitle"><i class="ph ph-hand-heart"></i> <span data-i18n="coord.hubTitle">Coordinator hub</span></h2>
       <p class="modal__subtitle" id="coordHubSubtitle" data-i18n="coord.hubSubtitle">Review citizen pledges and verify volunteer time.</p>
@@ -1074,7 +1076,7 @@
   <div class="modal-overlay" id="adminReportOverlay" aria-hidden="true">
     <div class="modal modal--persona-admin" id="adminReportModal" role="dialog" aria-labelledby="adminReportTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="adminReport" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="adminReport" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="admin.reviewTag">BMC review</p>
       <h2 id="adminReportTitle"><i class="ph ph-warning-circle"></i> <span data-i18n="admin.reportTitle">Hazard report</span></h2>
       <p class="accountability-clock" id="adminReportClock"></p>
@@ -1117,7 +1119,7 @@
   <div class="modal-overlay" id="escalationOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="escalationModal" role="dialog" aria-labelledby="escalationTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="escalation" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="escalation" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="escalationTitle"><i class="ph ph-megaphone"></i> <span id="escTitleText" data-i18n="esc.title">File with BMC (optional)</span></h2>
       <p class="modal__subtitle" id="escSubtitle" data-i18n="esc.subtitle">CivicRadar shows hazards on the community map. Filing with BMC is your choice — it starts the official clock. This is not a BMC channel.</p>
       <p class="accountability-clock" id="escClock"></p>
@@ -1127,7 +1129,7 @@
       <div id="escBmcPanel">
       <h3 class="section-title" data-i18n="esc.fileTitle">File the complaint (free)</h3>
       <p class="field-hint esc-recommended" id="escRecommended" data-i18n="esc.recommended">Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.</p>
-      <p class="field-hint" data-i18n="esc.fileHint">Stagnant water goes to your ward’s Pest Control Officer. Use any channel:</p>
+      <p class="field-hint" id="escFileHint">Stagnant water goes to your ward’s Pest Control Officer. Use any channel:</p>
       <div class="esc-channels">
         <button type="button" class="esc-channel esc-channel--recommended" id="btnEscWhatsApp">
           <i class="ph ph-whatsapp-logo"></i><span>MyBMC WhatsApp</span><small data-i18n="esc.channelWa">Chatbot · pre-fill below</small>
@@ -1231,20 +1233,23 @@
   <div class="modal-overlay" id="aboutOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="aboutModal" role="dialog" aria-labelledby="aboutTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="about" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="about" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="aboutTitle"><i class="ph ph-radar"></i> <span data-i18n="about.title">About CivicRadar</span></h2>
-      <p class="modal__subtitle" id="aboutSubtitle" data-i18n="about.subtitle">Map it · Snap it · Report it — community ward map for Mumbai, Pune &amp; Thane.</p>
+      <p class="modal__subtitle" id="aboutSubtitle" data-i18n="about.subtitle">CivicRadar is a free community app for reporting civic hazards on a live ward map in Mumbai, Pune, and Thane. It is not a government service or an official municipal complaint channel.</p>
 
-      <div class="founder-card" id="founderCard">
-        <div class="founder-card__avatar"><i class="ph ph-radar"></i></div>
-        <div class="founder-card__body">
-          <div class="founder-card__name" id="founderName">—</div>
-          <div class="founder-card__role" id="founderRole">—</div>
-          <div class="founder-card__school" id="founderSchool">—</div>
-        </div>
-      </div>
-      <p class="about-story" id="founderStory"></p>
-      <p class="about-operator" id="founderOperator" hidden></p>
+      <h3 class="section-title" data-i18n="about.featuresTitle">What you can do</h3>
+      <ul class="about-different">
+        <li data-i18n="about.feature1">Report hazards with a photo pin — stagnant water, garbage, potholes, or broken streetlights</li>
+        <li data-i18n="about.feature2">Browse the ward map and tap Me too to corroborate nearby reports</li>
+        <li data-i18n="about.feature3">Get help filing with BMC, PMC, or TMC when you choose — after pinning on CivicRadar</li>
+        <li data-i18n="about.feature4">Track status, volunteer for cleanups, and see community progress on your ward</li>
+      </ul>
+
+      <h3 class="section-title" data-i18n="about.audienceTitle">Who it's for</h3>
+      <p class="about-story" data-i18n="about.audience">Residents, RWAs, and neighbourhood groups in Mumbai, Pune, and Thane — especially during monsoon when stagnant water and blocked drains matter most.</p>
+
+      <h3 class="section-title" data-i18n="about.privacyTitle">Privacy &amp; data</h3>
+      <p class="about-story" data-i18n="about.privacyNote">Photo location metadata (EXIF) is stripped before upload. GPS is used only to place your pin when you allow it. Reports are visible to the community on the map. Official complaints go through BMC, PMC, or TMC when you file there.</p>
 
       <h3 class="section-title" data-i18n="about.impactTitle">Community impact</h3>
       <div class="impact-stats impact-stats--about" id="aboutImpactStats">
@@ -1254,35 +1259,8 @@
         <div class="impact-stat"><span id="aboutWards">0</span><label data-i18n="impact.wards">Wards</label></div>
       </div>
 
-      <div class="about-share-pitch" id="aboutSharePitch">
-        <h3 class="section-title" data-i18n="about.shareTitle">Share this app</h3>
-        <p class="about-share-pitch__text" id="aboutSharePitchText"></p>
-        <button type="button" class="btn btn--whatsapp btn--full" id="btnCopySharePitch">
-          <i class="ph ph-copy"></i> <span data-i18n="about.copyPitch">Copy WhatsApp pitch</span>
-        </button>
-      </div>
-
-      <h3 class="section-title" data-i18n="about.differentTitle">What makes CivicRadar different</h3>
-      <ul class="about-different">
-        <li data-i18n="about.different1">Ward map + Me too — not anonymous helpline drops</li>
-        <li data-i18n="about.different2">Pin first, file officially when you choose</li>
-        <li data-i18n="about.different3">Offline, no login, 4 languages · Mumbai, Pune &amp; Thane</li>
-      </ul>
-
-      <h3 class="section-title" data-i18n="about.builtTitle">What we built</h3>
-      <ul class="about-highlights" id="founderHighlights"></ul>
-
-      <div class="about-sustain">
-        <strong data-i18n="about.sustainTitle">Sustainable &amp; free for citizens</strong>
-        <p data-i18n="about.sustainBody">CivicRadar will always be free for residents. Future revenue comes from ethical local partnerships — not paywalls on public safety.</p>
-        <ul class="about-revenue" id="revenueModelList"></ul>
-      </div>
-
       <button type="button" class="btn btn--outline btn--full" id="btnBecomeCoordinator">
         <i class="ph ph-users-three"></i> <span data-i18n="about.becomeCoord">Become a ward or neighbourhood coordinator</span>
-      </button>
-      <button type="button" class="btn btn--secondary btn--full" id="btnCopyImpact">
-        <i class="ph ph-copy"></i> <span data-i18n="about.copyImpact">Copy impact summary</span>
       </button>
       <button type="button" class="btn btn--outline btn--full" id="btnContactFounder">
         <i class="ph ph-envelope"></i> <span data-i18n="about.contact">Contact us</span>
@@ -1295,6 +1273,7 @@
         <span aria-hidden="true">·</span>
         <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
       </div>
+      <p class="about-version" id="aboutVersion" aria-live="polite"></p>
       <button type="button" class="btn btn--ghost btn--full" id="btnAboutClose" data-i18n="about.close">Close</button>
     </div>
   </div>
@@ -1303,7 +1282,7 @@
   <div class="modal-overlay" id="inquiryOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="inquiryModal" role="dialog" aria-labelledby="inquiryTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="inquiry" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="inquiry" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="inquiryTitle"><i class="ph ph-handshake"></i> <span data-i18n="inquiry.title">Partner with CivicRadar</span></h2>
       <p class="modal__subtitle" data-i18n="inquiry.subtitle">Reach citizens in Mumbai, Pune, or Thane — in the wards that matter to you.</p>
 
@@ -1349,7 +1328,7 @@
   <div class="modal-overlay" id="langOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="langModal" role="dialog" aria-labelledby="langTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="lang" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="lang" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="langTitle" data-i18n="lang.title"><i class="ph ph-translate"></i> Choose your language</h2>
       <div class="lang-list" id="langList"></div>
     </div>
@@ -1359,7 +1338,7 @@
   <div class="modal-overlay" id="feedbackOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="feedbackModal" role="dialog" aria-labelledby="feedbackTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="feedback" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="feedback" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="feedbackTitle"><i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.title">Send feedback</span></h2>
       <p class="modal__subtitle" data-i18n="feedback.subtitle">Found a bug or have an idea? Tell us — it goes straight to the team.</p>
 
@@ -1411,7 +1390,7 @@
   <div class="modal-overlay" id="accessRequestOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="accessRequestModal" role="dialog" aria-labelledby="accessRequestTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="accessRequest" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="accessRequest" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="accessRequestTitle"><i class="ph ph-identification-card"></i> <span data-i18n="access.title">Request BMC access</span></h2>
       <p class="modal__subtitle" data-i18n="access.subtitle">For invited BMC officials — community leads use peer voting instead.</p>
 
@@ -1489,7 +1468,7 @@
   <div class="modal-overlay" id="leadNomOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="leadNomModal" role="dialog" aria-labelledby="leadNomTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="leadNom" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="leadNom" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="leadNomTitle"><i class="ph ph-hand-heart"></i> <span data-i18n="lead.title">Become a community lead</span></h2>
       <p class="modal__subtitle" data-i18n="lead.subtitle">Nominate yourself — neighbours vote to grant access. No admin approval needed.</p>
 
@@ -1570,7 +1549,7 @@
   <div class="modal-overlay" id="accessClaimOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="accessClaimModal" role="dialog" aria-labelledby="accessClaimTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="accessClaim" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="accessClaim" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="accessClaimTitle"><i class="ph ph-key"></i> <span data-i18n="access.claimTitle">Enter your claim code</span></h2>
       <p class="modal__subtitle" data-i18n="access.claimSubtitle">Approved by the CivicRadar team? Enter the code we sent to unlock your access.</p>
       <form id="accessClaimForm" novalidate>
@@ -1590,7 +1569,7 @@
   <div class="modal-overlay" id="trackingOverlay" aria-hidden="true">
     <div class="modal modal--tall" id="trackingModal" role="dialog" aria-labelledby="trackingTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="tracking" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="tracking" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="trackingTitle"><i class="ph ph-chart-bar"></i> <span data-i18n="tracking.title">Analytics &amp; tracking</span></h2>
       <p class="modal__subtitle" id="trackingSubtitle" data-i18n="tracking.subtitle">Aggregate civic metrics — visits, reports, escalations, and resolutions.</p>
       <p class="tracking-scope-tag hidden" id="trackingScopeTag"></p>
@@ -1652,7 +1631,7 @@
   <div class="modal-overlay" id="accessReviewOverlay" aria-hidden="true">
     <div class="modal modal--tall modal--persona-admin" id="accessReviewModal" role="dialog" aria-labelledby="accessReviewTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="accessReview" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="accessReview" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="access.reviewTag">CivicRadar team</p>
       <h2 id="accessReviewTitle"><i class="ph ph-identification-card"></i> <span data-i18n="access.reviewTitle">Access requests</span></h2>
       <p class="modal__subtitle" data-i18n="access.reviewSubtitle">Approve or reject coordinator &amp; BMC access requests. Approving issues a claim code to share.</p>
@@ -1673,7 +1652,7 @@
   <div class="modal-overlay" id="soonOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="soonModal" role="dialog" aria-labelledby="soonTitle">
       <div class="modal__handle"></div>
-      <button type="button" class="modal__close" data-close="soon" aria-label="Close">&times;</button>
+      <button type="button" class="modal__close" data-close="soon" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="soon-icon" id="soonIcon"><i class="ph ph-rocket-launch"></i></div>
       <h2 id="soonTitle"><span data-i18n="soon.title">Coming soon</span>: <span id="soonCategory"></span></h2>
       <p class="modal__subtitle" id="soonBody"></p>

@@ -2710,17 +2710,15 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    diff_text = await page.evaluate(
+    s.record('DF01', 'Differentiation', 'About features section has 4 bullets', diff_bullets == 4, f'count={diff_bullets}')
 
-        '() => (document.querySelector(".about-different li")?.textContent || "").toLowerCase()'
+    s.record('DF02', 'Differentiation', 'About subtitle states not a government channel',
 
-    )
+             'government' in (await page.evaluate(
 
-    s.record('DF01', 'Differentiation', 'About different section has 3 bullets', diff_bullets == 3, f'count={diff_bullets}')
+                 '() => (document.getElementById("aboutSubtitle")?.textContent || "").toLowerCase()'
 
-    s.record('DF02', 'Differentiation', 'About copy mentions Me too not helpline',
-
-             'me too' in diff_text and 'helpline' in diff_text)
+             )))
 
     await page.evaluate('() => document.querySelector("[data-close=about]")?.click()')
 
@@ -2803,6 +2801,41 @@ async def run_extended_scenarios(s: Suite, browser):
     s.record('U23', 'UI', 'Community backdrop tap returns to Map',
 
              (not await is_open(page, 'communityOverlay')) and bool(await page.evaluate(map_tab_active)))
+
+    modal_close_audit = await page.evaluate("""() => {
+      const withDataClose = [
+        ['reportModal', 'report'], ['communityModal', 'community'], ['volunteerModal', 'volunteer'],
+        ['pledgeModal', 'pledge'], ['profileModal', 'profile'], ['partnerModal', 'partner'],
+        ['adminModal', 'admin'], ['leadModal', 'lead'], ['adminQueueModal', 'adminQueue'],
+        ['coordinatorModal', 'coordinator'], ['adminReportModal', 'adminReport'],
+        ['escalationModal', 'escalation'], ['aboutModal', 'about'], ['inquiryModal', 'inquiry'],
+        ['langModal', 'lang'], ['feedbackModal', 'feedback'], ['accessRequestModal', 'accessRequest'],
+        ['leadNomModal', 'leadNom'], ['accessClaimModal', 'accessClaim'], ['trackingModal', 'tracking'],
+        ['accessReviewModal', 'accessReview'], ['soonModal', 'soon'],
+      ];
+      const withAltDismiss = [
+        ['successModal', '#btnSuccessClose'],
+        ['shareWinModal', '#btnShareWinClose'],
+        ['certificateModal', '#btnCertClose'],
+      ];
+      const missing = [];
+      for (const [modalId, closeKey] of withDataClose) {
+        const modal = document.getElementById(modalId);
+        if (!modal) { missing.push(modalId + ': missing'); continue; }
+        const btn = modal.querySelector('[data-close]');
+        if (!btn) missing.push(modalId + ': no [data-close]');
+        else if (btn.dataset.close !== closeKey) missing.push(modalId + ': data-close mismatch');
+      }
+      for (const [modalId, sel] of withAltDismiss) {
+        const modal = document.getElementById(modalId);
+        if (!modal || !modal.querySelector(sel)) missing.push(modalId + ': no alt dismiss');
+      }
+      return { ok: missing.length === 0, missing };
+    }""")
+
+    s.record('U24', 'UI', 'Major modals have dismiss control',
+
+             bool(modal_close_audit.get('ok')), str(modal_close_audit.get('missing')))
 
     await close_all_modals(page)
 
@@ -2962,6 +2995,30 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP17', 'Report', 'Photo guidelines update on category change', guidelines_update)
 
+    hazard_cue_update = await page.evaluate(
+
+        """() => {
+
+          window.openReportModal(false);
+
+          const garbageTile = document.querySelector('#hazardGrid [data-hazard="garbage"]');
+
+          if (!garbageTile || garbageTile.dataset.live !== 'true') return false;
+
+          garbageTile.click();
+
+          const cue = document.getElementById('hazardSelectedCue')?.textContent || '';
+
+          if (!cue || cue.includes('Stagnant')) return false;
+
+          return /garbage|कचर|कचऱ|કચર/i.test(cue);
+
+        }"""
+
+    )
+
+    s.record('RP18', 'Report', 'Hazard selected cue updates on category change', hazard_cue_update)
+
     await page.evaluate(
 
         """async () => {
@@ -3028,9 +3085,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('RP17', 'Report', 'Garbage hazard submittable', garbage_ok)
+    s.record('RP19', 'Report', 'Garbage hazard submittable', garbage_ok)
 
-    s.record('RP18', 'Report', 'Garbage report stored with hazard type', garbage_ok)
+    s.record('RP20', 'Report', 'Garbage report stored with hazard type', garbage_ok)
 
     await close_all_modals(page)
 
@@ -4269,7 +4326,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v102" in sw_src
+        "civicradar-v104" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7215,6 +7272,8 @@ async def main():
         '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: ward/neighbourhood re-select (v100) — Profile city+ward editable; society datalist refreshes on ward change; datalist select-all on focus; auto civic display name when blank; E2E SO09–SO10, C09c; SW06 → v100',
 
         '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: before/after share-win graphic (v101) — canvas card with society/ward footer, green Fixed placeholder, square 1080×1080 + story 9:16 preview, WhatsApp/download/share; resolved nbh toast Share win CTA; localized en/hi/mr/gu; WIN01–WIN04; SW06 → v101',
+
+        '`index.html` + `js/app.js` + `sw.js`: context-dependent hint refresh (v103) — hazard cue + esc BMC hints on category change; neighbourhood hints on language switch; RP18; SW06 → v103',
 
         '`index.html` + `js/app.js` + `css/styles.css` + `sw.js` + `supabase/schema.sql`: Civic Hero XP & certificates (v101) — 6-level ladder, Profile XP bar, Me too/report XP, shareable level certificates; localized en/hi/mr/gu; XP01–XP03; SW06 → v101',
 

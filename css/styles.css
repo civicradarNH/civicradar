@@ -1869,6 +1869,13 @@ body.pwa-nudge-visible #btnCamera {
   margin: 0 0.35rem;
 }
 
+.about-version {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
 .checkbox-row a {
   color: var(--primary);
 }
