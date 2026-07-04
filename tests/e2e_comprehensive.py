@@ -546,6 +546,16 @@ async def js_click(page, selector: str):
 
     )
 
+async def dismiss_civic_comboboxes(page):
+    await page.evaluate(
+        '''() => {
+          document.querySelectorAll('.civic-combobox__list').forEach((el) => el.classList.add('hidden'));
+          document.querySelectorAll('[role="combobox"]').forEach((el) => el.setAttribute('aria-expanded', 'false'));
+        }'''
+    )
+
+
+
 
 
 
@@ -808,7 +818,8 @@ async def run_citizen_tests(s: Suite, browser):
 
     )
 
-    await page.click('#btnOnboardingContinue')
+    await dismiss_civic_comboboxes(page)
+    await js_click(page, '#btnOnboardingContinue')
 
     await page.wait_for_timeout(200)
 
@@ -818,7 +829,8 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.fill('#wardInput', '<script>alert(1)</script> Ward')
 
-    await page.click('#btnOnboardingContinue')
+    await dismiss_civic_comboboxes(page)
+    await js_click(page, '#btnOnboardingContinue')
 
     await page.wait_for_timeout(300)
 
@@ -830,7 +842,8 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.fill('#displayName', '<img onerror=alert(1)>')
 
-    await page.click('#btnOnboardingContinue')
+    await dismiss_civic_comboboxes(page)
+    await js_click(page, '#btnOnboardingContinue')
 
     await page.wait_for_timeout(500)
 
@@ -922,6 +935,7 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
 
+    await dismiss_civic_comboboxes(page_def)
     await js_click(page_def, '#btnOnboardingContinue')
 
     await page_def.wait_for_timeout(500)
@@ -1696,6 +1710,7 @@ async def run_edge_tests(s: Suite, browser):
 
     )
 
+    await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
 
     await page.wait_for_timeout(300)
@@ -3125,6 +3140,34 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP06', 'Report', 'Close without submit saves nothing', before == after)
 
+    await page.evaluate('''() => {
+      sessionStorage.setItem('civicradar_report_draft', JSON.stringify({
+        hazardType: 'garbage',
+        step: 'photo',
+        notes: 'camera reload test',
+        awaitingPhoto: true,
+        ts: Date.now()
+      }));
+    }''')
+
+    await page.reload()
+
+    await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
+
+    draft_restore = await page.evaluate('''() => {
+      const open = document.getElementById('reportOverlay').classList.contains('open');
+      const hazard = document.getElementById('hazardType').value;
+      const notes = document.getElementById('reportNotes').value;
+      const btn = document.getElementById('btnTakePhoto');
+      return open && hazard === 'garbage' && notes === 'camera reload test' && !!btn;
+    }''')
+
+    s.record('RP21', 'Report', 'Draft restores report modal after reload', draft_restore)
+
+    await page.evaluate('() => sessionStorage.removeItem("civicradar_report_draft")')
+
+    await close_all_modals(page)
+
     rid = await submit_report_via_api(page, 19.0762, 72.8779, 'extended test')
 
     s.record('RP07', 'Report', 'Report stored in localStorage', await page.evaluate(
@@ -4328,11 +4371,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
     # GitHub Pages /civicradar/ subpath (root-absolute paths would 404 there).
 
-    sw_src = await page.evaluate('() => fetch("sw.js").then(r => r.text())')
+    sw_src = await page.evaluate('() => fetch(`sw.js?e2e=${Date.now()}`, { cache: "no-store" }).then(r => r.text())')
 
     sw_ok = (
 
-        "civicradar-v107" in sw_src
+        "civicradar-v108" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4343,6 +4386,30 @@ async def run_extended_scenarios(s: Suite, browser):
     )
 
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
+
+    s.record('IOS01', 'iOS', 'apple-mobile-web-app-capable meta', await page.evaluate(
+
+        '() => document.querySelector("meta[name=\\"apple-mobile-web-app-capable\\"]")?.content === "yes"'
+
+    ))
+
+    s.record('IOS02', 'iOS', 'viewport-fit=cover', await page.evaluate(
+
+        '() => (document.querySelector("meta[name=viewport]")?.content || "").includes("viewport-fit=cover")'
+
+    ))
+
+    s.record('IOS03', 'iOS', 'apple-touch-icon linked', await page.evaluate(
+
+        '() => { const l = document.querySelector("link[rel=\\"apple-touch-icon\\"]"); return !!(l && l.href.includes("apple-touch-icon")); }'
+
+    ))
+
+    s.record('IOS04', 'iOS', 'Report photo input capture=environment', await page.evaluate(
+
+        '() => document.getElementById("photoInput")?.getAttribute("capture") === "environment"'
+
+    ))
 
     await ctx.close()
 
@@ -7284,6 +7351,8 @@ async def main():
         '`index.html` + `js/app.js` + `css/styles.css` + `sw.js` + `supabase/schema.sql`: Civic Hero XP & certificates (v101) — 6-level ladder, Profile XP bar, Me too/report XP, shareable level certificates; localized en/hi/mr/gu; XP01–XP03; SW06 → v101',
 
         '`js/app.js` + `tests/e2e_comprehensive.py`: v101 QA — certificate modal closes success overlay before open (unblocks controls); L01 parallel load stagger+retry; RP09 seeds nearby report after XP storage reset',
+
+        '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: iOS/Safari PWA compatibility (v108) — safe-area map/nav, WebKit tap/scroll fixes, Leaflet tap+resize, modal scroll lock, iOS install hint, photo accept image/*, report draft guard; IOS01–IOS04; manual checklist `tests/IOS-QA.md`; SW06 → v108',
 
     ]
 

@@ -18,19 +18,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v107';
+  const CIVIC_APP_VERSION = 'v108';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
   const PENDING_NGO_CODE_KEY = 'civicradar_pending_ngo_code';
 
+  const REPORT_DRAFT_KEY = 'civicradar_report_draft';
+
+  const REPORT_DRAFT_TTL_MS = 30 * 60 * 1000;
+
 
 
   function persistPendingAuth(flow, ngoCode) {
 
-    sessionStorage.setItem(PENDING_AUTH_FLOW_KEY, flow);
+    try {
 
-    if (ngoCode) sessionStorage.setItem(PENDING_NGO_CODE_KEY, ngoCode);
+      sessionStorage.setItem(PENDING_AUTH_FLOW_KEY, flow);
+
+      if (ngoCode) sessionStorage.setItem(PENDING_NGO_CODE_KEY, ngoCode);
+
+    } catch { /* private mode / quota */ }
 
   }
 
@@ -38,9 +46,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function clearPendingAuth() {
 
-    sessionStorage.removeItem(PENDING_AUTH_FLOW_KEY);
+    try {
 
-    sessionStorage.removeItem(PENDING_NGO_CODE_KEY);
+      sessionStorage.removeItem(PENDING_AUTH_FLOW_KEY);
+
+      sessionStorage.removeItem(PENDING_NGO_CODE_KEY);
+
+    } catch { /* private mode */ }
 
   }
 
@@ -378,7 +390,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Ghost taps / popstate after native camera can dismiss the report sheet — guard longer.
 
-  const PHOTO_RETURN_GUARD_MS = 1500;
+  const PHOTO_RETURN_GUARD_MS = (() => {
+
+    const ua = navigator.userAgent || '';
+
+    const ios = /iPad|iPhone|iPod/.test(ua)
+
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    return ios ? 2500 : 1500;
+
+  })();
 
 
 
@@ -3566,6 +3588,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHint': 'Browser menu → Add to Home screen.',
 
+      'toast.installHintIos': 'Safari Share → Add to Home Screen.',
+
       'toast.wardRequired': 'Pick a ward from the official {city} list.',
 
       'toast.contactConfig': 'Contact email not set — check About in Profile.',
@@ -5692,6 +5716,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHint': 'ब्राउज़र मेनू → Add to Home screen।',
 
+      'toast.installHintIos': 'Safari Share → Add to Home Screen.',
+
       'toast.wardRequired': 'मुंबई की आधिकारिक सूची से वार्ड चुनें।',
 
       'toast.contactConfig': 'संपर्क ईमेल सेट नहीं — js/config.js देखें',
@@ -7817,6 +7843,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHint': 'ब्राउझर मेनू → Add to Home screen.',
 
+      'toast.installHintIos': 'Safari Share → Add to Home Screen.',
+
       'toast.wardRequired': 'मुंबईच्या अधिकृत यादीतून वॉर्ड निवडा.',
 
       'toast.contactConfig': 'संपर्क ईमेल सेट नाही — js/config.js पाहा',
@@ -9941,6 +9969,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.installed': 'CivicRadar ઇન્સ્ટોલ — હોમ સ્ક્રીનથી ખોલો!',
 
       'toast.installHint': 'બ્રાઉઝર મેનૂ → Add to Home screen.',
+
+      'toast.installHintIos': 'Safari Share → Add to Home Screen.',
 
       'toast.wardRequired': 'મુંબઈની અધિકૃત યાદીમાંથી વોર્ડ પસંદ કરો.',
 
@@ -17235,6 +17265,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!hasReportPhotoPreview()) highlightPhotoSection();
 
+    if (overlays.report?.classList.contains('open')) touchReportDraft({ hazardType: key });
+
   }
 
 
@@ -18877,6 +18909,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     el.setAttribute('aria-hidden', 'false');
 
+    document.documentElement.classList.add('modal-open');
+
+    document.body.classList.add('modal-open');
+
     document.body.style.overflow = 'hidden';
 
     const modal = el.querySelector('.modal') || el;
@@ -18963,9 +18999,151 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function readReportDraft() {
+
+    try {
+
+      const raw = sessionStorage.getItem(REPORT_DRAFT_KEY);
+
+      return raw ? JSON.parse(raw) : null;
+
+    } catch { return null; }
+
+  }
+
+
+
+  function writeReportDraft(draft) {
+
+    try {
+
+      sessionStorage.setItem(REPORT_DRAFT_KEY, JSON.stringify({ ...draft, ts: Date.now() }));
+
+    } catch { /* quota */ }
+
+  }
+
+
+
+  function clearReportDraft() {
+
+    try { sessionStorage.removeItem(REPORT_DRAFT_KEY); } catch { /* ignore */ }
+
+  }
+
+
+
+  function isReportDraftAwaitingPhoto() {
+
+    const d = readReportDraft();
+
+    return !!(d && d.awaitingPhoto);
+
+  }
+
+
+
+  function touchReportDraft(updates) {
+
+    const prev = readReportDraft() || {};
+
+    writeReportDraft({
+
+      hazardType: $('#hazardType')?.value || prev.hazardType || 'stagnant-water',
+
+      step: hasReportPhotoPreview() ? 'submit' : (prev.step || 'photo'),
+
+      notes: ($('#reportNotes')?.value ?? prev.notes ?? ''),
+
+      awaitingPhoto: prev.awaitingPhoto || false,
+
+      ...updates,
+
+    });
+
+  }
+
+
+
+  function persistReportDraftOnHide() {
+
+    if (!overlays.report?.classList.contains('open')
+
+      && !reportPhotoFlowActive && !reportPhotoProcessing && !isReportDraftAwaitingPhoto()) return;
+
+    touchReportDraft({
+
+      awaitingPhoto: reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto(),
+
+    });
+
+  }
+
+
+
+  function restoreReportDraftIfNeeded() {
+
+    const draft = readReportDraft();
+
+    if (!draft) return false;
+
+    if (!user.tosAccepted || !user.ward) return false;
+
+    if (draft.ts && Date.now() - draft.ts > REPORT_DRAFT_TTL_MS) {
+
+      clearReportDraft();
+
+      return false;
+
+    }
+
+    if (tourState) endTour(false);
+
+    selectHazard(draft.hazardType || 'stagnant-water');
+
+    renderHazardPicker();
+
+    if (draft.notes && $('#reportNotes')) $('#reportNotes').value = draft.notes;
+
+    resetSubmitReportButton();
+
+    if (hasReportPhotoPreview()) {
+
+      showPhotoConfirm();
+
+      updateReportFlowSteps('submit');
+
+      touchReportDraft({ step: 'submit', awaitingPhoto: false });
+
+    } else {
+
+      resetPhotoConfirm();
+
+      updateReportFlowSteps(draft.step || 'photo');
+
+      if (draft.awaitingPhoto) {
+
+        reportPhotoFlowActive = true;
+
+        reportPhotoDismissGuard = Date.now();
+
+      }
+
+    }
+
+    openModal('report');
+
+    return true;
+
+  }
+
+
+
   function isReportPhotoPickerActive() {
 
     return reportPhotoFlowActive || reportPhotoProcessing
+
+      || isReportDraftAwaitingPhoto()
 
       || (Date.now() - reportPhotoDismissGuard < PHOTO_RETURN_GUARD_MS);
 
@@ -19003,9 +19181,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       finishReportPhotoFlow();
 
-    } else if (reportPhotoFlowActive || reportPhotoProcessing) {
+    } else if (reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
 
       updateReportFlowSteps('photo');
+
+      if (!reportPhotoFlowActive && isReportDraftAwaitingPhoto()) reportPhotoFlowActive = true;
 
     }
 
@@ -19053,6 +19233,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPhotoFlowActive = true;
 
+    touchReportDraft({ step: 'photo', awaitingPhoto: true });
+
     pushReportPhotoHistory();
 
     input.click();
@@ -19097,6 +19279,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       finishReportPhotoFlow();
 
+      clearReportDraft();
+
       if (reportCameraTimer) {
 
         clearTimeout(reportCameraTimer);
@@ -19113,7 +19297,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const anyOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
 
-    if (!anyOpen) document.body.style.overflow = '';
+    if (!anyOpen) {
+
+      document.documentElement.classList.remove('modal-open');
+
+      document.body.classList.remove('modal-open');
+
+      document.body.style.overflow = '';
+
+    }
 
     if (!anyOpen && focusTrapHandler) {
 
@@ -19230,6 +19422,16 @@ document.addEventListener('DOMContentLoaded', function () {
     updateReportFlowSteps(hasPhoto ? 'submit' : 'photo');
 
     openModal('report');
+
+    touchReportDraft({
+
+      hazardType: $('#hazardType').value,
+
+      step: hasPhoto ? 'submit' : 'photo',
+
+      awaitingPhoto: openCamera && !hasPhoto,
+
+    });
 
     if (openCamera && !hasPhoto) {
 
@@ -19671,7 +19873,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    showToast(t('toast.installHint'), 'info', 5000);
+    showToast(getInstallHint(), 'info', 5000);
 
   }
 
@@ -19740,6 +19942,26 @@ document.addEventListener('DOMContentLoaded', function () {
     return window.matchMedia('(display-mode: standalone)').matches
 
       || window.navigator.standalone === true;
+
+  }
+
+
+
+  function isAppleMobile() {
+
+    const ua = navigator.userAgent || '';
+
+    return /iPad|iPhone|iPod/.test(ua)
+
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  }
+
+
+
+  function getInstallHint() {
+
+    return isAppleMobile() ? t('toast.installHintIos') : t('toast.installHint');
 
   }
 
@@ -19843,13 +20065,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (document.visibilityState === 'visible') {
 
+      restoreReportDraftIfNeeded();
+
       if (isReportPhotoPickerActive() || hasReportPhotoPreview()) syncReportPhotoReturn();
 
       if (!shouldDeferFirstRunNudges()) setTimeout(maybeShowReportReminder, 400);
 
+    } else if (document.visibilityState === 'hidden') {
+
+      persistReportDraftOnHide();
+
     }
 
   });
+
+  window.addEventListener('pagehide', persistReportDraftOnHide);
 
   registerServiceWorker();
 
@@ -19973,9 +20203,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       updateMapEmptyCta();
 
-      if (!shouldShowHomeHero()) setTimeout(showCoachMark, 600);
+      const restoredReportDraft = restoreReportDraftIfNeeded();
 
-      if (!shouldDeferFirstRunNudges()) {
+      if (!restoredReportDraft && !shouldShowHomeHero()) setTimeout(showCoachMark, 600);
+
+      if (!restoredReportDraft && !shouldDeferFirstRunNudges()) {
 
         setTimeout(() => { checkResolvedWins(); checkConfirmedResolved(); updateCommunityWinBadge(); }, 1200);
 
@@ -19987,7 +20219,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       handleReportDeepLink();
 
-      if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: 'map', initial: true });
+      if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: 'map', initial: true, reportDraftRestore: restoredReportDraft });
 
     }
 
@@ -20016,6 +20248,8 @@ document.addEventListener('DOMContentLoaded', function () {
         zoomControl: false,
 
         attributionControl: false,
+
+        tap: false,
 
       }).setView(getCityCenter(), 12);
 
@@ -20053,6 +20287,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       maybeRequestLocation(true);
 
+      if (window.visualViewport) {
+
+        window.visualViewport.addEventListener('resize', scheduleMapResize);
+
+        window.visualViewport.addEventListener('scroll', scheduleMapResize);
+
+      }
+
+      window.addEventListener('orientationchange', () => setTimeout(scheduleMapResize, 300));
+
       if (window.CivicAnalytics) CivicAnalytics.perfEnd('map_init_duration');
 
     } catch (err) {
@@ -20070,6 +20314,20 @@ document.addEventListener('DOMContentLoaded', function () {
       showMapError();
 
     }
+
+  }
+
+
+
+  function scheduleMapResize() {
+
+    if (!map) return;
+
+    requestAnimationFrame(() => {
+
+      try { map.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+    });
 
   }
 
@@ -21371,6 +21629,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const name = btn.dataset.close;
 
+        if (name === 'report' && !canDismissReportOverlay()) return;
+
         if (name === 'escalation') tryCloseEscalation();
 
         else closeModal(name);
@@ -21486,6 +21746,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#photoInput').addEventListener('cancel', () => {
 
       reportPhotoFlowActive = false;
+
+      touchReportDraft({ awaitingPhoto: false });
 
     });
 
@@ -21911,6 +22173,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const open = Object.entries(overlays).find(([, el]) => el.classList.contains('open'));
 
+        if (open && open[0] === 'report' && !canDismissReportOverlay()) return;
+
         if (open && open[0] !== 'tos' && open[0] !== 'onboarding') closeModal(open[0]);
 
       }
@@ -21969,9 +22233,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    window.addEventListener('pageshow', () => {
+    window.addEventListener('pageshow', (e) => {
+
+      restoreReportDraftIfNeeded();
 
       if (hasReportPhotoPreview() || isReportPhotoPickerActive()) syncReportPhotoReturn();
+
+      if (e.persisted) scheduleMapResize();
 
     });
 
@@ -22269,6 +22537,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportFlowSteps('photo');
 
+    touchReportDraft({ step: 'photo', awaitingPhoto: false });
+
     const msg = scanResult.i18nKey ? t(scanResult.i18nKey) : (scanResult.message || t('moderation.blocked.irrelevant'));
 
     showToast(msg, 'error', 5500);
@@ -22284,6 +22554,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!file) {
 
       reportPhotoFlowActive = false;
+
+      touchReportDraft({ awaitingPhoto: false });
 
       return;
 
@@ -22370,6 +22642,8 @@ document.addEventListener('DOMContentLoaded', function () {
         lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
 
         finishReportPhotoFlow();
+
+        touchReportDraft({ step: 'submit', awaitingPhoto: false });
 
         advanceReportPhotoReady();
 

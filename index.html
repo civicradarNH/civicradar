@@ -25,7 +25,7 @@
   <meta name="twitter:image" content="assets/og-civicradar.svg">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -350,7 +350,7 @@
         <label data-i18n="report.photoEvidence">Photo Evidence</label>
         <p class="photo-guidelines" id="photoGuidelines" role="status" aria-live="polite">Photograph the actual stagnant water — not faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
         <div class="camera-area">
-          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
+          <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
           <button type="button" class="btn btn--outline" id="btnTakePhoto">
             <i class="ph ph-camera"></i> <span data-i18n="report.capture">Capture Photo</span>
           </button>

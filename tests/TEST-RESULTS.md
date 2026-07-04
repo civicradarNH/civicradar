@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-01 22:14:40
-**Server:** http://localhost:9080/
+**Run:** 2026-07-04 10:23:46
+**Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 377 | **Pass:** 377 | **Fail:** 0
+**Total:** 388 | **Pass:** 387 | **Fail:** 1
 
 ## Fixes applied this run
 
@@ -55,7 +55,10 @@
 - `index.html` + `js/app.js` + `sw.js` + `supabase/schema.sql`: neighbourhood report alerts (v97) — Profile "Neighbourhood updates" with new-report + resolved FYI sub-toggles; shared rate limit; resolved digest; Web Notification + in-app toast; Supabase profile prefs + sync; local queue for E2E; localized en/hi/mr/gu; NA01–NA06; SW06 → v97
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js`: ward/neighbourhood re-select (v100) — Profile city+ward editable; society datalist refreshes on ward change; datalist select-all on focus; auto civic display name when blank; E2E SO09–SO10, C09c; SW06 → v100
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js`: before/after share-win graphic (v101) — canvas card with society/ward footer, green Fixed placeholder, square 1080×1080 + story 9:16 preview, WhatsApp/download/share; resolved nbh toast Share win CTA; localized en/hi/mr/gu; WIN01–WIN04; SW06 → v101
+- `index.html` + `js/app.js` + `sw.js`: context-dependent hint refresh (v103) — hazard cue + esc BMC hints on category change; neighbourhood hints on language switch; RP18; SW06 → v103
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js` + `supabase/schema.sql`: Civic Hero XP & certificates (v101) — 6-level ladder, Profile XP bar, Me too/report XP, shareable level certificates; localized en/hi/mr/gu; XP01–XP03; SW06 → v101
+- `js/app.js` + `tests/e2e_comprehensive.py`: v101 QA — certificate modal closes success overlay before open (unblocks controls); L01 parallel load stagger+retry; RP09 seeds nearby report after XP storage reset
+- `index.html` + `js/app.js` + `css/styles.css` + `sw.js`: iOS/Safari PWA compatibility (v108) — safe-area map/nav, WebKit tap/scroll fixes, Leaflet tap+resize, modal scroll lock, iOS install hint, photo accept image/*, report draft guard; IOS01–IOS04; manual checklist `tests/IOS-QA.md`; SW06 → v108
 
 ## Summary by category
 
@@ -94,7 +97,7 @@
 - **Profile:** 4 pass / 0 fail
 - **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
-- **Report:** 21 pass / 0 fail
+- **Report:** 23 pass / 1 fail
 - **Rewards:** 2 pass / 0 fail
 - **Share:** 1 pass / 0 fail
 - **ShareWin:** 4 pass / 0 fail
@@ -103,16 +106,17 @@
 - **Sync:** 1 pass / 0 fail
 - **Tour:** 9 pass / 0 fail
 - **Tracking:** 5 pass / 0 fail
-- **UI:** 25 pass / 0 fail
+- **UI:** 29 pass / 0 fail
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
 - **XP:** 4 pass / 0 fail
 - **i18n:** 9 pass / 0 fail
+- **iOS:** 4 pass / 0 fail
 
 ## Failures
 
-_None_
+- `RP21` **Draft restores report modal after reload** — failed
 
 ## Limitations
 
@@ -138,7 +142,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja #564C |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch · Dadar, Shiva #6F |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -204,7 +208,7 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
 | L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
@@ -241,6 +245,9 @@ _None_
 | X14 | Storage | Pledges JSON parse safe | PASS |  |
 | X15 | Storage | Confirmed set parse safe | PASS |  |
 | X16 | UI | Bottom nav tabs | PASS |  |
+| UX01 | UI | Active nav tab bold label | PASS |  |
+| UX02 | UI | Modal title clears close btn | PASS |  |
+| UX03 | UI | Lead candidates light surface | PASS |  |
 | X17 | UI | FAB report button | PASS |  |
 | X18 | Legal | Terms page linked | PASS |  |
 | X19 | Persona | Citizen default mode | PASS |  |
@@ -269,8 +276,8 @@ _None_
 | MC03 | MultiCity | Thane user city persisted | PASS |  |
 | MC04 | MultiCity | Thane partner portal hides BMC card | PASS |  |
 | MC05 | MultiCity | Pune user city persisted | PASS |  |
-| MC06 | MultiCity | Pune datalist linked on pledge | PASS |  |
-| MC07 | MultiCity | Mumbai datalist linked on pledge | PASS |  |
+| MC06 | MultiCity | Pune ward combobox on pledge | PASS |  |
+| MC07 | MultiCity | Mumbai ward combobox on pledge | PASS |  |
 | MC08 | MultiCity | City picker has 3 options | PASS |  |
 | MC09 | MultiCity | Thane GPS ward detect | PASS | TMC Ward 32 — Patlipada |
 | MC10 | MultiCity | Pune GPS ward detect | PASS | Ward 25 — Bavdhan |
@@ -294,8 +301,8 @@ _None_
 | U01 | UI | Language overlay opens | PASS |  |
 | U02 | UI | Language overlay closes | PASS |  |
 | U03 | UI | About modal opens | PASS |  |
-| DF01 | Differentiation | About different section has 3 bullets | PASS | count=3 |
-| DF02 | Differentiation | About copy mentions Me too not helpline | PASS |  |
+| DF01 | Differentiation | About features section has 4 bullets | PASS | count=4 |
+| DF02 | Differentiation | About subtitle states not a government channel | PASS |  |
 | U04 | UI | About modal closes | PASS |  |
 | U05 | UI | Volunteer modal opens | PASS |  |
 | U06 | UI | Volunteer modal closes | PASS |  |
@@ -309,6 +316,7 @@ _None_
 | U21 | UI | Community close btn returns to Map | PASS |  |
 | U22 | UI | Profile close btn returns to Map | PASS |  |
 | U23 | UI | Community backdrop tap returns to Map | PASS |  |
+| U24 | UI | Major modals have dismiss control | PASS | [] |
 | SH01 | Share | EN share single-language (no Marathi hook) | PASS |  |
 | U14 | UI | Location banner element | PASS |  |
 | U15 | UI | Header context element | PASS |  |
@@ -321,11 +329,14 @@ _None_
 | RP02 | Report | No coming-soon locks on launch hazards | PASS | soon=0 |
 | RP03 | Report | Stagnant-water preselected | PASS |  |
 | RP16 | Report | Garbage hazard selectable | PASS |  |
-| RP17 | Report | Garbage hazard submittable | PASS |  |
-| RP18 | Report | Garbage report stored with hazard type | PASS |  |
+| RP17 | Report | Photo guidelines update on category change | PASS |  |
+| RP18 | Report | Hazard selected cue updates on category change | PASS |  |
+| RP19 | Report | Garbage hazard submittable | PASS |  |
+| RP20 | Report | Garbage report stored with hazard type | PASS |  |
 | RP04 | Report | Photo input accepts images | PASS |  |
 | RP05 | Report | Capture photo button present | PASS |  |
 | RP06 | Report | Close without submit saves nothing | PASS |  |
+| RP21 | Report | Draft restores report modal after reload | **FAIL** |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
 | RP13 | Report | First report shows celebrate + progress | PASS | celebrate="You're protecting your ward — " progress="Badge unlocked! 2 more to your" |
@@ -392,7 +403,7 @@ _None_
 | SO08 | Society | Ward-filter hint populated | PASS |  |
 | SO09 | Society | Profile ward change saves to user | PASS |  |
 | SO10 | Society | Society datalist refreshes when profile ward changes | PASS |  |
-| NB01 | Neighbourhood | Volunteer field wired to societySuggestions datalist | PASS |  |
+| NB01 | Neighbourhood | Volunteer field uses searchable neighbourhood combobox | PASS |  |
 | NB02 | Neighbourhood | Ward-filtered neighbourhood options (10+) | PASS |  |
 | NB03 | Neighbourhood | Custom neighbourhood cached by city+ward | PASS |  |
 | NB04 | Neighbourhood | Volunteer ward-filter hint populated | PASS |  |
@@ -402,6 +413,10 @@ _None_
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
 | SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
+| IOS02 | iOS | viewport-fit=cover | PASS |  |
+| IOS03 | iOS | apple-touch-icon linked | PASS |  |
+| IOS04 | iOS | Report photo input capture=environment | PASS |  |
 | ML01 | Auth | Official lead auth visible when connected | PASS |  |
 | ML02 | Auth | Send button says sign-in link | PASS |  |
 | ML03 | Auth | Link instructions hidden before send | PASS |  |
