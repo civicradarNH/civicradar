@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#6366f1">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="CivicRadar — free monsoon hazard map for Mumbai, Pune &amp; Thane. Pin stagnant water in your ward, say Me too, beat other wards. WhatsApp-ready · 4 languages · no login.">
+  <meta name="description" content="CivicRadar — free ward hazard map for Mumbai, Pune &amp; Thane. Pin garbage, potholes, streetlights &amp; stagnant water in your ward. Me too, beat rival wards. WhatsApp-ready · 4 languages · no login.">
   <!-- iOS / Android home-screen install metadata -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,12 +15,12 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CivicRadar">
   <meta property="og:locale" content="en_IN">
-  <meta property="og:title" content="CivicRadar — Mumbai, Pune &amp; Thane monsoon hazard map | #MonsoonGuardian">
+  <meta property="og:title" content="CivicRadar — Mumbai, Pune &amp; Thane ward hazard map | #MonsoonGuardian">
   <meta property="og:description" content="🗺️ See open hazards in YOUR ward across Mumbai, Pune, or Thane. 30-sec report · Me too corroboration · ward leaderboard rivalry. Free PWA — English, Hindi, Marathi, Gujarati.">
   <meta property="og:image" content="assets/og-civicradar.svg">
-  <meta property="og:image:alt" content="CivicRadar — ward hazard map for Mumbai, Pune, Thane monsoon">
+  <meta property="og:image:alt" content="CivicRadar — ward hazard map for Mumbai, Pune, Thane">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CivicRadar — Mumbai, Pune &amp; Thane monsoon hazard map">
+  <meta name="twitter:title" content="CivicRadar — Mumbai, Pune &amp; Thane ward hazard map">
   <meta name="twitter:description" content="Pin hazards in your ward, rally neighbours, track fixes — #MonsoonGuardian #CivicRadar">
   <meta name="twitter:image" content="assets/og-civicradar.svg">
   <link rel="manifest" href="manifest.json">
@@ -54,7 +54,7 @@
       <div style="font-size:2.75rem;line-height:1;">📍</div>
       <h1 style="margin:0;font-size:1.25rem;font-weight:700;color:#4f46e5;">CivicRadar needs JavaScript</h1>
       <p style="margin:0;max-width:340px;font-size:0.95rem;line-height:1.5;color:#475569;">
-        Please turn on JavaScript in your browser settings, then reload this page to map monsoon hazards in your ward.
+        Please turn on JavaScript in your browser settings, then reload this page to map hazards in your ward.
       </p>
       <p style="margin:0;max-width:340px;font-size:0.85rem;line-height:1.5;color:#64748b;" lang="hi">
         कृपया अपने ब्राउज़र में JavaScript चालू करें और पेज को फिर से लोड करें।
@@ -71,7 +71,7 @@
       <i class="ph ph-radar"></i>
       <div class="header__titles">
         <span>CivicRadar</span>
-        <span class="header__context" id="headerContext" data-i18n="header.context">Monsoon hazard map for Mumbai</span>
+        <span class="header__context" id="headerContext" data-i18n="header.context">Ward hazard map for Mumbai</span>
         <span class="header__sync header__sync--local" id="syncStatus" role="status" aria-live="polite"></span>
       </div>
     </div>
@@ -90,7 +90,7 @@
   <div id="personaBar" class="persona-bar persona-bar--citizen" role="status">
     <div class="persona-bar__main">
       <i class="ph ph-info persona-bar__icon" id="personaBarIcon"></i>
-      <p id="personaBarText" data-i18n="persona.citizen.idle">Stagnant water = dengue risk. Tap Report — pin it on your ward map in 30 sec, then share on WhatsApp.</p>
+      <p id="personaBarText" data-i18n="persona.citizen.idle">Report hazards in your ward — garbage, potholes, streetlights &amp; stagnant water. Tap Report in 30 sec, then share on WhatsApp.</p>
     </div>
     <button type="button" class="persona-bar__action hidden" id="personaBarAction"></button>
   </div>
@@ -122,7 +122,7 @@
       <i class="ph ph-drop"></i>
     </div>
     <p class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</p>
-    <p class="map-empty-cta__encourage" data-i18n="map.emptyEncourage">Every pin helps your ward beat dengue this monsoon.</p>
+    <p class="map-empty-cta__encourage" data-i18n="map.emptyEncourage">Every pin helps your ward — garbage, potholes, streetlights &amp; stagnant water. Monsoon tip: clear still water to beat dengue.</p>
     <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Map it · Snap it · Report it</p>
     <button type="button" class="btn btn--primary btn--sm" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first one</button>
     <button type="button" class="btn btn--whatsapp btn--sm map-empty-cta__share hidden" id="btnMapEmptyShare">
@@ -762,7 +762,7 @@
 
       <h3 class="section-title" data-i18n="profile.reports">Your Reports</h3>
       <div class="report-list" id="reportList">
-        <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin stagnant water near you.</p>
+        <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
       </div>
 
       <h3 class="section-title" data-i18n="settings.nbh.title">Neighbourhood updates</h3>

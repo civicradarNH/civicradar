@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v106';
+  const CIVIC_APP_VERSION = 'v107';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2078,9 +2078,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fab.report': 'Report',
 
-      'header.context': 'Monsoon hazard map — Mumbai, Pune & Thane',
+      'header.context': 'Ward hazard map — Mumbai, Pune & Thane',
 
-      'header.contextCity': 'Monsoon hazard map for {city}',
+      'header.contextCity': 'Ward hazard map for {city}',
 
       'location.banner': 'Turn on location to pin hazards accurately.',
 
@@ -2136,9 +2136,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'Submit — neighbours see the pin. Track Civic Points in Profile.',
 
-      'persona.citizen.idle': '🦟 Stagnant water = dengue risk. Tap Report — pin it on your ward map in 30 sec, then share on WhatsApp.',
+      'persona.citizen.idle': 'Report hazards in your ward — garbage, potholes, streetlights & stagnant water. Tap Report in 30 sec, then share on WhatsApp. Monsoon tip: stagnant water = dengue risk.',
 
-      'persona.wardImpact': '{ward}: {n} monsoon reports — dengue starts in stagnant lanes. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: {n} ward reports — garbage, potholes, streetlights & stagnant water. Monsoon tip: dengue starts in stagnant lanes. #MonsoonGuardian',
 
       'persona.unfiled': '{n} open on the ward map — share with neighbours or file officially from Profile.',
 
@@ -2288,25 +2288,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'Neighbours may not know yet — share on WhatsApp so the ward map gets more eyes.',
 
-      'success.shareMsg': '🦟 {hazard} in {ward} — dengue risk! Pinned on CivicRadar ward map.\nTap Me too and report hazards in your lane:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {hazard} in {ward} — pinned on CivicRadar ward map.\nTap Me too and report hazards in your lane:\n{link}\n{hashtags}',
 
-      'share.appMsg': '🦟 {city} monsoon map — pin stagnant water, tap Me too, beat rival wards!\n{link}\n{hashtags}',
+      'share.appMsg': '🗺️ {city} ward hazard map — pin garbage, potholes, streetlights & stagnant water. Me too, beat rival wards!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'my area',
 
-      'share.meTooMsg': '🦟 Me too — I see {hazard} in {ward} too. {n} neighbour(s) backed on CivicRadar:\n{link}\n{hashtags}',
+      'share.meTooMsg': '👋 Me too — I see {hazard} in {ward} too. {n} neighbour(s) backed on CivicRadar:\n{link}\n{hashtags}',
 
       'share.meTooBtn': 'Share on WhatsApp',
 
-      'share.wardMapMsg': '🗺️ {ward}: {pending} open dengue-risk spots — beat us on CivicRadar!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🗺️ {ward}: {pending} open hazard(s) — beat us on CivicRadar!\n{link}\n{hashtags}',
 
-      'share.cleanupMsg': '🦟 Volunteers cleared {hazard} in {ward}! Before → after on the ward map:\n{link}\n{hashtags}',
+      'share.cleanupMsg': '🧹 Volunteers cleared {hazard} in {ward}! Before → after on the ward map:\n{link}\n{hashtags}',
 
-      'share.instagramCaption': '{hazard} spot cleared in {ward} 🦟 Before → After on CivicRadar. Monsoon win.\n{link}\n{hashtags}',
+      'share.instagramCaption': '{hazard} spot cleared in {ward} ✅ Before → After on CivicRadar.\n{link}\n{hashtags}',
 
       'share.instagramCleanupCaption': 'Volunteers cleared {hazard} in {ward} 🦟 Before → After on CivicRadar.\n{link}\n{hashtags}',
 
-      'share.milestoneMsg': '🦟 {ward} just hit {n} fixes this monsoon on CivicRadar! Can your ward beat us?\n{link}\n{hashtags}',
+      'share.milestoneMsg': '🏆 {ward} just hit {n} fixes on CivicRadar! Can your ward beat us?\n{link}\n{hashtags}',
 
       'share.firstBonus': 'First share — +10 Civic Points! 👋',
 
@@ -2342,7 +2342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.shareWinBtn': 'Share win',
 
-      'about.sharePitch': 'Free {city} monsoon map — pin stagnant water in 30 sec, say Me too, beat rival wards.\nBuilt for Mumbai, Pune & Thane. No login, 4 languages.\n{link}\nForward to your RWA / society WhatsApp group 👋',
+      'about.sharePitch': 'Free {city} ward hazard map — pin garbage, potholes, streetlights & stagnant water in 30 sec. Me too, beat rival wards.\nBuilt for Mumbai, Pune & Thane. No login, 4 languages.\n{link}\nForward to your RWA / society WhatsApp group 👋',
 
       'about.copyPitch': 'Copy WhatsApp pitch',
 
@@ -2426,6 +2426,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open spots. Report or rally!',
 
+      'map.emptyEncourage': 'Every pin helps your ward — garbage, potholes, streetlights & stagnant water. Monsoon tip: clear still water to beat dengue.',
+
       'home.hero.badge': '#MonsoonGuardian',
 
       'home.hero.headline': 'Map it · Snap it · Report it',
@@ -2494,7 +2496,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.monsoon': 'Monsoon Guardian',
 
-      'profile.wardImpact': 'Your ward: {n} reports this monsoon',
+      'profile.wardImpact': 'Your ward: {n} reports this season',
 
       'profile.streak': '{n}-week reporting streak',
 
@@ -3094,15 +3096,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'On the community map — not filed with {corp} yet.',
 
-      'community.challenge.empty': 'Be the first in {ward} to climb the monsoon board — report a hazard today.',
+      'community.challenge.empty': 'Be the first in {ward} to climb the ward board — report a hazard today.',
 
-      'community.challenge.beat': '{ward}: {pending} dengue-risk spots — beat {rival} ({rivalPending} pending)! Monsoon urgency 👋',
+      'community.challenge.beat': '{ward}: {pending} open hazards — beat {rival} ({rivalPending} pending)! Report or rally 👋',
 
       'community.challenge.leading': '{ward} leads with {resolved} fixes — stay ahead of {rival}!',
 
       'community.challenge.catch': '{ward}: chase {leader} ({leaderResolved} fixed). Clean lanes start at home.',
 
-      'community.challenge.leaderboard': '{leader} tops the monsoon board with {resolved} fixes — which ward is next?',
+      'community.challenge.leaderboard': '{leader} tops the ward board with {resolved} fixes — which ward is next?',
 
       'leaderboard.demo': 'Sample',
 
@@ -3366,9 +3368,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.body': 'Still ignored after a month? File with the Public Grievance Cell via Aaple Sarkar (Maharashtra state portal), or file an RTI on the complaint status.',
 
-      'profile.empty': 'No reports yet. Stagnant water near you?',
+      'profile.empty': 'No reports yet. Hazards near you?',
 
-      'profile.emptyList': 'No reports yet. Tap Report to pin stagnant water near you.',
+      'profile.emptyList': 'No reports yet. Tap Report to pin hazards near you.',
 
       'profile.emptyAction': 'Report now',
 
@@ -3412,7 +3414,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.youAreHere': 'You are here',
 
-      'about.subtitleNamed': 'Community tech for Mumbai, Pune & Thane monsoon — built by {name}, free for citizens.',
+      'about.subtitleNamed': 'Community tech for Mumbai, Pune & Thane — built by {name}, free for citizens.',
 
       'safety.hide': 'Flag / hide from map',
 
@@ -3890,7 +3892,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeBody': '{n} hazard reports already on the {city} map. See open spots in your ward — or pin one in 30 seconds.',
 
-      'ref.welcomeBodyEmpty': 'Be one of the first to map stagnant water in {city} this monsoon — it takes 30 seconds.',
+      'ref.welcomeBodyEmpty': 'Be one of the first to map hazards in {city} — garbage, potholes, streetlights & stagnant water. Takes 30 seconds.',
 
       'ref.welcomeCta': 'See the map',
 
@@ -3908,7 +3910,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.dismiss': 'Dismiss seasonal tip',
 
-      'social.wardWeek': '🦟 {n} neighbour(s) reported in {ward} this week',
+      'social.wardWeek': '📍 {n} neighbour(s) reported in {ward} this week',
 
       'social.wardWeekBacked': '🦟 {n} reported — {c} backed in {ward} this week',
 
@@ -3918,7 +3920,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'Share weekly recap',
 
-      'share.weeklyRecap': '🦟 {ward} this monsoon week: {reports} new report(s), {resolved} fixed, {backed} backed by neighbours. Join us on CivicRadar 👋\n{link}\n{hashtags}',
+      'share.weeklyRecap': '📊 {ward} this week: {reports} new report(s), {resolved} fixed, {backed} backed by neighbours. Join us on CivicRadar 👋\n{link}\n{hashtags}',
 
       'feedback.menu': 'Send feedback',
 
@@ -4202,9 +4204,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fab.report': 'रिपोर्ट',
 
-      'header.context': 'मानसून खतरा नक्शा — मुंबई, पुणे और ठाणे',
+      'header.context': 'वार्ड खतरा नक्शा — मुंबई, पुणे और ठाणे',
 
-      'header.contextCity': '{city} मानसून — खतरा नक्शा',
+      'header.contextCity': '{city} के लिए वार्ड खतरा नक्शा',
 
       'location.banner': 'सटीक रिपोर्ट के लिए स्थान चालू करें।',
 
@@ -4260,9 +4262,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'Submit — पड़ोसी पिन देखेंगे। Profile में Civic Points।',
 
-      'persona.citizen.idle': '🦟 रुका पानी = डेंगू का खतरा। Report दबाएँ — 30 सेक में वार्ड नक्शे पर, WhatsApp पर शेयर करें।',
+      'persona.citizen.idle': 'अपने वार्ड में खतरे रिपोर्ट करें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। Report दबाएँ — 30 सेक में नक्शे पर पिन करें, WhatsApp पर शेयर करें। मानसून सुझाव: रुका पानी = डेंगू का खतरा।',
 
-      'persona.wardImpact': '{ward}: {n} मानसून रिपोर्ट — रुकी गलियों में डेंगू। #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: {n} वार्ड रिपोर्ट — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। मानसून सुझाव: रुकी गलियों में डेंगू। #MonsoonGuardian',
 
       'persona.unfiled': '{n} वार्ड नक्शे पर खुले — पड़ोसियों के साथ शेयर करें या Profile से आधिकारिक दर्ज करें।',
 
@@ -4412,9 +4414,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'पड़ोसी शायद न जानें — WhatsApp पर शेयर करें।',
 
-      'success.shareMsg': '🦟 {ward} में {hazard} — डेंगू का खतरा! CivicRadar वार्ड नक्शे पर पिन।\nअपनी गली में Me too और खतरे रिपोर्ट करें:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} में {hazard} — CivicRadar वार्ड नक्शे पर पिन।\nअपनी गली में Me too और खतरे रिपोर्ट करें:\n{link}\n{hashtags}',
 
-      'share.appMsg': '🗺️ {city} मानसून नक्शा — रुका पानी पिन, Me too बोलें, प्रतिद्वंद्वी वार्ड को हराएँ!\n{link}\n{hashtags}',
+      'share.appMsg': '🗺️ {city} वार्ड खतरा नक्शा — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी पिन करें। Me too, प्रतिद्वंद्वी वार्ड को हराएँ!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'मेरे इलाके',
 
@@ -4422,7 +4424,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp पर साझा करें',
 
-      'share.wardMapMsg': '⚡ {ward}: {pending} खुले डेंगू-जोखिम स्पॉट — CivicRadar पर हमें हराओ!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🗺️ {ward}: {pending} खुले खतरे — CivicRadar पर हमें हराओ!\n{link}\n{hashtags}',
 
       'share.cleanupMsg': '🧹 {ward} में स्वयंसेवकों ने {hazard} साफ किया! पहले → बाद:\n{link}\n{hashtags}',
 
@@ -4468,7 +4470,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.shareTitle': 'ऐप साझा करें',
 
-      'about.sharePitch': 'मुफ़्त {city} मानसून नक्शा — 30 सेक में रिपोर्ट, Me too, प्रतिद्वंद्वी वार्ड को हराएँ।\nमुंबई, पुणे और ठाणे के लिए बनाया गया। लॉगिन नहीं, 4 भाषाएँ।\n{link}\nRWA / सोसायटी WhatsApp ग्रुप में फॉरवर्ड करें →',
+      'about.sharePitch': 'मुफ़्त {city} वार्ड खतरा नक्शा — 30 सेक में कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी पिन करें। Me too, प्रतिद्वंद्वी वार्ड को हराएँ।\nमुंबई, पुणे और ठाणे के लिए बनाया गया। लॉगिन नहीं, 4 भाषाएँ।\n{link}\nRWA / सोसायटी WhatsApp ग्रुप में फॉरवर्ड करें →',
 
       'about.copyPitch': 'WhatsApp पिच कॉपी करें',
 
@@ -4552,6 +4554,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले स्पॉट। रिपोर्ट या बुलाएँ!',
 
+      'map.emptyEncourage': 'हर पिन आपके वार्ड की मदद करता है — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। मानसून सुझाव: रुका पानी साफ़ करें, डेंगू से बचें।',
+
       'home.hero.badge': '#MonsoonGuardian',
 
       'home.hero.headline': 'नक्शे पर · फोटो · रिपोर्ट',
@@ -4620,7 +4624,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.monsoon': 'मानसून रक्षक',
 
-      'profile.wardImpact': 'आपका वार्ड: इस मानसून {n} रिपोर्ट',
+      'profile.wardImpact': 'आपका वार्ड: इस सीज़न {n} रिपोर्ट',
 
       'profile.streak': '{n}-सप्ताह रिपोर्टिंग स्ट्रीक',
 
@@ -5220,15 +5224,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'सामुदायिक नक्शे पर — {corp} में अभी दर्ज नहीं।',
 
-      'community.challenge.empty': '{ward} में मानसून बोर्ड पर पहले बनें — आज ही रिपोर्ट करें।',
+      'community.challenge.empty': '{ward} में वार्ड बोर्ड पर पहले बनें — आज ही रिपोर्ट करें।',
 
-      'community.challenge.beat': '{ward}: {pending} डेंगू-जोखिम स्पॉट — {rival} ({rivalPending} लंबित) से आगे! 🔥',
+      'community.challenge.beat': '{ward}: {pending} खुले खतरे — {rival} ({rivalPending} लंबित) से आगे! रिपोर्ट करें या रैली 👋',
 
       'community.challenge.leading': '{ward} {resolved} हल के साथ अग्रणी — {rival} से आगे रहें!',
 
       'community.challenge.catch': '{ward}: {leader} ({leaderResolved} हल) का पीछा करें। स्वच्छ सर्वेक्षण आपकी गली से शुरू।',
 
-      'community.challenge.leaderboard': '{leader} {resolved} हल के साथ शीर्ष पर — अगला वार्ड कौन?',
+      'community.challenge.leaderboard': '{leader} {resolved} हल के साथ वार्ड बोर्ड पर शीर्ष — अगला वार्ड कौन?',
 
       'leaderboard.demo': 'डेमो',
 
@@ -5490,9 +5494,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar या RTI।',
 
-      'profile.empty': 'अभी कोई रिपोर्ट नहीं। पास रुका पानी?',
+      'profile.empty': 'अभी कोई रिपोर्ट नहीं। पास कोई खतरा?',
 
-      'profile.emptyList': 'अभी कोई रिपोर्ट नहीं। Report दबाकर पास का रुका पानी पिन करें।',
+      'profile.emptyList': 'अभी कोई रिपोर्ट नहीं। Report दबाकर पास के खतरे पिन करें।',
 
       'profile.emptyAction': 'अभी रिपोर्ट करें',
 
@@ -5536,7 +5540,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.youAreHere': 'आप यहाँ हैं',
 
-      'about.subtitleNamed': 'मुंबई, पुणे और ठाणे मानसून — {name} द्वारा, नागरिकों के लिए निःशुल्क।',
+      'about.subtitleNamed': 'मुंबई, पुणे और ठाणे के लिए सामुदायिक तकनीक — {name} द्वारा, नागरिकों के लिए निःशुल्क।',
 
       'safety.hide': 'फ़्लैग / छिपाएँ',
 
@@ -6014,7 +6018,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeBody': '{city} के नक्शे पर पहले से {n} रिपोर्ट हैं। अपने वार्ड के खुले स्पॉट देखें — या 30 सेकंड में एक पिन करें।',
 
-      'ref.welcomeBodyEmpty': 'इस मानसून {city} में रुके पानी का नक्शा बनाने वालों में सबसे पहले बनें — सिर्फ़ 30 सेकंड।',
+      'ref.welcomeBodyEmpty': '{city} में खतरों का नक्शा बनाने वालों में सबसे पहले बनें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। सिर्फ़ 30 सेकंड।',
 
       'ref.welcomeCta': 'नक्शा देखें',
 
@@ -6042,7 +6046,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'साप्ताहिक सारांश शेयर करें',
 
-      'share.weeklyRecap': '📊 इस मानसून सप्ताह {ward}: {reports} नई रिपोर्ट, {resolved} ठीक, {backed} पड़ोसियों ने समर्थन किया। CivicRadar पर जुड़ें 👇\n{link}\n{hashtags}',
+      'share.weeklyRecap': '📊 इस सप्ताह {ward}: {reports} नई रिपोर्ट, {resolved} ठीक, {backed} पड़ोसियों ने समर्थन किया। CivicRadar पर जुड़ें 👇\n{link}\n{hashtags}',
 
       'feedback.menu': 'सुझाव भेजें',
 
@@ -6325,9 +6329,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fab.report': 'तक्रार',
 
-      'header.context': 'मान्सून धोका नकाशा — मुंबई, पुणे आणि ठाणे',
+      'header.context': 'वॉर्ड धोका नकाशा — मुंबई, पुणे आणि ठाणे',
 
-      'header.contextCity': '{city} पावसाळ — धोका नकाशा',
+      'header.contextCity': '{city} साठी वॉर्ड धोका नकाशा',
 
       'location.banner': 'अचूक तक्रारीसाठी स्थान चालू करा.',
 
@@ -6383,9 +6387,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'Submit — शेजाऱ्यांना pin दिसेल. Profile मध्ये Civic Points.',
 
-      'persona.citizen.idle': '🦟 साचलेले पाणी = डेंगू धोका. Report — 30 सेक वॉर्ड नकाशावर, WhatsApp share.',
+      'persona.citizen.idle': 'तुमच्या वॉर्डमध्ये धोके नोंदवा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. Report — 30 सेक नकाशावर, WhatsApp share. पावसाळा टिप: साचलेले पाणी = डेंगू धोका.',
 
-      'persona.wardImpact': '{ward}: {n} monsoon reports — साचलेल्या लेनमध्ये डेंगू. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: {n} वॉर्ड तक्रारी — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. पावसाळा टिप: साचलेल्या लेनमध्ये डेंगू. #MonsoonGuardian',
 
       'persona.unfiled': '{n} वॉर्ड नकाशावर open — share किंवा Profile वरून official file.',
 
@@ -6535,9 +6539,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'शेजारी कदाचित न माहित — WhatsApp share.',
 
-      'success.shareMsg': '🦟 {ward} मध्ये {hazard} — डेंगू धोका! CivicRadar ward map pin.\nMe too आणि lane hazards:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} मध्ये {hazard} — CivicRadar ward map pin.\nMe too आणि lane hazards:\n{link}\n{hashtags}',
 
-      'share.appMsg': '🗺️ {city} पावसाळा नकाशा — साचलेले पाणी पिन, Me too, प्रतिस्पर्धी वॉर्डला हरवा!\n{link}\n{hashtags}',
+      'share.appMsg': '🗺️ {city} वॉर्ड धोका नकाशा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी पिन. Me too, प्रतिस्पर्धी वॉर्डला हरवा!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'माझ्या भागात',
 
@@ -6545,7 +6549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp वर शेअर करा',
 
-      'share.wardMapMsg': '⚡ {ward}: {pending} उघडे डेंगू-धोका स्पॉट — CivicRadar वर आम्हाला हरवा!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🗺️ {ward}: {pending} उघडे धोके — CivicRadar वर आम्हाला हरवा!\n{link}\n{hashtags}',
 
       'share.cleanupMsg': '🧹 {ward} मध्ये स्वयंसेवकांनी {hazard} साफ केले! आधी → नंतर:\n{link}\n{hashtags}',
 
@@ -6591,7 +6595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.shareTitle': 'अ‍ॅप शेअर करा',
 
-      'about.sharePitch': 'मोफत {city} पावसाळा नकाशा — 30 सेकंदात तक्रार, Me too, प्रतिस्पर्धी वॉर्डला हरवा.\nमुंबई, पुणे आणि ठाणेसाठी बांधले. लॉगिन नाही, 4 भाषा.\n{link}\nRWA / सोसायटी WhatsApp ग्रुपला फॉरवर्ड करा →',
+      'about.sharePitch': 'मोफत {city} वॉर्ड धोका नकाशा — 30 सेकंदात कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी पिन. Me too, प्रतिस्पर्धी वॉर्डला हरवा.\nमुंबई, पुणे आणि ठाणेसाठी बांधले. लॉगिन नाही, 4 भाषा.\n{link}\nRWA / सोसायटी WhatsApp ग्रुपला फॉरवर्ड करा →',
 
       'about.copyPitch': 'WhatsApp पिच कॉपी करा',
 
@@ -6675,6 +6679,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open spots. नोंदवा किंवा बोलवा!',
 
+      'map.emptyEncourage': 'प्रत्येक pin तुमच्या वॉर्डला मदत करतो — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. पावसाळा टिप: साचलेले पाणी साफ करा, डेंग्यू टाळा.',
+
       'home.hero.badge': '#MonsoonGuardian',
 
       'home.hero.headline': 'नकाशावर · फोटो · नोंदवा',
@@ -6743,7 +6749,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.monsoon': 'पावसाळी रक्षक',
 
-      'profile.wardImpact': 'तुमचा वॉर्ड: या पावसाळ्यात {n} तक्रारी',
+      'profile.wardImpact': 'तुमचा वॉर्ड: या सीझन {n} तक्रारी',
 
       'profile.streak': '{n}-आठवड्यांची तक्रार साखळी',
 
@@ -7343,15 +7349,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'community map वर — {corp} मध्ये अजून file नाही.',
 
-      'community.challenge.empty': '{ward} मध्ये मान्सून बोर्डवर पहिले व्हा — आजच तक्रार करा.',
+      'community.challenge.empty': '{ward} मध्ये वॉर्ड बोर्डवर पहिले व्हा — आजच तक्रार करा.',
 
-      'community.challenge.beat': '{ward}: {pending} डेंगू-धोका स्पॉट — {rival} ({rivalPending} प्रलंबित) पेक्षा पुढे! 🔥',
+      'community.challenge.beat': '{ward}: {pending} उघडे धोके — {rival} ({rivalPending} प्रलंबित) पेक्षा पुढे! नोंदवा किंवा रॅली 👋',
 
       'community.challenge.leading': '{ward} {resolved} सोडवले — {rival} पेक्षा पुढे राहा!',
 
       'community.challenge.catch': '{ward}: {leader} ({leaderResolved} सोडवले) चा पाठलाग करा. स्वच्छ सर्वेक्षण तुमच्या लेनपासून.',
 
-      'community.challenge.leaderboard': '{leader} {resolved} सोडवले — पुढचा वॉर्ड कोण?',
+      'community.challenge.leaderboard': '{leader} {resolved} सोडवले — वॉर्ड बोर्डवर अग्रणी. पुढचा वॉर्ड कोण?',
 
       'leaderboard.demo': 'डेमो',
 
@@ -7613,9 +7619,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.body': 'महिना झाला? Aaple Sarkar किंवा RTI.',
 
-      'profile.empty': 'अद्याप तक्रार नाही. जवळ साचलेले पाणी?',
+      'profile.empty': 'अद्याप तक्रार नाही. जवळ कोणता धोका?',
 
-      'profile.emptyList': 'अद्याप तक्रार नाही. Report दाबून जवळचे साचलेले पाणी पिन करा.',
+      'profile.emptyList': 'अद्याप तक्रार नाही. Report दाबून जवळचे धोके पिन करा.',
 
       'profile.emptyAction': 'आता तक्रार',
 
@@ -7659,7 +7665,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.youAreHere': 'तुम्ही येथे आहात',
 
-      'about.subtitleNamed': 'मुंबई, पुणे आणि ठाणे पावसाळा — {name} द्वारे, नागरिकांसाठी मोफत.',
+      'about.subtitleNamed': 'मुंबई, पुणे आणि ठाणेसाठी सामुदायिक तंत्र — {name} द्वारे, नागरिकांसाठी मोफत.',
 
       'safety.hide': 'फ्लॅग / लपवा',
 
@@ -8137,7 +8143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeBody': '{city} नकाशावर आधीच {n} तक्रारी आहेत. तुमच्या वॉर्डमधील खुले स्पॉट पाहा — किंवा 30 सेकंदात एक पिन करा.',
 
-      'ref.welcomeBodyEmpty': 'या पावसाळ्यात {city} मध्ये साचलेल्या पाण्याचा नकाशा करणाऱ्यांत पहिले व्हा — फक्त 30 सेकंद.',
+      'ref.welcomeBodyEmpty': '{city} मध्ये धोके नकाशित करणाऱ्यांत पहिले व्हा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. फक्त 30 सेकंद.',
 
       'ref.welcomeCta': 'नकाशा पाहा',
 
@@ -8165,7 +8171,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'साप्ताहिक आढावा शेअर करा',
 
-      'share.weeklyRecap': '📊 या पावसाळी आठवड्यात {ward}: {reports} नवीन तक्रारी, {resolved} दुरुस्त, {backed} शेजाऱ्यांचा पाठिंबा. CivicRadar वर सामील व्हा 👇\n{link}\n{hashtags}',
+      'share.weeklyRecap': '📊 या आठवड्यात {ward}: {reports} नवीन तक्रारी, {resolved} दुरुस्त, {backed} शेजाऱ्यांचा पाठिंबा. CivicRadar वर सामील व्हा 👇\n{link}\n{hashtags}',
 
       'feedback.menu': 'अभिप्राय पाठवा',
 
@@ -8448,9 +8454,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fab.report': 'ફરિયાદ',
 
-      'header.context': 'માન્સૂન જોખમ નકશો — મુંબઈ, પુણે અને ઠાણે',
+      'header.context': 'વોર્ડ જોખમ નકશો — મુંબઈ, પુણે અને ઠાણે',
 
-      'header.contextCity': '{city} ચોમાસું — જોખમ નકશો',
+      'header.contextCity': '{city} માટે વોર્ડ જોખમ નકશો',
 
       'location.banner': 'સચોટ ફરિયાદ માટે સ્થાન ચાલુ કરો.',
 
@@ -8506,9 +8512,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'Submit — પડોશીઓ pin જોશે. Profile માં Civic Points.',
 
-      'persona.citizen.idle': '🦟 ભરાયેલું પાણી = ડેંગુ જોખમ. Report — 30 sec ward map, WhatsApp share.',
+      'persona.citizen.idle': 'તમારા વોર્ડમાં જોખમો નોંધો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. Report — 30 sec ward map, WhatsApp share. ચોમાસુ ટિપ: ભરાયેલું પાણી = ડેંગુ જોખમ.',
 
-      'persona.wardImpact': '{ward}: {n} monsoon reports — stagnant lanes માં ડેંગુ. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: {n} વોર્ડ ફરિયાદ — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. ચોમાસુ ટિપ: stagnant lanes માં ડેંગુ. #MonsoonGuardian',
 
       'persona.unfiled': '{n} ward map open — share કે Profile થી official file.',
 
@@ -8658,9 +8664,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'પડોશી કદાચ ન જાણે — WhatsApp share.',
 
-      'success.shareMsg': '🦟 {ward} માં {hazard} — ડેંગુ જોખમ! CivicRadar ward map pin.\nMe too અને lane hazards:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} માં {hazard} — CivicRadar ward map pin.\nMe too અને lane hazards:\n{link}\n{hashtags}',
 
-      'share.appMsg': '🗺️ {city} ચોમાસું નકશો — ભરાયેલું પાણી પિન, Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો!\n{link}\n{hashtags}',
+      'share.appMsg': '🗺️ {city} વોર્ડ જોખમ નકશો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'મારા વિસ્તારમાં',
 
@@ -8668,7 +8674,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp પર શેર કરો',
 
-      'share.wardMapMsg': '⚡ {ward}: {pending} ખુલ્લા ડેંગુ-જોખમ સ્પોટ — CivicRadar પર અમને હરાવો!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🗺️ {ward}: {pending} ખુલ્લા જોખમ — CivicRadar પર અમને હરાવો!\n{link}\n{hashtags}',
 
       'share.cleanupMsg': '🧹 {ward} માં સ્વયંસેવકોએ {hazard} સાફ કર્યું! પહેલાં → પછી:\n{link}\n{hashtags}',
 
@@ -8714,7 +8720,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.shareTitle': 'એપ શેર કરો',
 
-      'about.sharePitch': 'મફત {city} ચોમાસું નકશો — 30 સેકમાં રિપોર્ટ, Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો.\nમુંબઈ, પુણે અને ઠાણે માટે બનાવ્યું. લોગિન નહીં, 4 ભાષાઓ.\n{link}\nRWA / સોસાયટી WhatsApp ગ્રુપમાં ફોરવર્ડ કરો →',
+      'about.sharePitch': 'મફત {city} વોર્ડ જોખમ નકશો — 30 સેકમાં કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો.\nમુંબઈ, પુણે અને ઠાણે માટે બનાવ્યું. લોગિન નહીં, 4 ભાષાઓ.\n{link}\nRWA / સોસાયટી WhatsApp ગ્રુપમાં ફોરવર્ડ કરો →',
 
       'about.copyPitch': 'WhatsApp પિચ કૉપી કરો',
 
@@ -8798,6 +8804,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open. report કે rally!',
 
+      'map.emptyEncourage': 'દરેક pin તમારા વોર્ડને મદદ કરે — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. ચોમાસુ ટિપ: ભરાયેલું પાણી સાફ કરો, ડેંગુ ટાળો.',
+
       'home.hero.badge': '#MonsoonGuardian',
 
       'home.hero.headline': 'નકશા પર · ફોટો · રિપોર્ટ',
@@ -8866,7 +8874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.monsoon': 'ચોમાસુ રક્ષક',
 
-      'profile.wardImpact': 'તમારો વોર્ડ: આ ચોમાસે {n} ફરિયાદ',
+      'profile.wardImpact': 'તમારો વોર્ડ: આ સીઝન {n} ફરિયાદ',
 
       'profile.streak': '{n}-અઠવાડિયાની રિપોર્ટિંગ સ્ટ્રીક',
 
@@ -9466,15 +9474,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'community map પર — {corp} માં હજુ file નહીં.',
 
-      'community.challenge.empty': '{ward} માં મોનસૂન બોર્ડ પર પહેલા બનો — આજે જ રિપોર્ટ કરો.',
+      'community.challenge.empty': '{ward} માં વોર્ડ બોર્ડ પર પહેલા બનો — આજે જ રિપોર્ટ કરો.',
 
-      'community.challenge.beat': '{ward}: {pending} ડેંગુ-જોખમ સ્પોટ — {rival} ({rivalPending} બાકી) કરતાં આગળ! 🔥',
+      'community.challenge.beat': '{ward}: {pending} ખુલ્લા જોખમ — {rival} ({rivalPending} બાકી) કરતાં આગળ! રિપોર્ટ કે રેલી 👋',
 
       'community.challenge.leading': '{ward} {resolved} ઉકેલ સાથે અગ્રણી — {rival} કરતાં આગળ!',
 
       'community.challenge.catch': '{ward}: {leader} ({leaderResolved} ઉકેલ) નો પીછો કરો. સ્વચ્છ સર્વેક્ષણ તમારી ગલીથી.',
 
-      'community.challenge.leaderboard': '{leader} {resolved} ઉકેલ સાથે ટોચ પર — આગળ કયો વોર્ડ?',
+      'community.challenge.leaderboard': '{leader} {resolved} ઉકેલ સાથે વોર્ડ બોર્ડ પર ટોચ — આગળ કયો વોર્ડ?',
 
       'leaderboard.demo': 'ડેમો',
 
@@ -9736,9 +9744,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.body': 'એક મહિના પછી? Aaple Sarkar અથવા RTI.',
 
-      'profile.empty': 'હજુ ફરિયાદ નથી. નજીક ભરાયેલું પાણી?',
+      'profile.empty': 'હજુ ફરિયાદ નથી. નજીક કોઈ જોખમ?',
 
-      'profile.emptyList': 'હજુ ફરિયાદ નથી. Report દબાવી નજીકનું ભરાયેલું પાણી પિન કરો.',
+      'profile.emptyList': 'હજુ ફરિયાદ નથી. Report દબાવી નજીકના જોખમ પિન કરો.',
 
       'profile.emptyAction': 'હમણાં રિપોર્ટ',
 
@@ -9782,7 +9790,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.youAreHere': 'તમે અહીં છો',
 
-      'about.subtitleNamed': 'મુંબઈ, પુણે અને ઠાણે ચોમાસું — {name} દ્વારા, નાગરિકો માટે મફત.',
+      'about.subtitleNamed': 'મુંબઈ, પુણે અને ઠાણે માટે સામુદાયિક ટેક — {name} દ્વારા, નાગરિકો માટે મફત.',
 
       'safety.hide': 'ફ્લેગ / છુપાવો',
 
@@ -10260,7 +10268,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeBody': '{city} નકશા પર પહેલેથી {n} ફરિયાદ છે. તમારા વોર્ડના ખુલ્લા સ્પોટ જુઓ — અથવા 30 સેકન્ડમાં એક પિન કરો.',
 
-      'ref.welcomeBodyEmpty': 'આ ચોમાસામાં {city} માં ભરાયેલા પાણીનો નકશો બનાવનારાઓમાં પહેલા બનો — માત્ર 30 સેકન્ડ.',
+      'ref.welcomeBodyEmpty': '{city} માં જોખમો નકશિત કરનારાઓમાં પહેલા બનો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. માત્ર 30 સેકન્ડ.',
 
       'ref.welcomeCta': 'નકશો જુઓ',
 
@@ -10288,7 +10296,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'સાપ્તાહિક સારાંશ શેર કરો',
 
-      'share.weeklyRecap': '📊 આ ચોમાસા અઠવાડિયે {ward}: {reports} નવી ફરિયાદ, {resolved} ઠીક, {backed} પડોશીઓનું સમર્થન. CivicRadar પર જોડાઓ 👇\n{link}\n{hashtags}',
+      'share.weeklyRecap': '📊 આ અઠવાડિયે {ward}: {reports} નવી ફરિયાદ, {resolved} ઠીક, {backed} પડોશીઓનું સમર્થન. CivicRadar પર જોડાઓ 👇\n{link}\n{hashtags}',
 
       'feedback.menu': 'પ્રતિસાદ મોકલો',
 
@@ -19897,7 +19905,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const ward = getWardShortName(user.ward);
 
-      setMetaContent('meta[property="og:title"]', `CivicRadar — ${ward} monsoon hazard map`);
+      setMetaContent('meta[property="og:title"]', `CivicRadar — ${ward} ward hazard map`);
 
       const pending = getWardReportStats().find((s) => s.name === user.ward);
 
