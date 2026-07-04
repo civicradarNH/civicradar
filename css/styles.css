@@ -16,6 +16,15 @@
   --lead-accent-rgb: 236, 72, 153;
   --whatsapp: #25D366;
 
+  /* Hazard category colors — distinct per type so the report picker reads as
+     colorful categories, not a monotone icon grid. Deliberately separate from
+     the semantic colors below (danger/success/warning carry status meaning
+     elsewhere; these carry category meaning only, scoped to hazard tiles). */
+  --hazard-water: #0891b2;
+  --hazard-garbage: #15803d;
+  --hazard-pothole: #ea580c;
+  --hazard-streetlight: #ca8a04;
+
   /* Semantic */
   --danger: #ef4444;
   --success: #10b981;
@@ -713,10 +722,19 @@ html, body {
   padding: 28px 16px;
 }
 
+/* Warm gradient badge instead of a flat muted icon — matches the map's
+   empty-ward-CTA treatment so "nothing here yet" reads as inviting, not bare. */
 .empty-state--action i {
-  font-size: 2rem;
-  color: var(--text-muted);
-  opacity: 0.5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--grad-brand-cyan);
+  color: #fff;
+  font-size: 1.625rem;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.28);
 }
 
 body.persona-admin #mapLegend .map-legend__item:not(:first-child):not(:nth-child(2)) {
@@ -744,9 +762,9 @@ body.persona-lead #btnCamera {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-dark);
+  color: var(--primary);
   font-size: 1.375rem;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .header__btn:hover {
@@ -2721,17 +2739,6 @@ body.persona-lead .ref-welcome { display: none; }
   line-height: 1.4;
 }
 
-.btn--instagram {
-  background: linear-gradient(135deg, #f58529 0%, #dd2a7b 45%, #8134af 100%);
-  color: #fff;
-  border: none;
-}
-
-.btn--instagram:hover,
-.btn--instagram:focus-visible {
-  filter: brightness(1.06);
-}
-
 .success-stories {
   margin: 16px 0 4px;
 }
@@ -3665,6 +3672,19 @@ body.persona-lead .ref-welcome { display: none; }
   margin-bottom: 20px;
 }
 
+/* Carries the hero card's elevation down into the plain settings fields
+   right below it, so the screen doesn't drop from "premium gradient" to
+   "bare page background" in one step. */
+.profile-details-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 16px 6px;
+  margin-bottom: 20px;
+}
+.profile-details-card .form-group:last-child { margin-bottom: 6px; }
+
 .profile-card__greeting {
   font-size: 0.8125rem;
   opacity: 0.9;
@@ -4195,6 +4215,55 @@ body.persona-lead .ref-welcome { display: none; }
 
 .official-channels .esc-channel { min-height: 56px; }
 
+/* ---- Community modal: section hierarchy (headers + collapsible groups) ---- */
+.cr-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.cr-section-header:first-of-type { margin-top: 2px; }
+.cr-section-header i { color: var(--primary); font-size: 1.125rem; }
+
+.cr-section {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.cr-section__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 12px 14px;
+  border: 1px solid var(--primary-100);
+  border-radius: var(--radius-md);
+  background: var(--primary-50);
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+.cr-section__toggle span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cr-section__toggle i.ph-hand-heart,
+.cr-section__toggle i.ph-info {
+  color: var(--primary);
+  font-size: 1.125rem;
+}
+.cr-section__toggle i.ph-caret-down { transition: transform 0.2s ease; color: var(--primary); }
+.cr-section:not(.cr-section--collapsed) .cr-section__toggle i.ph-caret-down { transform: rotate(180deg); }
+.cr-section__body { padding-top: 14px; }
+.cr-section__body.hidden { display: none; }
+
 .esc-step__official {
   margin-top: 8px;
 }
@@ -4616,8 +4685,16 @@ body.persona-lead .ref-welcome { display: none; }
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.hazard-tile i { font-size: 1.5rem; color: var(--text-muted); }
-.hazard-tile--active i { color: var(--primary); }
+.hazard-tile i { font-size: 1.5rem; }
+.hazard-tile[data-hazard="stagnant-water"] i { color: var(--hazard-water); }
+.hazard-tile[data-hazard="garbage"] i { color: var(--hazard-garbage); }
+.hazard-tile[data-hazard="potholes"] i { color: var(--hazard-pothole); }
+.hazard-tile[data-hazard="streetlight"] i { color: var(--hazard-streetlight); }
+/* Faint category-tinted resting background — active state (indigo) always wins. */
+.hazard-tile[data-hazard="stagnant-water"]:not(.hazard-tile--active) { background: rgba(8, 145, 178, 0.06); border-color: rgba(8, 145, 178, 0.25); }
+.hazard-tile[data-hazard="garbage"]:not(.hazard-tile--active) { background: rgba(21, 128, 61, 0.06); border-color: rgba(21, 128, 61, 0.22); }
+.hazard-tile[data-hazard="potholes"]:not(.hazard-tile--active) { background: rgba(234, 88, 12, 0.06); border-color: rgba(234, 88, 12, 0.22); }
+.hazard-tile[data-hazard="streetlight"]:not(.hazard-tile--active) { background: rgba(202, 138, 4, 0.07); border-color: rgba(202, 138, 4, 0.25); }
 .hazard-tile__label { font-size: 0.8125rem; font-weight: 600; text-align: center; line-height: 1.25; word-break: break-word; hyphens: auto; }
 .hazard-tile__check {
   position: absolute;
@@ -5094,8 +5171,6 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 .hazard-tile:not(.hazard-tile--soon):active { transform: scale(0.97); }
 
 /* ---- Empty states: warmer, on-brand icon ---- */
-.empty-state--action i { color: var(--primary); opacity: 0.45; }
-
 @media (prefers-reduced-motion: reduce) {
   .hazard-tile:not(.hazard-tile--soon):active { transform: none; }
 }

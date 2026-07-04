@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v113';
+  const CIVIC_APP_VERSION = 'v115';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1868,6 +1868,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Utilities ---------- */
 
+  // Report photos are either a local base64 data URL (pre-sync/offline) or a
+  // public Supabase Storage URL (post-sync, see Backend.uploadReportImage) —
+  // never anything else, so <img src> never renders an attacker-supplied URL.
+  function isSafeReportImage(src) {
+    if (!src) return false;
+    if (/^data:image\//.test(src)) return true;
+    const cfg = window.CIVICRADAR_CONFIG || {};
+    return !!(cfg.supabaseUrl && src.indexOf(cfg.supabaseUrl + '/storage/v1/object/public/report-photos/') === 0);
+  }
+
   function escapeHtml(value) {
 
     if (value == null) return '';
@@ -2698,6 +2708,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.periodMonth': 'This month',
 
       'community.periodAll': 'All time',
+
+      'community.thisWeekTitle': 'Your ward this week',
+
+      'community.leaderboardTitle': 'Ward leaderboard',
+
+      'community.getInvolvedTitle': 'Get involved',
+
+      'community.resourcesTitle': 'Resources',
 
       'community.supportTitle': 'Support Volunteers',
 
@@ -4840,6 +4858,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.periodAll': 'हमेशा से',
 
+      'community.thisWeekTitle': 'इस सप्ताह आपका वार्ड',
+
+      'community.leaderboardTitle': 'वार्ड लीडरबोर्ड',
+
+      'community.getInvolvedTitle': 'शामिल हों',
+
+      'community.resourcesTitle': 'संसाधन',
+
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
       'community.supportBody': 'रुके पानी से लड़ रहे स्थानीय सफ़ाई दल की मदद के लिए सामग्री दान करें।',
@@ -6978,6 +7004,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.periodAll': 'आतापर्यंत',
 
+      'community.thisWeekTitle': 'या आठवड्यात तुमचा वॉर्ड',
+
+      'community.leaderboardTitle': 'वॉर्ड लीडरबोर्ड',
+
+      'community.getInvolvedTitle': 'सहभागी व्हा',
+
+      'community.resourcesTitle': 'संसाधने',
+
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
       'community.supportBody': 'साचलेल्या पाण्याशी लढणाऱ्या स्थानिक स्वच्छता पथकांना मदतीसाठी साहित्य द्या.',
@@ -9115,6 +9149,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.periodMonth': 'આ મહિને',
 
       'community.periodAll': 'અત્યાર સુધી',
+
+      'community.thisWeekTitle': 'આ અઠવાડિયે તમારો વોર્ડ',
+
+      'community.leaderboardTitle': 'વોર્ડ લીડરબોર્ડ',
+
+      'community.getInvolvedTitle': 'સામેલ થાઓ',
+
+      'community.resourcesTitle': 'સંસાધનો',
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
@@ -11383,14 +11425,43 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     },
 
-    reportToRow(r) {
+    // Uploads a local JPEG data URL to the report-photos Storage bucket and
+    // returns its public URL, so synced rows carry a short URL instead of a
+    // 30-160KB base64 blob (keeps Postgres row size and sync egress small at
+    // scale — see ARCHITECTURE.md Stage 1). Falls back to the raw data URL
+    // untouched if not connected, already a URL, or the upload fails, so a
+    // report never silently fails to sync over a storage hiccup.
+    async uploadReportImage(dataUrl, path) {
+      if (!this.enabled || !dataUrl || !dataUrl.startsWith('data:')) return dataUrl || '';
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const { error: uploadError } = await this.client.storage
+          .from('report-photos')
+          .upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+        if (uploadError) throw uploadError;
+        const { data } = this.client.storage.from('report-photos').getPublicUrl(path);
+        return data?.publicUrl || dataUrl;
+      } catch (err) {
+        if (window.CivicAnalytics) {
+          CivicAnalytics.trackError(err?.message || 'upload_failed', { context: 'uploadReportImage' });
+        }
+        return dataUrl;
+      }
+    },
+
+    async reportToRow(r) {
+      const ownerId = r.reporterId || user.id;
+      const [image, resolutionImage] = await Promise.all([
+        this.uploadReportImage(r.image, `${ownerId}/${r.id}.jpg`),
+        this.uploadReportImage(r.resolutionImage, `${ownerId}/${r.id}-resolved.jpg`),
+      ]);
       return {
         id: r.id,
         reporter_id: r.reporterId || user.id,
         reporter_name: r.reporter || '',
         hazard: r.hazard,
         notes: r.notes || '',
-        image: r.image || '',
+        image: image || '',
         ward: r.ward || '',
         city: r.city || getUserCity(),
         lat: r.lat,
@@ -11400,7 +11471,7 @@ document.addEventListener('DOMContentLoaded', function () {
         filed_at: r.filedAt || null,
         resolved_by: r.resolvedBy || null,
         resolved_at: r.resolvedAt || null,
-        resolution_image: r.resolutionImage || null,
+        resolution_image: resolutionImage || null,
         community_cleared: !!r.communityCleared,
         cleared_by: r.clearedBy || null,
         confirmations: Number(r.confirmations) || 0,
@@ -11579,7 +11650,8 @@ document.addEventListener('DOMContentLoaded', function () {
         (r) => r.reporterId === user.id && /^[0-9a-f-]{36}$/i.test(String(r.id))
       );
       if (myReports.length) {
-        await this.client.from('reports').upsert(myReports.map((r) => this.reportToRow(r)), { onConflict: 'id' });
+        const rows = await Promise.all(myReports.map((r) => this.reportToRow(r)));
+        await this.client.from('reports').upsert(rows, { onConflict: 'id' });
       }
       const myPledges = loadPledges().filter(
         (p) => !p.mock && p.citizenId === user.id && /^[0-9a-f-]{36}$/i.test(String(p.id))
@@ -11607,7 +11679,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async insertReport(report) {
       if (!this.enabled) return;
-      const { error } = await this.client.from('reports').upsert(this.reportToRow(report), { onConflict: 'id' });
+      const row = await this.reportToRow(report);
+      const { error } = await this.client.from('reports').upsert(row, { onConflict: 'id' });
       if (error) {
         console.warn('Report sync failed (saved locally):', error.message);
         if (window.CivicAnalytics) {
@@ -11748,7 +11821,10 @@ document.addEventListener('DOMContentLoaded', function () {
     async updateReportResolution(id, status, by, at, resolutionImage, resolutionSource, communityVerifiedAt) {
       if (!this.enabled) return;
       const patch = { status, resolved_by: by, resolved_at: at };
-      if (resolutionImage) patch.resolution_image = resolutionImage;
+      // Path is scoped to the *uploader's* (this session's) own auth.uid(), not the
+      // original reporter's — an admin/coordinator resolving someone else's report
+      // still writes to their own Storage folder per the report_photos RLS policy.
+      if (resolutionImage) patch.resolution_image = await this.uploadReportImage(resolutionImage, `${user.id}/${id}-resolved.jpg`);
       if (resolutionSource) patch.resolution_source = resolutionSource;
       if (communityVerifiedAt) patch.community_verified_at = communityVerifiedAt;
       const { error } = await this.client
@@ -18269,6 +18345,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Toast Notifications ---------- */
 
+  // Generic collapsible-section toggle (Community modal's "Get involved" /
+  // "Resources" groups) — mirrors the existing official-channels accordion
+  // pattern (button + .hidden body + --collapsed modifier + aria-expanded).
+  function wireCollapsibleSection(toggleId, bodyId, sectionId) {
+    const btn = $('#' + toggleId);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const body = $('#' + bodyId);
+      const section = $('#' + sectionId);
+      const open = body && body.classList.toggle('hidden') === false;
+      if (section) section.classList.toggle('cr-section--collapsed', !open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
   function showToast(message, type = 'info', duration = 3500, action = null) {
 
     const container = $('#toastContainer');
@@ -21971,6 +22062,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    wireCollapsibleSection('btnGetInvolvedToggle', 'getInvolvedBody', 'getInvolvedSection');
+
+    wireCollapsibleSection('btnCommunityResourcesToggle', 'communityResourcesBody', 'communityResourcesSection');
+
     $('#reportNotes').addEventListener('input', () => {
 
       if ($('#imageCanvas').classList.contains('visible')) {
@@ -24346,11 +24441,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const ward = getWardShortName(r.ward) || t('header.context');
 
-      const thumb = (r.resolutionImage && /^data:image\//.test(r.resolutionImage))
+      const thumb = isSafeReportImage(r.resolutionImage)
 
         ? r.resolutionImage
 
-        : (r.image && /^data:image\//.test(r.image) ? r.image : '');
+        : (isSafeReportImage(r.image) ? r.image : '');
 
       const labelKey = type === 'cleanup'
 
@@ -24971,9 +25066,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    const hasBefore = report.image && /^data:image\//.test(report.image);
+    const hasBefore = isSafeReportImage(report.image);
 
-    const hasAfter = report.resolutionImage && /^data:image\//.test(report.resolutionImage);
+    const hasAfter = isSafeReportImage(report.resolutionImage);
 
     const fixedLabel = t('shareWin.fixedLabel');
 
@@ -25399,9 +25494,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (proof) {
 
-      const hasBefore = report.image && /^data:image\//.test(report.image);
+      const hasBefore = isSafeReportImage(report.image);
 
-      const hasAfter = report.resolutionImage && /^data:image\//.test(report.resolutionImage);
+      const hasAfter = isSafeReportImage(report.resolutionImage);
 
       if (hasBefore || hasAfter) {
 
@@ -25577,7 +25672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setMetaContent('meta[name="twitter:description"]', desc);
 
-    const img = report.image && /^data:image\//.test(report.image) ? report.image : absoluteOgUrl('assets/og-civicradar.svg');
+    const img = isSafeReportImage(report.image) ? report.image : absoluteOgUrl('assets/og-civicradar.svg');
 
     setMetaContent('meta[property="og:url"]', reportDeepLink(report.id));
 
@@ -29421,9 +29516,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        const safeImg = r.image && /^data:image\//.test(r.image) ? r.image : '';
+        const safeImg = isSafeReportImage(r.image) ? r.image : '';
 
-        const safeAfter = r.resolutionImage && /^data:image\//.test(r.resolutionImage) ? r.resolutionImage : '';
+        const safeAfter = isSafeReportImage(r.resolutionImage) ? r.resolutionImage : '';
 
         let thumb;
 
@@ -29549,7 +29644,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     adminProofDataUrl = null;
 
-    $('#adminReportPhoto').src = (report.image && /^data:image\//.test(report.image)) ? report.image : '';
+    $('#adminReportPhoto').src = isSafeReportImage(report.image) ? report.image : '';
 
     const preview = $('#adminProofPreview');
 
@@ -29821,7 +29916,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function reportHasCitizenPhoto(r) {
 
-    return !!(r.image && /^data:image\//.test(r.image));
+    return isSafeReportImage(r.image);
 
   }
 
@@ -29829,7 +29924,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function reportHasResolutionProof(r) {
 
-    return !!(r.resolutionImage && /^data:image\//.test(r.resolutionImage));
+    return isSafeReportImage(r.resolutionImage);
 
   }
 
@@ -30787,7 +30882,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const confBadge = confCount > 0 ? `<span class="status-badge status-badge--confirms"><i class="ph ph-users"></i> ${confCount}</span>` : '';
 
-        const safeImg = r.image && /^data:image\//.test(r.image) ? r.image : '';
+        const safeImg = isSafeReportImage(r.image) ? r.image : '';
 
         const thumb = safeImg ? `<img class="queue-item__thumb" src="${safeImg}" alt="">` : '<div class="queue-item__thumb"></div>';
 

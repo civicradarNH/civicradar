@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v113" in sw_src
+        "civicradar-v115" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v113" in sw_src
+        "civicradar-v115" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7593,6 +7593,10 @@ async def main():
         '`css/styles.css` + `index.html` + `js/app.js` + `sw.js`: visual refresh (v112) — merged the two design-token :root blocks into one, retired `--secondary` pink (split into `--lead-accent` for community-lead role UI and `--primary`/`--accent` for everything else it was inconsistently driving, incl. FAB + profile-card gradient → `--grad-brand-cyan`), detokenized repeated hardcoded toast/podium/warning-amber hex into new tokens, added OS-driven `prefers-color-scheme: dark` support (`color-scheme` meta → `light dark`), merged duplicate form-input focus-ring rules + added resting elevation, decluttered the home screen (home-hero z-index above legend/banner; FAB + persona-bar hidden while home-hero shows to remove the duplicate Report CTA), restyled the leaderboard demo-data note as a tonal notice, and differentiated the two near-identical "be the first" Community empty-state strings (`community.challenge.empty`, `social.wardWeekEmpty`) across en/hi/mr/gu; SW06 → v112',
 
         '`css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql`: PM-review pass (v113) — fixed broken certificate WhatsApp share (undefined function); resolved the "Monsoon Guardian" label reused for 3 unrelated things (XP level, streak badge renamed "Local Hero", first-report toast); decluttered the success modal (removed duplicate badge-unlock line, grouped reward text into one panel, moved Twitter share into the existing collapsed accordion); merged Profile\'s scattered notification/consent controls into one "Notifications & Privacy" section; added a one-time lead/volunteer discoverability nudge after the 3rd report; added a "this month" vs "all time" Community leaderboard period toggle; added a per-user referral code + reward loop (new `referrals` table/RPC, one-time XP + Profile line when neighbours join via your invite); full Hindi/Marathi/Gujarati copy-quality pass (fixed cross-language contamination, untranslated fragments, inconsistent terminology, typos); refreshed monsoon-season copy for an early-monsoon launch; reverted OS dark-mode support after smoke-testing showed icons were hard to differentiate (`color-scheme` meta back to `light`-only) — SW06 → v113',
+
+        '`css/styles.css` + `js/app.js` + `supabase/storage-migration.sql`: visual vibrancy + Storage scale-up (v114) — hazard picker tiles now color-coded per category (cyan/green/orange/gold) instead of flat gray, header icons tinted brand indigo; report/resolution photos now upload to a `report-photos` Supabase Storage bucket instead of embedding base64 in Postgres rows (`Backend.uploadReportImage`), fixing both the free-tier DB-size and sync-egress risk flagged for 10K-user scale; widened the `isSafeReportImage()` image-src guard (previously `data:` URL only) to also accept the resulting Storage URLs across all 13 render sites that check it; SW06 → v114',
+
+        '`css/styles.css` + `index.html` + `js/app.js`: design polish pass (v115) — Community modal restructured from one long flat scroll into a clear hierarchy ("Your ward this week" / "Ward leaderboard" sections always visible, "Get involved" and "Resources" as collapsible groups reusing the existing official-channels accordion pattern); Profile\'s plain bordered form fields wrapped in an elevated `.profile-details-card` so the premium gradient stat card\'s tone carries down the screen, plus icons added to every Profile section header for visual consistency with Community; empty states (Reports, Volunteer, Pledges, Wins, Community leads) upgraded from flat muted icons to a warm gradient icon badge (shared `.empty-state--action i` style, one CSS change covers all five); removed the loud Instagram-gradient button style from two generic "Download" actions (certificate, share-win card) in favour of the existing outline style already used by their neighbouring "Copy caption" button, and deleted the now-unused `.btn--instagram` rule; SW06 → v115',
 
     ]
 

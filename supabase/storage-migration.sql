@@ -1,23 +1,17 @@
--- CivicRadar — migrate report photos from text data URLs to Supabase Storage
--- Run when you outgrow the free-tier DB (images in `reports.image` text column).
--- See ARCHITECTURE.md Stage 1 for the full rollout plan.
+-- CivicRadar — move report photos from base64 text into Supabase Storage.
+-- Run once in the Supabase SQL Editor. See ARCHITECTURE.md Stage 1 for context.
 --
--- Prerequisites:
---   1. Create bucket `report-photos` (public read, authenticated write) in Storage
---   2. Deploy app build that uploads to Storage and stores URL in `image_url`
---   3. Run this SQL once, then run a one-off migration script to move existing blobs
+-- The app code (js/app.js Backend.uploadReportImage/reportToRow/
+-- updateReportResolution) already uploads new photos to the `report-photos`
+-- bucket and stores the resulting public URL in the existing `reports.image`
+-- / `reports.resolution_image` text columns — no schema/column rename
+-- needed, since those columns already accept arbitrary text and existing
+-- rows (test data) are disposable. Old rows just keep their base64 value
+-- until re-synced; nothing reads/writes them differently based on which
+-- form they're in (a data: URL and an https:// URL are both valid <img src>).
 
 -- ---------------------------------------------------------------------
--- Schema changes
--- ---------------------------------------------------------------------
-
-alter table public.reports add column if not exists image_url text;
-
-comment on column public.reports.image is 'Legacy: JPEG data URL (MVP). Null after Storage migration.';
-comment on column public.reports.image_url is 'Public URL to object in report-photos bucket.';
-
--- ---------------------------------------------------------------------
--- Storage bucket (adjust policies for your threat model)
+-- Storage bucket (adjust size/MIME limits if compression settings change)
 -- ---------------------------------------------------------------------
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -25,7 +19,7 @@ values (
   'report-photos',
   'report-photos',
   true,
-  524288,  -- 512 KB per object after client compression
+  524288,  -- 512 KB per object after client compression (320px, q=0.52 JPEG)
   array['image/jpeg', 'image/webp']
 )
 on conflict (id) do nothing;
@@ -36,7 +30,10 @@ create policy "report_photos_select"
   on storage.objects for select
   using (bucket_id = 'report-photos');
 
--- Authenticated users upload only into their own folder: {user_id}/{report_id}.jpg
+-- Authenticated (including anonymous-auth) users upload only into their own
+-- folder: {auth.uid()}/{report_id}[-resolved].jpg. Every CivicRadar session —
+-- citizen or admin — has a real auth.uid() via signInAnonymously(), so this
+-- applies uniformly.
 drop policy if exists "report_photos_insert_own" on storage.objects;
 create policy "report_photos_insert_own"
   on storage.objects for insert
@@ -63,10 +60,3 @@ create policy "report_photos_delete_own"
     bucket_id = 'report-photos'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
-
--- ---------------------------------------------------------------------
--- Optional: backfill helper (run from Edge Function or admin script, not inline)
--- ---------------------------------------------------------------------
--- For each row where image is not null and image_url is null:
---   1. decode data URL → upload to report-photos/{reporter_id}/{id}.jpg
---   2. update reports set image_url = public_url, image = null where id = ...

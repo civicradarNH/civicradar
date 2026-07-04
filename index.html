@@ -456,7 +456,7 @@
       </button>
       <div class="share-win-instagram">
         <p class="share-win-instagram__hint" data-i18n="shareWin.instagramHint">Save image → post to Instagram Stories</p>
-        <button type="button" class="btn btn--instagram btn--full" id="btnShareWinDownload">
+        <button type="button" class="btn btn--outline btn--full" id="btnShareWinDownload">
           <i class="ph ph-download-simple"></i> <span data-i18n="shareWin.downloadCard">Download success card</span>
         </button>
         <button type="button" class="btn btn--outline btn--full" id="btnShareWinCopyCaption">
@@ -483,7 +483,7 @@
         <i class="ph ph-whatsapp-logo"></i> <span data-i18n="cert.whatsapp">Share on WhatsApp</span>
       </button>
       <div class="share-win-instagram">
-        <button type="button" class="btn btn--instagram btn--full" id="btnCertDownload">
+        <button type="button" class="btn btn--outline btn--full" id="btnCertDownload">
           <i class="ph ph-download-simple"></i> <span data-i18n="cert.download">Download certificate</span>
         </button>
         <button type="button" class="btn btn--outline btn--full" id="btnCertCopyCaption">
@@ -501,6 +501,8 @@
       <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, or file with your corporation separately.</p>
+
+      <h3 class="cr-section-header"><i class="ph ph-map-trifold" aria-hidden="true"></i><span data-i18n="community.thisWeekTitle">Your ward this week</span></h3>
 
       <!-- Seasonal monsoon / festival hook (date-aware, dismissible) -->
       <div class="season-hook hidden" id="seasonHook" role="note">
@@ -523,19 +525,7 @@
         <i class="ph ph-chart-line-up"></i> <span data-i18n="recap.share">Share weekly recap</span>
       </button>
 
-      <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
-        <h3 class="success-stories__title" id="successStoriesTitle">
-          <i class="ph ph-trophy"></i>
-          <span data-i18n="community.winsTitle">Wins this monsoon</span>
-        </h3>
-        <div class="success-stories__scroll" id="successStoriesList" role="list"></div>
-        <p class="success-stories__empty hidden" id="successStoriesEmpty" data-i18n="community.winsEmpty">Fixed spots appear here — report, rally neighbours, celebrate wins.</p>
-      </section>
-
-      <div class="ward-challenge" id="wardChallenge" aria-live="polite" hidden></div>
-      <button type="button" class="btn btn--whatsapp btn--full ward-challenge-share hidden" id="btnShareWardChallenge">
-        <i class="ph ph-whatsapp-logo"></i> <span data-i18n="community.challengeShare">Challenge a friend — share ward map</span>
-      </button>
+      <h3 class="cr-section-header"><i class="ph ph-trophy" aria-hidden="true"></i><span data-i18n="community.leaderboardTitle">Ward leaderboard</span></h3>
 
       <div class="segment-control" id="leaderboardToggle">
         <button type="button" class="segment-control__btn active" data-view="wards" data-i18n="community.topWards">Top Wards</button>
@@ -555,48 +545,88 @@
         <ul class="leaderboard-list" id="citizensList"></ul>
       </div>
 
-      <!-- Community lead candidates (peer voting) -->
-      <section class="lead-candidates" id="leadCandidatesSection" aria-labelledby="leadCandidatesTitle">
-        <h3 class="section-title" id="leadCandidatesTitle">
-          <i class="ph ph-users-three"></i>
-          <span data-i18n="lead.communityTitle">Community leads</span>
-        </h3>
-        <p class="field-hint" data-i18n="lead.communityHint">Support neighbours who volunteer to coordinate cleanups. 2 supports grants the role; 5 each if multiple candidates.</p>
-        <ul class="lead-candidates__list" id="leadCandidatesList" role="list"></ul>
-        <p class="lead-candidates__empty hidden" id="leadCandidatesEmpty" data-i18n="lead.communityEmpty">No candidates yet in your ward — nominate yourself to get started.</p>
-        <button type="button" class="btn btn--outline btn--full" id="btnCommunityBecomeLead">
-          <i class="ph ph-hand-heart"></i> <span data-i18n="lead.becomeCta">Become a community lead</span>
+      <div class="cr-section" id="getInvolvedSection">
+        <button type="button" class="cr-section__toggle" id="btnGetInvolvedToggle" aria-expanded="true" aria-controls="getInvolvedBody">
+          <span><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="community.getInvolvedTitle">Get involved</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-      </section>
+        <div class="cr-section__body" id="getInvolvedBody">
 
-      <!-- Volunteer self-help Card -->
-      <div class="pledge-card pledge-card--volunteer">
-        <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-        <div class="pledge-card__body">
-          <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-          <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+          <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
+            <h3 class="success-stories__title" id="successStoriesTitle">
+              <i class="ph ph-trophy"></i>
+              <span data-i18n="community.winsTitle">Wins this monsoon</span>
+            </h3>
+            <div class="success-stories__scroll" id="successStoriesList" role="list"></div>
+            <div class="success-stories__empty empty-state--action hidden" id="successStoriesEmpty">
+              <i class="ph ph-trophy" aria-hidden="true"></i>
+              <span data-i18n="community.winsEmpty">Fixed spots appear here — report, rally neighbours, celebrate wins.</span>
+            </div>
+          </section>
+
+          <div class="ward-challenge" id="wardChallenge" aria-live="polite" hidden></div>
+          <button type="button" class="btn btn--whatsapp btn--full ward-challenge-share hidden" id="btnShareWardChallenge">
+            <i class="ph ph-whatsapp-logo"></i> <span data-i18n="community.challengeShare">Challenge a friend — share ward map</span>
+          </button>
+
+          <!-- Community lead candidates (peer voting) -->
+          <section class="lead-candidates" id="leadCandidatesSection" aria-labelledby="leadCandidatesTitle">
+            <h3 class="section-title" id="leadCandidatesTitle">
+              <i class="ph ph-users-three"></i>
+              <span data-i18n="lead.communityTitle">Community leads</span>
+            </h3>
+            <p class="field-hint" data-i18n="lead.communityHint">Support neighbours who volunteer to coordinate cleanups. 2 supports grants the role; 5 each if multiple candidates.</p>
+            <ul class="lead-candidates__list" id="leadCandidatesList" role="list"></ul>
+            <div class="lead-candidates__empty empty-state--action hidden" id="leadCandidatesEmpty">
+          <i class="ph ph-users-three" aria-hidden="true"></i>
+          <span data-i18n="lead.communityEmpty">No candidates yet in your ward — nominate yourself to get started.</span>
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
-      </div>
+            <button type="button" class="btn btn--outline btn--full" id="btnCommunityBecomeLead">
+              <i class="ph ph-hand-heart"></i> <span data-i18n="lead.becomeCta">Become a community lead</span>
+            </button>
+          </section>
 
-      <!-- Pledge Support Card -->
-      <div class="pledge-card">
-        <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-        <div class="pledge-card__body">
-          <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-          <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+          <!-- Volunteer self-help Card -->
+          <div class="pledge-card pledge-card--volunteer">
+            <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
+            <div class="pledge-card__body">
+              <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
+              <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
+          </div>
+
+          <!-- Pledge Support Card -->
+          <div class="pledge-card">
+            <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
+            <div class="pledge-card__body">
+              <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
+              <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+          </div>
+
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
       </div>
 
-      <div class="official-channels-block" id="communityOfficialBlock">
-        <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
-        <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
-        <div class="esc-channels official-channels" id="communityOfficialChannels" data-official-context="community"></div>
-      </div>
+      <div class="cr-section cr-section--collapsed" id="communityResourcesSection">
+        <button type="button" class="cr-section__toggle" id="btnCommunityResourcesToggle" aria-expanded="false" aria-controls="communityResourcesBody">
+          <span><i class="ph ph-info" aria-hidden="true"></i> <span data-i18n="community.resourcesTitle">Resources</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="cr-section__body hidden" id="communityResourcesBody">
 
-      <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
-      <div id="impactWall"></div>
+          <div class="official-channels-block" id="communityOfficialBlock">
+            <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
+            <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
+            <div class="esc-channels official-channels" id="communityOfficialChannels" data-official-context="community"></div>
+          </div>
+
+          <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
+          <div id="impactWall"></div>
+
+        </div>
+      </div>
     </div>
   </div>
 
@@ -733,50 +763,52 @@
         <p class="profile-card__hint" id="profilePointsHint">50 pts per report · +200 when volunteer hours verified</p>
       </div>
 
-      <div class="profile-name form-group">
-        <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
-        <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+      <div class="profile-details-card">
+        <div class="profile-name form-group">
+          <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
+          <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+        </div>
+
+        <div class="profile-ward form-group">
+          <label for="profileCity" data-i18n="onboard.city">Your city</label>
+          <select id="profileCity" aria-describedby="profileWardHint">
+            <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+            <option value="pune" data-i18n-option="city.pune">Pune</option>
+            <option value="thane" data-i18n-option="city.thane">Thane</option>
+          </select>
+          <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
+          <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+          <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
+        </div>
+
+        <div class="profile-society form-group">
+          <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
+          <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
+          <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
+        </div>
       </div>
 
-      <div class="profile-ward form-group">
-        <label for="profileCity" data-i18n="onboard.city">Your city</label>
-        <select id="profileCity" aria-describedby="profileWardHint">
-          <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-          <option value="pune" data-i18n-option="city.pune">Pune</option>
-          <option value="thane" data-i18n-option="city.thane">Thane</option>
-        </select>
-        <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
-        <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-        <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
-        <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
-        <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
-      </div>
-
-      <div class="profile-society form-group">
-        <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
-        <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
-        <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
-      </div>
-
-      <h3 class="section-title" data-i18n="profile.volunteer">My volunteer signup</h3>
+      <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="profile.volunteer">My volunteer signup</span></h3>
       <div class="profile-volunteer" id="profileVolunteer"></div>
 
-      <h3 class="section-title" data-i18n="profile.pledges">My pledges</h3>
+      <h3 class="section-title"><i class="ph ph-hand-coins" aria-hidden="true"></i><span data-i18n="profile.pledges">My pledges</span></h3>
       <div class="profile-pledge-list" id="profilePledgeList"></div>
 
       <div class="official-channels-block" id="profileOfficialBlock">
-        <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
+        <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
         <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
         <div class="esc-channels official-channels" id="profileOfficialChannels" data-official-context="profile"></div>
       </div>
 
-      <h3 class="section-title" data-i18n="profile.reports">Your Reports</h3>
+      <h3 class="section-title"><i class="ph ph-map-pin-area" aria-hidden="true"></i><span data-i18n="profile.reports">Your Reports</span></h3>
       <div class="report-list" id="reportList">
         <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
       </div>
 
-      <h3 class="section-title" data-i18n="settings.notifications.title">Notifications &amp; Privacy</h3>
+      <h3 class="section-title"><i class="ph ph-bell" aria-hidden="true"></i><span data-i18n="settings.notifications.title">Notifications &amp; Privacy</span></h3>
       <p class="field-hint profile-settings-hint" data-i18n="settings.notifications.sub">Everything CivicRadar can nudge you about, and your consent choices, in one place.</p>
       <div class="profile-settings">
         <label class="toggle-row" for="nbhNewAlertToggle">
