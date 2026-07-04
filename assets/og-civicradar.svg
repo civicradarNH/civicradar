@@ -7,6 +7,6 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <text x="600" y="260" text-anchor="middle" font-family="system-ui,sans-serif" font-size="72" font-weight="700" fill="#ffffff">CivicRadar</text>
-  <text x="600" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="36" fill="#e0e7ff">Mumbai monsoon hazard reporting</text>
-  <text x="600" y="420" text-anchor="middle" font-family="system-ui,sans-serif" font-size="28" fill="#c7d2fe">Report stagnant water � Hold BMC accountable</text>
+  <text x="600" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="36" fill="#e0e7ff">Mumbai, Pune &amp; Thane monsoon hazard map</text>
+  <text x="600" y="420" text-anchor="middle" font-family="system-ui,sans-serif" font-size="28" fill="#c7d2fe">Report stagnant water · Hold your ward accountable</text>
 </svg>

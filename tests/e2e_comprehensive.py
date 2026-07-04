@@ -2166,6 +2166,12 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X16', 'UI', 'Bottom nav tabs', '() => document.querySelectorAll("#bottomNav .nav-tab").length === 3'),
 
+        ('UX01', 'UI', 'Active nav tab bold label', '() => { const lbl = document.querySelector("#bottomNav .nav-tab.active span:last-child"); return !!lbl && parseInt(getComputedStyle(lbl).fontWeight, 10) >= 600; }'),
+
+        ('UX02', 'UI', 'Modal title clears close btn', '() => { const h = document.querySelector("#reportModal h2"); return !!h && parseInt(getComputedStyle(h).paddingRight, 10) >= 40; }'),
+
+        ('UX03', 'UI', 'Lead candidates light surface', '() => { const el = document.querySelector(".lead-candidates"); if (!el) return true; const bg = getComputedStyle(el).backgroundColor; return bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent"; }'),
+
         ('X17', 'UI', 'FAB report button', '() => !!document.getElementById("btnCamera")'),
 
         ('X18', 'Legal', 'Terms page linked', '() => !!document.querySelector("a[href*=\\"terms\\"]")'),
@@ -4326,7 +4332,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v104" in sw_src
+        "civicradar-v105" in sw_src
 
         and "'/index.html'" not in sw_src
 

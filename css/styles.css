@@ -12,9 +12,12 @@
   --warning: #f59e0b;
   --bg-main: #f8fafc;
   --text-dark: #0f172a;
+  --text: #0f172a;
   --text-muted: #64748b;
   --surface: #ffffff;
   --border: #e2e8f0;
+  --color-brand-600: #4f46e5;
+  --radius-md: 12px;
   --overlay: rgba(0, 0, 0, 0.5);
   --header-height: 56px;
   --persona-bar-height: 40px;
@@ -63,6 +66,7 @@ html, body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .header__brand {
@@ -245,6 +249,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal__close:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--text-dark);
 }
 
 .modal { position: relative; }
@@ -984,7 +994,7 @@ body.persona-lead #btnCamera {
   top: calc(var(--header-height) + var(--persona-bar-height) + env(safe-area-inset-top, 0px) + (100vh - var(--header-height) - var(--persona-bar-height) - var(--nav-height) - env(safe-area-inset-top, 0px)) / 2);
   transform: translate(-50%, -50%);
   z-index: 450;
-  max-width: min(280px, calc(100vw - 32px));
+  max-width: min(300px, calc(100vw - 32px));
   padding: 18px 16px 16px;
   text-align: center;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.98) 0%, rgba(238, 242, 255, 0.92) 100%);
@@ -1249,14 +1259,16 @@ body.persona-lead .home-hero {
   z-index: 2100;
   height: var(--nav-height);
   display: flex;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .nav-tab {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1273,7 +1285,7 @@ body.persona-lead .home-hero {
   font-size: 0.6875rem;
   font-weight: 500;
   line-height: 1.2;
-  transition: color 0.2s;
+  transition: color 0.2s, background 0.2s;
 }
 
 .nav-tab span:last-child {
@@ -1310,6 +1322,22 @@ body.persona-lead .home-hero {
 
 .nav-tab.active {
   color: var(--primary);
+}
+
+.nav-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--primary);
+}
+
+.nav-tab.active span:last-child {
+  font-weight: 700;
 }
 
 /* ============================================
@@ -1502,6 +1530,11 @@ body.pwa-nudge-visible #btnCamera {
   font-size: 1.375rem;
   font-weight: 700;
   margin-bottom: 4px;
+  line-height: 1.25;
+}
+
+.modal:has(.modal__close) h2 {
+  padding-right: 44px;
 }
 
 .modal__subtitle {
@@ -2882,7 +2915,8 @@ body.persona-lead .ref-welcome { display: none; }
 
 .segment-control {
   display: flex;
-  background: var(--bg-main);
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: var(--radius);
   padding: 4px;
   margin-bottom: 16px;
@@ -2892,7 +2926,7 @@ body.persona-lead .ref-welcome { display: none; }
   flex: 1;
   min-height: var(--touch-min);
   padding: 10px 8px;
-  border: none;
+  border: 1.5px solid transparent;
   background: transparent;
   border-radius: calc(var(--radius) - 4px);
   font-family: var(--font);
@@ -2909,7 +2943,8 @@ body.persona-lead .ref-welcome { display: none; }
 .segment-control__btn.active {
   background: var(--surface);
   color: var(--primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.12);
+  border: 1.5px solid rgba(99, 102, 241, 0.25);
 }
 
 /* ============================================
@@ -3034,6 +3069,7 @@ body.persona-lead .ref-welcome { display: none; }
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(236, 72, 153, 0.08));
   border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
 }
 
 .pledge-card .btn--sm {
@@ -3208,9 +3244,11 @@ body.persona-lead .ref-welcome { display: none; }
 .impact-stats--about { margin-bottom: 16px; }
 .impact-stat {
   padding: 10px 6px;
-  background: var(--bg-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   text-align: center;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
 }
 .impact-stat span {
   display: block;
@@ -3672,9 +3710,19 @@ body.persona-lead .ref-welcome { display: none; }
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.9375rem;
   font-weight: 600;
   margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.section-title i {
+  font-size: 1.125rem;
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
 #profileModal .section-title,
@@ -3774,8 +3822,11 @@ body.persona-lead .ref-welcome { display: none; }
   text-align: center;
   color: var(--text-muted);
   font-size: 0.875rem;
-  line-height: 1.45;
-  padding: 24px 16px;
+  line-height: 1.5;
+  padding: 28px 20px;
+  background: var(--bg-main);
+  border: 1.5px dashed rgba(148, 163, 184, 0.45);
+  border-radius: var(--radius);
 }
 
 /* Hidden admin triggers (tap ward name 5×) */
@@ -4474,6 +4525,7 @@ body.persona-lead .ref-welcome { display: none; }
   outline-offset: 2px;
 }
 .hazard-tile i { font-size: 1.5rem; color: var(--secondary); }
+.hazard-tile--active i { color: var(--primary); }
 .hazard-tile__label { font-size: 0.8125rem; font-weight: 600; text-align: center; line-height: 1.25; word-break: break-word; hyphens: auto; }
 .hazard-tile__check {
   position: absolute;
@@ -5078,8 +5130,8 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
   margin: 16px 0 20px;
   padding: 16px;
   border-radius: var(--radius-md, 12px);
-  background: var(--surface-raised, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.15);
 }
 .lead-candidates__list {
   list-style: none;
@@ -5095,8 +5147,9 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
   gap: 8px;
   padding: 12px;
   border-radius: var(--radius-sm, 8px);
-  background: var(--surface, rgba(0, 0, 0, 0.2));
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
 }
 .lead-candidate__head {
   display: flex;
@@ -5127,7 +5180,7 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
   flex: 1;
   height: 6px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border);
   overflow: hidden;
 }
 .lead-candidate__bar-fill {
@@ -5266,6 +5319,9 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
    ============================================ */
 .profile-settings {
   margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .toggle-row {
   display: flex;
@@ -5337,4 +5393,43 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
   .toggle-row__switch::after {
     transition: none;
   }
+}
+
+/* ============================================================
+   UX polish (v105) — nav affordance, modal clearance, surfaces.
+   Additive pass; extends tokens and light-theme fixes above.
+   ============================================================ */
+
+.report-card {
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.map-legend {
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(15, 23, 42, 0.08));
+}
+
+.success-stories__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-stories__title i {
+  color: var(--warning);
+}
+
+#reportModal .flow-steps {
+  margin-top: 4px;
+}
+
+.form-group input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-tab.active::before { transition: none; }
 }
