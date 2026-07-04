@@ -4375,7 +4375,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v109" in sw_src
+        "civicradar-v110" in sw_src
 
         and "'/index.html'" not in sw_src
 

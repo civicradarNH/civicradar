@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v109';
+  const CIVIC_APP_VERSION = 'v110';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -375,6 +375,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let lastFocusedEl = null;
 
   let focusTrapHandler = null;
+
+  let modalScrollY = 0;
 
   // Native camera / file picker can pop history or deliver a ghost tap on Map nav
 
@@ -3838,6 +3840,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tracking.channelUnknown': 'Other channel',
 
+      'a11y.skipToContent': 'Skip to main content',
+
       'aria.close': 'Close',
 
       'aria.lang': 'Change language',
@@ -5966,6 +5970,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tracking.channelUnknown': 'अन्य चैनल',
 
+      'a11y.skipToContent': 'मुख्य सामग्री पर जाएँ',
+
       'aria.close': 'बंद',
 
       'aria.lang': 'भाषा बदलें',
@@ -8093,6 +8099,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tracking.channelUnknown': 'इतर channel',
 
+      'a11y.skipToContent': 'मुख्य सामग्रीवर जा',
+
       'aria.close': 'बंद',
 
       'aria.lang': 'भाषा बदला',
@@ -10219,6 +10227,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'tracking.pending': 'ખુલ્લા',
 
       'tracking.channelUnknown': 'અન્ય channel',
+
+      'a11y.skipToContent': 'મુખ્ય સામગ્રી પર જાઓ',
 
       'aria.close': 'બંધ',
 
@@ -18903,6 +18913,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!el) return;
 
+    const hadOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
+
     lastFocusedEl = document.activeElement;
 
     el.classList.add('open');
@@ -18914,6 +18926,24 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('modal-open');
 
     document.body.style.overflow = 'hidden';
+
+    if (!hadOpen) {
+
+      modalScrollY = window.scrollY || window.pageYOffset || 0;
+
+      document.body.style.position = 'fixed';
+
+      document.body.style.top = `-${modalScrollY}px`;
+
+      document.body.style.left = '0';
+
+      document.body.style.right = '0';
+
+      document.body.style.width = '100%';
+
+    }
+
+    if (name === 'admin' || name === 'lead') updateAuthMode();
 
     const modal = el.querySelector('.modal') || el;
 
@@ -19330,6 +19360,18 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.classList.remove('modal-open');
 
       document.body.style.overflow = '';
+
+      document.body.style.position = '';
+
+      document.body.style.top = '';
+
+      document.body.style.left = '';
+
+      document.body.style.right = '';
+
+      document.body.style.width = '';
+
+      window.scrollTo(0, modalScrollY);
 
     }
 

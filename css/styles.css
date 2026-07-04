@@ -4708,6 +4708,27 @@ html[lang="gu"] .persona-bar {
   display: none !important;
 }
 
+/* Skip link — visually hidden until keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 100000;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  color: var(--color-brand-600);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-md) 0;
+  box-shadow: var(--shadow);
+}
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
 /* ============================================
    Accessibility: keyboard focus visibility
    Many icon-only controls only had :hover/:active —

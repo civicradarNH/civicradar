@@ -15,13 +15,13 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CivicRadar">
   <meta property="og:locale" content="en_IN">
-  <meta property="og:title" content="CivicRadar — Mumbai, Pune &amp; Thane ward hazard map | #MonsoonGuardian">
-  <meta property="og:description" content="🗺️ See open hazards in YOUR ward across Mumbai, Pune, or Thane. 30-sec report · Me too corroboration · ward leaderboard rivalry. Free PWA — English, Hindi, Marathi, Gujarati.">
+  <meta property="og:title" content="CivicRadar — Mumbai, Pune &amp; Thane Ward Hazard Map">
+  <meta property="og:description" content="Free community app for ward hazard reporting in Mumbai, Pune, and Thane. Report garbage, potholes, streetlights &amp; stagnant water. Rally neighbours, track fixes — English, Hindi, Marathi, Gujarati.">
   <meta property="og:image" content="assets/og-civicradar.svg">
   <meta property="og:image:alt" content="CivicRadar — ward hazard map for Mumbai, Pune, Thane">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CivicRadar — Mumbai, Pune &amp; Thane ward hazard map">
-  <meta name="twitter:description" content="Pin hazards in your ward, rally neighbours, track fixes — #MonsoonGuardian #CivicRadar">
+  <meta name="twitter:title" content="CivicRadar — Mumbai, Pune &amp; Thane Ward Hazard Map">
+  <meta name="twitter:description" content="Report garbage, potholes, streetlights &amp; stagnant water in your ward. Rally neighbours, track fixes — free PWA · #CivicRadar">
   <meta name="twitter:image" content="assets/og-civicradar.svg">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -46,6 +46,8 @@
   <title>CivicRadar</title>
 </head>
 <body>
+
+  <a href="#main" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
   <!-- Graceful fallback if JavaScript is disabled or the app bundle fails to load.
        Inline-styled so it renders without styles.css. Not shown when JS runs. -->
@@ -95,6 +97,7 @@
     <button type="button" class="persona-bar__action hidden" id="personaBarAction"></button>
   </div>
 
+  <main id="main">
   <!-- Map -->
   <div id="map"></div>
 
@@ -205,6 +208,7 @@
       <button type="button" class="pwa-nudge__btn pwa-nudge__btn--ghost" id="btnPwaNudgeDismiss" data-i18n="pwa.nudgeDismiss">Not now</button>
     </div>
   </div>
+  </main>
 
   <!-- Bottom Navigation -->
   <nav id="bottomNav">
@@ -911,7 +915,7 @@
       </div>
 
       <!-- Demo access (local mode / no backend) -->
-      <div class="auth-demo" id="adminAuthDemo">
+      <div class="auth-demo hidden" id="adminAuthDemo">
         <p class="auth-demo__tag"><i class="ph ph-flask"></i> <span data-i18n="auth.demoTag.admin">Demo access — production uses BMC email verification</span></p>
         <div class="form-group">
           <label for="adminUser" data-i18n="auth.username">Username</label>
@@ -963,7 +967,7 @@
       </div>
 
       <!-- Demo access (local mode / no backend) -->
-      <div class="auth-demo" id="leadAuthDemo">
+      <div class="auth-demo hidden" id="leadAuthDemo">
         <p class="auth-demo__tag"><i class="ph ph-flask"></i> <span data-i18n="auth.demoTag.lead">Demo access — production uses email + NGO invite code</span></p>
         <div class="form-group">
           <label for="leadUser" data-i18n="auth.username">Username</label>
