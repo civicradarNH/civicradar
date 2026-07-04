@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v112" in sw_src
+        "civicradar-v113" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v112" in sw_src
+        "civicradar-v113" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7591,6 +7591,8 @@ async def main():
         '`index.html` + `js/app.js` + `css/styles.css` + `sw.js`: iOS/Safari PWA compatibility (v108) — safe-area map/nav, WebKit tap/scroll fixes, Leaflet tap+resize, modal scroll lock, iOS install hint, photo accept image/*, report draft guard; IOS01–IOS04; manual checklist `tests/IOS-QA.md`; SW06 → v108',
 
         '`css/styles.css` + `index.html` + `js/app.js` + `sw.js`: visual refresh (v112) — merged the two design-token :root blocks into one, retired `--secondary` pink (split into `--lead-accent` for community-lead role UI and `--primary`/`--accent` for everything else it was inconsistently driving, incl. FAB + profile-card gradient → `--grad-brand-cyan`), detokenized repeated hardcoded toast/podium/warning-amber hex into new tokens, added OS-driven `prefers-color-scheme: dark` support (`color-scheme` meta → `light dark`), merged duplicate form-input focus-ring rules + added resting elevation, decluttered the home screen (home-hero z-index above legend/banner; FAB + persona-bar hidden while home-hero shows to remove the duplicate Report CTA), restyled the leaderboard demo-data note as a tonal notice, and differentiated the two near-identical "be the first" Community empty-state strings (`community.challenge.empty`, `social.wardWeekEmpty`) across en/hi/mr/gu; SW06 → v112',
+
+        '`css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql`: PM-review pass (v113) — fixed broken certificate WhatsApp share (undefined function); resolved the "Monsoon Guardian" label reused for 3 unrelated things (XP level, streak badge renamed "Local Hero", first-report toast); decluttered the success modal (removed duplicate badge-unlock line, grouped reward text into one panel, moved Twitter share into the existing collapsed accordion); merged Profile\'s scattered notification/consent controls into one "Notifications & Privacy" section; added a one-time lead/volunteer discoverability nudge after the 3rd report; added a "this month" vs "all time" Community leaderboard period toggle; added a per-user referral code + reward loop (new `referrals` table/RPC, one-time XP + Profile line when neighbours join via your invite); full Hindi/Marathi/Gujarati copy-quality pass (fixed cross-language contamination, untranslated fragments, inconsistent terminology, typos); refreshed monsoon-season copy for an early-monsoon launch; reverted OS dark-mode support after smoke-testing showed icons were hard to differentiate (`color-scheme` meta back to `light`-only) — SW06 → v113',
 
     ]
 

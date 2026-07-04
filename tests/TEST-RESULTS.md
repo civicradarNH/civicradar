@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 13:21:19
+**Run:** 2026-07-04 17:33:57
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 388 | **Pass:** 388 | **Fail:** 0
@@ -60,6 +60,7 @@
 - `js/app.js` + `tests/e2e_comprehensive.py`: v101 QA — certificate modal closes success overlay before open (unblocks controls); L01 parallel load stagger+retry; RP09 seeds nearby report after XP storage reset
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js`: iOS/Safari PWA compatibility (v108) — safe-area map/nav, WebKit tap/scroll fixes, Leaflet tap+resize, modal scroll lock, iOS install hint, photo accept image/*, report draft guard; IOS01–IOS04; manual checklist `tests/IOS-QA.md`; SW06 → v108
 - `css/styles.css` + `index.html` + `js/app.js` + `sw.js`: visual refresh (v112) — merged the two design-token :root blocks into one, retired `--secondary` pink (split into `--lead-accent` for community-lead role UI and `--primary`/`--accent` for everything else it was inconsistently driving, incl. FAB + profile-card gradient → `--grad-brand-cyan`), detokenized repeated hardcoded toast/podium/warning-amber hex into new tokens, added OS-driven `prefers-color-scheme: dark` support (`color-scheme` meta → `light dark`), merged duplicate form-input focus-ring rules + added resting elevation, decluttered the home screen (home-hero z-index above legend/banner; FAB + persona-bar hidden while home-hero shows to remove the duplicate Report CTA), restyled the leaderboard demo-data note as a tonal notice, and differentiated the two near-identical "be the first" Community empty-state strings (`community.challenge.empty`, `social.wardWeekEmpty`) across en/hi/mr/gu; SW06 → v112
+- `css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql`: PM-review pass (v113) — fixed broken certificate WhatsApp share (undefined function); resolved the "Monsoon Guardian" label reused for 3 unrelated things (XP level, streak badge renamed "Local Hero", first-report toast); decluttered the success modal (removed duplicate badge-unlock line, grouped reward text into one panel, moved Twitter share into the existing collapsed accordion); merged Profile's scattered notification/consent controls into one "Notifications & Privacy" section; added a one-time lead/volunteer discoverability nudge after the 3rd report; added a "this month" vs "all time" Community leaderboard period toggle; added a per-user referral code + reward loop (new `referrals` table/RPC, one-time XP + Profile line when neighbours join via your invite); full Hindi/Marathi/Gujarati copy-quality pass (fixed cross-language contamination, untranslated fragments, inconsistent terminology, typos); refreshed monsoon-season copy for an early-monsoon launch; reverted OS dark-mode support after smoke-testing showed icons were hard to differentiate (`color-scheme` meta back to `light`-only) — SW06 → v113
 
 ## Summary by category
 
@@ -143,7 +144,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch 2903 |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ripple Ranger · Dadar, Shiva # |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -209,8 +210,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.03s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 4ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |

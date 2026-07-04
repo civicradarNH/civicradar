@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v112';
+  const CIVIC_APP_VERSION = 'v113';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -3433,6 +3433,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.greetingDefault': 'Hello, Citizen',
 
+      'profile.referralCount': '🎉 {n} neighbour(s) joined via your invite — thank you!',
+
       'profile.selectWard': 'Select your ward',
 
       'profile.society': 'Society / neighbourhood (optional)',
@@ -4279,7 +4281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'रिपोर्ट',
 
-      'coach.step': '#MonsoonGuardian · 30 सेक',
+      'coach.step': '#MonsoonGuardian · 30 सेकंड',
 
       'coach.title': 'नक्शे पर · फोटो · रिपोर्ट',
 
@@ -4307,7 +4309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'भेजें दबाएँ — पड़ोसी पिन देखेंगे। प्रोफ़ाइल में Civic Hero XP।',
 
-      'persona.citizen.idle': 'अपने वार्ड में खतरे रिपोर्ट करें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। Report दबाएँ — 30 सेक में नक्शे पर पिन करें, WhatsApp पर शेयर करें। मानसून सुझाव: रुका पानी = डेंगू का खतरा।',
+      'persona.citizen.idle': 'अपने वार्ड में खतरे रिपोर्ट करें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। रिपोर्ट दबाएँ — 30 सेकंड में नक्शे पर पिन करें, WhatsApp पर शेयर करें। मानसून सुझाव: रुका पानी = डेंगू का खतरा।',
 
       'persona.wardImpact': '{ward}: {n} वार्ड रिपोर्ट — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। मानसून सुझाव: रुकी गलियों में डेंगू। #MonsoonGuardian',
 
@@ -4433,7 +4435,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} पड़ोसी पास के स्पॉट का समर्थन कर रहे — आपकी रिपोर्ट भी नक्शे पर!',
 
-      'success.subtitle': 'वैकल्पिक: सरकारी घड़ी शुरू करने के लिए {corp} में आधिकारिक शिकायत दर्ज करें (निःशुल्क)।',
+      'success.subtitle': 'वैकल्पिक: आधिकारिक घड़ी शुरू करने के लिए {corp} में शिकायत दर्ज करें (निःशुल्क)।',
 
       'success.step1': 'WhatsApp पर साझा करें ताकि पड़ोसी वार्ड मानचित्र पर पिन देखें',
 
@@ -4576,7 +4578,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'बैज मिला! अगले के लिए {n} और।',
 
-      'success.progressGuardian': '{n} रिपोर्ट और गिनती — सच्चे Monsoon Guardian।',
+      'success.progressGuardian': '{n} रिपोर्ट और गिनती — सच्चे मानसून रक्षक।',
 
       'success.shareBrag': 'आपने वार्ड की मदद की — WhatsApp पर बताएँ!',
 
@@ -4882,7 +4884,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'वैकल्पिक — केवल वार्ड/पड़ोस समन्वयक को दिखेगा। CivicRadar कभी ऑटो-कॉल नहीं करता।',
 
-      'volunteer.ageNote': 'Terms के अनुसार 18+ ज़रूरी। 18 से कम? माता-पित/अभिभावक या NSS समन्वयक के साथ ही भाग लें।',
+      'volunteer.ageNote': 'Terms के अनुसार 18+ ज़रूरी। 18 से कम? माता-पिता/अभिभावक या NSS समन्वयक के साथ ही भाग लें।',
 
       'volunteer.submit': 'स्वयंसेवक जानकारी सहेजें',
 
@@ -4936,7 +4938,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coord.tasks': 'स्वयंसेवक सफाई प्रस्ताव',
 
-      'coord.tasksEmpty': 'अभी कोई ऑफर नहीं। खुले पिन पर "मैं साफ करने में मदद करूँगा" दबाएँ।',
+      'coord.tasksEmpty': 'अभी कोई ऑफर नहीं। खुले पिन पर "मैं सफाई में मदद कर सकता/सकती हूँ" दबाएँ।',
 
       'coord.tasksPending': 'कार्य',
 
@@ -5218,7 +5220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.new.title': 'पास में नई रिपोर्ट',
 
-      'notify.nbh.new.body': '{society} के पास: {hazard} — नक्शे पर Me too',
+      'notify.nbh.new.body': '{society} के पास: {hazard} — नक्शे पर मुझे भी दबाएँ',
 
       'notify.nbh.new.cta': 'नक्शा देखें',
 
@@ -5374,7 +5376,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint.streetlight': 'खराब स्ट्रीटलाइट Electrical विभाग को जाती है। कोई भी चैनल:',
 
-      'esc.recommended': 'अनुशंसित: MyBMC WhatsApp — अधिकांश Mumbai वार्डों के लिए सबसे तेज़।',
+      'esc.recommended': 'अनुशंसित: MyBMC WhatsApp — अधिकांश मुंबई वार्डों के लिए सबसे तेज़।',
 
       'esc.channelWa': 'चैटबॉट · नीचे से कॉपी करें',
 
@@ -5508,15 +5510,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.swachhata.garbage': 'कचरा डंप',
 
-      'official.hint.swachhata.stagnant-water': 'Choked drain (if drain-related)',
+      'official.hint.swachhata.stagnant-water': 'बंद नाली (अगर नाली से संबंधित हो)',
 
-      'official.hint.pmc.stagnant-water': 'Health / mosquito breeding / stagnant water',
+      'official.hint.pmc.stagnant-water': 'स्वास्थ्य / मच्छर प्रजनन / रुका हुआ पानी',
 
       'official.hint.pmc.garbage': 'ठोस अपशिष्ट / कचरा',
 
-      'official.hint.aaple': 'स्थानीय निकाय {corp} चुनें → Health / Water',
+      'official.hint.aaple': 'स्थानीय निकाय {corp} चुनें → स्वास्थ्य / जल विभाग',
 
-      'official.hint.tmc.stagnant-water': 'Water / Health dept (mosquito breeding)',
+      'official.hint.tmc.stagnant-water': 'जल / स्वास्थ्य विभाग (मच्छर प्रजनन)',
 
       'success.alsoOfficial': 'आधिकारिक रूप से भी दर्ज करें',
 
@@ -5542,7 +5544,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.empty': 'अभी कोई रिपोर्ट नहीं। पास कोई खतरा?',
 
-      'profile.emptyList': 'अभी कोई रिपोर्ट नहीं। Report दबाकर पास के खतरे पिन करें।',
+      'profile.emptyList': 'अभी कोई रिपोर्ट नहीं। रिपोर्ट दबाकर पास के खतरे पिन करें।',
 
       'profile.emptyAction': 'अभी रिपोर्ट करें',
 
@@ -5569,6 +5571,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.greeting': 'नमस्ते, {name}',
 
       'profile.greetingDefault': 'नमस्ते, नागरिक',
+
+      'profile.referralCount': '🎉 आपके निमंत्रण से {n} पड़ोसी जुड़े — धन्यवाद!',
 
       'profile.selectWard': 'वार्ड चुनें',
 
@@ -5652,7 +5656,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.notBmc': 'CivicRadar स्वतंत्र है — BMC/MCGM से जुड़ा या चलाया नहीं जाता।',
 
-      'tos.content': 'केवल खतरे की ऑन-साइट फ़ोटो। सेल्फ़ी, ID या अनर्लेटेड चित्र नहीं।',
+      'tos.content': 'केवल खतरे की ऑन-साइट फ़ोटो। सेल्फ़ी, ID या असंबंधित चित्र नहीं।',
 
       'tos.accept': 'मैं 18+ हूँ, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> और <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> स्वीकार करता/करती हूँ, GPS संग्रह की सहमति देता/देती हूँ',
 
@@ -5668,7 +5672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.type.snacks': 'नाश्ता',
 
-      'pledge.type.repellent': 'मच्छर repellent',
+      'pledge.type.repellent': 'मच्छर भगाने का सामान',
 
       'pledge.ward': 'लक्ष्य वार्ड',
 
@@ -6316,7 +6320,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.submit': 'मुझे नामांकित करें',
 
-      'lead.confirmBody': 'CivicRadar पड़ोसियों के साथ शेयर करें — coordinator टूल्स के लिए 2 समर्थन चाहिए। एक ही स्लॉट पर दो उम्मीदवार हों तो दोनों को 5।',
+      'lead.confirmBody': 'CivicRadar पड़ोसियों के साथ शेयर करें — समन्वयक टूल्स के लिए 2 समर्थन चाहिए। एक ही स्लॉट पर दो उम्मीदवार हों तो दोनों को 5।',
 
       'lead.viewCommunity': 'Community में उम्मीदवार देखें',
 
@@ -6364,7 +6368,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.voted': 'समर्थन दर्ज — पड़ोसी का साथ देने के लिए धन्यवाद!',
 
-      'lead.granted': 'सीमा पूरी — coordinator एक्सेस अनलॉक!',
+      'lead.granted': 'सीमा पूरी — समन्वयक एक्सेस अनलॉक!',
 
       'lead.submitError': 'भेजा नहीं जा सका — फिर प्रयास करें।',
 
@@ -6407,7 +6411,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.threeBeat': 'नकाशावर · फोटो · नोंदवा',
 
-      'tagline.subline': 'तीन टॅप — तुमचा ward, एक फोटो, शेजाऱ्यांना कळवा.',
+      'tagline.subline': 'तीन टॅप — तुमचा वॉर्ड, एक फोटो, शेजाऱ्यांना कळवा.',
 
       'tagline.beatMap': 'नकाशावर',
 
@@ -6419,37 +6423,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'नकाशावर · फोटो · नोंदवा',
 
-      'coach.body': 'तीन टॅप — तुमचा ward, एक फोटो, शेजाऱ्यांना कळवा.',
+      'coach.body': 'तीन टॅप — तुमचा वॉर्ड, एक फोटो, शेजाऱ्यांना कळवा.',
 
       'coach.got': 'चला सुरू करू',
 
-      'tour.skip': 'Tour skip',
+      'tour.skip': 'टूर वगळा',
 
       'tour.next': 'पुढे',
 
       'tour.done': 'समजले',
 
-      'tour.replay': 'Tour replay',
+      'tour.replay': 'टूर पुन्हा पाहा',
 
       'tour.map.title': 'नकाशावर',
 
-      'tour.map.body': 'तुमचा वॉर्ड नकाशा — hazard pins आणि Me too इथे.',
+      'tour.map.body': 'तुमचा वॉर्ड नकाशा — धोक्याचे पिन आणि मला पण इथे दिसतील.',
 
       'tour.report.title': 'फोटो काढा',
 
-      'tour.report.body': 'Report दाबा आणि जागेवर फोटो.',
+      'tour.report.body': 'Report दाबा आणि जागेवरच फोटो काढा.',
 
       'tour.profile.title': 'नोंदवा',
 
-      'tour.profile.body': 'Submit — शेजाऱ्यांना pin दिसेल. Profile मध्ये Civic Points.',
+      'tour.profile.body': 'Submit दाबा — शेजाऱ्यांना पिन दिसेल. Civic Hero XP प्रोफाइलमध्ये दिसेल.',
 
       'persona.citizen.idle': 'तुमच्या वॉर्डमध्ये धोके नोंदवा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. Report — 30 सेक नकाशावर, WhatsApp share. पावसाळा टिप: साचलेले पाणी = डेंगू धोका.',
 
       'persona.wardImpact': '{ward}: {n} वॉर्ड तक्रारी — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. पावसाळा टिप: साचलेल्या लेनमध्ये डेंगू. #MonsoonGuardian',
 
-      'persona.unfiled': '{n} वॉर्ड नकाशावर open — share किंवा Profile वरून official file.',
+      'persona.unfiled': '{n} वॉर्ड नकाशावर उघडे — शेजाऱ्यांसोबत शेअर करा किंवा Profile मधून अधिकृत नोंदवा.',
 
-      'persona.pendingFiled': '{n} वॉर्ड नकाशावर open — overdue असेल तर Profile.',
+      'persona.pendingFiled': '{n} वॉर्ड नकाशावर उघडे — मुदत उलटली असल्यास Profile पहा.',
 
       'persona.admin.idlePending': '{n} pending — queue उघडा किंवा red pins.',
 
@@ -6567,7 +6571,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tagline': 'नोंदवले — तुमच्या वॉर्ड नकाशावर pin',
 
-      'success.taglineNeighbours': '{n} शेजारी nearby spots support — तुमची report map वर!',
+      'success.taglineNeighbours': '{n} शेजारी जवळपासच्या ठिकाणांना पाठिंबा देत आहेत — तुमचीही तक्रार नकाशावर!',
 
       'success.subtitle': 'पर्यायी: सरकारी घड्याळ सुरू करण्यासाठी {corp} कडे अधिकृत तक्रार नोंदवा (मोफत).',
 
@@ -6575,7 +6579,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step2': 'पर्यायी: {corp} कडे नोंदवा आणि तक्रार क्रमांक जतन करा',
 
-      'success.step3': 'volunteers किंवा {corp} fix confirm — Civic Points',
+      'success.step3': 'स्वयंसेवक किंवा {corp} दुरुस्ती झाल्यावर पुष्टी करतील — Civic Hero XP मिळतील',
 
       'success.file': 'अधिकृत तक्रार नोंदवा (पर्यायी)',
 
@@ -6587,7 +6591,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'नकाशावर परत',
 
-      'success.sharePrompt': 'WhatsApp share — जास्त eyes, लवकर fix.',
+      'success.sharePrompt': 'WhatsApp वर शेअर करा — जास्त लोक पाहतील, दुरुस्ती लवकर होईल.',
 
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
 
@@ -6681,19 +6685,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.weekBonus': '+{n} या आठवड्याची पहिली तक्रार!',
 
-      'success.celebrateFirst': 'ward रक्षण — शेजारी आभारी.',
+      'success.celebrateFirst': 'तुम्ही तुमच्या वॉर्डचे रक्षण करत आहात — शेजारी तुमचे आभारी असतील.',
 
-      'success.celebrateMilestone': '{n} reports — lane safer!',
+      'success.celebrateMilestone': '{n} तक्रारी नोंदवल्या — तुमच्यामुळे गल्ली सुरक्षित झाली!',
 
       'success.kudos1': 'शाब्बास! आणखी एक धोका रडारवर.',
 
-      'success.kudos2': 'छान — ward थोडा सुरक्षित.',
+      'success.kudos2': 'छान — तुमचा वॉर्ड थोडा अधिक सुरक्षित झाला.',
 
       'success.kudos3': 'नोंदवले! शेजाऱ्यांची काळजी घेतल्याबद्दल धन्यवाद.',
 
-      'success.kudos4': 'पुन्हा हजर — lanes असेच fix होतात.',
+      'success.kudos4': 'पुन्हा हजर — अशाच प्रकारे गल्ल्या दुरुस्त होतात.',
 
-      'success.kudos5': 'आणखी pin — street thanks.',
+      'success.kudos5': 'आणखी एक पिन — तुमच्या गल्लीला धन्यवाद वाटतो!',
 
       'success.streakWeek': 'या आठवड्यात {n} तक्रार — छान!',
 
@@ -6712,11 +6716,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'बॅज मिळाला! पुढच्यासाठी {n} आणखी.',
 
-      'success.progressGuardian': '{n} reports — true Monsoon Guardian.',
+      'success.progressGuardian': '{n} तक्रारी — तुम्ही खरे पावसाळी रक्षक!',
 
-      'success.shareBrag': 'वॉर्डला मदत — WhatsApp वर सांगा!',
+      'success.shareBrag': 'तुम्ही वॉर्डला मदत केली — WhatsApp वर शेजाऱ्यांना सांगा!',
 
-      'success.shareBragFirst': 'नकाशावर पहिला pin! share — Monsoon Guardian वेगाने पसरतो.',
+      'success.shareBragFirst': 'नकाशावर तुमचा पहिला पिन! आत्ताच शेअर करा — वेगाने पसरवा.',
 
       'toast.badgeMonsoon': 'पहिली तक्रार नोंदवली — स्वागत आहे! 🌧️',
 
@@ -6740,7 +6744,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.headline': 'नकाशावर · फोटो · नोंदवा',
 
-      'home.hero.subline': 'तीन टॅप — तुमचा ward, एक फोटो, शेजाऱ्यांना कळवा.',
+      'home.hero.subline': 'तीन टॅप — तुमचा वॉर्ड, एक फोटो, शेजाऱ्यांना कळवा.',
 
       'home.hero.benefit1': 'नकाशावर',
 
@@ -6758,7 +6762,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.legend.pending': 'उघडे',
 
-      'map.legend.resolved': 'निराकरण',
+      'map.legend.resolved': 'सोडवले',
 
       'map.legend.you': 'तुम्ही',
 
@@ -7018,7 +7022,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'पर्यायी — फक्त वॉर्ड/परिसर समन्वयकाला दिसेल. CivicRadar ऑटो-कॉल करत नाही.',
 
-      'volunteer.ageNote': 'Terms नुसार 18+ आवश्यक. 18 पेक्षा कमी? पालक/पालक किंवा NSS समन्वयकासोबतच.',
+      'volunteer.ageNote': 'Terms नुसार 18+ वय आवश्यक. 18 पेक्षा कमी? पालकांच्या किंवा NSS समन्वयकाच्या सोबतीनेच सहभागी व्हा.',
 
       'volunteer.submit': 'स्वयंसेवक नोंद जतन',
 
@@ -7190,7 +7194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.featuresTitle': 'तुम्ही काय करू शकता',
 
-      'about.feature1': 'फोटो पिनने धोका नोंदवा — stagnant water, कचरा, खड्डे, किंवा तुटलेली स्ट्रीटलाइट',
+      'about.feature1': 'फोटो पिनने धोका नोंदवा — साचलेले पाणी, कचरा, खड्डे, किंवा तुटलेली स्ट्रीटलाइट',
 
       'about.feature2': 'वॉर्ड नकाशा पहा आणि जवळच्या तक्रारीवर Me too ने पुष्टी करा',
 
@@ -7200,7 +7204,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.audienceTitle': 'कोणासाठी',
 
-      'about.audience': 'मुंबई, पुणे आणि ठाण्यातील रहिवासी, RWA आणि परिसर गट — विशेषतः पावसाळ्यात जेव्हा stagnant water आणि बंद नाले महत्त्वाचे असतात.',
+      'about.audience': 'मुंबई, पुणे आणि ठाण्यातील रहिवासी, RWA आणि परिसर गट — विशेषतः पावसाळ्यात जेव्हा साचलेले पाणी आणि बंद नाले महत्त्वाचे असतात.',
 
       'about.privacyTitle': 'गोपनीयता आणि डेटा',
 
@@ -7314,7 +7318,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'पर्यायी: प्रोफाइलमधून नंतरचा फोटो जोडा.',
 
-      'reminder.staleCheck': '{ward} जवळ — अजून stagnant?',
+      'reminder.staleCheck': '{ward} जवळ — अजूनही पाणी साचलेले आहे का?',
 
       'reminder.stillThere': 'अजून आहे',
 
@@ -7336,31 +7340,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.sub': 'CivicRadar तुम्हाला जे सूचित करू शकते आणि तुमचे संमती पर्याय, सर्व एकाच ठिकाणी.',
 
-      'settings.nbh.new.label': 'जवळच्या नवीन reports',
+      'settings.nbh.new.label': 'जवळच्या नवीन तक्रारी',
 
-      'settings.nbh.new.sub': 'तुमच्या society/ward मध्ये pin झाल्यावर सूचना.',
+      'settings.nbh.new.sub': 'तुमच्या सोसायटी/वॉर्डमध्ये नवीन पिन झाल्यावर सूचना.',
 
-      'settings.nbh.resolved.label': 'जवळ resolve',
+      'settings.nbh.resolved.label': 'जवळपास सोडवलेले',
 
-      'settings.nbh.resolved.sub': 'जवळचा hazard resolve झाल्यावर good news.',
+      'settings.nbh.resolved.sub': 'जवळचा धोका सोडवला गेल्यावर आनंदाची बातमी.',
 
-      'settings.nbh.on': 'Neighbourhood अपडेट सुरू.',
+      'settings.nbh.on': 'परिसर अपडेट सुरू.',
 
-      'settings.nbh.newOff': 'नवीन report alerts बंद.',
+      'settings.nbh.newOff': 'नवीन तक्रार सूचना बंद.',
 
-      'settings.nbh.resolvedOff': 'Resolve अपडेट बंद.',
+      'settings.nbh.resolvedOff': 'निराकरण अपडेट बंद.',
 
       'settings.nbh.denied': 'सूचना ब्लॉक — अपडेट अॅपमध्ये.',
 
-      'notify.nbh.new.title': 'जवळ नवीन report',
+      'notify.nbh.new.title': 'जवळ नवीन तक्रार',
 
-      'notify.nbh.new.body': '{society} जवळ: {hazard} — map वर Me too',
+      'notify.nbh.new.body': '{society} जवळ: {hazard} — नकाशावर मला पण करा',
 
-      'notify.nbh.new.cta': 'Map पहा',
+      'notify.nbh.new.cta': 'नकाशा पहा',
 
-      'notify.nbh.resolved.title': 'जवळची good news',
+      'notify.nbh.resolved.title': 'जवळपासची चांगली बातमी',
 
-      'notify.nbh.resolved.body': '{society} जवळ {hazard} resolve',
+      'notify.nbh.resolved.body': '{society} जवळ {hazard} सोडवले',
 
       'notify.nbh.resolved.bodyMany': '{society} जवळ {n} hazards resolve',
 
@@ -7510,7 +7514,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint.streetlight': 'बंद पथदिवे Electrical विभागाकडे जातात. कोणताही चॅनेल:',
 
-      'esc.recommended': 'शिफारस: MyBMC WhatsApp — बहुतेक Mumbai वॉर्डांसाठी सर्वात जलद.',
+      'esc.recommended': 'शिफारस: MyBMC WhatsApp — बहुतेक मुंबई वॉर्डांसाठी सर्वात जलद.',
 
       'esc.channelWa': 'चॅटबॉट · खाली कॉपी',
 
@@ -7644,15 +7648,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.swachhata.garbage': 'कचरा डंप',
 
-      'official.hint.swachhata.stagnant-water': 'Choked drain (if drain-related)',
+      'official.hint.swachhata.stagnant-water': 'बंद गटार (गटारशी संबंधित असल्यास)',
 
-      'official.hint.pmc.stagnant-water': 'Health / mosquito breeding / stagnant water',
+      'official.hint.pmc.stagnant-water': 'आरोग्य / डास उत्पत्ती / साचलेले पाणी',
 
       'official.hint.pmc.garbage': 'घन कचरा / कचरा',
 
-      'official.hint.aaple': 'स्थानिक संस्था {corp} निवडा → Health / Water',
+      'official.hint.aaple': 'स्थानिक संस्था {corp} निवडा → आरोग्य / पाणी विभाग',
 
-      'official.hint.tmc.stagnant-water': 'Water / Health dept (mosquito breeding)',
+      'official.hint.tmc.stagnant-water': 'पाणी / आरोग्य विभाग (डास उत्पत्ती)',
 
       'success.alsoOfficial': 'अधिकृतपणेही नोंदवा',
 
@@ -7705,6 +7709,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.greeting': 'नमस्कार, {name}',
 
       'profile.greetingDefault': 'नमस्कार, नागरिक',
+
+      'profile.referralCount': '🎉 तुमच्या आमंत्रणामुळे {n} शेजारी सामील झाले — धन्यवाद!',
 
       'profile.selectWard': 'वॉर्ड निवडा',
 
@@ -8410,9 +8416,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.proofTooBig': 'प्रतिमा खूप मोठी — कृपया लहान फोटो जोडा.',
 
-      'lead.title': 'समुदाय lead व्हा',
+      'lead.title': 'समुदाय लीड व्हा',
 
-      'lead.subtitle': 'स्वतःला nominate करा — शेजारी vote करतील. admin मंजुरी नाही.',
+      'lead.subtitle': 'स्वतःला नामांकित करा — शेजारी मतदान करतील. अ‍ॅडमिनची गरज नाही.',
 
       'lead.discoverNudge': 'तुम्ही खूप सक्रिय आहात! तुमच्या वॉर्डमध्ये स्वच्छता मोहिमेचे नेतृत्व करण्याचा विचार करा.',
 
@@ -8420,15 +8426,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.step1': 'वॉर्ड आणि scope सह nominate',
 
-      'lead.step2': 'शेजारी Support दाबा',
+      'lead.step2': 'शेजारी समर्थन दाबतील',
 
-      'lead.step3': '2 support = role (co-lead मध्ये प्रत्येकाला 5)',
+      'lead.step3': '2 समर्थन = भूमिका (दोन उमेदवार असल्यास प्रत्येकाला 5)',
 
       'lead.roleLabel': 'Lead प्रकार',
 
-      'lead.roleWard': 'वॉर्ड NGO lead',
+      'lead.roleWard': 'वॉर्ड NGO लीड',
 
-      'lead.roleNbh': 'Neighbourhood lead',
+      'lead.roleNbh': 'परिसर लीड',
 
       'lead.nameLabel': 'तुमचे नाव',
 
@@ -8438,7 +8444,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.orgPh': 'NGO किंवा society नाव',
 
-      'lead.neighbourhoodLabel': 'Neighbourhood / society / lane',
+      'lead.neighbourhoodLabel': 'परिसर / सोसायटी / लेन',
 
       'lead.neighbourhoodHintNoWard': 'स्थानिक सूचना साठी प्रथम वॉर्ड निवडा.',
 
@@ -8448,11 +8454,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.pitchLabel': 'तुम्ही का?',
 
-      'lead.pitchPh': 'voters साठी थोडी नोट',
+      'lead.pitchPh': 'मतदारांसाठी छोटी नोंद',
 
       'lead.submit': 'मला nominate करा',
 
-      'lead.confirmBody': 'CivicRadar शेजाऱ्यांसोबत share करा — coordinator tools साठी 2 support. एकाच slot वर दोन candidates असल्यास प्रत्येकाला 5.',
+      'lead.confirmBody': 'CivicRadar शेजाऱ्यांसोबत शेअर करा — समन्वयक साधनांसाठी 2 समर्थन हवे. एकाच जागेसाठी दोन उमेदवार असल्यास दोघांनाही 5 हवे.',
 
       'lead.viewCommunity': 'Community मध्ये candidates पहा',
 
@@ -8464,7 +8470,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityHint': 'सफाई coordinator म्हणून volunteer शेजाऱ्यांना Support करा. 2 = role; अनेक candidates = प्रत्येकाला 5.',
 
-      'lead.communityEmpty': 'तुमच्या वॉर्डमध्ये अजून candidate नाही — स्वतः nominate करा.',
+      'lead.communityEmpty': 'तुमच्या वॉर्डमध्ये अजून उमेदवार नाही — स्वतःला नामांकित करा.',
 
       'lead.becomeCta': 'Community lead व्हा',
 
@@ -8476,9 +8482,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.progressCoLead': 'co-lead साठी {count}/{threshold}',
 
-      'lead.tagWard': 'Ward lead',
+      'lead.tagWard': 'वॉर्ड लीड',
 
-      'lead.tagNbh': 'Neighbourhood',
+      'lead.tagNbh': 'परिसर',
 
       'lead.you': 'तुम्ही',
 
@@ -8494,13 +8500,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.errAlreadyLead': 'तुम्ही आधीच ही lead role धरता.',
 
-      'lead.nominated': 'Nomination पाठवले — Community मध्ये support मिळवा!',
+      'lead.nominated': 'नामांकन पाठवले — Community मध्ये समर्थन मिळवा!',
 
       'lead.nominatedLocal': 'Nomination जतन — online झाल्यावर sync.',
 
       'lead.voted': 'Support मोजला — शेजाऱ्याला पाठिंबा दिल्याबद्दल धन्यवाद!',
 
-      'lead.granted': 'Threshold पूर्ण — coordinator access unlock!',
+      'lead.granted': 'आवश्यक समर्थन पूर्ण — समन्वयक प्रवेश खुला!',
 
       'lead.submitError': 'पाठवता आले नाही — पुन्हा प्रयत्न.',
 
@@ -8543,7 +8549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.threeBeat': 'નકશા પર · ફોટો · રિપોર્ટ',
 
-      'tagline.subline': 'ત્રણ tap — તમારું ward, એક ફોટો, પડોશીઓને ચેતવણી.',
+      'tagline.subline': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
 
       'tagline.beatMap': 'નકશા પર',
 
@@ -8555,7 +8561,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'નકશા પર · ફોટો · રિપોર્ટ',
 
-      'coach.body': 'ત્રણ tap — તમારું ward, એક ફોટો, પડોશીઓને ચેતવણી.',
+      'coach.body': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
 
       'coach.got': 'ચાલો શરૂ કરીએ',
 
@@ -8573,19 +8579,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.report.title': 'ફોટો લો',
 
-      'tour.report.body': 'Report દબાવો અને જગ્યાએ ફોટો.',
+      'tour.report.body': 'Report દબાવો અને ત્યાં જ ફોટો લો.',
 
       'tour.profile.title': 'રિપોર્ટ',
 
-      'tour.profile.body': 'Submit — પડોશીઓ pin જોશે. Profile માં Civic Points.',
+      'tour.profile.body': 'Submit દબાવો — પડોશીઓ પિન જોશે. Civic Hero XP Profile માં દેખાશે.',
 
       'persona.citizen.idle': 'તમારા વોર્ડમાં જોખમો નોંધો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. Report — 30 sec ward map, WhatsApp share. ચોમાસુ ટિપ: ભરાયેલું પાણી = ડેંગુ જોખમ.',
 
       'persona.wardImpact': '{ward}: {n} વોર્ડ ફરિયાદ — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. ચોમાસુ ટિપ: stagnant lanes માં ડેંગુ. #MonsoonGuardian',
 
-      'persona.unfiled': '{n} ward map open — share કે Profile થી official file.',
+      'persona.unfiled': '{n} વોર્ડ નકશા પર ખુલ્લા — શેર કરો અથવા Profile માંથી અધિકૃત નોંધાવો.',
 
-      'persona.pendingFiled': '{n} ward map open — overdue હોય તો Profile.',
+      'persona.pendingFiled': '{n} વોર્ડ નકશા પર ખુલ્લા — મુદત વીતી હોય તો Profile જુઓ.',
 
       'persona.admin.idlePending': '{n} pending — queue અથવા red pins.',
 
@@ -8711,7 +8717,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step2': 'વૈકલ્પિક: {corp} પર નોંધાવો અને ફરિયાદ નંબર સાચવો',
 
-      'success.step3': 'volunteers કે {corp} fix confirm — Civic Points',
+      'success.step3': 'સ્વયંસેવકો કે {corp} ઠીક કરે એની પુષ્ટિ કરશે — Civic Hero XP મળશે',
 
       'success.file': 'અધિકૃત ફરિયાદ નોંધાવો (વૈકલ્પિક)',
 
@@ -8848,11 +8854,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'બેજ મળ્યો! આગલા માટે {n} વધુ.',
 
-      'success.progressGuardian': '{n} reports — true Monsoon Guardian.',
+      'success.progressGuardian': '{n} ફરિયાદો — તમે ખરા ચોમાસુ રક્ષક!',
 
-      'success.shareBrag': 'ward મદદ — WhatsApp પર કહો!',
+      'success.shareBrag': 'વોર્ડને મદદ મળી — WhatsApp પર જણાવો!',
 
-      'success.shareBragFirst': 'map પર પહેલો pin! share — Monsoon Guardian ઝડપથી.',
+      'success.shareBragFirst': 'નકશા પર તમારો પહેલો પિન! શેર કરો — ઝડપથી ફેલાવો.',
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત છે! 🌧️',
 
@@ -8876,7 +8882,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.headline': 'નકશા પર · ફોટો · રિપોર્ટ',
 
-      'home.hero.subline': 'ત્રણ tap — તમારું ward, એક ફોટો, પડોશીઓને ચેતવણી.',
+      'home.hero.subline': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
 
       'home.hero.benefit1': 'નકશા પર',
 
@@ -9154,7 +9160,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'વૈકલ્પિક — ફક્ત વોર્ડ/પડોશ સંકલકને દેખાશે. CivicRadar ઑટો-કૉલ કરતું નથી.',
 
-      'volunteer.ageNote': 'Terms મુજબ 18+ જરૂરી. 18 થી ઓછી ઉંમર? માતા-પિત/સંભાળક અથવા NSS સંકલક સાથે જ.',
+      'volunteer.ageNote': 'Terms મુજબ 18+ જરૂરી. 18 થી ઓછી ઉંમર? માતા-પિતા/સંભાળક અથવા NSS સંકલક સાથે જ.',
 
       'volunteer.submit': 'સ્વયંસેવક નોંધ સાચવો',
 
@@ -9326,7 +9332,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.featuresTitle': 'તમે શું કરી શકો',
 
-      'about.feature1': 'ફોટો પિનથી જોખમની રિપોર્ટ — stagnant water, કચરો, ખાડા, કે તૂટેલી સ્ટ્રીટલાઇટ',
+      'about.feature1': 'ફોટો પિનથી જોખમની રિપોર્ટ — ભરાયેલું પાણી, કચરો, ખાડા, કે તૂટેલી સ્ટ્રીટલાઇટ',
 
       'about.feature2': 'વોર્ડ નકશો જુઓ અને નજીકની રિપોર્ટ પર Me too થી પુષ્ટિ કરો',
 
@@ -9336,7 +9342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.audienceTitle': 'કોના માટે',
 
-      'about.audience': 'મુંબઈ, પુણે અને ઠાણેના રહેવાસીઓ, RWA અને પડોશ જૂથો — ખાસ કરીને ચોમાસામાં જ્યારે stagnant water અને બંધ ગટરો મહત્વના હોય.',
+      'about.audience': 'મુંબઈ, પુણે અને ઠાણેના રહેવાસીઓ, RWA અને પડોશ જૂથો — ખાસ કરીને ચોમાસામાં જ્યારે ભરાયેલું પાણી અને બંધ ગટરો મહત્વના હોય.',
 
       'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
 
@@ -9450,7 +9456,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'વૈકલ્પિક: પ્રોફાઇલમાંથી પછીનો ફોટો ઉમેરો.',
 
-      'reminder.staleCheck': '{ward} પાસે — હજુ stagnant?',
+      'reminder.staleCheck': '{ward} પાસે — હજુ પાણી ભરાયેલું છે?',
 
       'reminder.stillThere': 'હજુ છે',
 
@@ -9472,31 +9478,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.sub': 'CivicRadar તમને જે જણાવી શકે અને તમારી સંમતિના વિકલ્પો, બધું એક જ જગ્યાએ.',
 
-      'settings.nbh.new.label': 'નજીકની નવી reports',
+      'settings.nbh.new.label': 'નજીકની નવી ફરિયાદો',
 
-      'settings.nbh.new.sub': 'તમારી society/ward માં pin થાય ત્યારે યાદ.',
+      'settings.nbh.new.sub': 'તમારી સોસાયટી/વોર્ડમાં નવો પિન થાય ત્યારે યાદ અપાવીશું.',
 
-      'settings.nbh.resolved.label': 'નજીક resolve',
+      'settings.nbh.resolved.label': 'નજીકનો ઉકેલ',
 
-      'settings.nbh.resolved.sub': 'નજીકનો hazard resolve થાય ત્યારે good news.',
+      'settings.nbh.resolved.sub': 'નજીકનું જોખમ ઉકેલાય ત્યારે સારા સમાચાર.',
 
-      'settings.nbh.on': 'Neighbourhood અપડેટ ચાલુ.',
+      'settings.nbh.on': 'પડોશ અપડેટ ચાલુ.',
 
-      'settings.nbh.newOff': 'નવી report alerts બંધ.',
+      'settings.nbh.newOff': 'નવી ફરિયાદ સૂચનાઓ બંધ.',
 
-      'settings.nbh.resolvedOff': 'Resolve અપડેટ બંધ.',
+      'settings.nbh.resolvedOff': 'ઉકેલ અપડેટ બંધ.',
 
       'settings.nbh.denied': 'સૂચનાઓ બ્લોક — અપડેટ એપમાં.',
 
-      'notify.nbh.new.title': 'નજીક નવી report',
+      'notify.nbh.new.title': 'નજીક નવી ફરિયાદ',
 
-      'notify.nbh.new.body': '{society} નજીક: {hazard} — map પર Me too',
+      'notify.nbh.new.body': '{society} નજીક: {hazard} — નકશા પર મને પણ કરો',
 
-      'notify.nbh.new.cta': 'Map જુઓ',
+      'notify.nbh.new.cta': 'નકશો જુઓ',
 
-      'notify.nbh.resolved.title': 'નજીકની good news',
+      'notify.nbh.resolved.title': 'નજીકના સારા સમાચાર',
 
-      'notify.nbh.resolved.body': '{society} નજીક {hazard} resolve',
+      'notify.nbh.resolved.body': '{society} નજીક {hazard} ઉકેલાયું',
 
       'notify.nbh.resolved.bodyMany': '{society} નજીક {n} hazards resolve',
 
@@ -9646,7 +9652,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ Electrical વિભાગ પાસે જાય છે. કોઈ પણ ચેનલ:',
 
-      'esc.recommended': 'ભલામણ: MyBMC WhatsApp — મોટાભાગના Mumbai વોર્ડ માટે સૌથી ઝડપી.',
+      'esc.recommended': 'ભલામણ: MyBMC WhatsApp — મોટાભાગના મુંબઈ વોર્ડ માટે સૌથી ઝડપી.',
 
       'esc.channelWa': 'ચેટબોટ · નીચેથી કૉપી',
 
@@ -9780,15 +9786,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.swachhata.garbage': 'કચરો ડંપ',
 
-      'official.hint.swachhata.stagnant-water': 'Choked drain (if drain-related)',
+      'official.hint.swachhata.stagnant-water': 'ભરાયેલી ગટર (જો ગટર સંબંધિત હોય)',
 
-      'official.hint.pmc.stagnant-water': 'Health / mosquito breeding / stagnant water',
+      'official.hint.pmc.stagnant-water': 'આરોગ્ય / મચ્છર ઉત્પત્તિ / ભરાયેલું પાણી',
 
       'official.hint.pmc.garbage': 'ઘન કચરો / કચરો',
 
-      'official.hint.aaple': 'સ્થાનિક સંસ્થા {corp} પસંદ કરો → Health / Water',
+      'official.hint.aaple': 'સ્થાનિક સંસ્થા {corp} પસંદ કરો → આરોગ્ય / પાણી વિભાગ',
 
-      'official.hint.tmc.stagnant-water': 'Water / Health dept (mosquito breeding)',
+      'official.hint.tmc.stagnant-water': 'પાણી / આરોગ્ય વિભાગ (મચ્છર ઉત્પત્તિ)',
 
       'success.alsoOfficial': 'અધિકૃત રીતે પણ નોંધાવો',
 
@@ -9841,6 +9847,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.greeting': 'નમસ્તે, {name}',
 
       'profile.greetingDefault': 'નમસ્તે, નાગરિક',
+
+      'profile.referralCount': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — આભાર!',
 
       'profile.selectWard': 'વોર્ડ પસંદ કરો',
 
@@ -10350,7 +10358,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.dismiss': 'આમંત્રણ બંધ કરો',
 
-      'season.monsoonPrep': 'ચોમાસું આવી રહ્યું છે 🌧️ પહેલા ભારે વરસાદ પહેલાં ભરાયેલું પાણી સાફ કરો — સ્પોટ પિન કરો.',
+      'season.monsoonPrep': 'ચોમાસું આવી ગયું છે 🌧️ ભારે વરસાદ પહેલાં ભરાયેલું પાણી સાફ કરાવો — સ્પોટ પિન કરો.',
 
       'season.monsoonPeak': 'ચોમાસું આવી ગયું છે 🌧️ ભરાયેલું પાણી ડેન્ગ્યુ ફેલાવે છે. આજે તમારા વોર્ડમાં સ્પોટ નોંધો.',
 
@@ -10546,9 +10554,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.proofTooBig': 'છબી ઘણી મોટી — કૃપા કરી નાનો ફોટો જોડો.',
 
-      'lead.title': 'સામુદાયિક lead બનો',
+      'lead.title': 'સામુદાયિક લીડ બનો',
 
-      'lead.subtitle': 'પોતાનું nomination કરો — પડોશીઓ vote કરશે. admin approval નહીં.',
+      'lead.subtitle': 'પોતાની ઉમેદવારી નોંધાવો — પડોશીઓ મત આપશે. Admin મંજૂરીની જરૂર નથી.',
 
       'lead.discoverNudge': 'તમે ખૂબ સક્રિય છો! તમારા વોર્ડમાં સફાઈનું નેતૃત્વ કરવાનું વિચારો.',
 
@@ -10556,15 +10564,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.step1': 'વોર્ડ અને scope સાથે nominate',
 
-      'lead.step2': 'પડોશી Support દબાવે',
+      'lead.step2': 'પડોશીઓ સમર્થન આપશે',
 
-      'lead.step3': '2 support = role (co-lead માં દરેકને 5)',
+      'lead.step3': '2 સમર્થન = ભૂમિકા (બે candidate હોય તો દરેકને 5)',
 
       'lead.roleLabel': 'Lead પ્રકાર',
 
-      'lead.roleWard': 'વોર્ડ NGO lead',
+      'lead.roleWard': 'વોર્ડ NGO લીડ',
 
-      'lead.roleNbh': 'Neighbourhood lead',
+      'lead.roleNbh': 'પડોશ લીડ',
 
       'lead.nameLabel': 'તમારું નામ',
 
@@ -10574,7 +10582,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.orgPh': 'NGO અથવા society નામ',
 
-      'lead.neighbourhoodLabel': 'Neighbourhood / society / lane',
+      'lead.neighbourhoodLabel': 'પડોશ / સોસાયટી / ગલી',
 
       'lead.neighbourhoodHintNoWard': 'સ્થાનિક સૂચનાઓ માટે પહેલા વોર્ડ પસંદ કરો.',
 
@@ -10584,11 +10592,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.pitchLabel': 'તમે શા માટે?',
 
-      'lead.pitchPh': 'voters માટે ટૂંકી નોંધ',
+      'lead.pitchPh': 'મતદારો માટે ટૂંકી નોંધ',
 
       'lead.submit': 'મને nominate કરો',
 
-      'lead.confirmBody': 'CivicRadar પડોશીઓ સાથે share કરો — coordinator tools માટે 2 support. એક slot પર બે candidates હોય તો દરેકને 5.',
+      'lead.confirmBody': 'CivicRadar પડોશીઓ સાથે શેર કરો — સંકલક સાધનો માટે 2 સમર્થન જોઈએ. એક જ જગ્યા માટે બે ઉમેદવાર હોય તો બંનેને 5 જોઈએ.',
 
       'lead.viewCommunity': 'Community માં candidates જુઓ',
 
@@ -10600,7 +10608,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityHint': 'સફાઈ coordinator તરીકે volunteer પડોશીઓને Support કરો. 2 = role; ઘણા candidates = દરેકને 5.',
 
-      'lead.communityEmpty': 'તમારા વોર્ડમાં હજુ candidate નથી — પોતે nominate કરો.',
+      'lead.communityEmpty': 'તમારા વોર્ડમાં હજુ ઉમેદવાર નથી — પોતાની ઉમેદવારી નોંધાવો.',
 
       'lead.becomeCta': 'Community lead બનો',
 
@@ -10612,9 +10620,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.progressCoLead': 'co-lead માટે {count}/{threshold}',
 
-      'lead.tagWard': 'Ward lead',
+      'lead.tagWard': 'વોર્ડ લીડ',
 
-      'lead.tagNbh': 'Neighbourhood',
+      'lead.tagNbh': 'પડોશ',
 
       'lead.you': 'તમે',
 
@@ -10630,13 +10638,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.errAlreadyLead': 'તમે પહેલેથી આ lead role ધરાવો છો.',
 
-      'lead.nominated': 'Nomination મોકલ્યું — Community માં support મેળવો!',
+      'lead.nominated': 'ઉમેદવારી મોકલી — Community માં સમર્થન મેળવો!',
 
       'lead.nominatedLocal': 'Nomination સાચવ્યું — online થાય ત્યારે sync.',
 
       'lead.voted': 'Support ગણ્યું — પડોશીને પાછળ ઊભા રહ્યા બદલ આભાર!',
 
-      'lead.granted': 'Threshold પૂર્ણ — coordinator access unlock!',
+      'lead.granted': 'જરૂરી સમર્થન પૂર્ણ — સંકલક ઍક્સેસ અનલૉક!',
 
       'lead.submitError': 'મોકલી શકાયું નહીં — ફરી પ્રયાસ.',
 
@@ -29078,6 +29086,22 @@ document.addEventListener('DOMContentLoaded', function () {
       ? t('profile.greeting').replace('{name}', user.displayName)
 
       : t('profile.greetingDefault');
+
+    const referralLineEl = $('#profileReferralLine');
+
+    if (referralLineEl) {
+
+      const referredCount = parseInt(localStorage.getItem(REFERRAL_REWARDED_COUNT_KEY) || '0', 10);
+
+      referralLineEl.classList.toggle('hidden', referredCount <= 0);
+
+      if (referredCount > 0) {
+
+        referralLineEl.textContent = t('profile.referralCount').replace('{n}', String(referredCount));
+
+      }
+
+    }
 
     const profileDisplayNameInput = $('#profileDisplayNameInput');
 

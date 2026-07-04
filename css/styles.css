@@ -81,20 +81,6 @@
   --font-devanagari: 'Noto Sans Devanagari', 'Outfit', sans-serif;
 }
 
-/* OS-driven dark mode — repaints surface/text/border only; brand, accent,
-   and semantic colors already have enough contrast on a dark surface. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-main: #0f172a;
-    --surface: #1e293b;
-    --text-dark: #f1f5f9;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --border: #334155;
-    --overlay: rgba(0, 0, 0, 0.65);
-  }
-}
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -3771,6 +3757,14 @@ body.persona-lead .ref-welcome { display: none; }
 .profile-card__ward-impact {
   font-size: 0.75rem;
   opacity: 0.88;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+.profile-card__referral {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.95;
   margin-bottom: 12px;
   line-height: 1.35;
 }
