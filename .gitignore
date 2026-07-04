@@ -16,6 +16,6 @@ __pycache__/
 Thumbs.db
 *.swp
 .cursor/
-
-# Agent / local scratch (if present)
+!.cursor/rules/
+!.cursor/rules/**
 agent-transcripts/
