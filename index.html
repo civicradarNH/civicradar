@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#6366f1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <meta name="description" content="CivicRadar — free ward hazard map for Mumbai, Pune &amp; Thane. Pin garbage, potholes, streetlights &amp; stagnant water in your ward. Me too, beat rival wards. WhatsApp-ready · 4 languages · no login.">
   <!-- iOS / Android home-screen install metadata -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -387,12 +387,13 @@
       <div class="success-icon">
         <i class="ph ph-check-circle"></i>
       </div>
-      <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
-      <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
-      <p class="success-badge-unlock hidden" id="successBadgeUnlock" aria-live="polite"></p>
-      <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
-      <p class="success-progress hidden" id="successProgress" aria-live="polite"></p>
       <h2 id="successTitle" data-i18n="success.title">Report Logged</h2>
+      <div class="success-reward-panel">
+        <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
+        <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
+        <p class="success-progress hidden" id="successProgress" aria-live="polite"></p>
+        <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
+      </div>
       <p class="success-tagline" id="successTagline" data-i18n="success.tagline">Report it — pinned on your ward map</p>
       <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
       <div class="success-preview">
@@ -420,12 +421,12 @@
           <div class="official-channels-block__body hidden" id="successOfficialBody">
             <p class="field-hint" data-i18n="official.subtitle">Gov apps — CivicRadar does not file for you.</p>
             <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
+            <div class="share-buttons">
+              <button type="button" class="btn btn--dark btn--full" id="btnShareTwitter">
+                <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="share-buttons">
-          <button type="button" class="btn btn--dark btn--full" id="btnShareTwitter">
-            <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
-          </button>
         </div>
       </div>
       <button type="button" class="btn btn--primary btn--full" id="btnSuccessClose" data-i18n="success.done">Back to map</button>
@@ -539,6 +540,11 @@
       <div class="segment-control" id="leaderboardToggle">
         <button type="button" class="segment-control__btn active" data-view="wards" data-i18n="community.topWards">Top Wards</button>
         <button type="button" class="segment-control__btn" data-view="citizens" data-i18n="community.localCitizens">Local Citizens</button>
+      </div>
+
+      <div class="segment-control segment-control--period" id="leaderboardPeriodToggle">
+        <button type="button" class="segment-control__btn" data-period="month" data-i18n="community.periodMonth">This month</button>
+        <button type="button" class="segment-control__btn active" data-period="all" data-i18n="community.periodAll">All time</button>
       </div>
 
       <p class="leaderboard-note hidden" id="leaderboardDemoNote" role="status"></p>
@@ -769,8 +775,8 @@
         <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
       </div>
 
-      <h3 class="section-title" data-i18n="settings.nbh.title">Neighbourhood updates</h3>
-      <p class="field-hint profile-settings-hint" data-i18n="settings.nbh.sub">When neighbours in your society report or resolve hazards.</p>
+      <h3 class="section-title" data-i18n="settings.notifications.title">Notifications &amp; Privacy</h3>
+      <p class="field-hint profile-settings-hint" data-i18n="settings.notifications.sub">Everything CivicRadar can nudge you about, and your consent choices, in one place.</p>
       <div class="profile-settings">
         <label class="toggle-row" for="nbhNewAlertToggle">
           <span class="toggle-row__text">
@@ -788,10 +794,6 @@
           <input type="checkbox" id="nbhResolvedAlertToggle" class="toggle-row__input">
           <span class="toggle-row__switch" aria-hidden="true"></span>
         </label>
-      </div>
-
-      <h3 class="section-title" data-i18n="settings.title">Reminders</h3>
-      <div class="profile-settings">
         <label class="toggle-row" for="reportReminderToggle">
           <span class="toggle-row__text">
             <span class="toggle-row__label" data-i18n="settings.reminder.label">Remind me to report stagnant water nearby</span>
@@ -800,6 +802,14 @@
           <input type="checkbox" id="reportReminderToggle" class="toggle-row__input">
           <span class="toggle-row__switch" aria-hidden="true"></span>
         </label>
+      </div>
+      <div class="profile-settings profile-settings--consent">
+        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawAnalytics">
+          <span data-i18n="profile.withdrawAnalytics">Withdraw analytics consent</span>
+        </button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawGps">
+          <span data-i18n="profile.withdrawGps">Withdraw location consent</span>
+        </button>
       </div>
 
       <div class="profile-footer">
@@ -824,12 +834,6 @@
         </div>
         <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
           <i class="ph ph-trash"></i> <span data-i18n="profile.deleteData">Delete my data</span>
-        </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawAnalytics">
-          <span data-i18n="profile.withdrawAnalytics">Withdraw analytics consent</span>
-        </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawGps">
-          <span data-i18n="profile.withdrawGps">Withdraw location consent</span>
         </button>
         <button type="button" class="partner-link" id="btnPartnerAccess">
           <i class="ph ph-buildings"></i> <span data-i18n="profile.partner">Volunteer / NGO login</span>

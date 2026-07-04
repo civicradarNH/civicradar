@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 12:03:03
+**Run:** 2026-07-04 13:21:19
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 387 | **Fail:** 1
+**Total:** 388 | **Pass:** 388 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -59,6 +59,7 @@
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js` + `supabase/schema.sql`: Civic Hero XP & certificates (v101) — 6-level ladder, Profile XP bar, Me too/report XP, shareable level certificates; localized en/hi/mr/gu; XP01–XP03; SW06 → v101
 - `js/app.js` + `tests/e2e_comprehensive.py`: v101 QA — certificate modal closes success overlay before open (unblocks controls); L01 parallel load stagger+retry; RP09 seeds nearby report after XP storage reset
 - `index.html` + `js/app.js` + `css/styles.css` + `sw.js`: iOS/Safari PWA compatibility (v108) — safe-area map/nav, WebKit tap/scroll fixes, Leaflet tap+resize, modal scroll lock, iOS install hint, photo accept image/*, report draft guard; IOS01–IOS04; manual checklist `tests/IOS-QA.md`; SW06 → v108
+- `css/styles.css` + `index.html` + `js/app.js` + `sw.js`: visual refresh (v112) — merged the two design-token :root blocks into one, retired `--secondary` pink (split into `--lead-accent` for community-lead role UI and `--primary`/`--accent` for everything else it was inconsistently driving, incl. FAB + profile-card gradient → `--grad-brand-cyan`), detokenized repeated hardcoded toast/podium/warning-amber hex into new tokens, added OS-driven `prefers-color-scheme: dark` support (`color-scheme` meta → `light dark`), merged duplicate form-input focus-ring rules + added resting elevation, decluttered the home screen (home-hero z-index above legend/banner; FAB + persona-bar hidden while home-hero shows to remove the duplicate Report CTA), restyled the leaderboard demo-data note as a tonal notice, and differentiated the two near-identical "be the first" Community empty-state strings (`community.challenge.empty`, `social.wardWeekEmpty`) across en/hi/mr/gu; SW06 → v112
 
 ## Summary by category
 
@@ -90,7 +91,7 @@
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 7 pass / 1 fail
+- **PWA:** 8 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -116,7 +117,7 @@
 
 ## Failures
 
-- `SW06` **SW precache uses scope-relative paths (subpath-safe)** — failed
+_None_
 
 ## Limitations
 
@@ -142,7 +143,7 @@
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Pin Pioneer 8CD5 |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch 2903 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -208,8 +209,8 @@
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.03s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -320,7 +321,7 @@
 | SH01 | Share | EN share single-language (no Marathi hook) | PASS |  |
 | U14 | UI | Location banner element | PASS |  |
 | U15 | UI | Header context element | PASS |  |
-| U16 | UI | Persona bar present | PASS |  |
+| U16 | UI | Persona bar hidden during home-hero, visible after dismiss | PASS |  |
 | U17 | UI | Partner inquiry exported | PASS |  |
 | U18 | UI | PWA nudge dismiss button | PASS |  |
 | U19 | UI | PWA nudge dismiss hides | PASS |  |
@@ -412,7 +413,7 @@
 | SW03 | PWA | Manifest href valid | PASS |  |
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
-| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | **FAIL** |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
 | IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
 | IOS02 | iOS | viewport-fit=cover | PASS |  |
 | IOS03 | iOS | apple-touch-icon linked | PASS |  |

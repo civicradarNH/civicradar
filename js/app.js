@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v111';
+  const CIVIC_APP_VERSION = 'v112';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -161,6 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const SUCCESS_STORIES_SEEN_KEY = 'civicradar_success_stories_seen';
 
+  const LEAD_NUDGE_SEEN_KEY = 'civicradar_lead_nudge_seen';
+
   const VISIT_COUNT_KEY = 'civicradar_visit_count';
 
   const FIRST_REPORT_DONE_KEY = 'civicradar_first_report_done';
@@ -186,6 +188,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const POINTS_FIX_CONFIRM = 10;
 
   const POINTS_ME_TOO = 8;
+
+  const POINTS_REFERRAL_JOINED = 30;
+
+  const REFERRAL_REDEEMED_KEY = 'civicradar_referral_redeemed';
+
+  const REFERRAL_REWARDED_COUNT_KEY = 'civicradar_referral_rewarded_count';
 
   const XP_CERTS_SEEN_KEY = 'civicradar_xp_certificates';
 
@@ -325,6 +333,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let isLead = false;
 
   let isSuperAdmin = false;
+
+  let leaderboardPeriod = 'all';
 
   window.isAdmin = false;
 
@@ -2292,7 +2302,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step2': 'Optional: file with {corp} and save your complaint number',
 
-      'success.step3': 'Volunteers or {corp} can confirm when fixed — earn Civic Points',
+      'success.step3': 'Volunteers or {corp} can confirm when fixed — earn Civic Hero XP',
 
       'success.file': 'File with BMC (optional)',
 
@@ -2332,7 +2342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.milestoneMsg': '🏆 {ward} just hit {n} fixes on CivicRadar! Can your ward beat us?\n{link}\n{hashtags}',
 
-      'share.firstBonus': 'First share — +10 Civic Points! 👋',
+      'share.firstBonus': 'First share — +10 Civic Hero XP! 👋',
 
       'shareWin.title': 'Share the win!',
 
@@ -2412,13 +2422,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.streakWeek': '{n} report(s) this week — keep it up!',
 
-      'success.badgeUnlock': '{n} reports — milestone unlocked!',
 
       'profile.milestoneOne': '1 more report to your next milestone',
 
       'profile.milestoneMany': '{n} more reports to your next milestone',
 
-      'profile.milestoneMax': 'Monsoon Guardian — keep reporting!',
+      'profile.milestoneMax': '10+ reports — your ward thanks you!',
 
       'profile.nextStreakBadge': '{n} more week(s) for {badge}',
 
@@ -2434,7 +2443,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareBragFirst': 'First pin on the map! Share now — Monsoon Guardian energy spreads fast.',
 
-      'toast.badgeMonsoon': 'Welcome, Monsoon Guardian! 🌧️',
+      'toast.badgeMonsoon': 'First report logged — welcome aboard! 🌧️',
 
       'confirm.meTooThanks': 'Me too counted — neighbours see the pressure building.',
 
@@ -2518,7 +2527,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.3week': '3-Week Reporter',
 
-      'profile.badge.monsoon': 'Monsoon Guardian',
+      'profile.badge.monsoon': 'Local Hero',
 
       'profile.wardImpact': 'Your ward: {n} reports this season',
 
@@ -2685,6 +2694,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.topWards': 'Top Wards',
 
       'community.localCitizens': 'Local Citizens',
+
+      'community.periodMonth': 'This month',
+
+      'community.periodAll': 'All time',
 
       'community.supportTitle': 'Support Volunteers',
 
@@ -3034,7 +3047,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.addPhoto': 'Add a photo',
 
-      'settings.title': 'Reminders',
+      'settings.notifications.title': 'Notifications & Privacy',
 
       'settings.reminder.label': 'Remind me to report stagnant water nearby',
 
@@ -3046,9 +3059,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'Notifications are blocked — we\'ll show a gentle in-app reminder instead.',
 
-      'settings.nbh.title': 'Neighbourhood updates',
-
-      'settings.nbh.sub': 'When neighbours in your society report or resolve hazards.',
+      'settings.notifications.sub': 'Everything CivicRadar can nudge you about, and your consent choices, in one place.',
 
       'settings.nbh.new.label': 'New reports nearby',
 
@@ -3104,7 +3115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} neighbours backed this — {ward} — screenshot this win! 👋',
 
-      'toast.fixConfirmed': '+10 points — thanks for checking!',
+      'toast.fixConfirmed': '+10 Civic Hero XP — thanks for checking!',
 
       'toast.communityResolved': 'Community verified fixed — thanks for reporting!',
 
@@ -3120,7 +3131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'On the community map — not filed with {corp} yet.',
 
-      'community.challenge.empty': 'Be the first in {ward} to climb the ward board — report a hazard today.',
+      'community.challenge.empty': '{ward} isn\'t ranked yet — report a hazard to put it on the board.',
 
       'community.challenge.beat': '{ward}: {pending} open hazards — beat {rival} ({rivalPending} pending)! Report or rally 👋',
 
@@ -3634,7 +3645,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeStatusDelivered': 'Your pledge was marked delivered by the coordinator.',
 
-      'toast.pledgeStatusVerified': 'Volunteer hours verified — +200 Civic Points credited!',
+      'toast.pledgeStatusVerified': 'Volunteer hours verified — +200 Civic Hero XP credited!',
 
       'toast.ngoNewPledge': '{n} new citizen pledge(s) in your ward.',
 
@@ -3918,6 +3929,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'A neighbour invited you 👋',
 
+      'referral.joinedReward': '🎉 {n} neighbour(s) joined via your invite — +{pts} Civic Hero XP!',
+
       'ref.welcomeBody': '{n} hazard reports already on the {city} map. See open spots in your ward — or pin one in 30 seconds.',
 
       'ref.welcomeBodyEmpty': 'Be one of the first to map hazards in {city} — garbage, potholes, streetlights & stagnant water. Takes 30 seconds.',
@@ -3930,7 +3943,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.monsoonPrep': 'Monsoon\'s coming 🦟 Clear stagnant water early — pin spots before the first heavy rain.',
 
-      'season.monsoonPeak': 'Peak monsoon ?🦟 Stagnant water breeds dengue. Report spots in your ward today.',
+      'season.monsoonPeak': 'Monsoon is here 🌧️ Stagnant water breeds dengue. Report spots in your ward today.',
 
       'season.ganesh': 'Ganesh Chaturthi 🦟 Keep your ward clean for the festival — report stagnant water near pandals and immersion routes.',
 
@@ -3942,7 +3955,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'social.wardWeekBacked': '🦟 {n} reported — {c} backed in {ward} this week',
 
-      'social.wardWeekEmpty': 'Be the first in {ward} to report this week — neighbours follow leaders.',
+      'social.wardWeekEmpty': 'No reports from {ward} yet this week — be the one neighbours follow.',
 
       'recap.title': 'Your ward this week',
 
@@ -4128,6 +4141,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.subtitle': 'Nominate yourself — neighbours vote to grant access. No admin approval needed.',
 
+      'lead.discoverNudge': 'You\'re on a roll! Consider leading cleanups in your ward.',
+
+      'lead.discoverNudgeCta': 'Learn more',
+
       'lead.step1': 'Nominate with your ward & scope',
 
       'lead.step2': 'Neighbours tap Support',
@@ -4280,15 +4297,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.map.title': 'नक्शे पर',
 
-      'tour.map.body': 'आपके वार्ड का नक्शा — खतरे के पिन और Me too यहाँ।',
+      'tour.map.body': 'आपके वार्ड का नक्शा — खतरे के पिन और मुझे भी यहाँ।',
 
       'tour.report.title': 'फोटो लें',
 
-      'tour.report.body': 'Report दबाएँ और मौके पर फ़ोटो लें।',
+      'tour.report.body': 'रिपोर्ट दबाएँ और मौके पर फ़ोटो लें।',
 
       'tour.profile.title': 'रिपोर्ट करें',
 
-      'tour.profile.body': 'Submit — पड़ोसी पिन देखेंगे। Profile में Civic Points।',
+      'tour.profile.body': 'भेजें दबाएँ — पड़ोसी पिन देखेंगे। प्रोफ़ाइल में Civic Hero XP।',
 
       'persona.citizen.idle': 'अपने वार्ड में खतरे रिपोर्ट करें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। Report दबाएँ — 30 सेक में नक्शे पर पिन करें, WhatsApp पर शेयर करें। मानसून सुझाव: रुका पानी = डेंगू का खतरा।',
 
@@ -4544,13 +4561,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.streakWeek': 'इस हफ़्ते {n} रिपोर्ट — बढ़िया!',
 
-      'success.badgeUnlock': '{n} रिपोर्ट — माइलस्टोन अनलॉक!',
 
       'profile.milestoneOne': 'अगले माइलस्टोन तक 1 रिपोर्ट और',
 
       'profile.milestoneMany': 'अगले माइलस्टोन तक {n} रिपोर्ट और',
 
-      'profile.milestoneMax': 'Monsoon Guardian — रिपोर्ट जारी रखें!',
+      'profile.milestoneMax': '10+ रिपोर्ट — आपके वार्ड का धन्यवाद!',
 
       'profile.nextStreakBadge': '{badge} के लिए {n} हफ़्ते और',
 
@@ -4566,7 +4582,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareBragFirst': 'नक्शे पर पहला पिन! अभी शेयर करें — Monsoon Guardian तेज़ फैलता है।',
 
-      'toast.badgeMonsoon': 'स्वागत है, Monsoon Guardian! 🛡️',
+      'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है! 🌧️',
 
       'confirm.meTooThanks': 'Me too दर्ज — पड़ोसी दबाव देख रहे हैं।',
 
@@ -4650,7 +4666,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.3week': '3-सप्ताह रिपोर्टर',
 
-      'profile.badge.monsoon': 'मानसून रक्षक',
+      'profile.badge.monsoon': 'लोकल हीरो',
 
       'profile.wardImpact': 'आपका वार्ड: इस सीज़न {n} रिपोर्ट',
 
@@ -4818,6 +4834,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.localCitizens': 'स्थानीय नागरिक',
 
+      'community.periodMonth': 'इस महीने',
+
+      'community.periodAll': 'हमेशा से',
+
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
       'community.supportBody': 'रुके पानी से लड़ रहे स्थानीय सफ़ाई दल की मदद के लिए सामग्री दान करें।',
@@ -4864,11 +4884,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.ageNote': 'Terms के अनुसार 18+ ज़रूरी। 18 से कम? माता-पित/अभिभावक या NSS समन्वयक के साथ ही भाग लें।',
 
-      'volunteer.submit': 'स्वयंसेवक नोंद सहेजें',
+      'volunteer.submit': 'स्वयंसेवक जानकारी सहेजें',
 
-      'volunteer.remove': 'मेरी नोंद हटाएँ',
+      'volunteer.remove': 'मेरी जानकारी हटाएँ',
 
-      'volunteer.edit': 'नोंद संपादित करें',
+      'volunteer.edit': 'जानकारी संपादित करें',
 
       'volunteer.empty': 'अभी साइन अप नहीं। Community से अपनी गली में मदद करें।',
 
@@ -4880,9 +4900,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.taskOffered': 'स्वयंसेवक ने मदद की पेशकश की',
 
-      'toast.volunteerSaved': 'स्वयंसेवक नोंद सहेजी — वार्ड समन्वयक देख सकते हैं।',
+      'toast.volunteerSaved': 'स्वयंसेवक जानकारी सहेजी — वार्ड समन्वयक देख सकते हैं।',
 
-      'toast.volunteerRemoved': 'स्वयंसेवक नोंद हटाई।',
+      'toast.volunteerRemoved': 'स्वयंसेवक जानकारी हटाई।',
 
       'toast.volunteerWardRequired': 'पहले ऑनबोर्डिंग में वार्ड सेट करें।',
 
@@ -4980,7 +5000,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.done': 'हो गया',
 
-      'profile.fixed': 'हल किए खतरे',
+      'profile.fixed': 'ठीक किए खतरे',
 
       'profile.pending': 'खुले खतरे',
 
@@ -5034,7 +5054,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.featuresTitle': 'आप क्या कर सकते हैं',
 
-      'about.feature1': 'फोटो पिन से खतरे की रिपोर्ट — stagnant water, कचरा, गड्ढे, या टूटी स्ट्रीटलाइट',
+      'about.feature1': 'फोटो पिन से खतरे की रिपोर्ट — रुका हुआ पानी, कचरा, गड्ढे, या टूटी स्ट्रीटलाइट',
 
       'about.feature2': 'वार्ड नक्शा देखें और पास की रिपोर्ट पर Me too से पुष्टि करें',
 
@@ -5044,7 +5064,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.audienceTitle': 'किसके लिए',
 
-      'about.audience': 'मुंबई, पुणे और ठाणे के निवासी, RWA और पड़ोस समूह — खासकर मानसून में जब stagnant water और बंद नालियाँ महत्वपूर्ण हों।',
+      'about.audience': 'मुंबई, पुणे और ठाणे के निवासी, RWA और पड़ोस समूह — खासकर मानसून में जब रुका हुआ पानी और बंद नालियाँ महत्वपूर्ण हों।',
 
       'about.privacyTitle': 'गोपनीयता और डेटा',
 
@@ -5158,7 +5178,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'वैकल्पिक: प्रोफ़ाइल से बाद की फोटो जोड़ें।',
 
-      'reminder.staleCheck': '{ward} के पास — अभी भी stagnant?',
+      'reminder.staleCheck': '{ward} के पास — क्या पानी अभी भी रुका है?',
 
       'reminder.stillThere': 'अभी भी है',
 
@@ -5166,7 +5186,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.addPhoto': 'फ़ोटो जोड़ें',
 
-      'settings.title': 'याद दिलाने वाले',
+      'settings.notifications.title': 'सूचनाएं और गोपनीयता',
 
       'settings.reminder.label': 'पास में रुका पानी रिपोर्ट करने की याद दिलाएँ',
 
@@ -5178,9 +5198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'सूचनाएँ ब्लॉक हैं — हम इसके बजाय ऐप में हल्की याद दिखाएँगे।',
 
-      'settings.nbh.title': 'पड़ोस अपडेट',
-
-      'settings.nbh.sub': 'जब पड़ोसी आपकी सोसाइटी में जोखिम रिपोर्ट या हल करें।',
+      'settings.notifications.sub': 'CivicRadar आपको जिन बातों की सूचना दे सकता है और आपकी सहमति के विकल्प, सब एक जगह।',
 
       'settings.nbh.new.label': 'पास में नई रिपोर्ट',
 
@@ -5236,7 +5254,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} पड़ोसियों ने समर्थन किया · {ward} — यह जीत स्क्रीनशॉट करें! 🏆',
 
-      'toast.fixConfirmed': '+10 अंक — जाँच के लिए धन्यवाद!',
+      'toast.fixConfirmed': '+10 Civic Hero XP — जाँच के लिए धन्यवाद!',
 
       'toast.communityResolved': 'समुदाय-सत्यापित ठीक — रिपोर्ट के लिए धन्यवाद!',
 
@@ -5252,7 +5270,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'सामुदायिक नक्शे पर — {corp} में अभी दर्ज नहीं।',
 
-      'community.challenge.empty': '{ward} में वार्ड बोर्ड पर पहले बनें — आज ही रिपोर्ट करें।',
+      'community.challenge.empty': '{ward} अभी बोर्ड पर नहीं है — खतरे की रिपोर्ट करें और वार्ड को बोर्ड पर लाएँ।',
 
       'community.challenge.beat': '{ward}: {pending} खुले खतरे — {rival} ({rivalPending} लंबित) से आगे! रिपोर्ट करें या रैली 👋',
 
@@ -5304,7 +5322,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'copy1916.categoryLabel': 'श्रेणी',
 
-      'copy1916.category.stagnant-water': 'डास / रुका पानी (Public Health → Pest Control)',
+      'copy1916.category.stagnant-water': 'मच्छर / रुका पानी (Public Health → Pest Control)',
 
       'copy1916.category.potholes': 'गड्ढे / सड़क क्षति',
 
@@ -5484,7 +5502,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.small': 'portal.mcgm.gov.in',
 
-      'official.hint.marg.stagnant-water': 'सार्वजनिक स्वास्थ्य → कीट नियंत्रण → stagnant water / मच्छर प्रजनन',
+      'official.hint.marg.stagnant-water': 'सार्वजनिक स्वास्थ्य → कीट नियंत्रण → रुका हुआ पानी / मच्छर प्रजनन',
 
       'official.hint.marg.garbage': 'ठोस अपशिष्ट प्रबंधन → कचरा / नाली',
 
@@ -5764,7 +5782,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeStatusDelivered': 'समन्वयक ने आपकी प्रतिज्ञा वितरित चिह्नित की।',
 
-      'toast.pledgeStatusVerified': 'स्वयंसेवक घंटे सत्यापित — +200 सिविक अंक!',
+      'toast.pledgeStatusVerified': 'स्वयंसेवक घंटे सत्यापित — +200 Civic Hero XP!',
 
       'toast.ngoNewPledge': 'आपके वार्ड में {n} नई नागरिक प्रतिज्ञा।',
 
@@ -5790,7 +5808,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeDelivered': 'सामान वितरित चिह्नित — अब घंटे सत्यापित करें।',
 
-      'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Points।',
+      'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Hero XP मिले।',
 
       'toast.saving': 'सहेजा जा रहा…',
 
@@ -6048,6 +6066,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'एक पड़ोसी ने आपको बुलाया 👋',
 
+      'referral.joinedReward': '🎉 आपके निमंत्रण से {n} पड़ोसी जुड़े — +{pts} Civic Hero XP!',
+
       'ref.welcomeBody': '{city} के नक्शे पर पहले से {n} रिपोर्ट हैं। अपने वार्ड के खुले स्पॉट देखें — या 30 सेकंड में एक पिन करें।',
 
       'ref.welcomeBodyEmpty': '{city} में खतरों का नक्शा बनाने वालों में सबसे पहले बनें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। सिर्फ़ 30 सेकंड।',
@@ -6060,7 +6080,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.monsoonPrep': 'मानसून आ रहा है 🌧️ पहली तेज़ बारिश से पहले रुका पानी साफ़ करें — स्पॉट पिन करें।',
 
-      'season.monsoonPeak': 'चरम मानसून 🌧️ रुका पानी डेंगू फैलाता है। आज अपने वार्ड में स्पॉट रिपोर्ट करें।',
+      'season.monsoonPeak': 'मानसून आ गया है 🌧️ रुका पानी डेंगू फैलाता है। आज अपने वार्ड में स्पॉट रिपोर्ट करें।',
 
       'season.ganesh': 'गणेश चतुर्थी 🙏 त्योहार के लिए अपना वार्ड साफ़ रखें — पंडाल और विसर्जन मार्ग के पास रुका पानी रिपोर्ट करें।',
 
@@ -6072,7 +6092,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'social.wardWeekBacked': '👥 इस सप्ताह {ward} में {n} रिपोर्ट · {c} समर्थन',
 
-      'social.wardWeekEmpty': 'इस सप्ताह {ward} में सबसे पहले रिपोर्ट करें — पड़ोसी नेताओं का अनुसरण करते हैं।',
+      'social.wardWeekEmpty': 'इस सप्ताह {ward} से अभी तक कोई रिपोर्ट नहीं — पड़ोसी आपका अनुसरण करेंगे।',
 
       'recap.title': 'इस सप्ताह आपका वार्ड',
 
@@ -6257,6 +6277,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.title': 'सामुदायिक लीड बनें',
 
       'lead.subtitle': 'खुद को नामांकित करें — पड़ोसी वोट करेंगे। एडमिन की ज़रूरत नहीं।',
+
+      'lead.discoverNudge': 'आप बहुत सक्रिय हैं! अपने वार्ड में सफ़ाई का नेतृत्व करने पर विचार करें।',
+
+      'lead.discoverNudgeCta': 'और जानें',
 
       'lead.step1': 'वार्ड और क्षेत्र के साथ नामांकन',
 
@@ -6673,13 +6697,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.streakWeek': 'या आठवड्यात {n} तक्रार — छान!',
 
-      'success.badgeUnlock': '{n} तक्रार — milestone unlock!',
 
       'profile.milestoneOne': 'पुढच्या milestone साठी आणखी 1 तक्रार',
 
       'profile.milestoneMany': 'पुढच्या milestone साठी आणखी {n} तक्रार',
 
-      'profile.milestoneMax': 'Monsoon Guardian — तक्रार सुरू ठेवा!',
+      'profile.milestoneMax': '10+ तक्रारी — तुमच्या वॉर्डकडून धन्यवाद!',
 
       'profile.nextStreakBadge': '{badge} साठी {n} आठवडे',
 
@@ -6695,7 +6718,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareBragFirst': 'नकाशावर पहिला pin! share — Monsoon Guardian वेगाने पसरतो.',
 
-      'toast.badgeMonsoon': 'स्वागत, Monsoon Guardian! 🛡️',
+      'toast.badgeMonsoon': 'पहिली तक्रार नोंदवली — स्वागत आहे! 🌧️',
 
       'confirm.meTooThanks': 'Me too नोंद — शेजाऱ्यांना दबाव दिसतो.',
 
@@ -6779,7 +6802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.3week': '3-आठवडे तक्रारकर्ता',
 
-      'profile.badge.monsoon': 'पावसाळी रक्षक',
+      'profile.badge.monsoon': 'लोकल हिरो',
 
       'profile.wardImpact': 'तुमचा वॉर्ड: या सीझन {n} तक्रारी',
 
@@ -6946,6 +6969,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.topWards': 'अव्वल वॉर्ड',
 
       'community.localCitizens': 'स्थानिक नागरिक',
+
+      'community.periodMonth': 'या महिन्यात',
+
+      'community.periodAll': 'आतापर्यंत',
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
@@ -7295,7 +7322,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.addPhoto': 'फोटो जोडा',
 
-      'settings.title': 'आठवणी',
+      'settings.notifications.title': 'सूचना आणि गोपनीयता',
 
       'settings.reminder.label': 'जवळचे साचलेले पाणी नोंदवण्याची आठवण करा',
 
@@ -7307,9 +7334,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'सूचना ब्लॉक आहेत — त्याऐवजी आम्ही अॅपमध्ये सौम्य आठवण दाखवू.',
 
-      'settings.nbh.title': 'Neighbourhood अपडेट',
-
-      'settings.nbh.sub': 'शेजारी तुमच्या society मध्ये hazard report किंवा resolve करतील तेव्हा.',
+      'settings.notifications.sub': 'CivicRadar तुम्हाला जे सूचित करू शकते आणि तुमचे संमती पर्याय, सर्व एकाच ठिकाणी.',
 
       'settings.nbh.new.label': 'जवळच्या नवीन reports',
 
@@ -7381,7 +7406,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'community map वर — {corp} मध्ये अजून file नाही.',
 
-      'community.challenge.empty': '{ward} मध्ये वॉर्ड बोर्डवर पहिले व्हा — आजच तक्रार करा.',
+      'community.challenge.empty': '{ward} अजून बोर्डवर नाही — धोका नोंदवा आणि वॉर्डला बोर्डवर आणा.',
 
       'community.challenge.beat': '{ward}: {pending} उघडे धोके — {rival} ({rivalPending} प्रलंबित) पेक्षा पुढे! नोंदवा किंवा रॅली 👋',
 
@@ -8177,6 +8202,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'एका शेजाऱ्याने तुम्हाला बोलावले 👋',
 
+      'referral.joinedReward': '🎉 तुमच्या आमंत्रणामुळे {n} शेजारी सामील झाले — +{pts} Civic Hero XP!',
+
       'ref.welcomeBody': '{city} नकाशावर आधीच {n} तक्रारी आहेत. तुमच्या वॉर्डमधील खुले स्पॉट पाहा — किंवा 30 सेकंदात एक पिन करा.',
 
       'ref.welcomeBodyEmpty': '{city} मध्ये धोके नकाशित करणाऱ्यांत पहिले व्हा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. फक्त 30 सेकंद.',
@@ -8189,7 +8216,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.monsoonPrep': 'पावसाळा येतोय 🌧️ पहिल्या जोरदार पावसाआधी साचलेले पाणी साफ करा — स्पॉट पिन करा.',
 
-      'season.monsoonPeak': 'ऐन पावसाळा 🌧️ साचलेले पाणी डेंग्यू पसरवते. आज तुमच्या वॉर्डमध्ये स्पॉट नोंदवा.',
+      'season.monsoonPeak': 'पावसाळा सुरू झाला आहे 🌧️ साचलेले पाणी डेंग्यू पसरवते. आज तुमच्या वॉर्डमध्ये स्पॉट नोंदवा.',
 
       'season.ganesh': 'गणेश चतुर्थी 🙏 सणासाठी तुमचा वॉर्ड स्वच्छ ठेवा — मंडप व विसर्जन मार्गाजवळ साचलेले पाणी नोंदवा.',
 
@@ -8201,7 +8228,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'social.wardWeekBacked': '👥 या आठवड्यात {ward}: {n} नोंदी · {c} पाठिंबा',
 
-      'social.wardWeekEmpty': 'या आठवड्यात {ward} मध्ये पहिली नोंद करा — शेजारी नेत्यांचे अनुसरण करतात.',
+      'social.wardWeekEmpty': 'या आठवड्यात {ward} मधून अजून कोणतीही तक्रार नाही — शेजारी तुमचे अनुसरण करतील.',
 
       'recap.title': 'या आठवड्यात तुमचा वॉर्ड',
 
@@ -8386,6 +8413,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.title': 'समुदाय lead व्हा',
 
       'lead.subtitle': 'स्वतःला nominate करा — शेजारी vote करतील. admin मंजुरी नाही.',
+
+      'lead.discoverNudge': 'तुम्ही खूप सक्रिय आहात! तुमच्या वॉर्डमध्ये स्वच्छता मोहिमेचे नेतृत्व करण्याचा विचार करा.',
+
+      'lead.discoverNudgeCta': 'अधिक जाणून घ्या',
 
       'lead.step1': 'वॉर्ड आणि scope सह nominate',
 
@@ -8802,13 +8833,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.streakWeek': 'આ અઠવાડિયે {n} રિપોર્ટ — સરસ!',
 
-      'success.badgeUnlock': '{n} રિપોર્ટ — milestone unlock!',
 
       'profile.milestoneOne': 'આગલા milestone માટે 1 રિપોર્ટ બાકી',
 
       'profile.milestoneMany': 'આગલા milestone માટે {n} રિપોર્ટ બાકી',
 
-      'profile.milestoneMax': 'Monsoon Guardian — રિપોર્ટ ચાલુ રાખો!',
+      'profile.milestoneMax': '10+ રિપોર્ટ — તમારા વોર્ડ તરફથી આભાર!',
 
       'profile.nextStreakBadge': '{badge} માટે {n} અઠવાડિયા',
 
@@ -8824,7 +8854,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareBragFirst': 'map પર પહેલો pin! share — Monsoon Guardian ઝડપથી.',
 
-      'toast.badgeMonsoon': 'સ્વાગત, Monsoon Guardian! 🛡️',
+      'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત છે! 🌧️',
 
       'confirm.meTooThanks': 'Me too નોંધાયું — પડોશીઓ દબાણ જોઈ રહ્યા છે.',
 
@@ -8908,7 +8938,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.badge.3week': '3-અઠવાડિયા રિપોર્ટર',
 
-      'profile.badge.monsoon': 'ચોમાસુ રક્ષક',
+      'profile.badge.monsoon': 'લોકલ હીરો',
 
       'profile.wardImpact': 'તમારો વોર્ડ: આ સીઝન {n} ફરિયાદ',
 
@@ -9075,6 +9105,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.topWards': 'ટોચના વોર્ડ',
 
       'community.localCitizens': 'સ્થાનિક નાગરિકો',
+
+      'community.periodMonth': 'આ મહિને',
+
+      'community.periodAll': 'અત્યાર સુધી',
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
@@ -9424,7 +9458,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.addPhoto': 'ફોટો ઉમેરો',
 
-      'settings.title': 'યાદ અપાવનારા',
+      'settings.notifications.title': 'સૂચનાઓ અને ગોપનીયતા',
 
       'settings.reminder.label': 'નજીકનું ભરાયેલું પાણી ફરિયાદ કરવા યાદ અપાવો',
 
@@ -9436,9 +9470,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'સૂચનાઓ બ્લોક છે — તેના બદલે અમે એપમાં હળવી યાદ બતાવીશું.',
 
-      'settings.nbh.title': 'Neighbourhood અપડેટ',
-
-      'settings.nbh.sub': 'પડોશીઓ તમારી society માં hazard report અથવા resolve કરે ત્યારે.',
+      'settings.notifications.sub': 'CivicRadar તમને જે જણાવી શકે અને તમારી સંમતિના વિકલ્પો, બધું એક જ જગ્યાએ.',
 
       'settings.nbh.new.label': 'નજીકની નવી reports',
 
@@ -9510,7 +9542,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.clock': 'community map પર — {corp} માં હજુ file નહીં.',
 
-      'community.challenge.empty': '{ward} માં વોર્ડ બોર્ડ પર પહેલા બનો — આજે જ રિપોર્ટ કરો.',
+      'community.challenge.empty': '{ward} હજુ બોર્ડ પર નથી — જોખમની જાણ કરો અને તેને બોર્ડ પર લાવો.',
 
       'community.challenge.beat': '{ward}: {pending} ખુલ્લા જોખમ — {rival} ({rivalPending} બાકી) કરતાં આગળ! રિપોર્ટ કે રેલી 👋',
 
@@ -10306,6 +10338,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'એક પડોશીએ તમને આમંત્રણ આપ્યું 👋',
 
+      'referral.joinedReward': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — +{pts} Civic Hero XP!',
+
       'ref.welcomeBody': '{city} નકશા પર પહેલેથી {n} ફરિયાદ છે. તમારા વોર્ડના ખુલ્લા સ્પોટ જુઓ — અથવા 30 સેકન્ડમાં એક પિન કરો.',
 
       'ref.welcomeBodyEmpty': '{city} માં જોખમો નકશિત કરનારાઓમાં પહેલા બનો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. માત્ર 30 સેકન્ડ.',
@@ -10318,7 +10352,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.monsoonPrep': 'ચોમાસું આવી રહ્યું છે 🌧️ પહેલા ભારે વરસાદ પહેલાં ભરાયેલું પાણી સાફ કરો — સ્પોટ પિન કરો.',
 
-      'season.monsoonPeak': 'ભરચોમાસું 🌧️ ભરાયેલું પાણી ડેન્ગ્યુ ફેલાવે છે. આજે તમારા વોર્ડમાં સ્પોટ નોંધો.',
+      'season.monsoonPeak': 'ચોમાસું આવી ગયું છે 🌧️ ભરાયેલું પાણી ડેન્ગ્યુ ફેલાવે છે. આજે તમારા વોર્ડમાં સ્પોટ નોંધો.',
 
       'season.ganesh': 'ગણેશ ચતુર્થી 🙏 તહેવાર માટે તમારો વોર્ડ સ્વચ્છ રાખો — પંડાલ અને વિસર્જન માર્ગ પાસે ભરાયેલું પાણી નોંધો.',
 
@@ -10330,7 +10364,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'social.wardWeekBacked': '👥 આ અઠવાડિયે {ward}: {n} નોંધ · {c} સમર્થન',
 
-      'social.wardWeekEmpty': 'આ અઠવાડિયે {ward} માં પહેલા નોંધો — પડોશીઓ આગેવાનોને અનુસરે છે.',
+      'social.wardWeekEmpty': 'આ અઠવાડિયે {ward} માંથી હજુ કોઈ રિપોર્ટ નથી — પડોશીઓ તમને અનુસરશે.',
 
       'recap.title': 'આ અઠવાડિયે તમારો વોર્ડ',
 
@@ -10515,6 +10549,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.title': 'સામુદાયિક lead બનો',
 
       'lead.subtitle': 'પોતાનું nomination કરો — પડોશીઓ vote કરશે. admin approval નહીં.',
+
+      'lead.discoverNudge': 'તમે ખૂબ સક્રિય છો! તમારા વોર્ડમાં સફાઈનું નેતૃત્વ કરવાનું વિચારો.',
+
+      'lead.discoverNudgeCta': 'વધુ જાણો',
 
       'lead.step1': 'વોર્ડ અને scope સાથે nominate',
 
@@ -10728,10 +10766,13 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast(t('safety.hidden'), 'info', 3200);
   }
 
-  function aggregateWardLeaderboard() {
+  // sinceTs (optional): only count reports at/after this timestamp — powers the
+  // "this month" leaderboard view alongside the default all-time aggregation.
+  function aggregateWardLeaderboard(sinceTs) {
     const byWard = {};
     cityScopedReports(loadReports()).forEach((r) => {
       if (!r.ward || isReportHidden(r.id)) return;
+      if (sinceTs && Number(r.timestamp) < sinceTs) return;
       if (!byWard[r.ward]) {
         byWard[r.ward] = { name: r.ward, points: 0, reports: 0, resolved: 0, isUser: false, isDemo: false };
       }
@@ -10745,10 +10786,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return Object.values(byWard);
   }
 
-  function aggregateCitizenLeaderboard() {
+  function aggregateCitizenLeaderboard(sinceTs) {
     const byCitizen = {};
     cityScopedReports(loadReports()).forEach((r) => {
       if (isReportHidden(r.id)) return;
+      if (sinceTs && Number(r.timestamp) < sinceTs) return;
       const key = r.reporterId || r.reporter || 'anon';
       const name = r.reporter || 'Citizen';
       const ward = r.ward ? r.ward.split('—')[0].trim() : getCityLabel(getReportCity(r));
@@ -10761,15 +10803,22 @@ document.addEventListener('DOMContentLoaded', function () {
     return Object.values(byCitizen);
   }
 
-  function mergeUserWard(wards) {
+  function mergeUserWard(wards, sinceTs) {
     if (!user.ward) return wards;
-    const userReports = getUserReports();
-    const userWardPoints = getTotalCivicPoints();
+    const allUserReports = getUserReports();
+    const userReports = sinceTs ? allUserReports.filter((r) => Number(r.timestamp) >= sinceTs) : allUserReports;
+    const userResolvedCount = userReports.filter((r) => r.status === 'resolved').length;
+    // All-time keeps the existing full-XP total (bonuses included); a period view
+    // recomputes from the same per-report formula the rest of the board uses, since
+    // lifetime XP bonuses can't be meaningfully sliced to "this month" alone.
+    const userWardPoints = sinceTs
+      ? userResolvedCount * POINTS_PER_REPORT + userReports.reduce((sum, r) => sum + (Number(r.confirmations) || 0) * 5, 0)
+      : getTotalCivicPoints();
     const existing = wards.find((w) => w.name === user.ward);
     if (existing) {
       existing.points = Math.max(existing.points, userWardPoints);
       existing.reports = Math.max(existing.reports, userReports.length);
-      existing.resolved = Math.max(existing.resolved || 0, userReports.filter((r) => r.status === 'resolved').length);
+      existing.resolved = Math.max(existing.resolved || 0, userResolvedCount);
       existing.isUser = true;
       existing.isDemo = false;
     } else {
@@ -10777,7 +10826,7 @@ document.addEventListener('DOMContentLoaded', function () {
         name: user.ward,
         points: userWardPoints,
         reports: userReports.length,
-        resolved: userReports.filter((r) => r.status === 'resolved').length,
+        resolved: userResolvedCount,
         isUser: true,
         isDemo: false,
       });
@@ -11584,6 +11633,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
       savePendingFeedback(remaining);
+    },
+
+    // ---- Referral reward loop ----
+    async insertReferral(row) {
+      if (!this.enabled) return { error: { message: 'offline' } };
+      const { error } = await this.client.from('referrals').insert(row);
+      if (error && window.CivicAnalytics) {
+        CivicAnalytics.trackError(error.message, { context: 'insertReferral' });
+      }
+      return { error: error || null };
+    },
+
+    async getReferralCount(code) {
+      if (!this.enabled || !code) return { count: 0, error: null };
+      const { data, error } = await this.client.rpc('get_referral_count', { p_code: code });
+      if (error && window.CivicAnalytics) {
+        CivicAnalytics.trackError(error.message, { context: 'get_referral_count' });
+      }
+      return { count: error ? 0 : (Number(data) || 0), error: error || null };
     },
 
     // ---- Coordinator access requests ----
@@ -19561,6 +19629,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateCommunitySubtitle();
 
+    checkReferralRewards();
+
     renderSeasonalHook();
 
     renderCommunityImpactStats();
@@ -20176,6 +20246,8 @@ document.addEventListener('DOMContentLoaded', function () {
   trackShareRefLanding();
 
   maybeShowReferralWelcome();
+
+  checkReferralRewards();
 
   trackVisitCount();
 
@@ -21024,6 +21096,8 @@ document.addEventListener('DOMContentLoaded', function () {
       user.displayName = name;
 
       saveUser();
+
+      recordReferralRedemption();
 
       updatePartnerPortalUi();
 
@@ -21947,7 +22021,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       flushPendingPwaNudge();
 
+      let shareNudgeShown = false;
+
       if (notShared && reportId) {
+
+        shareNudgeShown = true;
 
         setTimeout(() => {
 
@@ -21962,6 +22040,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 450);
 
       }
+
+      maybeShowLeadVolunteerNudge(getUserReports().length, shareNudgeShown ? 6200 : 450);
 
     });
 
@@ -22106,6 +22186,24 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#citizensPanel').classList.toggle('hidden', view !== 'citizens');
 
         renderLeaderboard(view);
+
+      });
+
+    });
+
+    $$('#leaderboardPeriodToggle .segment-control__btn').forEach((btn) => {
+
+      btn.addEventListener('click', () => {
+
+        $$('#leaderboardPeriodToggle .segment-control__btn').forEach((b) => b.classList.remove('active'));
+
+        btn.classList.add('active');
+
+        leaderboardPeriod = btn.dataset.period;
+
+        renderLeaderboard('wards');
+
+        renderLeaderboard('citizens');
 
       });
 
@@ -23259,26 +23357,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const badgeEl = $('#successBadgeUnlock');
-
-    if (badgeEl) {
-
-      if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
-
-        badgeEl.textContent = t('success.badgeUnlock').replace('{n}', String(reportCount));
-
-        badgeEl.classList.remove('hidden');
-
-      } else {
-
-        badgeEl.textContent = '';
-
-        badgeEl.classList.add('hidden');
-
-      }
-
-    }
-
     const sharePromptEl = document.querySelector('#successModal .success-share-prompt');
 
     if (sharePromptEl) {
@@ -23457,6 +23535,108 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Short, shareable per-user code (not the full generateId() UUID) so a
+  // WhatsApp invite link stays readable, and so redemptions can be attributed
+  // back to the specific neighbour who shared it.
+  function getMyReferralCode() {
+
+    if (!user.referralCode) {
+
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+      let code = '';
+
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+
+      user.referralCode = code;
+
+      saveUser();
+
+    }
+
+    return user.referralCode;
+
+  }
+
+
+
+  // Records a one-time redemption when a NEW user completes onboarding via a
+  // neighbour's ?ref=<code> link, so the referrer can later see how many
+  // people joined through them. Legacy static share tags ('invite'/'fixed'/
+  // 'recap'/'about', used by non-referral share surfaces) are not redemptions.
+
+  const LEGACY_SHARE_TAGS = ['invite', 'fixed', 'recap', 'about'];
+
+  async function recordReferralRedemption() {
+
+    try {
+
+      const ref = new URLSearchParams(location.search).get('ref');
+
+      if (!ref || LEGACY_SHARE_TAGS.includes(ref)) return;
+
+      if (localStorage.getItem(REFERRAL_REDEEMED_KEY)) return;
+
+      localStorage.setItem(REFERRAL_REDEEMED_KEY, '1');
+
+      if (!Backend.enabled) return;
+
+      await Backend.insertReferral({
+
+        referrer_code: ref.slice(0, 32),
+
+        city: user.city || null,
+
+        ward: user.ward || null,
+
+      });
+
+    } catch { /* best-effort only */ }
+
+  }
+
+
+
+  // Checks (when connected) how many neighbours have joined via this user's
+  // referral code since the last check, awards one-time XP per new join, and
+  // tells the referrer. No-ops gracefully offline/local-only, same as the
+  // rest of this app's optional-backend features.
+  async function checkReferralRewards() {
+
+    if (!Backend.enabled || !user.referralCode) return;
+
+    try {
+
+      const { count } = await Backend.getReferralCount(user.referralCode);
+
+      const rewarded = parseInt(localStorage.getItem(REFERRAL_REWARDED_COUNT_KEY) || '0', 10);
+
+      if (count <= rewarded) return;
+
+      const newJoins = count - rewarded;
+
+      localStorage.setItem(REFERRAL_REWARDED_COUNT_KEY, String(count));
+
+      addPointsCache(POINTS_REFERRAL_JOINED * newJoins);
+
+      showToast(
+
+        t('referral.joinedReward').replace('{n}', String(newJoins)).replace('{pts}', String(POINTS_REFERRAL_JOINED * newJoins)),
+
+        'success',
+
+        6000
+
+      );
+
+      updateProfileUI();
+
+    } catch { /* best-effort only */ }
+
+  }
+
+
+
   function trackShareRefLanding() {
 
     try {
@@ -23605,7 +23785,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       ward,
 
-      link: shareAppLink('invite'),
+      link: shareAppLink(getMyReferralCode()),
 
       wardFull: user.ward,
 
@@ -23816,6 +23996,37 @@ document.addEventListener('DOMContentLoaded', function () {
       );
 
     }
+
+  }
+
+
+
+  // One-time nudge pointing active reporters toward community-lead/volunteer
+  // roles, which are otherwise only discoverable by digging into Community.
+  // Fired after the 3rd report (already a milestone) and shown only once ever.
+  function maybeShowLeadVolunteerNudge(reportCount, delay) {
+
+    if (reportCount !== 3) return false;
+
+    if (isAdmin || isLead) return false;
+
+    if (localStorage.getItem(LEAD_NUDGE_SEEN_KEY)) return false;
+
+    localStorage.setItem(LEAD_NUDGE_SEEN_KEY, '1');
+
+    setTimeout(() => {
+
+      showToast(t('lead.discoverNudge'), 'info', 6000, {
+
+        label: t('lead.discoverNudgeCta'),
+
+        onClick: () => { setNavTab('community'); if (window.openLeadModal) window.openLeadModal(); },
+
+      });
+
+    }, delay);
+
+    return true;
 
   }
 
@@ -24636,7 +24847,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const msg = buildCertificateCaption(pendingCertificateLevelId);
 
-    openWhatsAppShare(msg, { context: 'xp_certificate', level: pendingCertificateLevelId });
+    shareWhatsApp(msg, { context: 'xp_certificate', meta: { level: pendingCertificateLevelId } });
 
   }
 
@@ -28568,6 +28779,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Leaderboard Engine ---------- */
 
+  function startOfCurrentMonthTs() {
+
+    const now = new Date();
+
+    return new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+  }
+
+
+
   function renderLeaderboard(type) {
 
     const rankClass = (i) => (i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '');
@@ -28576,11 +28797,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const liveBackend = Backend.enabled;
 
+    const sinceTs = leaderboardPeriod === 'month' ? startOfCurrentMonthTs() : null;
+
 
 
     if (type === 'wards') {
 
-      const realWards = aggregateWardLeaderboard();
+      const realWards = aggregateWardLeaderboard(sinceTs);
 
       let wards = realWards;
 
@@ -28592,7 +28815,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      wards = mergeUserWard(wards);
+      wards = mergeUserWard(wards, sinceTs);
 
       wards.sort((a, b) => b.points - a.points);
 
@@ -28662,7 +28885,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (type === 'citizens') {
 
-      let citizens = aggregateCitizenLeaderboard();
+      let citizens = aggregateCitizenLeaderboard(sinceTs);
 
       const usingDemo = !liveBackend && citizens.length < 2;
 
@@ -28674,7 +28897,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-      const userPoints = getTotalCivicPoints();
+      const periodUserReports = sinceTs ? getUserReports().filter((r) => Number(r.timestamp) >= sinceTs) : getUserReports();
+
+      const userPoints = sinceTs
+
+        ? periodUserReports.reduce((sum, r) => sum + POINTS_PER_REPORT + (r.status === 'resolved' ? POINTS_PER_REPORT : 0), 0)
+
+        : getTotalCivicPoints();
 
       citizens.push({
 

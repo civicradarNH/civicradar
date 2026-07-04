@@ -1448,3 +1448,46 @@ create policy "profiles_update_own"
   to authenticated
   using (auth.uid() = id)
   with check (auth.uid() = id);
+
+-- =====================================================================
+-- Referral reward loop (v113)
+-- Each citizen shares a personal short referral code (see getMyReferralCode()
+-- in js/app.js). When a new user completes onboarding via ?ref=<code>, their
+-- device records one redemption row here. The referrer's device then polls
+-- get_referral_count() to award one-time XP per new join and show
+-- "N neighbours joined via your invite." No public reads of raw rows — only
+-- the aggregate count via the SECURITY DEFINER function below, so a referrer
+-- never sees who specifically joined, just how many.
+-- Additive and safe to re-run.
+-- =====================================================================
+
+create table if not exists public.referrals (
+  id                uuid primary key default gen_random_uuid(),
+  created_at        timestamptz not null default now(),
+  referrer_code     text not null,
+  referred_user_id  uuid,
+  city              text,
+  ward              text
+);
+
+create index if not exists referrals_referrer_code_idx on public.referrals (referrer_code);
+
+alter table public.referrals enable row level security;
+
+-- Any new user's device may record its own redemption.
+drop policy if exists "referrals_insert_anon" on public.referrals;
+create policy "referrals_insert_anon"
+  on public.referrals for insert
+  with check (true);
+
+-- No public reads/updates/deletes — only the aggregate RPC below, or the
+-- service role (dashboard), can see referral data.
+drop policy if exists "referrals_select_none" on public.referrals;
+create policy "referrals_select_none"
+  on public.referrals for select
+  using (false);
+
+create or replace function public.get_referral_count(p_code text)
+returns bigint language sql stable security definer set search_path = public as $$
+  select count(*) from public.referrals where referrer_code = p_code;
+$$;
