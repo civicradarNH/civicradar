@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v105';
+  const CIVIC_APP_VERSION = 'v106';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2902,6 +2902,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.close': 'Close',
 
+      'about.mapCredits': 'Map data © OpenStreetMap contributors (ODbL). Map powered by Leaflet.',
+
       'about.sponsored': 'Sponsored',
 
       'about.copied': 'Impact summary copied — paste into your application.',
@@ -5026,6 +5028,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.close': 'बंद',
 
+      'about.mapCredits': 'नक्शा डेटा © OpenStreetMap contributors (ODbL)। नक्शा Leaflet द्वारा।',
+
       'about.sponsored': 'प्रायोजित',
 
       'about.copied': 'प्रभाव सारांश कॉपी हो गया — अपने आवेदन में चिपकाएँ।',
@@ -7147,6 +7151,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.close': 'बंद करा',
 
+      'about.mapCredits': 'नकाशा डेटा © OpenStreetMap contributors (ODbL). नकाशा Leaflet द्वारे.',
+
       'about.sponsored': 'प्रायोजित',
 
       'about.copied': 'प्रभाव सारांश कॉपी झाला — अर्जात पेस्ट करा.',
@@ -9267,6 +9273,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.contactOperator': 'અમારો સંપર્ક',
 
       'about.close': 'બંધ',
+
+      'about.mapCredits': 'નકશા ડેટા © OpenStreetMap contributors (ODbL). નકશો Leaflet દ્વારા.',
 
       'about.sponsored': 'પ્રાયોજિત',
 
@@ -19999,9 +20007,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         zoomControl: false,
 
-        attributionControl: true,
+        attributionControl: false,
 
       }).setView(getCityCenter(), 12);
+
+
+
+      L.control.attribution({ prefix: false, position: 'bottomleft' }).addTo(map);
 
 
 
@@ -20009,7 +20021,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         maxZoom: 19,
 
-        attribution: '&copy; OpenStreetMap contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
 
       }).addTo(map);
 

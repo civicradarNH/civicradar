@@ -1902,6 +1902,14 @@ body.pwa-nudge-visible #btnCamera {
   margin: 0 0.35rem;
 }
 
+.about-map-credits {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin: 12px 0 4px;
+  line-height: 1.45;
+}
+
 .about-version {
   text-align: center;
   font-size: 0.75rem;
@@ -4964,6 +4972,31 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 .leaflet-bar a:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: -3px;
+}
+
+/* ---- Leaflet attribution: compact OSM credit (ODbL requires visible credit) ---- */
+.leaflet-control-attribution {
+  margin: 0 !important;
+  padding: 2px 7px !important;
+  font-size: 9px !important;
+  line-height: 1.25 !important;
+  color: var(--text-muted) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 0 var(--radius-sm) 0 0 !important;
+  box-shadow: none !important;
+  max-width: min(58vw, 240px);
+  white-space: normal;
+}
+.leaflet-control-attribution a {
+  color: var(--text-muted) !important;
+  text-decoration: none !important;
+}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus-visible {
+  color: var(--primary) !important;
+  text-decoration: underline !important;
 }
 
 /* ---- Leaderboard: premium podium emphasis (ranks 1–3) ---- */
