@@ -2394,13 +2394,15 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ))
 
-    s.record('MC06', 'MultiCity', 'Pune datalist linked on pledge', await page.evaluate(
+    s.record('MC06', 'MultiCity', 'Pune ward combobox on pledge', await page.evaluate(
 
         """() => {
 
           window.openPledgeModal();
 
-          return document.getElementById('pledgeWard')?.getAttribute('list') === 'puneCommunities';
+          const el = document.getElementById('pledgeWard');
+
+          return el?.dataset.civicCombobox === 'ward' && !!el.closest('.civic-combobox');
 
         }"""
 
@@ -2416,13 +2418,15 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await goto_app(page)
 
-    s.record('MC07', 'MultiCity', 'Mumbai datalist linked on pledge', await page.evaluate(
+    s.record('MC07', 'MultiCity', 'Mumbai ward combobox on pledge', await page.evaluate(
 
         """() => {
 
           window.openPledgeModal();
 
-          return document.getElementById('pledgeWard')?.getAttribute('list') === 'mumbaiCommunities';
+          const el = document.getElementById('pledgeWard');
+
+          return el?.dataset.civicCombobox === 'ward' && !!el.closest('.civic-combobox');
 
         }"""
 
@@ -4121,13 +4125,19 @@ async def run_extended_scenarios(s: Suite, browser):
 
     # --- Neighbourhood datalist (NB) — volunteer + lead nomination ---
 
-    vol_list = await page.evaluate(
+    vol_combobox = await page.evaluate(
 
-        '() => document.getElementById("volunteerNeighbourhood")?.getAttribute("list") || ""'
+        """() => {
+
+          const el = document.getElementById('volunteerNeighbourhood');
+
+          return el?.dataset.civicCombobox === 'society' && !!el.closest('.civic-combobox');
+
+        }"""
 
     )
 
-    s.record('NB01', 'Neighbourhood', 'Volunteer field wired to societySuggestions datalist', vol_list == 'societySuggestions')
+    s.record('NB01', 'Neighbourhood', 'Volunteer field uses searchable neighbourhood combobox', vol_combobox)
 
     await page.evaluate(
 
@@ -4231,7 +4241,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v101" in sw_src
+        "civicradar-v102" in sw_src
 
         and "'/index.html'" not in sw_src
 

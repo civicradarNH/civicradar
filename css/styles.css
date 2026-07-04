@@ -1558,6 +1558,109 @@ body.pwa-nudge-visible #btnCamera {
   color: var(--text-muted);
 }
 
+/* ---- Searchable combobox (ward / neighbourhood) ---- */
+.civic-combobox {
+  position: relative;
+  width: 100%;
+}
+
+.civic-combobox > input:not([type="checkbox"]):not([type="radio"]) {
+  padding-right: 44px;
+}
+
+.civic-combobox__toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  min-height: var(--touch-min);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  transition: color 0.15s;
+}
+
+.civic-combobox__toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.civic-combobox.is-open .civic-combobox__toggle {
+  color: var(--primary);
+}
+
+.civic-combobox.is-open .civic-combobox__toggle i {
+  transform: rotate(180deg);
+}
+
+.civic-combobox__toggle i {
+  font-size: 1.125rem;
+  transition: transform 0.2s ease;
+}
+
+.civic-combobox__list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 50;
+  max-height: min(280px, 42vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.modal .civic-combobox__list {
+  z-index: 10;
+}
+
+.civic-combobox__option {
+  display: block;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 12px 14px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--text-dark);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.civic-combobox__option:last-child {
+  border-bottom: none;
+}
+
+.civic-combobox__option:hover,
+.civic-combobox__option.is-active {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--primary-dark);
+}
+
+.civic-combobox__option:active {
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.civic-combobox__empty {
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 .checkbox-row {
   display: flex;
   align-items: flex-start;

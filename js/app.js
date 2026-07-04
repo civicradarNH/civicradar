@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v101';
+  const CIVIC_APP_VERSION = 'v102';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1222,9 +1222,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = cityId || getOnboardingCity();
 
-    const input = $('#wardInput');
-
-    if (input) input.setAttribute('list', wardDatalistId(city));
+    refreshWardComboboxes();
 
     const hint = $('#wardHint');
 
@@ -1448,6 +1446,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateSocietyHint(cityId, ward, suggestions.length);
 
+    refreshSocietyComboboxes();
+
   }
 
 
@@ -1516,9 +1516,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = cityId || getProfileCity();
 
-    const input = $('#profileWardInput');
-
-    if (input) input.setAttribute('list', wardDatalistId(city));
+    refreshWardComboboxes();
 
     const hint = $('#profileWardHint');
 
@@ -1616,13 +1614,175 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function enableDatalistReselect(input) {
+  const SOCIETY_COMBO_IDS = ['onboardSociety', 'profileSocietyInput', 'volunteerNeighbourhood', 'leadNomNeighbourhood'];
 
-    if (!input) return;
+  const WARD_COMBO_IDS = ['wardInput', 'profileWardInput', 'accessWard', 'leadNomWard', 'pledgeWard'];
 
-    input.addEventListener('focus', () => {
 
-      try { input.select(); } catch (_) { /* noop */ }
+
+  function comboboxLabels() {
+
+    return {
+
+      emptyLabel: () => (typeof t === 'function' ? t('combobox.noMatches') : 'No matches'),
+
+      toggleLabel: () => (typeof t === 'function' ? t('combobox.showOptions') : 'Show options'),
+
+    };
+
+  }
+
+
+
+  function getWardOptionsForCity(cityId) {
+
+    const city = cityId || DEFAULT_CITY;
+
+    if (window.CivicWardDetect && CivicWardDetect.getWardNames) {
+
+      return CivicWardDetect.getWardNames(city) || [];
+
+    }
+
+    return getCityWards(city);
+
+  }
+
+
+
+  function getSocietyOptionsForField(fieldId) {
+
+    let cityId = DEFAULT_CITY;
+
+    let ward = '';
+
+    if (fieldId === 'onboardSociety') {
+
+      cityId = getOnboardingCity();
+
+      ward = getOnboardingWard();
+
+    } else if (fieldId === 'profileSocietyInput') {
+
+      cityId = getProfileCity();
+
+      ward = ($('#profileWardInput') && $('#profileWardInput').value.trim()) || user.ward || '';
+
+    } else if (fieldId === 'volunteerNeighbourhood') {
+
+      cityId = getUserCity();
+
+      ward = user.ward || '';
+
+    } else if (fieldId === 'leadNomNeighbourhood') {
+
+      cityId = ($('#leadNomCity') && $('#leadNomCity').value) || user.city || DEFAULT_CITY;
+
+      ward = sanitizeText($('#leadNomWard')?.value || '', 120);
+
+    }
+
+    if (!ward || !isValidWard(ward, cityId)) return [];
+
+    return getSocietySuggestions(cityId, ward);
+
+  }
+
+
+
+  function refreshSocietyComboboxes() {
+
+    if (!window.CivicSearchableSelect) return;
+
+    SOCIETY_COMBO_IDS.forEach((id) => {
+
+      const el = document.getElementById(id);
+
+      if (el) CivicSearchableSelect.refresh(el);
+
+    });
+
+  }
+
+
+
+  function refreshWardComboboxes() {
+
+    if (!window.CivicSearchableSelect) return;
+
+    WARD_COMBO_IDS.forEach((id) => {
+
+      const el = document.getElementById(id);
+
+      if (el) CivicSearchableSelect.refresh(el);
+
+    });
+
+  }
+
+
+
+  function initSearchableComboboxes() {
+
+    if (!window.CivicSearchableSelect) return;
+
+    const labels = comboboxLabels();
+
+
+
+    WARD_COMBO_IDS.forEach((id) => {
+
+      const input = document.getElementById(id);
+
+      if (!input || input.dataset.civicCombobox) return;
+
+      input.dataset.civicCombobox = 'ward';
+
+      const getCity = id === 'wardInput'
+
+        ? getOnboardingCity
+
+        : id === 'profileWardInput'
+
+          ? getProfileCity
+
+          : id === 'accessWard'
+
+            ? () => ($('#accessCity') && $('#accessCity').value) || DEFAULT_CITY
+
+            : id === 'leadNomWard'
+
+              ? () => ($('#leadNomCity') && $('#leadNomCity').value) || user.city || DEFAULT_CITY
+
+              : () => getUserCity();
+
+      CivicSearchableSelect.init(input, Object.assign({}, labels, {
+
+        allowCustom: false,
+
+        getOptions: () => getWardOptionsForCity(getCity()),
+
+      }));
+
+    });
+
+
+
+    SOCIETY_COMBO_IDS.forEach((id) => {
+
+      const input = document.getElementById(id);
+
+      if (!input || input.dataset.civicCombobox) return;
+
+      input.dataset.civicCombobox = 'society';
+
+      CivicSearchableSelect.init(input, Object.assign({}, labels, {
+
+        allowCustom: true,
+
+        getOptions: () => getSocietyOptionsForField(id),
+
+      }));
 
     });
 
@@ -2007,6 +2167,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.ward': 'Your Ward',
 
       'onboard.wardPh': 'Start typing your ward…',
+
+      'combobox.noMatches': 'No matches — try a different search',
+
+      'combobox.showOptions': 'Show all options',
 
       'onboard.wardHint': 'Pick from {city}\'s {n} official wards.',
 
@@ -4101,6 +4265,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.ward': 'आपका वार्ड',
 
       'onboard.wardPh': 'अपना वार्ड टाइप करना शुरू करें…',
+
+      'combobox.noMatches': 'कोई मेल नहीं — दूसरी खोज आज़माएँ',
+
+      'combobox.showOptions': 'सभी विकल्प दिखाएँ',
 
       'onboard.wardHint': '{city} के {n} आधिकारिक वार्डों में से चुनें।',
 
@@ -6197,6 +6365,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardPh': 'तुमचा वॉर्ड टाइप करायला सुरुवात करा…',
 
+      'combobox.noMatches': 'जुळणी नाही — वेगळा शोध वापरा',
+
+      'combobox.showOptions': 'सर्व पर्याय दाखवा',
+
       'onboard.wardHint': '{city} च्या {n} अधिकृत वॉर्डांमधून निवडा.',
 
       'onboard.wardDetecting': 'तुमच्या स्थानावरून वॉर्ड शोधत आहे…',
@@ -8292,6 +8464,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardPh': 'તમારો વોર્ડ ટાઈપ કરવાનું શરૂ કરો…',
 
+      'combobox.noMatches': 'કોઈ મેળ નહીં — બીજી શોધ અજમાવો',
+
+      'combobox.showOptions': 'બધા વિકલ્પો બતાવો',
+
       'onboard.wardHint': '{city}ના {n} સત્તાવાર વોર્ડમાંથી પસંદ કરો.',
 
       'onboard.wardDetecting': 'તમારા સ્થાનથી વોર્ડ શોધી રહ્યા છીએ…',
@@ -10344,6 +10520,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePersonaUI();
     updateHeaderContext();
     if ($('#onboardCity')) syncOnboardingCityUi(getOnboardingCity());
+    refreshWardComboboxes();
+    refreshSocietyComboboxes();
   }
 
   function updateSyncStatus() {
@@ -12475,7 +12653,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!sel || !wardInput) return;
 
-    wardInput.setAttribute('list', wardDatalistId(sel.value));
+    refreshWardComboboxes();
 
   }
 
@@ -13209,7 +13387,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!sel || !wardInput) return;
 
-    wardInput.setAttribute('list', wardDatalistId(sel.value));
+    refreshWardComboboxes();
 
     refreshLeadNomNeighbourhoodDatalist();
 
@@ -18982,7 +19160,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pledgeWard = $('#pledgeWard');
 
-    if (pledgeWard) pledgeWard.setAttribute('list', wardDatalistId());
+    if (pledgeWard) refreshWardComboboxes();
 
     openModal('pledge');
 
@@ -19495,6 +19673,8 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------- Init ---------- */
 
   initMap();
+
+  initSearchableComboboxes();
 
   bindEvents();
 
@@ -20471,8 +20651,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const profileSocietyInput = $('#profileSocietyInput');
 
     if (profileSocietyInput) {
-
-      enableDatalistReselect(profileSocietyInput);
 
       profileSocietyInput.addEventListener('change', saveProfileSociety);
 
@@ -21684,8 +21862,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (profileWardInput) {
 
-      enableDatalistReselect(profileWardInput);
-
       profileWardInput.addEventListener('input', () => {
 
         $('#profileWardError')?.classList.add('hidden');
@@ -21705,14 +21881,6 @@ document.addEventListener('DOMContentLoaded', function () {
       profileWardInput.addEventListener('blur', saveProfileWard);
 
     }
-
-    enableDatalistReselect($('#wardInput'));
-
-    enableDatalistReselect($('#onboardSociety'));
-
-    enableDatalistReselect($('#volunteerNeighbourhood'));
-
-    enableDatalistReselect($('#leadNomNeighbourhood'));
 
 
 

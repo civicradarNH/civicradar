@@ -306,7 +306,7 @@
         </div>
         <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
         <div id="wardManualGroup" class="hidden">
-          <input type="text" id="wardInput" list="mumbaiCommunities" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError">
+          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError">
           <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
         </div>
         <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
@@ -315,7 +315,7 @@
       </div>
       <div class="form-group">
         <label for="onboardSociety" data-i18n="onboard.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="onboardSociety" list="societySuggestions" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyHint">
+        <input type="text" id="onboardSociety" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyHint">
         <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
       </div>
       <div class="form-group">
@@ -602,7 +602,7 @@
       </div>
       <div class="form-group">
         <label for="volunteerNeighbourhood" data-i18n="volunteer.neighbourhood">Neighbourhood / society / lane</label>
-        <input type="text" id="volunteerNeighbourhood" list="societySuggestions" maxlength="120" placeholder="e.g. Phoenix Mills lane, Building 7 Worli" data-i18n-ph="volunteer.neighbourhoodPh" autocomplete="off" aria-describedby="volunteerNeighbourhoodHint">
+        <input type="text" id="volunteerNeighbourhood" maxlength="120" placeholder="e.g. Phoenix Mills lane, Building 7 Worli" data-i18n-ph="volunteer.neighbourhoodPh" autocomplete="off" aria-describedby="volunteerNeighbourhoodHint">
         <p class="field-hint" id="volunteerNeighbourhoodHint" data-i18n="volunteer.neighbourhoodHintNoWard">Pick your ward first for local suggestions.</p>
       </div>
       <div class="form-group">
@@ -662,7 +662,7 @@
       </div>
       <div class="form-group">
         <label for="pledgeWard" data-i18n="pledge.ward">Target ward</label>
-        <input type="text" id="pledgeWard" list="mumbaiCommunities" placeholder="Select ward…" data-i18n-ph="pledge.wardPh">
+        <input type="text" id="pledgeWard" placeholder="Select ward…" data-i18n-ph="pledge.wardPh">
       </div>
       <div class="form-group">
         <label for="pledgeMessage" data-i18n="pledge.message">Message</label>
@@ -733,7 +733,7 @@
           <option value="thane" data-i18n-option="city.thane">Thane</option>
         </select>
         <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
-        <input type="text" id="profileWardInput" list="mumbaiCommunities" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+        <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
         <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
         <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
         <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
@@ -741,7 +741,7 @@
 
       <div class="profile-society form-group">
         <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="profileSocietyInput" list="societySuggestions" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+        <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
         <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
         <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
       </div>
@@ -1442,7 +1442,7 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="accessWard"><span data-i18n="access.wardLabel">Ward</span> <span class="field-optional" data-i18n="access.optional">(optional)</span></label>
-              <input type="text" id="accessWard" maxlength="120" list="mumbaiCommunities" data-i18n-ph="access.wardPh" placeholder="Your ward" autocomplete="off">
+              <input type="text" id="accessWard" maxlength="120" data-i18n-ph="access.wardPh" placeholder="Your ward" autocomplete="off">
             </div>
           </div>
 
@@ -1532,13 +1532,13 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="leadNomWard" data-i18n="access.wardLabel">Ward</label>
-              <input type="text" id="leadNomWard" maxlength="120" list="mumbaiCommunities" data-i18n-ph="access.wardPh" placeholder="Your ward" autocomplete="off" required>
+              <input type="text" id="leadNomWard" maxlength="120" data-i18n-ph="access.wardPh" placeholder="Your ward" autocomplete="off" required>
             </div>
           </div>
 
           <div class="form-group hidden" id="leadNomNeighbourhoodGroup">
             <label class="form-label" for="leadNomNeighbourhood" data-i18n="lead.neighbourhoodLabel">Neighbourhood / society / lane</label>
-            <input type="text" id="leadNomNeighbourhood" list="societySuggestions" maxlength="120" data-i18n-ph="volunteer.neighbourhoodPh" placeholder="e.g. Phoenix Mills lane" autocomplete="off" aria-describedby="leadNomNeighbourhoodHint">
+            <input type="text" id="leadNomNeighbourhood" maxlength="120" data-i18n-ph="volunteer.neighbourhoodPh" placeholder="e.g. Phoenix Mills lane" autocomplete="off" aria-describedby="leadNomNeighbourhoodHint">
             <p class="field-hint" id="leadNomNeighbourhoodHint" data-i18n="lead.neighbourhoodHintNoWard">Pick your ward first for local suggestions.</p>
           </div>
 
@@ -1696,6 +1696,7 @@
   <script src="js/wards/thane.js"></script>
   <script src="js/ward-detect.js"></script>
   <script src="js/society-suggestions-data.js"></script>
+  <script src="js/searchable-select.js"></script>
   <script src="js/app.js"></script>
   <script>
     (function () {
