@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-01 21:48:04
+**Run:** 2026-07-01 22:14:40
 **Server:** http://localhost:9080/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 294 | **Pass:** 292 | **Fail:** 2
+**Total:** 377 | **Pass:** 377 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -61,10 +61,11 @@
 
 - **API:** 5 pass / 0 fail
 - **Access:** 12 pass / 0 fail
-- **Admin:** 2 pass / 0 fail
+- **Admin:** 8 pass / 0 fail
 - **Analytics:** 5 pass / 0 fail
+- **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
-- **Celebration:** 4 pass / 0 fail
+- **Celebration:** 8 pass / 0 fail
 - **Citizen:** 44 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
@@ -76,43 +77,42 @@
 - **HomeHero:** 7 pass / 0 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
-- **Legal:** 2 pass / 0 fail
-- **Load:** 4 pass / 1 fail
+- **Legal:** 6 pass / 0 fail
+- **Load:** 5 pass / 0 fail
 - **LocationBanner:** 6 pass / 0 fail
-- **Map:** 4 pass / 0 fail
+- **Map:** 5 pass / 0 fail
 - **MultiCity:** 10 pass / 0 fail
 - **NGO:** 10 pass / 0 fail
-- **Neighbourhood:** 6 pass / 0 fail
+- **Negative:** 8 pass / 0 fail
+- **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 2 pass / 0 fail
+- **PWA:** 8 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
 - **Profile:** 4 pass / 0 fail
 - **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
-- **Report:** 17 pass / 0 fail
+- **Report:** 21 pass / 0 fail
 - **Rewards:** 2 pass / 0 fail
 - **Share:** 1 pass / 0 fail
 - **ShareWin:** 4 pass / 0 fail
+- **Society:** 10 pass / 0 fail
 - **Storage:** 2 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
-- **System:** 0 pass / 1 fail
 - **Tour:** 9 pass / 0 fail
+- **Tracking:** 5 pass / 0 fail
 - **UI:** 25 pass / 0 fail
 - **Viral:** 4 pass / 0 fail
-- **Volunteer:** 1 pass / 0 fail
+- **Volunteer:** 7 pass / 0 fail
+- **Ward:** 8 pass / 0 fail
 - **XP:** 4 pass / 0 fail
-- **i18n:** 1 pass / 0 fail
+- **i18n:** 9 pass / 0 fail
 
 ## Failures
 
-- `L01` **15 parallel report contexts** — 1/15
-- `ERR-Extended` **Suite Extended crashed** — Page.click: Timeout 30000ms exceeded.
-Call log:
-  - waiting for locator("#btnSuccessClose")
-    - locator resolved to <b
+_None_
 
 ## Limitations
 
@@ -138,7 +138,7 @@ Call log:
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective #134E |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja #564C |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -203,9 +203,9 @@ Call log:
 | E15 | Edge | Map empty CTA visible | PASS |  |
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
-| L01 | Load | 15 parallel report contexts | **FAIL** | 1/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 7ms |
+| L01 | Load | 15 parallel report contexts | PASS | 15/15 |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -337,10 +337,90 @@ Call log:
 | XP01b | XP | Profile shows total XP after report | PASS | xp="125" |
 | XP02 | XP | Me too adds Civic Hero XP | PASS |  |
 | XP03 | XP | Level up shows certificate offer | PASS |  |
-| ERR-Extended | System | Suite Extended crashed | **FAIL** | Page.click: Timeout 30000ms exceeded.
-Call log:
-  - waiting for locator("#btnSuccessClose")
-    - locator resolved to <b |
+| RP09 | Report | Near-duplicate triggers Me too | PASS |  |
+| RP10 | Report | Report notes maxlength enforced | PASS |  |
+| RP11 | Report | Photo accept stays on submit step | PASS |  |
+| RP12 | Report | Popstate+Map tap during photo keeps report open | PASS |  |
+| VOL01 | Volunteer | Blocked without neighbourhood | PASS |  |
+| VOL02 | Volunteer | Blocked without skills | PASS |  |
+| VOL03 | Volunteer | Signup saved with valid data | PASS |  |
+| VOL04 | Volunteer | Hours picker present | PASS |  |
+| VOL05 | Volunteer | Remove signup button in profile | PASS |  |
+| VOL06 | Volunteer | Blocked without ward | PASS |  |
+| NEG01 | Negative | Empty admin login rejected | PASS |  |
+| NEG02 | Negative | Empty lead login rejected | PASS |  |
+| NEG03 | Negative | Pledge empty ward rejected | PASS |  |
+| NEG04 | Negative | Empty complaint ID rejected | PASS |  |
+| NEG05 | Negative | GPS denied shows manual ward option | PASS |  |
+| NEG06 | Negative | Outside service area ward detect graceful | PASS |  |
+| NEG07 | Negative | Invalid city reset to default | PASS |  |
+| NEG08 | Negative | Coming-soon hazard not selectable | PASS |  |
+| AD01 | Admin | Queue list renders items | PASS |  |
+| AD02 | Admin | Queue filter element | PASS |  |
+| AD03 | Admin | Queue sort element | PASS |  |
+| AD04 | Admin | Admin health corroborations stat | PASS |  |
+| AD05 | Admin | Admin queue closes | PASS |  |
+| TK01 | Tracking | Tracking button in admin queue | PASS |  |
+| TK02 | Tracking | Tracking modal opens | PASS |  |
+| TK03 | Tracking | Tracking headline stats render | PASS |  |
+| TK04 | Tracking | Category breakdown list element | PASS |  |
+| TK05 | Tracking | Tracking modal closes | PASS |  |
+| AD06 | Admin | Exit admin via persona bar | PASS |  |
+| WD01 | Ward | CivicWardDetect module exported | PASS |  |
+| WD02 | Ward | CivicWardData mumbai loaded | PASS |  |
+| WD03 | Ward | CivicWardData pune loaded | PASS |  |
+| WD04 | Ward | CivicWardData thane loaded | PASS |  |
+| WD05 | Ward | Ward lookup returns name | PASS |  |
+| WD06 | Ward | Service area check works | PASS |  |
+| WD07 | Ward | Outside service area detected | PASS |  |
+| WD08 | Ward | Three city datalists in DOM | PASS |  |
+| I01 | i18n | FAB label non-English (hi) | PASS |  |
+| I02 | i18n | FAB label non-English (mr) | PASS |  |
+| I03 | i18n | FAB label non-English (gu) | PASS |  |
+| I04 | i18n | Lang button shows EN code | PASS |  |
+| I05 | i18n | Header context translated | PASS |  |
+| I06 | i18n | Profile title localized (mr) | PASS |  |
+| I07 | i18n | Community title localized (mr) | PASS |  |
+| I08 | i18n | About subtitle localized (hi) | PASS |  |
+| SO01 | Society | Profile society field saves to user | PASS |  |
+| SO02 | Society | Report inherits user society | PASS |  |
+| SO03 | Society | Report popup shows society when set | PASS |  |
+| SO04 | Society | Cooperative registry link configured | PASS |  |
+| SO05 | Society | Ward-keyed society data loaded (10+ per major ward) | PASS |  |
+| SO06 | Society | Datalist differs by ward | PASS |  |
+| SO07 | Society | Custom society cached by city+ward | PASS |  |
+| SO08 | Society | Ward-filter hint populated | PASS |  |
+| SO09 | Society | Profile ward change saves to user | PASS |  |
+| SO10 | Society | Society datalist refreshes when profile ward changes | PASS |  |
+| NB01 | Neighbourhood | Volunteer field wired to societySuggestions datalist | PASS |  |
+| NB02 | Neighbourhood | Ward-filtered neighbourhood options (10+) | PASS |  |
+| NB03 | Neighbourhood | Custom neighbourhood cached by city+ward | PASS |  |
+| NB04 | Neighbourhood | Volunteer ward-filter hint populated | PASS |  |
+| SW01 | PWA | CIVICRADAR_CONFIG loaded | PASS |  |
+| SW02 | PWA | Config has cities object | PASS |  |
+| SW03 | PWA | Manifest href valid | PASS |  |
+| SW04 | PWA | Theme color meta | PASS |  |
+| SW05 | PWA | App icons linked | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| ML01 | Auth | Official lead auth visible when connected | PASS |  |
+| ML02 | Auth | Send button says sign-in link | PASS |  |
+| ML03 | Auth | Link instructions hidden before send | PASS |  |
+| ML04 | Auth | OTP fallback hidden before send | PASS |  |
+| ML05 | Auth | OTP input collapsed by default | PASS |  |
+| ML06 | Auth | publicUrl configured for redirect | PASS |  |
+| ML07 | Auth | Link instructions shown after send | PASS |  |
+| ML08 | Auth | OTP fallback shown after send | PASS |  |
+| ML09 | Auth | Auth errors never show raw {} | PASS |  |
+| AU01 | Auth | BMC OTP verify accepts admin super-admin role | PASS |  |
+| LG01 | Legal | Privacy page loads | PASS |  |
+| LG02 | Legal | Privacy mentions DPDP | PASS |  |
+| LG03 | Legal | Terms page loads | PASS |  |
+| LG04 | Legal | Terms mentions not government | PASS |  |
+| HF01 | Map | Hidden report excluded from count | PASS |  |
+| CL01 | Celebration | Success modal open after report | PASS |  |
+| CL02 | Celebration | WhatsApp share btn present | PASS |  |
+| CL03 | Celebration | File BMC btn present | PASS |  |
+| CL04 | Celebration | Success close btn present | PASS |  |
 | IS01 | ImageSafety | Photo hint visible after capture | PASS |  |
 | IS02 | ImageSafety | Submit succeeds without checkbox confirm | PASS |  |
 | IS03 | ImageSafety | Hint hidden on modal reopen without photo | PASS |  |
