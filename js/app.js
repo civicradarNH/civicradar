@@ -2230,7 +2230,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'Retake photo',
 
-      'moderation.guidelines': 'Photograph the actual stagnant water — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines': 'Photograph the actual hazard — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+
+      'moderation.guidelines.stagnant-water': 'Photograph the actual stagnant water — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+
+      'moderation.guidelines.garbage': 'Photograph the garbage pile or dump — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+
+      'moderation.guidelines.potholes': 'Photograph the pothole or road damage — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+
+      'moderation.guidelines.streetlight': 'Photograph the broken streetlight — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
       'moderation.scanning': 'Checking photo…',
 
@@ -4328,7 +4336,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'फिर से लें',
 
-      'moderation.guidelines': 'वास्तविक रुके हुए पानी की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines': 'वास्तविक खतरे की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+
+      'moderation.guidelines.stagnant-water': 'वास्तविक रुके हुए पानी की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+
+      'moderation.guidelines.garbage': 'कचरे के ढेर या डंप की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+
+      'moderation.guidelines.potholes': 'गड्ढे या सड़क की क्षति की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+
+      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
       'moderation.scanning': 'फ़ोटो सुरक्षा जाँच हो रही है…',
 
@@ -6427,7 +6443,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'पुन्हा काढा',
 
-      'moderation.guidelines': 'प्रत्यक्ष साचलेल्या पाण्याचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines': 'धोक्याच्या जागेचा स्पष्ट फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+
+      'moderation.guidelines.stagnant-water': 'प्रत्यक्ष साचलेल्या पाण्याचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+
+      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा किंवा डंपचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+
+      'moderation.guidelines.potholes': 'खड्ड्याचा किंवा रस्त्याच्या नुकसानाचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+
+      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
       'moderation.scanning': 'फोटो सुरक्षा तपासणी…',
 
@@ -8526,7 +8550,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'ફરી લો',
 
-      'moderation.guidelines': 'ખરેખર ભરાયેલા પાણીનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines': 'ખરેખર જોખમનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+
+      'moderation.guidelines.stagnant-water': 'ખરેખર ભરાયેલા પાણીનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+
+      'moderation.guidelines.garbage': 'કચરાના ઢગાળા કે ડંપનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+
+      'moderation.guidelines.potholes': 'ખાડા કે રસ્તાની નુકસાનનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+
+      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
       'moderation.scanning': 'ફોટો સલામતી તપાસ…',
 
@@ -10522,6 +10554,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if ($('#onboardCity')) syncOnboardingCityUi(getOnboardingCity());
     refreshWardComboboxes();
     refreshSocietyComboboxes();
+    updatePhotoGuidelines($('#hazardType')?.value || 'stagnant-water');
   }
 
   function updateSyncStatus() {
@@ -17014,6 +17047,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function photoGuidelinesForHazard(key) {
+
+    const specificKey = `moderation.guidelines.${key}`;
+
+    const specific = t(specificKey);
+
+    if (specific !== specificKey) return specific;
+
+    return t('moderation.guidelines');
+
+  }
+
+
+
+  function updatePhotoGuidelines(key) {
+
+    const el = $('#photoGuidelines');
+
+    if (!el) return;
+
+    el.textContent = photoGuidelinesForHazard(key || $('#hazardType')?.value || 'stagnant-water');
+
+  }
+
+
+
   function updateHazardSelectedCue(key) {
 
     const cue = $('#hazardSelectedCue');
@@ -17089,6 +17148,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updateHazardSelectedCue(key);
+
+    updatePhotoGuidelines(key);
 
     if (!hasReportPhotoPreview()) highlightPhotoSection();
 
@@ -19068,7 +19129,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!hasPhoto) selectHazard('stagnant-water');
 
-    else updateHazardSelectedCue($('#hazardType').value);
+    else {
+
+      updateHazardSelectedCue($('#hazardType').value);
+
+      updatePhotoGuidelines($('#hazardType').value);
+
+    }
 
     renderHazardPicker();
 

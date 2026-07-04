@@ -2934,6 +2934,34 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP16', 'Report', 'Garbage hazard selectable', garbage_selected)
 
+    guidelines_update = await page.evaluate(
+
+        """() => {
+
+          window.openReportModal(false);
+
+          const stagnantHint = document.getElementById('photoGuidelines')?.textContent || '';
+
+          const garbageTile = document.querySelector('#hazardGrid [data-hazard="garbage"]');
+
+          if (!garbageTile || garbageTile.dataset.live !== 'true') return false;
+
+          garbageTile.click();
+
+          const garbageHint = document.getElementById('photoGuidelines')?.textContent || '';
+
+          if (document.getElementById('hazardType').value !== 'garbage') return false;
+
+          if (garbageHint === stagnantHint) return false;
+
+          return /garbage|कचर|कचऱ|કચર/i.test(garbageHint);
+
+        }"""
+
+    )
+
+    s.record('RP17', 'Report', 'Photo guidelines update on category change', guidelines_update)
+
     await page.evaluate(
 
         """async () => {
