@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v110';
+  const CIVIC_APP_VERSION = 'v111';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -15494,9 +15494,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    let perm = 'default';
+    function showReportReminderPermissionToast(result) {
 
-    try { perm = Notification.permission; } catch {}
+      if (result === 'granted') {
+
+        showToast(t('settings.reminder.on'), 'success', 3600);
+
+        return;
+
+      }
+
+      if (result === 'denied') {
+
+        showToast(t('settings.reminder.denied'), 'info', 4200);
+
+        return;
+
+      }
+
+      showToast(t('settings.reminder.on'), 'success', 3600);
+
+    }
+
+    function readNotificationPermission() {
+
+      try { return Notification.permission; } catch { return 'default'; }
+
+    }
+
+    let perm = readNotificationPermission();
 
     if (perm === 'granted') {
 
@@ -15520,29 +15546,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (req && typeof req.then === 'function') {
 
-        req.then((result) => {
+        req.then(showReportReminderPermissionToast).catch(() => {
 
-          showToast(
+          showReportReminderPermissionToast(readNotificationPermission());
 
-            result === 'granted' ? t('settings.reminder.on') : t('settings.reminder.denied'),
-
-            result === 'granted' ? 'success' : 'info',
-
-            result === 'granted' ? 3600 : 4200
-
-          );
-
-        }).catch(() => showToast(t('settings.reminder.on'), 'success', 3600));
+        });
 
       } else {
 
-        showToast(t('settings.reminder.on'), 'success', 3600);
+        showReportReminderPermissionToast(readNotificationPermission());
 
       }
 
     } catch {
 
-      showToast(t('settings.reminder.on'), 'success', 3600);
+      showReportReminderPermissionToast(readNotificationPermission());
 
     }
 

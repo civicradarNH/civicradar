@@ -12,15 +12,25 @@ on:
         required: false
         default: false
         type: boolean
+      full_tests:
+        description: 'Run full E2E suite (~20–30 min). Default is smoke (~5 min).'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PLAYWRIGHT_VERSION: '1.49.0'
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# cancel-in-progress: true — new pushes supersede queued runs; smoke E2E is ~5 min so
+# overlapping deploys are safe and avoids 30-min backlog stacks from the old full suite.
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -35,9 +45,25 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-py312-playwright-${{ env.PLAYWRIGHT_VERSION }}-${{ hashFiles('tests/e2e_comprehensive.py') }}
+          restore-keys: |
+            pip-py312-playwright-${{ env.PLAYWRIGHT_VERSION }}-
+            pip-py312-playwright-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ env.PLAYWRIGHT_VERSION }}-chromium-${{ runner.os }}
+          restore-keys: ms-playwright-${{ env.PLAYWRIGHT_VERSION }}-chromium-
+
       - name: Install Playwright
         run: |
-          pip install playwright
+          pip install playwright==${{ env.PLAYWRIGHT_VERSION }}
           playwright install chromium --with-deps
 
       # Server + E2E must share one step: background jobs do not survive step boundaries on GHA.
@@ -49,7 +75,13 @@ jobs:
             sleep 1
           done
           curl -sf http://127.0.0.1:8095/ || (echo "Server failed to start" && exit 1)
-          python tests/e2e_comprehensive.py
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.full_tests }}" = "true" ]; then
+            echo "Running full E2E suite (workflow_dispatch + full_tests)"
+            python tests/e2e_comprehensive.py
+          else
+            echo "Running smoke E2E subset (push to main or default dispatch)"
+            python tests/e2e_comprehensive.py --smoke
+          fi
 
   deploy:
     needs: test

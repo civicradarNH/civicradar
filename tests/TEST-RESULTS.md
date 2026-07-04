@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 11:39:45
+**Run:** 2026-07-04 12:03:03
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 388 | **Fail:** 0
+**Total:** 388 | **Pass:** 387 | **Fail:** 1
 
 ## Fixes applied this run
 
@@ -90,7 +90,7 @@
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 8 pass / 0 fail
+- **PWA:** 7 pass / 1 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -116,7 +116,7 @@
 
 ## Failures
 
-_None_
+- `SW06` **SW precache uses scope-relative paths (subpath-safe)** — failed
 
 ## Limitations
 
@@ -142,7 +142,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ward Scout · Dadar, Shiva #93F |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Pin Pioneer 8CD5 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -208,7 +208,7 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.03s |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
 | L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
@@ -412,7 +412,7 @@ _None_
 | SW03 | PWA | Manifest href valid | PASS |  |
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
-| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | **FAIL** |  |
 | IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
 | IOS02 | iOS | viewport-fit=cover | PASS |  |
 | IOS03 | iOS | apple-touch-icon linked | PASS |  |

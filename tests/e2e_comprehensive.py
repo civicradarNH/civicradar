@@ -2,6 +2,7 @@
 
 """CivicRadar comprehensive E2E test suite (200+ scenarios)."""
 
+import argparse
 import asyncio
 
 import json
@@ -55,6 +56,19 @@ KNOWN_SUPABASE_FAIL_IDS = frozenset({
     'ERR-Edge',       # Edge suite admin-login step (E10) blocked for same reason
 
 })
+
+# Deploy-gate smoke subset (~3-8 min). Full suite remains the default (no --smoke).
+SMOKE_TEST_IDS = frozenset({
+    # Citizen core + onboarding combobox
+    'C01', 'C02', 'C03', 'C04', 'C04b', 'C05', 'C06', 'C06b', 'C07', 'C08', 'C08b', 'C09',
+    'C14', 'C15', 'C16', 'C17', 'C18', 'C19',
+    # Report flow basics + draft restore
+    'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21',
+    # PWA cache version + iOS meta/quick checks
+    'SW06', 'IOS01', 'IOS02', 'IOS03', 'IOS04',
+})
+
+SMOKE_MODE = False
 
 
 
@@ -855,200 +869,194 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C09', 'Citizen', 'XSS display name sanitized', '<' not in (u.get('displayName') or ''))
 
+    if not SMOKE_MODE:
 
+        await page.wait_for_timeout(700)
 
-    await page.wait_for_timeout(700)
+        try:
 
-    try:
+            await page.wait_for_function(
 
-        await page.wait_for_function(
+                """() => {
 
-            """() => {
+                  const hero = document.getElementById('homeHero');
 
-              const hero = document.getElementById('homeHero');
+                  const heroSub = hero?.querySelector('.home-hero__sub');
 
-              const heroSub = hero?.querySelector('.home-hero__sub');
+                  const coach = document.getElementById('coachMark');
 
-              const coach = document.getElementById('coachMark');
+                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
 
-              const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
+                  const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
 
-              const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
+                  return heroGuidance || coachGuidance;
 
-              return heroGuidance || coachGuidance;
+                }""",
 
-            }""",
+                timeout=6000,
 
-            timeout=6000,
+            )
+
+            spot_visible = True
+
+        except Exception:
+
+            spot_visible = await page.evaluate(
+
+                """() => {
+
+                  const hero = document.getElementById('homeHero');
+
+                  const heroSub = hero?.querySelector('.home-hero__sub');
+
+                  const coach = document.getElementById('coachMark');
+
+                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
+
+                  const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
+
+                  return heroGuidance || coachGuidance;
+
+                }"""
+
+            )
+
+        s.record('C09b', 'Citizen', 'Report-on-the-spot guidance shown at onboarding completion', spot_visible)
+
+        ctx_defname = await new_ctx(browser, storage={
+
+            'civicradar_user': default_user(
+
+                id='c09c', tosAccepted=False, gpsConsent=False, ward='', displayName=''
+
+            ),
+
+        })
+
+        page_def = await ctx_defname.new_page()
+
+        await goto_app(page_def)
+
+        await page_def.wait_for_timeout(800)
+
+        await page_def.evaluate('() => document.getElementById("tosAccept").click()')
+
+        await js_click(page_def, '#btnTosContinue')
+
+        await page_def.wait_for_timeout(600)
+
+        await page_def.fill('#wardInput', WARD)
+
+        await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
+
+        await dismiss_civic_comboboxes(page_def)
+        await js_click(page_def, '#btnOnboardingContinue')
+
+        await page_def.wait_for_timeout(500)
+
+        def_name = await page_def.evaluate(
+
+            '() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").displayName || ""'
 
         )
 
-        spot_visible = True
+        s.record(
 
-    except Exception:
+            'C09c',
 
-        spot_visible = await page.evaluate(
+            'Citizen',
+
+            'Empty display name gets unique civic default',
+
+            bool(def_name) and def_name != 'Citizen' and len(def_name) >= 8,
+
+            f'name={def_name[:32]}',
+
+        )
+
+        await ctx_defname.close()
+
+        ctx_pune = await new_ctx(
+
+            browser,
+
+            lat=18.5204,
+
+            lng=73.8567,
+
+            storage={'civicradar_user': default_user(id='c34', city='pune', ward=PUNE_WARD)},
+
+        )
+
+        page_pune = await ctx_pune.new_page()
+
+        await goto_app(page_pune, wait_map=True)
+
+        bmc_hidden = await page_pune.evaluate(
 
             """() => {
 
-              const hero = document.getElementById('homeHero');
+              window.openPartnerPortal();
 
-              const heroSub = hero?.querySelector('.home-hero__sub');
+              const btn = document.getElementById('btnPartnerBmc');
 
-              const coach = document.getElementById('coachMark');
-
-              const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
-
-              const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
-
-              return heroGuidance || coachGuidance;
+              return !!(btn && btn.classList.contains('hidden'));
 
             }"""
 
         )
 
-    s.record('C09b', 'Citizen', 'Report-on-the-spot guidance shown at onboarding completion', spot_visible)
+        s.record('C34', 'Citizen', 'Pune hides BMC partner card', bmc_hidden)
 
-    ctx_defname = await new_ctx(browser, storage={
+        admin_blocked = await page_pune.evaluate(
 
-        'civicradar_user': default_user(
+            """() => {
 
-            id='c09c', tosAccepted=False, gpsConsent=False, ward='', displayName=''
+              window.openAdminModal();
 
-        ),
+              return !document.getElementById('adminOverlay').classList.contains('open');
 
-    })
+            }"""
 
-    page_def = await ctx_defname.new_page()
+        )
 
-    await goto_app(page_def)
+        s.record('C34b', 'Citizen', 'Pune blocks BMC admin modal', admin_blocked)
 
-    await page_def.wait_for_timeout(800)
+        pune_subtitle = await page_pune.evaluate(
 
-    await page_def.evaluate('() => document.getElementById("tosAccept").click()')
+            """() => {
 
-    await js_click(page_def, '#btnTosContinue')
+              window.openCommunityModal();
 
-    await page_def.wait_for_timeout(600)
+              const el = document.getElementById('communitySubtitle');
 
-    await page_def.fill('#wardInput', WARD)
+              const txt = el ? el.textContent : '';
 
-    await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
+              return txt.includes('PMC') && !/\\bBMC\\b/.test(txt);
 
-    await dismiss_civic_comboboxes(page_def)
-    await js_click(page_def, '#btnOnboardingContinue')
+            }"""
 
-    await page_def.wait_for_timeout(500)
+        )
 
-    def_name = await page_def.evaluate(
+        s.record('C34c', 'Citizen', 'Pune community subtitle uses PMC', pune_subtitle)
 
-        '() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").displayName || ""'
+        await ctx_pune.close()
 
-    )
+        for code in ['hi', 'mr', 'gu', 'en']:
 
-    s.record(
+            await js_click(page, '#btnLang')
 
-        'C09c',
+            await page.wait_for_timeout(200)
 
-        'Citizen',
+            await js_click(page, f'button[data-lang="{code}"]')
 
-        'Empty display name gets unique civic default',
+            await page.wait_for_timeout(250)
 
-        bool(def_name) and def_name != 'Citizen' and len(def_name) >= 8,
+            lang = await page.evaluate('() => localStorage.getItem("civicradar_lang")')
 
-        f'name={def_name[:32]}',
-
-    )
-
-    await ctx_defname.close()
-
-
-
-    ctx_pune = await new_ctx(
-
-        browser,
-
-        lat=18.5204,
-
-        lng=73.8567,
-
-        storage={'civicradar_user': default_user(id='c34', city='pune', ward=PUNE_WARD)},
-
-    )
-
-    page_pune = await ctx_pune.new_page()
-
-    await goto_app(page_pune, wait_map=True)
-
-    bmc_hidden = await page_pune.evaluate(
-
-        """() => {
-
-          window.openPartnerPortal();
-
-          const btn = document.getElementById('btnPartnerBmc');
-
-          return !!(btn && btn.classList.contains('hidden'));
-
-        }"""
-
-    )
-
-    s.record('C34', 'Citizen', 'Pune hides BMC partner card', bmc_hidden)
-
-    admin_blocked = await page_pune.evaluate(
-
-        """() => {
-
-          window.openAdminModal();
-
-          return !document.getElementById('adminOverlay').classList.contains('open');
-
-        }"""
-
-    )
-
-    s.record('C34b', 'Citizen', 'Pune blocks BMC admin modal', admin_blocked)
-
-    pune_subtitle = await page_pune.evaluate(
-
-        """() => {
-
-          window.openCommunityModal();
-
-          const el = document.getElementById('communitySubtitle');
-
-          const txt = el ? el.textContent : '';
-
-          return txt.includes('PMC') && !/\\bBMC\\b/.test(txt);
-
-        }"""
-
-    )
-
-    s.record('C34c', 'Citizen', 'Pune community subtitle uses PMC', pune_subtitle)
-
-    await ctx_pune.close()
-
-
+            s.record(f'C10-{code}', 'Citizen', f'Language switch {code.upper()}', lang == code)
 
     await page.evaluate('() => { if (!localStorage.getItem("civicradar_coach_seen")) localStorage.setItem("civicradar_coach_seen","1"); }')
-
-    for code in ['hi', 'mr', 'gu', 'en']:
-
-        await js_click(page, '#btnLang')
-
-        await page.wait_for_timeout(200)
-
-        await js_click(page, f'button[data-lang="{code}"]')
-
-        await page.wait_for_timeout(250)
-
-        lang = await page.evaluate('() => localStorage.getItem("civicradar_lang")')
-
-        s.record(f'C10-{code}', 'Citizen', f'Language switch {code.upper()}', lang == code)
-
-
 
     await close_all_modals(page)
 
@@ -1156,7 +1164,11 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C19', 'Citizen', 'Map shows markers after report', markers > 0, f'markers={markers}')
 
+    if SMOKE_MODE:
 
+        await ctx.close()
+
+        return
 
     await page.evaluate('() => window.openReportModal(false)')
 
@@ -4375,7 +4387,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v110" in sw_src
+        "civicradar-v111" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7168,7 +7180,202 @@ async def run_home_hero_scenarios(s: Suite, browser):
 
 
 
+def parse_args():
+
+    parser = argparse.ArgumentParser(description='CivicRadar comprehensive E2E test suite')
+
+    parser.add_argument(
+
+        '--smoke',
+
+        action='store_true',
+
+        help='Run deploy-gate smoke subset (~3-8 min). Default runs the full suite.',
+
+    )
+
+    return parser.parse_args()
+
+
+
+
+
+async def run_smoke_extended_tests(s: Suite, browser):
+
+    """Smoke-only extended checks: report basics, SW cache version, iOS meta.
+
+    IDs: RP01-RP08, RP21, SW06, IOS01-IOS04 (see SMOKE_TEST_IDS).
+    """
+
+    ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='rp-smoke'), 'civicradar_coach_seen': '1'})
+
+    page = await ctx.new_page()
+
+    await goto_app(page)
+
+    await page.evaluate('() => window.openReportModal(false)')
+
+    await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
+
+    live_count = await page.evaluate(
+
+        '() => document.querySelectorAll("#hazardGrid .hazard-tile[data-live=\\"true\\"]").length'
+
+    )
+
+    soon_count = await page.evaluate(
+
+        '() => document.querySelectorAll("#hazardGrid .hazard-tile[data-live=\\"false\\"]").length'
+
+    )
+
+    s.record('RP01', 'Report', 'Four live hazard tiles at launch', live_count >= 4, f'live={live_count}')
+
+    s.record('RP02', 'Report', 'No coming-soon locks on launch hazards', soon_count == 0, f'soon={soon_count}')
+
+    s.record('RP03', 'Report', 'Stagnant-water preselected', await page.evaluate(
+
+        '() => document.getElementById("hazardType").value === "stagnant-water"'
+
+    ))
+
+    s.record('RP04', 'Report', 'Photo input accepts images', await page.evaluate(
+
+        '() => document.getElementById("photoInput").accept.includes("image")'
+
+    ))
+
+    await page.evaluate('() => window.openReportModal(false)')
+
+    await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
+
+    s.record('RP05', 'Report', 'Capture photo button present', await page.is_visible('#btnTakePhoto'))
+
+    await page.evaluate('() => document.querySelector("[data-close=report]")?.click()')
+
+    before = await page.evaluate('() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").length')
+
+    await page.evaluate('() => window.openReportModal(false)')
+
+    await page.evaluate('() => window.closeReportModal()')
+
+    after = await page.evaluate('() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").length')
+
+    s.record('RP06', 'Report', 'Close without submit saves nothing', before == after)
+
+    await page.evaluate('''() => {
+
+      sessionStorage.setItem('civicradar_report_draft', JSON.stringify({
+
+        hazardType: 'garbage',
+
+        step: 'photo',
+
+        notes: 'camera reload test',
+
+        awaitingPhoto: true,
+
+        ts: Date.now()
+
+      }));
+
+    }''')
+
+    await page.reload()
+
+    await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
+
+    draft_restore = await page.evaluate('''() => {
+
+      const open = document.getElementById('reportOverlay').classList.contains('open');
+
+      const hazard = document.getElementById('hazardType').value;
+
+      const notes = document.getElementById('reportNotes').value;
+
+      const btn = document.getElementById('btnTakePhoto');
+
+      return open && hazard === 'garbage' && notes === 'camera reload test' && !!btn;
+
+    }''')
+
+    s.record('RP21', 'Report', 'Draft restores report modal after reload', draft_restore)
+
+    await page.evaluate('() => sessionStorage.removeItem("civicradar_report_draft")')
+
+    await close_all_modals(page)
+
+    rid = await submit_report_via_api(page, 19.0762, 72.8779, 'smoke extended test')
+
+    s.record('RP07', 'Report', 'Report stored in localStorage', await page.evaluate(
+
+        '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "smoke extended test")'
+
+    ))
+
+    s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
+
+    await ctx.close()
+
+    ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='sw-smoke')})
+
+    page = await ctx.new_page()
+
+    await goto_app(page)
+
+    sw_src = await page.evaluate('() => fetch(`sw.js?e2e=${Date.now()}`, { cache: "no-store" }).then(r => r.text())')
+
+    sw_ok = (
+
+        "civicradar-v111" in sw_src
+
+        and "'/index.html'" not in sw_src
+
+        and "'/js/app.js'" not in sw_src
+
+        and "'index.html'" in sw_src
+
+    )
+
+    s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
+
+    s.record('IOS01', 'iOS', 'apple-mobile-web-app-capable meta', await page.evaluate(
+
+        '() => document.querySelector("meta[name=\\"apple-mobile-web-app-capable\\"]")?.content === "yes"'
+
+    ))
+
+    s.record('IOS02', 'iOS', 'viewport-fit=cover', await page.evaluate(
+
+        '() => (document.querySelector("meta[name=viewport]")?.content || "").includes("viewport-fit=cover")'
+
+    ))
+
+    s.record('IOS03', 'iOS', 'apple-touch-icon linked', await page.evaluate(
+
+        '() => { const l = document.querySelector("link[rel=\\"apple-touch-icon\\"]"); return !!(l && l.href.includes("apple-touch-icon")); }'
+
+    ))
+
+    s.record('IOS04', 'iOS', 'Report photo input capture=environment', await page.evaluate(
+
+        '() => document.getElementById("photoInput")?.getAttribute("capture") === "environment"'
+
+    ))
+
+    await ctx.close()
+
+
+
+
+
 async def main():
+
+    global SMOKE_MODE
+
+    args = parse_args()
+
+    SMOKE_MODE = args.smoke
 
     ensure_server()
 
@@ -7180,7 +7387,15 @@ async def main():
 
     s = Suite()
 
-    print('\n=== CivicRadar Comprehensive E2E Tests ===\n', flush=True)
+    if SMOKE_MODE:
+
+        print('\n=== CivicRadar E2E Smoke Tests (deploy gate) ===\n', flush=True)
+
+        print(f'Smoke IDs ({len(SMOKE_TEST_IDS)}): {", ".join(sorted(SMOKE_TEST_IDS))}\n', flush=True)
+
+    else:
+
+        print('\n=== CivicRadar Comprehensive E2E Tests ===\n', flush=True)
 
 
 
@@ -7188,7 +7403,19 @@ async def main():
 
         browser = await p.chromium.launch(headless=True)
 
-        suite_plan = [
+        if SMOKE_MODE:
+
+            suite_plan = [
+
+                ('Citizen', run_citizen_tests),
+
+                ('SmokeExtended', run_smoke_extended_tests),
+
+            ]
+
+        else:
+
+            suite_plan = [
 
             ('Citizen', run_citizen_tests),
 

@@ -1,0 +1,60 @@
+# Full E2E suite on a schedule (no deploy). Catches regressions smoke tests may miss.
+name: E2E Nightly
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily
+  workflow_dispatch:
+
+env:
+  PLAYWRIGHT_VERSION: '1.49.0'
+
+concurrency:
+  group: e2e-nightly
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-full:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-py312-playwright-${{ env.PLAYWRIGHT_VERSION }}-${{ hashFiles('tests/e2e_comprehensive.py') }}
+          restore-keys: |
+            pip-py312-playwright-${{ env.PLAYWRIGHT_VERSION }}-
+            pip-py312-playwright-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ env.PLAYWRIGHT_VERSION }}-chromium-${{ runner.os }}
+          restore-keys: ms-playwright-${{ env.PLAYWRIGHT_VERSION }}-chromium-
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==${{ env.PLAYWRIGHT_VERSION }}
+          playwright install chromium --with-deps
+
+      - name: Run full E2E suite
+        run: |
+          python -m http.server 8095 --bind 127.0.0.1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8095/ && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:8095/ || (echo "Server failed to start" && exit 1)
+          python tests/e2e_comprehensive.py
