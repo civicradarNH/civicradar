@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v126';
+  const CIVIC_APP_VERSION = 'v127';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -27,6 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const REPORT_DRAFT_KEY = 'civicradar_report_draft';
 
   const REPORT_DRAFT_TTL_MS = 30 * 60 * 1000;
+
+  const REPORT_NOTES_MAX = 2000;
+
+  const REPORT_WARD_MAX = 200;
+
+  const REPORT_SOCIETY_MAX = 120;
+
+  const REPORT_HAZARDS = ['stagnant-water', 'garbage', 'potholes', 'streetlight'];
 
 
 
@@ -2017,6 +2025,72 @@ document.addEventListener('DOMContentLoaded', function () {
   function sanitizeDisplayName(name) {
 
     return sanitizeText(name, 30) || 'Citizen';
+
+  }
+
+
+
+  function reportCityBounds(cityId) {
+
+    const cfg = CITIES[cityId] || CITIES.mumbai || {};
+
+    return cfg.bounds || { minLat: -90, maxLat: 90, minLng: -180, maxLng: 180 };
+
+  }
+
+
+
+  function sanitizeReportInput(r) {
+
+    const city = r.city && CITIES[r.city] ? r.city : getReportCity(r);
+
+    const hazard = REPORT_HAZARDS.includes(r.hazard) ? r.hazard : 'stagnant-water';
+
+    const bounds = reportCityBounds(city);
+
+    let lat = r.lat != null ? Number(r.lat) : null;
+
+    let lng = r.lng != null ? Number(r.lng) : null;
+
+    if (lat != null && (!Number.isFinite(lat) || lat < bounds.minLat || lat > bounds.maxLat)) lat = null;
+
+    if (lng != null && (!Number.isFinite(lng) || lng < bounds.minLng || lng > bounds.maxLng)) lng = null;
+
+    return {
+
+      id: r.id,
+
+      reporterId: r.reporterId || '',
+
+      hazard,
+
+      notes: sanitizeText(r.notes, REPORT_NOTES_MAX),
+
+      image: r.image || '',
+
+      ward: sanitizeText(r.ward, REPORT_WARD_MAX),
+
+      city,
+
+      society: sanitizeText(r.society || '', REPORT_SOCIETY_MAX),
+
+      neighbourhood: sanitizeText(r.neighbourhood || '', REPORT_SOCIETY_MAX),
+
+      reporter: sanitizeDisplayName(r.reporter || ''),
+
+      lat,
+
+      lng,
+
+      status: 'pending',
+
+      confirmations: 0,
+
+      fixConfirmations: 0,
+
+      timestamp: r.timestamp || new Date().toISOString(),
+
+    };
 
   }
 
@@ -11183,10 +11257,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return {
       id: r.id || Date.now(),
       reporterId: r.reporterId || ownerId || '',
-      hazard: r.hazard || 'stagnant-water',
-      notes: sanitizeText(r.notes, 500),
+      hazard: REPORT_HAZARDS.includes(r.hazard) ? r.hazard : 'stagnant-water',
+      notes: sanitizeText(r.notes, REPORT_NOTES_MAX),
       image: r.image || '',
-      ward: r.ward || '',
+      ward: sanitizeText(r.ward, REPORT_WARD_MAX),
       city: r.city || getReportCity(r),
       reporter: sanitizeDisplayName(r.reporter || ''),
       lat: r.lat ?? null,
@@ -11194,17 +11268,18 @@ document.addEventListener('DOMContentLoaded', function () {
       status: r.status || 'pending',
       complaintId: r.complaintId || '',
       filedAt: r.filedAt || '',
-      resolvedBy: r.resolvedBy || '',   // 'bmc' | 'citizen'
+      resolvedBy: r.resolvedBy || '',
       resolvedAt: r.resolvedAt || '',
-      resolutionImage: r.resolutionImage || '', // BMC "after" proof photo
-      communityCleared: r.communityCleared || false, // NGO logged a cleanup
+      resolutionImage: r.resolutionImage || '',
+      communityCleared: r.communityCleared || false,
       clearedBy: r.clearedBy || '',
-      communityShared: r.communityShared || '', // user tapped WhatsApp share for this report
-      confirmations: Number(r.confirmations) || 0, // neighbours who corroborated
-      fixConfirmations: Number(r.fixConfirmations) || 0, // neighbours who said "looks fixed"
-      resolutionSource: r.resolutionSource || '', // self | bmc_admin | community_verified | stale_verified
+      communityShared: r.communityShared || '',
+      confirmations: Number(r.confirmations) || 0,
+      fixConfirmations: Number(r.fixConfirmations) || 0,
+      resolutionSource: r.resolutionSource || '',
       communityVerifiedAt: r.communityVerifiedAt || '',
-      society: sanitizeText(r.society || '', 120),
+      society: sanitizeText(r.society || '', REPORT_SOCIETY_MAX),
+      neighbourhood: sanitizeText(r.neighbourhood || '', REPORT_SOCIETY_MAX),
       timestamp: r.timestamp || new Date().toISOString(),
       flagCount: Number(r.flagCount) || 0,
       removed: r.removed || false,
@@ -11696,38 +11771,22 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     },
 
-    async reportToRow(r) {
-      const ownerId = r.reporterId || user.id;
-      const [image, resolutionImage] = await Promise.all([
-        this.uploadReportImage(r.image, `${ownerId}/${r.id}.jpg`),
-        this.uploadReportImage(r.resolutionImage, `${ownerId}/${r.id}-resolved.jpg`),
-      ]);
-      return {
-        id: r.id,
-        reporter_id: r.reporterId || user.id,
-        reporter_name: r.reporter || '',
-        hazard: r.hazard,
-        notes: r.notes || '',
-        image: image || '',
-        ward: r.ward || '',
-        city: r.city || getUserCity(),
-        lat: r.lat,
-        lng: r.lng,
-        status: r.status || 'pending',
-        complaint_id: r.complaintId || null,
-        filed_at: r.filedAt || null,
-        resolved_by: r.resolvedBy || null,
-        resolved_at: r.resolvedAt || null,
-        resolution_image: resolutionImage || null,
-        community_cleared: !!r.communityCleared,
-        cleared_by: r.clearedBy || null,
-        confirmations: Number(r.confirmations) || 0,
-        fix_confirmations: Number(r.fixConfirmations) || 0,
-        resolution_source: r.resolutionSource || null,
-        community_verified_at: r.communityVerifiedAt || null,
-        society: r.society || null,
-        created_at: r.timestamp || new Date().toISOString(),
-      };
+    async syncReportInsert(r) {
+      const s = sanitizeReportInput(Object.assign({}, r, { reporterId: user.id }));
+      const image = await this.uploadReportImage(s.image, `${user.id}/${s.id}.jpg`);
+      return this.client.rpc('insert_report', {
+        p_id: s.id,
+        p_hazard: s.hazard,
+        p_notes: s.notes || null,
+        p_image: image || null,
+        p_lat: s.lat,
+        p_lng: s.lng,
+        p_ward: s.ward || null,
+        p_city: s.city || null,
+        p_society: s.society || null,
+        p_reporter_name: s.reporter || null,
+        p_neighbourhood: s.neighbourhood || null,
+      });
     },
 
     pledgeToRow(p) {
@@ -11897,14 +11956,7 @@ document.addEventListener('DOMContentLoaded', function () {
         (r) => r.reporterId === user.id && /^[0-9a-f-]{36}$/i.test(String(r.id))
       );
       if (myReports.length) {
-        const rows = await Promise.all(myReports.map((r) => this.reportToRow(r)));
-        // ignoreDuplicates -> ON CONFLICT DO NOTHING: a plain DO UPDATE would
-        // reference status/complaint_id/resolved_* etc. in its SET clause,
-        // which citizens no longer hold UPDATE privilege on (column-locked in
-        // the security migration) — that would fail the WHOLE statement even
-        // for rows that only ever insert. These are first-sync pushes of the
-        // user's own already-known rows, so skipping an existing row is safe.
-        await this.client.from('reports').upsert(rows, { onConflict: 'id', ignoreDuplicates: true });
+        await Promise.all(myReports.map((r) => this.syncReportInsert(r)));
       }
       const myPledges = loadPledges().filter(
         (p) => !p.mock && p.citizenId === user.id && /^[0-9a-f-]{36}$/i.test(String(p.id))
@@ -11932,15 +11984,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async insertReport(report) {
       if (!this.enabled) return;
-      const row = await this.reportToRow(report);
-      // ignoreDuplicates -> ON CONFLICT DO NOTHING. A plain upsert compiles to
-      // ON CONFLICT DO UPDATE SET status=…, complaint_id=…, resolved_*=…, which
-      // needs UPDATE privilege on those columns for the statement itself — and
-      // citizens are column-locked out of them (security migration). Since the
-      // report id is a freshly generated UUID, there's never a real conflict
-      // for a brand-new submission, so DO NOTHING is equivalent and always
-      // insert-only.
-      const { error } = await this.client.from('reports').upsert(row, { onConflict: 'id', ignoreDuplicates: true });
+      const { error } = await this.syncReportInsert(report);
       if (error) {
         console.warn('Report sync failed (saved locally):', error.message);
         if (window.CivicAnalytics) {
@@ -21342,6 +21386,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       : '';
 
+    const notesLine = report.notes
+
+      ? `<div class="popup__notes">${escapeHtml(report.notes)}</div>`
+
+      : '';
+
     return `
 
       <div class="map-popup">
@@ -21351,6 +21401,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="popup__meta">${escapeHtml(status)} — ${escapeHtml((report.ward || getCityLabel(getReportCity(report))).split('—')[0].trim())}</div>
 
         ${societyLine}
+
+        ${notesLine}
 
         ${clearedLine}
 
@@ -23658,17 +23710,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        const notes = sanitizeText($('#reportNotes').value, 500);
-
-
-
-        const report = normalizeReport({
+        const draft = {
 
           id: generateId(),
 
           hazard,
 
-          notes,
+          notes: ($('#reportNotes')?.value ?? ''),
 
           image: lastReportDataUrl,
 
@@ -23680,15 +23728,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
           reporter: user.displayName || 'Citizen',
 
+          reporterId: user.id,
+
           lat,
 
           lng,
 
-          status: 'pending',
-
           timestamp: new Date().toISOString(),
 
-        }, user.id);
+        };
+
+        const report = Object.assign({}, normalizeReport(draft, user.id), sanitizeReportInput(draft));
 
 
 

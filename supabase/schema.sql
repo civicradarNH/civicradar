@@ -1835,3 +1835,211 @@ begin
 end $$;
 
 grant execute on function public.delete_user_data(uuid) to anon, authenticated;
+
+-- =====================================================================
+-- P0 security hardening — migration v127
+-- Report submission: RPC-only INSERT (closes INSERT mass-assignment),
+-- per-user rate limits, and CHECK constraints on citizen text fields.
+-- Additive and safe to re-run.
+-- FOUNDER: re-run this entire schema.sql in Supabase SQL Editor after deploy.
+-- =====================================================================
+
+alter table public.reports drop constraint if exists reports_notes_len_chk;
+alter table public.reports add constraint reports_notes_len_chk
+  check (notes is null or char_length(notes) <= 2000);
+
+alter table public.reports drop constraint if exists reports_ward_len_chk;
+alter table public.reports add constraint reports_ward_len_chk
+  check (ward is null or char_length(ward) <= 200);
+
+alter table public.reports drop constraint if exists reports_city_len_chk;
+alter table public.reports add constraint reports_city_len_chk
+  check (char_length(city) <= 32);
+
+alter table public.reports drop constraint if exists reports_society_len_chk;
+alter table public.reports add constraint reports_society_len_chk
+  check (society is null or char_length(society) <= 120);
+
+alter table public.reports drop constraint if exists reports_neighbourhood_len_chk;
+alter table public.reports add constraint reports_neighbourhood_len_chk
+  check (neighbourhood is null or char_length(neighbourhood) <= 120);
+
+alter table public.reports drop constraint if exists reports_hazard_chk;
+alter table public.reports add constraint reports_hazard_chk
+  check (hazard in ('stagnant-water', 'garbage', 'potholes', 'streetlight'));
+
+alter table public.reports drop constraint if exists reports_reporter_name_len_chk;
+alter table public.reports add constraint reports_reporter_name_len_chk
+  check (reporter_name is null or char_length(reporter_name) <= 30);
+
+alter table public.reports drop constraint if exists reports_lat_chk;
+alter table public.reports add constraint reports_lat_chk
+  check (lat is null or (lat >= -90 and lat <= 90));
+
+alter table public.reports drop constraint if exists reports_lng_chk;
+alter table public.reports add constraint reports_lng_chk
+  check (lng is null or (lng >= -180 and lng <= 180));
+
+-- City bounds mirror js/config.js (Mumbai · Pune · Thane service areas).
+create or replace function public.validate_report_coords(p_city text, p_lat double precision, p_lng double precision)
+returns void
+language plpgsql immutable set search_path = public as $$
+begin
+  if p_lat is null or p_lng is null then return; end if;
+  if p_lat < -90 or p_lat > 90 or p_lng < -180 or p_lng > 180 then
+    raise exception 'invalid_coords';
+  end if;
+  case coalesce(nullif(btrim(p_city), ''), 'mumbai')
+    when 'mumbai' then
+      if p_lat < 18.88 or p_lat > 19.28 or p_lng < 72.78 or p_lng > 73.0 then
+        raise exception 'coords_out_of_city';
+      end if;
+    when 'pune' then
+      if p_lat < 18.44 or p_lat > 18.58 or p_lng < 73.78 or p_lng > 73.95 then
+        raise exception 'coords_out_of_city';
+      end if;
+    when 'thane' then
+      if p_lat < 19.15 or p_lat > 19.28 or p_lng < 72.92 or p_lng > 73.05 then
+        raise exception 'coords_out_of_city';
+      end if;
+    else null;
+  end case;
+end $$;
+
+-- Guarded report INSERT — only citizen-supplied hazard/location fields accepted;
+-- reporter_id, status, confirmations, flag_count, removed, etc. are set server-side.
+create or replace function public.insert_report(
+  p_id uuid,
+  p_hazard text,
+  p_notes text default null,
+  p_image text default null,
+  p_lat double precision default null,
+  p_lng double precision default null,
+  p_ward text default null,
+  p_city text default null,
+  p_society text default null,
+  p_reporter_name text default null,
+  p_neighbourhood text default null
+)
+returns uuid
+language plpgsql security definer set search_path = public as $$
+declare
+  uid uuid := auth.uid();
+  rid uuid;
+  rep_cnt int;
+  cid text;
+begin
+  if uid is null then raise exception 'auth_required'; end if;
+
+  select count(*) into rep_cnt from public.reports
+    where reporter_id = uid and created_at > now() - interval '1 hour';
+  if rep_cnt >= 30 then raise exception 'rate_limit_reports'; end if;
+
+  if p_hazard is null or p_hazard not in ('stagnant-water', 'garbage', 'potholes', 'streetlight') then
+    raise exception 'invalid_hazard';
+  end if;
+
+  cid := coalesce(nullif(left(btrim(coalesce(p_city, '')), 32), ''), 'mumbai');
+  if cid not in ('mumbai', 'pune', 'thane') then cid := 'mumbai'; end if;
+
+  perform public.validate_report_coords(cid, p_lat, p_lng);
+
+  rid := coalesce(p_id, gen_random_uuid());
+
+  insert into public.reports (
+    id, reporter_id, reporter_name, hazard, notes, image,
+    ward, city, society, neighbourhood, lat, lng,
+    status, confirmations, fix_confirmations, flag_count, removed, community_cleared
+  ) values (
+    rid,
+    uid,
+    nullif(left(btrim(coalesce(p_reporter_name, '')), 30), ''),
+    p_hazard,
+    nullif(left(btrim(coalesce(p_notes, '')), 2000), ''),
+    nullif(btrim(coalesce(p_image, '')), ''),
+    nullif(left(btrim(coalesce(p_ward, '')), 200), ''),
+    cid,
+    nullif(left(btrim(coalesce(p_society, '')), 120), ''),
+    nullif(left(btrim(coalesce(p_neighbourhood, '')), 120), ''),
+    p_lat,
+    p_lng,
+    'pending',
+    0,
+    0,
+    0,
+    false,
+    false
+  )
+  on conflict (id) do nothing;
+
+  return rid;
+end $$;
+
+grant execute on function public.insert_report(
+  uuid, text, text, text, double precision, double precision, text, text, text, text, text
+) to authenticated;
+
+-- Direct INSERT allowed privileged-column mass-assignment (status, confirmations,
+-- removed, complaint_id, …) — revoke; citizens submit only via insert_report().
+revoke insert on public.reports from authenticated, anon;
+
+-- Rate-limit corroborations and content flags (dedup-by-report unchanged).
+create or replace function public.confirm_report(p_report_id uuid)
+returns int
+language plpgsql security definer set search_path = public as $$
+declare new_count int;
+        action_cnt int;
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+
+  select count(*) into action_cnt from public.report_confirmations
+    where user_id = auth.uid() and created_at > now() - interval '1 hour';
+  if action_cnt >= 60 then raise exception 'rate_limit_confirm'; end if;
+
+  insert into public.report_confirmations (report_id, user_id)
+  values (p_report_id, auth.uid())
+  on conflict do nothing;
+
+  if found then
+    update public.reports
+      set confirmations = confirmations + 1
+      where id = p_report_id
+      returning confirmations into new_count;
+  else
+    select confirmations into new_count from public.reports where id = p_report_id;
+  end if;
+
+  return coalesce(new_count, 0);
+end $$;
+
+grant execute on function public.confirm_report(uuid) to anon, authenticated;
+
+create or replace function public.flag_report(p_report_id uuid)
+returns int
+language plpgsql security definer set search_path = public as $$
+declare new_count int;
+        action_cnt int;
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+
+  select count(*) into action_cnt from public.report_flags
+    where user_id = auth.uid() and created_at > now() - interval '1 hour';
+  if action_cnt >= 30 then raise exception 'rate_limit_flag'; end if;
+
+  insert into public.report_flags (report_id, user_id)
+  values (p_report_id, auth.uid())
+  on conflict do nothing;
+
+  if found then
+    update public.reports
+      set flag_count = flag_count + 1
+      where id = p_report_id
+      returning flag_count into new_count;
+  else
+    select flag_count into new_count from public.reports where id = p_report_id;
+  end if;
+
+  return coalesce(new_count, 0);
+end $$;
+
+grant execute on function public.flag_report(uuid) to anon, authenticated;
