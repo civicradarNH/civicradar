@@ -1544,3 +1544,12 @@ create or replace function public.get_referral_count(p_code text)
 returns bigint language sql stable security definer set search_path = public as $$
   select count(*) from public.referrals where referrer_code = p_code;
 $$;
+
+-- =====================================================================
+-- IMPORTANT — fresh installs: also run supabase/schema_security_fix.sql
+-- after this file. It closes a column-level privilege gap on
+-- public.profiles (role / civic_xp / civic_level are writable by any
+-- signed-in user unless that fix is applied). Existing deployments already
+-- know to run it per the launch checklist — this note is for anyone setting
+-- up a brand-new project from schema.sql alone.
+-- =====================================================================

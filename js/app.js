@@ -12214,14 +12214,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (error) console.warn('Notification prefs sync failed:', error.message);
     },
 
+    // Goes through the sync_civic_xp RPC, not a direct column write — profiles
+    // no longer grants client UPDATE on civic_xp/civic_level (schema_security_fix.sql),
+    // so a raw .update() here would be silently rejected by Postgres anyway.
     async syncCivicXp(xp, level) {
       if (!this.enabled || !this.client) return;
       const uid = user.id;
       if (!/^[0-9a-f-]{36}$/i.test(String(uid))) return;
-      const { error } = await this.client.from('profiles').update({
-        civic_xp: Number(xp) || 0,
-        civic_level: level || 'observer',
-      }).eq('id', uid);
+      const { error } = await this.client.rpc('sync_civic_xp', {
+        p_xp: Number(xp) || 0,
+        p_level: level || 'observer',
+      });
       if (error) console.warn('Civic XP sync failed:', error.message);
     },
 
