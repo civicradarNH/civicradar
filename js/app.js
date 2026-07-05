@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v127';
+  const CIVIC_APP_VERSION = 'v128';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -162,6 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const PROXIMITY_NUDGE_M = 150;
 
   const HIDDEN_REPORTS_KEY = 'civicradar_hidden_reports';
+
+  const MUTED_REPORTERS_KEY = 'civicradar_muted_reporters';
 
   const WEEK_BONUS_KEY = 'civicradar_week_bonus';
 
@@ -2997,6 +2999,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.terms': 'Terms of Service',
 
+      'legal.deleteAccount': 'Delete account',
+
       'impact.reports': 'Reports',
 
       'impact.resolved': 'Fixed',
@@ -3574,6 +3578,22 @@ document.addEventListener('DOMContentLoaded', function () {
       'safety.hidden': 'Report hidden from your map.',
 
       'safety.hideConfirm': 'Hide this pin and flag it for our team to review? (Does not delete the report immediately.)',
+
+      'mute.hideReporter': 'Hide reports from this reporter',
+
+      'mute.hideConfirm': 'Hide all pins from this reporter on your device? You can undo in Profile → Hidden reporters.',
+
+      'mute.hidden': 'Reports from this reporter are hidden on your map.',
+
+      'mute.unmuted': 'Reporter unmuted — their reports may appear again.',
+
+      'mute.sectionTitle': 'Hidden reporters',
+
+      'mute.sectionHint': 'Reports from these users are hidden on your map. Tap to show again.',
+
+      'mute.empty': 'No hidden reporters.',
+
+      'mute.unmute': 'Show again',
 
       'popup.pending': 'Pending',
 
@@ -5168,7 +5188,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.privacy': 'गोपनीयता नीति',
 
-      'legal.terms': 'सेवा की शर्तें',
+      'legal.terms': 'Terms of Service',
+
+      'legal.deleteAccount': 'खाता हटाएँ',
 
       'impact.reports': 'रिपोर्ट',
 
@@ -5745,6 +5767,22 @@ document.addEventListener('DOMContentLoaded', function () {
       'safety.hidden': 'आपके मानचित्र से छिपाया।',
 
       'safety.hideConfirm': 'इस पिन को छिपाएँ और समीक्षा के लिए हमारी टीम को भेजें? (रिपोर्ट तुरंत हटती नहीं।)',
+
+      'mute.hideReporter': 'इस रिपोर्टर की रिपोर्ट छिपाएँ',
+
+      'mute.hideConfirm': 'अपने डिवाइस पर इस रिपोर्टर की सभी पिन छिपाएँ? प्रोफ़ाइल → छिपे रिपोर्टर में वापस ला सकते हैं।',
+
+      'mute.hidden': 'इस रिपोर्टर की रिपोर्ट आपके मानचित्र पर छिपी हैं।',
+
+      'mute.unmuted': 'रिपोर्टर अनम्यूट — उनकी रिपोर्ट फिर दिख सकती हैं।',
+
+      'mute.sectionTitle': 'छिपे रिपोर्टर',
+
+      'mute.sectionHint': 'इन उपयोगकर्ताओं की रिपोर्ट आपके मानचित्र पर छिपी हैं। फिर दिखाने के लिए टैप करें।',
+
+      'mute.empty': 'कोई छिपा रिपोर्टर नहीं।',
+
+      'mute.unmute': 'फिर दिखाएँ',
 
       'popup.pending': 'लंबित',
 
@@ -7340,6 +7378,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.terms': 'सेवा अटी',
 
+      'legal.deleteAccount': 'खाते हटवा',
+
       'impact.reports': 'तक्रारी',
 
       'impact.resolved': 'सोडवले',
@@ -7915,6 +7955,22 @@ document.addEventListener('DOMContentLoaded', function () {
       'safety.hidden': 'तुमच्या नकाशावरून लपवले.',
 
       'safety.hideConfirm': 'हा पिन लपवायचा आणि आमच्या टीमकडे पुनरावलोकनासाठी पाठवायचा? (तक्रार लगेच हटत नाही.)',
+
+      'mute.hideReporter': 'या तक्रारकर्त्याच्या तक्रारी लपवा',
+
+      'mute.hideConfirm': 'तुमच्या डिव्हाइसवर या तक्रारकर्त्याचे सर्व पिन लपवायचे? प्रोफाइल → लपलेले तक्रारकर्ते मध्ये परत दाखवता येते.',
+
+      'mute.hidden': 'या तक्रारकर्त्याच्या तक्रारी तुमच्या नकाशावर लपवल्या.',
+
+      'mute.unmuted': 'तक्रारकर्ता अनम्यूट — त्यांच्या तक्रारी पुन्हा दिसू शकतात.',
+
+      'mute.sectionTitle': 'लपलेले तक्रारकर्ते',
+
+      'mute.sectionHint': 'या वापरकर्त्यांच्या तक्रारी तुमच्या नकाशावर लपवल्या. पुन्हा दाखवण्यासाठी टॅप करा.',
+
+      'mute.empty': 'कोणतेही लपलेले तक्रारकर्ते नाहीत.',
+
+      'mute.unmute': 'पुन्हा दाखवा',
 
       'popup.pending': 'प्रलंबित',
 
@@ -9510,6 +9566,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.terms': 'સેવાની શરતો',
 
+      'legal.deleteAccount': 'એકાઉન્ટ કાઢો',
+
       'impact.reports': 'ફરિયાદો',
 
       'impact.resolved': 'ઉકેલાયા',
@@ -10085,6 +10143,22 @@ document.addEventListener('DOMContentLoaded', function () {
       'safety.hidden': 'તમારા નકશાથી છુપાવ્યું.',
 
       'safety.hideConfirm': 'આ પિન છુપાવીએ અને સમીક્ષા માટે અમારી ટીમને મોકલીએ? (ફરિયાદ તરત ડિલીટ થતી નથી.)',
+
+      'mute.hideReporter': 'આ રિપોર્ટરની રિપોર્ટ છુપાવો',
+
+      'mute.hideConfirm': 'તમારા ડિવાઇસ પર આ રિપોર્ટરની બધી પિન છુપાવીએ? પ્રોફાઇલ → છુપાયેલા રિપોર્ટરમાં પાછા લાવી શકાય.',
+
+      'mute.hidden': 'આ રિપોર્ટરની રિપોર્ટ તમારા નકશાથી છુપાઈ.',
+
+      'mute.unmuted': 'રિપોર્ટર અનમ્યૂટ — તેમની રિપોર્ટ ફરી દેખાઈ શકે.',
+
+      'mute.sectionTitle': 'છુપાયેલા રિપોર્ટર',
+
+      'mute.sectionHint': 'આ વપરાશકર્તાઓની રિપોર્ટ તમારા નકશાથી છુપાઈ. ફરી દર્શાવવા ટૅપ કરો.',
+
+      'mute.empty': 'કોઈ છુપાયેલા રિપોર્ટર નથી.',
+
+      'mute.unmute': 'ફરી દર્શાવો',
 
       'popup.pending': 'બાકી',
 
@@ -11008,12 +11082,71 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast(t('safety.hidden'), 'info', 3200);
   }
 
+  function loadMutedReporterIds() {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(MUTED_REPORTERS_KEY)) || []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function isReporterMuted(reporterId) {
+    if (!reporterId) return false;
+    return loadMutedReporterIds().has(String(reporterId));
+  }
+
+  function isReportFromMutedReporter(r) {
+    return isReporterMuted(r && r.reporterId);
+  }
+
+  function isReportPubliclyHidden(r) {
+    if (!r || r.removed) return true;
+    if (isReportHidden(r.id)) return true;
+    if (isReportFromMutedReporter(r)) return true;
+    return false;
+  }
+
+  function reporterDisplayName(reporterId) {
+    const reports = loadReports();
+    const match = reports.find((r) => String(r.reporterId) === String(reporterId));
+    if (match && match.reporter) return match.reporter;
+    const short = String(reporterId).slice(0, 8);
+    return short ? `Reporter ${short}` : 'Reporter';
+  }
+
+  function muteReporter(reporterId) {
+    if (!reporterId || ownsReport({ reporterId })) return;
+    const ids = loadMutedReporterIds();
+    ids.add(String(reporterId));
+    try {
+      localStorage.setItem(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
+    } catch { /* ignore */ }
+    if (map) map.closePopup();
+    refreshReportMarkers();
+    renderWardWeekSocialProof();
+    renderProfileMutedReporters();
+    showToast(t('mute.hidden'), 'info', 3200);
+  }
+
+  function unmuteReporter(reporterId) {
+    if (!reporterId) return;
+    const ids = loadMutedReporterIds();
+    ids.delete(String(reporterId));
+    try {
+      localStorage.setItem(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
+    } catch { /* ignore */ }
+    refreshReportMarkers();
+    renderWardWeekSocialProof();
+    renderProfileMutedReporters();
+    showToast(t('mute.unmuted'), 'info', 3200);
+  }
+
   // sinceTs (optional): only count reports at/after this timestamp — powers the
   // "this month" leaderboard view alongside the default all-time aggregation.
   function aggregateWardLeaderboard(sinceTs) {
     const byWard = {};
     cityScopedReports(loadReports()).forEach((r) => {
-      if (!r.ward || isReportHidden(r.id) || r.removed) return;
+      if (!r.ward || isReportPubliclyHidden(r)) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       if (!byWard[r.ward]) {
         byWard[r.ward] = { name: r.ward, points: 0, reports: 0, resolved: 0, isUser: false, isDemo: false };
@@ -11031,7 +11164,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function aggregateCitizenLeaderboard(sinceTs) {
     const byCitizen = {};
     cityScopedReports(loadReports()).forEach((r) => {
-      if (isReportHidden(r.id) || r.removed) return;
+      if (isReportPubliclyHidden(r)) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       const key = r.reporterId || r.reporter || 'anon';
       const name = r.reporter || 'Citizen';
@@ -12588,7 +12721,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       SUCCESS_STORIES_SEEN_KEY,
 
-      HIDDEN_REPORTS_KEY, WEEK_BONUS_KEY, INTEREST_KEY, COACH_KEY, TOUR_KEY,
+      HIDDEN_REPORTS_KEY, MUTED_REPORTERS_KEY, WEEK_BONUS_KEY, INTEREST_KEY, COACH_KEY, TOUR_KEY,
 
       PLEDGE_STATUS_SNAPSHOT_KEY, PLEDGE_POINTS_CREDITED_KEY,
 
@@ -21308,6 +21441,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       safety = `<button type="button" class="popup__hide" data-hide="${escapeHtml(String(report.id))}">${escapeHtml(t('safety.hide'))}</button>`;
 
+      if (report.reporterId) {
+
+        safety += `<button type="button" class="popup__hide" data-mute-reporter="${escapeHtml(String(report.reporterId))}">${escapeHtml(t('mute.hideReporter'))}</button>`;
+
+      }
+
     }
 
     let action = '';
@@ -21424,7 +21563,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let reports = loadReports().filter(
 
-      (r) => !isReportHidden(r.id) && !r.removed && r.lat != null && r.lng != null
+      (r) => !isReportPubliclyHidden(r) && r.lat != null && r.lng != null
 
     );
 
@@ -22757,6 +22896,18 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
 
         if (window.confirm(t('safety.hideConfirm'))) hideReportFromMap(hideBtn.dataset.hide);
+
+        return;
+
+      }
+
+      const muteBtn = e.target.closest && e.target.closest('[data-mute-reporter]');
+
+      if (muteBtn) {
+
+        e.preventDefault();
+
+        if (window.confirm(t('mute.hideConfirm'))) muteReporter(muteBtn.dataset.muteReporter);
 
         return;
 
@@ -29008,7 +29159,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cityScopedReports(loadReports()).forEach((r) => {
 
-      if (!r.ward || isReportHidden(r.id) || r.removed) return;
+      if (!r.ward || isReportPubliclyHidden(r)) return;
 
       if (!byWard[r.ward]) {
 
@@ -29154,7 +29305,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const recent = cityScopedReports(loadReports()).filter((r) => {
 
-      if (isReportHidden(r.id)) return false;
+      if (isReportPubliclyHidden(r)) return false;
 
       if (ward && r.ward !== ward) return false;
 
@@ -29364,7 +29515,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = getCityLabel();
 
-    const total = cityScopedReports(loadReports()).filter((r) => !isReportHidden(r.id) && !r.removed).length;
+    const total = cityScopedReports(loadReports()).filter((r) => !isReportPubliclyHidden(r)).length;
 
     if (bodyEl) {
 
@@ -29959,6 +30110,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderProfilePledges();
 
     renderProfileVolunteer();
+
+    renderProfileMutedReporters();
 
 
 
@@ -31816,6 +31969,52 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshReportMarkers();
 
     return true;
+
+  }
+
+
+
+  function renderProfileMutedReporters() {
+
+    const section = $('#profileMutedSection');
+
+    const list = $('#profileMutedList');
+
+    if (!section || !list) return;
+
+    const ids = [...loadMutedReporterIds()];
+
+    if (ids.length === 0) {
+
+      section.classList.add('hidden');
+
+      list.innerHTML = '';
+
+      return;
+
+    }
+
+    section.classList.remove('hidden');
+
+    list.innerHTML = ids.map((id) => {
+
+      const name = escapeHtml(reporterDisplayName(id));
+
+      return `<div class="profile-muted-row">
+
+        <span class="profile-muted-row__name">${name}</span>
+
+        <button type="button" class="btn btn--ghost btn--sm" data-unmute-reporter="${escapeHtml(String(id))}">${escapeHtml(t('mute.unmute'))}</button>
+
+      </div>`;
+
+    }).join('');
+
+    list.querySelectorAll('[data-unmute-reporter]').forEach((btn) => {
+
+      btn.addEventListener('click', () => unmuteReporter(btn.dataset.unmuteReporter));
+
+    });
 
   }
 

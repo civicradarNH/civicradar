@@ -97,7 +97,7 @@ jobs:
       - name: Prepare site artifact
         run: |
           mkdir -p _site
-          cp index.html privacy.html terms.html child-safety-standards.html manifest.json sw.js robots.txt _site/
+          cp index.html privacy.html terms.html delete-account.html child-safety-standards.html manifest.json sw.js robots.txt _site/
           cp -r css js assets _site/
           test -f _site/child-safety-standards.html
 

@@ -4439,7 +4439,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v127" in sw_src
+        "civicradar-v128" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4675,9 +4675,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
         s.record('LG04', 'Legal', 'Terms mentions not government', 'not' in terms.lower() and 'government' in terms.lower())
 
+        resp3 = await page.goto(BASE + 'delete-account.html', wait_until='domcontentloaded', timeout=30000)
+
+        s.record('LG05', 'Legal', 'Delete account page loads', resp3 is not None and resp3.ok)
+
+        delete_body = await page.text_content('body') or ''
+
+        s.record('LG06', 'Legal', 'Delete page mentions Profile flow', 'Delete my data' in delete_body and 'Profile' in delete_body)
+
     except Exception as e:
 
-        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government')]:
+        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government'), ('LG05', 'Delete account page loads'), ('LG06', 'Delete page mentions Profile flow')]:
 
             s.record(cid, 'Legal', name, False, str(e)[:60])
 
@@ -4732,6 +4740,52 @@ async def run_extended_scenarios(s: Suite, browser):
           const hidden = JSON.parse(localStorage.getItem('civicradar_hidden_reports')||'[]');
 
           return reps.length === 2 && hidden.includes('hid-r');
+
+        }"""
+
+    ))
+
+    await ctx.close()
+
+
+
+    # --- Muted reporters (MR) ---
+
+    ctx = await new_ctx(browser, storage={
+
+        'civicradar_user': default_user(id='mr'),
+
+        'mosquiTrackReports': json.dumps([
+
+            {'id': 'mr-vis', 'reporterId': 'rep-open', 'hazard': 'garbage', 'image': 'data:image/jpeg;base64,/9j/4AAQ',
+
+             'ward': WARD, 'reporter': 'Open User', 'lat': 19.076, 'lng': 72.877, 'status': 'pending', 'timestamp': '2026-01-01T00:00:00.000Z'},
+
+            {'id': 'mr-hid', 'reporterId': 'rep-muted', 'hazard': 'potholes', 'image': 'data:image/jpeg;base64,/9j/4AAQ',
+
+             'ward': WARD, 'reporter': 'Muted User', 'lat': 19.077, 'lng': 72.878, 'status': 'pending', 'timestamp': '2026-01-01T00:00:00.000Z'},
+
+        ]),
+
+        'civicradar_muted_reporters': json.dumps(['rep-muted']),
+
+    })
+
+    page = await ctx.new_page()
+
+    await goto_app(page, wait_map=True)
+
+    s.record('MR01', 'Mute', 'Muted reporter excluded from visible reports', await page.evaluate(
+
+        """() => {
+
+          const reps = JSON.parse(localStorage.getItem('mosquiTrackReports')||'[]');
+
+          const muted = new Set(JSON.parse(localStorage.getItem('civicradar_muted_reporters')||'[]'));
+
+          const visible = reps.filter(r => !muted.has(String(r.reporterId)));
+
+          return visible.length === 1 && visible[0].reporterId === 'rep-open';
 
         }"""
 
@@ -7379,7 +7433,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v127" in sw_src
+        "civicradar-v128" in sw_src
 
         and "'/index.html'" not in sw_src
 

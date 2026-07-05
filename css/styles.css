@@ -3123,6 +3123,32 @@ body.persona-lead .ref-welcome { display: none; }
   color: var(--text);
 }
 
+.profile-muted-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.profile-muted-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-elevated, var(--bg-card));
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.profile-muted-row__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .lb-rank {
   width: 28px;
   height: 28px;

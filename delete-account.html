@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!-- Review with qualified Indian counsel before public launch. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="How to delete your CivicRadar account and personal data — in-app steps and email request for Mumbai, Pune, and Thane community hazard reporting.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/legal.css">
+  <title>Delete Account &amp; Data — CivicRadar</title>
+</head>
+<body>
+  <header class="legal-header">
+    <div class="legal-header__inner">
+      <a class="legal-header__brand" href="index.html">📡 CivicRadar</a>
+      <nav class="legal-header__nav" aria-label="Legal">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="index.html">App</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="legal-main">
+    <h1>Delete Account &amp; Data</h1>
+    <p class="legal-meta">Effective: 5 July 2026 · Last updated: 5 July 2026 · Operator: CivicRadar (operated by the project maintainers)</p>
+
+    <div class="legal-disclaimer">
+      <strong>Not an official municipal app.</strong> CivicRadar is an independent community tool for hazard reporting in Mumbai, Pune, and Thane. It is not affiliated with BMC/MCGM, PMC, TMC, or any government body.
+    </div>
+
+    <p>CivicRadar lets you permanently erase your personal data from our systems. This page explains what is deleted, how to do it in the app, and how to request deletion by email if you cannot access the app.</p>
+
+    <h2>1. What gets deleted</h2>
+    <p>When you delete your data (in-app or by verified email request), we erase:</p>
+    <ul>
+      <li><strong>Your hazard reports</strong> — pins, photos, notes, complaint numbers, and resolution status tied to your account</li>
+      <li><strong>Your pledges</strong> — volunteer supply pledges you submitted</li>
+      <li><strong>Your volunteer signup</strong> — ward, neighbourhood, skills, and optional contact details</li>
+      <li><strong>Your Me too and fix confirmations</strong> — community corroboration records linked to your account</li>
+      <li><strong>Session-linked analytics</strong> — anonymous usage events associated with your analytics session (if you opted in)</li>
+      <li><strong>Cloud profile &amp; auth</strong> — anonymous account identifier, display name, ward, society, consent flags, and Civic Hero XP stored on our backend</li>
+      <li><strong>Uploaded photos</strong> — hazard images in our storage bucket tied to your reports</li>
+      <li><strong>On-device copies</strong> — reports, profile, pledges, volunteer data, confirmations, and related preferences in browser <code>localStorage</code></li>
+    </ul>
+    <p>Deletion is <strong>permanent</strong> for your account-linked records. Residual infrastructure backups may persist up to <strong>30 days</strong> before automatic purge, as described in our <a href="privacy.html">Privacy Policy</a>.</p>
+    <p><strong>What may remain:</strong> Aggregated community statistics (ward totals, anonymized counts) that no longer identify you; reports from other users that referenced your area but were not authored by you; and any data we must retain to comply with law.</p>
+
+    <h2>2. Delete in the app (recommended)</h2>
+    <ol>
+      <li>Open CivicRadar (web app or installed PWA).</li>
+      <li>Tap <strong>Profile</strong> (bottom navigation or header).</li>
+      <li>Scroll to the bottom and tap <strong>Delete my data</strong>.</li>
+      <li>Confirm when prompted. Your local and synced cloud data will be erased and you will be asked to accept Terms again for a fresh anonymous session.</li>
+    </ol>
+    <p>This path works without email and is the fastest way to complete erasure under the Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+
+    <h2>3. Request deletion by email</h2>
+    <p>If you cannot access the app, email us at <a id="deleteEmailLink" href="#" data-legal-email>configure legal.grievanceEmail before launch</a> with the subject line <strong>CivicRadar — Account deletion request</strong>.</p>
+    <p>Include enough information for us to locate your account (e.g. display name, ward, approximate report dates, or device/browser used). We may ask a follow-up question to verify the request before erasing data.</p>
+    <p>We aim to acknowledge deletion requests within <strong>7 days</strong> and complete erasure within <strong>30 days</strong>, consistent with our Privacy Policy grievance timelines.</p>
+
+    <h2>4. Partial controls (without full deletion)</h2>
+    <p>You can also:</p>
+    <ul>
+      <li><strong>Profile → Withdraw analytics consent</strong> — stops new analytics and clears local analytics buffer</li>
+      <li><strong>Profile → Withdraw location consent</strong> — stops GPS collection until you re-enable</li>
+      <li>Clear site data in your browser settings — removes local copies only (cloud data remains until you use in-app deletion or email us)</li>
+    </ul>
+
+    <h2>5. Related policies</h2>
+    <ul>
+      <li><a href="privacy.html">Privacy Policy</a> — full data collection, retention, and DPDP rights</li>
+      <li><a href="terms.html">Terms of Service</a> — eligibility, acceptable use, and account terms</li>
+    </ul>
+
+    <h2>6. Contact</h2>
+    <p>Deletion and privacy questions: <strong>Grievance Officer, CivicRadar</strong> at <a id="contactEmailLink" href="#" data-legal-email>configure legal.grievanceEmail before launch</a>.</p>
+    <p class="legal-meta"><em>Review with qualified Indian counsel before public launch.</em></p>
+  </main>
+
+  <footer class="legal-footer">
+    <p>© 2026 CivicRadar · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a> · <a href="index.html">Back to app</a></p>
+    <p>Maharashtra community civic tech · Community-built, free for citizens</p>
+  </footer>
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var cfg = window.CIVICRADAR_CONFIG || {};
+      var legal = cfg.legal || {};
+      var founder = cfg.founder || {};
+      var email = legal.grievanceEmail || founder.operatorEmail || founder.email || '';
+      document.querySelectorAll('[data-legal-email]').forEach(function (el) {
+        if (email) {
+          el.href = 'mailto:' + email + '?subject=' + encodeURIComponent('CivicRadar — Account deletion request');
+          el.textContent = email;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
