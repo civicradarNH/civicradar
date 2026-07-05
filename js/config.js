@@ -105,6 +105,10 @@
   publicUrl: resolved.publicUrl, // e.g. 'https://civicradar.app' or 'https://youruser.github.io/civicradar'
   // Cloudflare Turnstile site key (public). Secret lives in Supabase Auth → Captcha only.
   turnstileSiteKey: '0x4AAAAAADvu8ppZ0_EjSdZd',
+  // Seasonal hook override: 'auto' (default, date-driven May–Oct) | 'on'
+  // (force the monsoon hook year-round, e.g. for a launch campaign) | 'off'
+  // (fully evergreen — no seasonal banner ever, regardless of month).
+  seasonalMode: 'auto',
 
   /* ----- Official BMC channels (optional overrides) ----- */
   /* ----- Multi-city support (Mumbai · Pune · Thane) ----- */

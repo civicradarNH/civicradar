@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v121';
+  const CIVIC_APP_VERSION = 'v123';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2158,15 +2158,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'Report it',
 
-      'coach.step': '#MonsoonGuardian — 30 sec',
+      'coach.step': 'Quick start · 30 seconds',
 
-      'coach.title': 'Map it · Snap it · Report it',
+      'coach.title': 'Welcome to your ward map',
 
-      'coach.body': 'Three taps — your ward, a photo, neighbours alerted.',
+      'coach.body': 'Three taps to report: your spot, a photo, and your neighbours are in the loop.',
 
       'coach.got': 'Got it',
 
-      'tour.skip': 'Skip tour',
+      'tour.skip': 'Skip',
 
       'tour.next': 'Next',
 
@@ -2174,29 +2174,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.replay': 'Replay tour',
 
-      'tour.map.title': 'Map it',
+      'tour.map.title': 'Your ward, on the map',
 
-      'tour.map.body': 'Your ward map — hazard pins and Me too show here.',
+      'tour.map.body': 'Every hazard your neighbours report shows up here as a pin.',
 
-      'tour.report.title': 'Snap it',
+      'tour.report.title': 'Spotted something?',
 
-      'tour.report.body': 'Tap Report and snap a photo on the spot.',
+      'tour.report.body': 'Tap Report and snap a photo right where you\'re standing.',
 
-      'tour.profile.title': 'Report it',
+      'tour.profile.title': 'You\'re on the map',
 
-      'tour.profile.body': 'Submit — neighbours see the pin. Track Civic Points in Profile.',
+      'tour.profile.body': 'Your neighbours see the pin. Track your Civic Points in Profile.',
 
-      'persona.citizen.idle': 'Report hazards in your ward — garbage, potholes, streetlights & stagnant water. Tap Report in 30 sec, then share on WhatsApp. Monsoon tip: stagnant water = dengue risk.',
+      'persona.citizen.idle': 'Spotted a hazard nearby? Report it in 30 seconds — your neighbours will thank you.',
 
-      'persona.wardImpact': '{ward}: {n} ward reports — garbage, potholes, streetlights & stagnant water. Monsoon tip: dengue starts in stagnant lanes. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: {n} reports from your neighbours so far. Add yours.',
 
-      'persona.unfiled': '{n} open on the ward map — share with neighbours or file officially from Profile.',
+      'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Profile.',
 
-      'persona.pendingFiled': '{n} open on the ward map — check Profile if overdue.',
+      'persona.pendingFiled': '{n} open on your ward map — check Profile for anything overdue.',
 
-      'persona.admin.idlePending': '{n} pending — open the queue or tap red pins.',
+      'persona.admin.idlePending': '{n} waiting for review — open the queue, or tap the red pins.',
 
-      'persona.admin.idleEmpty': 'No pending reports. New citizen pins appear here.',
+      'persona.admin.idleEmpty': 'All clear. New reports from neighbours will show up here.',
 
       'persona.admin.header': 'BMC review mode',
 
@@ -2208,13 +2208,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'Welcome to CivicRadar',
 
-      'onboard.subtitle': 'Three taps — your ward, a photo, neighbours alerted.',
+      'onboard.subtitle': 'Your street, on one map. Spot a problem, snap it, and your neighbours see it too.',
 
       'onboard.city': 'Your city',
 
-      'onboard.cityHint': 'Choose where you live — we detect your ward from GPS next.',
+      'onboard.cityHint': 'Pick where you live — we\'ll find your ward from your location next.',
 
-      'onboard.ward': 'Your Ward',
+      'onboard.ward': 'Your ward',
 
       'onboard.wardPh': 'Start typing your ward…',
 
@@ -2222,35 +2222,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'Show all options',
 
-      'onboard.wardHint': 'Pick from {city}\'s {n} official wards.',
+      'onboard.wardHint': 'Pick from {city}\'s wards, or let us detect it.',
 
-      'onboard.wardDetecting': 'Detecting your ward from location…',
+      'onboard.wardDetecting': 'Finding your ward from your location…',
 
-      'onboard.wardDetectedHint': 'Approximate ward from GPS — not an official boundary survey.',
+      'onboard.wardDetectedHint': 'Approximate ward from your location — you can change it.',
 
-      'onboard.wardManual': 'Not right? Pick manually',
+      'onboard.wardManual': 'Not right? Pick it yourself',
 
-      'onboard.wardRetry': 'Try detecting again',
+      'onboard.wardRetry': 'Try again',
 
-      'onboard.wardDetectFailed': 'Could not detect ward — pick manually or allow location.',
+      'onboard.wardDetectFailed': 'Couldn\'t find your ward. Pick it yourself, or turn on location.',
 
-      'onboard.name': 'Display Name',
+      'onboard.name': 'Display name',
 
       'onboard.namePh': 'What should neighbours call you?',
 
       'onboard.join': 'Join your ward',
 
-      'onboard.wardError': 'Pick a ward from the list or allow location.',
+      'onboard.wardError': 'Pick a ward from the list, or turn on location.',
 
-      'onboard.society': 'Society / neighbourhood (optional)',
+      'onboard.society': 'Society or neighbourhood (optional)',
 
-      'onboard.societyPh': 'Type your society / RWA name if not listed',
+      'onboard.societyPh': 'Your society or RWA name, if it\'s not listed',
 
-      'onboard.societyHintNoWard': 'Pick your ward first for local suggestions.',
+      'onboard.societyHintNoWard': 'Pick your ward first to see nearby societies.',
 
-      'onboard.societyHintWard': 'Showing {n} societies in {ward} — type to add yours.',
+      'onboard.societyHintWard': '{n} societies in {ward} — start typing, or add yours.',
 
-      'onboard.societyHintCustom': 'Type your society / RWA name if not listed.',
+      'onboard.societyHintCustom': 'Type your society or RWA name if it\'s not listed.',
 
       'report.title': 'Report a hazard',
 
@@ -2306,19 +2306,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'Connect to the internet to verify photo safety.',
 
-      'success.title': 'Report logged',
+      'success.title': 'Reported — nice one',
 
-      'success.tagline': 'Report it — pinned on your ward map',
+      'success.tagline': 'Your spot is pinned on the ward map.',
 
-      'success.taglineNeighbours': '{n} neighbour(s) already backing nearby spots — yours is on the ward map too!',
+      'success.taglineNeighbours': '{n} neighbour(s) are already backing nearby spots — yours is up there now too.',
 
-      'success.subtitle': 'Optional: file with {corp} (free) to start the official clock.',
+      'success.subtitle': 'Want to go further? File it with {corp} (free) to start the official clock.',
 
-      'success.step1': 'Share on WhatsApp so neighbours see the ward pin',
+      'success.step1': 'Share on WhatsApp so your neighbours can back it',
 
       'success.step2': 'Optional: file with {corp} and save your complaint number',
 
-      'success.step3': 'Volunteers or {corp} can confirm when fixed — earn Civic Hero XP',
+      'success.step3': 'Neighbours or {corp} can mark it fixed — and you earn Civic Points',
 
       'success.file': 'File with BMC (optional)',
 
@@ -2326,19 +2326,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': 'Tag @mybmc',
 
-      'success.alert': 'Alert neighbours',
+      'success.alert': 'Tell your neighbours',
 
       'success.done': 'Back to map',
 
-      'success.sharePrompt': 'Share on WhatsApp — more eyes, faster fixes.',
+      'success.sharePrompt': 'Share on WhatsApp — more eyes mean faster fixes.',
 
       'success.shareWhatsapp': 'Share on WhatsApp',
 
       'share.nativeShare': 'Share',
 
-      'success.shareNudge': 'Neighbours may not know yet — share on WhatsApp so the ward map gets more eyes.',
+      'success.shareNudge': 'Your neighbours may not know yet — a quick WhatsApp share gets more eyes on it.',
 
-      'success.shareMsg': '📍 {hazard} in {ward} — pinned on CivicRadar ward map.\nTap Me too and report hazards in your lane:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {hazard} in {ward} — I just pinned it on our CivicRadar ward map.\nTap Me too, or report a spot in your lane:\n{link}\n{hashtags}',
 
       'share.appMsg': '🗺️ {city} ward hazard map — pin garbage, potholes, streetlights & stagnant water. Me too, beat rival wards!\n{link}\n{hashtags}',
 
@@ -2358,7 +2358,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.milestoneMsg': '🏆 {ward} just hit {n} fixes on CivicRadar! Can your ward beat us?\n{link}\n{hashtags}',
 
-      'share.firstBonus': 'First share — +10 Civic Hero XP! 👋',
+      'share.firstBonus': 'First share — +10 Civic Points! 👋',
 
       'shareWin.title': 'Share the win!',
 
@@ -2398,17 +2398,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.pitchCopied': 'Pitch copied — paste in your RWA / school group!',
 
-      'pwa.nudge': 'Monsoon-ready: Add CivicRadar to Home Screen for one-tap reporting.',
+      'pwa.nudge': 'Add CivicRadar to your home screen for one-tap reporting.',
 
-      'pwa.nudgeAction': 'Add to Home Screen',
+      'pwa.nudgeAction': 'Add to home screen',
 
       'pwa.nudgeDismiss': 'Not now',
 
       'community.challengeShare': 'Challenge a friend — share ward map',
 
-      'community.winsTitle': 'Wins this monsoon',
+      'community.winsTitle': 'Recent wins',
 
-      'community.winsEmpty': 'Fixed spots appear here — report, rally neighbours, celebrate wins.',
+      'community.winsEmpty': 'Fixed spots show up here. Report one, rally your neighbours, and watch your lane improve.',
 
       'community.winsNeighbours': 'Neighbours in {ward}',
 
@@ -2416,19 +2416,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} fixed — {ward}',
 
-      'success.points': 'Civic Hero XP',
+      'success.points': 'Civic Points',
 
-      'success.xpBonus': '+{n} Civic Hero XP',
+      'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} first report this week!',
+      'success.weekBonus': '+{n} — your first report this week',
 
-      'success.celebrateFirst': 'You\'re protecting your ward — neighbours will thank you.',
+      'success.celebrateFirst': 'Your first report — your lane just got a little safer.',
 
-      'success.celebrateMilestone': '{n} reports logged — your lane is safer because of you!',
+      'success.celebrateMilestone': '{n} reports in — your neighbours are lucky to have you.',
 
-      'success.kudos1': 'Kudos! Another hazard on the radar.',
+      'success.kudos1': 'Nice one — another hazard on the radar.',
 
-      'success.kudos2': 'Nice work — your ward just got a little safer.',
+      'success.kudos2': 'Good work — your ward\'s a little safer now.',
 
       'success.kudos3': 'Logged! Thanks for looking out for your neighbours.',
 
@@ -2465,35 +2465,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} reports — keep the momentum going!',
 
-      'map.empty': 'No pins in {ward} yet — be first!',
+      'map.empty': 'No pins in {ward} yet — be the first.',
 
-      'map.emptyHint': 'Map it · Snap it · Report it',
+      'map.emptyHint': 'It takes about 30 seconds.',
 
-      'map.emptyAction': 'Report now',
+      'map.emptyAction': 'Report the first one',
 
-      'map.emptyShare': 'Invite neighbours on WhatsApp',
+      'map.emptyShare': 'Invite your neighbours on WhatsApp',
 
-      'map.emptyRival': '{ward} vs {rival} — {pending} open spots. Report or rally!',
+      'map.emptyRival': '{ward} vs {rival} — {pending} open spots. Report one, or rally your street.',
 
-      'map.emptyEncourage': 'Every pin helps your ward — garbage, potholes, streetlights & stagnant water. Monsoon tip: clear still water to beat dengue.',
+      'map.emptyEncourage': 'Every pin helps your lane get noticed — garbage, potholes, streetlights, or standing water. Your report is where a fix starts.',
 
-      'home.hero.badge': '#MonsoonGuardian',
+      'home.hero.badge': 'Your ward, together',
 
-      'home.hero.headline': 'Map it · Snap it · Report it',
+      'home.hero.headline': 'Spot it. Snap it. Sorted.',
 
-      'home.hero.subline': 'Three taps — your ward, a photo, neighbours alerted.',
+      'home.hero.subline': 'Report a hazard in your lane in 30 seconds — and your neighbours see it too.',
 
-      'home.hero.benefit1': 'Map it',
+      'home.hero.benefit1': 'Snap a photo',
 
-      'home.hero.benefit2': 'Snap it',
+      'home.hero.benefit2': 'Pin your ward',
 
-      'home.hero.benefit3': 'Report it',
+      'home.hero.benefit3': 'Neighbours notified',
 
-      'home.hero.cta': 'Report now',
+      'home.hero.cta': 'Report a spot',
 
-      'home.hero.tour': 'Quick tour',
+      'home.hero.tour': 'Take the quick tour',
 
-      'home.hero.trust': 'Free · offline · 3 cities · 4 langs',
+      'home.hero.trust': 'Free · works offline · 3 cities · 4 languages',
 
       'home.hero.dismiss': 'Dismiss welcome card',
 
@@ -2839,7 +2839,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'Citizen',
 
-      'profile.points': 'Civic Hero XP',
+      'profile.points': 'Civic Points',
 
       'profile.xpTotalLabel': '{n} XP',
 
@@ -3151,7 +3151,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} neighbours backed this — {ward} — screenshot this win! 👋',
 
-      'toast.fixConfirmed': '+10 Civic Hero XP — thanks for checking!',
+      'toast.fixConfirmed': '+10 Civic Points — thanks for checking!',
 
       'toast.communityResolved': 'Community verified fixed — thanks for reporting!',
 
@@ -3687,7 +3687,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeStatusDelivered': 'Your pledge was marked delivered by the coordinator.',
 
-      'toast.pledgeStatusVerified': 'Volunteer hours verified — +200 Civic Hero XP credited!',
+      'toast.pledgeStatusVerified': 'Volunteer hours verified — +200 Civic Points credited!',
 
       'toast.ngoNewPledge': '{n} new citizen pledge(s) in your ward.',
 
@@ -3979,7 +3979,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'A neighbour invited you 👋',
 
-      'referral.joinedReward': '🎉 {n} neighbour(s) joined via your invite — +{pts} Civic Hero XP!',
+      'referral.joinedReward': '🎉 {n} neighbour(s) joined via your invite — +{pts} Civic Points!',
 
       'ref.welcomeBody': '{n} hazard reports already on the {city} map. See open spots in your ward — or pin one in 30 seconds.',
 
@@ -3991,13 +3991,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.dismiss': 'Dismiss invite',
 
-      'season.monsoonPrep': 'Monsoon\'s coming 🦟 Clear stagnant water early — pin spots before the first heavy rain.',
+      'season.monsoonPrep': 'Rains are on the way. Clearing standing water early keeps mosquitoes down — pin any spots before the first heavy downpour.',
 
-      'season.monsoonPeak': 'Monsoon is here 🌧️ Stagnant water breeds dengue. Report spots in your ward today.',
+      'season.monsoonPeak': 'Monsoon\'s here. Standing water is where dengue starts — a 30-second report helps your whole lane.',
 
-      'season.ganesh': 'Ganesh Chaturthi 🦟 Keep your ward clean for the festival — report stagnant water near pandals and immersion routes.',
+      'season.ganesh': 'Ganesh Chaturthi is here. Let\'s keep the ward clean for the festival — report standing water near pandals and immersion routes.',
 
-      'season.denguePeak': 'Dengue season 🦟 Mosquitoes breed in still water. A 30-second report protects your lane.',
+      'season.denguePeak': 'Dengue season. Mosquitoes breed in still water — one quick report protects your street.',
 
       'season.dismiss': 'Dismiss seasonal tip',
 
@@ -4329,15 +4329,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'रिपोर्ट',
 
-      'coach.step': '#MonsoonGuardian · 30 सेकंड',
+      'coach.step': 'शुरुआत · 30 सेकंड',
 
-      'coach.title': 'नक्शे पर · फोटो · रिपोर्ट',
+      'coach.title': 'आपके वार्ड के नक्शे में आपका स्वागत है',
 
-      'coach.body': 'तीन टैप — आपका वार्ड, एक फोटो, पड़ोसियों को सूचना।',
+      'coach.body': 'रिपोर्ट करने के तीन टैप: अपनी जगह, एक फोटो, और आपके पड़ोसी सूचित हो जाते हैं।',
 
       'coach.got': 'चलो शुरू करें',
 
-      'tour.skip': 'टूर छोड़ें',
+      'tour.skip': 'छोड़ें',
 
       'tour.next': 'आगे',
 
@@ -4345,29 +4345,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.replay': 'टूर फिर देखें',
 
-      'tour.map.title': 'नक्शे पर',
+      'tour.map.title': 'आपका वार्ड, नक्शे पर',
 
-      'tour.map.body': 'आपके वार्ड का नक्शा — खतरे के पिन और मुझे भी यहाँ।',
+      'tour.map.body': 'आपके पड़ोसियों की हर रिपोर्ट यहाँ एक पिन के रूप में दिखती है।',
 
-      'tour.report.title': 'फोटो लें',
+      'tour.report.title': 'कुछ दिखा?',
 
-      'tour.report.body': 'रिपोर्ट दबाएँ और मौके पर फ़ोटो लें।',
+      'tour.report.body': 'रिपोर्ट दबाएँ और जहाँ खड़े हैं वहीं फोटो लें।',
 
-      'tour.profile.title': 'रिपोर्ट करें',
+      'tour.profile.title': 'आप नक्शे पर हैं',
 
-      'tour.profile.body': 'भेजें दबाएँ — पड़ोसी पिन देखेंगे। प्रोफ़ाइल में Civic Hero XP।',
+      'tour.profile.body': 'आपके पड़ोसी पिन देखते हैं। प्रोफ़ाइल में अपने Civic Points ट्रैक करें।',
 
-      'persona.citizen.idle': 'अपने वार्ड में खतरे रिपोर्ट करें — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। रिपोर्ट दबाएँ — 30 सेकंड में नक्शे पर पिन करें, WhatsApp पर शेयर करें। मानसून सुझाव: रुका पानी = डेंगू का खतरा।',
+      'persona.citizen.idle': 'आस-पास कोई खतरा दिखा? 30 सेकंड में रिपोर्ट करें — आपके पड़ोसी आपको धन्यवाद देंगे।',
 
-      'persona.wardImpact': '{ward}: {n} वार्ड रिपोर्ट — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। मानसून सुझाव: रुकी गलियों में डेंगू। #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: अब तक आपके पड़ोसियों की {n} रिपोर्ट। आप भी जोड़ें।',
 
-      'persona.unfiled': '{n} वार्ड नक्शे पर खुले — पड़ोसियों के साथ शेयर करें या Profile से आधिकारिक दर्ज करें।',
+      'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Profile से आधिकारिक तौर पर दर्ज करें।',
 
-      'persona.pendingFiled': '{n} वार्ड नक्शे पर खुले — अतिदेय हो तो Profile देखें।',
+      'persona.pendingFiled': '{n} आपके वार्ड नक्शे पर खुले हैं — कुछ अतिदेय हो तो Profile देखें।',
 
-      'persona.admin.idlePending': '{n} लंबित — कतार खोलें या लाल पिन दबाएँ।',
+      'persona.admin.idlePending': '{n} समीक्षा का इंतज़ार कर रहे हैं — कतार खोलें, या लाल पिन दबाएँ।',
 
-      'persona.admin.idleEmpty': 'कोई लंबित रिपोर्ट नहीं। नए पिन यहाँ दिखेंगे।',
+      'persona.admin.idleEmpty': 'सब ठीक है। पड़ोसियों की नई रिपोर्ट यहाँ दिखेंगी।',
 
       'persona.admin.header': 'BMC समीक्षा मोड',
 
@@ -4379,11 +4379,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar में आपका स्वागत है',
 
-      'onboard.subtitle': 'तीन टैप — वार्ड, फोटो, पड़ोसियों को सूचना।',
+      'onboard.subtitle': 'आपकी गली, एक नक्शे पर। कोई समस्या दिखे तो फोटो लें — आपके पड़ोसी भी उसे देखेंगे।',
 
       'onboard.city': 'आपका शहर',
 
-      'onboard.cityHint': 'चुनें कि आप कहाँ रहते हैं — अगला कदम GPS से वार्ड पहचान।',
+      'onboard.cityHint': 'चुनें कि आप कहाँ रहते हैं — अगले चरण में हम आपके स्थान से आपका वार्ड ढूंढेंगे।',
 
       'onboard.ward': 'आपका वार्ड',
 
@@ -4393,35 +4393,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सभी विकल्प दिखाएँ',
 
-      'onboard.wardHint': '{city} के {n} आधिकारिक वार्डों में से चुनें।',
+      'onboard.wardHint': '{city} के वार्डों में से चुनें, या हमें पता लगाने दें।',
 
-      'onboard.wardDetecting': 'आपके स्थान से वार्ड पहचाना जा रहा है…',
+      'onboard.wardDetecting': 'आपके स्थान से आपका वार्ड ढूंढ रहे हैं…',
 
-      'onboard.wardDetectedHint': 'GPS से अनुमानित वार्ड — आधिकारिक सीमा सर्वेक्षण नहीं।',
+      'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित वार्ड — आप इसे बदल सकते हैं।',
 
-      'onboard.wardManual': 'गलत है? मैन्युअल चुनें',
+      'onboard.wardManual': 'सही नहीं है? खुद चुनें',
 
-      'onboard.wardRetry': 'फिर से पहचानें',
+      'onboard.wardRetry': 'फिर कोशिश करें',
 
-      'onboard.wardDetectFailed': 'वार्ड नहीं मिला — मैन्युअल चुनें या लोकेशन अनुमति दें।',
+      'onboard.wardDetectFailed': 'आपका वार्ड नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
 
       'onboard.name': 'प्रदर्शित नाम',
 
       'onboard.namePh': 'पड़ोसी आपको क्या कहें?',
 
-      'onboard.join': 'वार्ड से जुड़ें',
+      'onboard.join': 'अपने वार्ड से जुड़ें',
 
-      'onboard.wardError': 'सूची से वार्ड चुनें।',
+      'onboard.wardError': 'सूची से वार्ड चुनें, या लोकेशन चालू करें।',
 
-      'onboard.society': 'सोसाइटी / पड़ोस (वैकल्पिक)',
+      'onboard.society': 'सोसाइटी या पड़ोस (वैकल्पिक)',
 
-      'onboard.societyPh': 'जैसे Phoenix Mills CHS, Worli',
+      'onboard.societyPh': 'आपकी सोसाइटी या RWA का नाम, अगर सूची में नहीं है',
 
-      'onboard.societyHintNoWard': 'स्थानीय सुझाव के लिए पहले वार्ड चुनें।',
+      'onboard.societyHintNoWard': 'पास की सोसाइटी देखने के लिए पहले अपना वार्ड चुनें।',
 
-      'onboard.societyHintWard': '{ward} में {n} सोसाइटी — नहीं मिली तो टाइप करें।',
+      'onboard.societyHintWard': '{ward} में {n} सोसाइटी — टाइप करना शुरू करें, या अपनी जोड़ें।',
 
-      'onboard.societyHintCustom': 'सूची में न हो तो सोसाइटी / RWA का नाम लिखें।',
+      'onboard.societyHintCustom': 'सूची में न हो तो अपनी सोसाइटी या RWA का नाम लिखें।',
 
       'report.title': 'खतरे की रिपोर्ट करें',
 
@@ -4477,19 +4477,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'फ़ोटो सुरक्षा जाँच के लिए इंटरनेट से जुड़ें।',
 
-      'success.title': 'रिपोर्ट दर्ज',
+      'success.title': 'रिपोर्ट हो गई — शाबाश',
 
-      'success.tagline': 'रिपोर्ट — आपके वार्ड नक्शे पर पिन',
+      'success.tagline': 'आपकी जगह वार्ड नक्शे पर पिन हो गई है।',
 
-      'success.taglineNeighbours': '{n} पड़ोसी पास के स्पॉट का समर्थन कर रहे — आपकी रिपोर्ट भी नक्शे पर!',
+      'success.taglineNeighbours': '{n} पड़ोसी पहले से पास के स्पॉट का समर्थन कर रहे हैं — अब आपकी रिपोर्ट भी वहाँ है।',
 
-      'success.subtitle': 'वैकल्पिक: आधिकारिक घड़ी शुरू करने के लिए {corp} में शिकायत दर्ज करें (निःशुल्क)।',
+      'success.subtitle': 'और आगे बढ़ना है? आधिकारिक घड़ी शुरू करने के लिए {corp} में मुफ़्त शिकायत दर्ज करें।',
 
-      'success.step1': 'WhatsApp पर साझा करें ताकि पड़ोसी वार्ड मानचित्र पर पिन देखें',
+      'success.step1': 'WhatsApp पर शेयर करें ताकि पड़ोसी इसका समर्थन कर सकें',
 
-      'success.step2': 'वैकल्पिक: {corp} में दर्ज करें और शिकायत नंबर सहेजें',
+      'success.step2': 'वैकल्पिक: {corp} में दर्ज करें और अपना शिकायत नंबर सहेजें',
 
-      'success.step3': 'स्वयंसेवक या {corp} ठीक होने पर पुष्टि कर सकते हैं — Civic Points मिलेंगे',
+      'success.step3': 'पड़ोसी या {corp} इसे ठीक होने पर चिह्नित कर सकते हैं — और आपको Civic Points मिलेंगे',
 
       'success.file': 'आधिकारिक शिकायत दर्ज करें (वैकल्पिक)',
 
@@ -4497,19 +4497,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc को टैग करें',
 
-      'success.alert': 'पड़ोसियों को सूचित करें',
+      'success.alert': 'अपने पड़ोसियों को बताएँ',
 
       'success.done': 'नक्शे पर वापस',
 
-      'success.sharePrompt': 'WhatsApp पर शेयर — ज़्यादा नज़र, जल्दी ठीक।',
+      'success.sharePrompt': 'WhatsApp पर शेयर करें — जितनी नज़र, उतनी जल्दी ठीक होगा।',
 
       'success.shareWhatsapp': 'WhatsApp पर साझा करें',
 
       'share.nativeShare': 'साझा करें',
 
-      'success.shareNudge': 'पड़ोसी शायद न जानें — WhatsApp पर शेयर करें।',
+      'success.shareNudge': 'आपके पड़ोसियों को अभी पता न हो — WhatsApp पर एक शेयर से इस पर और नज़रें पड़ेंगी।',
 
-      'success.shareMsg': '📍 {ward} में {hazard} — CivicRadar वार्ड नक्शे पर पिन।\nअपनी गली में Me too और खतरे रिपोर्ट करें:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} में {hazard} — मैंने इसे अभी अपने CivicRadar वार्ड नक्शे पर पिन किया।\nMe too टैप करें, या अपनी गली में स्पॉट रिपोर्ट करें:\n{link}\n{hashtags}',
 
       'share.appMsg': '🗺️ {city} वार्ड खतरा नक्शा — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी पिन करें। Me too, प्रतिद्वंद्वी वार्ड को हराएँ!\n{link}\n{hashtags}',
 
@@ -4571,7 +4571,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.pitchCopied': 'पिच कॉपी — RWA / स्कूल ग्रुप में पेस्ट करें!',
 
-      'pwa.nudge': 'मानसून-तैयार: होम स्क्रीन पर CivicRadar जोड़ें।',
+      'pwa.nudge': 'एक-टैप रिपोर्टिंग के लिए CivicRadar को अपनी होम स्क्रीन पर जोड़ें।',
 
       'pwa.nudgeAction': 'होम स्क्रीन पर जोड़ें',
 
@@ -4579,9 +4579,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.challengeShare': 'दोस्त को चुनौती — वार्ड नक्शा साझा करें',
 
-      'community.winsTitle': 'इस मानसून की जीत',
+      'community.winsTitle': 'हाल की जीत',
 
-      'community.winsEmpty': 'हल की गई जगहें यहाँ दिखेंगी — रिपोर्ट करें, पड़ोसियों को बुलाएँ, जीत मनाएँ।',
+      'community.winsEmpty': 'ठीक हुए स्पॉट यहाँ दिखेंगे। एक रिपोर्ट करें, पड़ोसियों को साथ लें, और अपनी गली को बेहतर होते देखें।',
 
       'community.winsNeighbours': '{ward} में पड़ोसी',
 
@@ -4589,19 +4589,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} हल · {ward}',
 
-      'success.points': 'Civic Hero XP',
+      'success.points': 'Civic Points',
 
-      'success.xpBonus': '+{n} Civic Hero XP',
+      'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} इस सप्ताह की पहली रिपोर्ट!',
+      'success.weekBonus': '+{n} — इस सप्ताह आपकी पहली रिपोर्ट',
 
-      'success.celebrateFirst': 'आप वार्ड की रक्षा कर रहे हैं — पड़ोसी आभारी होंगे।',
+      'success.celebrateFirst': 'आपकी पहली रिपोर्ट — आपकी गली अभी थोड़ी सुरक्षित हुई।',
 
-      'success.celebrateMilestone': '{n} रिपोर्ट दर्ज — आपकी गली आपकी वजह से सुरक्षित!',
+      'success.celebrateMilestone': '{n} रिपोर्ट हो गईं — आपके पड़ोसी खुशकिस्मत हैं कि आप हैं।',
 
-      'success.kudos1': 'शाबाश! एक और खतरा रडार पर।',
+      'success.kudos1': 'शाबाश — एक और खतरा रडार पर आया।',
 
-      'success.kudos2': 'बढ़िया — आपका वार्ड थोड़ा सुरक्षित हुआ।',
+      'success.kudos2': 'बढ़िया काम — आपका वार्ड अब थोड़ा सुरक्षित है।',
 
       'success.kudos3': 'दर्ज हुआ! पड़ोसियों का ध्यान रखने के लिए धन्यवाद।',
 
@@ -4638,35 +4638,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
 
-      'map.empty': '{ward} में अभी कोई पिन नहीं — पहले बनें!',
+      'map.empty': '{ward} में अभी कोई पिन नहीं — पहले आप बनें।',
 
-      'map.emptyHint': 'नक्शे पर · फोटो · रिपोर्ट',
+      'map.emptyHint': 'इसमें करीब 30 सेकंड लगते हैं।',
 
-      'map.emptyAction': 'अभी रिपोर्ट',
+      'map.emptyAction': 'पहली रिपोर्ट करें',
 
-      'map.emptyShare': 'WhatsApp पर पड़ोसियों को बुलाएँ',
+      'map.emptyShare': 'WhatsApp पर अपने पड़ोसियों को बुलाएँ',
 
-      'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले स्पॉट। रिपोर्ट या बुलाएँ!',
+      'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले स्पॉट। एक रिपोर्ट करें, या अपनी गली को साथ लाएँ।',
 
-      'map.emptyEncourage': 'हर पिन आपके वार्ड की मदद करता है — कचरा, गड्ढे, स्ट्रीटलाइट और रुका पानी। मानसून सुझाव: रुका पानी साफ़ करें, डेंगू से बचें।',
+      'map.emptyEncourage': 'हर पिन आपकी गली पर ध्यान दिलाने में मदद करता है — कचरा, गड्ढे, स्ट्रीटलाइट, या रुका पानी। आपकी रिपोर्ट से ही समाधान शुरू होता है।',
 
-      'home.hero.badge': '#MonsoonGuardian',
+      'home.hero.badge': 'आपका वार्ड, साथ मिलकर',
 
-      'home.hero.headline': 'नक्शे पर · फोटो · रिपोर्ट',
+      'home.hero.headline': 'देखा। खींचा। हो गया।',
 
-      'home.hero.subline': 'तीन टैप — आपका वार्ड, एक फोटो, पड़ोसियों को सूचना।',
+      'home.hero.subline': 'अपनी गली में खतरा 30 सेकंड में रिपोर्ट करें — आपके पड़ोसी भी इसे देखेंगे।',
 
-      'home.hero.benefit1': 'नक्शे पर',
+      'home.hero.benefit1': 'फोटो लें',
 
-      'home.hero.benefit2': 'फोटो',
+      'home.hero.benefit2': 'अपना वार्ड पिन करें',
 
-      'home.hero.benefit3': 'रिपोर्ट',
+      'home.hero.benefit3': 'पड़ोसी सूचित',
 
-      'home.hero.cta': 'अभी रिपोर्ट',
+      'home.hero.cta': 'स्पॉट रिपोर्ट करें',
 
-      'home.hero.tour': 'छोटा टूर',
+      'home.hero.tour': 'छोटा टूर देखें',
 
-      'home.hero.trust': 'मुफ़्त · ऑफ़लाइन · 3 शहर · 4 भाषाएँ',
+      'home.hero.trust': 'मुफ़्त · ऑफ़लाइन काम करे · 3 शहर · 4 भाषाएँ',
 
       'home.hero.dismiss': 'स्वागत कार्ड बंद करें',
 
@@ -5012,7 +5012,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'नागरिक',
 
-      'profile.points': 'Civic Hero XP',
+      'profile.points': 'Civic Points',
 
       'profile.xpTotalLabel': '{n} XP',
 
@@ -5324,7 +5324,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} पड़ोसियों ने समर्थन किया · {ward} — यह जीत स्क्रीनशॉट करें! 🏆',
 
-      'toast.fixConfirmed': '+10 Civic Hero XP — जाँच के लिए धन्यवाद!',
+      'toast.fixConfirmed': '+10 Civic Points — जाँच के लिए धन्यवाद!',
 
       'toast.communityResolved': 'समुदाय-सत्यापित ठीक — रिपोर्ट के लिए धन्यवाद!',
 
@@ -5858,7 +5858,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeStatusDelivered': 'समन्वयक ने आपकी प्रतिज्ञा वितरित चिह्नित की।',
 
-      'toast.pledgeStatusVerified': 'स्वयंसेवक घंटे सत्यापित — +200 Civic Hero XP!',
+      'toast.pledgeStatusVerified': 'स्वयंसेवक घंटे सत्यापित — +200 Civic Points!',
 
       'toast.ngoNewPledge': 'आपके वार्ड में {n} नई नागरिक प्रतिज्ञा।',
 
@@ -5884,7 +5884,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeDelivered': 'सामान वितरित चिह्नित — अब घंटे सत्यापित करें।',
 
-      'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Hero XP मिले।',
+      'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Points मिले।',
 
       'toast.saving': 'सहेजा जा रहा…',
 
@@ -6150,7 +6150,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'एक पड़ोसी ने आपको बुलाया 👋',
 
-      'referral.joinedReward': '🎉 आपके निमंत्रण से {n} पड़ोसी जुड़े — +{pts} Civic Hero XP!',
+      'referral.joinedReward': '🎉 आपके निमंत्रण से {n} पड़ोसी जुड़े — +{pts} Civic Points!',
 
       'ref.welcomeBody': '{city} के नक्शे पर पहले से {n} रिपोर्ट हैं। अपने वार्ड के खुले स्पॉट देखें — या 30 सेकंड में एक पिन करें।',
 
@@ -6162,13 +6162,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.dismiss': 'निमंत्रण बंद करें',
 
-      'season.monsoonPrep': 'मानसून आ रहा है 🌧️ पहली तेज़ बारिश से पहले रुका पानी साफ़ करें — स्पॉट पिन करें।',
+      'season.monsoonPrep': 'बारिश आने वाली है। जल्दी रुका पानी साफ़ करने से मच्छर कम होते हैं — पहली तेज़ बारिश से पहले स्पॉट पिन करें।',
 
-      'season.monsoonPeak': 'मानसून आ गया है 🌧️ रुका पानी डेंगू फैलाता है। आज अपने वार्ड में स्पॉट रिपोर्ट करें।',
+      'season.monsoonPeak': 'मानसून आ गया है। रुका पानी वहीं से डेंगू शुरू होता है — 30 सेकंड की रिपोर्ट आपकी पूरी गली की मदद करती है।',
 
-      'season.ganesh': 'गणेश चतुर्थी 🙏 त्योहार के लिए अपना वार्ड साफ़ रखें — पंडाल और विसर्जन मार्ग के पास रुका पानी रिपोर्ट करें।',
+      'season.ganesh': 'गणेश चतुर्थी आ गई है। आइए त्योहार के लिए वार्ड को साफ़ रखें — पंडाल और विसर्जन मार्ग के पास रुका पानी रिपोर्ट करें।',
 
-      'season.denguePeak': 'डेंगू का मौसम ⚠️ मच्छर रुके पानी में पनपते हैं। 30 सेकंड की रिपोर्ट आपकी गली की रक्षा करती है।',
+      'season.denguePeak': 'डेंगू का मौसम है। मच्छर रुके पानी में पनपते हैं — एक जल्दी रिपोर्ट आपकी गली की रक्षा करती है।',
 
       'season.dismiss': 'मौसमी सुझाव बंद करें',
 
@@ -6499,15 +6499,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'नोंदवा',
 
-      'coach.step': '#MonsoonGuardian · 30 सेक',
+      'coach.step': 'सुरुवात · 30 सेकंद',
 
-      'coach.title': 'नकाशावर · फोटो · नोंदवा',
+      'coach.title': 'तुमच्या वॉर्ड नकाशात स्वागत आहे',
 
-      'coach.body': 'तीन टॅप — तुमचा वॉर्ड, एक फोटो, शेजाऱ्यांना कळवा.',
+      'coach.body': 'नोंदवण्यासाठी तीन टॅप: तुमची जागा, एक फोटो, आणि तुमचे शेजारी कळवले जातात.',
 
       'coach.got': 'चला सुरू करू',
 
-      'tour.skip': 'टूर वगळा',
+      'tour.skip': 'वगळा',
 
       'tour.next': 'पुढे',
 
@@ -6515,29 +6515,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.replay': 'टूर पुन्हा पाहा',
 
-      'tour.map.title': 'नकाशावर',
+      'tour.map.title': 'तुमचा वॉर्ड, नकाशावर',
 
-      'tour.map.body': 'तुमचा वॉर्ड नकाशा — धोक्याचे पिन आणि मला पण इथे दिसतील.',
+      'tour.map.body': 'तुमच्या शेजाऱ्यांनी नोंदवलेला प्रत्येक धोका इथे पिन म्हणून दिसतो.',
 
-      'tour.report.title': 'फोटो काढा',
+      'tour.report.title': 'काही दिसलं?',
 
-      'tour.report.body': 'Report दाबा आणि जागेवरच फोटो काढा.',
+      'tour.report.body': 'Report दाबा आणि जिथे उभे आहात तिथेच फोटो काढा.',
 
-      'tour.profile.title': 'नोंदवा',
+      'tour.profile.title': 'तुम्ही नकाशावर आहात',
 
-      'tour.profile.body': 'Submit दाबा — शेजाऱ्यांना पिन दिसेल. Civic Hero XP प्रोफाइलमध्ये दिसेल.',
+      'tour.profile.body': 'तुमचे शेजारी पिन पाहतात. प्रोफाइलमध्ये तुमचे Civic Points ट्रॅक करा.',
 
-      'persona.citizen.idle': 'तुमच्या वॉर्डमध्ये धोके नोंदवा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. Report — 30 सेक नकाशावर, WhatsApp share. पावसाळा टिप: साचलेले पाणी = डेंगू धोका.',
+      'persona.citizen.idle': 'जवळपास एखादा धोका दिसला? 30 सेकंदात नोंदवा — तुमचे शेजारी तुमचे आभार मानतील.',
 
-      'persona.wardImpact': '{ward}: {n} वॉर्ड तक्रारी — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. पावसाळा टिप: साचलेल्या लेनमध्ये डेंगू. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: आतापर्यंत तुमच्या शेजाऱ्यांच्या {n} तक्रारी. तुमचीही जोडा.',
 
-      'persona.unfiled': '{n} वॉर्ड नकाशावर उघडे — शेजाऱ्यांसोबत शेअर करा किंवा Profile मधून अधिकृत नोंदवा.',
+      'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Profile मधून अधिकृतपणे नोंदवा.',
 
-      'persona.pendingFiled': '{n} वॉर्ड नकाशावर उघडे — मुदत उलटली असल्यास Profile पहा.',
+      'persona.pendingFiled': '{n} तुमच्या वॉर्ड नकाशावर उघडे आहेत — मुदत उलटली असेल तर Profile पहा.',
 
-      'persona.admin.idlePending': '{n} pending — queue उघडा किंवा red pins.',
+      'persona.admin.idlePending': '{n} पुनरावलोकनाची वाट पाहत आहेत — queue उघडा, किंवा red pins दाबा.',
 
-      'persona.admin.idleEmpty': 'प्रलंबित तक्रारी नाहीत. नवीन पिन येथे दिसतील.',
+      'persona.admin.idleEmpty': 'सर्व ठीक आहे. शेजाऱ्यांच्या नवीन तक्रारी इथे दिसतील.',
 
       'persona.admin.header': 'BMC पुनरावलोकन मोड',
 
@@ -6549,11 +6549,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
 
-      'onboard.subtitle': 'तीन टॅप — ward, फोटो, शेजाऱ्यांना कळवा.',
+      'onboard.subtitle': 'तुमची गल्ली, एका नकाशावर. समस्या दिसली की फोटो घ्या — तुमचे शेजारीही ती पाहतील.',
 
       'onboard.city': 'तुमचे शहर',
 
-      'onboard.cityHint': 'कुठे राहता ते निवडा — पुढे GPS वरून वॉर्ड शोधू.',
+      'onboard.cityHint': 'कुठे राहता ते निवडा — पुढच्या टप्प्यात आम्ही तुमच्या स्थानावरून वॉर्ड शोधू.',
 
       'onboard.ward': 'तुमचा वॉर्ड',
 
@@ -6563,35 +6563,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सर्व पर्याय दाखवा',
 
-      'onboard.wardHint': '{city} च्या {n} अधिकृत वॉर्डांमधून निवडा.',
+      'onboard.wardHint': '{city} च्या वॉर्डांमधून निवडा, किंवा आम्हाला शोधू द्या.',
 
-      'onboard.wardDetecting': 'तुमच्या स्थानावरून वॉर्ड शोधत आहे…',
+      'onboard.wardDetecting': 'तुमच्या स्थानावरून तुमचा वॉर्ड शोधत आहोत…',
 
-      'onboard.wardDetectedHint': 'GPS वरून अंदाजे वॉर्ड — अधिकृत सीमा सर्वेक्षण नाही.',
+      'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे वॉर्ड — तुम्ही तो बदलू शकता.',
 
-      'onboard.wardManual': 'चुकीचे? स्वतः निवडा',
+      'onboard.wardManual': 'बरोबर नाही? स्वतः निवडा',
 
-      'onboard.wardRetry': 'पुन्हा शोधा',
+      'onboard.wardRetry': 'पुन्हा प्रयत्न करा',
 
-      'onboard.wardDetectFailed': 'वॉर्ड सापडला नाही — स्वतः निवडा किंवा लोकेशन परवानगी द्या.',
+      'onboard.wardDetectFailed': 'तुमचा वॉर्ड सापडला नाही. स्वतः निवडा, किंवा लोकेशन सुरू करा.',
 
       'onboard.name': 'प्रदर्शित नाव',
 
-      'onboard.namePh': 'आम्ही तुम्हाला काय म्हणावे?',
+      'onboard.namePh': 'शेजारी तुम्हाला काय म्हणावेत?',
 
-      'onboard.join': 'समुदायात सामील व्हा',
+      'onboard.join': 'तुमच्या वॉर्डमध्ये सामील व्हा',
 
-      'onboard.wardError': 'यादीतून वॉर्ड निवडा.',
+      'onboard.wardError': 'यादीतून वॉर्ड निवडा, किंवा लोकेशन सुरू करा.',
 
-      'onboard.society': 'सोसायटी / परिसर (पर्यायी)',
+      'onboard.society': 'सोसायटी किंवा परिसर (पर्यायी)',
 
-      'onboard.societyPh': 'उदा. Phoenix Mills CHS, Worli',
+      'onboard.societyPh': 'तुमच्या सोसायटी किंवा RWA चे नाव, यादीत नसेल तर',
 
-      'onboard.societyHintNoWard': 'स्थानिक सूचना साठी प्रथम वॉर्ड निवडा.',
+      'onboard.societyHintNoWard': 'जवळच्या सोसायटी पाहण्यासाठी आधी तुमचा वॉर्ड निवडा.',
 
-      'onboard.societyHintWard': '{ward} मध्ये {n} सोसायटी — नसेल तर टाइप करा.',
+      'onboard.societyHintWard': '{ward} मध्ये {n} सोसायटी — टाइप करायला सुरुवात करा, किंवा तुमची जोडा.',
 
-      'onboard.societyHintCustom': 'यादीत नसेल तर सोसायटी / RWA नाव लिहा.',
+      'onboard.societyHintCustom': 'यादीत नसेल तर तुमच्या सोसायटी किंवा RWA चे नाव लिहा.',
 
       'report.title': 'धोक्याची तक्रार करा',
 
@@ -6647,19 +6647,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'फोटो सुरक्षा तपासणीसाठी इंटरनेटशी कनेक्ट व्हा.',
 
-      'success.title': 'तक्रार नोंद',
+      'success.title': 'नोंदवले — छान काम',
 
-      'success.tagline': 'नोंदवले — तुमच्या वॉर्ड नकाशावर pin',
+      'success.tagline': 'तुमची जागा वॉर्ड नकाशावर पिन झाली आहे.',
 
-      'success.taglineNeighbours': '{n} शेजारी जवळपासच्या ठिकाणांना पाठिंबा देत आहेत — तुमचीही तक्रार नकाशावर!',
+      'success.taglineNeighbours': '{n} शेजारी आधीच जवळपासच्या स्पॉट्सना पाठिंबा देत आहेत — आता तुमचीही तक्रार तिथे आहे.',
 
-      'success.subtitle': 'पर्यायी: सरकारी घड्याळ सुरू करण्यासाठी {corp} कडे अधिकृत तक्रार नोंदवा (मोफत).',
+      'success.subtitle': 'आणखी पुढे जायचे आहे? अधिकृत घड्याळ सुरू करण्यासाठी {corp} कडे मोफत तक्रार नोंदवा.',
 
-      'success.step1': 'WhatsApp वर शेअर करा जेणेकरून शेजारी वॉर्ड नकाशावर पिन पाहतील',
+      'success.step1': 'WhatsApp वर शेअर करा जेणेकरून शेजारी पाठिंबा देऊ शकतील',
 
-      'success.step2': 'पर्यायी: {corp} कडे नोंदवा आणि तक्रार क्रमांक जतन करा',
+      'success.step2': 'पर्यायी: {corp} कडे नोंदवा आणि तुमचा तक्रार क्रमांक जतन करा',
 
-      'success.step3': 'स्वयंसेवक किंवा {corp} दुरुस्ती झाल्यावर पुष्टी करतील — Civic Hero XP मिळतील',
+      'success.step3': 'शेजारी किंवा {corp} दुरुस्ती झाल्यावर चिन्हांकित करू शकतात — आणि तुम्हाला Civic Points मिळतील',
 
       'success.file': 'अधिकृत तक्रार नोंदवा (पर्यायी)',
 
@@ -6667,19 +6667,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc ला टॅग करा',
 
-      'success.alert': 'शेजाऱ्यांना कळवा',
+      'success.alert': 'तुमच्या शेजाऱ्यांना सांगा',
 
       'success.done': 'नकाशावर परत',
 
-      'success.sharePrompt': 'WhatsApp वर शेअर करा — जास्त लोक पाहतील, दुरुस्ती लवकर होईल.',
+      'success.sharePrompt': 'WhatsApp वर शेअर करा — जितके जास्त पाहतील, तितकी दुरुस्ती लवकर होईल.',
 
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
 
       'share.nativeShare': 'शेअर करा',
 
-      'success.shareNudge': 'शेजारी कदाचित न माहित — WhatsApp share.',
+      'success.shareNudge': 'तुमच्या शेजाऱ्यांना कदाचित अजून माहीत नसेल — एक WhatsApp शेअर यावर जास्त नजरा आणेल.',
 
-      'success.shareMsg': '📍 {ward} मध्ये {hazard} — CivicRadar ward map pin.\nMe too आणि lane hazards:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} मध्ये {hazard} — मी नुकतीच ती आमच्या CivicRadar वॉर्ड नकाशावर पिन केली.\nMe too टॅप करा, किंवा तुमच्या गल्लीतील स्पॉट नोंदवा:\n{link}\n{hashtags}',
 
       'share.appMsg': '🗺️ {city} वॉर्ड धोका नकाशा — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी पिन. Me too, प्रतिस्पर्धी वॉर्डला हरवा!\n{link}\n{hashtags}',
 
@@ -6741,7 +6741,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.pitchCopied': 'पिच कॉपी — RWA ग्रुपमध्ये पेस्ट करा!',
 
-      'pwa.nudge': 'पावसाळा-तयार: होम स्क्रीनवर CivicRadar जोडा.',
+      'pwa.nudge': 'एक-टॅप नोंदणीसाठी CivicRadar तुमच्या होम स्क्रीनवर जोडा.',
 
       'pwa.nudgeAction': 'होम स्क्रीनवर जोडा',
 
@@ -6749,9 +6749,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.challengeShare': 'मित्राला आव्हान — वॉर्ड नकाशा शेअर करा',
 
-      'community.winsTitle': 'या पावसाळ्यातील विजय',
+      'community.winsTitle': 'अलीकडील विजय',
 
-      'community.winsEmpty': 'सोडवलेले स्पॉट येथे दिसतील — तक्रार करा, शेजाऱ्यांना बोलवा, विजय साजरा करा.',
+      'community.winsEmpty': 'सुटलेले स्पॉट इथे दिसतील. एक तक्रार नोंदवा, शेजाऱ्यांना सोबत घ्या, आणि तुमची गल्ली सुधारताना पाहा.',
 
       'community.winsNeighbours': '{ward} मधील शेजारी',
 
@@ -6759,19 +6759,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} सोडवले · {ward}',
 
-      'success.points': 'Civic Hero XP',
+      'success.points': 'Civic Points',
 
-      'success.xpBonus': '+{n} Civic Hero XP',
+      'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} या आठवड्याची पहिली तक्रार!',
+      'success.weekBonus': '+{n} — या आठवड्यातील तुमची पहिली तक्रार',
 
-      'success.celebrateFirst': 'तुम्ही तुमच्या वॉर्डचे रक्षण करत आहात — शेजारी तुमचे आभारी असतील.',
+      'success.celebrateFirst': 'तुमची पहिली तक्रार — तुमची गल्ली आत्ताच थोडी सुरक्षित झाली.',
 
-      'success.celebrateMilestone': '{n} तक्रारी नोंदवल्या — तुमच्यामुळे गल्ली सुरक्षित झाली!',
+      'success.celebrateMilestone': '{n} तक्रारी झाल्या — तुमचे शेजारी भाग्यवान आहेत की तुम्ही आहात.',
 
-      'success.kudos1': 'शाब्बास! आणखी एक धोका रडारवर.',
+      'success.kudos1': 'शाब्बास — आणखी एक धोका रडारवर आला.',
 
-      'success.kudos2': 'छान — तुमचा वॉर्ड थोडा अधिक सुरक्षित झाला.',
+      'success.kudos2': 'छान काम — तुमचा वॉर्ड आता थोडा सुरक्षित आहे.',
 
       'success.kudos3': 'नोंदवले! शेजाऱ्यांची काळजी घेतल्याबद्दल धन्यवाद.',
 
@@ -6808,35 +6808,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} तक्रारी — चालू ठेवा!',
 
-      'map.empty': '{ward} मध्ये अजून pin नाही — पहिले व्हा!',
+      'map.empty': '{ward} मध्ये अजून pin नाही — पहिले तुम्ही व्हा.',
 
-      'map.emptyHint': 'नकाशावर · फोटो · नोंदवा',
+      'map.emptyHint': 'यासाठी सुमारे 30 सेकंद लागतात.',
 
-      'map.emptyAction': 'आत्ताच नोंदवा',
+      'map.emptyAction': 'पहिली नोंद करा',
 
-      'map.emptyShare': 'WhatsApp वर शेजाऱ्यांना बोलवा',
+      'map.emptyShare': 'WhatsApp वर तुमच्या शेजाऱ्यांना बोलवा',
 
-      'map.emptyRival': '{ward} vs {rival} — {pending} open spots. नोंदवा किंवा बोलवा!',
+      'map.emptyRival': '{ward} विरुद्ध {rival} — {pending} उघडे स्पॉट. एक नोंदवा, किंवा तुमची गल्ली सोबत आणा.',
 
-      'map.emptyEncourage': 'प्रत्येक pin तुमच्या वॉर्डला मदत करतो — कचरा, खड्डे, स्ट्रीटलाइट आणि साचलेले पाणी. पावसाळा टिप: साचलेले पाणी साफ करा, डेंग्यू टाळा.',
+      'map.emptyEncourage': 'प्रत्येक pin तुमच्या गल्लीकडे लक्ष वेधण्यास मदत करतो — कचरा, खड्डे, स्ट्रीटलाइट, किंवा साचलेले पाणी. तुमच्या तक्रारीपासूनच उपाय सुरू होतो.',
 
-      'home.hero.badge': '#MonsoonGuardian',
+      'home.hero.badge': 'तुमचा वॉर्ड, एकत्र',
 
-      'home.hero.headline': 'नकाशावर · फोटो · नोंदवा',
+      'home.hero.headline': 'दिसलं. टिपलं. झालं.',
 
-      'home.hero.subline': 'तीन टॅप — तुमचा वॉर्ड, एक फोटो, शेजाऱ्यांना कळवा.',
+      'home.hero.subline': 'तुमच्या गल्लीतील धोका 30 सेकंदात नोंदवा — तुमचे शेजारीही तो पाहतील.',
 
-      'home.hero.benefit1': 'नकाशावर',
+      'home.hero.benefit1': 'फोटो घ्या',
 
-      'home.hero.benefit2': 'फोटो',
+      'home.hero.benefit2': 'तुमचा वॉर्ड पिन करा',
 
-      'home.hero.benefit3': 'नोंदवा',
+      'home.hero.benefit3': 'शेजाऱ्यांना कळवले जाते',
 
-      'home.hero.cta': 'आत्ताच नोंदवा',
+      'home.hero.cta': 'स्पॉट नोंदवा',
 
-      'home.hero.tour': 'छोटा टूर',
+      'home.hero.tour': 'छोटा टूर पाहा',
 
-      'home.hero.trust': 'मोफत · ऑफलाइन · 3 शहरे · 4 भाषा',
+      'home.hero.trust': 'मोफत · ऑफलाइन काम करते · 3 शहरे · 4 भाषा',
 
       'home.hero.dismiss': 'स्वागत कार्ड बंद करा',
 
@@ -7182,7 +7182,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'नागरिक',
 
-      'profile.points': 'Civic Hero XP',
+      'profile.points': 'Civic Points',
 
       'profile.xpTotalLabel': '{n} XP',
 
@@ -8320,7 +8320,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'एका शेजाऱ्याने तुम्हाला बोलावले 👋',
 
-      'referral.joinedReward': '🎉 तुमच्या आमंत्रणामुळे {n} शेजारी सामील झाले — +{pts} Civic Hero XP!',
+      'referral.joinedReward': '🎉 तुमच्या आमंत्रणामुळे {n} शेजारी सामील झाले — +{pts} Civic Points!',
 
       'ref.welcomeBody': '{city} नकाशावर आधीच {n} तक्रारी आहेत. तुमच्या वॉर्डमधील खुले स्पॉट पाहा — किंवा 30 सेकंदात एक पिन करा.',
 
@@ -8332,13 +8332,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.dismiss': 'आमंत्रण बंद करा',
 
-      'season.monsoonPrep': 'पावसाळा येतोय 🌧️ पहिल्या जोरदार पावसाआधी साचलेले पाणी साफ करा — स्पॉट पिन करा.',
+      'season.monsoonPrep': 'पाऊस येत आहे. लवकर साचलेले पाणी साफ केल्याने डास कमी होतात — पहिल्या जोरदार पावसाआधी स्पॉट पिन करा.',
 
-      'season.monsoonPeak': 'पावसाळा सुरू झाला आहे 🌧️ साचलेले पाणी डेंग्यू पसरवते. आज तुमच्या वॉर्डमध्ये स्पॉट नोंदवा.',
+      'season.monsoonPeak': 'पावसाळा आला आहे. साचलेल्या पाण्यातूनच डेंग्यू सुरू होतो — 30 सेकंदांची तक्रार तुमच्या संपूर्ण गल्लीला मदत करते.',
 
-      'season.ganesh': 'गणेश चतुर्थी 🙏 सणासाठी तुमचा वॉर्ड स्वच्छ ठेवा — मंडप व विसर्जन मार्गाजवळ साचलेले पाणी नोंदवा.',
+      'season.ganesh': 'गणेश चतुर्थी आली आहे. चला सणासाठी वॉर्ड स्वच्छ ठेवूया — मंडप व विसर्जन मार्गाजवळ साचलेले पाणी नोंदवा.',
 
-      'season.denguePeak': 'डेंग्यूचा हंगाम ⚠️ डास साचलेल्या पाण्यात वाढतात. 30 सेकंदांची तक्रार तुमची गल्ली वाचवते.',
+      'season.denguePeak': 'डेंग्यूचा हंगाम आहे. डास साचलेल्या पाण्यात वाढतात — एक झटपट तक्रार तुमच्या गल्लीचे रक्षण करते.',
 
       'season.dismiss': 'हंगामी सूचना बंद करा',
 
@@ -8669,45 +8669,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'રિપોર્ટ',
 
-      'coach.step': '#MonsoonGuardian · 30 sec',
+      'coach.step': 'શરૂઆત · 30 સેકંડ',
 
-      'coach.title': 'નકશા પર · ફોટો · રિપોર્ટ',
+      'coach.title': 'તમારા વોર્ડના નકશામાં આપનું સ્વાગત છે',
 
-      'coach.body': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
+      'coach.body': 'રિપોર્ટ કરવા માટે ત્રણ ટૅપ: તમારી જગ્યા, એક ફોટો, અને તમારા પડોશીઓને ખબર પડી જાય છે.',
 
       'coach.got': 'ચાલો શરૂ કરીએ',
 
-      'tour.skip': 'Tour skip',
+      'tour.skip': 'છોડો',
 
       'tour.next': 'આગળ',
 
       'tour.done': 'સમજાઈ ગયું',
 
-      'tour.replay': 'Tour replay',
+      'tour.replay': 'ટૂર ફરી જુઓ',
 
-      'tour.map.title': 'નકશા પર',
+      'tour.map.title': 'તમારો વોર્ડ, નકશા પર',
 
-      'tour.map.body': 'તમારો વોર્ડ નકશો — hazard pins અને Me too અહીં.',
+      'tour.map.body': 'તમારા પડોશીઓએ નોંધેલ દરેક જોખમ અહીં પિન તરીકે દેખાય છે.',
 
-      'tour.report.title': 'ફોટો લો',
+      'tour.report.title': 'કંઈક દેખાયું?',
 
-      'tour.report.body': 'Report દબાવો અને ત્યાં જ ફોટો લો.',
+      'tour.report.body': 'Report દબાવો અને તમે જ્યાં ઊભા છો ત્યાં જ ફોટો લો.',
 
-      'tour.profile.title': 'રિપોર્ટ',
+      'tour.profile.title': 'તમે નકશા પર છો',
 
-      'tour.profile.body': 'Submit દબાવો — પડોશીઓ પિન જોશે. Civic Hero XP Profile માં દેખાશે.',
+      'tour.profile.body': 'તમારા પડોશીઓ પિન જુએ છે. Profile માં તમારા Civic Points ટ્રૅક કરો.',
 
-      'persona.citizen.idle': 'તમારા વોર્ડમાં જોખમો નોંધો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. Report — 30 sec ward map, WhatsApp share. ચોમાસુ ટિપ: ભરાયેલું પાણી = ડેંગુ જોખમ.',
+      'persona.citizen.idle': 'આસપાસ કોઈ જોખમ દેખાયું? 30 સેકંડમાં નોંધો — તમારા પડોશીઓ તમારો આભાર માનશે.',
 
-      'persona.wardImpact': '{ward}: {n} વોર્ડ ફરિયાદ — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. ચોમાસુ ટિપ: stagnant lanes માં ડેંગુ. #MonsoonGuardian',
+      'persona.wardImpact': '{ward}: અત્યાર સુધી તમારા પડોશીઓની {n} ફરિયાદ. તમારી પણ ઉમેરો.',
 
-      'persona.unfiled': '{n} વોર્ડ નકશા પર ખુલ્લા — શેર કરો અથવા Profile માંથી અધિકૃત નોંધાવો.',
+      'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Profile માંથી અધિકૃત રીતે નોંધાવો.',
 
-      'persona.pendingFiled': '{n} વોર્ડ નકશા પર ખુલ્લા — મુદત વીતી હોય તો Profile જુઓ.',
+      'persona.pendingFiled': '{n} તમારા વોર્ડ નકશા પર ખુલ્લા છે — મુદત વીતી હોય તો Profile જુઓ.',
 
-      'persona.admin.idlePending': '{n} pending — queue અથવા red pins.',
+      'persona.admin.idlePending': '{n} સમીક્ષાની રાહ જોઈ રહ્યા છે — queue ખોલો, અથવા red pins દબાવો.',
 
-      'persona.admin.idleEmpty': 'બાકી ફરિયાદો નથી. નવા પિન અહીં દેખાશે.',
+      'persona.admin.idleEmpty': 'બધું બરાબર છે. પડોશીઓની નવી ફરિયાદો અહીં દેખાશે.',
 
       'persona.admin.header': 'BMC સમીક્ષા મોડ',
 
@@ -8719,11 +8719,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
 
-      'onboard.subtitle': 'ત્રણ tap — ward, ફોટો, પડોશીઓને ચેતવણી.',
+      'onboard.subtitle': 'તમારી શેરી, એક નકશા પર. સમસ્યા દેખાય તો ફોટો લો — તમારા પડોશીઓ પણ તે જોશે.',
 
       'onboard.city': 'તમારું શહેર',
 
-      'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછી GPS થી વોર્ડ શોધીશું.',
+      'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછીના પગલામાં અમે તમારા સ્થાનથી તમારો વોર્ડ શોધીશું.',
 
       'onboard.ward': 'તમારો વોર્ડ',
 
@@ -8733,35 +8733,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'બધા વિકલ્પો બતાવો',
 
-      'onboard.wardHint': '{city}ના {n} સત્તાવાર વોર્ડમાંથી પસંદ કરો.',
+      'onboard.wardHint': '{city}ના વોર્ડમાંથી પસંદ કરો, અથવા અમને શોધવા દો.',
 
-      'onboard.wardDetecting': 'તમારા સ્થાનથી વોર્ડ શોધી રહ્યા છીએ…',
+      'onboard.wardDetecting': 'તમારા સ્થાનથી તમારો વોર્ડ શોધી રહ્યા છીએ…',
 
-      'onboard.wardDetectedHint': 'GPS થી અંદાજિત વોર્ડ — અધિકૃત સીમા સર્વેક્ષણ નથી.',
+      'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વોર્ડ — તમે તે બદલી શકો છો.',
 
-      'onboard.wardManual': 'ખોટું? જાતે પસંદ કરો',
+      'onboard.wardManual': 'બરાબર નથી? જાતે પસંદ કરો',
 
-      'onboard.wardRetry': 'ફરી શોધો',
+      'onboard.wardRetry': 'ફરી પ્રયત્ન કરો',
 
-      'onboard.wardDetectFailed': 'વોર્ડ મળ્યો નહીં — જાતે પસંદ કરો અથવા લોકેશન મંજૂરી આપો.',
+      'onboard.wardDetectFailed': 'તમારો વોર્ડ મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
       'onboard.name': 'પ્રદર્શિત નામ',
 
-      'onboard.namePh': 'અમે તમને શું કહીએ?',
+      'onboard.namePh': 'પડોશીઓ તમને શું કહે?',
 
-      'onboard.join': 'સમુદાયમાં જોડાઓ',
+      'onboard.join': 'તમારા વોર્ડમાં જોડાઓ',
 
-      'onboard.wardError': 'યાદીમાંથી વોર્ડ પસંદ કરો.',
+      'onboard.wardError': 'યાદીમાંથી વોર્ડ પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
-      'onboard.society': 'સોસાયટી / પડોશ (વૈકલ્પિક)',
+      'onboard.society': 'સોસાયટી અથવા પડોશ (વૈકલ્પિક)',
 
-      'onboard.societyPh': 'દા.ત. Phoenix Mills CHS, Worli',
+      'onboard.societyPh': 'તમારી સોસાયટી અથવા RWA નું નામ, જો યાદીમાં ન હોય',
 
-      'onboard.societyHintNoWard': 'સ્થાનિક સૂચનાઓ માટે પહેલા વોર્ડ પસંદ કરો.',
+      'onboard.societyHintNoWard': 'નજીકની સોસાયટી જોવા માટે પહેલા તમારો વોર્ડ પસંદ કરો.',
 
-      'onboard.societyHintWard': '{ward} માં {n} સોસાયટી — ન મળે તો ટાઇપ કરો.',
+      'onboard.societyHintWard': '{ward} માં {n} સોસાયટી — ટાઇપ કરવાનું શરૂ કરો, અથવા તમારી ઉમેરો.',
 
-      'onboard.societyHintCustom': 'યાદીમાં ન હોય તો સોસાયટી / RWA નામ લખો.',
+      'onboard.societyHintCustom': 'યાદીમાં ન હોય તો તમારી સોસાયટી અથવા RWA નું નામ લખો.',
 
       'report.title': 'જોખમની ફરિયાદ કરો',
 
@@ -8817,19 +8817,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'ફોટો સલામતી તપાસ માટે ઇન્ટરનેટથી કનેક્ટ થાઓ.',
 
-      'success.title': 'ફરિયાદ નોંધાઈ',
+      'success.title': 'નોંધાઈ ગઈ — સરસ',
 
-      'success.tagline': 'રિપોર્ટ — તમારા વોર્ડ નકશા પર પિન',
+      'success.tagline': 'તમારી જગ્યા વોર્ડ નકશા પર પિન થઈ ગઈ છે.',
 
-      'success.taglineNeighbours': '{n} પડોશી nearby support — તમારી report map પર!',
+      'success.taglineNeighbours': '{n} પડોશીઓ પહેલેથી નજીકના સ્પોટને ટેકો આપી રહ્યા છે — હવે તમારી ફરિયાદ પણ ત્યાં છે.',
 
-      'success.subtitle': 'વૈકલ્પિક: સરકારી ઘડિયાળ શરૂ કરવા {corp} પર અધિકૃત ફરિયાદ નોંધાવો (મફત).',
+      'success.subtitle': 'આગળ વધવું છે? અધિકૃત ઘડિયાળ શરૂ કરવા {corp} પર મફત ફરિયાદ નોંધાવો.',
 
-      'success.step1': 'WhatsApp પર શેર કરો જેથી પડોશીઓ વોર્ડ નકશા પર પિન જોઈ શકે',
+      'success.step1': 'WhatsApp પર શેર કરો જેથી પડોશીઓ તેને ટેકો આપી શકે',
 
-      'success.step2': 'વૈકલ્પિક: {corp} પર નોંધાવો અને ફરિયાદ નંબર સાચવો',
+      'success.step2': 'વૈકલ્પિક: {corp} પર નોંધાવો અને તમારો ફરિયાદ નંબર સાચવો',
 
-      'success.step3': 'સ્વયંસેવકો કે {corp} ઠીક કરે એની પુષ્ટિ કરશે — Civic Hero XP મળશે',
+      'success.step3': 'પડોશીઓ કે {corp} તેને ઠીક થયેલું ચિહ્નિત કરી શકે — અને તમને Civic Points મળશે',
 
       'success.file': 'અધિકૃત ફરિયાદ નોંધાવો (વૈકલ્પિક)',
 
@@ -8837,19 +8837,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc ને ટૅગ કરો',
 
-      'success.alert': 'પડોશીઓને જાણ કરો',
+      'success.alert': 'તમારા પડોશીઓને કહો',
 
       'success.done': 'Map પર પાછા',
 
-      'success.sharePrompt': 'WhatsApp share — વધુ eyes, ઝડપ fix.',
+      'success.sharePrompt': 'WhatsApp પર શેર કરો — જેટલી વધુ નજર, એટલી ઝડપી ફિક્સ.',
 
       'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
 
       'share.nativeShare': 'શેર કરો',
 
-      'success.shareNudge': 'પડોશી કદાચ ન જાણે — WhatsApp share.',
+      'success.shareNudge': 'તમારા પડોશીઓને હજુ ખબર ન હોય — એક WhatsApp શેર તેના પર વધુ નજર લાવશે.',
 
-      'success.shareMsg': '📍 {ward} માં {hazard} — CivicRadar ward map pin.\nMe too અને lane hazards:\n{link}\n{hashtags}',
+      'success.shareMsg': '📍 {ward} માં {hazard} — મેં હમણાં જ તેને અમારા CivicRadar વોર્ડ નકશા પર પિન કરી.\nMe too ટૅપ કરો, અથવા તમારી શેરીમાં સ્પોટ નોંધો:\n{link}\n{hashtags}',
 
       'share.appMsg': '🗺️ {city} વોર્ડ જોખમ નકશો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો!\n{link}\n{hashtags}',
 
@@ -8911,7 +8911,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.pitchCopied': 'પિચ કૉપી — RWA ગ્રુપમાં પેસ્ટ કરો!',
 
-      'pwa.nudge': 'ચોમાસા-તૈયાર: હોમ સ્ક્રીન પર CivicRadar ઉમેરો.',
+      'pwa.nudge': 'એક-ટૅપ રિપોર્ટિંગ માટે CivicRadar તમારી હોમ સ્ક્રીન પર ઉમેરો.',
 
       'pwa.nudgeAction': 'હોમ સ્ક્રીન પર ઉમેરો',
 
@@ -8919,9 +8919,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.challengeShare': 'મિત્રને પડકાર — વોર્ડ નકશો શેર કરો',
 
-      'community.winsTitle': 'આ ચોમાસાની જીત',
+      'community.winsTitle': 'તાજેતરની જીત',
 
-      'community.winsEmpty': 'ઉકેલાયેલા સ્પોટ અહીં દેખાશે — રિપોર્ટ કરો, પડોશીઓને બોલાવો, જીત ઉજવો.',
+      'community.winsEmpty': 'ઠીક થયેલા સ્પોટ અહીં દેખાશે. એક ફરિયાદ નોંધો, પડોશીઓને સાથે લો, અને તમારી શેરી સુધરતી જુઓ.',
 
       'community.winsNeighbours': '{ward} માં પડોશીઓ',
 
@@ -8929,19 +8929,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} ઉકેલાયું · {ward}',
 
-      'success.points': 'Civic Hero XP',
+      'success.points': 'Civic Points',
 
-      'success.xpBonus': '+{n} Civic Hero XP',
+      'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} આ અઠવાડિયાની પહેલી ફરિયાદ!',
+      'success.weekBonus': '+{n} — આ અઠવાડિયે તમારી પહેલી ફરિયાદ',
 
-      'success.celebrateFirst': 'ward રક્ષણ — પડોશી આભારી.',
+      'success.celebrateFirst': 'તમારી પહેલી ફરિયાદ — તમારી શેરી હમણાં જ થોડી સુરક્ષિત થઈ.',
 
-      'success.celebrateMilestone': '{n} reports — lane safer!',
+      'success.celebrateMilestone': '{n} ફરિયાદો થઈ — તમારા પડોશીઓ નસીબદાર છે કે તમે છો.',
 
-      'success.kudos1': 'શાબાશ! વધુ એક ખતરો રડાર પર.',
+      'success.kudos1': 'શાબાશ — વધુ એક ખતરો રડાર પર આવ્યો.',
 
-      'success.kudos2': 'સરસ — ward થોડું safe.',
+      'success.kudos2': 'સરસ કામ — તમારો વોર્ડ હવે થોડો સુરક્ષિત છે.',
 
       'success.kudos3': 'નોંધાયું! પડોશીઓની કાળજી લેવા બદલ આભાર.',
 
@@ -8978,35 +8978,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
 
-      'map.empty': '{ward} માં હજુ pin નહીં — પહેલા બનો!',
+      'map.empty': '{ward} માં હજુ કોઈ પિન નથી — પહેલા તમે બનો.',
 
-      'map.emptyHint': 'નકશા પર · ફોટો · રિપોર્ટ',
+      'map.emptyHint': 'તેમાં લગભગ 30 સેકંડ લાગે છે.',
 
-      'map.emptyAction': 'હમણાં report',
+      'map.emptyAction': 'પહેલી ફરિયાદ નોંધો',
 
-      'map.emptyShare': 'WhatsApp પર પડોશીઓને બોલાવો',
+      'map.emptyShare': 'WhatsApp પર તમારા પડોશીઓને બોલાવો',
 
-      'map.emptyRival': '{ward} vs {rival} — {pending} open. report કે rally!',
+      'map.emptyRival': '{ward} વિરુદ્ધ {rival} — {pending} ખુલ્લા સ્પોટ. એક નોંધો, અથવા તમારી શેરીને સાથે લાવો.',
 
-      'map.emptyEncourage': 'દરેક pin તમારા વોર્ડને મદદ કરે — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી. ચોમાસુ ટિપ: ભરાયેલું પાણી સાફ કરો, ડેંગુ ટાળો.',
+      'map.emptyEncourage': 'દરેક પિન તમારી શેરી પર ધ્યાન દોરવામાં મદદ કરે છે — કચરો, ખાડા, સ્ટ્રીટલાઇટ, અથવા ભરાયેલું પાણી. તમારી ફરિયાદથી જ ઉકેલ શરૂ થાય છે.',
 
-      'home.hero.badge': '#MonsoonGuardian',
+      'home.hero.badge': 'તમારો વોર્ડ, સાથે મળીને',
 
-      'home.hero.headline': 'નકશા પર · ફોટો · રિપોર્ટ',
+      'home.hero.headline': 'જોયું. લીધું. થઈ ગયું.',
 
-      'home.hero.subline': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
+      'home.hero.subline': 'તમારી શેરીમાં જોખમ 30 સેકંડમાં રિપોર્ટ કરો — તમારા પડોશીઓ પણ તે જોશે.',
 
-      'home.hero.benefit1': 'નકશા પર',
+      'home.hero.benefit1': 'ફોટો લો',
 
-      'home.hero.benefit2': 'ફોટો',
+      'home.hero.benefit2': 'તમારો વોર્ડ પિન કરો',
 
-      'home.hero.benefit3': 'રિપોર્ટ',
+      'home.hero.benefit3': 'પડોશીઓને જાણ થાય',
 
-      'home.hero.cta': 'હમણાં રિપોર્ટ',
+      'home.hero.cta': 'સ્પોટ રિપોર્ટ કરો',
 
-      'home.hero.tour': 'ટૂંકો ટૂર',
+      'home.hero.tour': 'ટૂંકો ટૂર જુઓ',
 
-      'home.hero.trust': 'મફત · ઑફલાઇન · 3 શહેર · 4 ભાષા',
+      'home.hero.trust': 'મફત · ઑફલાઇન કામ કરે · 3 શહેર · 4 ભાષા',
 
       'home.hero.dismiss': 'સ્વાગત કાર્ડ બંધ કરો',
 
@@ -9352,7 +9352,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.persona': 'નાગરિક',
 
-      'profile.points': 'Civic Hero XP',
+      'profile.points': 'Civic Points',
 
       'profile.xpTotalLabel': '{n} XP',
 
@@ -10490,7 +10490,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.welcomeTitle': 'એક પડોશીએ તમને આમંત્રણ આપ્યું 👋',
 
-      'referral.joinedReward': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — +{pts} Civic Hero XP!',
+      'referral.joinedReward': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — +{pts} Civic Points!',
 
       'ref.welcomeBody': '{city} નકશા પર પહેલેથી {n} ફરિયાદ છે. તમારા વોર્ડના ખુલ્લા સ્પોટ જુઓ — અથવા 30 સેકન્ડમાં એક પિન કરો.',
 
@@ -10502,13 +10502,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'ref.dismiss': 'આમંત્રણ બંધ કરો',
 
-      'season.monsoonPrep': 'ચોમાસું આવી ગયું છે 🌧️ ભારે વરસાદ પહેલાં ભરાયેલું પાણી સાફ કરાવો — સ્પોટ પિન કરો.',
+      'season.monsoonPrep': 'વરસાદ આવી રહ્યો છે. વહેલા ભરાયેલું પાણી સાફ કરવાથી મચ્છર ઓછા થાય છે — પહેલા ભારે વરસાદ પહેલાં સ્પોટ પિન કરો.',
 
-      'season.monsoonPeak': 'ચોમાસું આવી ગયું છે 🌧️ ભરાયેલું પાણી ડેન્ગ્યુ ફેલાવે છે. આજે તમારા વોર્ડમાં સ્પોટ નોંધો.',
+      'season.monsoonPeak': 'ચોમાસું આવી ગયું છે. ભરાયેલા પાણીથી જ ડેન્ગ્યુ શરૂ થાય છે — 30 સેકંડની ફરિયાદ તમારી આખી શેરીને મદદ કરે છે.',
 
-      'season.ganesh': 'ગણેશ ચતુર્થી 🙏 તહેવાર માટે તમારો વોર્ડ સ્વચ્છ રાખો — પંડાલ અને વિસર્જન માર્ગ પાસે ભરાયેલું પાણી નોંધો.',
+      'season.ganesh': 'ગણેશ ચતુર્થી આવી ગઈ છે. ચાલો તહેવાર માટે વોર્ડ સ્વચ્છ રાખીએ — પંડાલ અને વિસર્જન માર્ગ પાસે ભરાયેલું પાણી નોંધો.',
 
-      'season.denguePeak': 'ડેન્ગ્યુની મોસમ ⚠️ મચ્છર ભરાયેલા પાણીમાં ઊછરે છે. 30 સેકન્ડની ફરિયાદ તમારી ગલીને બચાવે છે.',
+      'season.denguePeak': 'ડેન્ગ્યુની મોસમ છે. મચ્છર ભરાયેલા પાણીમાં ઊછરે છે — એક ઝડપી ફરિયાદ તમારી શેરીનું રક્ષણ કરે છે.',
 
       'season.dismiss': 'મોસમી સૂચન બંધ કરો',
 
@@ -28992,6 +28992,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Date-aware, India-context seasonal nudge. Returns null off-season (Nov–Apr).
 
   function getSeasonalHook() {
+
+    const mode = (window.CIVICRADAR_CONFIG || {}).seasonalMode; // 'auto' | 'on' | 'off'
+
+    if (mode === 'off') return null;
+
+    if (mode === 'on') return { key: 'season.monsoonPeak', icon: 'ph-cloud-rain' };
 
     const m = new Date().getMonth(); // 0 = Jan
 

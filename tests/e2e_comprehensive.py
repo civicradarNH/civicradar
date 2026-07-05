@@ -885,7 +885,7 @@ async def run_citizen_tests(s: Suite, browser):
 
                   const coach = document.getElementById('coachMark');
 
-                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
+                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin|report|hazard/i.test(heroSub.textContent);
 
                   const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
 
@@ -911,7 +911,7 @@ async def run_citizen_tests(s: Suite, browser):
 
                   const coach = document.getElementById('coachMark');
 
-                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin/i.test(heroSub.textContent);
+                  const heroGuidance = hero && !hero.classList.contains('hidden') && heroSub && /spot|photo|pin|report|hazard/i.test(heroSub.textContent);
 
                   const coachGuidance = coach && !coach.classList.contains('hidden') && /pin|photo|report/i.test(coach.textContent || '');
 
@@ -2287,7 +2287,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('OB12', 'Onboarding', 'Hero subline populated (terse)', '() => { const e = document.querySelector(".home-hero__sub"); return !!e && e.textContent.trim().length > 10 && e.textContent.trim().length < 120; }'),
 
-        ('OB13', 'Onboarding', 'Spot guidance in hero subline', '() => { const e = document.querySelector(".home-hero__sub"); return !!e && /spot|photo|pin|snap|stagnant|monsoon|water/i.test(e.textContent); }'),
+        ('OB13', 'Onboarding', 'Spot guidance in hero subline', '() => { const e = document.querySelector(".home-hero__sub"); return !!e && /spot|photo|pin|snap|stagnant|monsoon|water|report|hazard/i.test(e.textContent); }'),
 
         ('X28', 'Celebration', 'Success celebrate element present', '() => !!document.getElementById("successCelebrate")'),
 
@@ -3261,9 +3261,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('XP01', 'XP', 'Report adds Civic Hero XP in success modal',
+    s.record('XP01', 'XP', 'Report adds Civic Points in success modal',
 
-             '50' in xp_success_label and 'civic hero xp' in xp_success_label.lower(),
+             '50' in xp_success_label and 'civic points' in xp_success_label.lower(),
 
              f'label="{xp_success_label[:50]}"')
 
@@ -3333,7 +3333,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('XP02', 'XP', 'Me too adds Civic Hero XP', me_too_xp_ok)
+    s.record('XP02', 'XP', 'Me too adds Civic Points', me_too_xp_ok)
 
     # Level-up certificate: seed 50 bonus XP + submit report crosses Ward Watcher (100)
 
@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v121" in sw_src
+        "civicradar-v123" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7129,7 +7129,7 @@ async def run_home_hero_scenarios(s: Suite, browser):
 
           return title.length > 10 && sub.length > 10
 
-            && /stagnant|ward|map|water|dengue/i.test(title + ' ' + sub);
+            && /stagnant|ward|map|water|dengue|report|hazard|lane/i.test(title + ' ' + sub);
 
         }"""
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v121" in sw_src
+        "civicradar-v123" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7607,6 +7607,10 @@ async def main():
         '`css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql` + `terms.html`: UGC content-moderation compliance (v119) — the report-popup "Flag / hide from map" button previously only hid a pin on the reporter\'s own device with no backend notification, and the admin queue had zero content-removal action; this is the core requirement of Apple Guideline 1.2 and Google Play\'s UGC policy for apps with public user photos, so it\'s fixed end-to-end: new `flag_report` RPC + `report_flags` table (dedup-by-user, mirrors `confirm_report`), new `reports.flag_count`/`removed`/`removed_at` columns, `reports_select_all` RLS policy updated so moderator-removed content is genuinely inaccessible via the API to everyone except the original reporter and BMC/admin (not just hidden client-side); flagged reports surface in the admin queue (sorted to the top, badge + count) and a new "Remove content" button lets BMC/admin take a report off the public map for every device\'s next sync, not just the moderator\'s own; the original reporter still sees their own removed report in Profile with a "Removed by moderator" status instead of it silently vanishing; hide-confirm copy now accurately says it also flags for review (previously implied a purely local action); terms.html section 5 updated to describe the actual in-app flow instead of only an email-based takedown request; localized across en/hi/mr/gu; SW06 → v119',
 
         '`js/app.js` + `supabase/schema.sql` + `supabase/schema_security_fix.sql` + `index.html`: profile privilege-escalation fix + About-modal developer credit (v121) — closed a column-level privilege gap on `public.profiles`: the `profiles_update_own` RLS policy only checked row ownership, not which columns could change, so any signed-in user (including anonymous auth) could directly set their own `role` to \'bmc\'/\'ngo_lead\' or set `civic_xp` to an arbitrary number via the exposed Supabase client; fixed via `schema_security_fix.sql` (revokes blanket UPDATE on profiles, re-grants only the columns citizens legitimately self-edit, adds a guarded `sync_civic_xp` RPC that only allows XP to increase and caps the jump per call) plus the matching `Backend.syncCivicXp` app.js edit to call the RPC instead of writing the columns directly; also added a short "About the project" credit block to the About modal (right after Community impact stats) crediting the developer by first-name + initial only, routing all contact through the operator inbox, localized across en/hi/mr/gu; SW06 → v121',
+
+        '`js/searchable-select.js`: combobox fix + accessibility (v122) — fixed the ward/society searchable dropdown re-opening filtered to the just-picked value right after selection (missing suppressInput guard around the programmatic value-set); added auto-advance-focus to the next field after picking a value, without auto-opening that field\'s own dropdown if it\'s also a combobox; added `aria-selected` to listbox options (previously only a CSS class tracked the active option — screen readers had no way to know which one was selected) and `aria-haspopup="listbox"` on the input; SW06 → v122',
+
+        '`js/app.js` + `js/config.js`: copy rewrite — warm neighbourly voice + monsoon-neutral core (v123) — rewrote the high-impact user-facing strings (onboarding, coach mark/tour, home hero, persona bar, success/celebration, community, PWA nudge, map empty states) to a warmer, "your lane/your neighbours" voice with one idea per string, replacing several that crammed 3-4 messages into one sentence (worst offender: `persona.citizen.idle`); removed monsoon/dengue language from all evergreen core strings — it now lives only in the `season.*` keys, which `getSeasonalHook()` already shows/hides by month; added a deliberate `seasonalMode` override (auto/on/off, in `js/config.js`) so the seasonal banner can be forced on for a campaign or off entirely, on top of the existing date-driven default; standardized the pre-existing "Civic Hero XP" / "Civic Points" naming inconsistency (both were mixed across strings, even within the same language) onto "Civic Points" everywhere; fixed a leftover `#MonsoonGuardian` hashtag baked into `coach.step`/`home.hero.badge`/`persona.wardImpact` in all 4 languages; applied matching translations across hi/mr/gu (kept "Nihira H." and other proper nouns unchanged); left the ~2,000 functional strings (buttons, field labels, error text) and legal copy untouched, per the rewrite\'s own scope; note: `#MonsoonGuardian` is still hardcoded in 4 places in JS code (share-text templates, canvas watermark/title generation) rather than i18n strings — same underlying issue, flagged separately, not fixed in this pass; SW06 → v123',
 
     ]
 

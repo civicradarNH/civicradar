@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 23:05:48
+**Run:** 2026-07-05 00:07:08
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 388 | **Fail:** 0
+**Total:** 388 | **Pass:** 384 | **Fail:** 4
 
 ## Fixes applied this run
 
@@ -68,6 +68,8 @@
 - `css/styles.css` + `js/app.js`: trust-building report status stepper + hazard example text (v118) — profile report cards now show a 3-node visual stepper (Reported → Pending → Resolved) with check-circle icons and a filled connecting line, replacing the old plain progress dots (`renderReportCardProgress` rewritten in place, same call site); hazard picker tiles show a short example line per category ("e.g. clogged drain, waterlogged street") to reduce mis-categorized reports, localized across en/hi/mr/gu (new `hazard.<key>.example` i18n keys); stepper labels reuse existing `esc.progress.reported`/`esc.progress.resolved`/`popup.pending` keys rather than adding new ones; Map/Feed toggle, search, and a real reverse-geocoded location step were scoped out of this pass (deferred — no existing infra for any of the three, see session notes); SW06 → v118
 - `css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql` + `terms.html`: UGC content-moderation compliance (v119) — the report-popup "Flag / hide from map" button previously only hid a pin on the reporter's own device with no backend notification, and the admin queue had zero content-removal action; this is the core requirement of Apple Guideline 1.2 and Google Play's UGC policy for apps with public user photos, so it's fixed end-to-end: new `flag_report` RPC + `report_flags` table (dedup-by-user, mirrors `confirm_report`), new `reports.flag_count`/`removed`/`removed_at` columns, `reports_select_all` RLS policy updated so moderator-removed content is genuinely inaccessible via the API to everyone except the original reporter and BMC/admin (not just hidden client-side); flagged reports surface in the admin queue (sorted to the top, badge + count) and a new "Remove content" button lets BMC/admin take a report off the public map for every device's next sync, not just the moderator's own; the original reporter still sees their own removed report in Profile with a "Removed by moderator" status instead of it silently vanishing; hide-confirm copy now accurately says it also flags for review (previously implied a purely local action); terms.html section 5 updated to describe the actual in-app flow instead of only an email-based takedown request; localized across en/hi/mr/gu; SW06 → v119
 - `js/app.js` + `supabase/schema.sql` + `supabase/schema_security_fix.sql` + `index.html`: profile privilege-escalation fix + About-modal developer credit (v121) — closed a column-level privilege gap on `public.profiles`: the `profiles_update_own` RLS policy only checked row ownership, not which columns could change, so any signed-in user (including anonymous auth) could directly set their own `role` to 'bmc'/'ngo_lead' or set `civic_xp` to an arbitrary number via the exposed Supabase client; fixed via `schema_security_fix.sql` (revokes blanket UPDATE on profiles, re-grants only the columns citizens legitimately self-edit, adds a guarded `sync_civic_xp` RPC that only allows XP to increase and caps the jump per call) plus the matching `Backend.syncCivicXp` app.js edit to call the RPC instead of writing the columns directly; also added a short "About the project" credit block to the About modal (right after Community impact stats) crediting the developer by first-name + initial only, routing all contact through the operator inbox, localized across en/hi/mr/gu; SW06 → v121
+- `js/searchable-select.js`: combobox fix + accessibility (v122) — fixed the ward/society searchable dropdown re-opening filtered to the just-picked value right after selection (missing suppressInput guard around the programmatic value-set); added auto-advance-focus to the next field after picking a value, without auto-opening that field's own dropdown if it's also a combobox; added `aria-selected` to listbox options (previously only a CSS class tracked the active option — screen readers had no way to know which one was selected) and `aria-haspopup="listbox"` on the input; SW06 → v122
+- `js/app.js` + `js/config.js`: copy rewrite — warm neighbourly voice + monsoon-neutral core (v123) — rewrote the high-impact user-facing strings (onboarding, coach mark/tour, home hero, persona bar, success/celebration, community, PWA nudge, map empty states) to a warmer, "your lane/your neighbours" voice with one idea per string, replacing several that crammed 3-4 messages into one sentence (worst offender: `persona.citizen.idle`); removed monsoon/dengue language from all evergreen core strings — it now lives only in the `season.*` keys, which `getSeasonalHook()` already shows/hides by month; added a deliberate `seasonalMode` override (auto/on/off, in `js/config.js`) so the seasonal banner can be forced on for a campaign or off entirely, on top of the existing date-driven default; standardized the pre-existing "Civic Hero XP" / "Civic Points" naming inconsistency (both were mixed across strings, even within the same language) onto "Civic Points" everywhere; fixed a leftover `#MonsoonGuardian` hashtag baked into `coach.step`/`home.hero.badge`/`persona.wardImpact` in all 4 languages; applied matching translations across hi/mr/gu (kept "Nihira H." and other proper nouns unchanged); left the ~2,000 functional strings (buttons, field labels, error text) and legal copy untouched, per the rewrite's own scope; note: `#MonsoonGuardian` is still hardcoded in 4 places in JS code (share-text templates, canvas watermark/title generation) rather than i18n strings — same underlying issue, flagged separately, not fixed in this pass; SW06 → v123
 
 ## Summary by category
 
@@ -78,7 +80,7 @@
 - **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
 - **Celebration:** 8 pass / 0 fail
-- **Citizen:** 44 pass / 0 fail
+- **Citizen:** 43 pass / 1 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **Demo:** 8 pass / 0 fail
@@ -86,7 +88,7 @@
 - **Edge:** 17 pass / 0 fail
 - **Escalation:** 6 pass / 0 fail
 - **Feedback:** 7 pass / 0 fail
-- **HomeHero:** 7 pass / 0 fail
+- **HomeHero:** 6 pass / 1 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
 - **Legal:** 6 pass / 0 fail
@@ -98,7 +100,7 @@
 - **Negative:** 8 pass / 0 fail
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
-- **Onboarding:** 4 pass / 0 fail
+- **Onboarding:** 3 pass / 1 fail
 - **PWA:** 8 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
@@ -119,13 +121,16 @@
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
-- **XP:** 4 pass / 0 fail
+- **XP:** 3 pass / 1 fail
 - **i18n:** 9 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
 
 ## Failures
 
-_None_
+- `C09b` **Report-on-the-spot guidance shown at onboarding completion** — failed
+- `OB13` **Spot guidance in hero subline** — failed
+- `XP01` **Report adds Civic Hero XP in success modal** — label="+50 Civic Points"
+- `HM02` **Purpose headline + subline visible** — failed
 
 ## Limitations
 
@@ -150,8 +155,8 @@ _None_
 | C08 | Citizen | Valid ward onboarding | PASS |  |
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
-| C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch 71CA |
+| C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | **FAIL** |  |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ripple Ranger · Dadar, Shiva # |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -218,7 +223,7 @@ _None_
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
 | L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -271,7 +276,7 @@ _None_
 | OB10 | Onboarding | Hero welcome card present (explainer trim v89) | PASS |  |
 | OB11 | Onboarding | Hero renders 3 benefit pills | PASS |  |
 | OB12 | Onboarding | Hero subline populated (terse) | PASS |  |
-| OB13 | Onboarding | Spot guidance in hero subline | PASS |  |
+| OB13 | Onboarding | Spot guidance in hero subline | **FAIL** |  |
 | X28 | Celebration | Success celebrate element present | PASS |  |
 | X29 | Celebration | Success progress nudge element present | PASS |  |
 | X30 | Celebration | Success streak callout element present | PASS |  |
@@ -348,12 +353,12 @@ _None_
 | RP21 | Report | Draft restores report modal after reload | PASS |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
-| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="You're protecting your ward — " progress="Badge unlocked! 2 more to your" |
+| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="Your first report — your lane " progress="Badge unlocked! 2 more to your" |
 | RP14 | Report | Non-milestone report shows rotating kudos | PASS | celebrate="Logged! Thanks for looking out for your " |
 | RP15 | Report | Non-milestone report shows progress-to-badge nudge | PASS | progress="Just 1 more report to your next badge." |
 | RW01 | Rewards | Second report shows week streak callout | PASS |  |
 | RW02 | Rewards | Profile rewards bar visible after reports | PASS |  |
-| XP01 | XP | Report adds Civic Hero XP in success modal | PASS | label="+50 Civic Hero XP" |
+| XP01 | XP | Report adds Civic Hero XP in success modal | **FAIL** | label="+50 Civic Points" |
 | XP01b | XP | Profile shows total XP after report | PASS | xp="125" |
 | XP02 | XP | Me too adds Civic Hero XP | PASS |  |
 | XP03 | XP | Level up shows certificate offer | PASS |  |
@@ -512,7 +517,7 @@ _None_
 | LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | PASS |  |
 | LB06 | LocationBanner | Dismiss control has localized aria-label | PASS |  |
 | HM01 | HomeHero | Hero visible for onboarded user with no reports | PASS |  |
-| HM02 | HomeHero | Purpose headline + subline visible | PASS |  |
+| HM02 | HomeHero | Purpose headline + subline visible | **FAIL** |  |
 | HM03 | HomeHero | Primary CTA present | PASS |  |
 | HM04 | HomeHero | Three benefit pills present | PASS |  |
 | HM05 | HomeHero | Hero hides map-empty overlay while visible | PASS |  |
