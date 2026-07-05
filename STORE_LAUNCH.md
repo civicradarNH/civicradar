@@ -130,6 +130,71 @@ Free Mumbai monsoon hazard map — report stagnant water, track BMC complaints, 
 
 ---
 
+## Play Store resubmission (Misleading Claims — government sources)
+
+**Rejection:** Missing Source Link for Government Information — app references BMC/PMC/TMC but Play requires clear accessible URLs to original .gov sources in the app **and** store listing.
+
+### What we fixed (paste in Play Console → Release notes)
+
+- Added a dedicated **Official Government Sources** page at `https://civicradarnh.github.io/civicradar/official-sources.html` with verified `.gov.in` links for BMC/MCGM, PMC, TMC, Aaple Sarkar, and Swachhata.
+- In-app: About modal section, Community/Profile official channel blocks, visible source URLs under each channel button, and links from Privacy Policy / Terms.
+- Prominent disclaimer: CivicRadar is **not** a government entity; community map is separate from official filing.
+
+### Play Console fields
+
+- If **Website** or **Government information source URL** field exists, paste:  
+  `https://civicradarnh.github.io/civicradar/official-sources.html`
+- Privacy policy URL (unchanged): `https://civicradarnh.github.io/civicradar/privacy.html`
+
+### Full description (paste into Play Console)
+
+```
+CivicRadar — community hazard map for Mumbai, Pune & Thane
+
+Pin civic hazards on a live ward map with photo evidence. Rally neighbours with Me too corroboration. Optionally file official complaints with your municipal corporation when you choose.
+
+WHAT YOU CAN DO
+• Report stagnant water, garbage, potholes, and broken streetlights
+• See ward-level community map and leaderboards
+• Track your official complaint number after you file with BMC, PMC, or TMC
+• Volunteer pledges and neighbourhood cleanup coordination
+• 4 languages: English, Hindi, Marathi, Gujarati
+• Works offline as a PWA — install to Home Screen
+
+DISCLAIMER — NOT A GOVERNMENT APP
+CivicRadar is an independent community tool. It is NOT affiliated with, endorsed by, or operated by MCGM/BMC, PMC, TMC, or any government body. CivicRadar does not file complaints on your behalf.
+
+OFFICIAL SOURCES (where YOU file complaints)
+Full verified links: https://civicradarnh.github.io/civicradar/official-sources.html
+
+Mumbai (MCGM/BMC):
+• BMC online portal: https://portal.mcgm.gov.in/irj/portal/anonymous/qlcomplaintreg?guest_user=english
+• Participate Mumbai: https://participatemumbai.mcgm.gov.in/
+• Helpline: 1916
+
+Pune (PMC):
+• PMC CARE: https://pmccare.in/cep/home
+• Helpline: 1800 1030 222
+
+Thane (TMC):
+• TMC citizen portal: https://thanecity.gov.in/
+
+Maharashtra & national:
+• Aaple Sarkar grievances: https://grievances.maharashtra.gov.in/en
+• Swachhata-MoHUA: https://sbm.gov.in/sbmicc/ICT-platform
+
+Privacy: https://civicradarnh.github.io/civicradar/privacy.html
+Terms: https://civicradarnh.github.io/civicradar/terms.html
+Delete data: https://civicradarnh.github.io/civicradar/delete-account.html
+
+Free for residents. Built by students for neighbours — not by BMC.
+```
+
+**Short description (80 chars max):**  
+Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links inside.
+
+---
+
 ## Production config checklist
 
 ```js
