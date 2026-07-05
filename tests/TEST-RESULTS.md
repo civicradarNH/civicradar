@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 00:19:55
+**Run:** 2026-07-05 06:31:45
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 388 | **Fail:** 0
+**Total:** 389 | **Pass:** 389 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -70,6 +70,7 @@
 - `js/app.js` + `supabase/schema.sql` + `supabase/schema_security_fix.sql` + `index.html`: profile privilege-escalation fix + About-modal developer credit (v121) — closed a column-level privilege gap on `public.profiles`: the `profiles_update_own` RLS policy only checked row ownership, not which columns could change, so any signed-in user (including anonymous auth) could directly set their own `role` to 'bmc'/'ngo_lead' or set `civic_xp` to an arbitrary number via the exposed Supabase client; fixed via `schema_security_fix.sql` (revokes blanket UPDATE on profiles, re-grants only the columns citizens legitimately self-edit, adds a guarded `sync_civic_xp` RPC that only allows XP to increase and caps the jump per call) plus the matching `Backend.syncCivicXp` app.js edit to call the RPC instead of writing the columns directly; also added a short "About the project" credit block to the About modal (right after Community impact stats) crediting the developer by first-name + initial only, routing all contact through the operator inbox, localized across en/hi/mr/gu; SW06 → v121
 - `js/searchable-select.js`: combobox fix + accessibility (v122) — fixed the ward/society searchable dropdown re-opening filtered to the just-picked value right after selection (missing suppressInput guard around the programmatic value-set); added auto-advance-focus to the next field after picking a value, without auto-opening that field's own dropdown if it's also a combobox; added `aria-selected` to listbox options (previously only a CSS class tracked the active option — screen readers had no way to know which one was selected) and `aria-haspopup="listbox"` on the input; SW06 → v122
 - `js/app.js` + `js/config.js`: copy rewrite — warm neighbourly voice + monsoon-neutral core (v123) — rewrote the high-impact user-facing strings (onboarding, coach mark/tour, home hero, persona bar, success/celebration, community, PWA nudge, map empty states) to a warmer, "your lane/your neighbours" voice with one idea per string, replacing several that crammed 3-4 messages into one sentence (worst offender: `persona.citizen.idle`); removed monsoon/dengue language from all evergreen core strings — it now lives only in the `season.*` keys, which `getSeasonalHook()` already shows/hides by month; added a deliberate `seasonalMode` override (auto/on/off, in `js/config.js`) so the seasonal banner can be forced on for a campaign or off entirely, on top of the existing date-driven default; standardized the pre-existing "Civic Hero XP" / "Civic Points" naming inconsistency (both were mixed across strings, even within the same language) onto "Civic Points" everywhere; fixed a leftover `#MonsoonGuardian` hashtag baked into `coach.step`/`home.hero.badge`/`persona.wardImpact` in all 4 languages; applied matching translations across hi/mr/gu (kept "Nihira H." and other proper nouns unchanged); left the ~2,000 functional strings (buttons, field labels, error text) and legal copy untouched, per the rewrite's own scope; note: `#MonsoonGuardian` is still hardcoded in 4 places in JS code (share-text templates, canvas watermark/title generation) rather than i18n strings — same underlying issue, flagged separately, not fixed in this pass; SW06 → v123
+- `js/app.js` + `sw.js`: Me too dedupe fix (v124) — duplicate Me too clicks could inflate local confirmation counts and XP because the confirmed-id set was re-read from localStorage on every check (no in-memory cache), the claim was written only after incrementing, and the popup button stayed active with no in-flight guard; fixed with claim-first persistence to `civicradar_confirmed`, session cache + `confirmInFlight` set, immediate button disable/replace with done state, and duplicate feedback toast; backend `confirm_report` RPC was already idempotent; MT01; SW06 → v124
 
 ## Summary by category
 
@@ -80,7 +81,7 @@
 - **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
 - **Celebration:** 8 pass / 0 fail
-- **Citizen:** 44 pass / 0 fail
+- **Citizen:** 45 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **Demo:** 8 pass / 0 fail
@@ -153,7 +154,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja 8715 |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Guardian · Dadar, Shiv |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -219,8 +220,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 4ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.05s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 7ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -358,6 +359,7 @@ _None_
 | XP01 | XP | Report adds Civic Points in success modal | PASS | label="+50 Civic Points" |
 | XP01b | XP | Profile shows total XP after report | PASS | xp="125" |
 | XP02 | XP | Me too adds Civic Points | PASS |  |
+| MT01 | Citizen | Duplicate Me too blocked per report | PASS |  |
 | XP03 | XP | Level up shows certificate offer | PASS |  |
 | RP09 | Report | Near-duplicate triggers Me too | PASS |  |
 | RP10 | Report | Report notes maxlength enforced | PASS |  |

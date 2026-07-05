@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v124';
+  const CIVIC_APP_VERSION = 'v125';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -11886,7 +11886,13 @@ document.addEventListener('DOMContentLoaded', function () {
       );
       if (myReports.length) {
         const rows = await Promise.all(myReports.map((r) => this.reportToRow(r)));
-        await this.client.from('reports').upsert(rows, { onConflict: 'id' });
+        // ignoreDuplicates -> ON CONFLICT DO NOTHING: a plain DO UPDATE would
+        // reference status/complaint_id/resolved_* etc. in its SET clause,
+        // which citizens no longer hold UPDATE privilege on (column-locked in
+        // the security migration) — that would fail the WHOLE statement even
+        // for rows that only ever insert. These are first-sync pushes of the
+        // user's own already-known rows, so skipping an existing row is safe.
+        await this.client.from('reports').upsert(rows, { onConflict: 'id', ignoreDuplicates: true });
       }
       const myPledges = loadPledges().filter(
         (p) => !p.mock && p.citizenId === user.id && /^[0-9a-f-]{36}$/i.test(String(p.id))
@@ -11915,7 +11921,14 @@ document.addEventListener('DOMContentLoaded', function () {
     async insertReport(report) {
       if (!this.enabled) return;
       const row = await this.reportToRow(report);
-      const { error } = await this.client.from('reports').upsert(row, { onConflict: 'id' });
+      // ignoreDuplicates -> ON CONFLICT DO NOTHING. A plain upsert compiles to
+      // ON CONFLICT DO UPDATE SET status=…, complaint_id=…, resolved_*=…, which
+      // needs UPDATE privilege on those columns for the statement itself — and
+      // citizens are column-locked out of them (security migration). Since the
+      // report id is a freshly generated UUID, there's never a real conflict
+      // for a brand-new submission, so DO NOTHING is equivalent and always
+      // insert-only.
+      const { error } = await this.client.from('reports').upsert(row, { onConflict: 'id', ignoreDuplicates: true });
       if (error) {
         console.warn('Report sync failed (saved locally):', error.message);
         if (window.CivicAnalytics) {
@@ -12047,43 +12060,51 @@ document.addEventListener('DOMContentLoaded', function () {
       return { data: data || [], error: error || null };
     },
 
-    async updateReportStatus(id, status) {
-      if (!this.enabled) return;
-      const { error } = await this.client.from('reports').update({ status }).eq('id', id);
-      if (error) console.warn('Status sync failed:', error.message);
-    },
-
+    // Status/resolution/filing/cleanup all go through SECURITY DEFINER RPCs,
+    // not direct column writes — `authenticated` no longer holds UPDATE on any
+    // reports column (schema.sql column-lock hardening). Each RPC re-checks
+    // role/ownership server-side, so a client can't fake e.g. by:'bmc' the way
+    // a raw .update() with a client-supplied `by` string previously could.
     async updateReportResolution(id, status, by, at, resolutionImage, resolutionSource, communityVerifiedAt) {
       if (!this.enabled) return;
-      const patch = { status, resolved_by: by, resolved_at: at };
       // Path is scoped to the *uploader's* (this session's) own auth.uid(), not the
       // original reporter's — an admin/coordinator resolving someone else's report
       // still writes to their own Storage folder per the report_photos RLS policy.
-      if (resolutionImage) patch.resolution_image = await this.uploadReportImage(resolutionImage, `${user.id}/${id}-resolved.jpg`);
-      if (resolutionSource) patch.resolution_source = resolutionSource;
-      if (communityVerifiedAt) patch.community_verified_at = communityVerifiedAt;
-      const { error } = await this.client
-        .from('reports')
-        .update(patch)
-        .eq('id', id);
+      const imageUrl = resolutionImage
+        ? await this.uploadReportImage(resolutionImage, `${user.id}/${id}-resolved.jpg`)
+        : null;
+      let error;
+      if (by === 'bmc') {
+        ({ error } = await this.client.rpc('bmc_set_report_status', {
+          p_report_id: id, p_status: status, p_resolution_image: imageUrl,
+        }));
+      } else if (by === 'citizen') {
+        ({ error } = await this.client.rpc('resolve_own_report', {
+          p_report_id: id, p_resolution_image: imageUrl,
+        }));
+      } else if (imageUrl) {
+        // community: confirm_fix() already resolved the report server-side —
+        // this just attaches the "after" photo, if the confirming device has one.
+        ({ error } = await this.client.rpc('set_resolution_image', {
+          p_report_id: id, p_image: imageUrl,
+        }));
+      }
       if (error) console.warn('Resolution sync failed:', error.message);
     },
 
     async updateReportFiling(id, complaintId, filedAt) {
       if (!this.enabled) return;
-      const { error } = await this.client
-        .from('reports')
-        .update({ complaint_id: complaintId, filed_at: filedAt })
-        .eq('id', id);
+      const { error } = await this.client.rpc('bmc_set_report_status', {
+        p_report_id: id, p_complaint_id: complaintId, p_filed_at: filedAt,
+      });
       if (error) console.warn('Filing sync failed:', error.message);
     },
 
     async updateReportCleanup(id, cleared, by) {
       if (!this.enabled) return;
-      const { error } = await this.client
-        .from('reports')
-        .update({ community_cleared: cleared, cleared_by: by })
-        .eq('id', id);
+      const { error } = await this.client.rpc('ngo_mark_cleared', {
+        p_report_id: id, p_cleared: cleared, p_cleared_by: by,
+      });
       if (error) console.warn('Cleanup sync failed:', error.message);
     },
 
@@ -12107,10 +12128,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // sync rather than just the moderator's own local cache.
     async removeReportContent(id) {
       if (!this.enabled) return;
-      const { error } = await this.client
-        .from('reports')
-        .update({ removed: true, removed_at: new Date().toISOString() })
-        .eq('id', id);
+      const { error } = await this.client.rpc('admin_remove_report', { p_report_id: id });
       if (error) console.warn('Remove-content sync failed:', error.message);
     },
 
@@ -12231,8 +12249,8 @@ document.addEventListener('DOMContentLoaded', function () {
     },
 
     // Goes through the sync_civic_xp RPC, not a direct column write — profiles
-    // no longer grants client UPDATE on civic_xp/civic_level (schema_security_fix.sql),
-    // so a raw .update() here would be silently rejected by Postgres anyway.
+    // no longer grants client UPDATE on civic_xp/civic_level (schema.sql column-lock
+    // hardening), so a raw .update() here would be silently rejected by Postgres anyway.
     async syncCivicXp(xp, level) {
       if (!this.enabled || !this.client) return;
       const uid = user.id;

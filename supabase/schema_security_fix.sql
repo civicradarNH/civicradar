@@ -1,3 +1,11 @@
+-- SUPERSEDED — this file's content (profiles column-lock + sync_civic_xp) is
+-- now folded directly into schema.sql's "Column-level privilege hardening —
+-- migration v125" section, which also adds the equivalent reports-table
+-- lockdown. Re-running schema.sql alone is now sufficient for fresh installs;
+-- this file is kept only for history / anyone who ran it standalone before
+-- v125 (safe no-op to re-run either way — REVOKE/GRANT and OR REPLACE are
+-- both idempotent).
+--
 -- CivicRadar — Security fix: column-level privilege escalation on public.profiles
 -- Run this ONCE, after the original schema.sql, in Supabase SQL Editor.
 -- Safe to re-run (uses REVOKE/GRANT and OR REPLACE, both idempotent).

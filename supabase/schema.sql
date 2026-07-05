@@ -1546,10 +1546,198 @@ returns bigint language sql stable security definer set search_path = public as 
 $$;
 
 -- =====================================================================
--- IMPORTANT — fresh installs: also run supabase/schema_security_fix.sql
--- after this file. It closes a column-level privilege gap on
--- public.profiles (role / civic_xp / civic_level are writable by any
--- signed-in user unless that fix is applied). Existing deployments already
--- know to run it per the launch checklist — this note is for anyone setting
--- up a brand-new project from schema.sql alone.
+-- Column-level privilege hardening — migration v125
+-- RLS (above) gates which ROWS a query can touch; it does not restrict which
+-- COLUMNS an allowed UPDATE can change. Since CivicRadar uses anonymous auth
+-- (every citizen gets a real auth.uid()), any signed-in user could otherwise
+-- open the console and run e.g.
+--   supabase.from('profiles').update({ role: 'bmc' }).eq('id', myOwnId)
+--   supabase.from('reports').update({ status: 'resolved', resolved_by: 'bmc',
+--     complaint_id: 'FAKE-123' }).eq('id', myOwnReportId)
+-- and grant themselves admin powers or fake an official resolution/filing on
+-- their own report — the RLS policies above were working exactly as written;
+-- this is a separate, independent privilege layer underneath them.
+--
+-- Fix: revoke the blanket UPDATE grant on profiles/reports, then reintroduce
+-- every legitimate write path as a narrow SECURITY DEFINER RPC that re-checks
+-- role/ownership itself (SECURITY DEFINER runs as the table owner and bypasses
+-- both RLS and column grants, so the check *must* live inside the function
+-- body, not be assumed from the caller's row/column privileges).
+--
+-- Additive and safe to re-run.
 -- =====================================================================
+
+-- ---- profiles: only self-service prefs are directly client-writable.
+-- `role`, `civic_xp`, `civic_level` are deliberately excluded — every
+-- legitimate role grant already goes through a SECURITY DEFINER function
+-- elsewhere in this file (claim-code redemption, peer-vote threshold), and XP
+-- goes through the ratcheted sync_civic_xp() below.
+revoke update on public.profiles from authenticated;
+grant update (
+  ward,
+  coordinator_scope,
+  neighbourhood_label,
+  society,
+  neighbourhood_new_alerts_enabled,
+  neighbourhood_resolved_alerts_enabled
+) on public.profiles to authenticated;
+
+-- Guarded XP sync — replaces a direct civic_xp/civic_level column write.
+-- XP can only move up (never resets progress) and only by a bounded amount
+-- per call (2000 — generous next to the 8-200 XP a single action awards),
+-- so a console call can't set it to an arbitrary number.
+create or replace function public.sync_civic_xp(p_xp int, p_level text)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare current_xp int;
+begin
+  select civic_xp into current_xp from public.profiles where id = auth.uid();
+  if current_xp is null then return; end if;
+  if p_xp <= current_xp or p_xp - current_xp > 2000 then
+    return;
+  end if;
+  update public.profiles set civic_xp = p_xp, civic_level = p_level where id = auth.uid();
+end $$;
+
+grant execute on function public.sync_civic_xp(int, text) to anon, authenticated;
+
+-- ---- reports: no column is directly client-writable post-insert. Every
+-- field a report is created with (notes/image/ward/lat/lng/hazard/…) is set
+-- once, at INSERT time — INSERT privilege is untouched by this REVOKE, so
+-- submitting a new report is unaffected. Every subsequent mutation (status,
+-- filing, resolution, cleanup, moderation takedown) now has to go through one
+-- of the role/ownership-checked RPCs below instead.
+revoke update on public.reports from authenticated;
+
+-- BMC: file a complaint (complaint_id/filed_at) and/or resolve officially.
+-- Two independent write groups so filing and resolving can be called
+-- separately or together, matching how the BMC queue UI uses this.
+create or replace function public.bmc_set_report_status(
+  p_report_id uuid,
+  p_status text default null,
+  p_complaint_id text default null,
+  p_filed_at timestamptz default null,
+  p_resolution_image text default null
+)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not (public.is_bmc() or public.is_admin()) then
+    raise exception 'not_authorized';
+  end if;
+  if not exists (select 1 from public.reports where id = p_report_id) then
+    raise exception 'not_found';
+  end if;
+
+  if p_complaint_id is not null then
+    update public.reports
+      set complaint_id = p_complaint_id, filed_at = coalesce(p_filed_at, now())
+      where id = p_report_id;
+  end if;
+
+  if p_status = 'resolved' then
+    update public.reports set
+      status = 'resolved',
+      resolved_by = 'bmc',
+      resolved_at = now(),
+      resolution_source = 'bmc_admin',
+      resolution_image = coalesce(p_resolution_image, resolution_image)
+    where id = p_report_id;
+  elsif p_status is not null then
+    update public.reports set status = p_status where id = p_report_id;
+  end if;
+end $$;
+
+grant execute on function public.bmc_set_report_status(uuid, text, text, timestamptz, text) to authenticated;
+
+-- Citizen self-resolve: only the reporter, only from 'pending', once.
+create or replace function public.resolve_own_report(p_report_id uuid, p_resolution_image text default null)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.reports set
+    status = 'resolved',
+    resolved_by = 'citizen',
+    resolved_at = now(),
+    resolution_source = 'self',
+    resolution_image = coalesce(p_resolution_image, resolution_image)
+  where id = p_report_id and reporter_id = auth.uid() and status = 'pending';
+  if not found then raise exception 'not_owner_or_already_resolved'; end if;
+end $$;
+
+grant execute on function public.resolve_own_report(uuid, text) to authenticated;
+
+-- Community "looks fixed" photo: confirm_fix() already resolved the report;
+-- this only attaches the "after" photo. Caller must have a real stake in this
+-- report (the reporter, or one of the neighbours who confirmed the fix) and
+-- the write is first-write-wins — once set, only bmc_set_report_status can
+-- change it. Without both checks, any signed-in user could plant a fake
+-- "after" photo on any resolved report at any time.
+create or replace function public.set_resolution_image(p_report_id uuid, p_image text)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  rep record;
+  is_confirmer boolean;
+begin
+  select * into rep from public.reports where id = p_report_id and status = 'resolved';
+  if not found then raise exception 'not_resolved'; end if;
+
+  if rep.resolution_image is not null then
+    raise exception 'already_set';
+  end if;
+
+  if rep.reporter_id <> auth.uid() then
+    select exists(
+      select 1 from public.report_fix_confirmations
+      where report_id = p_report_id and user_id = auth.uid()
+    ) into is_confirmer;
+    if not is_confirmer then
+      raise exception 'not_authorized';
+    end if;
+  end if;
+
+  update public.reports set resolution_image = p_image where id = p_report_id;
+end $$;
+
+grant execute on function public.set_resolution_image(uuid, text) to authenticated;
+
+-- NGO lead: log a ground cleanup.
+create or replace function public.ngo_mark_cleared(
+  p_report_id uuid,
+  p_cleared boolean default true,
+  p_cleared_by text default null
+)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_ngo_lead() then raise exception 'not_authorized'; end if;
+  update public.reports set
+    community_cleared = coalesce(p_cleared, true),
+    cleared_by = coalesce(p_cleared_by, cleared_by)
+  where id = p_report_id;
+  if not found then raise exception 'not_found'; end if;
+end $$;
+
+grant execute on function public.ngo_mark_cleared(uuid, boolean, text) to authenticated;
+
+-- BMC/admin moderator takedown (UGC compliance) — soft-delete via `removed`.
+create or replace function public.admin_remove_report(p_report_id uuid, p_removed boolean default true)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not (public.is_bmc() or public.is_admin()) then raise exception 'not_authorized'; end if;
+  update public.reports set
+    removed = coalesce(p_removed, true),
+    removed_at = case when coalesce(p_removed, true) then now() else null end
+  where id = p_report_id;
+  if not found then raise exception 'not_found'; end if;
+end $$;
+
+grant execute on function public.admin_remove_report(uuid, boolean) to authenticated;
+
+-- NOTE: the "reports_update_roles" RLS policy further up this file is now a
+-- harmless no-op for direct client UPDATEs (the column revoke above is the
+-- binding gate) — left in place as defense-in-depth since these RPCs are
+-- SECURITY DEFINER and bypass RLS entirely, so RLS is no longer what protects
+-- reports, the column grants + in-function checks above are.
