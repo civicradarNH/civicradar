@@ -2,13 +2,16 @@
  * CivicRadar runtime configuration.
  *
  * LAUNCH_CHECKLIST (founder must-do before end-user launch):
- *   [ ] publicUrl          — HTTPS deploy URL for WhatsApp shares & ?report= deep links
- *   [ ] supabaseUrl        — Supabase project URL (enables cross-device sync)
- *   [ ] supabaseAnonKey    — Supabase anon public key
- *   [ ] legal.grievanceEmail — DPDP grievance officer contact (privacy.html / terms.html)
- *   [ ] founder.email      — About modal + partner inquiries
- *   [ ] founder.operatorEmail — Legal/hosting contact (privacy/terms fallback)
+ *   [x] publicUrl          — https://civicradarnh.github.io/civicradar
+ *   [x] supabaseUrl        — Supabase project URL (enables cross-device sync)
+ *   [x] supabaseAnonKey    — Supabase anon public key
+ *   [x] legal.grievanceEmail — civicradarnh@gmail.com
+ *   [x] founder.email      — civicradarnh@gmail.com
+ *   [x] founder.operatorEmail — civicradarnh@gmail.com
+ *   [x] turnstileSiteKey   — v120 Cloudflare Turnstile (secret → Supabase Auth → Captcha)
  *   [ ] Run supabase/schema.sql once in Supabase SQL Editor
+ *   [ ] Enable Anonymous + Email OTP in Supabase Auth
+ *   [ ] Paste Turnstile secret in Supabase Auth → Captcha
  *   [ ] Deploy to HTTPS (camera + GPS require it in production)
  *   [ ] Counsel review of privacy.html and terms.html
  *   See LAUNCH_CHECKLIST.md for full gate details.
