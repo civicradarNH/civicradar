@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 11:02:10
+**Run:** 2026-07-05 12:45:12
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 34 | **Pass:** 34 | **Fail:** 0
+**Total:** 35 | **Pass:** 35 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -78,7 +78,7 @@
 
 - **Citizen:** 20 pass / 0 fail
 - **PWA:** 1 pass / 0 fail
-- **Report:** 9 pass / 0 fail
+- **Report:** 10 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
 
 ## Failures
@@ -115,12 +115,13 @@ _None_
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
 | C19b | Citizen | PWA nudge after first report | PASS |  |
-| C19 | Citizen | Map shows markers after report | PASS | markers=2 |
+| C19 | Citizen | Map shows markers after report | PASS | markers=3 |
 | RP01 | Report | Four live hazard tiles at launch | PASS | live=4 |
 | RP02 | Report | No coming-soon locks on launch hazards | PASS | soon=0 |
-| RP03 | Report | Stagnant-water preselected | PASS |  |
+| RP03 | Report | Contextual hazard preselected | PASS |  |
 | RP04 | Report | Photo input accepts images | PASS |  |
 | RP05 | Report | Capture photo button present | PASS |  |
+| RP22 | Report | Photo-first opens capture step | PASS |  |
 | RP06 | Report | Close without submit saves nothing | PASS |  |
 | RP21 | Report | Draft restores report modal after reload | PASS |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |

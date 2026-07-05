@@ -90,7 +90,23 @@ GEO_SCRIPT = """
 
   };
 
-  navigator.geolocation.watchPosition = (ok) => { ok(pos); return 1; };
+  // v134 getPrecisePosition() uses watchPosition + clearWatch; stub both so CI
+  // does not hang ~20s waiting for accuracy or throw in clearWatch(1).
+  let watchSeq = 0;
+
+  navigator.geolocation.watchPosition = (ok, err) => {
+
+    if (window.__geoDenied) { if (err) err({ code: 1, message: 'denied' }); return -1; }
+
+    setTimeout(() => ok(pos), 10);
+
+    watchSeq += 1;
+
+    return watchSeq;
+
+  };
+
+  navigator.geolocation.clearWatch = () => {};
 
 })();
 
@@ -632,7 +648,13 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
 
           document.getElementById('reportNotes').value = notes;
 
-          navigator.geolocation.getCurrentPosition = (ok) => ok({ coords: { latitude: lat, longitude: lng, accuracy: 5 } });
+          const geoPos = { coords: { latitude: lat, longitude: lng, accuracy: 5 } };
+
+          navigator.geolocation.getCurrentPosition = (ok) => ok(geoPos);
+
+          navigator.geolocation.watchPosition = (ok) => { ok(geoPos); return 1; };
+
+          navigator.geolocation.clearWatch = () => {};
 
           document.getElementById('btnSubmitReport').click();
 
