@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v116" in sw_src
+        "civicradar-v118" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v116" in sw_src
+        "civicradar-v118" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7599,6 +7599,10 @@ async def main():
         '`css/styles.css` + `index.html` + `js/app.js`: design polish pass (v115) — Community modal restructured from one long flat scroll into a clear hierarchy ("Your ward this week" / "Ward leaderboard" sections always visible, "Get involved" and "Resources" as collapsible groups reusing the existing official-channels accordion pattern); Profile\'s plain bordered form fields wrapped in an elevated `.profile-details-card` so the premium gradient stat card\'s tone carries down the screen, plus icons added to every Profile section header for visual consistency with Community; empty states (Reports, Volunteer, Pledges, Wins, Community leads) upgraded from flat muted icons to a warm gradient icon badge (shared `.empty-state--action i` style, one CSS change covers all five); removed the loud Instagram-gradient button style from two generic "Download" actions (certificate, share-win card) in favour of the existing outline style already used by their neighbouring "Copy caption" button, and deleted the now-unused `.btn--instagram` rule; SW06 → v115',
 
         '`js/app.js` + `sw.js`: fix report-modal close button (v116) — `canDismissReportOverlay()` was blocking the report modal\'s × button, backdrop tap, and hardware back indefinitely once a photo had been captured (`hasReportPhotoPreview()` check had no time bound, unlike the sibling `isReportPhotoPickerActive()` camera-return race-condition guard it sat next to); closing with a photo present is safe — `closeModal(\'report\')` never clears the canvas, and `openReportModal()` already resumes straight to the photo/submit step on reopen — so the check was removed with no data-loss risk; audited all other modals/dismiss paths for the same indefinite-block pattern, found none; SW06 → v116',
+
+        '`css/styles.css` + `js/app.js`: higher-energy milestone celebrations (v117) — confetti now draws from a vivid 8-hue brand palette (was a narrow green-cyan-purple band), mixes rect/dot/ribbon shapes and piece sizes, and adds horizontal drift + variable spin instead of a flat straight-down fall; added a new `epic` intensity tier (64 pieces) reserved for the biggest moments; wired confetti into two milestones that previously had none — filing a BMC complaint (`saveComplaintId`, celebrate-tier on first filing) and leveling up / unlocking a certificate (`showCertificateModal`, epic-tier); existing report-submit, Me too, fix-confirmed, and first-share confetti automatically pick up the richer palette/shapes with no call-site changes; SW06 → v117',
+
+        '`css/styles.css` + `js/app.js`: trust-building report status stepper + hazard example text (v118) — profile report cards now show a 3-node visual stepper (Reported → Pending → Resolved) with check-circle icons and a filled connecting line, replacing the old plain progress dots (`renderReportCardProgress` rewritten in place, same call site); hazard picker tiles show a short example line per category ("e.g. clogged drain, waterlogged street") to reduce mis-categorized reports, localized across en/hi/mr/gu (new `hazard.<key>.example` i18n keys); stepper labels reuse existing `esc.progress.reported`/`esc.progress.resolved`/`popup.pending` keys rather than adding new ones; Map/Feed toggle, search, and a real reverse-geocoded location step were scoped out of this pass (deferred — no existing infra for any of the three, see session notes); SW06 → v118',
 
     ]
 

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v116';
+  const CIVIC_APP_VERSION = 'v118';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2989,11 +2989,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'hazard.stagnant-water': 'Stagnant Water',
 
+      'hazard.stagnant-water.example': 'e.g. clogged drain, waterlogged street',
+
       'hazard.potholes': 'Potholes',
+
+      'hazard.potholes.example': 'e.g. road damage, sunken manhole',
 
       'hazard.garbage': 'Garbage',
 
+      'hazard.garbage.example': 'e.g. overflowing bin, dumped waste',
+
       'hazard.streetlight': 'Broken Streetlight',
+
+      'hazard.streetlight.example': 'e.g. broken or flickering light',
 
       'hazard.comingSoon': 'Coming soon',
 
@@ -5138,11 +5146,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'hazard.stagnant-water': 'रुका हुआ पानी',
 
+      'hazard.stagnant-water.example': 'जैसे बंद नाला, जलभराव वाली सड़क',
+
       'hazard.potholes': 'गड्ढे',
+
+      'hazard.potholes.example': 'जैसे सड़क का गड्ढा, धंसा मैनहोल',
 
       'hazard.garbage': 'कचरा',
 
+      'hazard.garbage.example': 'जैसे कचरे का ढेर, भरा हुआ डिब्बा',
+
       'hazard.streetlight': 'खराब स्ट्रीटलाइट',
+
+      'hazard.streetlight.example': 'जैसे खराब या टिमटिमाती लाइट',
 
       'hazard.comingSoon': 'जल्द आ रहा है',
 
@@ -7284,11 +7300,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'hazard.stagnant-water': 'साचलेले पाणी',
 
+      'hazard.stagnant-water.example': 'उदा. तुंबलेले गटार, साचलेले पाणी असलेला रस्ता',
+
       'hazard.potholes': 'खड्डे',
+
+      'hazard.potholes.example': 'उदा. रस्त्यावरील खड्डा, बसलेले मॅनहोल',
 
       'hazard.garbage': 'कचरा',
 
+      'hazard.garbage.example': 'उदा. कचऱ्याचा ढीग, भरलेला डबा',
+
       'hazard.streetlight': 'बंद पथदिवा',
+
+      'hazard.streetlight.example': 'उदा. बंद किंवा लुकलुकणारा दिवा',
 
       'hazard.comingSoon': 'लवकरच येत आहे',
 
@@ -9430,11 +9454,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'hazard.stagnant-water': 'ભરાયેલું પાણી',
 
+      'hazard.stagnant-water.example': 'દા.ત. બંધ ગટર, ભરાયેલો રસ્તો',
+
       'hazard.potholes': 'ખાડા',
+
+      'hazard.potholes.example': 'દા.ત. રસ્તાનો ખાડો, બેઠેલું મેનહોલ',
 
       'hazard.garbage': 'કચરો',
 
+      'hazard.garbage.example': 'દા.ત. કચરાનો ઢગલો, ભરેલો ડબ્બો',
+
       'hazard.streetlight': 'બંધ સ્ટ્રીટલાઇટ',
+
+      'hazard.streetlight.example': 'દા.ત. બંધ અથવા ઝબકતી લાઇટ',
 
       'hazard.comingSoon': 'ટૂંક સમયમાં',
 
@@ -17131,6 +17163,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  function hazardExample(key) {
+
+    const i18nKey = `hazard.${key}.example`;
+
+    const translated = I18N[currentLang] && I18N[currentLang][i18nKey];
+
+    return translated || I18N.en[i18nKey] || '';
+
+  }
+
 
 
   // Launch hazard types — each has i18n labels, map markers, share templates, and copy1916 categories.
@@ -17194,6 +17236,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <i class="ph ${c.icon}"></i>
 
             <span class="hazard-tile__label">${escapeHtml(hazardLabel(c.key))}</span>
+
+            ${c.live ? `<span class="hazard-tile__example">${escapeHtml(hazardExample(c.key))}</span>` : ''}
 
             ${soon}
 
@@ -24036,13 +24080,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  const CONFETTI_HUES = [4, 28, 45, 160, 190, 230, 280, 330];
+
   function launchConfetti(opts = {}) {
 
     if (prefersReducedMotion()) return;
 
     const intensity = opts.intensity || 'normal';
 
-    const counts = { mini: 14, normal: 28, celebrate: 36 };
+    const counts = { mini: 14, normal: 28, celebrate: 42, epic: 64 };
 
     const count = counts[intensity] || counts.normal;
 
@@ -24052,17 +24098,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wrap.setAttribute('aria-hidden', 'true');
 
+    const shapes = ['', '', 'confetti-burst__piece--dot', 'confetti-burst__piece--ribbon'];
+
     for (let i = 0; i < count; i++) {
 
       const p = document.createElement('span');
 
-      p.className = 'confetti-burst__piece';
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+
+      p.className = `confetti-burst__piece${shape ? ` ${shape}` : ''}`;
 
       p.style.setProperty('--x', `${Math.random() * 100}%`);
 
-      p.style.setProperty('--delay', `${Math.random() * 0.45}s`);
+      p.style.setProperty('--delay', `${Math.random() * 0.5}s`);
 
-      p.style.setProperty('--hue', `${140 + Math.floor(Math.random() * 120)}`);
+      p.style.setProperty('--hue', String(CONFETTI_HUES[Math.floor(Math.random() * CONFETTI_HUES.length)]));
+
+      p.style.setProperty('--size', `${6 + Math.floor(Math.random() * 7)}px`);
+
+      p.style.setProperty('--drift', `${Math.round((Math.random() - 0.5) * 160)}px`);
+
+      p.style.setProperty('--spin', `${360 + Math.floor(Math.random() * 360)}deg`);
+
+      p.style.setProperty('--spin-end', `${720 + Math.floor(Math.random() * 540)}deg`);
 
       wrap.appendChild(p);
 
@@ -24070,7 +24128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.appendChild(wrap);
 
-    setTimeout(() => wrap.remove(), 2600);
+    setTimeout(() => wrap.remove(), 2700);
 
   }
 
@@ -24885,6 +24943,8 @@ document.addEventListener('DOMContentLoaded', function () {
     closeModal('success');
 
     openModal('certificate');
+
+    launchConfetti({ intensity: 'epic' });
 
     if (window.CivicAnalytics) {
 
@@ -25874,19 +25934,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderReportCardProgress(report) {
 
-    const { steps, done, active } = getFilingProgress(report);
+    const resolved = report.status === 'resolved';
 
-    return `<div class="report-card__progress" aria-hidden="true">${steps.map((key) => {
+    const stepDefs = [
+      { label: t('esc.progress.reported'), state: 'is-done' },
+      { label: t('popup.pending'), state: resolved ? 'is-done' : 'is-active' },
+      { label: t('esc.progress.resolved'), state: resolved ? 'is-done' : '' },
+    ];
 
-      let cls = '';
+    const iconFor = (state) => (state === 'is-done' ? 'ph-check-bold' : state === 'is-active' ? 'ph-clock' : 'ph-circle');
 
-      if (done.has(key)) cls = 'is-done';
+    const stepHtml = (s) => `<div class="status-stepper__step ${s.state}"><span class="status-stepper__icon"><i class="ph ${iconFor(s.state)}"></i></span><span class="status-stepper__label">${escapeHtml(s.label)}</span></div>`;
 
-      else if (key === active) cls = 'is-active';
+    const lineHtml = (done) => `<div class="status-stepper__line${done ? ' is-done' : ''}"></div>`;
 
-      return `<span class="report-card__progress-dot ${cls}"></span>`;
-
-    }).join('')}</div>`;
+    return `<div class="status-stepper" aria-hidden="true">${stepHtml(stepDefs[0])}${lineHtml(true)}${stepHtml(stepDefs[1])}${lineHtml(resolved)}${stepHtml(stepDefs[2])}</div>`;
 
   }
 
@@ -27605,6 +27667,8 @@ document.addEventListener('DOMContentLoaded', function () {
     trackBmcEvent('bmc_complaint_saved', { reportId: String(activeEscalationId), firstTime }, reports[idx].ward);
 
     if (firstTime) trackBmcEvent('bmc_filed', { reportId: String(activeEscalationId) }, reports[idx].ward);
+
+    launchConfetti({ intensity: firstTime ? 'celebrate' : 'mini' });
 
     showToast(t('toast.complaintSaved'), 'success', 4000);
 

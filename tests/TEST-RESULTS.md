@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 19:12:53
+**Run:** 2026-07-04 20:04:35
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 388 | **Pass:** 388 | **Fail:** 0
@@ -63,6 +63,8 @@
 - `css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql`: PM-review pass (v113) — fixed broken certificate WhatsApp share (undefined function); resolved the "Monsoon Guardian" label reused for 3 unrelated things (XP level, streak badge renamed "Local Hero", first-report toast); decluttered the success modal (removed duplicate badge-unlock line, grouped reward text into one panel, moved Twitter share into the existing collapsed accordion); merged Profile's scattered notification/consent controls into one "Notifications & Privacy" section; added a one-time lead/volunteer discoverability nudge after the 3rd report; added a "this month" vs "all time" Community leaderboard period toggle; added a per-user referral code + reward loop (new `referrals` table/RPC, one-time XP + Profile line when neighbours join via your invite); full Hindi/Marathi/Gujarati copy-quality pass (fixed cross-language contamination, untranslated fragments, inconsistent terminology, typos); refreshed monsoon-season copy for an early-monsoon launch; reverted OS dark-mode support after smoke-testing showed icons were hard to differentiate (`color-scheme` meta back to `light`-only) — SW06 → v113
 - `css/styles.css` + `js/app.js` + `supabase/storage-migration.sql`: visual vibrancy + Storage scale-up (v114) — hazard picker tiles now color-coded per category (cyan/green/orange/gold) instead of flat gray, header icons tinted brand indigo; report/resolution photos now upload to a `report-photos` Supabase Storage bucket instead of embedding base64 in Postgres rows (`Backend.uploadReportImage`), fixing both the free-tier DB-size and sync-egress risk flagged for 10K-user scale; widened the `isSafeReportImage()` image-src guard (previously `data:` URL only) to also accept the resulting Storage URLs across all 13 render sites that check it; SW06 → v114
 - `css/styles.css` + `index.html` + `js/app.js`: design polish pass (v115) — Community modal restructured from one long flat scroll into a clear hierarchy ("Your ward this week" / "Ward leaderboard" sections always visible, "Get involved" and "Resources" as collapsible groups reusing the existing official-channels accordion pattern); Profile's plain bordered form fields wrapped in an elevated `.profile-details-card` so the premium gradient stat card's tone carries down the screen, plus icons added to every Profile section header for visual consistency with Community; empty states (Reports, Volunteer, Pledges, Wins, Community leads) upgraded from flat muted icons to a warm gradient icon badge (shared `.empty-state--action i` style, one CSS change covers all five); removed the loud Instagram-gradient button style from two generic "Download" actions (certificate, share-win card) in favour of the existing outline style already used by their neighbouring "Copy caption" button, and deleted the now-unused `.btn--instagram` rule; SW06 → v115
+- `js/app.js` + `sw.js`: fix report-modal close button (v116) — `canDismissReportOverlay()` was blocking the report modal's × button, backdrop tap, and hardware back indefinitely once a photo had been captured (`hasReportPhotoPreview()` check had no time bound, unlike the sibling `isReportPhotoPickerActive()` camera-return race-condition guard it sat next to); closing with a photo present is safe — `closeModal('report')` never clears the canvas, and `openReportModal()` already resumes straight to the photo/submit step on reopen — so the check was removed with no data-loss risk; audited all other modals/dismiss paths for the same indefinite-block pattern, found none; SW06 → v116
+- `css/styles.css` + `js/app.js`: higher-energy milestone celebrations (v117) — confetti now draws from a vivid 8-hue brand palette (was a narrow green-cyan-purple band), mixes rect/dot/ribbon shapes and piece sizes, and adds horizontal drift + variable spin instead of a flat straight-down fall; added a new `epic` intensity tier (64 pieces) reserved for the biggest moments; wired confetti into two milestones that previously had none — filing a BMC complaint (`saveComplaintId`, celebrate-tier on first filing) and leveling up / unlocking a certificate (`showCertificateModal`, epic-tier); existing report-submit, Me too, fix-confirmed, and first-share confetti automatically pick up the richer palette/shapes with no call-site changes; SW06 → v117
 
 ## Summary by category
 
@@ -146,7 +148,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Water Watch 5D0E |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective · Dadar, Shiva |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -212,8 +214,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.08s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 9ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
