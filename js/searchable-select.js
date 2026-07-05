@@ -28,6 +28,7 @@
     input.removeAttribute('list');
     input.setAttribute('role', 'combobox');
     input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-haspopup', 'listbox');
     input.setAttribute('aria-expanded', 'false');
 
     const wrap = document.createElement('div');
@@ -54,6 +55,12 @@
     let activeIndex = -1;
     let isOpen = false;
     let blurTimer = null;
+    // When we set input.value programmatically (on selection) we still need to
+    // fire 'input'/'change' so app.js reacts — but the component's OWN 'input'
+    // listener must ignore that self-dispatched event, otherwise it re-opens
+    // the list filtered to the just-picked value (the "selected value shows
+    // again below the dropdown" bug). This flag brackets the programmatic set.
+    let suppressInput = false;
 
     function label(key) {
       const v = cfg[key];
@@ -81,8 +88,10 @@
     function highlightActive() {
       const buttons = listbox.querySelectorAll('.civic-combobox__option');
       buttons.forEach(function (btn, i) {
-        btn.classList.toggle('is-active', i === activeIndex);
-        if (i === activeIndex) {
+        const active = i === activeIndex;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        if (active) {
           input.setAttribute('aria-activedescendant', btn.id);
           btn.scrollIntoView({ block: 'nearest' });
         }
@@ -101,7 +110,7 @@
       }
       listbox.innerHTML = options.map(function (opt, i) {
         const optId = listId + '-opt-' + i;
-        return '<button type="button" class="civic-combobox__option" role="option" id="' +
+        return '<button type="button" class="civic-combobox__option" role="option" aria-selected="false" id="' +
           optId + '" data-index="' + i + '">' + escapeHtml(opt) + '</button>';
       }).join('');
       if (activeIndex >= options.length) activeIndex = options.length - 1;
@@ -126,11 +135,61 @@
       input.removeAttribute('aria-activedescendant');
     }
 
+    // Find the next focusable form control after `input` in DOM order, so we
+    // can advance focus after a selection. Returns null when there's nothing
+    // sensible to move to (so focus-advance becomes a safe no-op).
+    function findNextField() {
+      const form = input.closest('form') || document;
+      const focusable = Array.prototype.slice.call(
+        form.querySelectorAll(
+          'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+        )
+      ).filter(function (el) {
+        // Skip our own combobox internals (toggle button, the input itself)
+        // and anything hidden/without layout.
+        if (el === input || el === toggleBtn) return false;
+        if (el.closest('.civic-combobox__list')) return false;
+        if (el.offsetParent === null && el.type !== 'hidden') return false;
+        return true;
+      });
+      // Locate the first focusable that comes after `input` in the DOM.
+      for (let i = 0; i < focusable.length; i++) {
+        const pos = input.compareDocumentPosition(focusable[i]);
+        if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return focusable[i];
+      }
+      return null;
+    }
+
     function selectOption(value) {
+      suppressInput = true;
       input.value = value;
       closeList();
+      // Fire events app.js depends on (e.g. refreshing neighbourhood options
+      // for the chosen ward) — the suppress flag stops our own input handler
+      // from re-opening the list in response.
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+      suppressInput = false;
+
+      // Auto-advance: move focus to the next field so the user flows straight
+      // into it. Deferred a tick so the just-dispatched change handlers (which
+      // may re-render the next field's options) settle first. If the next field
+      // is itself a combobox, we intentionally do NOT auto-open its list — we
+      // focus it quietly so a mobile keyboard/dropdown doesn't spring open
+      // unprompted. (blur() first ensures our own list stays closed.)
+      input.blur();
+      const next = findNextField();
+      if (next) {
+        // Mark the target so, if it's another combobox, its focus handler
+        // opens quietly (no auto-dropdown). Harmless on plain fields.
+        next.dataset.civicQuietFocus = '1';
+        setTimeout(function () {
+          try { next.focus({ preventScroll: false }); } catch (e) { next.focus(); }
+          // If focus didn't land (e.g. field became disabled), clean up the
+          // marker so a later real focus still opens normally.
+          if (document.activeElement !== next) delete next.dataset.civicQuietFocus;
+        }, 0);
+      }
     }
 
     function scheduleClose() {
@@ -139,10 +198,18 @@
     }
 
     input.addEventListener('focus', function () {
+      // If this focus came from another combobox's auto-advance, honor it
+      // quietly: consume the marker and don't spring the dropdown open. The
+      // user can still open it with a tap, arrow key, or the toggle caret.
+      if (input.dataset.civicQuietFocus === '1') {
+        delete input.dataset.civicQuietFocus;
+        return;
+      }
       openList(false);
     });
 
     input.addEventListener('input', function () {
+      if (suppressInput) return;   // ignore our own programmatic value-set
       if (!isOpen) openList(false);
       else renderList(filterOptions(input.value));
     });
