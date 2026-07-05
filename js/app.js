@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v123';
+  const CIVIC_APP_VERSION = 'v124';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12517,6 +12517,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ].forEach((k) => { try { localStorage.removeItem(k); } catch {} });
 
+    confirmedIdCache = null;
+
     if (window.CivicAnalytics) {
 
       CivicAnalytics.setConsent(false);
@@ -16911,11 +16913,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // device can't inflate the count. (The backend enforces this server-side too.)
 
+  let confirmedIdCache = null;
+
+  const confirmInFlight = new Set();
+
+
+
   function loadConfirmedSet() {
 
-    try { return new Set(JSON.parse(localStorage.getItem(CONFIRMED_KEY)) || []); }
+    if (confirmedIdCache) return confirmedIdCache;
 
-    catch { return new Set(); }
+    try { confirmedIdCache = new Set(JSON.parse(localStorage.getItem(CONFIRMED_KEY)) || []); }
+
+    catch { confirmedIdCache = new Set(); }
+
+    return confirmedIdCache;
+
+  }
+
+
+
+  function persistConfirmedSet(set) {
+
+    confirmedIdCache = set;
+
+    try { localStorage.setItem(CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
 
   }
 
@@ -16924,6 +16946,48 @@ document.addEventListener('DOMContentLoaded', function () {
   function hasConfirmed(reportId) {
 
     return loadConfirmedSet().has(String(reportId));
+
+  }
+
+
+
+  function unclaimConfirmation(reportId) {
+
+    const set = loadConfirmedSet();
+
+    set.delete(String(reportId));
+
+    persistConfirmedSet(set);
+
+  }
+
+
+
+  function disableMeTooControl(el) {
+
+    if (!el) return;
+
+    el.disabled = true;
+
+    el.setAttribute('aria-disabled', 'true');
+
+    el.classList.add('popup__btn--busy');
+
+  }
+
+
+
+  function showMeTooDoneInPopup(el) {
+
+    if (!el || !el.parentNode) return;
+
+    const note = document.createElement('span');
+
+    note.className = 'popup__note popup__note--done';
+
+    note.innerHTML = `<i class="ph ph-check-circle"></i> ${escapeHtml(t('confirm.done'))}`;
+
+    el.replaceWith(note);
 
   }
 
@@ -16943,9 +17007,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function confirmReport(reportId) {
 
+    const id = String(reportId);
+
+    if (confirmInFlight.has(id)) return false;
+
     const reports = loadReports();
 
-    const idx = reports.findIndex((r) => String(r.id) === String(reportId));
+    const idx = reports.findIndex((r) => String(r.id) === id);
 
     if (idx === -1) return false;
 
@@ -16955,25 +17023,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (ownsReport(report)) { showToast(t('confirm.you'), 'info', 2200); return false; }
 
-    if (hasConfirmed(reportId)) return false;
+    if (hasConfirmed(id)) {
+
+      showToast(t('confirm.done'), 'info', 2200);
+
+      return false;
+
+    }
 
 
 
-    report.confirmations = (Number(report.confirmations) || 0) + 1;
-
-    try {
-
-      saveReports(reports);
-
-    } catch { showToast(t('toast.saveFail'), 'error'); return false; }
-
-
+    confirmInFlight.add(id);
 
     const set = loadConfirmedSet();
 
-    set.add(String(reportId));
+    set.add(id);
 
-    try { localStorage.setItem(CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
+    persistConfirmedSet(set);
+
+
+
+    try {
+
+      report.confirmations = (Number(report.confirmations) || 0) + 1;
+
+      saveReports(reports);
+
+    } catch {
+
+      unclaimConfirmation(id);
+
+      showToast(t('toast.saveFail'), 'error');
+
+      return false;
+
+    } finally {
+
+      confirmInFlight.delete(id);
+
+    }
 
 
 
@@ -16983,7 +17071,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (window.CivicAnalytics) {
 
-      CivicAnalytics.track('report_corroborated', { reportId: String(reportId) }, report.ward);
+      CivicAnalytics.track('report_corroborated', { reportId: id }, report.ward);
 
     }
 
@@ -22515,7 +22603,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
         e.preventDefault();
 
-        if (confirmReport(cb.dataset.confirm) && map) map.closePopup();
+        e.stopPropagation();
+
+        if (cb.disabled || cb.getAttribute('aria-disabled') === 'true') return;
+
+        const rid = cb.dataset.confirm;
+
+        if (hasConfirmed(rid)) {
+
+          showMeTooDoneInPopup(cb);
+
+          showToast(t('confirm.done'), 'info', 2200);
+
+          return;
+
+        }
+
+        disableMeTooControl(cb);
+
+        if (confirmReport(rid)) {
+
+          showMeTooDoneInPopup(cb);
+
+          if (map) map.closePopup();
+
+        } else if (!hasConfirmed(rid)) {
+
+          cb.disabled = false;
+
+          cb.removeAttribute('aria-disabled');
+
+          cb.classList.remove('popup__btn--busy');
+
+        }
 
         return;
 

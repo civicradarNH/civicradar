@@ -3335,6 +3335,41 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('XP02', 'XP', 'Me too adds Civic Points', me_too_xp_ok)
 
+    # Duplicate Me too is idempotent per device (claim-first + in-flight guard)
+    await page.evaluate("""() => {
+      const reps = JSON.parse(localStorage.getItem('mosquiTrackReports')||'[]');
+      reps.push({
+        id: 'mt01-dedupe-test',
+        reporterId: 'other-citizen-mt01',
+        hazard: 'garbage',
+        notes: 'me too dedupe',
+        image: '',
+        ward: JSON.parse(localStorage.getItem('civicradar_user')||'{}').ward || 'G/S Ward — Worli',
+        city: 'mumbai',
+        lat: 19.0764,
+        lng: 72.8781,
+        status: 'pending',
+        confirmations: 0,
+        timestamp: new Date().toISOString(),
+      });
+      localStorage.setItem('mosquiTrackReports', JSON.stringify(reps));
+      window._mt01First = window.confirmReport('mt01-dedupe-test');
+      window._mt01Second = window.confirmReport('mt01-dedupe-test');
+      const row = JSON.parse(localStorage.getItem('mosquiTrackReports')||'[]')
+        .find((r) => r.id === 'mt01-dedupe-test');
+      window._mt01Count = row ? (Number(row.confirmations) || 0) : -1;
+      try {
+        const confirmed = JSON.parse(localStorage.getItem('civicradar_confirmed')||'[]');
+        window._mt01SetLen = confirmed.filter((id) => String(id) === 'mt01-dedupe-test').length;
+      } catch {
+        window._mt01SetLen = -1;
+      }
+    }""")
+    mt01_ok = await page.evaluate(
+        '() => window._mt01First === true && window._mt01Second === false && window._mt01Count === 1 && window._mt01SetLen === 1'
+    )
+    s.record('MT01', 'Citizen', 'Duplicate Me too blocked per report', mt01_ok)
+
     # Level-up certificate: seed 50 bonus XP + submit report crosses Ward Watcher (100)
 
     await close_all_modals(page)
@@ -4396,7 +4431,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v123" in sw_src
+        "civicradar-v124" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7371,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v123" in sw_src
+        "civicradar-v124" in sw_src
 
         and "'/index.html'" not in sw_src
 
