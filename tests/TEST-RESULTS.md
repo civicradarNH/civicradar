@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 06:31:45
+**Run:** 2026-07-05 09:17:26
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 389 | **Pass:** 389 | **Fail:** 0
@@ -154,7 +154,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Guardian · Dadar, Shiv |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja B982 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -220,7 +220,7 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.05s |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
 | L03 | Load | 50x loadReports parse under 500ms | PASS | 7ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
