@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-04 20:04:35
+**Run:** 2026-07-04 20:21:24
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 388 | **Pass:** 388 | **Fail:** 0
@@ -65,6 +65,7 @@
 - `css/styles.css` + `index.html` + `js/app.js`: design polish pass (v115) — Community modal restructured from one long flat scroll into a clear hierarchy ("Your ward this week" / "Ward leaderboard" sections always visible, "Get involved" and "Resources" as collapsible groups reusing the existing official-channels accordion pattern); Profile's plain bordered form fields wrapped in an elevated `.profile-details-card` so the premium gradient stat card's tone carries down the screen, plus icons added to every Profile section header for visual consistency with Community; empty states (Reports, Volunteer, Pledges, Wins, Community leads) upgraded from flat muted icons to a warm gradient icon badge (shared `.empty-state--action i` style, one CSS change covers all five); removed the loud Instagram-gradient button style from two generic "Download" actions (certificate, share-win card) in favour of the existing outline style already used by their neighbouring "Copy caption" button, and deleted the now-unused `.btn--instagram` rule; SW06 → v115
 - `js/app.js` + `sw.js`: fix report-modal close button (v116) — `canDismissReportOverlay()` was blocking the report modal's × button, backdrop tap, and hardware back indefinitely once a photo had been captured (`hasReportPhotoPreview()` check had no time bound, unlike the sibling `isReportPhotoPickerActive()` camera-return race-condition guard it sat next to); closing with a photo present is safe — `closeModal('report')` never clears the canvas, and `openReportModal()` already resumes straight to the photo/submit step on reopen — so the check was removed with no data-loss risk; audited all other modals/dismiss paths for the same indefinite-block pattern, found none; SW06 → v116
 - `css/styles.css` + `js/app.js`: higher-energy milestone celebrations (v117) — confetti now draws from a vivid 8-hue brand palette (was a narrow green-cyan-purple band), mixes rect/dot/ribbon shapes and piece sizes, and adds horizontal drift + variable spin instead of a flat straight-down fall; added a new `epic` intensity tier (64 pieces) reserved for the biggest moments; wired confetti into two milestones that previously had none — filing a BMC complaint (`saveComplaintId`, celebrate-tier on first filing) and leveling up / unlocking a certificate (`showCertificateModal`, epic-tier); existing report-submit, Me too, fix-confirmed, and first-share confetti automatically pick up the richer palette/shapes with no call-site changes; SW06 → v117
+- `css/styles.css` + `js/app.js`: trust-building report status stepper + hazard example text (v118) — profile report cards now show a 3-node visual stepper (Reported → Pending → Resolved) with check-circle icons and a filled connecting line, replacing the old plain progress dots (`renderReportCardProgress` rewritten in place, same call site); hazard picker tiles show a short example line per category ("e.g. clogged drain, waterlogged street") to reduce mis-categorized reports, localized across en/hi/mr/gu (new `hazard.<key>.example` i18n keys); stepper labels reuse existing `esc.progress.reported`/`esc.progress.resolved`/`popup.pending` keys rather than adding new ones; Map/Feed toggle, search, and a real reverse-geocoded location step were scoped out of this pass (deferred — no existing infra for any of the three, see session notes); SW06 → v118
 
 ## Summary by category
 
@@ -148,7 +149,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective · Dadar, Shiva |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Pin Pioneer · Dadar, Shiva #63 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -214,8 +215,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.08s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 9ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
