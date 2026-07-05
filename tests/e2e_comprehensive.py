@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v118" in sw_src
+        "civicradar-v119" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v118" in sw_src
+        "civicradar-v119" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7603,6 +7603,8 @@ async def main():
         '`css/styles.css` + `js/app.js`: higher-energy milestone celebrations (v117) — confetti now draws from a vivid 8-hue brand palette (was a narrow green-cyan-purple band), mixes rect/dot/ribbon shapes and piece sizes, and adds horizontal drift + variable spin instead of a flat straight-down fall; added a new `epic` intensity tier (64 pieces) reserved for the biggest moments; wired confetti into two milestones that previously had none — filing a BMC complaint (`saveComplaintId`, celebrate-tier on first filing) and leveling up / unlocking a certificate (`showCertificateModal`, epic-tier); existing report-submit, Me too, fix-confirmed, and first-share confetti automatically pick up the richer palette/shapes with no call-site changes; SW06 → v117',
 
         '`css/styles.css` + `js/app.js`: trust-building report status stepper + hazard example text (v118) — profile report cards now show a 3-node visual stepper (Reported → Pending → Resolved) with check-circle icons and a filled connecting line, replacing the old plain progress dots (`renderReportCardProgress` rewritten in place, same call site); hazard picker tiles show a short example line per category ("e.g. clogged drain, waterlogged street") to reduce mis-categorized reports, localized across en/hi/mr/gu (new `hazard.<key>.example` i18n keys); stepper labels reuse existing `esc.progress.reported`/`esc.progress.resolved`/`popup.pending` keys rather than adding new ones; Map/Feed toggle, search, and a real reverse-geocoded location step were scoped out of this pass (deferred — no existing infra for any of the three, see session notes); SW06 → v118',
+
+        '`css/styles.css` + `index.html` + `js/app.js` + `supabase/schema.sql` + `terms.html`: UGC content-moderation compliance (v119) — the report-popup "Flag / hide from map" button previously only hid a pin on the reporter\'s own device with no backend notification, and the admin queue had zero content-removal action; this is the core requirement of Apple Guideline 1.2 and Google Play\'s UGC policy for apps with public user photos, so it\'s fixed end-to-end: new `flag_report` RPC + `report_flags` table (dedup-by-user, mirrors `confirm_report`), new `reports.flag_count`/`removed`/`removed_at` columns, `reports_select_all` RLS policy updated so moderator-removed content is genuinely inaccessible via the API to everyone except the original reporter and BMC/admin (not just hidden client-side); flagged reports surface in the admin queue (sorted to the top, badge + count) and a new "Remove content" button lets BMC/admin take a report off the public map for every device\'s next sync, not just the moderator\'s own; the original reporter still sees their own removed report in Profile with a "Removed by moderator" status instead of it silently vanishing; hide-confirm copy now accurately says it also flags for review (previously implied a purely local action); terms.html section 5 updated to describe the actual in-app flow instead of only an email-based takedown request; localized across en/hi/mr/gu; SW06 → v119',
 
     ]
 
