@@ -20,7 +20,7 @@ values (
   'report-photos',
   true,
   524288,  -- 512 KB per object after client compression (320px, q=0.52 JPEG)
-  array['image/jpeg', 'image/webp']
+  array['image/jpeg']
 )
 on conflict (id) do nothing;
 
@@ -33,7 +33,10 @@ create policy "report_photos_select"
 -- Authenticated (including anonymous-auth) users upload only into their own
 -- folder: {auth.uid()}/{report_id}[-resolved].jpg. Every CivicRadar session —
 -- citizen or admin — has a real auth.uid() via signInAnonymously(), so this
--- applies uniformly.
+-- applies uniformly. Object names must end in .jpg (client compresses to JPEG;
+-- see Backend.uploadReportImage). MIME is also restricted at bucket level below.
+-- For stronger validation (magic-byte check, max dimensions), add a Storage
+-- Edge Function on upload — not required for the SQL/policy baseline here.
 drop policy if exists "report_photos_insert_own" on storage.objects;
 create policy "report_photos_insert_own"
   on storage.objects for insert
@@ -41,6 +44,7 @@ create policy "report_photos_insert_own"
   with check (
     bucket_id = 'report-photos'
     and (storage.foldername(name))[1] = auth.uid()::text
+    and lower(name) ~ '\.jpe?g$'
   );
 
 drop policy if exists "report_photos_update_own" on storage.objects;

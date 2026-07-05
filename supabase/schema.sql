@@ -1527,11 +1527,13 @@ create index if not exists referrals_referrer_code_idx on public.referrals (refe
 
 alter table public.referrals enable row level security;
 
--- Any new user's device may record its own redemption.
+-- One redemption per auth user (deduped server-side).
+create unique index if not exists referrals_referred_user_id_unique_idx
+  on public.referrals (referred_user_id)
+  where referred_user_id is not null;
+
+-- No direct client inserts — record_referral_redemption() below binds auth.uid().
 drop policy if exists "referrals_insert_anon" on public.referrals;
-create policy "referrals_insert_anon"
-  on public.referrals for insert
-  with check (true);
 
 -- No public reads/updates/deletes — only the aggregate RPC below, or the
 -- service role (dashboard), can see referral data.
@@ -1540,10 +1542,35 @@ create policy "referrals_select_none"
   on public.referrals for select
   using (false);
 
+-- Atomically record one redemption for the caller (SECURITY DEFINER).
+create or replace function public.record_referral_redemption(
+  p_referrer_code text,
+  p_city text default null,
+  p_ward text default null
+)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+  if coalesce(btrim(p_referrer_code), '') = '' then raise exception 'code_required'; end if;
+  insert into public.referrals (referrer_code, referred_user_id, city, ward)
+  values (
+    left(btrim(p_referrer_code), 32),
+    auth.uid(),
+    nullif(btrim(coalesce(p_city, '')), ''),
+    nullif(btrim(coalesce(p_ward, '')), '')
+  )
+  on conflict (referred_user_id) do nothing;
+end $$;
+
+grant execute on function public.record_referral_redemption(text, text, text) to authenticated;
+
 create or replace function public.get_referral_count(p_code text)
 returns bigint language sql stable security definer set search_path = public as $$
   select count(*) from public.referrals where referrer_code = p_code;
 $$;
+
+grant execute on function public.get_referral_count(text) to anon, authenticated;
 
 -- =====================================================================
 -- Column-level privilege hardening — migration v125
@@ -1741,3 +1768,70 @@ grant execute on function public.admin_remove_report(uuid, boolean) to authentic
 -- binding gate) — left in place as defense-in-depth since these RPCs are
 -- SECURITY DEFINER and bypass RLS entirely, so RLS is no longer what protects
 -- reports, the column grants + in-function checks above are.
+
+-- =====================================================================
+-- P0 security hardening — migration v126
+-- Referral integrity (RPC-only insert), storage cleanup on erasure, and
+-- consolidated delete_user_data (replaces earlier definitions above).
+-- Additive and safe to re-run.
+-- =====================================================================
+
+drop policy if exists "referrals_insert_anon" on public.referrals;
+
+create unique index if not exists referrals_referred_user_id_unique_idx
+  on public.referrals (referred_user_id)
+  where referred_user_id is not null;
+
+create or replace function public.record_referral_redemption(
+  p_referrer_code text,
+  p_city text default null,
+  p_ward text default null
+)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'auth_required'; end if;
+  if coalesce(btrim(p_referrer_code), '') = '' then raise exception 'code_required'; end if;
+  insert into public.referrals (referrer_code, referred_user_id, city, ward)
+  values (
+    left(btrim(p_referrer_code), 32),
+    auth.uid(),
+    nullif(btrim(coalesce(p_city, '')), ''),
+    nullif(btrim(coalesce(p_ward, '')), '')
+  )
+  on conflict (referred_user_id) do nothing;
+end $$;
+
+grant execute on function public.record_referral_redemption(text, text, text) to authenticated;
+
+create or replace function public.delete_user_data(p_session_id uuid default null)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then return; end if;
+
+  -- DPDP erasure: remove report photos from Storage (report-photos/{uid}/…).
+  delete from storage.objects
+    where bucket_id = 'report-photos'
+      and (storage.foldername(name))[1] = uid::text;
+
+  delete from public.volunteer_tasks
+    where volunteer_signup_id in (
+      select id from public.volunteer_signups where user_id = uid
+    );
+
+  delete from public.volunteer_signups where user_id = uid;
+  delete from public.report_fix_confirmations where user_id = uid;
+  delete from public.report_confirmations where user_id = uid;
+  delete from public.report_flags where user_id = uid;
+  delete from public.referrals where referred_user_id = uid;
+  delete from public.reports where reporter_id = uid;
+  delete from public.pledges where citizen_id = uid;
+
+  if p_session_id is not null then
+    delete from public.analytics_events where session_id = p_session_id;
+  end if;
+end $$;
+
+grant execute on function public.delete_user_data(uuid) to anon, authenticated;

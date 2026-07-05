@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v125';
+  const CIVIC_APP_VERSION = 'v126';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -525,6 +525,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Project config — founder story & monetization (see js/config.js)
 
   const CFG = window.CIVICRADAR_CONFIG || {};
+
+  function isProdEnvironment() {
+    return CFG.environment === 'prod';
+  }
 
   if (CFG.bmcChannels) {
 
@@ -11587,10 +11591,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!session) {
           let captchaToken = null;
-          try {
-            captchaToken = await getCaptchaToken();
-          } catch (e) {
-            console.warn('[CivicRadar] Turnstile unavailable at init — trying anonymous sign-in without token');
+          if (turnstileRequired()) {
+            captchaToken = await getCaptchaToken({ required: true });
+          } else {
+            try {
+              captchaToken = await getCaptchaToken();
+            } catch (e) {
+              console.warn('[CivicRadar] Turnstile unavailable at init — trying anonymous sign-in without token');
+            }
+          }
+          if (turnstileRequired() && !captchaToken) {
+            showToast(t('toast.authCaptchaFail'), 'error', 5000);
+            throw new Error('captcha_required');
           }
           const signInOpts = captchaToken ? { options: { captchaToken } } : {};
           const { data, error } = await this.client.auth.signInAnonymously(signInOpts);
@@ -11967,7 +11979,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // ---- Referral reward loop ----
     async insertReferral(row) {
       if (!this.enabled) return { error: { message: 'offline' } };
-      const { error } = await this.client.from('referrals').insert(row);
+      const { error } = await this.client.rpc('record_referral_redemption', {
+        p_referrer_code: row.referrer_code,
+        p_city: row.city || null,
+        p_ward: row.ward || null,
+      });
       if (error && window.CivicAnalytics) {
         CivicAnalytics.trackError(error.message, { context: 'insertReferral' });
       }
@@ -12285,16 +12301,25 @@ document.addEventListener('DOMContentLoaded', function () {
       await this.signOut();
       try {
         let captchaToken = null;
-        try {
-          captchaToken = await getCaptchaToken();
-        } catch (e) {
-          console.warn('Turnstile unavailable after data deletion — re-auth without token');
+        if (turnstileRequired()) {
+          captchaToken = await getCaptchaToken({ required: true });
+        } else {
+          try {
+            captchaToken = await getCaptchaToken();
+          } catch (e) {
+            console.warn('Turnstile unavailable after data deletion — re-auth without token');
+          }
+        }
+        if (turnstileRequired() && !captchaToken) {
+          showToast(t('toast.authCaptchaFail'), 'error', 5000);
+          return;
         }
         const signInOpts = captchaToken ? { options: { captchaToken } } : {};
         const { data, error } = await this.client.auth.signInAnonymously(signInOpts);
         if (!error && data.session) adoptBackendUserId(data.session.user.id);
       } catch (e) {
         console.warn('Re-auth after deletion failed:', e && e.message);
+        if (turnstileRequired()) showToast(t('toast.authCaptchaFail'), 'error', 5000);
       }
     },
   };
@@ -18895,6 +18920,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const connected = Backend.enabled;
 
+    const showDemo = !connected && !isProdEnvironment();
+
     ['admin', 'lead'].forEach((p) => {
 
       const official = $(`#${p}AuthOfficial`);
@@ -18903,7 +18930,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (official) official.classList.toggle('hidden', !connected);
 
-      if (demo) demo.classList.toggle('hidden', connected);
+      if (demo) demo.classList.toggle('hidden', !showDemo);
 
     });
 
@@ -23041,6 +23068,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnAdminSubmit').addEventListener('click', () => {
 
+      if (isProdEnvironment()) {
+
+        showToast(t('toast.bmcUnauthorized'), 'error');
+
+        return;
+
+      }
+
       const u = $('#adminUser').value.trim();
 
       const p = $('#adminPass').value;
@@ -23070,6 +23105,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     $('#btnLeadSubmit').addEventListener('click', () => {
+
+      if (isProdEnvironment()) {
+
+        showToast(t('toast.ngoLoginFail'), 'error');
+
+        return;
+
+      }
 
       const u = $('#leadUser').value.trim();
 

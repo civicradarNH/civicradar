@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 09:17:26
+**Run:** 2026-07-05 10:15:07
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 389 | **Pass:** 389 | **Fail:** 0
@@ -71,6 +71,7 @@
 - `js/searchable-select.js`: combobox fix + accessibility (v122) — fixed the ward/society searchable dropdown re-opening filtered to the just-picked value right after selection (missing suppressInput guard around the programmatic value-set); added auto-advance-focus to the next field after picking a value, without auto-opening that field's own dropdown if it's also a combobox; added `aria-selected` to listbox options (previously only a CSS class tracked the active option — screen readers had no way to know which one was selected) and `aria-haspopup="listbox"` on the input; SW06 → v122
 - `js/app.js` + `js/config.js`: copy rewrite — warm neighbourly voice + monsoon-neutral core (v123) — rewrote the high-impact user-facing strings (onboarding, coach mark/tour, home hero, persona bar, success/celebration, community, PWA nudge, map empty states) to a warmer, "your lane/your neighbours" voice with one idea per string, replacing several that crammed 3-4 messages into one sentence (worst offender: `persona.citizen.idle`); removed monsoon/dengue language from all evergreen core strings — it now lives only in the `season.*` keys, which `getSeasonalHook()` already shows/hides by month; added a deliberate `seasonalMode` override (auto/on/off, in `js/config.js`) so the seasonal banner can be forced on for a campaign or off entirely, on top of the existing date-driven default; standardized the pre-existing "Civic Hero XP" / "Civic Points" naming inconsistency (both were mixed across strings, even within the same language) onto "Civic Points" everywhere; fixed a leftover `#MonsoonGuardian` hashtag baked into `coach.step`/`home.hero.badge`/`persona.wardImpact` in all 4 languages; applied matching translations across hi/mr/gu (kept "Nihira H." and other proper nouns unchanged); left the ~2,000 functional strings (buttons, field labels, error text) and legal copy untouched, per the rewrite's own scope; note: `#MonsoonGuardian` is still hardcoded in 4 places in JS code (share-text templates, canvas watermark/title generation) rather than i18n strings — same underlying issue, flagged separately, not fixed in this pass; SW06 → v123
 - `js/app.js` + `sw.js`: Me too dedupe fix (v124) — duplicate Me too clicks could inflate local confirmation counts and XP because the confirmed-id set was re-read from localStorage on every check (no in-memory cache), the claim was written only after incrementing, and the popup button stayed active with no in-flight guard; fixed with claim-first persistence to `civicradar_confirmed`, session cache + `confirmInFlight` set, immediate button disable/replace with done state, and duplicate feedback toast; backend `confirm_report` RPC was already idempotent; MT01; SW06 → v124
+- `js/app.js` + `sw.js` + `supabase/schema.sql` + `supabase/schema_security_fix.sql`: reports column-lock hardening (v125) — closed the same class of column-privilege gap as v121's profiles fix, this time on `public.reports`: the `reports_update_roles` RLS policy only checked row ownership/role, not which columns an allowed UPDATE could touch, so a citizen could open the console and set `status`/`resolved_by`/`complaint_id` on their own report to fake an official BMC resolution or filing that never happened; fixed by revoking blanket UPDATE on reports entirely (no columns re-granted — every field is set once at INSERT time, which is unaffected) and moving every mutation behind a role/ownership-checked SECURITY DEFINER RPC: `bmc_set_report_status` (BMC/admin — filing + official resolution), `resolve_own_report` (reporter-only, from pending, once), `set_resolution_image` (reporter or a confirmed "looks fixed" neighbour, first-write-wins — closes a second hole where any signed-in user could otherwise overwrite any resolved report's "after" photo), `ngo_mark_cleared` (NGO lead only), `admin_remove_report` (BMC/admin — UGC takedown); rewired `Backend.updateReportResolution/updateReportFiling/updateReportCleanup/removeReportContent` to call the RPCs instead of raw `.update()`; removed `Backend.updateReportStatus` (dead code, zero call sites, would have silently started failing under the new column lock); also fixed `Backend.insertReport`/`pushLocalOwned`'s report upsert — `ON CONFLICT DO UPDATE` requires UPDATE privilege on every column in its SET clause even when a row never actually conflicts, so with reports column-locked the old upsert would have failed every new report sync; switched to `ignoreDuplicates: true` (`ON CONFLICT DO NOTHING`), which references no columns and is equivalent for a freshly generated report id; `schema_security_fix.sql`'s profiles-only fix is now folded into `schema.sql` directly (file kept as a superseded pointer); SW06 → v125
 
 ## Summary by category
 
@@ -154,7 +155,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja B982 |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ripple Ranger C6C6 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -220,7 +221,7 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
 | L03 | Load | 50x loadReports parse under 500ms | PASS | 7ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |

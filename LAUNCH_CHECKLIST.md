@@ -170,7 +170,7 @@ One ward, 2–3 WhatsApp groups. Share `publicUrl` + NGO code with coordinator.
 | TODO / FIXME in app code | ✅ None |
 | XSS sanitization | ✅ User inputs sanitized |
 | Analytics + GPS consent unbundled | ✅ Separate from ToS accept |
-| Service worker cache version | ✅ `civicradar-v120` |
+| Service worker cache version | ✅ `civicradar-v126` |
 | Legal page links | ✅ privacy ↔ terms ↔ index |
 | Legal emails in config | ✅ `civicradarnh@gmail.com` |
 | Turnstile integration (v120) | ✅ Site key in config; secret founder-only in Supabase |
@@ -208,7 +208,7 @@ Application code is at **v120** with Turnstile captcha wired for Supabase auth. 
 | Live URL | `https://civicradarnh.github.io/civicradar/` |
 | Files deployed | `index.html`, legal pages, `manifest.json`, `sw.js`, `robots.txt`, `css/`, `js/`, `assets/` |
 | CI gate | Smoke E2E on push; **Skip E2E** available via workflow_dispatch |
-| After deploy | Hard refresh; SW `civicradar-v120` |
+| After deploy | Hard refresh; SW `civicradar-v126` |
 
 See **LAUNCH-WALKTHROUGH.md** for step-by-step commands.
 
