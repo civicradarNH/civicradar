@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v119';
+  const CIVIC_APP_VERSION = 'v120';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1926,6 +1926,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       unexpected_failure: 'toast.authEmailFail',
 
+      captcha_failed: 'toast.authCaptchaFail',
+
+      captcha_unavailable: 'toast.authCaptchaFail',
+
+      captcha_verification_failed: 'toast.authCaptchaFail',
+
     };
 
     const key = hints[code];
@@ -3604,6 +3610,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.linkSent': 'Sign-in link sent — check your inbox.',
 
       'toast.authEmailFail': 'Could not send sign-in email. Check Supabase SMTP settings and try again.',
+
+      'toast.authCaptchaFail': 'Security check failed — reload the page and try again.',
 
       'toast.authEmailOffline': 'Cloud sign-in is unavailable — check your connection and try again.',
 
@@ -5770,6 +5778,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.authEmailFail': 'साइन-इन ईमेल नहीं भेजा जा सका — Supabase SMTP सेटिंग जाँचें और फिर कोशिश करें।',
 
+      'toast.authCaptchaFail': 'सुरक्षा जाँच विफल — पेज रीलोड करें और फिर कोशिश करें।',
+
       'toast.authEmailOffline': 'क्लाउड साइन-इन उपलब्ध नहीं — कनेक्शन जाँचें और फिर कोशिश करें।',
 
       'toast.authEmailRateLimit': 'बहुत सारे साइन-इन ईमेल — कुछ मिनट रुकें और फिर कोशिश करें।',
@@ -7933,6 +7943,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.linkSent': 'साइन-इन लिंक पाठवला — इनबॉक्स पाहा.',
 
       'toast.authEmailFail': 'साइन-इन ईमेल पाठवता आला नाही — Supabase SMTP सेटिंग्ज तपासा आणि पुन्हा प्रयत्न करा.',
+
+      'toast.authCaptchaFail': 'सुरक्षा तपासणी अयशस्वी — पेज रीलोड करा आणि पुन्हा प्रयत्न करा.',
 
       'toast.authEmailOffline': 'क्लाउड साइन-इन उपलब्ध नाही — कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.',
 
@@ -10098,6 +10110,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.authEmailFail': 'સાઇન-ઇન ઇમેઇલ મોકલી શકાઈ નહીં — Supabase SMTP સેટિંગ્સ તપાસો અને ફરી પ્રયાસ કરો.',
 
+      'toast.authCaptchaFail': 'સુરક્ષા તપાસ નિષ્ફળ — પેજ રીલોડ કરો અને ફરી પ્રયાસ કરો.',
+
       'toast.authEmailOffline': 'ક્લાઉડ સાઇન-ઇન ઉપલબ્ધ નથી — કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.',
 
       'toast.authEmailRateLimit': 'ઘણા બધા સાઇન-ઇન ઇમેઇલ — થોડી મિનિટ રાહ જુઓ અને ફરી પ્રયાસ કરો.',
@@ -11294,6 +11308,114 @@ document.addEventListener('DOMContentLoaded', function () {
     return [...serverArr, ...localOnly];
   }
 
+  /* ---------- Cloudflare Turnstile (Supabase captcha) ---------- */
+  const TURNSTILE_CONTAINER_ID = 'civic-turnstile';
+  const turnstileState = { widgetId: null, pending: null };
+
+  function getTurnstileSiteKey() {
+    return String(((window.CIVICRADAR_CONFIG || {}).turnstileSiteKey) || '').trim();
+  }
+
+  function turnstileRequired() {
+    return !!getTurnstileSiteKey();
+  }
+
+  function ensureTurnstileContainer() {
+    let el = document.getElementById(TURNSTILE_CONTAINER_ID);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = TURNSTILE_CONTAINER_ID;
+      el.className = 'turnstile-offscreen';
+      el.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function waitForTurnstileScript(timeoutMs) {
+    if (window.turnstile && typeof window.turnstile.render === 'function') {
+      return Promise.resolve(window.turnstile);
+    }
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      (function tick() {
+        if (window.turnstile && typeof window.turnstile.render === 'function') {
+          resolve(window.turnstile);
+          return;
+        }
+        if (Date.now() - start > timeoutMs) {
+          reject(new Error('turnstile_script_timeout'));
+          return;
+        }
+        setTimeout(tick, 50);
+      })();
+    });
+  }
+
+  function initTurnstileWidget(turnstile) {
+    if (turnstileState.widgetId != null) return turnstileState.widgetId;
+    const container = ensureTurnstileContainer();
+    turnstileState.widgetId = turnstile.render(container, {
+      sitekey: getTurnstileSiteKey(),
+      size: 'invisible',
+      callback: (token) => {
+        const p = turnstileState.pending;
+        turnstileState.pending = null;
+        if (p && p.resolve) p.resolve(token);
+      },
+      'error-callback': () => {
+        const p = turnstileState.pending;
+        turnstileState.pending = null;
+        if (p && p.reject) p.reject(new Error('turnstile_error'));
+      },
+      'expired-callback': () => {
+        try { turnstile.reset(turnstileState.widgetId); } catch { /* noop */ }
+      },
+    });
+    return turnstileState.widgetId;
+  }
+
+  // Returns a fresh Turnstile token when a site key is configured; null when disabled.
+  // Throws when opts.required and Turnstile cannot produce a token (email OTP flows).
+  async function getCaptchaToken(opts) {
+    const siteKey = getTurnstileSiteKey();
+    if (!siteKey) return null;
+    const strict = !!(opts && opts.required);
+    try {
+      const turnstile = await waitForTurnstileScript(10000);
+      if (turnstileState.pending) {
+        try { turnstileState.pending.reject(new Error('turnstile_superseded')); } catch { /* noop */ }
+        turnstileState.pending = null;
+      }
+      const widgetId = initTurnstileWidget(turnstile);
+      const token = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          turnstileState.pending = null;
+          reject(new Error('turnstile_timeout'));
+        }, 30000);
+        turnstileState.pending = {
+          resolve: (t) => { clearTimeout(timeout); resolve(t); },
+          reject: (err) => { clearTimeout(timeout); reject(err); },
+        };
+        try {
+          turnstile.reset(widgetId);
+          turnstile.execute(widgetId);
+        } catch (e) {
+          clearTimeout(timeout);
+          turnstileState.pending = null;
+          reject(e);
+        }
+      });
+      try { turnstile.reset(widgetId); } catch { /* noop */ }
+      if (!token && strict) throw new Error('turnstile_empty_token');
+      return token || null;
+    } catch (e) {
+      console.warn('[CivicRadar] Turnstile failed:', e && e.message);
+      if (strict) throw e;
+      return null;
+    }
+  }
+
   const Backend = {
     client: null,
     enabled: false,
@@ -11448,7 +11570,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!session) {
-          const { data, error } = await this.client.auth.signInAnonymously();
+          let captchaToken = null;
+          try {
+            captchaToken = await getCaptchaToken();
+          } catch (e) {
+            console.warn('[CivicRadar] Turnstile unavailable at init — trying anonymous sign-in without token');
+          }
+          const signInOpts = captchaToken ? { options: { captchaToken } } : {};
+          const { data, error } = await this.client.auth.signInAnonymously(signInOpts);
           if (error) throw error;
           session = data.session;
         }
@@ -12032,12 +12161,22 @@ document.addEventListener('DOMContentLoaded', function () {
         return { data: null, error: { message: 'offline', code: 'backend_offline' } };
       }
       const publicUrl = ((window.CIVICRADAR_CONFIG || {}).publicUrl || '').replace(/\/$/, '');
+      let captchaToken = null;
+      if (turnstileRequired()) {
+        try {
+          captchaToken = await getCaptchaToken({ required: true });
+        } catch (e) {
+          console.warn('Turnstile failed before sendEmailCode:', e && e.message);
+          return { data: null, error: { message: 'Captcha verification unavailable', code: 'captcha_unavailable' } };
+        }
+      }
       try {
         return await this.client.auth.signInWithOtp({
           email,
           options: {
             shouldCreateUser: true,
             ...(publicUrl ? { emailRedirectTo: publicUrl } : {}),
+            ...(captchaToken ? { captchaToken } : {}),
           },
         });
       } catch (e) {
@@ -12108,7 +12247,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       await this.signOut();
       try {
-        const { data, error } = await this.client.auth.signInAnonymously();
+        let captchaToken = null;
+        try {
+          captchaToken = await getCaptchaToken();
+        } catch (e) {
+          console.warn('Turnstile unavailable after data deletion — re-auth without token');
+        }
+        const signInOpts = captchaToken ? { options: { captchaToken } } : {};
+        const { data, error } = await this.client.auth.signInAnonymously(signInOpts);
         if (!error && data.session) adoptBackendUserId(data.session.user.id);
       } catch (e) {
         console.warn('Re-auth after deletion failed:', e && e.message);

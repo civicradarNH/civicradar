@@ -4396,7 +4396,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v119" in sw_src
+        "civicradar-v120" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7336,7 +7336,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v119" in sw_src
+        "civicradar-v120" in sw_src
 
         and "'/index.html'" not in sw_src
 

@@ -100,6 +100,8 @@
   supabaseAnonKey: resolved.supabaseAnonKey,  // e.g. 'eyJhbGciOi...' (anon public key — safe in browser; RLS protects data)
   // **[YOU]** Resolved per-environment — WhatsApp shares & ?report= deep links use this (not localhost)
   publicUrl: resolved.publicUrl, // e.g. 'https://civicradar.app' or 'https://youruser.github.io/civicradar'
+  // Cloudflare Turnstile site key (public). Secret lives in Supabase Auth → Captcha only.
+  turnstileSiteKey: '0x4AAAAAADvu8ppZ0_EjSdZd',
 
   /* ----- Official BMC channels (optional overrides) ----- */
   /* ----- Multi-city support (Mumbai · Pune · Thane) ----- */

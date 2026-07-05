@@ -74,6 +74,8 @@
 
   // **[YOU]** Must match your deployed HTTPS URL exactly (trailing slash OK)
   publicUrl: resolved.publicUrl,
+  // **[YOU]** Cloudflare Turnstile site key (public). Leave empty for local-only dev.
+  turnstileSiteKey: '',
 
   cities: {
     mumbai: {

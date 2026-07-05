@@ -41,6 +41,8 @@
 
   <!-- Supabase client (shared backend; optional — see js/config.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Cloudflare Turnstile (Supabase captcha — site key in js/config.js) -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <link rel="stylesheet" href="css/styles.css">
   <title>CivicRadar</title>
@@ -1712,6 +1714,8 @@
     <button type="button" id="badgeAdmin" class="role-badge role-badge--admin hidden" data-i18n="badge.admin">BMC Admin</button>
     <button type="button" id="badgeLead" class="role-badge role-badge--lead hidden" data-i18n="badge.coord">Coordinator hub</button>
   </div>
+
+  <div id="civic-turnstile" class="turnstile-offscreen" aria-hidden="true"></div>
 
   <script src="js/config.js"></script>
   <script src="js/analytics.js"></script>
