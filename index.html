@@ -251,6 +251,10 @@
       </span>
       <span data-i18n="nav.community">Community</span>
     </button>
+    <button type="button" class="nav-tab" data-tab="resources">
+      <i class="ph ph-megaphone"></i>
+      <span data-i18n="nav.resources">Resources</span>
+    </button>
     <button type="button" class="nav-tab" data-tab="profile">
       <i class="ph ph-user"></i>
       <span data-i18n="nav.profile">Profile</span>
@@ -550,7 +554,7 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
-      <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, rally neighbours.</p>
+      <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — rally neighbours, celebrate wins, support local leads.</p>
 
       <div class="community-summary" id="communitySummary">
         <div class="impact-stats" id="communityImpactStats" aria-live="polite">
@@ -647,50 +651,50 @@
             </button>
           </section>
 
-          <!-- Volunteer self-help Card -->
-          <div class="pledge-card pledge-card--volunteer">
-            <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-              <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
-          </div>
-
-          <!-- Pledge Support Card -->
-          <div class="pledge-card">
-            <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-              <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
-          </div>
-
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="cr-section cr-section--collapsed" id="communityResourcesSection">
-        <button type="button" class="cr-section__toggle" id="btnCommunityResourcesToggle" aria-expanded="false" aria-controls="communityResourcesBody">
-          <span><i class="ph ph-info" aria-hidden="true"></i> <span data-i18n="community.resourcesTitle">Resources</span></span>
-          <i class="ph ph-caret-down" aria-hidden="true"></i>
-        </button>
-        <div class="cr-section__body hidden" id="communityResourcesBody">
+  <!-- Resources Modal (official channels, volunteer, pledge) -->
+  <div class="modal-overlay" id="resourcesOverlay" aria-hidden="true">
+    <div class="modal modal--tall" id="resourcesModal" role="dialog" aria-labelledby="resourcesTitle">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
+      <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
+      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official filing links and ways to help in your ward.</p>
 
-          <div class="official-channels-block" id="communityOfficialBlock">
-            <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
-            <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
-            <div class="esc-channels official-channels" id="communityOfficialChannels" data-official-context="community"></div>
-            <p class="official-sources-all">
-              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
-            </p>
-          </div>
-
-          <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
-          <div id="impactWall"></div>
-
-        </div>
+      <div class="official-channels-block" id="resourcesOfficialBlock">
+        <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
+        <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
+        <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
+        <p class="official-sources-all">
+          <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
+        </p>
       </div>
+
+      <h3 class="section-title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in your ward</span></h3>
+
+      <div class="pledge-card pledge-card--volunteer">
+        <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
+        <div class="pledge-card__body">
+          <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
+          <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+        </div>
+        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
+      </div>
+
+      <div class="pledge-card">
+        <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
+        <div class="pledge-card__body">
+          <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
+          <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+        </div>
+        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+      </div>
+
+      <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
+      <div id="impactWall"></div>
     </div>
   </div>
 
@@ -943,9 +947,9 @@
         <div class="cr-section__body hidden" id="profileAccountBody">
           <div class="profile-resource-link" id="profileOfficialLinkBlock">
             <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
-            <p class="field-hint" data-i18n="profile.officialHint">Verified BMC, PMC, and TMC apps and portals — open from Community → Resources.</p>
+            <p class="field-hint" data-i18n="profile.officialHint">Verified BMC, PMC, and TMC apps and portals — open from the Resources tab.</p>
             <button type="button" class="btn btn--outline btn--full" id="btnProfileOfficialChannels">
-              <i class="ph ph-users-three" aria-hidden="true"></i> <span data-i18n="profile.officialLink">Open in Community</span>
+              <i class="ph ph-megaphone" aria-hidden="true"></i> <span data-i18n="profile.officialLink">Open Resources</span>
             </button>
           </div>
 

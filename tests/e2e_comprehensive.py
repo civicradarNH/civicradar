@@ -2242,7 +2242,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X15', 'Storage', 'Confirmed set parse safe', '() => { try { JSON.parse(localStorage.getItem("civicradar_confirmed")||"[]"); return true; } catch { return false; } }'),
 
-        ('X16', 'UI', 'Bottom nav tabs', '() => document.querySelectorAll("#bottomNav .nav-tab").length === 3'),
+        ('X16', 'UI', 'Bottom nav tabs', '() => document.querySelectorAll("#bottomNav .nav-tab").length === 4'),
 
         ('UX01', 'UI', 'Active nav tab bold label', '() => { const lbl = document.querySelector("#bottomNav .nav-tab.active span:last-child"); return !!lbl && parseInt(getComputedStyle(lbl).fontWeight, 10) >= 600; }'),
 
@@ -2854,6 +2854,12 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await close_all_modals(page)
 
+    await js_click(page, '#bottomNav .nav-tab[data-tab="resources"]')
+
+    s.record('U12b', 'UI', 'Resources nav opens modal', await is_open(page, 'resourcesOverlay'))
+
+    await close_all_modals(page)
+
     await js_click(page, '#bottomNav .nav-tab[data-tab="map"]')
 
     s.record('U13', 'UI', 'Map nav closes modals', not await is_open(page, 'profileOverlay'))
@@ -2951,7 +2957,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     modal_close_audit = await page.evaluate("""() => {
       const withDataClose = [
-        ['reportModal', 'report'], ['communityModal', 'community'], ['volunteerModal', 'volunteer'],
+        ['reportModal', 'report'], ['communityModal', 'community'], ['resourcesModal', 'resources'], ['volunteerModal', 'volunteer'],
         ['pledgeModal', 'pledge'], ['profileModal', 'profile'], ['partnerModal', 'partner'],
         ['adminModal', 'admin'], ['leadModal', 'lead'], ['adminQueueModal', 'adminQueue'],
         ['coordinatorModal', 'coordinator'], ['adminReportModal', 'adminReport'],
@@ -4565,7 +4571,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v142" in sw_src
+        "civicradar-v143" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7212,7 +7218,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
               if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
 
-              const el = document.getElementById('communityOfficialChannels');
+              const el = document.getElementById('resourcesOfficialChannels');
 
               const channels = typeof getOfficialChannelsForCity === 'function'
 
@@ -7226,7 +7232,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
         )
 
-        s.record(test_id, 'OfficialChannels', f'Community Resources panel renders for {city}', panel_ok)
+        s.record(test_id, 'OfficialChannels', f'Resources tab panel renders for {city}', panel_ok)
 
 
 
@@ -7330,7 +7336,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
 
-          const el = document.getElementById('communityOfficialChannels');
+          const el = document.getElementById('resourcesOfficialChannels');
 
           return !!el && el.querySelectorAll('[data-official-channel]').length >= 3;
 
@@ -7338,7 +7344,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     )
 
-    s.record('OC05', 'OfficialChannels', 'Community panel renders channel buttons', community_ok)
+    s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
     await ctx.close()
 
@@ -7615,7 +7621,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v142" in sw_src
+        "civicradar-v143" in sw_src
 
         and "'/index.html'" not in sw_src
 

@@ -226,5 +226,11 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 ### Changed
 - **Information architecture consolidation (v142)** — keep 3-tab nav (Map | Community | Profile); official grievance channels live only in Community → Resources (Profile links there); volunteer empty-state signup routes via Community; persona bar copy updated. Cache v142.
 
+## [v143] - 2026-07-05
+
+### Changed
+- **4-tab navigation (v143)** — Map | Community | Resources | Profile. Official grievance channels, volunteer/pledge entry points, and sponsored offers move to a dedicated Resources tab (pre–Play Store launch). Community focuses on ward stats, leaderboard, and social action. Profile links to Resources tab. Localized en/hi/mr/gu. Cache v143.
+
 [v142]: https://github.com/civicradarnh/civicradar/compare/v141...v142
-[Unreleased]: https://github.com/civicradarnh/civicradar/compare/v142...HEAD
+[v143]: https://github.com/civicradarnh/civicradar/compare/v142...v143
+[Unreleased]: https://github.com/civicradarnh/civicradar/compare/v143...HEAD

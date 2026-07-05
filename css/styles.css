@@ -4374,6 +4374,16 @@ body.persona-lead .app-open-banner { display: none; }
   border-top: 1px dashed var(--border);
 }
 
+#resourcesModal .official-channels-block {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.resources-action-title {
+  margin: 1.25rem 0 0.75rem;
+}
+
 .official-channels-block__toggle {
   display: flex;
   align-items: center;

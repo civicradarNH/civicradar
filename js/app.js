@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v142';
+  const CIVIC_APP_VERSION = 'v143';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -507,6 +507,8 @@ document.addEventListener('DOMContentLoaded', function () {
     success: $('#successOverlay'),
 
     community: $('#communityOverlay'),
+
+    resources: $('#resourcesOverlay'),
 
     pledge: $('#pledgeOverlay'),
 
@@ -1166,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderOfficialChannelButtons($('#successOfficialChannels'), city, hazard, report, { context: 'success' });
 
-    renderOfficialChannelButtons($('#communityOfficialChannels'), city, hazard, null, { context: 'community' });
+    renderOfficialChannelButtons($('#resourcesOfficialChannels'), city, hazard, null, { context: 'resources' });
 
     const hintEl = $('#escOfficialCategoryHint');
 
@@ -1234,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const channelId = btn.dataset.officialChannel;
 
-    const wrap = btn.closest('[data-official-report-id], #successOfficialChannels, #communityOfficialChannels, #escOfficialExtras');
+    const wrap = btn.closest('[data-official-report-id], #successOfficialChannels, #resourcesOfficialChannels, #escOfficialExtras');
 
     let reportId = wrap && wrap.dataset.officialReportId;
 
@@ -2310,6 +2312,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'nav.community': 'Community',
 
+      'nav.resources': 'Resources',
+
       'nav.profile': 'Profile',
 
       'fab.report': 'Report',
@@ -2376,7 +2380,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: {n} reports from your neighbours so far. Add yours.',
 
-      'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Community → Resources.',
+      'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Resources.',
 
       'persona.pendingFiled': '{n} open on your ward map — check Profile for anything overdue.',
 
@@ -2909,9 +2913,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'Community',
 
-      'community.subtitle': 'Fix it together in {ward} — volunteer, pledge supplies, rally neighbours.',
+      'community.subtitle': 'Fix it together in {ward} — rally neighbours, celebrate wins, support local leads.',
 
-      'community.subtitleActive': '{ward}: {pending} open on the map — {resolved} fixed — rally neighbours or volunteer.',
+      'community.subtitleActive': '{ward}: {pending} open on the map — {resolved} fixed — rally neighbours or see Resources to help.',
 
       'community.topWards': 'Top Wards',
 
@@ -2928,6 +2932,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.getInvolvedTitle': 'Get involved',
 
       'community.resourcesTitle': 'Resources',
+
+      'resources.title': 'Resources',
+
+      'resources.subtitle': 'Official filing links and ways to help in your ward.',
+
+      'resources.actionTitle': 'Help in your ward',
 
       'community.supportTitle': 'Support Volunteers',
 
@@ -4071,9 +4081,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'Pledge support',
 
-      'profile.officialHint': 'Verified BMC, PMC, and TMC apps and portals — CivicRadar does not file on your behalf. Open from Community → Resources.',
+      'profile.officialHint': 'Verified BMC, PMC, and TMC apps and portals — CivicRadar does not file on your behalf. Open from the Resources tab.',
 
-      'profile.officialLink': 'Open official channels in Community',
+      'profile.officialLink': 'Open Resources',
 
       'badge.admin': 'BMC Admin',
 
@@ -4561,6 +4571,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'nav.community': 'समुदाय',
 
+      'nav.resources': 'संसाधन',
+
       'nav.profile': 'प्रोफ़ाइल',
 
       'fab.report': 'रिपोर्ट',
@@ -4627,7 +4639,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: अब तक आपके पड़ोसियों की {n} रिपोर्ट। आप भी जोड़ें।',
 
-      'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Community → Resources से आधिकारिक तौर पर दर्ज करें।',
+      'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Resources से आधिकारिक तौर पर दर्ज करें।',
 
       'persona.pendingFiled': '{n} आपके वार्ड नक्शे पर खुले हैं — कुछ अतिदेय हो तो Profile देखें।',
 
@@ -5162,9 +5174,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} में साथ मिलकर ठीक करें — स्वयंसेवा, सामान दान, पड़ोसियों को बुलाएँ।',
+      'community.subtitle': '{ward} में साथ मिलकर ठीक करें — पड़ोसियों को बुलाएँ, जीत मनाएँ, स्थानीय लीड्स को सपोर्ट करें।',
 
-      'community.subtitleActive': '{ward}: {pending} खुले खतरे · {resolved} हल। पड़ोसियों को बुलाएँ!',
+      'community.subtitleActive': '{ward}: {pending} खुले खतरे · {resolved} हल। पड़ोसियों को बुलाएँ — मदद के लिए Resources देखें!',
 
       'community.topWards': 'शीर्ष वार्ड',
 
@@ -5181,6 +5193,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.getInvolvedTitle': 'शामिल हों',
 
       'community.resourcesTitle': 'संसाधन',
+
+      'resources.title': 'संसाधन',
+
+      'resources.subtitle': 'आधिकारिक दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
+
+      'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
@@ -6322,9 +6340,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'दान करें',
 
-      'profile.officialHint': 'सत्यापित BMC, PMC और TMC ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। Community → Resources से खोलें।',
+      'profile.officialHint': 'सत्यापित BMC, PMC और TMC ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। Resources टैब से खोलें।',
 
-      'profile.officialLink': 'Community में आधिकारिक चैनल खोलें',
+      'profile.officialLink': 'Resources खोलें',
 
       'badge.admin': 'BMC एडमिन',
 
@@ -6811,6 +6829,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'nav.community': 'समुदाय',
 
+      'nav.resources': 'संसाधने',
+
       'nav.profile': 'प्रोफाइल',
 
       'fab.report': 'तक्रार',
@@ -6877,7 +6897,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: आतापर्यंत तुमच्या शेजाऱ्यांच्या {n} तक्रारी. तुमचीही जोडा.',
 
-      'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Community → Resources मधून अधिकृतपणे नोंदवा.',
+      'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Resources मधून अधिकृतपणे नोंदवा.',
 
       'persona.pendingFiled': '{n} तुमच्या वॉर्ड नकाशावर उघडे आहेत — मुदत उलटली असेल तर Profile पहा.',
 
@@ -7412,9 +7432,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — स्वयंसेवा, साहित्य देणगी, शेजाऱ्यांना बोलवा.',
+      'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — शेजाऱ्यांना बोलवा, विजय साजरे करा, स्थानिक लीड्सना पाठिंबा द्या.',
 
-      'community.subtitleActive': '{ward}: {pending} खुले धोके · {resolved} सोडवले. शेजाऱ्यांना बोलवा!',
+      'community.subtitleActive': '{ward}: {pending} खुले धोके · {resolved} सोडवले. शेजाऱ्यांना बोलवा — मदतीसाठी Resources पहा!',
 
       'community.topWards': 'अव्वल वॉर्ड',
 
@@ -7431,6 +7451,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.getInvolvedTitle': 'सहभागी व्हा',
 
       'community.resourcesTitle': 'संसाधने',
+
+      'resources.title': 'संसाधने',
+
+      'resources.subtitle': 'अधिकृत दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
+
+      'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
@@ -8572,9 +8598,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'देणगी द्या',
 
-      'profile.officialHint': 'सत्यापित BMC, PMC आणि TMC अॅप्स आणि पोर्टल — CivicRadar तुमच्या वतीने दाखल करत नाही. Community → Resources मधून उघडा.',
+      'profile.officialHint': 'सत्यापित BMC, PMC आणि TMC अॅप्स आणि पोर्टल — CivicRadar तुमच्या वतीने दाखल करत नाही. Resources टॅबमधून उघडा.',
 
-      'profile.officialLink': 'Community मध्ये अधिकृत चॅनेल उघडा',
+      'profile.officialLink': 'Resources उघडा',
 
       'badge.admin': 'BMC Admin',
 
@@ -9061,6 +9087,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'nav.community': 'સમુદાય',
 
+      'nav.resources': 'સંસાધનો',
+
       'nav.profile': 'પ્રોફાઇલ',
 
       'fab.report': 'ફરિયાદ',
@@ -9127,7 +9155,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: અત્યાર સુધી તમારા પડોશીઓની {n} ફરિયાદ. તમારી પણ ઉમેરો.',
 
-      'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Community → Resources માંથી અધિકૃત રીતે નોંધાવો.',
+      'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Resources માંથી અધિકૃત રીતે નોંધાવો.',
 
       'persona.pendingFiled': '{n} તમારા વોર્ડ નકશા પર ખુલ્લા છે — મુદત વીતી હોય તો Profile જુઓ.',
 
@@ -9662,9 +9690,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'સમુદાય',
 
-      'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — સ્વયંસેવા, સામગ્રી દાન, પડોશીઓને બોલાવો.',
+      'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — પડોશીઓને બોલાવો, જીત ઉજવો, સ્થાનિક લીડ્સને સપોર્ટ કરો.',
 
-      'community.subtitleActive': '{ward}: {pending} ખુલ્લા જોખમો · {resolved} ઉકેલાયા. પડોશીઓને બોલાવો!',
+      'community.subtitleActive': '{ward}: {pending} ખુલ્લા જોખમો · {resolved} ઉકેલાયા. પડોશીઓને બોલાવો — મદદ માટે Resources જુઓ!',
 
       'community.topWards': 'ટોચના વોર્ડ',
 
@@ -9681,6 +9709,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.getInvolvedTitle': 'સામેલ થાઓ',
 
       'community.resourcesTitle': 'સંસાધનો',
+
+      'resources.title': 'સંસાધનો',
+
+      'resources.subtitle': 'અધિકૃત દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
+
+      'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
@@ -10822,9 +10856,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'પ્રતિજ્ઞા કરો',
 
-      'profile.officialHint': 'ચકાસેલ BMC, PMC અને TMC એપ્સ અને પોર્ટલ — CivicRadar તમારી તરફથી દાખલ કરતું નથી. Community → Resources માંથી ખોલો.',
+      'profile.officialHint': 'ચકાસેલ BMC, PMC અને TMC એપ્સ અને પોર્ટલ — CivicRadar તમારી તરફથી દાખલ કરતું નથી. Resources ટેબમાંથી ખોલો.',
 
-      'profile.officialLink': 'Community માં અધિકૃત ચેનલ ખોલો',
+      'profile.officialLink': 'Resources ખોલો',
 
       'badge.coord': 'સંકલક હબ',
 
@@ -11597,8 +11631,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (overlays.success && overlays.success.classList.contains('open')) refreshSuccessModalStrings();
       if (overlays.community && overlays.community.classList.contains('open')) {
-        renderImpactWall();
         renderSuccessStories();
+      }
+      if (overlays.resources && overlays.resources.classList.contains('open')) {
+        renderImpactWall();
         renderOfficialChannelsSurfaces(null);
       }
       if (overlays.profile && overlays.profile.classList.contains('open')) {
@@ -21007,11 +21043,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderWardChallenge();
 
-    renderImpactWall();
-
     renderLeadCandidates();
-
-    renderOfficialChannelsSurfaces(null);
 
     markSuccessStoriesSeen();
 
@@ -21023,10 +21055,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.closeCommunityModal = function () { closeModal('community'); };
 
-  window.openCommunityResources = function () {
-    window.openCommunityModal();
-    setCollapsibleSectionOpen('communityResourcesSection', 'communityResourcesBody', 'btnCommunityResourcesToggle', true);
+  window.openResourcesModal = function () {
+
+    pushNavModalHistory();
+
+    closeStackedModalsForNav('resources');
+
+    renderImpactWall();
+
+    renderOfficialChannelsSurfaces(null);
+
+    setNavTab('resources');
+
+    openModal('resources');
+
   };
+
+  window.closeResourcesModal = function () { closeModal('resources'); };
+
+  window.openCommunityResources = function () { window.openResourcesModal(); };
 
   window.openPledgeModal = function () {
 
@@ -23261,7 +23308,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnProfileOfficialChannels) {
       btnProfileOfficialChannels.addEventListener('click', () => {
         closeModal('profile');
-        window.openCommunityResources();
+        window.openResourcesModal();
       });
     }
 
@@ -23749,7 +23796,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // so the bottom-nav highlight stays correct.
 
-        if (name === 'community' || name === 'profile') setNavTab('map');
+        if (name === 'community' || name === 'resources' || name === 'profile') setNavTab('map');
 
       });
 
@@ -23759,7 +23806,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Backdrop tap on the Community/Profile overlays dismisses and returns to Map.
 
-    ['community', 'profile'].forEach((name) => {
+    ['community', 'resources', 'profile'].forEach((name) => {
 
       const overlay = overlays[name];
 
@@ -23919,7 +23966,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wireCollapsibleSection('btnGetInvolvedToggle', 'getInvolvedBody', 'getInvolvedSection');
 
-    wireCollapsibleSection('btnCommunityResourcesToggle', 'communityResourcesBody', 'communityResourcesSection');
 
     wireCollapsibleSection('btnProfileDetailsToggle', 'profileDetailsBody', 'profileDetailsSection');
 
@@ -24237,7 +24283,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnOpenPledge').addEventListener('click', () => {
 
-      closeModal('community');
+      closeModal('resources');
 
       window.openPledgeModal();
 
@@ -24245,7 +24291,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnOpenVolunteer').addEventListener('click', () => {
 
-      closeModal('community');
+      closeModal('resources');
 
       window.openVolunteerModal();
 
@@ -24294,6 +24340,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: target });
 
         if (target === 'community') window.openCommunityModal();
+
+        else if (target === 'resources') window.openResourcesModal();
 
         else if (target === 'profile') window.openProfileModal();
 
@@ -29937,7 +29985,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const btn = $('#btnEmptyPledge');
 
-      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openCommunityModal(); window.openPledgeModal(); });
+      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openResourcesModal(); window.openPledgeModal(); });
 
       return;
 
@@ -33402,7 +33450,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const btn = $('#btnEmptyVolunteer');
 
-      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openCommunityModal(); window.openVolunteerModal(); });
+      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openResourcesModal(); window.openVolunteerModal(); });
 
       return;
 
