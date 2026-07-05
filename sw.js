@@ -1,4 +1,4 @@
-const CACHE = 'civicradar-v129';
+const CACHE = 'civicradar-v130';
 // Runtime config — never precache; always fetch fresh (see network-first below).
 const NETWORK_FIRST = ['/js/config.js'];
 // Relative paths resolve against the SW scope, so precache works both at the
@@ -9,6 +9,7 @@ const ASSETS = [
   'privacy.html',
   'terms.html',
   'delete-account.html',
+  'official-sources.html',
   'css/styles.css',
   'css/legal.css',
   'js/analytics.js',

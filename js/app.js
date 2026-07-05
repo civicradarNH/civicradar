@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v129';
+  const CIVIC_APP_VERSION = 'v130';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -678,6 +678,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function getOfficialSourceLink(channelId, cityId) {
+
+    const city = cityId || getUserCity();
+
+    const corp = getCityCorpChannels(city);
+
+    const sw = OFFICIAL.swachhata || {};
+
+    const aaple = OFFICIAL.aapleSarkar || {};
+
+    switch (channelId) {
+
+      case 'marg':
+
+      case 'bmc_whatsapp':
+
+      case 'bmc_portal':
+
+      case 'bmc_call':
+
+        return { url: BMC.portalUrl, label: 'portal.mcgm.gov.in' };
+
+      case 'pmc_care':
+
+      case 'pmc_wa':
+
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'pmccare.in' } : null;
+
+      case 'tmc_portal':
+
+      case 'tmc_call':
+
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'thanecity.gov.in' } : null;
+
+      case 'swachhata':
+
+        return sw.infoUrl ? { url: sw.infoUrl, label: 'sbm.gov.in' } : null;
+
+      case 'aaple_sarkar': {
+
+        const url = corp.aapleSarkarUrl || aaple.portalUrl || BMC.aapleSarkar;
+
+        return url ? { url: url, label: 'grievances.maharashtra.gov.in' } : null;
+
+      }
+
+      default:
+
+        return null;
+
+    }
+
+  }
+
+
+
   function resolveOfficialChannelMeta(channelId, cityId) {
 
     const city = cityId || getUserCity();
@@ -906,6 +962,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!meta || !meta.url) return;
 
+      const source = getOfficialSourceLink(id, city);
+
+      if (source) {
+
+        meta.sourceUrl = source.url;
+
+        meta.sourceLabel = source.label;
+
+      }
+
       const score = scoreOfficialChannel(id, hazard || 'stagnant-water');
 
       entries.push(Object.assign({}, meta, {
@@ -1036,11 +1102,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      return `<button type="button" class="esc-channel${recCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
+      return `<div class="esc-channel-wrap">
+
+        <button type="button" class="esc-channel${recCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
         <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
 
-      </button>`;
+      </button>
+
+      ${ch.sourceUrl ? `<p class="esc-channel-source"><a href="${escapeHtml(ch.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ch.sourceLabel || ch.sourceUrl)}</a></p>` : ''}
+
+      </div>`;
 
     }).join('');
 
@@ -3013,6 +3085,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'Delete account',
 
+      'legal.officialSources': 'Official government sources',
+
       'impact.reports': 'Reports',
 
       'impact.resolved': 'Fixed',
@@ -3052,6 +3126,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.privacyTitle': 'Privacy & data',
 
       'about.privacyNote': 'Photo location metadata (EXIF) is stripped before upload. GPS is used only to place your pin when you allow it. Reports are visible to the community on the map. Official complaints go through BMC, PMC, or TMC when you file there.',
+
+      'about.officialSourcesTitle': 'Official information sources',
+
+      'about.officialSourcesNote': 'CivicRadar is not a government app. Verified links to BMC, PMC, TMC, and Maharashtra state portals are listed on our official sources page — where you file complaints yourself.',
 
       'about.impactTitle': 'Community impact',
 
@@ -3455,7 +3533,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'Verified government apps and portals — CivicRadar does not file on your behalf.',
+      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you. Full source links on our official sources page.',
+
+      'official.viewAllSources': 'View all official sources',
 
       'official.alsoFile': 'Also file officially (optional)',
 
@@ -5214,6 +5294,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'खाता हटाएँ',
 
+      'legal.officialSources': 'आधिकारिक सरकारी स्रोत',
+
       'impact.reports': 'रिपोर्ट',
 
       'impact.resolved': 'हल',
@@ -5253,6 +5335,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.privacyTitle': 'गोपनीयता और डेटा',
 
       'about.privacyNote': 'अपलोड से पहले फोटो की location metadata (EXIF) हटा दी जाती है। GPS सिर्फ आपकी अनुमति पर पिन लगाने के लिए। रिपोर्ट नक्शे पर समुदाय को दिखती हैं। आधिकारिक शिकायत BMC, PMC या TMC चैनल से होती है।',
+
+      'about.officialSourcesTitle': 'आधिकारिक सूचना स्रोत',
+
+      'about.officialSourcesNote': 'CivicRadar सरकारी ऐप नहीं है। BMC, PMC, TMC और महाराष्ट्र राज्य पोर्टल के सत्यापित लिंक हमारे आधिकारिक स्रोत पेज पर हैं — शिकायत आप स्वयं दर्ज करें।',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
@@ -5654,7 +5740,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'सत्यापित सरकारी ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता।',
+      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। सभी स्रोत लिंक आधिकारिक स्रोत पेज पर।',
+
+      'official.viewAllSources': 'सभी आधिकारिक स्रोत देखें',
 
       'official.alsoFile': 'आधिकारिक रूप से भी दर्ज करें (वैकल्पिक)',
 
@@ -7412,6 +7500,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'खाते हटवा',
 
+      'legal.officialSources': 'अधिकृत सरकारी स्रोत',
+
       'impact.reports': 'तक्रारी',
 
       'impact.resolved': 'सोडवले',
@@ -7451,6 +7541,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.privacyTitle': 'गोपनीयता आणि डेटा',
 
       'about.privacyNote': 'अपलोडपूर्वी फोटोची location metadata (EXIF) काढली जाते. GPS फक्त तुमच्या परवानगीने पिन ठेवण्यासाठी. तक्रारी नकाशावर समुदायाला दिसतात. अधिकृत तक्रार BMC, PMC किंवा TMC चॅनेलद्वारे होते.',
+
+      'about.officialSourcesTitle': 'अधिकृत माहिती स्रोत',
+
+      'about.officialSourcesNote': 'CivicRadar हे सरकारी अॅप नाही. BMC, PMC, TMC आणि महाराष्ट्र राज्य पोर्टलचे सत्यापित दुवे आमच्या अधिकृत स्रोत पानावर आहेत — तक्रार तुम्ही स्वतः नोंदवा.',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
@@ -7852,7 +7946,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'सत्यापित सरकारी अॅप आणि पोर्टल — CivicRadar तुमच्या वतीने नोंदवत नाही.',
+      'official.subtitle': 'सत्यापित .gov अॅप आणि पोर्टल — CivicRadar तुमच्या वतीने नोंदवत नाही. सर्व स्रोत दुवे अधिकृत स्रोत पानावर.',
+
+      'official.viewAllSources': 'सर्व अधिकृत स्रोत पहा',
 
       'official.alsoFile': 'अधिकृतपणेही नोंदवा (पर्यायी)',
 
@@ -9610,6 +9706,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'એકાઉન્ટ કાઢો',
 
+      'legal.officialSources': 'અધિકૃત સરકારી સ્રોતો',
+
       'impact.reports': 'ફરિયાદો',
 
       'impact.resolved': 'ઉકેલાયા',
@@ -9649,6 +9747,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
 
       'about.privacyNote': 'અપલોડ પહેલાં ફોટોની location metadata (EXIF) દૂર થાય છે. GPS ફક્ત તમારી પરવાનગીથી પિન મૂકવા માટે. રિપોર્ટ નકશા પર સમુદાયને દેખાય છે. અધિકૃત ફરિયાદ BMC, PMC કે TMC ચેનલ દ્વારા થાય છે.',
+
+      'about.officialSourcesTitle': 'અધિકૃત માહિતી સ્રોતો',
+
+      'about.officialSourcesNote': 'CivicRadar સરકારી એપ નથી. BMC, PMC, TMC અને મહારાષ્ટ્ર રાજ્ય પોર્ટલના ચકાસેલ લિંક અમારા અધિકૃત સ્રોત પૃષ્ઠ પર છે — ફરિયાદ તમે જ દાખલ કરો.',
 
       'about.impactTitle': 'સામુદાયિક પ્રભાવ',
 
@@ -10050,7 +10152,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'ચકાસેલ સરકારી એપ અને પોર્ટલ — CivicRadar તમારી તરફથી નોંધાવતું નથી.',
+      'official.subtitle': 'ચકાસેલ .gov એપ અને પોર્ટલ — CivicRadar તમારી તરફથી નોંધાવતું નથી. બધા સ્રોત લિંક અધિકૃત સ્રોત પૃષ્ઠ પર.',
+
+      'official.viewAllSources': 'બધા અધિકૃત સ્રોતો જુઓ',
 
       'official.alsoFile': 'અધિકૃત રીતે પણ નોંધાવો (વૈકલ્પિક)',
 

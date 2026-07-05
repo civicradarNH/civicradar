@@ -4459,7 +4459,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v129" in sw_src
+        "civicradar-v130" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4703,9 +4703,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
         s.record('LG06', 'Legal', 'Delete page mentions Profile flow', 'Delete my data' in delete_body and 'Profile' in delete_body)
 
+        resp4 = await page.goto(BASE + 'official-sources.html', wait_until='domcontentloaded', timeout=30000)
+
+        sources_body = await page.text_content('body') or ''
+
+        lg07_ok = resp4 is not None and resp4.ok and ('mcgm.gov.in' in sources_body or 'thanecity.gov.in' in sources_body)
+
+        s.record('LG07', 'Legal', 'Official sources page loads with gov links', lg07_ok)
+
     except Exception as e:
 
-        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government'), ('LG05', 'Delete account page loads'), ('LG06', 'Delete page mentions Profile flow')]:
+        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government'), ('LG05', 'Delete account page loads'), ('LG06', 'Delete page mentions Profile flow'), ('LG07', 'Official sources page loads with gov links')]:
 
             s.record(cid, 'Legal', name, False, str(e)[:60])
 
@@ -7473,7 +7481,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v129" in sw_src
+        "civicradar-v130" in sw_src
 
         and "'/index.html'" not in sw_src
 

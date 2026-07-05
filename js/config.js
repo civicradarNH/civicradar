@@ -213,6 +213,7 @@
     privacyUrl: 'privacy.html',
     termsUrl: 'terms.html',
     deleteAccountUrl: 'delete-account.html',
+    officialSourcesUrl: 'official-sources.html',
     // **[YOU]** DPDP grievance officer — e.g. 'privacy@yourdomain.com' (defaults to founder.operatorEmail if empty)
     grievanceEmail: 'civicradarnh@gmail.com',
     // Review with qualified Indian counsel before public launch.

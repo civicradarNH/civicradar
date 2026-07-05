@@ -4254,6 +4254,43 @@ body.persona-lead .ref-welcome { display: none; }
 
 .official-channels .esc-channel { min-height: 56px; }
 
+.esc-channel-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.esc-channel-source {
+  margin: 0 0 8px;
+  padding: 0 4px;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.esc-channel-source a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.official-sources-all {
+  margin: 8px 0 0;
+}
+
+.official-sources-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.official-sources-link:hover {
+  color: var(--accent, var(--primary));
+}
+
 /* ---- Community modal: section hierarchy (headers + collapsible groups) ---- */
 .cr-section-header {
   display: flex;
