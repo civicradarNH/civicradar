@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v130';
+  const CIVIC_APP_VERSION = 'v134';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -270,6 +270,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const DUPLICATE_WINDOW_MS = 14 * 24 * 60 * 60 * 1000; // ignore duplicates older than 14 days
 
+  const GEO_ACCURACY_GOOD_M = 50;
+
+  const GEO_ACCURACY_POOR_M = 150;
+
+  const GEO_ACCURACY_MAX_M = 5000;
+
+  const GEO_WATCH_MAX_MS = 20000;
+
+  const GEO_LOCATE_TIMEOUT_MS = 20000;
+
   // App URL is used for shareable deep links. Set to your deployed origin in production.
 
   const APP_URL = (location.origin && location.origin.startsWith('http'))
@@ -363,6 +373,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let map = null;
 
   let userMarker = null;
+
+  let userAccuracyCircle = null;
 
   let reportMarkerLayer = null;
 
@@ -481,6 +493,8 @@ document.addEventListener('DOMContentLoaded', function () {
     volunteer: $('#volunteerOverlay'),
 
     profile: $('#profileOverlay'),
+
+    deleteConfirm: $('#deleteConfirmOverlay'),
 
     admin: $('#adminOverlay'),
 
@@ -2428,7 +2442,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'Tap the hazard you\'re reporting',
 
-      'report.photoNext': 'Selected: {hazard} — now add a photo',
+      'report.photoNext': 'Selected: {hazard} — tap Submit when ready',
 
       'report.photoEvidence': 'Photo',
 
@@ -2444,15 +2458,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'Retake photo',
 
-      'moderation.guidelines': 'Photograph the actual hazard — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines': 'Snap a clear photo of the hazard — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
-      'moderation.guidelines.stagnant-water': 'Photograph the actual stagnant water — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.stagnant-water': 'Snap the stagnant water — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
-      'moderation.guidelines.garbage': 'Photograph the garbage pile or dump — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.garbage': 'Snap the garbage pile or dump — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
-      'moderation.guidelines.potholes': 'Photograph the pothole or road damage — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.potholes': 'Snap the pothole or road damage — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
-      'moderation.guidelines.streetlight': 'Photograph the broken streetlight — not faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.streetlight': 'Snap the broken streetlight — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
 
       'moderation.scanning': 'Checking photo…',
 
@@ -2999,6 +3013,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.volunteer': 'My volunteer signup',
 
+      'profile.section.details': 'Your details',
+
+      'profile.section.activity': 'Activity',
+
+      'profile.section.account': 'Account & support',
+
       'profile.title': 'Your Profile',
 
       'profile.persona': 'Citizen',
@@ -3065,7 +3085,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'Delete my data',
 
-      'profile.deleteConfirm': 'Permanently delete your reports, pledges, volunteer signup, analytics, and profile from this device and cloud? This cannot be undone.',
+      'profile.deleteConfirmTitle': 'Delete your data?',
+
+      'profile.deleteConfirmBody': 'This permanently removes your CivicRadar data from this device and our servers. This cannot be undone.',
+
+      'profile.deleteConfirmItem1': 'Reports and photos',
+
+      'profile.deleteConfirmItem2': 'Pledges and volunteer signup',
+
+      'profile.deleteConfirmItem3': 'Profile, rewards, and preferences',
+
+      'profile.deleteConfirmItem4': 'Cloud backup linked to your account',
+
+      'profile.deleteConfirmCancel': 'Keep my data',
+
+      'profile.deleteConfirmProceed': 'Yes, delete everything',
 
       'profile.deleteDone': 'Your data has been deleted. You can start fresh.',
 
@@ -3863,6 +3897,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'Could not get GPS. Turn on location and try again.',
 
+      'toast.gpsLocating': 'Finding your location…',
+
+      'toast.gpsLowAccuracy': 'Location is approximate (~{m} m). Move outdoors or near a window for better GPS.',
+
+      'toast.gpsPoorFix': 'Could not get a precise location. Try again outdoors with GPS enabled.',
+
       'toast.complaintRequired': 'Enter your complaint number to start tracking.',
 
       'toast.complaintSaved': 'Complaint number saved — official clock is running.',
@@ -4635,7 +4675,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'खतरे का प्रकार चुनें',
 
-      'report.photoNext': '{hazard} चुना — अब फ़ोटो लें',
+      'report.photoNext': '{hazard} चुना — तैयार हो तो Submit दबाएँ',
 
       'report.photoEvidence': 'फ़ोटो प्रमाण',
 
@@ -4647,19 +4687,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'रिपोर्ट भेजें',
 
-      'report.photoHint': 'मौके की फ़ोटो — पिन सटीक रहेगा',
+      'report.photoHint': 'फ़ोटो में खतरा दिख रहा? Submit दबाएँ — नहीं तो Retake।',
 
       'report.retake': 'फिर से लें',
 
-      'moderation.guidelines': 'वास्तविक खतरे की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines': 'खतरे की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
-      'moderation.guidelines.stagnant-water': 'वास्तविक रुके हुए पानी की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.stagnant-water': 'रुके हुए पानी की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
-      'moderation.guidelines.garbage': 'कचरे के ढेर या डंप की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.garbage': 'कचरे के ढेर या डंप की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
-      'moderation.guidelines.potholes': 'गड्ढे या सड़क की क्षति की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.potholes': 'गड्ढे या सड़क की क्षति की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
-      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की फ़ोटो लें — चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
 
       'moderation.scanning': 'फ़ोटो सुरक्षा जाँच हो रही है…',
 
@@ -5208,6 +5248,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.volunteer': 'मेरा स्वयंसेवक साइनअप',
 
+      'profile.section.details': 'आपका विवरण',
+
+      'profile.section.activity': 'गतिविधि',
+
+      'profile.section.account': 'खाता और सहायता',
+
       'profile.title': 'आपकी प्रोफ़ाइल',
 
       'profile.persona': 'नागरिक',
@@ -5274,7 +5320,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'मेरा डेटा हटाएँ',
 
-      'profile.deleteConfirm': 'इस उपकरण और क्लाउड से आपकी रिपोर्ट, प्रतिज्ञा और प्रोफ़ाइल स्थायी रूप से हटाएँ? पूर्ववत नहीं हो सकता।',
+      'profile.deleteConfirmTitle': 'अपना डेटा हटाएँ?',
+
+      'profile.deleteConfirmBody': 'यह आपका CivicRadar डेटा इस उपकरण और हमारे सर्वर से स्थायी रूप से हटा देगा। पूर्ववत नहीं हो सकता।',
+
+      'profile.deleteConfirmItem1': 'रिपोर्ट और फ़ोटो',
+
+      'profile.deleteConfirmItem2': 'प्रतिज्ञा और स्वयंसेवक पंजीकरण',
+
+      'profile.deleteConfirmItem3': 'प्रोफ़ाइल, पुरस्कार और प्राथमिकताएँ',
+
+      'profile.deleteConfirmItem4': 'आपके खाते से जुड़ा क्लाउड बैकअप',
+
+      'profile.deleteConfirmCancel': 'मेरा डेटा रखें',
+
+      'profile.deleteConfirmProceed': 'हाँ, सब कुछ हटाएँ',
 
       'profile.deleteDone': 'आपका डेटा हटा दिया गया। आप नए सिरे से शुरू कर सकते हैं।',
 
@@ -6070,6 +6130,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS नहीं मिला। लोकेशन चालू करके फिर कोशिश करें।',
 
+      'toast.gpsLocating': 'आपका स्थान खोज रहे हैं…',
+
+      'toast.gpsLowAccuracy': 'स्थान अनुमानित है (~{m} मी)। बेहतर GPS के लिए बाहर या खिड़की के पास जाएँ।',
+
+      'toast.gpsPoorFix': 'सटीक स्थान नहीं मिला। GPS चालू करके बाहर फिर कोशिश करें।',
+
       'toast.complaintRequired': 'ट्रैकिंग के लिए शिकायत नंबर दर्ज करें।',
 
       'toast.complaintSaved': 'शिकायत नंबर सहेजा — आधिकारिक घड़ी चालू।',
@@ -6841,7 +6907,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'धोक्याचा प्रकार निवडा',
 
-      'report.photoNext': '{hazard} निवडले — आता फोटो काढा',
+      'report.photoNext': '{hazard} निवडले — तयार असल्यास Submit दाबा',
 
       'report.photoEvidence': 'फोटो पुरावा',
 
@@ -6853,19 +6919,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'तक्रार पाठवा',
 
-      'report.photoHint': 'जागेचा फोटो — पिन अचूक राहील',
+      'report.photoHint': 'फोटोमध्ये धोका दिसतो? Submit — नाहीतर Retake.',
 
       'report.retake': 'पुन्हा काढा',
 
-      'moderation.guidelines': 'धोक्याच्या जागेचा स्पष्ट फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines': 'धोक्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
-      'moderation.guidelines.stagnant-water': 'प्रत्यक्ष साचलेल्या पाण्याचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.stagnant-water': 'साचलेल्या पाण्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
-      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा किंवा डंपचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा किंवा डंपचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
-      'moderation.guidelines.potholes': 'खड्ड्याचा किंवा रस्त्याच्या नुकसानाचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.potholes': 'खड्ड्याचा किंवा रस्त्याच्या नुकसानाचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
-      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा फोटो काढा — चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
 
       'moderation.scanning': 'फोटो सुरक्षा तपासणी…',
 
@@ -7414,6 +7480,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.volunteer': 'माझी स्वयंसेवक नोंदणी',
 
+      'profile.section.details': 'तुमची माहिती',
+
+      'profile.section.activity': 'कृती',
+
+      'profile.section.account': 'खाते आणि मदत',
+
       'profile.title': 'तुमची प्रोफाइल',
 
       'profile.persona': 'नागरिक',
@@ -7480,7 +7552,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'माझा डेटा हटवा',
 
-      'profile.deleteConfirm': 'या उपकरणावरून आणि क्लाउडवरून तुमच्या तक्रारी, प्रतिज्ञा आणि प्रोफाइल कायमच्या हटवायच्या? परत मिळवता येणार नाही.',
+      'profile.deleteConfirmTitle': 'तुमचा डेटा हटवायचा?',
+
+      'profile.deleteConfirmBody': 'हे तुमचा CivicRadar डेटा या उपकरणावरून आणि आमच्या सर्व्हरवरून कायमचा हटवेल. परत मिळवता येणार नाही.',
+
+      'profile.deleteConfirmItem1': 'तक्रारी आणि फोटो',
+
+      'profile.deleteConfirmItem2': 'प्रतिज्ञा आणि स्वयंसेवक नोंदणी',
+
+      'profile.deleteConfirmItem3': 'प्रोफाइल, बक्षिसे आणि प्राधान्ये',
+
+      'profile.deleteConfirmItem4': 'तुमच्या खात्याशी जोडलेला क्लाउड बॅकअप',
+
+      'profile.deleteConfirmCancel': 'माझा डेटा ठेवा',
+
+      'profile.deleteConfirmProceed': 'होय, सर्व काही हटवा',
 
       'profile.deleteDone': 'तुमचा डेटा हटवला. तुम्ही पुन्हा सुरू करू शकता.',
 
@@ -8276,6 +8362,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS मिळाला नाही. लोकेशन चालू करून पुन्हा प्रयत्न करा.',
 
+      'toast.gpsLocating': 'तुमचे स्थान शोधत आहोत…',
+
+      'toast.gpsLowAccuracy': 'स्थान अंदाजे आहे (~{m} मी). चांगल्या GPS साठी बाहेर किंवा खिडकीजवळ जा.',
+
+      'toast.gpsPoorFix': 'अचूक स्थान मिळाले नाही. GPS चालू करून बाहेर पुन्हा प्रयत्न करा.',
+
       'toast.complaintRequired': 'ट्रॅकिंगसाठी तक्रार क्रमांक भरा.',
 
       'toast.complaintSaved': 'तक्रार क्रमांक जतन — अधिकृत घड्याळ सुरू.',
@@ -9047,7 +9139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'જોખમનો પ્રકાર પસંદ કરો',
 
-      'report.photoNext': '{hazard} પસંદ — હવે ફોટો લો',
+      'report.photoNext': '{hazard} પસંદ — તૈયાર હો તો Submit દબાવો',
 
       'report.photoEvidence': 'ફોટો પુરાવો',
 
@@ -9059,19 +9151,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'ફરિયાદ મોકલો',
 
-      'report.photoHint': 'જગ્યાનો ફોટો — પિન સચોટ રહેશે',
+      'report.photoHint': 'ફોટોમાં જોખમ દેખાય? Submit — નહીં તો Retake.',
 
       'report.retake': 'ફરી લો',
 
-      'moderation.guidelines': 'ખરેખર જોખમનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines': 'જોખમનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
-      'moderation.guidelines.stagnant-water': 'ખરેખર ભરાયેલા પાણીનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.stagnant-water': 'ભરાયેલા પાણીનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
-      'moderation.guidelines.garbage': 'કચરાના ઢગાળા કે ડંપનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.garbage': 'કચરાના ઢગાળા કે ડંપનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
-      'moderation.guidelines.potholes': 'ખાડા કે રસ્તાની નુકસાનનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.potholes': 'ખાડા કે રસ્તાની નુકસાનનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
-      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો ફોટો લો — ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
 
       'moderation.scanning': 'ફોટો સલામતી તપાસ…',
 
@@ -9620,6 +9712,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.volunteer': 'મારી સ્વયંસેવક નોંધણી',
 
+      'profile.section.details': 'તમારી વિગતો',
+
+      'profile.section.activity': 'પ્રવૃત્તિ',
+
+      'profile.section.account': 'એકાઉન્ટ અને સહાય',
+
       'profile.title': 'તમારી પ્રોફાઇલ',
 
       'profile.persona': 'નાગરિક',
@@ -9686,7 +9784,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'મારો ડેટા કાઢી નાખો',
 
-      'profile.deleteConfirm': 'આ ઉપકરણ અને ક્લાઉડમાંથી તમારી રિપોર્ટ, પ્રતિજ્ઞા અને પ્રોફાઇલ કાયમી કાઢી નાખો? પાછું લાવી શકાશે નહીં.',
+      'profile.deleteConfirmTitle': 'તમારો ડેટા કાઢી નાખો?',
+
+      'profile.deleteConfirmBody': 'આ તમારો CivicRadar ડેટા આ ઉપકરણ અને અમારા સર્વરમાંથી કાયમી કાઢી નાખશે. પાછું લાવી શકાશે નહીં.',
+
+      'profile.deleteConfirmItem1': 'રિપોર્ટ અને ફોટા',
+
+      'profile.deleteConfirmItem2': 'પ્રતિજ્ઞા અને સ્વયંસેવક નોંધણી',
+
+      'profile.deleteConfirmItem3': 'પ્રોફાઇલ, ઇનામો અને પસંદગીઓ',
+
+      'profile.deleteConfirmItem4': 'તમારા એકાઉન્ટ સાથે જોડાયેલ ક્લાઉડ બેકઅપ',
+
+      'profile.deleteConfirmCancel': 'મારો ડેટા રાખો',
+
+      'profile.deleteConfirmProceed': 'હા, બધું કાઢી નાખો',
 
       'profile.deleteDone': 'તમારો ડેટા કાઢી નાખ્યો. તમે ફરી શરૂ કરી શકો.',
 
@@ -10481,6 +10593,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.storageFull': 'સ્ટોરેજ ભરેલું — જૂની ફરિયાદ કાઢી. ફરી પ્રયાસ કરો.',
 
       'toast.gpsFail': 'GPS મળ્યું નહીં. લોકેશન ચાલુ કરી ફરી પ્રયાસ કરો.',
+
+      'toast.gpsLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
+
+      'toast.gpsLowAccuracy': 'સ્થાન અંદાજે છે (~{m} મી). ચોક્કસ GPS માટે બહાર કે બારી પાસે જાઓ.',
+
+      'toast.gpsPoorFix': 'ચોક્કસ સ્થાન મળ્યું નહીં. GPS ચાલુ કરી બહાર ફરી પ્રયાસ કરો.',
 
       'toast.complaintRequired': 'ટ્રેકિંગ માટે ફરિયાદ નંબર દાખલ કરો.',
 
@@ -12937,9 +13055,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  async function deleteMyData() {
+  function deleteMyData() {
 
-    if (!window.confirm(t('profile.deleteConfirm'))) return;
+    openModal('deleteConfirm');
+
+  }
+
+
+
+  async function executeDeleteMyData() {
+
+    closeModal('deleteConfirm');
 
     const wasConnected = Backend.enabled;
 
@@ -19919,9 +20045,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    navigator.geolocation.getCurrentPosition(
+    getPrecisePosition({ fresh: true })
 
-      (pos) => {
+      .then((pos) => {
 
         user.gpsConsent = true;
 
@@ -19943,17 +20069,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-      },
+      })
 
-      () => {
+      .catch(() => {
 
         showOnboardingWardDetectFailed();
 
-      },
-
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
-
-    );
+      });
 
   }
 
@@ -20451,15 +20573,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function closeAllModals() {
+  function getTopmostOpenModalName() {
+
+    const open = Object.entries(overlays).filter(([, el]) => el && el.classList.contains('open'));
+
+    if (!open.length) return null;
+
+    const navTabs = new Set(['community', 'profile']);
+
+    const elevated = open.filter(([name]) => !navTabs.has(name));
+
+    if (elevated.length) return elevated[elevated.length - 1][0];
+
+    return open[open.length - 1][0];
+
+  }
+
+
+
+  // Close stacked overlays when switching nav tabs; keep blocking gates unless forced.
+
+  function closeStackedModalsForNav(keepName) {
 
     Object.keys(overlays).forEach((name) => {
 
-      if (name === 'report' && (isReportPhotoPickerActive() || hasReportPhotoPreview())) return;
+      if (name === keepName) return;
+
+      if (name === 'tos' || name === 'onboarding') return;
+
+      if (name === 'report' && isReportPhotoPickerActive()) return;
 
       closeModal(name);
 
     });
+
+  }
+
+
+
+  function closeAllModals() {
+
+    closeStackedModalsForNav(null);
 
   }
 
@@ -20595,7 +20749,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     pushNavModalHistory();
 
-    closeModal('profile');
+    closeStackedModalsForNav('community');
 
     renderLeaderboard('wards');
 
@@ -20651,7 +20805,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     pushNavModalHistory();
 
-    closeModal('community');
+    closeStackedModalsForNav('profile');
 
     updateProfileUI();
 
@@ -21485,6 +21639,300 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Requests GPS only if the user accepted ToS and granted GPS consent.
 
+  function isValidGpsCoords(lat, lng) {
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+
+    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return false;
+
+    if (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001) return false;
+
+    return true;
+
+  }
+
+
+
+  function zoomForAccuracy(accuracyM) {
+
+    const acc = Number.isFinite(accuracyM) ? accuracyM : 100;
+
+    if (acc <= 20) return 17;
+
+    if (acc <= 50) return 16;
+
+    if (acc <= 150) return 15;
+
+    if (acc <= 500) return 14;
+
+    return 13;
+
+  }
+
+
+
+  function getPrecisePosition(opts) {
+
+    opts = opts || {};
+
+    const fresh = opts.fresh !== false;
+
+    const targetAccuracy = opts.targetAccuracyM != null ? opts.targetAccuracyM : GEO_ACCURACY_GOOD_M;
+
+    const timeoutMs = opts.timeoutMs || GEO_LOCATE_TIMEOUT_MS;
+
+    const watchMaxMs = opts.watchMaxMs || GEO_WATCH_MAX_MS;
+
+    return new Promise((resolve, reject) => {
+
+      if (!navigator.geolocation) {
+
+        reject(new Error('no_geolocation'));
+
+        return;
+
+      }
+
+      const geoOpts = {
+
+        enableHighAccuracy: true,
+
+        timeout: timeoutMs,
+
+        maximumAge: fresh ? 0 : 15000,
+
+      };
+
+      let watchId = null;
+
+      let bestPos = null;
+
+      let settled = false;
+
+      const started = Date.now();
+
+      function cleanup() {
+
+        if (watchId != null) {
+
+          navigator.geolocation.clearWatch(watchId);
+
+          watchId = null;
+
+        }
+
+      }
+
+      function settle(pos, err) {
+
+        if (settled) return;
+
+        settled = true;
+
+        cleanup();
+
+        if (pos && isValidGpsCoords(pos.coords.latitude, pos.coords.longitude)) {
+
+          resolve(pos);
+
+        } else if (bestPos && isValidGpsCoords(bestPos.coords.latitude, bestPos.coords.longitude)) {
+
+          resolve(bestPos);
+
+        } else {
+
+          reject(err || new Error('geo_failed'));
+
+        }
+
+      }
+
+      function onPos(pos) {
+
+        const lat = pos.coords.latitude;
+
+        const lng = pos.coords.longitude;
+
+        if (!isValidGpsCoords(lat, lng)) return;
+
+        const acc = pos.coords.accuracy;
+
+        if (!bestPos || !Number.isFinite(bestPos.coords.accuracy)
+
+            || (Number.isFinite(acc) && acc < bestPos.coords.accuracy)) {
+
+          bestPos = pos;
+
+        }
+
+        if (Number.isFinite(acc) && acc <= targetAccuracy) {
+
+          settle(pos);
+
+        } else if (Date.now() - started >= watchMaxMs) {
+
+          settle(bestPos || pos);
+
+        }
+
+      }
+
+      function onErr(err) {
+
+        if (bestPos) {
+
+          settle(bestPos);
+
+        } else {
+
+          navigator.geolocation.getCurrentPosition(
+
+            (pos) => settle(pos),
+
+            (e) => settle(null, e),
+
+            geoOpts
+
+          );
+
+        }
+
+      }
+
+      watchId = navigator.geolocation.watchPosition(onPos, onErr, geoOpts);
+
+      setTimeout(() => {
+
+        if (!settled) settle(bestPos, bestPos ? null : new Error('geo_timeout'));
+
+      }, watchMaxMs + 500);
+
+    });
+
+  }
+
+
+
+  function showGpsAccuracyFeedback(accuracyM) {
+
+    if (!Number.isFinite(accuracyM)) return;
+
+    if (accuracyM > GEO_ACCURACY_MAX_M) {
+
+      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+
+    } else if (accuracyM > GEO_ACCURACY_POOR_M) {
+
+      showToast(t('toast.gpsLowAccuracy').replace('{m}', String(Math.round(accuracyM))), 'info', 4500);
+
+    }
+
+  }
+
+
+
+  function updateUserLocationMarker(lat, lng, accuracyM) {
+
+    if (!map) return;
+
+    if (userMarker) map.removeLayer(userMarker);
+
+    if (userAccuracyCircle) map.removeLayer(userAccuracyCircle);
+
+    userMarker = L.circleMarker([lat, lng], {
+
+      radius: 8,
+
+      fillColor: '#6366f1',
+
+      color: '#fff',
+
+      weight: 2,
+
+      fillOpacity: 0.9,
+
+    }).addTo(map).bindPopup(t('map.youAreHere'));
+
+    if (Number.isFinite(accuracyM) && accuracyM > 0) {
+
+      userAccuracyCircle = L.circle([lat, lng], {
+
+        radius: accuracyM,
+
+        color: '#6366f1',
+
+        fillColor: '#6366f1',
+
+        fillOpacity: 0.12,
+
+        weight: 1,
+
+      }).addTo(map);
+
+    } else {
+
+      userAccuracyCircle = null;
+
+    }
+
+  }
+
+
+
+  function applyLocationFromPosition(pos, opts) {
+
+    opts = opts || {};
+
+    const lat = pos.coords.latitude;
+
+    const lng = pos.coords.longitude;
+
+    const accuracyM = pos.coords.accuracy;
+
+    if (!isValidGpsCoords(lat, lng)) return false;
+
+    if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
+
+      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+
+      return false;
+
+    }
+
+    currentLat = lat;
+
+    currentLng = lng;
+
+    hideLocationBanner();
+
+    hideLocatePill();
+
+    applyWardFromCoords(lat, lng);
+
+    if (opts.recenter && map) {
+
+      map.setView([lat, lng], zoomForAccuracy(accuracyM));
+
+    }
+
+    updateUserLocationMarker(lat, lng, accuracyM);
+
+    if (opts.showAccuracyFeedback !== false) showGpsAccuracyFeedback(accuracyM);
+
+    if (!opts.quiet) {
+
+      setTimeout(() => promptNearbyCorroboration(lat, lng), 800);
+
+      setTimeout(() => maybeProximityNudge(lat, lng), 1300);
+
+    }
+
+    return true;
+
+  }
+
+
+
   function maybeRequestLocation(recenter) {
 
     if (!map) return;
@@ -21607,7 +22055,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (navigator.geolocation) {
 
-      requestLocation(true);
+      requestLocation(true, true);
 
     } else {
 
@@ -21619,13 +22067,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function requestLocation(recenter) {
+  function requestLocation(recenter, forceFresh) {
 
     const now = Date.now();
 
-    if (now - lastGeoRequest < SCALE_CFG.geoThrottleMs && currentLat != null && currentLng != null) {
+    if (!forceFresh && now - lastGeoRequest < SCALE_CFG.geoThrottleMs && currentLat != null && currentLng != null) {
 
-      if (recenter && map) map.setView([currentLat, currentLng], 14);
+      if (recenter && map) map.setView([currentLat, currentLng], zoomForAccuracy(GEO_ACCURACY_POOR_M));
 
       return;
 
@@ -21633,53 +22081,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     lastGeoRequest = now;
 
-    navigator.geolocation.getCurrentPosition(
+    if (forceFresh) showToast(t('toast.gpsLocating'), 'info', 2500);
 
-      (pos) => {
+    getPrecisePosition({ fresh: true })
 
-        currentLat = pos.coords.latitude;
+      .then((pos) => {
 
-        currentLng = pos.coords.longitude;
+        applyLocationFromPosition(pos, { recenter, showAccuracyFeedback: true });
 
-        hideLocationBanner();
+      })
 
-        hideLocatePill();
-
-        applyWardFromCoords(currentLat, currentLng);
-
-        if (recenter) map.setView([currentLat, currentLng], 14);
-
-        if (userMarker) map.removeLayer(userMarker);
-
-        userMarker = L.circleMarker([currentLat, currentLng], {
-
-          radius: 8,
-
-          fillColor: '#6366f1',
-
-          color: '#fff',
-
-          weight: 2,
-
-          fillOpacity: 0.9,
-
-        }).addTo(map).bindPopup(t('map.youAreHere'));
-
-        setTimeout(() => promptNearbyCorroboration(currentLat, currentLng), 800);
-
-        setTimeout(() => maybeProximityNudge(currentLat, currentLng), 1300);
-
-      },
-
-      () => {
+      .catch(() => {
 
         showLocationBanner(t('location.bannerNearby'));
 
-      },
-
-      { enableHighAccuracy: true, timeout: 10000 }
-
-    );
+      });
 
   }
 
@@ -22601,6 +23017,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnDeleteData').addEventListener('click', () => { deleteMyData(); });
 
+    $('#btnDeleteConfirmCancel').addEventListener('click', () => closeModal('deleteConfirm'));
+
+    $('#btnDeleteConfirmProceed').addEventListener('click', () => { executeDeleteMyData(); });
+
     const btnWithdrawAnalytics = $('#btnWithdrawAnalytics');
 
     if (btnWithdrawAnalytics) btnWithdrawAnalytics.addEventListener('click', withdrawAnalyticsConsent);
@@ -22967,9 +23387,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    wireCollapsibleSection('btnCommunityWardImpactToggle', 'communityWardImpactBody', 'communityWardImpactSection');
+
+    wireCollapsibleSection('btnCommunityLeaderboardToggle', 'communityLeaderboardBody', 'communityLeaderboardSection');
+
     wireCollapsibleSection('btnGetInvolvedToggle', 'getInvolvedBody', 'getInvolvedSection');
 
     wireCollapsibleSection('btnCommunityResourcesToggle', 'communityResourcesBody', 'communityResourcesSection');
+
+    wireCollapsibleSection('btnProfileDetailsToggle', 'profileDetailsBody', 'profileDetailsSection');
+
+    wireCollapsibleSection('btnProfileActivityToggle', 'profileActivityBody', 'profileActivitySection');
+
+    wireCollapsibleSection('btnProfileNotificationsToggle', 'profileNotificationsBody', 'profileNotificationsSection');
+
+    wireCollapsibleSection('btnProfileAccountToggle', 'profileAccountBody', 'profileAccountSection');
 
     const btnNotesToggle = $('#btnReportNotesToggle');
 
@@ -23415,11 +23847,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        const open = Object.entries(overlays).find(([, el]) => el.classList.contains('open'));
+        const topName = getTopmostOpenModalName();
 
-        if (open && open[0] === 'report' && !canDismissReportOverlay()) return;
+        if (!topName) return;
 
-        if (open && open[0] !== 'tos' && open[0] !== 'onboarding') closeModal(open[0]);
+        if (topName === 'report' && !canDismissReportOverlay()) return;
+
+        if (topName !== 'tos' && topName !== 'onboarding') closeModal(topName);
 
       }
 
@@ -23455,23 +23889,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      let closedAny = false;
+      const navOpen = ['community', 'profile'].some((name) => overlays[name]?.classList.contains('open'));
 
-      ['community', 'profile'].forEach((name) => {
+      if (navOpen) {
 
-        const overlay = overlays[name];
+        closeStackedModalsForNav(null);
 
-        if (overlay && overlay.classList.contains('open')) {
+        setNavTab('map');
 
-          closeModal(name);
-
-          closedAny = true;
-
-        }
-
-      });
-
-      if (closedAny) setNavTab('map');
+      }
 
     });
 
@@ -24083,13 +24509,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    navigator.geolocation.getCurrentPosition(
+    getPrecisePosition({ fresh: true, targetAccuracyM: GEO_ACCURACY_POOR_M })
 
-      (pos) => {
+      .then((pos) => {
 
         const lat = pos.coords.latitude;
 
         const lng = pos.coords.longitude;
+
+        const accuracyM = pos.coords.accuracy;
+
+        if (!isValidGpsCoords(lat, lng)) {
+
+          setButtonLoading(submitBtn, false);
+
+          showToast(t('toast.gpsFail'), 'error', 4500);
+
+          return;
+
+        }
+
+        if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
+
+          setButtonLoading(submitBtn, false);
+
+          showToast(t('toast.gpsPoorFix'), 'error', 4500);
+
+          return;
+
+        }
+
+        if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
+
+          showGpsAccuracyFeedback(accuracyM);
+
+        }
+
+        currentLat = lat;
+
+        currentLng = lng;
 
         const reports = loadReports();
 
@@ -24317,9 +24775,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-      },
+      })
 
-      () => {
+      .catch(() => {
 
         setButtonLoading(submitBtn, false);
 
@@ -24327,11 +24785,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         showToast(t('toast.gpsFail'), 'error', 4500);
 
-      },
-
-      { enableHighAccuracy: true, timeout: 10000 }
-
-    );
+      });
 
   }
 

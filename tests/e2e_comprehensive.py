@@ -2095,13 +2095,15 @@ async def run_remaining_scenarios(s: Suite, browser):
 
 
 
-    page.on('dialog', lambda d: asyncio.create_task(d.accept()))
-
     await page.evaluate('() => { window.closeAdminModal(); window.closeLeadModal(); window.closePartnerPortal(); window.openProfileModal(); }')
 
     await page.wait_for_timeout(400)
 
     await js_click(page, '#btnDeleteData')
+
+    await page.wait_for_timeout(400)
+
+    await js_click(page, '#btnDeleteConfirmProceed')
 
     await page.wait_for_timeout(800)
 
@@ -2814,6 +2816,36 @@ async def run_extended_scenarios(s: Suite, browser):
     await js_click(page, '#bottomNav .nav-tab[data-tab="map"]')
 
     s.record('U13', 'UI', 'Map nav closes modals', not await is_open(page, 'profileOverlay'))
+
+    await close_all_modals(page)
+
+    await page.evaluate('() => window.openReportModal(false)')
+
+    await inject_photo(page)
+
+    await page.wait_for_timeout(300)
+
+    await page.evaluate('() => window.closeAllModals()')
+
+    s.record('U25', 'UI', 'closeAllModals closes report with photo', not await is_open(page, 'reportOverlay'))
+
+    await page.evaluate('() => { window.openReportModal(false); window.openCommunityModal(); }')
+
+    await page.wait_for_timeout(200)
+
+    s.record('U26', 'UI', 'Community nav clears stacked report',
+
+             await is_open(page, 'communityOverlay') and not await is_open(page, 'reportOverlay'))
+
+    await page.evaluate('() => { window.openCommunityModal(); window.openPledgeModal(); window.openProfileModal(); }')
+
+    await page.wait_for_timeout(200)
+
+    s.record('U27', 'UI', 'Profile nav clears pledge stack',
+
+             await is_open(page, 'profileOverlay') and not await is_open(page, 'pledgeOverlay')
+
+             and not await is_open(page, 'communityOverlay'))
 
     # Nav Phase 1: Community/Profile close buttons + backdrop tap return to Map tab.
 
@@ -4459,7 +4491,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v130" in sw_src
+        "civicradar-v134" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7481,7 +7513,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v130" in sw_src
+        "civicradar-v134" in sw_src
 
         and "'/index.html'" not in sw_src
 

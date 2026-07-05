@@ -350,7 +350,7 @@
       <!-- Screen A: camera capture (minimal chrome) -->
       <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
         <div class="form-group report-photo-section" id="reportPhotoSection">
-          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Photograph the actual hazard — not faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
+          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a clear photo of the hazard — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
           <div class="camera-area camera-area--capture">
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
@@ -524,55 +524,66 @@
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, or file with your corporation separately.</p>
 
-      <h3 class="cr-section-header"><i class="ph ph-map-trifold" aria-hidden="true"></i><span data-i18n="community.thisWeekTitle">Your ward this week</span></h3>
-
-      <!-- Seasonal monsoon / festival hook (date-aware, dismissible) -->
-      <div class="season-hook hidden" id="seasonHook" role="note">
-        <i class="ph ph-cloud-rain season-hook__icon" id="seasonHookIcon" aria-hidden="true"></i>
-        <p class="season-hook__text" id="seasonHookText"></p>
-        <button type="button" class="season-hook__dismiss" id="btnSeasonHookDismiss" data-i18n-aria="season.dismiss" aria-label="Dismiss seasonal tip">&times;</button>
+      <div class="community-summary" id="communitySummary">
+        <div class="impact-stats" id="communityImpactStats" aria-live="polite">
+          <div class="impact-stat"><span id="impactReports">0</span><label data-i18n="impact.reports">Reports</label></div>
+          <div class="impact-stat impact-stat--ok"><span id="impactResolved">0</span><label data-i18n="impact.resolved">Fixed</label></div>
+          <div class="impact-stat"><span id="impactConfirmations">0</span><label data-i18n="impact.confirms">Me too</label></div>
+          <div class="impact-stat"><span id="impactPledges">0</span><label data-i18n="impact.pledges">Pledges</label></div>
+        </div>
       </div>
 
-      <!-- Live community impact (great for demos & college portfolios) -->
-      <div class="impact-stats" id="communityImpactStats" aria-live="polite">
-        <div class="impact-stat"><span id="impactReports">0</span><label data-i18n="impact.reports">Reports</label></div>
-        <div class="impact-stat impact-stat--ok"><span id="impactResolved">0</span><label data-i18n="impact.resolved">Fixed</label></div>
-        <div class="impact-stat"><span id="impactConfirmations">0</span><label data-i18n="impact.confirms">Me too</label></div>
-        <div class="impact-stat"><span id="impactPledges">0</span><label data-i18n="impact.pledges">Pledges</label></div>
-      </div>
-      <p class="impact-week" id="impactWeekLine" aria-live="polite"></p>
-      <p class="ward-week-social" id="wardWeekSocial" aria-live="polite"></p>
-      <p class="impact-breakdown" id="impactResolvedBreakdown" aria-live="polite"></p>
-      <button type="button" class="btn btn--whatsapp btn--full ward-recap-share hidden" id="btnShareWeeklyRecap">
-        <i class="ph ph-chart-line-up"></i> <span data-i18n="recap.share">Share weekly recap</span>
-      </button>
-
-      <h3 class="cr-section-header"><i class="ph ph-trophy" aria-hidden="true"></i><span data-i18n="community.leaderboardTitle">Ward leaderboard</span></h3>
-
-      <div class="segment-control" id="leaderboardToggle">
-        <button type="button" class="segment-control__btn active" data-view="wards" data-i18n="community.topWards">Top Wards</button>
-        <button type="button" class="segment-control__btn" data-view="citizens" data-i18n="community.localCitizens">Local Citizens</button>
-      </div>
-
-      <div class="segment-control segment-control--period" id="leaderboardPeriodToggle">
-        <button type="button" class="segment-control__btn" data-period="month" data-i18n="community.periodMonth">This month</button>
-        <button type="button" class="segment-control__btn active" data-period="all" data-i18n="community.periodAll">All time</button>
+      <div class="cr-section cr-section--collapsed" id="communityWardImpactSection">
+        <button type="button" class="cr-section__toggle" id="btnCommunityWardImpactToggle" aria-expanded="false" aria-controls="communityWardImpactBody">
+          <span><i class="ph ph-map-trifold" aria-hidden="true"></i> <span data-i18n="community.thisWeekTitle">Your ward this week</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="cr-section__body hidden" id="communityWardImpactBody">
+          <!-- Seasonal monsoon / festival hook (date-aware, dismissible) -->
+          <div class="season-hook hidden" id="seasonHook" role="note">
+            <i class="ph ph-cloud-rain season-hook__icon" id="seasonHookIcon" aria-hidden="true"></i>
+            <p class="season-hook__text" id="seasonHookText"></p>
+            <button type="button" class="season-hook__dismiss" id="btnSeasonHookDismiss" data-i18n-aria="season.dismiss" aria-label="Dismiss seasonal tip">&times;</button>
+          </div>
+          <p class="impact-week" id="impactWeekLine" aria-live="polite"></p>
+          <p class="ward-week-social" id="wardWeekSocial" aria-live="polite"></p>
+          <p class="impact-breakdown" id="impactResolvedBreakdown" aria-live="polite"></p>
+          <button type="button" class="btn btn--whatsapp btn--full ward-recap-share hidden" id="btnShareWeeklyRecap">
+            <i class="ph ph-chart-line-up"></i> <span data-i18n="recap.share">Share weekly recap</span>
+          </button>
+        </div>
       </div>
 
-      <p class="leaderboard-note hidden" id="leaderboardDemoNote" role="status"></p>
-      <div class="leaderboard-panel" id="wardsPanel">
-        <ul class="leaderboard-list" id="wardsList"></ul>
-      </div>
-      <div class="leaderboard-panel hidden" id="citizensPanel">
-        <ul class="leaderboard-list" id="citizensList"></ul>
+      <div class="cr-section cr-section--collapsed" id="communityLeaderboardSection">
+        <button type="button" class="cr-section__toggle" id="btnCommunityLeaderboardToggle" aria-expanded="false" aria-controls="communityLeaderboardBody">
+          <span><i class="ph ph-trophy" aria-hidden="true"></i> <span data-i18n="community.leaderboardTitle">Ward leaderboard</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="cr-section__body hidden" id="communityLeaderboardBody">
+          <div class="segment-control" id="leaderboardToggle">
+            <button type="button" class="segment-control__btn active" data-view="wards" data-i18n="community.topWards">Top Wards</button>
+            <button type="button" class="segment-control__btn" data-view="citizens" data-i18n="community.localCitizens">Local Citizens</button>
+          </div>
+          <div class="segment-control segment-control--period" id="leaderboardPeriodToggle">
+            <button type="button" class="segment-control__btn" data-period="month" data-i18n="community.periodMonth">This month</button>
+            <button type="button" class="segment-control__btn active" data-period="all" data-i18n="community.periodAll">All time</button>
+          </div>
+          <p class="leaderboard-note hidden" id="leaderboardDemoNote" role="status"></p>
+          <div class="leaderboard-panel" id="wardsPanel">
+            <ul class="leaderboard-list" id="wardsList"></ul>
+          </div>
+          <div class="leaderboard-panel hidden" id="citizensPanel">
+            <ul class="leaderboard-list" id="citizensList"></ul>
+          </div>
+        </div>
       </div>
 
-      <div class="cr-section" id="getInvolvedSection">
-        <button type="button" class="cr-section__toggle" id="btnGetInvolvedToggle" aria-expanded="true" aria-controls="getInvolvedBody">
+      <div class="cr-section cr-section--collapsed" id="getInvolvedSection">
+        <button type="button" class="cr-section__toggle" id="btnGetInvolvedToggle" aria-expanded="false" aria-controls="getInvolvedBody">
           <span><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="community.getInvolvedTitle">Get involved</span></span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body" id="getInvolvedBody">
+        <div class="cr-section__body hidden" id="getInvolvedBody">
 
           <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
             <h3 class="success-stories__title" id="successStoriesTitle">
@@ -788,98 +799,127 @@
         <p class="profile-card__hint" id="profilePointsHint">50 pts per report · +200 when volunteer hours verified</p>
       </div>
 
-      <div class="profile-details-card">
-        <div class="profile-name form-group">
-          <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
-          <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
-        </div>
-
-        <div class="profile-ward form-group">
-          <label for="profileCity" data-i18n="onboard.city">Your city</label>
-          <select id="profileCity" aria-describedby="profileWardHint">
-            <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-            <option value="pune" data-i18n-option="city.pune">Pune</option>
-            <option value="thane" data-i18n-option="city.thane">Thane</option>
-          </select>
-          <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
-          <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
-          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
-          <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
-        </div>
-
-        <div class="profile-society form-group">
-          <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-          <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
-          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
-          <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
-        </div>
-      </div>
-
-      <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="profile.volunteer">My volunteer signup</span></h3>
-      <div class="profile-volunteer" id="profileVolunteer"></div>
-
-      <h3 class="section-title"><i class="ph ph-hand-coins" aria-hidden="true"></i><span data-i18n="profile.pledges">My pledges</span></h3>
-      <div class="profile-pledge-list" id="profilePledgeList"></div>
-
-      <div class="official-channels-block" id="profileOfficialBlock">
-        <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
-        <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
-        <div class="esc-channels official-channels" id="profileOfficialChannels" data-official-context="profile"></div>
-        <p class="official-sources-all">
-          <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
-        </p>
-      </div>
-
-      <h3 class="section-title"><i class="ph ph-map-pin-area" aria-hidden="true"></i><span data-i18n="profile.reports">Your Reports</span></h3>
-      <div class="report-list" id="reportList">
-        <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
-      </div>
-
-      <h3 class="section-title"><i class="ph ph-bell" aria-hidden="true"></i><span data-i18n="settings.notifications.title">Notifications &amp; Privacy</span></h3>
-      <p class="field-hint profile-settings-hint" data-i18n="settings.notifications.sub">Everything CivicRadar can nudge you about, and your consent choices, in one place.</p>
-      <div class="profile-settings">
-        <label class="toggle-row" for="nbhNewAlertToggle">
-          <span class="toggle-row__text">
-            <span class="toggle-row__label" data-i18n="settings.nbh.new.label">New reports nearby</span>
-            <span class="toggle-row__sub" data-i18n="settings.nbh.new.sub">Nudge when someone pins a hazard in your society or ward.</span>
-          </span>
-          <input type="checkbox" id="nbhNewAlertToggle" class="toggle-row__input">
-          <span class="toggle-row__switch" aria-hidden="true"></span>
-        </label>
-        <label class="toggle-row" for="nbhResolvedAlertToggle">
-          <span class="toggle-row__text">
-            <span class="toggle-row__label" data-i18n="settings.nbh.resolved.label">Resolved nearby</span>
-            <span class="toggle-row__sub" data-i18n="settings.nbh.resolved.sub">Good news when a hazard near you is marked resolved.</span>
-          </span>
-          <input type="checkbox" id="nbhResolvedAlertToggle" class="toggle-row__input">
-          <span class="toggle-row__switch" aria-hidden="true"></span>
-        </label>
-        <label class="toggle-row" for="reportReminderToggle">
-          <span class="toggle-row__text">
-            <span class="toggle-row__label" data-i18n="settings.reminder.label">Remind me to report stagnant water nearby</span>
-            <span class="toggle-row__sub" data-i18n="settings.reminder.sub">A gentle monsoon-season nudge when you open CivicRadar. No background tracking.</span>
-          </span>
-          <input type="checkbox" id="reportReminderToggle" class="toggle-row__input">
-          <span class="toggle-row__switch" aria-hidden="true"></span>
-        </label>
-      </div>
-      <div class="profile-settings profile-settings--consent">
-        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawAnalytics">
-          <span data-i18n="profile.withdrawAnalytics">Withdraw analytics consent</span>
+      <div class="cr-section" id="profileDetailsSection">
+        <button type="button" class="cr-section__toggle" id="btnProfileDetailsToggle" aria-expanded="true" aria-controls="profileDetailsBody">
+          <span><i class="ph ph-user-circle" aria-hidden="true"></i> <span data-i18n="profile.section.details">Your details</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawGps">
-          <span data-i18n="profile.withdrawGps">Withdraw location consent</span>
+        <div class="cr-section__body" id="profileDetailsBody">
+          <div class="profile-details-card">
+            <div class="profile-name form-group">
+              <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
+              <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+            </div>
+
+            <div class="profile-ward form-group">
+              <label for="profileCity" data-i18n="onboard.city">Your city</label>
+              <select id="profileCity" aria-describedby="profileWardHint">
+                <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+                <option value="pune" data-i18n-option="city.pune">Pune</option>
+                <option value="thane" data-i18n-option="city.thane">Thane</option>
+              </select>
+              <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
+              <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+              <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+              <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+              <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
+            </div>
+
+            <div class="profile-society form-group">
+              <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
+              <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+              <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
+              <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cr-section cr-section--collapsed" id="profileActivitySection">
+        <button type="button" class="cr-section__toggle" id="btnProfileActivityToggle" aria-expanded="false" aria-controls="profileActivityBody">
+          <span><i class="ph ph-list-checks" aria-hidden="true"></i> <span data-i18n="profile.section.activity">Activity</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
+        <div class="cr-section__body hidden" id="profileActivityBody">
+          <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="profile.volunteer">My volunteer signup</span></h3>
+          <div class="profile-volunteer" id="profileVolunteer"></div>
+
+          <h3 class="section-title"><i class="ph ph-hand-coins" aria-hidden="true"></i><span data-i18n="profile.pledges">My pledges</span></h3>
+          <div class="profile-pledge-list" id="profilePledgeList"></div>
+
+          <h3 class="section-title"><i class="ph ph-map-pin-area" aria-hidden="true"></i><span data-i18n="profile.reports">Your Reports</span></h3>
+          <div class="report-list" id="reportList">
+            <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
+          </div>
+        </div>
       </div>
 
-      <div class="profile-muted hidden" id="profileMutedSection">
-        <h3 class="section-title"><i class="ph ph-eye-slash" aria-hidden="true"></i><span data-i18n="mute.sectionTitle">Hidden reporters</span></h3>
-        <p class="field-hint" data-i18n="mute.sectionHint">Reports from these users are hidden on your map. Tap to show again.</p>
-        <div class="profile-muted-list" id="profileMutedList"></div>
+      <div class="cr-section cr-section--collapsed" id="profileNotificationsSection">
+        <button type="button" class="cr-section__toggle" id="btnProfileNotificationsToggle" aria-expanded="false" aria-controls="profileNotificationsBody">
+          <span><i class="ph ph-bell" aria-hidden="true"></i> <span data-i18n="settings.notifications.title">Notifications &amp; Privacy</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="cr-section__body hidden" id="profileNotificationsBody">
+          <p class="field-hint profile-settings-hint" data-i18n="settings.notifications.sub">Everything CivicRadar can nudge you about, and your consent choices, in one place.</p>
+          <div class="profile-settings">
+            <label class="toggle-row" for="nbhNewAlertToggle">
+              <span class="toggle-row__text">
+                <span class="toggle-row__label" data-i18n="settings.nbh.new.label">New reports nearby</span>
+                <span class="toggle-row__sub" data-i18n="settings.nbh.new.sub">Nudge when someone pins a hazard in your society or ward.</span>
+              </span>
+              <input type="checkbox" id="nbhNewAlertToggle" class="toggle-row__input">
+              <span class="toggle-row__switch" aria-hidden="true"></span>
+            </label>
+            <label class="toggle-row" for="nbhResolvedAlertToggle">
+              <span class="toggle-row__text">
+                <span class="toggle-row__label" data-i18n="settings.nbh.resolved.label">Resolved nearby</span>
+                <span class="toggle-row__sub" data-i18n="settings.nbh.resolved.sub">Good news when a hazard near you is marked resolved.</span>
+              </span>
+              <input type="checkbox" id="nbhResolvedAlertToggle" class="toggle-row__input">
+              <span class="toggle-row__switch" aria-hidden="true"></span>
+            </label>
+            <label class="toggle-row" for="reportReminderToggle">
+              <span class="toggle-row__text">
+                <span class="toggle-row__label" data-i18n="settings.reminder.label">Remind me to report stagnant water nearby</span>
+                <span class="toggle-row__sub" data-i18n="settings.reminder.sub">A gentle monsoon-season nudge when you open CivicRadar. No background tracking.</span>
+              </span>
+              <input type="checkbox" id="reportReminderToggle" class="toggle-row__input">
+              <span class="toggle-row__switch" aria-hidden="true"></span>
+            </label>
+          </div>
+          <div class="profile-settings profile-settings--consent">
+            <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawAnalytics">
+              <span data-i18n="profile.withdrawAnalytics">Withdraw analytics consent</span>
+            </button>
+            <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawGps">
+              <span data-i18n="profile.withdrawGps">Withdraw location consent</span>
+            </button>
+          </div>
+
+          <div class="profile-muted hidden" id="profileMutedSection">
+            <h3 class="section-title"><i class="ph ph-eye-slash" aria-hidden="true"></i><span data-i18n="mute.sectionTitle">Hidden reporters</span></h3>
+            <p class="field-hint" data-i18n="mute.sectionHint">Reports from these users are hidden on your map. Tap to show again.</p>
+            <div class="profile-muted-list" id="profileMutedList"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="profile-footer">
+      <div class="cr-section cr-section--collapsed" id="profileAccountSection">
+        <button type="button" class="cr-section__toggle" id="btnProfileAccountToggle" aria-expanded="false" aria-controls="profileAccountBody">
+          <span><i class="ph ph-gear-six" aria-hidden="true"></i> <span data-i18n="profile.section.account">Account &amp; support</span></span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="cr-section__body hidden" id="profileAccountBody">
+          <div class="official-channels-block" id="profileOfficialBlock">
+            <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
+            <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
+            <div class="esc-channels official-channels" id="profileOfficialChannels" data-official-context="profile"></div>
+            <p class="official-sources-all">
+              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
+            </p>
+          </div>
+
+          <div class="profile-footer">
         <button type="button" class="btn btn--outline btn--full hidden" id="btnInstall">
           <i class="ph ph-download-simple"></i> <span data-i18n="profile.install">Install CivicRadar app</span>
         </button>
@@ -916,6 +956,28 @@
         <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
           <i class="ph ph-identification-card"></i> <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
         </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete data confirmation (replaces native browser confirm) -->
+  <div class="modal-overlay" id="deleteConfirmOverlay" aria-hidden="true">
+    <div class="modal modal--sm delete-confirm-modal" id="deleteConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
+      <div class="modal__handle"></div>
+      <div class="delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></div>
+      <h2 id="deleteConfirmTitle" data-i18n="profile.deleteConfirmTitle">Delete your data?</h2>
+      <p class="modal__subtitle" id="deleteConfirmDesc" data-i18n="profile.deleteConfirmBody">This permanently removes your CivicRadar data from this device and our servers. This cannot be undone.</p>
+      <ul class="delete-confirm__list">
+        <li data-i18n="profile.deleteConfirmItem1">Reports and photos</li>
+        <li data-i18n="profile.deleteConfirmItem2">Pledges and volunteer signup</li>
+        <li data-i18n="profile.deleteConfirmItem3">Profile, rewards, and preferences</li>
+        <li data-i18n="profile.deleteConfirmItem4">Cloud backup linked to your account</li>
+      </ul>
+      <div class="delete-confirm__actions">
+        <button type="button" class="btn btn--primary btn--full" id="btnDeleteConfirmCancel" data-i18n="profile.deleteConfirmCancel">Keep my data</button>
+        <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteConfirmProceed" data-i18n="profile.deleteConfirmProceed">Yes, delete everything</button>
       </div>
     </div>
   </div>

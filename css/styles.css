@@ -2009,6 +2009,36 @@ body.pwa-nudge-visible #btnCamera {
   background: rgba(239, 68, 68, 0.08);
 }
 
+.delete-confirm-modal {
+  text-align: center;
+}
+
+.delete-confirm__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--danger);
+  margin-bottom: 8px;
+}
+
+.delete-confirm__list {
+  text-align: left;
+  margin: 12px 0 16px;
+  padding-left: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.delete-confirm__list li + li {
+  margin-top: 4px;
+}
+
+.delete-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ============================================
    Camera / Canvas
    ============================================ */
@@ -4331,7 +4361,13 @@ body.persona-lead .ref-welcome { display: none; }
   gap: 8px;
 }
 .cr-section__toggle i.ph-hand-heart,
-.cr-section__toggle i.ph-info {
+.cr-section__toggle i.ph-info,
+.cr-section__toggle i.ph-map-trifold,
+.cr-section__toggle i.ph-trophy,
+.cr-section__toggle i.ph-user-circle,
+.cr-section__toggle i.ph-list-checks,
+.cr-section__toggle i.ph-bell,
+.cr-section__toggle i.ph-gear-six {
   color: var(--primary);
   font-size: 1.125rem;
 }
@@ -4339,6 +4375,21 @@ body.persona-lead .ref-welcome { display: none; }
 .cr-section:not(.cr-section--collapsed) .cr-section__toggle i.ph-caret-down { transform: rotate(180deg); }
 .cr-section__body { padding-top: 14px; }
 .cr-section__body.hidden { display: none; }
+
+/* Sticky ward summary stats — stays visible while scrolling Community modal */
+.community-summary {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0 -24px 12px;
+  padding: 4px 24px 10px;
+  background: linear-gradient(180deg, var(--surface) 72%, rgba(255, 255, 255, 0));
+}
+.community-summary .impact-stats { margin-bottom: 0; }
+
+#profileModal .cr-section:first-of-type { margin-top: 16px; }
+#profileModal .profile-details-card { margin-bottom: 0; }
+#profileModal .profile-footer { margin-top: 8px; }
 
 .esc-step__official {
   margin-top: 8px;
