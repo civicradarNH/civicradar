@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /privacy.html
+Allow: /terms.html
+Allow: /official-sources.html
+Allow: /child-safety-standards.html
+Disallow: /video/
+
+Sitemap: https://civicradar.app/sitemap.xml

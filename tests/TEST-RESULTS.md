@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 12:45:12
+**Run:** 2026-07-05 13:21:08
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 35 | **Pass:** 35 | **Fail:** 0
@@ -111,7 +111,7 @@ _None_
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied blocks submit | PASS |  |
 | C16 | Citizen | Report submit success modal | PASS | rid=None |
-| C17 | Citizen | Success modal WhatsApp + File BMC | PASS |  |
+| C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
 | C19b | Citizen | PWA nudge after first report | PASS |  |

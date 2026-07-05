@@ -88,7 +88,7 @@ jobs:
     if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outcome == 'success' && steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -109,6 +109,20 @@ jobs:
         with:
           path: _site
 
+      # Pages API occasionally returns "Deployment failed, try again later." (run #79).
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Deploy to GitHub Pages (retry)
+        if: steps.deployment.outcome == 'failure'
+        id: deployment_retry
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Verify GitHub Pages deployment
+        if: steps.deployment.outcome != 'success' && steps.deployment_retry.outcome != 'success'
+        run: |
+          echo "::error::GitHub Pages deployment failed after retry. Re-run the workflow or use workflow_dispatch with Skip E2E for an emergency deploy."
+          exit 1

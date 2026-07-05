@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="CivicRadar child safety standards — CSAM prevention, reporting, and moderation for our community hazard map app.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/legal.css">
+  <title>Child Safety Standards — CivicRadar</title>
+</head>
+<body>
+  <header class="legal-header">
+    <div class="legal-header__inner">
+      <a class="legal-header__brand" href="index.html">📡 CivicRadar</a>
+      <nav class="legal-header__nav" aria-label="Legal">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="index.html">App</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="legal-main">
+    <h1>Child Safety Standards</h1>
+    <p class="legal-meta">Effective: 3 July 2026 · Last updated: 3 July 2026 · Operator: CivicRadar</p>
+
+    <div class="legal-disclaimer">
+      <strong>Not an official municipal app.</strong> CivicRadar is an independent community hazard-mapping tool for Mumbai, Pune, and Thane. It is not operated by any government body.
+    </div>
+
+    <p>CivicRadar is committed to preventing child sexual abuse and exploitation (CSAE), including child sexual abuse material (CSAM), on our platform. This page describes our published standards, moderation practices, and how to report concerns.</p>
+
+    <h2>1. Intended audience</h2>
+    <p>CivicRadar is intended for users <strong>18 years of age and older</strong>. We do not target children and do not knowingly collect personal data from minors. See our <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a>.</p>
+
+    <h2>2. Prohibited content and conduct</h2>
+    <p>Users must not upload, share, or attempt to distribute:</p>
+    <ul>
+      <li>CSAM or any sexual content involving minors</li>
+      <li>Content that sexualizes, grooms, or exploits children</li>
+      <li>Hazard photos that focus on minors in a non-essential or identifying way</li>
+      <li>Any content that facilitates harm to children</li>
+    </ul>
+    <p>Hazard reports must show the <strong>site or hazard</strong> (e.g. stagnant water, garbage, potholes, broken streetlights, blocked drains), not people. Do not upload images that clearly identify children.</p>
+
+    <h2>3. Prevention and moderation</h2>
+    <ul>
+      <li><strong>On-device checks</strong> before upload — file type, size, and basic safety screening</li>
+      <li><strong>EXIF stripping</strong> — location and device metadata removed from photos before storage</li>
+      <li><strong>Community-visible map</strong> — UGC is limited to hazard reporting; there is no private messaging between users</li>
+      <li><strong>Operator review</strong> — coordinators and administrators can remove reports that violate these standards</li>
+      <li><strong>Account and data deletion</strong> — users can delete their data in-app (Profile → Delete my data)</li>
+    </ul>
+
+    <h2>4. Reporting CSAM or child safety concerns</h2>
+    <p>If you believe content on CivicRadar violates these standards or involves CSAM:</p>
+    <ol>
+      <li>Email us immediately at <a id="safetyEmailLink" href="mailto:nilesh.hadawale@gmail.com">nilesh.hadawale@gmail.com</a> with the subject line <strong>CivicRadar — Child safety report</strong>.</li>
+      <li>Include the report location (ward/city), date observed, and any relevant details. Do not forward illegal material.</li>
+      <li>We will review promptly, remove violating content, suspend access where appropriate, and preserve information as required by law.</li>
+      <li>Where required, we will report to appropriate authorities, including the National Centre for Missing &amp; Exploited Children (NCMEC) or relevant Indian authorities, in accordance with applicable law.</li>
+    </ol>
+
+    <h2>5. Contact for Google Play / regulatory inquiries</h2>
+    <p>Designated contact for child safety and CSAM prevention practices:</p>
+    <p><strong>CivicRadar Child Safety Contact</strong><br>
+    Email: <a id="playContactLink" href="mailto:nilesh.hadawale@gmail.com">nilesh.hadawale@gmail.com</a></p>
+    <p>Privacy and DPDP grievances: <a href="privacy.html">Privacy Policy</a> (Grievance Officer — <a id="grievanceEmailLink" href="#" data-legal-email>civicradarnh@gmail.com</a>).</p>
+
+    <h2>6. Enforcement</h2>
+    <p>Violations may result in immediate removal of content, loss of access to coordinator features, deletion of cloud data tied to the account, and referral to law enforcement. We may update these standards as our app or legal requirements change.</p>
+
+    <h2>7. Related policies</h2>
+    <ul>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+      <li><a href="index.html">CivicRadar app</a></li>
+    </ul>
+  </main>
+
+  <footer class="legal-footer">
+    <p>© 2026 CivicRadar · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="index.html">Back to app</a></p>
+  </footer>
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var cfg = window.CIVICRADAR_CONFIG || {};
+      var legal = cfg.legal || {};
+      var email = legal.grievanceEmail || (cfg.founder && cfg.founder.email) || '';
+      document.querySelectorAll('[data-legal-email]').forEach(function (el) {
+        if (email) {
+          el.href = 'mailto:' + email;
+          el.textContent = email;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

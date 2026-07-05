@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="600" y="260" text-anchor="middle" font-family="system-ui,sans-serif" font-size="72" font-weight="700" fill="#ffffff">CivicRadar</text>
+  <text x="600" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="36" fill="#e0e7ff">Mumbai, Pune &amp; Thane monsoon hazard map</text>
+  <text x="600" y="420" text-anchor="middle" font-family="system-ui,sans-serif" font-size="28" fill="#c7d2fe">Report stagnant water · Hold your ward accountable</text>
+</svg>
