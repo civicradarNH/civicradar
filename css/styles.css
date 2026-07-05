@@ -4658,6 +4658,7 @@ body.persona-lead .ref-welcome { display: none; }
   background: var(--surface);
 }
 .queue-item--overdue { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.04); }
+.queue-item--flagged { border-color: rgba(202, 138, 4, 0.5); background: rgba(202, 138, 4, 0.05); }
 .queue-item--cleared { opacity: 0.7; }
 
 .queue-item__thumb {
@@ -4680,6 +4681,8 @@ body.persona-lead .ref-welcome { display: none; }
 }
 
 .status-badge--overdue { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+.status-badge--flagged { background: rgba(202, 138, 4, 0.15); color: #a16207; }
+.status-badge--removed { background: rgba(100, 116, 139, 0.15); color: var(--text-muted, #64748b); }
 
 /* ---------- Hazard category picker ---------- */
 .hazard-picker__hint {

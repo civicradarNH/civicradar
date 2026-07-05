@@ -1142,6 +1142,7 @@
         <p><strong data-i18n="admin.meta.reporter">Reporter</strong> <span id="adminReportReporter">—</span></p>
         <p><strong data-i18n="admin.meta.ward">Ward</strong> <span id="adminReportWard">—</span></p>
         <p><strong data-i18n="admin.meta.status">Status</strong> <span id="adminReportStatus" class="status-badge status-badge--pending">Open</span></p>
+        <p id="adminReportFlagRow" class="hidden"><strong data-i18n="admin.flagged">Flagged</strong> <span id="adminReportFlags">0</span></p>
         <p><strong data-i18n="admin.meta.lat">Lat</strong> <span id="adminReportLat">—</span></p>
         <p><strong data-i18n="admin.meta.lng">Lng</strong> <span id="adminReportLng">—</span></p>
       </div>
@@ -1152,6 +1153,9 @@
         <span class="btn__label" data-i18n="admin.markResolved">Mark as resolved</span>
       </button>
       <p class="field-hint" id="adminResolveHint" data-i18n="admin.resolveHint">Citizen gets credit and the pin turns green.</p>
+      <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnAdminRemoveContent">
+        <i class="ph ph-flag"></i> <span data-i18n="admin.removeContent">Remove content</span>
+      </button>
       <button type="button" class="btn btn--ghost btn--full" id="btnAdminReportClose" data-i18n="admin.close">Close</button>
     </div>
   </div>

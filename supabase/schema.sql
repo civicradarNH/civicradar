@@ -12,7 +12,7 @@ create table if not exists public.reports (
   reporter_name text,
   hazard        text not null default 'stagnant-water',
   notes         text,
-  image         text,                       -- compressed JPEG data URL (MVP). Move to Storage later.
+  image         text,                       -- Supabase Storage URL (report-photos bucket)
   ward          text,
   lat           double precision,
   lng           double precision,
@@ -44,6 +44,15 @@ alter table public.profiles add column if not exists city text default 'mumbai';
 alter table public.pledges add column if not exists city text default 'mumbai';
 alter table public.volunteer_signups add column if not exists city text default 'mumbai';
 alter table public.ngo_codes add column if not exists city text default 'mumbai';
+
+-- Content moderation (Apple/Google UGC policy compliance): citizens can flag a
+-- report for review; a BMC/admin role can then remove it from public view.
+-- `removed` rows stay out of the map/community feed for every device (filtered
+-- in the select below), unlike a hard delete which would only affect the
+-- moderator's own local cache.
+alter table public.reports add column if not exists flag_count int not null default 0;
+alter table public.reports add column if not exists removed boolean not null default false;
+alter table public.reports add column if not exists removed_at timestamptz;
 
 create index if not exists reports_city_idx on public.reports (city);
 create index if not exists reports_city_ward_idx on public.reports (city, ward);
@@ -290,11 +299,13 @@ create policy "volunteer_tasks_update_roles"
 alter table public.reports enable row level security;
 alter table public.pledges enable row level security;
 
--- Reports: public map → anyone can read.
+-- Reports: public map → anyone can read, except content a moderator has
+-- removed (UGC compliance) — the original reporter and BMC/admin can still
+-- see removed rows (transparency + audit trail).
 drop policy if exists "reports_select_all" on public.reports;
 create policy "reports_select_all"
   on public.reports for select
-  using (true);
+  using (removed = false or auth.uid() = reporter_id or public.is_bmc());
 
 -- Reports: a user may insert only their own rows.
 drop policy if exists "reports_insert_own" on public.reports;
@@ -384,6 +395,48 @@ begin
 
   return coalesce(new_count, 0);
 end $$;
+
+grant execute on function public.confirm_report(uuid) to anon, authenticated;
+
+-- =====================================================================
+-- Content moderation flags — one flag per user per report (UGC compliance)
+-- =====================================================================
+create table if not exists public.report_flags (
+  report_id  uuid not null references public.reports (id) on delete cascade,
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (report_id, user_id)
+);
+
+alter table public.report_flags enable row level security;
+
+drop policy if exists "report_flags_select_none" on public.report_flags;
+create policy "report_flags_select_none"
+  on public.report_flags for select using (false);
+
+-- Atomically record a flag (deduped by PK) and bump the cached count.
+create or replace function public.flag_report(p_report_id uuid)
+returns int
+language plpgsql security definer set search_path = public as $$
+declare new_count int;
+begin
+  insert into public.report_flags (report_id, user_id)
+  values (p_report_id, auth.uid())
+  on conflict do nothing;
+
+  if found then
+    update public.reports
+      set flag_count = flag_count + 1
+      where id = p_report_id
+      returning flag_count into new_count;
+  else
+    select flag_count into new_count from public.reports where id = p_report_id;
+  end if;
+
+  return coalesce(new_count, 0);
+end $$;
+
+grant execute on function public.flag_report(uuid) to anon, authenticated;
 
 -- =====================================================================
 -- Realtime (so the BMC admin sees new citizen reports instantly)

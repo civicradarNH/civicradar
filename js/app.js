@@ -3445,6 +3445,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.status.notFiled': 'Open on community map',
 
+      'profile.status.removed': 'Removed by moderator',
+
       'profile.communityCleared': 'Volunteers cleared — {corp} complaint may still be open',
 
       'profile.neighbourOne': 'neighbour said Me too',
@@ -3483,7 +3485,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hidden': 'Report hidden from your map.',
 
-      'safety.hideConfirm': 'Hide this pin from your map? (Does not delete the report.)',
+      'safety.hideConfirm': 'Hide this pin and flag it for our team to review? (Does not delete the report immediately.)',
 
       'popup.pending': 'Pending',
 
@@ -3742,6 +3744,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.markResolved': 'Mark as resolved',
 
       'admin.resolveHint': 'Citizen gets credit and the pin turns green.',
+
+      'admin.removeContent': 'Remove content',
+
+      'admin.removeConfirm': 'Remove this report from the public map? Use this for content that violates guidelines — the reporter can still see it was removed.',
+
+      'admin.removeSuccess': 'Report removed from the public map.',
+
+      'admin.flagged': 'Flagged',
 
       'admin.reviewTag': 'BMC review',
 
@@ -5600,6 +5610,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.status.notFiled': 'सामुदायिक मानचित्र पर खुला',
 
+      'profile.status.removed': 'मॉडरेटर द्वारा हटाई गई',
+
       'profile.communityCleared': 'स्वयंसेवकों ने साफ किया — {corp} शिकायत अभी खुली हो सकती है',
 
       'profile.neighbourOne': 'पड़ोसी ने मुझे भी कहा',
@@ -5638,7 +5650,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hidden': 'आपके मानचित्र से छिपाया।',
 
-      'safety.hideConfirm': 'इस पिन को छिपाएँ? (रिपोर्ट हटती नहीं।)',
+      'safety.hideConfirm': 'इस पिन को छिपाएँ और समीक्षा के लिए हमारी टीम को भेजें? (रिपोर्ट तुरंत हटती नहीं।)',
 
       'popup.pending': 'लंबित',
 
@@ -5897,6 +5909,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.markResolved': 'ठीक चिह्नित करें',
 
       'admin.resolveHint': 'नागरिक को क्रेडिट — पिन हरा हो जाएगा।',
+
+      'admin.removeContent': 'सामग्री हटाएँ',
+
+      'admin.removeConfirm': 'इस रिपोर्ट को सार्वजनिक मानचित्र से हटाएँ? दिशानिर्देशों का उल्लंघन करने वाली सामग्री के लिए उपयोग करें — रिपोर्टर देख सकेगा कि इसे हटाया गया।',
+
+      'admin.removeSuccess': 'रिपोर्ट सार्वजनिक मानचित्र से हटा दी गई।',
+
+      'admin.flagged': 'फ़्लैग की गई',
 
       'admin.reviewTag': 'BMC समीक्षा',
 
@@ -7754,6 +7774,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.status.notFiled': 'सामुदायिक नकाशावर खुले',
 
+      'profile.status.removed': 'मॉडरेटरने काढून टाकले',
+
       'profile.communityCleared': 'स्वयंसेवकांनी साफ केले — {corp} तक्रार अजून खुली असू शकते',
 
       'profile.neighbourOne': 'शेजाऱ्याने मला पण म्हटले',
@@ -7792,7 +7814,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hidden': 'तुमच्या नकाशावरून लपवले.',
 
-      'safety.hideConfirm': 'हा पिन लपवायचा? (तक्रार हटत नाही.)',
+      'safety.hideConfirm': 'हा पिन लपवायचा आणि आमच्या टीमकडे पुनरावलोकनासाठी पाठवायचा? (तक्रार लगेच हटत नाही.)',
 
       'popup.pending': 'प्रलंबित',
 
@@ -8051,6 +8073,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.markResolved': 'निराकरण चिन्हांकित',
 
       'admin.resolveHint': 'नागरिकाला श्रेय — पिन हिरवा होईल.',
+
+      'admin.removeContent': 'मजकूर काढा',
+
+      'admin.removeConfirm': 'ही तक्रार सार्वजनिक नकाशावरून काढायची? मार्गदर्शक तत्त्वांचे उल्लंघन करणाऱ्या मजकुरासाठी वापरा — तक्रारदाराला ती काढल्याचे दिसेल.',
+
+      'admin.removeSuccess': 'तक्रार सार्वजनिक नकाशावरून काढली.',
+
+      'admin.flagged': 'फ्लॅग केले',
 
       'admin.reviewTag': 'BMC पुनरावलोकन',
 
@@ -9908,6 +9938,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.status.notFiled': 'સામુદાયિક નકશા પર ખુલ્લું',
 
+      'profile.status.removed': 'મોડરેટર દ્વારા દૂર કરાયું',
+
       'profile.communityCleared': 'સ્વયંસેવકોએ સાફ કર્યું — {corp} ફરિયાદ હજુ ખુલ્લી હોઈ શકે',
 
       'profile.neighbourOne': 'પડોશીએ મને પણ કહ્યું',
@@ -9946,7 +9978,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hidden': 'તમારા નકશાથી છુપાવ્યું.',
 
-      'safety.hideConfirm': 'આ પિન છુપાવીએ? (ફરિયાદ ડિલીટ નથી.)',
+      'safety.hideConfirm': 'આ પિન છુપાવીએ અને સમીક્ષા માટે અમારી ટીમને મોકલીએ? (ફરિયાદ તરત ડિલીટ થતી નથી.)',
 
       'popup.pending': 'બાકી',
 
@@ -10205,6 +10237,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.markResolved': 'ઉકેલ ચિહ્નિત',
 
       'admin.resolveHint': 'નાગરિકને શ્રેય — પિન લીલો થશે.',
+
+      'admin.removeContent': 'સામગ્રી દૂર કરો',
+
+      'admin.removeConfirm': 'આ ફરિયાદ જાહેર નકશા પરથી દૂર કરીએ? માર્ગદર્શિકાનું ઉલ્લંઘન કરતી સામગ્રી માટે વાપરો — ફરિયાદ કરનારને દેખાશે કે તે દૂર કરવામાં આવી.',
+
+      'admin.removeSuccess': 'ફરિયાદ જાહેર નકશા પરથી દૂર કરવામાં આવી.',
+
+      'admin.flagged': 'ફ્લેગ કરેલ',
 
       'admin.reviewTag': 'BMC સમીક્ષા',
 
@@ -10839,10 +10879,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function hideReportFromMap(id) {
     const ids = loadHiddenReportIds();
+    const alreadyFlagged = ids.has(String(id));
     ids.add(String(id));
     try {
       localStorage.setItem(HIDDEN_REPORTS_KEY, JSON.stringify([...ids]));
     } catch { /* ignore */ }
+    // Hiding also flags the report for moderator review (UGC compliance) —
+    // once per device, so repeat hides of the same pin don't inflate the count.
+    if (!alreadyFlagged) {
+      const reports = loadReports();
+      const idx = reports.findIndex((r) => String(r.id) === String(id));
+      if (idx !== -1) {
+        reports[idx].flagCount = (Number(reports[idx].flagCount) || 0) + 1;
+        try { saveReports(reports); } catch { /* ignore */ }
+      }
+      Backend.flagReport(id);
+    }
     if (map) map.closePopup();
     refreshReportMarkers();
     showToast(t('safety.hidden'), 'info', 3200);
@@ -10853,7 +10905,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function aggregateWardLeaderboard(sinceTs) {
     const byWard = {};
     cityScopedReports(loadReports()).forEach((r) => {
-      if (!r.ward || isReportHidden(r.id)) return;
+      if (!r.ward || isReportHidden(r.id) || r.removed) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       if (!byWard[r.ward]) {
         byWard[r.ward] = { name: r.ward, points: 0, reports: 0, resolved: 0, isUser: false, isDemo: false };
@@ -10871,7 +10923,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function aggregateCitizenLeaderboard(sinceTs) {
     const byCitizen = {};
     cityScopedReports(loadReports()).forEach((r) => {
-      if (isReportHidden(r.id)) return;
+      if (isReportHidden(r.id) || r.removed) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       const key = r.reporterId || r.reporter || 'anon';
       const name = r.reporter || 'Citizen';
@@ -11120,6 +11172,9 @@ document.addEventListener('DOMContentLoaded', function () {
       communityVerifiedAt: r.communityVerifiedAt || '',
       society: sanitizeText(r.society || '', 120),
       timestamp: r.timestamp || new Date().toISOString(),
+      flagCount: Number(r.flagCount) || 0,
+      removed: r.removed || false,
+      removedAt: r.removedAt || '',
     };
   }
 
@@ -11454,6 +11509,9 @@ document.addEventListener('DOMContentLoaded', function () {
         communityVerifiedAt: r.community_verified_at || '',
         society: r.society || '',
         timestamp: r.created_at,
+        flagCount: Number(r.flag_count) || 0,
+        removed: !!r.removed,
+        removedAt: r.removed_at || '',
       });
     },
 
@@ -11889,6 +11947,26 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!this.enabled) return;
       const { error } = await this.client.rpc('confirm_report', { p_report_id: id });
       if (error) console.warn('Confirm sync failed:', error.message);
+    },
+
+    // Content-moderation flag (UGC compliance) — atomic, dedup-by-user via RPC.
+    async flagReport(id) {
+      if (!this.enabled) return;
+      const { error } = await this.client.rpc('flag_report', { p_report_id: id });
+      if (error) console.warn('Flag sync failed:', error.message);
+    },
+
+    // BMC/admin takedown of objectionable content. Soft-delete: the row stays
+    // for audit (reporter + BMC can still see it), but the RLS select policy
+    // hides it from everyone else, so it drops off every other device's next
+    // sync rather than just the moderator's own local cache.
+    async removeReportContent(id) {
+      if (!this.enabled) return;
+      const { error } = await this.client
+        .from('reports')
+        .update({ removed: true, removed_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) console.warn('Remove-content sync failed:', error.message);
     },
 
     async confirmFix(id, staleCheck) {
@@ -20996,7 +21074,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let reports = loadReports().filter(
 
-      (r) => !isReportHidden(r.id) && r.lat != null && r.lng != null
+      (r) => !isReportHidden(r.id) && !r.removed && r.lat != null && r.lng != null
 
     );
 
@@ -22789,6 +22867,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     $('#btnMarkResolved').addEventListener('click', markReportResolved);
+
+    $('#btnAdminRemoveContent').addEventListener('click', removeReportContentAction);
 
     $('#btnAdminCopy1916').addEventListener('click', () => {
 
@@ -28532,7 +28612,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cityScopedReports(loadReports()).forEach((r) => {
 
-      if (!r.ward || isReportHidden(r.id)) return;
+      if (!r.ward || isReportHidden(r.id) || r.removed) return;
 
       if (!byWard[r.ward]) {
 
@@ -28882,7 +28962,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = getCityLabel();
 
-    const total = cityScopedReports(loadReports()).filter((r) => !isReportHidden(r.id)).length;
+    const total = cityScopedReports(loadReports()).filter((r) => !isReportHidden(r.id) && !r.removed).length;
 
     if (bodyEl) {
 
@@ -29534,27 +29614,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const resolved = r.status === 'resolved';
 
-        const statusClass = resolved
+        const statusClass = r.removed
 
-          ? 'status-badge--resolved'
+          ? 'status-badge--removed'
 
-          : stage.filed
+          : resolved
 
-            ? 'status-badge--filed'
+            ? 'status-badge--resolved'
 
-            : 'status-badge--pending';
+            : stage.filed
 
-        const statusText = resolved
+              ? 'status-badge--filed'
 
-          ? resolutionStatusLabel(r)
+              : 'status-badge--pending';
 
-          : stage.filed
+        const statusText = r.removed
 
-            ? `${getComplaintRefPrefix(getReportCity(r))} #${escapeHtml(r.complaintId)}`
+          ? t('profile.status.removed')
 
-            : t('profile.status.notFiled');
+          : resolved
 
-        const clock = !resolved
+            ? resolutionStatusLabel(r)
+
+            : stage.filed
+
+              ? `${getComplaintRefPrefix(getReportCity(r))} #${escapeHtml(r.complaintId)}`
+
+              : t('profile.status.notFiled');
+
+        const clock = !resolved && !r.removed
 
           ? `<span class="report-card__clock">${escapeHtml(getClockLine(r))}</span>`
 
@@ -29562,7 +29650,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let action = '';
 
-        if (!resolved) {
+        if (!resolved && !r.removed) {
 
           const rCity = getReportCity(r);
 
@@ -29731,6 +29819,12 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#adminReportStatus').textContent = t('popup.pending');
 
     $('#adminReportStatus').className = 'status-badge status-badge--pending';
+
+    const flagCount = Number(report.flagCount) || 0;
+
+    $('#adminReportFlagRow').classList.toggle('hidden', flagCount === 0);
+
+    $('#adminReportFlags').textContent = String(flagCount);
 
     $('#adminReportLat').textContent = report.lat != null ? report.lat.toFixed(6) : '—';
 
@@ -29916,6 +30010,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Moderator takedown of objectionable content (UGC compliance — Apple 1.2 /
+  // Google Play). Soft-deletes: the reporter and BMC can still see it for
+  // audit, but it drops off the public map and admin queue everywhere.
+  function removeReportContentAction() {
+
+    if (!activeAdminReportId) return;
+
+    if (!hasRole('bmc')) {
+
+      showToast(t('toast.bmcOnlyResolve'), 'error');
+
+      return;
+
+    }
+
+    if (!window.confirm(t('admin.removeConfirm'))) return;
+
+    const reports = loadReports();
+
+    const idx = reports.findIndex((r) => String(r.id) === String(activeAdminReportId));
+
+    if (idx === -1) return;
+
+    reports[idx].removed = true;
+
+    reports[idx].removedAt = new Date().toISOString();
+
+    try {
+
+      saveReports(reports);
+
+    } catch {
+
+      showToast(t('toast.resolveFail'), 'error');
+
+      return;
+
+    }
+
+    Backend.removeReportContent(activeAdminReportId);
+
+    closeModal('adminReport');
+
+    activeAdminReportId = null;
+
+    renderAdminQueue();
+
+    refreshReportMarkers();
+
+    showToast(t('admin.removeSuccess'), 'success');
+
+  }
+
+
+
   // Citizen self-confirmation: the report owner confirms BMC fixed it.
 
   // Requires a filed complaint number as proof, and is tagged as citizen-confirmed.
@@ -30012,7 +30161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wardFilter = $('#aqWardFilter')?.value || '';
 
-    let rows = all.filter((r) => !wardFilter || r.ward === wardFilter);
+    let rows = all.filter((r) => !r.removed && (!wardFilter || r.ward === wardFilter));
 
     const sort = $('#aqSort')?.value || 'oldest';
 
@@ -30856,9 +31005,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const all = loadReports();
 
-    const pending = all.filter((r) => r.status === 'pending');
+    const pending = all.filter((r) => r.status === 'pending' && !r.removed);
 
-    const resolved = all.filter((r) => r.status === 'resolved');
+    const resolved = all.filter((r) => r.status === 'resolved' && !r.removed);
 
     const overdue = countOverdueReports();
 
@@ -30908,6 +31057,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else rows.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
+    // Flagged content jumps to the top regardless of chosen sort — moderation
+    // review shouldn't wait behind the normal triage order.
+    rows.sort((a, b) => ((Number(b.flagCount) || 0) > 0 ? 1 : 0) - ((Number(a.flagCount) || 0) > 0 ? 1 : 0));
+
 
 
     const listEl = $('#adminQueueList');
@@ -30946,13 +31099,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const confBadge = confCount > 0 ? `<span class="status-badge status-badge--confirms"><i class="ph ph-users"></i> ${confCount}</span>` : '';
 
+        const flagCount = Number(r.flagCount) || 0;
+
+        const flagBadge = flagCount > 0 ? `<span class="status-badge status-badge--flagged"><i class="ph ph-flag"></i> ${t('admin.flagged')}</span>` : '';
+
         const safeImg = isSafeReportImage(r.image) ? r.image : '';
 
         const thumb = safeImg ? `<img class="queue-item__thumb" src="${safeImg}" alt="">` : '<div class="queue-item__thumb"></div>';
 
         return `
 
-          <li class="queue-item${overdueFlag ? ' queue-item--overdue' : ''}">
+          <li class="queue-item${overdueFlag ? ' queue-item--overdue' : ''}${flagCount > 0 ? ' queue-item--flagged' : ''}">
 
             ${thumb}
 
@@ -30962,7 +31119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="queue-item__meta">${escapeHtml(formatRelativeTime(r.timestamp))} — ${escapeHtml(getClockLine(r))}</div>
 
-              <div class="queue-item__tags">${filedBadge}${confBadge}${overdueFlag ? '<span class="status-badge status-badge--overdue">Overdue</span>' : ''}</div>
+              <div class="queue-item__tags">${flagBadge}${filedBadge}${confBadge}${overdueFlag ? '<span class="status-badge status-badge--overdue">Overdue</span>' : ''}</div>
 
             </div>
 
