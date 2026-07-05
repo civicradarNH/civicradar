@@ -9,9 +9,6 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
-### Changed
-- **Information architecture consolidation (v142)** — keep 3-tab nav (Map | Community | Profile); official grievance channels live only in Community → Resources (Profile links there); volunteer empty-state signup routes via Community; persona bar copy updated. Cache v142.
-
 ### Added
 - **WhatsApp deep links + TWA App Links (v141)** — share URLs stay canonical HTTPS (`publicUrl/?report={id}`) for Android App Link interception; `.well-known/assetlinks.json` for `in.civicradar.app`; mobile-browser landing strip with **Open in app** (Android intent + Play Store fallback) and **Get the app** when `?report=` or `?ref=`; absolute OG/Twitter image URLs for WhatsApp previews; certificate share link uses `publicUrl`; E2E DL01 + ST01. Cache v141. **Founder:** paste Play Console app-signing SHA-256 into `assetlinks.json` and verify Digital Asset Links in Play Console (see `LAUNCH_CHECKLIST.md`).
 
@@ -224,4 +221,10 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 - Bottom-nav ghost taps ignored while the native camera / file picker is active.
 - Twitter share no longer duplicates hashtag lines already in the template.
 
-[Unreleased]: https://github.com/civicradarnh/civicradar/commits/main
+## [v142] - 2026-07-05
+
+### Changed
+- **Information architecture consolidation (v142)** — keep 3-tab nav (Map | Community | Profile); official grievance channels live only in Community → Resources (Profile links there); volunteer empty-state signup routes via Community; persona bar copy updated. Cache v142.
+
+[v142]: https://github.com/civicradarnh/civicradar/compare/v141...v142
+[Unreleased]: https://github.com/civicradarnh/civicradar/compare/v142...HEAD
