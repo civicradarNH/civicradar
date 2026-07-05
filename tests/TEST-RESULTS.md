@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 00:07:08
+**Run:** 2026-07-05 00:19:55
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 388 | **Pass:** 384 | **Fail:** 4
+**Total:** 388 | **Pass:** 388 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -80,7 +80,7 @@
 - **Auth:** 10 pass / 0 fail
 - **BMC:** 9 pass / 0 fail
 - **Celebration:** 8 pass / 0 fail
-- **Citizen:** 43 pass / 1 fail
+- **Citizen:** 44 pass / 0 fail
 - **Community:** 3 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **Demo:** 8 pass / 0 fail
@@ -88,7 +88,7 @@
 - **Edge:** 17 pass / 0 fail
 - **Escalation:** 6 pass / 0 fail
 - **Feedback:** 7 pass / 0 fail
-- **HomeHero:** 6 pass / 1 fail
+- **HomeHero:** 7 pass / 0 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
 - **Legal:** 6 pass / 0 fail
@@ -100,7 +100,7 @@
 - **Negative:** 8 pass / 0 fail
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
-- **Onboarding:** 3 pass / 1 fail
+- **Onboarding:** 4 pass / 0 fail
 - **PWA:** 8 pass / 0 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
@@ -121,16 +121,13 @@
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
-- **XP:** 3 pass / 1 fail
+- **XP:** 4 pass / 0 fail
 - **i18n:** 9 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
 
 ## Failures
 
-- `C09b` **Report-on-the-spot guidance shown at onboarding completion** — failed
-- `OB13` **Spot guidance in hero subline** — failed
-- `XP01` **Report adds Civic Hero XP in success modal** — label="+50 Civic Points"
-- `HM02` **Purpose headline + subline visible** — failed
+_None_
 
 ## Limitations
 
@@ -155,8 +152,8 @@
 | C08 | Citizen | Valid ward onboarding | PASS |  |
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
-| C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | **FAIL** |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ripple Ranger · Dadar, Shiva # |
+| C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja 8715 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -222,8 +219,8 @@
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 4ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -276,7 +273,7 @@
 | OB10 | Onboarding | Hero welcome card present (explainer trim v89) | PASS |  |
 | OB11 | Onboarding | Hero renders 3 benefit pills | PASS |  |
 | OB12 | Onboarding | Hero subline populated (terse) | PASS |  |
-| OB13 | Onboarding | Spot guidance in hero subline | **FAIL** |  |
+| OB13 | Onboarding | Spot guidance in hero subline | PASS |  |
 | X28 | Celebration | Success celebrate element present | PASS |  |
 | X29 | Celebration | Success progress nudge element present | PASS |  |
 | X30 | Celebration | Success streak callout element present | PASS |  |
@@ -358,9 +355,9 @@
 | RP15 | Report | Non-milestone report shows progress-to-badge nudge | PASS | progress="Just 1 more report to your next badge." |
 | RW01 | Rewards | Second report shows week streak callout | PASS |  |
 | RW02 | Rewards | Profile rewards bar visible after reports | PASS |  |
-| XP01 | XP | Report adds Civic Hero XP in success modal | **FAIL** | label="+50 Civic Points" |
+| XP01 | XP | Report adds Civic Points in success modal | PASS | label="+50 Civic Points" |
 | XP01b | XP | Profile shows total XP after report | PASS | xp="125" |
-| XP02 | XP | Me too adds Civic Hero XP | PASS |  |
+| XP02 | XP | Me too adds Civic Points | PASS |  |
 | XP03 | XP | Level up shows certificate offer | PASS |  |
 | RP09 | Report | Near-duplicate triggers Me too | PASS |  |
 | RP10 | Report | Report notes maxlength enforced | PASS |  |
@@ -517,7 +514,7 @@
 | LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | PASS |  |
 | LB06 | LocationBanner | Dismiss control has localized aria-label | PASS |  |
 | HM01 | HomeHero | Hero visible for onboarded user with no reports | PASS |  |
-| HM02 | HomeHero | Purpose headline + subline visible | **FAIL** |  |
+| HM02 | HomeHero | Purpose headline + subline visible | PASS |  |
 | HM03 | HomeHero | Primary CTA present | PASS |  |
 | HM04 | HomeHero | Three benefit pills present | PASS |  |
 | HM05 | HomeHero | Hero hides map-empty overlay while visible | PASS |  |
