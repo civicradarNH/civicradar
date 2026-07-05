@@ -141,6 +141,8 @@
   legal: {
     privacyUrl: 'privacy.html',
     termsUrl: 'terms.html',
+    deleteAccountUrl: 'delete-account.html',
+    officialSourcesUrl: 'official-sources.html',
     // **[YOU]** DPDP grievance officer — shown on privacy.html and terms.html
     grievanceEmail: 'privacy@yourdomain.com',
   },
