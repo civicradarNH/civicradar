@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v137';
+  const CIVIC_APP_VERSION = 'v139';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -424,6 +424,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let reportPhotoDismissGuard = 0;
 
+  let appHiddenAt = 0;
+
+  let skipReportDraftRestoreOnce = false;
+
   // Ghost taps / popstate after native camera can dismiss the report sheet — guard longer.
 
   const PHOTO_RETURN_GUARD_MS = (() => {
@@ -437,6 +441,20 @@ document.addEventListener('DOMContentLoaded', function () {
     return ios ? 2500 : 1500;
 
   })();
+
+  // PWA/TWA session policy (installed app only — see maybeResetSessionOnResume):
+  // • Cold start: OS process killed or tab discarded → map home, modals closed (no reload).
+  // • Warm resume: hidden < WARM_RESUME_PRESERVE_MS → preserve state (mid-report camera/share).
+  // • Stale: hidden ≥ SESSION_RESUME_RESET_MS → map home (industry-typical 30 min).
+  // • BFCache (pageshow persisted): reset — restored snapshot must not leave Profile open.
+  // manifest.json has no launch_handler: avoid navigate-existing reload; JS reset is enough.
+  // focus-existing (if added later) resumes the WebView — warm/stale timers still apply.
+
+  const SESSION_MARKER_KEY = 'civicradar_pwa_session';
+
+  const WARM_RESUME_PRESERVE_MS = 2 * 60 * 1000;
+
+  const SESSION_RESUME_RESET_MS = 30 * 60 * 1000;
 
 
 
@@ -20654,6 +20672,136 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clearNavModalHistory() {
+
+    try {
+
+      if (history.state && history.state.civicNavModal) history.replaceState({}, '');
+
+    } catch { /* history unavailable */ }
+
+  }
+
+
+
+  function resetAppSessionUi() {
+
+    if (tourState) endTour(false);
+
+    dismissCoachMark();
+
+    closeStackedModalsForNav(null);
+
+    setNavTab('map');
+
+    clearNavModalHistory();
+
+    scheduleMapResize();
+
+  }
+
+
+
+  function markPwaSessionActive() {
+
+    try { sessionStorage.setItem(SESSION_MARKER_KEY, '1'); } catch { /* private mode */ }
+
+  }
+
+
+
+  function isColdPwaLaunch() {
+
+    if (!isStandalonePwa()) return false;
+
+    try {
+
+      const hadSession = sessionStorage.getItem(SESSION_MARKER_KEY);
+
+      markPwaSessionActive();
+
+      return !hadSession;
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
+
+
+  function shouldResetOnColdPwaLaunch() {
+
+    if (!isStandalonePwa()) return false;
+
+    if (document.wasDiscarded) {
+
+      markPwaSessionActive();
+
+      return true;
+
+    }
+
+    return isColdPwaLaunch();
+
+  }
+
+
+
+  function maybeResetSessionOnResume(opts) {
+
+    const bfcache = !!(opts && opts.bfcache);
+
+    const coldStart = !!(opts && opts.coldStart);
+
+    const hiddenMs = (opts && opts.hiddenMs) || 0;
+
+    const standalone = !!(opts && opts.forceStandalone) || isStandalonePwa();
+
+    if (isReportPhotoPickerActive() || hasReportPhotoPreview()) return false;
+
+    if (!standalone) return false;
+
+    if (bfcache || coldStart) {
+
+      resetAppSessionUi();
+
+      skipReportDraftRestoreOnce = true;
+
+      return true;
+
+    }
+
+    if (hiddenMs > 0 && hiddenMs < WARM_RESUME_PRESERVE_MS) return false;
+
+    if (hiddenMs >= SESSION_RESUME_RESET_MS) {
+
+      resetAppSessionUi();
+
+      skipReportDraftRestoreOnce = true;
+
+      return true;
+
+    }
+
+    return false;
+
+  }
+
+
+
+  window.resetAppSessionUi = resetAppSessionUi;
+
+  window.civicMaybeResetSessionOnResume = maybeResetSessionOnResume;
+
+  window.civicSessionResumeResetMs = SESSION_RESUME_RESET_MS;
+
+  window.civicWarmResumePreserveMs = WARM_RESUME_PRESERVE_MS;
+
+
+
   // Push a history entry when opening the full-screen Community/Profile tabs so
 
   // Android's hardware back button closes them instead of leaving the app.
@@ -21376,6 +21524,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   updatePersonaUI();
 
+  maybeResetSessionOnResume({ coldStart: shouldResetOnColdPwaLaunch() });
+
   runBootSequence();
 
   // Foreground-triggered opt-in reminder: re-check when the user returns to the tab.
@@ -21384,13 +21534,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (document.visibilityState === 'visible') {
 
-      restoreReportDraftIfNeeded();
+      const hiddenMs = appHiddenAt ? Date.now() - appHiddenAt : 0;
+
+      appHiddenAt = 0;
+
+      maybeResetSessionOnResume({ hiddenMs });
+
+      if (!skipReportDraftRestoreOnce) restoreReportDraftIfNeeded();
+
+      else skipReportDraftRestoreOnce = false;
 
       if (isReportPhotoPickerActive() || hasReportPhotoPreview()) syncReportPhotoReturn();
 
       if (!shouldDeferFirstRunNudges()) setTimeout(maybeShowReportReminder, 400);
 
     } else if (document.visibilityState === 'hidden') {
+
+      appHiddenAt = Date.now();
 
       persistReportDraftOnHide();
 
@@ -23968,11 +24128,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('pageshow', (e) => {
 
-      restoreReportDraftIfNeeded();
+      if (isReportPhotoPickerActive() || hasReportPhotoPreview()) {
 
-      if (hasReportPhotoPreview() || isReportPhotoPickerActive()) syncReportPhotoReturn();
+        restoreReportDraftIfNeeded();
 
-      if (e.persisted) scheduleMapResize();
+        syncReportPhotoReturn();
+
+        scheduleMapResize();
+
+        return;
+
+      }
+
+      maybeResetSessionOnResume({ bfcache: e.persisted });
+
+      if (!skipReportDraftRestoreOnce) restoreReportDraftIfNeeded();
+
+      else skipReportDraftRestoreOnce = false;
+
+      scheduleMapResize();
 
     });
 

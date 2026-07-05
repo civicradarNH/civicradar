@@ -9,6 +9,10 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Fixed
+- **PWA session resume (v139)** — industry-standard installed-app lifecycle: **cold start** (process killed / tab discarded / fresh session marker) and **BFCache restore** reset to map home without `location.reload()`; **warm resume** (&lt;2 min hidden) preserves mid-report state; **stale** (≥30 min hidden) resets navigation; report camera flow still guarded. `manifest.json` intentionally omits `launch_handler` to avoid forced reload — JS reset handles home. Cache v139.
+- **PWA session resume (v138)** — reopening the installed app after backgrounding no longer leaves Community/Profile (or other stacked modals) open from the last visit; standalone/TWA resets to map home after 5+ minutes hidden or on BFCache restore (`pageshow` persisted), while preserving in-flight report camera return. Cache v138.
+
 ### Security
 - **P0 audit fixes (v126)** — Referral redemptions via `record_referral_redemption` RPC (binds `auth.uid()`, one row per user); `delete_user_data` removes `report-photos` Storage objects; Turnstile fail-closed when site key configured (no anonymous sign-in without captcha); demo BMC/NGO credentials disabled on `environment === 'prod'`; storage insert policy restricts `.jpg` + JPEG MIME only. **FOUNDER MUST RE-RUN** `supabase/schema.sql` and `supabase/storage-migration.sql` once. Cache v126.
 

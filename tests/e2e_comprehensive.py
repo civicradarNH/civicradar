@@ -2873,6 +2873,39 @@ async def run_extended_scenarios(s: Suite, browser):
 
     map_tab_active = '() => document.querySelector("#bottomNav .nav-tab[data-tab=map]")?.classList.contains("active")'
 
+    await page.evaluate('() => window.openProfileModal()')
+
+    await page.evaluate('() => window.resetAppSessionUi()')
+
+    s.record('U28', 'UI', 'Session reset returns to map home',
+
+             (not await is_open(page, 'profileOverlay'))
+
+             and bool(await page.evaluate(map_tab_active)))
+
+    session_policy = await page.evaluate("""() => {
+      window.openProfileModal();
+      const warm = window.civicMaybeResetSessionOnResume({ hiddenMs: 60000, forceStandalone: true });
+      const profileStillOpen = document.getElementById('profileOverlay')?.classList.contains('open');
+      window.openProfileModal();
+      const stale = window.civicMaybeResetSessionOnResume({
+        hiddenMs: window.civicSessionResumeResetMs + 1000,
+        forceStandalone: true,
+      });
+      const mapActive = document.querySelector('#bottomNav .nav-tab[data-tab=map]')?.classList.contains('active');
+      return { warm, profileStillOpen, stale, mapActive };
+    }""")
+
+    s.record('U28b', 'UI', 'Warm resume preserves; stale resets to map',
+
+             session_policy['warm'] is False
+
+             and session_policy['profileStillOpen']
+
+             and session_policy['stale']
+
+             and session_policy['mapActive'])
+
     await page.evaluate('() => window.openCommunityModal()')
 
     await page.evaluate('() => document.querySelector("#communityModal [data-close=community]")?.click()')
@@ -4513,7 +4546,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v137" in sw_src
+        "civicradar-v139" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7535,7 +7568,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v137" in sw_src
+        "civicradar-v139" in sw_src
 
         and "'/index.html'" not in sw_src
 
