@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v134';
+  const CIVIC_APP_VERSION = 'v137';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2310,7 +2310,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.dismiss': 'Dismiss location prompt',
 
-      'location.locate': 'Locate me',
+      'location.locate': 'Turn on location',
 
       'location.locateAria': 'Turn on location',
 
@@ -2490,7 +2490,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} neighbour(s) are already backing nearby spots — yours is up there now too.',
 
-      'success.subtitle': 'Want to go further? File it with {corp} (free) to start the official clock.',
+      'success.subtitle': 'Free with {corp} — starts the official complaint clock.',
 
       'success.step1': 'Share on WhatsApp so your neighbours can back it',
 
@@ -2498,9 +2498,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step3': 'Neighbours or {corp} can mark it fixed — and you earn Civic Points',
 
-      'success.file': 'File with BMC (optional)',
+      'success.file': 'File with BMC',
 
-      'success.fileCorp': 'File with {corp} (optional)',
+      'success.fileCorp': 'File with {corp}',
 
       'success.tag': 'Tag @mybmc',
 
@@ -2881,7 +2881,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'Community',
 
-      'community.subtitle': 'Fix it together in {ward} — volunteer, pledge supplies, or file with {corp} separately.',
+      'community.subtitle': 'Fix it together in {ward} — volunteer, pledge supplies, rally neighbours.',
 
       'community.subtitleActive': '{ward}: {pending} open on the map — {resolved} fixed — rally neighbours or volunteer.',
 
@@ -3014,6 +3014,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.volunteer': 'My volunteer signup',
 
       'profile.section.details': 'Your details',
+
+      'profile.section.location': 'City, ward & neighbourhood',
 
       'profile.section.activity': 'Activity',
 
@@ -3625,7 +3627,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'Water dept or Health dept (mosquito breeding)',
 
-      'success.alsoOfficial': 'Also file officially',
+      'success.alsoOfficial': 'Official filing (optional)',
+
+      'success.filingGuide': 'Filing guide & complaint copy',
 
       'esc.close': 'Close',
 
@@ -4723,7 +4727,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} पड़ोसी पहले से पास के स्पॉट का समर्थन कर रहे हैं — अब आपकी रिपोर्ट भी वहाँ है।',
 
-      'success.subtitle': 'और आगे बढ़ना है? आधिकारिक घड़ी शुरू करने के लिए {corp} में मुफ़्त शिकायत दर्ज करें।',
+      'success.subtitle': '{corp} पर मुफ़्त — आधिकारिक शिकायत घड़ी शुरू होती है।',
 
       'success.step1': 'WhatsApp पर शेयर करें ताकि पड़ोसी इसका समर्थन कर सकें',
 
@@ -4731,9 +4735,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step3': 'पड़ोसी या {corp} इसे ठीक होने पर चिह्नित कर सकते हैं — और आपको Civic Points मिलेंगे',
 
-      'success.file': 'आधिकारिक शिकायत दर्ज करें (वैकल्पिक)',
+      'success.file': 'BMC में शिकायत दर्ज करें',
 
-      'success.fileCorp': '{corp} में आधिकारिक शिकायत (वैकल्पिक)',
+      'success.fileCorp': '{corp} में शिकायत दर्ज करें',
 
       'success.tag': '@mybmc को टैग करें',
 
@@ -5116,7 +5120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} में साथ मिलकर ठीक करें — स्वयंसेवा, सामान दान, या अलग से {corp} में दर्ज करें।',
+      'community.subtitle': '{ward} में साथ मिलकर ठीक करें — स्वयंसेवा, सामान दान, पड़ोसियों को बुलाएँ।',
 
       'community.subtitleActive': '{ward}: {pending} खुले खतरे · {resolved} हल। पड़ोसियों को बुलाएँ!',
 
@@ -5249,6 +5253,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.volunteer': 'मेरा स्वयंसेवक साइनअप',
 
       'profile.section.details': 'आपका विवरण',
+
+      'profile.section.location': 'शहर, वार्ड और पड़ोस',
 
       'profile.section.activity': 'गतिविधि',
 
@@ -5858,7 +5864,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'जल / स्वास्थ्य विभाग (मच्छर प्रजनन)',
 
-      'success.alsoOfficial': 'आधिकारिक रूप से भी दर्ज करें',
+      'success.alsoOfficial': 'आधिकारिक शिकायत (वैकल्पिक)',
+
+      'success.filingGuide': 'दर्ज करने की गाइड और शिकायत कॉपी',
 
       'esc.close': 'बंद',
 
@@ -6955,7 +6963,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} शेजारी आधीच जवळपासच्या स्पॉट्सना पाठिंबा देत आहेत — आता तुमचीही तक्रार तिथे आहे.',
 
-      'success.subtitle': 'आणखी पुढे जायचे आहे? अधिकृत घड्याळ सुरू करण्यासाठी {corp} कडे मोफत तक्रार नोंदवा.',
+      'success.subtitle': '{corp} कडे मोफत — अधिकृत तक्रार घड्याळ सुरू होते.',
 
       'success.step1': 'WhatsApp वर शेअर करा जेणेकरून शेजारी पाठिंबा देऊ शकतील',
 
@@ -6963,9 +6971,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step3': 'शेजारी किंवा {corp} दुरुस्ती झाल्यावर चिन्हांकित करू शकतात — आणि तुम्हाला Civic Points मिळतील',
 
-      'success.file': 'अधिकृत तक्रार नोंदवा (पर्यायी)',
+      'success.file': 'BMC कडे तक्रार नोंदवा',
 
-      'success.fileCorp': '{corp} मध्ये अधिकृत तक्रार (पर्यायी)',
+      'success.fileCorp': '{corp} कडे तक्रार नोंदवा',
 
       'success.tag': '@mybmc ला टॅग करा',
 
@@ -7348,7 +7356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — स्वयंसेवा, साहित्य देणगी, किंवा वेगळ्याने {corp} कडे नोंद.',
+      'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — स्वयंसेवा, साहित्य देणगी, शेजाऱ्यांना बोलवा.',
 
       'community.subtitleActive': '{ward}: {pending} खुले धोके · {resolved} सोडवले. शेजाऱ्यांना बोलवा!',
 
@@ -7481,6 +7489,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.volunteer': 'माझी स्वयंसेवक नोंदणी',
 
       'profile.section.details': 'तुमची माहिती',
+
+      'profile.section.location': 'शहर, वॉर्ड आणि परिसर',
 
       'profile.section.activity': 'कृती',
 
@@ -8090,7 +8100,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'पाणी / आरोग्य विभाग (डास उत्पत्ती)',
 
-      'success.alsoOfficial': 'अधिकृतपणेही नोंदवा',
+      'success.alsoOfficial': 'अधिकृत तक्रार (पर्यायी)',
+
+      'success.filingGuide': 'नोंदणी मार्गदर्शक आणि तक्रार मजकूर',
 
       'esc.close': 'बंद',
 
@@ -9187,7 +9199,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} પડોશીઓ પહેલેથી નજીકના સ્પોટને ટેકો આપી રહ્યા છે — હવે તમારી ફરિયાદ પણ ત્યાં છે.',
 
-      'success.subtitle': 'આગળ વધવું છે? અધિકૃત ઘડિયાળ શરૂ કરવા {corp} પર મફત ફરિયાદ નોંધાવો.',
+      'success.subtitle': '{corp} પર મફત — અધિકૃત ફરિયાદ ઘડિયાળ શરૂ થાય.',
 
       'success.step1': 'WhatsApp પર શેર કરો જેથી પડોશીઓ તેને ટેકો આપી શકે',
 
@@ -9195,9 +9207,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.step3': 'પડોશીઓ કે {corp} તેને ઠીક થયેલું ચિહ્નિત કરી શકે — અને તમને Civic Points મળશે',
 
-      'success.file': 'અધિકૃત ફરિયાદ નોંધાવો (વૈકલ્પિક)',
+      'success.file': 'BMC પર ફરિયાદ નોંધાવો',
 
-      'success.fileCorp': '{corp} માં અધિકૃત ફરિયાદ (વૈકલ્પિક)',
+      'success.fileCorp': '{corp} પર ફરિયાદ નોંધાવો',
 
       'success.tag': '@mybmc ને ટૅગ કરો',
 
@@ -9580,7 +9592,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'સમુદાય',
 
-      'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — સ્વયંસેવા, સામગ્રી દાન, અથવા અલગથી {corp} પર નોંધ.',
+      'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — સ્વયંસેવા, સામગ્રી દાન, પડોશીઓને બોલાવો.',
 
       'community.subtitleActive': '{ward}: {pending} ખુલ્લા જોખમો · {resolved} ઉકેલાયા. પડોશીઓને બોલાવો!',
 
@@ -9713,6 +9725,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.volunteer': 'મારી સ્વયંસેવક નોંધણી',
 
       'profile.section.details': 'તમારી વિગતો',
+
+      'profile.section.location': 'શહેર, વોર્ડ અને પડોશ',
 
       'profile.section.activity': 'પ્રવૃત્તિ',
 
@@ -10322,7 +10336,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'પાણી / આરોગ્ય વિભાગ (મચ્છર ઉત્પત્તિ)',
 
-      'success.alsoOfficial': 'અધિકૃત રીતે પણ નોંધાવો',
+      'success.alsoOfficial': 'અધિકૃત ફરિયાદ (વૈકલ્પિક)',
+
+      'success.filingGuide': 'નોંધણી માર્ગદર્શિકા અને ફરિયાદ કૉપી',
 
       'esc.close': 'બંધ',
 
@@ -19353,6 +19369,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function setCollapsibleSectionOpen(sectionId, bodyId, toggleId, open) {
+    const section = $('#' + sectionId);
+    const body = $('#' + bodyId);
+    const btn = $('#' + toggleId);
+    if (!section || !body || !btn) return;
+    body.classList.toggle('hidden', !open);
+    section.classList.toggle('cr-section--collapsed', !open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function resetProfileSectionsOnOpen() {
+    setCollapsibleSectionOpen('profileDetailsSection', 'profileDetailsBody', 'btnProfileDetailsToggle', true);
+    setCollapsibleSectionOpen('profileActivitySection', 'profileActivityBody', 'btnProfileActivityToggle', false);
+    setCollapsibleSectionOpen('profileNotificationsSection', 'profileNotificationsBody', 'btnProfileNotificationsToggle', false);
+    setCollapsibleSectionOpen('profileAccountSection', 'profileAccountBody', 'btnProfileAccountToggle', false);
+  }
+
   function showToast(message, type = 'info', duration = 3500, action = null) {
 
     const container = $('#toastContainer');
@@ -20807,6 +20840,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeStackedModalsForNav('profile');
 
+    resetProfileSectionsOnOpen();
+
     updateProfileUI();
 
     setNavTab('profile');
@@ -21330,6 +21365,8 @@ document.addEventListener('DOMContentLoaded', function () {
   initSearchableComboboxes();
 
   bindEvents();
+
+  updateMapLocationControls();
 
   updateAuthMode();
 
@@ -21909,6 +21946,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     applyWardFromCoords(lat, lng);
 
+    updateMapLocationControls();
+
     if (opts.recenter && map) {
 
       map.setView([lat, lng], zoomForAccuracy(accuracyM));
@@ -21997,6 +22036,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (el) el.classList.remove('hidden');
 
+    updateMapLocationControls();
+
   }
 
 
@@ -22006,6 +22047,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const el = $('#btnLocatePill');
 
     if (el) el.classList.add('hidden');
+
+    updateMapLocationControls();
+
+  }
+
+
+
+  function updateMapLocationControls() {
+
+    const recenter = $('#btnRecenter');
+
+    const pill = $('#btnLocatePill');
+
+    if (!recenter) return;
+
+    const hasFix = currentLat != null && currentLng != null;
+
+    const pillVisible = pill && !pill.classList.contains('hidden');
+
+    recenter.classList.toggle('hidden', !hasFix || pillVisible);
 
   }
 
@@ -23439,19 +23500,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnSuccessNative) btnSuccessNative.addEventListener('click', () => { nativeShareReport(); });
 
-    $('#btnSuccessFile').addEventListener('click', () => {
+    const btnSuccessFilingGuide = $('#btnSuccessFilingGuide');
 
-      if (!lastReportId) return;
+    if (btnSuccessFilingGuide) {
 
-      closeModal('success');
+      btnSuccessFilingGuide.addEventListener('click', () => {
 
-      resetReportForm();
+        if (!lastReportId) return;
 
-      flushPendingPwaNudge();
+        closeModal('success');
 
-      openEscalationModal(lastReportId);
+        resetReportForm();
 
-    });
+        flushPendingPwaNudge();
+
+        openEscalationModal(lastReportId);
+
+      });
+
+    }
 
     $('#btnSuccessClose').addEventListener('click', () => {
 
@@ -23808,10 +23875,6 @@ document.addEventListener('DOMContentLoaded', function () {
         map.setView([currentLat, currentLng], 15);
 
         showToast(t('toast.recentered'), 'info', 2000);
-
-      } else {
-
-        maybeRequestLocation(true);
 
       }
 
@@ -24943,17 +25006,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const fileBtn = $('#btnSuccessFile');
+    const fileBtn = $('#btnSuccessFilingGuide');
 
     if (fileBtn) {
 
-      const corp = getCityCorpChannels(getUserCity());
+      const label = fileBtn.querySelector('span');
 
-      fileBtn.textContent = getUserCity() === 'mumbai'
-
-        ? t('success.file')
-
-        : t('success.fileCorp').replace('{corp}', corp.name || getCityLabel());
+      if (label) label.textContent = t('success.filingGuide');
 
     }
 
@@ -25024,6 +25083,18 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSuccessNativeButton();
 
     const reportCount = getUserReports().length;
+
+    const officialBody = $('#successOfficialBody');
+
+    const officialBlock = $('#successOfficialBlock');
+
+    const officialToggle = $('#btnSuccessOfficialToggle');
+
+    if (officialBody) officialBody.classList.add('hidden');
+
+    if (officialBlock) officialBlock.classList.add('official-channels-block--collapsed');
+
+    if (officialToggle) officialToggle.setAttribute('aria-expanded', 'false');
 
     openModal('success');
 

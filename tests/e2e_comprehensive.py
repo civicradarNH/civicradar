@@ -1138,7 +1138,7 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C16', 'Citizen', 'Report submit success modal', await is_open(page, 'successOverlay'), f'rid={rid}')
 
-    s.record('C17', 'Citizen', 'Success modal WhatsApp + File BMC', await page.is_visible('#btnShareWhatsApp') and await page.is_visible('#btnSuccessFile'))
+    s.record('C17', 'Citizen', 'Success modal WhatsApp + official filing', await page.is_visible('#btnShareWhatsApp') and await page.is_visible('#btnSuccessOfficialToggle'))
 
     native_share_ok = await page.evaluate("""() => {
 
@@ -4513,7 +4513,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v134" in sw_src
+        "civicradar-v137" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4893,7 +4893,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('CL02', 'Celebration', 'WhatsApp share btn present', await page.is_visible('#btnShareWhatsApp'))
 
-    s.record('CL03', 'Celebration', 'File BMC btn present', await page.is_visible('#btnSuccessFile'))
+    s.record('CL03', 'Celebration', 'Official filing accordion present', await page.is_visible('#btnSuccessOfficialToggle'))
 
     s.record('CL04', 'Celebration', 'Success close btn present', await page.is_visible('#btnSuccessClose'))
 
@@ -7535,7 +7535,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v134" in sw_src
+        "civicradar-v137" in sw_src
 
         and "'/index.html'" not in sw_src
 

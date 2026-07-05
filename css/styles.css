@@ -2413,13 +2413,40 @@ body.pwa-nudge-visible #btnCamera {
 }
 
 .success-optional-block {
-  margin-top: 8px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--border);
 }
 
-.success-optional-block .modal__subtitle {
-  font-size: 0.875rem;
+.success-optional-block .official-channels-block {
+  margin: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.success-official-hint {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.success-filing-guide {
+  margin-top: 12px;
+}
+
+.success-optional-block .accountability-clock {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.map-recenter.hidden {
+  display: none;
+}
+
+.success-footer {
+  margin-top: 20px;
+  padding-top: 18px;
+  padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
 }
 
 .inquiry-option--muted {
@@ -3753,6 +3780,13 @@ body.persona-lead .ref-welcome { display: none; }
   margin-bottom: 20px;
 }
 .profile-details-card .form-group:last-child { margin-bottom: 6px; }
+
+.profile-location__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 14px;
+  color: var(--text);
+}
 
 .profile-card__greeting {
   font-size: 0.8125rem;
@@ -5988,7 +6022,10 @@ a,
 
 #reportStepConfirm .modal__sticky-footer--glass {
   margin: auto -24px -32px;
-  margin-top: 8px;
+  margin-top: 12px;
+  padding-top: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  gap: 10px;
 }
 
 .modal__sticky-footer--glass {

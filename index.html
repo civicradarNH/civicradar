@@ -151,7 +151,7 @@
 
   <button type="button" id="btnLocatePill" class="map-locate-pill hidden" data-i18n-aria="location.locateAria" aria-label="Turn on location">
     <i class="ph ph-map-pin"></i>
-    <span data-i18n="location.locate">Locate me</span>
+      <span data-i18n="location.locate">Turn on location</span>
   </button>
 
   <button type="button" id="btnRecenter" class="map-recenter" data-i18n-aria="aria.recenter" aria-label="Recenter map on your location">
@@ -414,7 +414,6 @@
         <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
       </div>
       <p class="success-tagline" id="successTagline" data-i18n="success.tagline">Report it — pinned on your ward map</p>
-      <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
       <div class="success-preview">
         <img id="successThumbnail" alt="Report preview" hidden>
       </div>
@@ -428,16 +427,14 @@
         </button>
       </div>
       <div class="success-optional-block">
-        <p class="modal__subtitle" data-i18n="success.subtitle">Optional: file with your corporation to start the official clock.</p>
-        <button type="button" class="btn btn--outline btn--full" id="btnSuccessFile">
-          <i class="ph ph-megaphone"></i> <span data-i18n="success.file">File with BMC (optional)</span>
-        </button>
         <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
           <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
-            <span data-i18n="success.alsoOfficial">Also file officially</span>
+            <span data-i18n="success.alsoOfficial">Official filing (optional)</span>
             <i class="ph ph-caret-down" aria-hidden="true"></i>
           </button>
           <div class="official-channels-block__body hidden" id="successOfficialBody">
+            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Free with {corp} — starts the official complaint clock.</p>
+            <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
             <p class="field-hint" data-i18n="official.subtitle">Gov apps — CivicRadar does not file for you.</p>
             <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
             <p class="official-sources-all">
@@ -448,10 +445,15 @@
                 <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
               </button>
             </div>
+            <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
+              <i class="ph ph-list-checks"></i> <span data-i18n="success.filingGuide">Filing guide &amp; complaint copy</span>
+            </button>
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn--primary btn--full" id="btnSuccessClose" data-i18n="success.done">Back to map</button>
+      <div class="success-footer">
+        <button type="button" class="btn btn--primary btn--full" id="btnSuccessClose" data-i18n="success.done">Back to map</button>
+      </div>
     </div>
   </div>
 
@@ -522,7 +524,7 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
-      <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, or file with your corporation separately.</p>
+      <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — volunteer, pledge supplies, rally neighbours.</p>
 
       <div class="community-summary" id="communitySummary">
         <div class="impact-stats" id="communityImpactStats" aria-live="polite">
@@ -799,6 +801,30 @@
         <p class="profile-card__hint" id="profilePointsHint">50 pts per report · +200 when volunteer hours verified</p>
       </div>
 
+      <div class="profile-location profile-details-card" id="profileLocationBlock">
+        <h3 class="profile-location__title" data-i18n="profile.section.location">City, ward &amp; neighbourhood</h3>
+        <div class="profile-ward form-group">
+          <label for="profileCity" data-i18n="onboard.city">Your city</label>
+          <select id="profileCity" aria-describedby="profileWardHint">
+            <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+            <option value="pune" data-i18n-option="city.pune">Pune</option>
+            <option value="thane" data-i18n-option="city.thane">Thane</option>
+          </select>
+          <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
+          <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+          <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
+        </div>
+
+        <div class="profile-society form-group">
+          <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
+          <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
+          <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
+        </div>
+      </div>
+
       <div class="cr-section" id="profileDetailsSection">
         <button type="button" class="cr-section__toggle" id="btnProfileDetailsToggle" aria-expanded="true" aria-controls="profileDetailsBody">
           <span><i class="ph ph-user-circle" aria-hidden="true"></i> <span data-i18n="profile.section.details">Your details</span></span>
@@ -809,27 +835,6 @@
             <div class="profile-name form-group">
               <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
               <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
-            </div>
-
-            <div class="profile-ward form-group">
-              <label for="profileCity" data-i18n="onboard.city">Your city</label>
-              <select id="profileCity" aria-describedby="profileWardHint">
-                <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-                <option value="pune" data-i18n-option="city.pune">Pune</option>
-                <option value="thane" data-i18n-option="city.thane">Thane</option>
-              </select>
-              <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
-              <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-              <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
-              <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
-              <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
-            </div>
-
-            <div class="profile-society form-group">
-              <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-              <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
-              <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
-              <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
             </div>
           </div>
         </div>
