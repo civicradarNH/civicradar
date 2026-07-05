@@ -5,7 +5,7 @@
   "start_url": "/civicradar/",
   "scope": "/civicradar/",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "background_color": "#6366f1",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
   "categories": ["social", "utilities", "news"],

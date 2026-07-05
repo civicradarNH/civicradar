@@ -138,6 +138,12 @@
     margPlayStoreSearchUrl: 'https://play.google.com/store/search?q=MyBMC+MARG&c=apps',
   },
 
+  store: {
+    packageId: 'in.civicradar.app',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=in.civicradar.app',
+    appStoreUrl: '',
+  },
+
   legal: {
     privacyUrl: 'privacy.html',
     termsUrl: 'terms.html',

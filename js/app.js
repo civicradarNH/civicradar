@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v139';
+  const CIVIC_APP_VERSION = 'v141';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -180,6 +180,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const FIRST_REPORT_DONE_KEY = 'civicradar_first_report_done';
 
   const PWA_NUDGE_KEY = 'civicradar_pwa_nudge_dismissed';
+
+  const APP_OPEN_BANNER_KEY = 'civicradar_app_open_banner_dismiss';
 
   const SEASON_HOOK_DISMISS_KEY = 'civicradar_season_hook_dismissed';
 
@@ -1166,8 +1168,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderOfficialChannelButtons($('#communityOfficialChannels'), city, hazard, null, { context: 'community' });
 
-    renderOfficialChannelButtons($('#profileOfficialChannels'), city, hazard, null, { context: 'profile' });
-
     const hintEl = $('#escOfficialCategoryHint');
 
     if (hintEl && report) {
@@ -1234,7 +1234,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const channelId = btn.dataset.officialChannel;
 
-    const wrap = btn.closest('[data-official-report-id], #successOfficialChannels, #communityOfficialChannels, #profileOfficialChannels, #escOfficialExtras');
+    const wrap = btn.closest('[data-official-report-id], #successOfficialChannels, #communityOfficialChannels, #escOfficialExtras');
 
     let reportId = wrap && wrap.dataset.officialReportId;
 
@@ -2376,7 +2376,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: {n} reports from your neighbours so far. Add yours.',
 
-      'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Profile.',
+      'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Community → Resources.',
 
       'persona.pendingFiled': '{n} open on your ward map — check Profile for anything overdue.',
 
@@ -2599,6 +2599,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'Add to home screen',
 
       'pwa.nudgeDismiss': 'Not now',
+
+      'appOpen.title': 'Open in CivicRadar app',
+
+      'appOpen.body': 'View this report in the app — faster map & alerts.',
+
+      'appOpen.open': 'Open in app',
+
+      'appOpen.getApp': 'Get the app',
+
+      'appOpen.dismiss': 'Dismiss banner',
 
       'community.challengeShare': 'Challenge a friend — share ward map',
 
@@ -4061,6 +4071,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'Pledge support',
 
+      'profile.officialHint': 'Verified BMC, PMC, and TMC apps and portals — CivicRadar does not file on your behalf. Open from Community → Resources.',
+
+      'profile.officialLink': 'Open official channels in Community',
+
       'badge.admin': 'BMC Admin',
 
       'badge.coord': 'Coordinator hub',
@@ -4613,7 +4627,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: अब तक आपके पड़ोसियों की {n} रिपोर्ट। आप भी जोड़ें।',
 
-      'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Profile से आधिकारिक तौर पर दर्ज करें।',
+      'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Community → Resources से आधिकारिक तौर पर दर्ज करें।',
 
       'persona.pendingFiled': '{n} आपके वार्ड नक्शे पर खुले हैं — कुछ अतिदेय हो तो Profile देखें।',
 
@@ -4838,6 +4852,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'होम स्क्रीन पर जोड़ें',
 
       'pwa.nudgeDismiss': 'अभी नहीं',
+
+      'appOpen.title': 'CivicRadar ऐप में खोलें',
+
+      'appOpen.body': 'रिपोर्ट ऐप में देखें — तेज़ नक्शा और अलर्ट।',
+
+      'appOpen.open': 'ऐप में खोलें',
+
+      'appOpen.getApp': 'ऐप डाउनलोड',
+
+      'appOpen.dismiss': 'बैनर बंद करें',
 
       'community.challengeShare': 'दोस्त को चुनौती — वार्ड नक्शा साझा करें',
 
@@ -6298,6 +6322,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'दान करें',
 
+      'profile.officialHint': 'सत्यापित BMC, PMC और TMC ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। Community → Resources से खोलें।',
+
+      'profile.officialLink': 'Community में आधिकारिक चैनल खोलें',
+
       'badge.admin': 'BMC एडमिन',
 
       'badge.coord': 'समन्वयक हब',
@@ -6849,7 +6877,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: आतापर्यंत तुमच्या शेजाऱ्यांच्या {n} तक्रारी. तुमचीही जोडा.',
 
-      'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Profile मधून अधिकृतपणे नोंदवा.',
+      'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Community → Resources मधून अधिकृतपणे नोंदवा.',
 
       'persona.pendingFiled': '{n} तुमच्या वॉर्ड नकाशावर उघडे आहेत — मुदत उलटली असेल तर Profile पहा.',
 
@@ -7074,6 +7102,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'होम स्क्रीनवर जोडा',
 
       'pwa.nudgeDismiss': 'आत्ता नाही',
+
+      'appOpen.title': 'CivicRadar अ‍ॅपमध्ये उघडा',
+
+      'appOpen.body': 'अहवाल अ‍ॅपमध्ये पहा — जलद नकाशा आणि अलर्ट.',
+
+      'appOpen.open': 'अ‍ॅपमध्ये उघडा',
+
+      'appOpen.getApp': 'अ‍ॅप मिळवा',
+
+      'appOpen.dismiss': 'बॅनर बंद करा',
 
       'community.challengeShare': 'मित्राला आव्हान — वॉर्ड नकाशा शेअर करा',
 
@@ -8534,6 +8572,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'देणगी द्या',
 
+      'profile.officialHint': 'सत्यापित BMC, PMC आणि TMC अॅप्स आणि पोर्टल — CivicRadar तुमच्या वतीने दाखल करत नाही. Community → Resources मधून उघडा.',
+
+      'profile.officialLink': 'Community मध्ये अधिकृत चॅनेल उघडा',
+
       'badge.admin': 'BMC Admin',
 
       'badge.coord': 'समन्वयक हब',
@@ -9085,7 +9127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.wardImpact': '{ward}: અત્યાર સુધી તમારા પડોશીઓની {n} ફરિયાદ. તમારી પણ ઉમેરો.',
 
-      'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Profile માંથી અધિકૃત રીતે નોંધાવો.',
+      'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Community → Resources માંથી અધિકૃત રીતે નોંધાવો.',
 
       'persona.pendingFiled': '{n} તમારા વોર્ડ નકશા પર ખુલ્લા છે — મુદત વીતી હોય તો Profile જુઓ.',
 
@@ -9310,6 +9352,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'હોમ સ્ક્રીન પર ઉમેરો',
 
       'pwa.nudgeDismiss': 'હમણાં નહીં',
+
+      'appOpen.title': 'CivicRadar એપમાં ખોલો',
+
+      'appOpen.body': 'રિપોર્ટ એપમાં જુઓ — ઝડપી નકશો અને અલર્ટ.',
+
+      'appOpen.open': 'એપમાં ખોલો',
+
+      'appOpen.getApp': 'એપ મેળવો',
+
+      'appOpen.dismiss': 'બેનર બંધ કરો',
 
       'community.challengeShare': 'મિત્રને પડકાર — વોર્ડ નકશો શેર કરો',
 
@@ -10770,7 +10822,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.pledgesEmptyAction': 'પ્રતિજ્ઞા કરો',
 
-      'badge.admin': 'BMC Admin',
+      'profile.officialHint': 'ચકાસેલ BMC, PMC અને TMC એપ્સ અને પોર્ટલ — CivicRadar તમારી તરફથી દાખલ કરતું નથી. Community → Resources માંથી ખોલો.',
+
+      'profile.officialLink': 'Community માં અધિકૃત ચેનલ ખોલો',
 
       'badge.coord': 'સંકલક હબ',
 
@@ -17009,6 +17063,9 @@ document.addEventListener('DOMContentLoaded', function () {
   window.__civicShowShareWinModal = showShareWinModal;
   window.__civicGenerateSuccessCardCanvas = generateSuccessCardCanvas;
   window.__civicGetReportShareLocation = getReportShareLocation;
+  window.__civicReportDeepLink = reportDeepLink;
+  window.__civicGetShareAppUrl = getShareAppUrl;
+  window.__civicBuildAndroidIntentUrl = buildAndroidIntentUrl;
   window.__civicResetNbhAlertLimits = function () {
     localStorage.removeItem(NBH_ALERT_LOG_KEY);
     localStorage.removeItem(NBH_ALERT_RESOLVE_DIGEST_KEY);
@@ -20966,6 +21023,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.closeCommunityModal = function () { closeModal('community'); };
 
+  window.openCommunityResources = function () {
+    window.openCommunityModal();
+    setCollapsibleSectionOpen('communityResourcesSection', 'communityResourcesBody', 'btnCommunityResourcesToggle', true);
+  };
+
   window.openPledgeModal = function () {
 
     if (!requireCommunityConsent()) return;
@@ -21406,7 +21468,213 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return window.matchMedia('(display-mode: standalone)').matches
 
-      || window.navigator.standalone === true;
+      || window.matchMedia('(display-mode: fullscreen)').matches
+
+      || window.matchMedia('(display-mode: minimal-ui)').matches
+
+      || window.navigator.standalone === true
+
+      || (document.referrer || '').startsWith('android-app://');
+
+  }
+
+
+
+  function getStoreConfig() {
+
+    return (window.CIVICRADAR_CONFIG || {}).store || {};
+
+  }
+
+
+
+  function getPlayStoreUrl() {
+
+    const cfg = getStoreConfig();
+
+    return cfg.playStoreUrl || 'https://play.google.com/store/apps/details?id=in.civicradar.app';
+
+  }
+
+
+
+  function getAndroidPackageId() {
+
+    const cfg = getStoreConfig();
+
+    return cfg.packageId || 'in.civicradar.app';
+
+  }
+
+
+
+  function isAndroidMobile() {
+
+    return /Android/i.test(navigator.userAgent || '');
+
+  }
+
+
+
+  function getCanonicalPageUrl() {
+
+    const pub = getPublicAppUrl();
+
+    const base = pub || `${location.origin}${location.pathname.replace(/index\.html$/, '')}`;
+
+    const normalized = base.replace(/\?.*$/, '').replace(/index\.html$/, '').replace(/\/?$/, '/');
+
+    return `${normalized}${location.search || ''}`;
+
+  }
+
+
+
+  function buildAndroidIntentUrl(httpsUrl) {
+
+    const fallback = encodeURIComponent(getPlayStoreUrl());
+
+    try {
+
+      const u = new URL(httpsUrl);
+
+      const hostPath = `${u.host}${u.pathname}${u.search}${u.hash}`;
+
+      return `intent://${hostPath}#Intent;scheme=https;package=${getAndroidPackageId()};S.browser_fallback_url=${fallback};end`;
+
+    } catch {
+
+      return httpsUrl;
+
+    }
+
+  }
+
+
+
+  function openInNativeApp(httpsUrl) {
+
+    const url = httpsUrl || getCanonicalPageUrl();
+
+    if (isAndroidMobile()) {
+
+      window.location.href = buildAndroidIntentUrl(url);
+
+      return;
+
+    }
+
+    const appStore = getStoreConfig().appStoreUrl;
+
+    if (isAppleMobile() && appStore) {
+
+      window.open(appStore, '_blank');
+
+      return;
+
+    }
+
+    triggerPwaInstall();
+
+  }
+
+
+
+  function shouldShowAppOpenBanner() {
+
+    if (isStandalonePwa()) return false;
+
+    try {
+
+      if (sessionStorage.getItem(APP_OPEN_BANNER_KEY)) return false;
+
+    } catch { /* ignore */ }
+
+    const params = new URLSearchParams(location.search);
+
+    return !!(params.get('report') || params.get('ref'));
+
+  }
+
+
+
+  function showAppOpenBanner() {
+
+    if (!shouldShowAppOpenBanner()) return;
+
+    const el = $('#appOpenBanner');
+
+    if (!el) return;
+
+    el.classList.remove('hidden');
+
+    document.body.classList.add('app-open-banner-visible');
+
+    if (window.CivicAnalytics) {
+
+      CivicAnalytics.track('app_open_banner_shown', {
+
+        hasReport: !!new URLSearchParams(location.search).get('report'),
+
+      });
+
+    }
+
+  }
+
+
+
+  function dismissAppOpenBanner() {
+
+    const el = $('#appOpenBanner');
+
+    if (el) el.classList.add('hidden');
+
+    document.body.classList.remove('app-open-banner-visible');
+
+    try { sessionStorage.setItem(APP_OPEN_BANNER_KEY, '1'); } catch {}
+
+    if (window.CivicAnalytics) CivicAnalytics.track('app_open_banner_dismissed', {});
+
+  }
+
+
+
+  function setupAppOpenBanner() {
+
+    const openBtn = $('#btnAppOpenInApp');
+
+    const storeBtn = $('#btnAppOpenGetApp');
+
+    const dismissBtn = $('#btnAppOpenDismiss');
+
+    if (openBtn) {
+
+      openBtn.addEventListener('click', () => {
+
+        openInNativeApp(getCanonicalPageUrl());
+
+        if (window.CivicAnalytics) CivicAnalytics.track('app_open_banner_open_click', {});
+
+      });
+
+    }
+
+    if (storeBtn) {
+
+      storeBtn.addEventListener('click', () => {
+
+        window.open(getPlayStoreUrl(), '_blank');
+
+        if (window.CivicAnalytics) CivicAnalytics.track('app_open_banner_store_click', {});
+
+      });
+
+    }
+
+    if (dismissBtn) dismissBtn.addEventListener('click', () => dismissAppOpenBanner());
+
+    showAppOpenBanner();
 
   }
 
@@ -21508,6 +21776,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Init ---------- */
 
+  function hideAppLaunch() {
+
+    const el = document.getElementById('appLaunch');
+
+    if (!el || el.classList.contains('app-launch--done')) return;
+
+    el.classList.add('app-launch--done');
+
+    document.body.classList.remove('app-booting');
+
+    const remove = () => { if (el.parentNode) el.remove(); };
+
+    el.addEventListener('transitionend', remove, { once: true });
+
+    setTimeout(remove, 400);
+
+  }
+
+
+
   initMap();
 
   initSearchableComboboxes();
@@ -21563,6 +21851,8 @@ document.addEventListener('DOMContentLoaded', function () {
   registerServiceWorker();
 
   setupInstallPrompt();
+
+  setupAppOpenBanner();
 
   warnIfShareUrlNotProduction();
 
@@ -21716,6 +22006,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       showMapError();
 
+      hideAppLaunch();
+
       return;
 
     }
@@ -21780,6 +22072,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (window.CivicAnalytics) CivicAnalytics.perfEnd('map_init_duration');
 
+      hideAppLaunch();
+
     } catch (err) {
 
       console.error('Map failed to initialise:', err);
@@ -21793,6 +22087,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       showMapError();
+
+      hideAppLaunch();
 
     }
 
@@ -22959,6 +23255,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnProfileFeedback = $('#btnProfileFeedback');
 
     if (btnProfileFeedback) btnProfileFeedback.addEventListener('click', () => window.openFeedbackModal());
+
+    const btnProfileOfficialChannels = $('#btnProfileOfficialChannels');
+
+    if (btnProfileOfficialChannels) {
+      btnProfileOfficialChannels.addEventListener('click', () => {
+        closeModal('profile');
+        window.openCommunityResources();
+      });
+    }
 
     const btnAboutFeedback = $('#btnAboutFeedback');
 
@@ -26581,15 +26886,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ward = getWardShortName(user.ward) || getCityLabel();
 
-    const link = location.origin + location.pathname;
-
     return t('cert.caption')
 
       .replace('{level}', levelTitle)
 
       .replace('{ward}', ward)
 
-      .replace('{link}', link);
+      .replace('{link}', shareAppLink('cert'));
 
   }
 
@@ -27447,6 +27750,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     updatePageMetaForReport(report);
+
+    showAppOpenBanner();
 
     if (!map) return;
 
@@ -33097,7 +33402,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const btn = $('#btnEmptyVolunteer');
 
-      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openVolunteerModal(); });
+      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openCommunityModal(); window.openVolunteerModal(); });
 
       return;
 

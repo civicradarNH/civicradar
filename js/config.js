@@ -208,6 +208,14 @@
     },
   },
 
+  /* ----- CivicRadar Android TWA (Play Store) — WhatsApp deep links open in app when verified ----- */
+  store: {
+    packageId: 'in.civicradar.app',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=in.civicradar.app',
+    // **[YOU]** Set when iOS App Store listing exists (Smart App Banner + install CTA)
+    appStoreUrl: '',
+  },
+
   /* ----- Legal & store compliance ----- */
   legal: {
     privacyUrl: 'privacy.html',

@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-05 13:21:08
+**Run:** 2026-07-05 13:42:44
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 35 | **Pass:** 35 | **Fail:** 0
+**Total:** 37 | **Pass:** 37 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -77,8 +77,10 @@
 ## Summary by category
 
 - **Citizen:** 20 pass / 0 fail
+- **DeepLink:** 1 pass / 0 fail
 - **PWA:** 1 pass / 0 fail
 - **Report:** 10 pass / 0 fail
+- **Store:** 1 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
 
 ## Failures
@@ -114,6 +116,7 @@ _None_
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
+| DL01 | DeepLink | WhatsApp share URL is canonical HTTPS ?report= | PASS |  |
 | C19b | Citizen | PWA nudge after first report | PASS |  |
 | C19 | Citizen | Map shows markers after report | PASS | markers=3 |
 | RP01 | Report | Four live hazard tiles at launch | PASS | live=4 |
@@ -127,6 +130,7 @@ _None_
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
 | SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| ST01 | Store | assetlinks.json served for TWA | PASS |  |
 | IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
 | IOS02 | iOS | viewport-fit=cover | PASS |  |
 | IOS03 | iOS | apple-touch-icon linked | PASS |  |

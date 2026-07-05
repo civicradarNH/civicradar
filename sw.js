@@ -1,16 +1,23 @@
-const CACHE = 'civicradar-v139';
+const CACHE = 'civicradar-v141';
 // Runtime config — never precache; always fetch fresh (see network-first below).
 const NETWORK_FIRST = ['/js/config.js'];
 // Relative paths resolve against the SW scope, so precache works both at the
 // site root (local/dev/tests) and on a GitHub Pages project subpath (/civicradar/).
+// Shell-first order: HTML + critical CSS + icons before heavy JS bundles.
 const ASSETS = [
-  './',
   'index.html',
+  './',
+  'css/styles.css',
+  'assets/icon-192.png',
+  'assets/icon-512.png',
+  'assets/icon-maskable-512.png',
+  'assets/apple-touch-icon.png',
+  'assets/favicon-32.png',
+  'manifest.json',
   'privacy.html',
   'terms.html',
   'delete-account.html',
   'official-sources.html',
-  'css/styles.css',
   'css/legal.css',
   'js/analytics.js',
   'js/image-moderation.js',
@@ -23,14 +30,8 @@ const ASSETS = [
   'js/app.js',
   'js/demo-tour.js',
   'js/demo-tour-v2.js',
-  'manifest.json',
   'robots.txt',
   'assets/og-civicradar.svg',
-  'assets/icon-192.png',
-  'assets/icon-512.png',
-  'assets/icon-maskable-512.png',
-  'assets/apple-touch-icon.png',
-  'assets/favicon-32.png',
 ];
 
 self.addEventListener('install', (e) => {

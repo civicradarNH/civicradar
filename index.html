@@ -9,7 +9,7 @@
   <!-- iOS / Android home-screen install metadata -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CivicRadar">
   <!-- Open Graph defaults (static). Crawlers do not run JS — per-report ward/thumbnail OG needs SSR or an edge function at scale. -->
   <meta property="og:type" content="website">
@@ -17,37 +17,52 @@
   <meta property="og:locale" content="en_IN">
   <meta property="og:title" content="CivicRadar — Mumbai, Pune &amp; Thane Ward Hazard Map">
   <meta property="og:description" content="Free community app for ward hazard reporting in Mumbai, Pune, and Thane. Report garbage, potholes, streetlights &amp; stagnant water. Rally neighbours, track fixes — English, Hindi, Marathi, Gujarati.">
-  <meta property="og:image" content="assets/og-civicradar.svg">
+  <meta property="og:url" content="https://civicradarnh.github.io/civicradar/">
+  <meta property="og:image" content="https://civicradarnh.github.io/civicradar/assets/og-civicradar.svg">
   <meta property="og:image:alt" content="CivicRadar — ward hazard map for Mumbai, Pune, Thane">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="CivicRadar — Mumbai, Pune &amp; Thane Ward Hazard Map">
   <meta name="twitter:description" content="Report garbage, potholes, streetlights &amp; stagnant water in your ward. Rally neighbours, track fixes — free PWA · #CivicRadar">
-  <meta name="twitter:image" content="assets/og-civicradar.svg">
+  <meta name="twitter:image" content="https://civicradarnh.github.io/civicradar/assets/og-civicradar.svg">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 
-  <!-- Google Fonts -->
+  <!-- Critical splash CSS — inline so first paint is branded indigo, not white -->
+  <style id="critical-splash">
+    html{background:#6366f1;color-scheme:light}
+    body{margin:0;min-height:100%;background:#6366f1}
+    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#6366f1 0%,#4f46e5 55%,#4338ca 100%);transition:opacity .32s ease,visibility .32s ease}
+    .app-launch__mark{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center}
+    .app-launch__logo{width:88px;height:88px;border-radius:22px;box-shadow:0 10px 36px rgba(15,23,42,.28);animation:launch-logo-pulse 1.6s ease-in-out infinite}
+    .app-launch__ring{position:absolute;inset:-6px;border:2px solid rgba(34,211,238,.45);border-radius:28px;animation:launch-ring 1.6s ease-out infinite}
+    .app-launch--done{opacity:0;visibility:hidden;pointer-events:none}
+    body.app-booting .header,body.app-booting #personaBar,body.app-booting #main,body.app-booting .bottom-nav,body.app-booting .fab,body.app-booting #roleBadges{visibility:hidden}
+    @keyframes launch-logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    @keyframes launch-ring{0%{transform:scale(.92);opacity:.85}100%{transform:scale(1.18);opacity:0}}
+    @media (prefers-reduced-motion:reduce){.app-launch__logo,.app-launch__ring{animation:none}}
+  </style>
+
+  <!-- Google Fonts (non-blocking — splash uses system stack until loaded) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Phosphor Icons -->
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"></noscript>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-  <!-- Supabase client (shared backend; optional — see js/config.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Cloudflare Turnstile (Supabase captcha — site key in js/config.js) -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <link rel="stylesheet" href="css/styles.css">
   <title>CivicRadar</title>
 </head>
-<body>
+<body class="app-booting">
+
+  <div id="appLaunch" class="app-launch" role="status" aria-live="polite" aria-label="Loading CivicRadar">
+    <div class="app-launch__mark">
+      <span class="app-launch__ring" aria-hidden="true"></span>
+      <img class="app-launch__logo" src="assets/icon-192.png" width="88" height="88" alt="">
+    </div>
+  </div>
 
   <a href="#main" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
@@ -157,6 +172,17 @@
   <button type="button" id="btnRecenter" class="map-recenter" data-i18n-aria="aria.recenter" aria-label="Recenter map on your location">
     <i class="ph ph-crosshair"></i>
   </button>
+
+  <!-- Deep-link landing: open in Play Store TWA or install (mobile browser only) -->
+  <div id="appOpenBanner" class="app-open-banner hidden" role="region" aria-labelledby="appOpenBannerTitle">
+    <button type="button" class="app-open-banner__dismiss" id="btnAppOpenDismiss" data-i18n-aria="appOpen.dismiss" aria-label="Dismiss">&times;</button>
+    <p class="app-open-banner__title" id="appOpenBannerTitle" data-i18n="appOpen.title">Open in CivicRadar app</p>
+    <p class="app-open-banner__body" data-i18n="appOpen.body">View this report in the app for a faster map experience.</p>
+    <div class="app-open-banner__actions">
+      <button type="button" class="app-open-banner__btn app-open-banner__btn--primary" id="btnAppOpenInApp" data-i18n="appOpen.open">Open in app</button>
+      <button type="button" class="app-open-banner__btn app-open-banner__btn--store" id="btnAppOpenGetApp" data-i18n="appOpen.getApp">Get the app</button>
+    </div>
+  </div>
 
   <!-- Referral welcome (shown once when arriving via ?ref= from a neighbour) -->
   <div id="referralWelcome" class="ref-welcome hidden" role="region" aria-labelledby="refWelcomeTitle">
@@ -915,13 +941,12 @@
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileAccountBody">
-          <div class="official-channels-block" id="profileOfficialBlock">
+          <div class="profile-resource-link" id="profileOfficialLinkBlock">
             <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
-            <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
-            <div class="esc-channels official-channels" id="profileOfficialChannels" data-official-context="profile"></div>
-            <p class="official-sources-all">
-              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
-            </p>
+            <p class="field-hint" data-i18n="profile.officialHint">Verified BMC, PMC, and TMC apps and portals — open from Community → Resources.</p>
+            <button type="button" class="btn btn--outline btn--full" id="btnProfileOfficialChannels">
+              <i class="ph ph-users-three" aria-hidden="true"></i> <span data-i18n="profile.officialLink">Open in Community</span>
+            </button>
           </div>
 
           <div class="profile-footer">
@@ -1841,6 +1866,12 @@
   </div>
 
   <div id="civic-turnstile" class="turnstile-offscreen" aria-hidden="true"></div>
+
+  <!-- Deferred from head — splash paints before these download/parse -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <script src="js/config.js"></script>
   <script src="js/analytics.js"></script>

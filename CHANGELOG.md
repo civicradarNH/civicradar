@@ -9,6 +9,15 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Changed
+- **Information architecture consolidation (v142)** — keep 3-tab nav (Map | Community | Profile); official grievance channels live only in Community → Resources (Profile links there); volunteer empty-state signup routes via Community; persona bar copy updated. Cache v142.
+
+### Added
+- **WhatsApp deep links + TWA App Links (v141)** — share URLs stay canonical HTTPS (`publicUrl/?report={id}`) for Android App Link interception; `.well-known/assetlinks.json` for `in.civicradar.app`; mobile-browser landing strip with **Open in app** (Android intent + Play Store fallback) and **Get the app** when `?report=` or `?ref=`; absolute OG/Twitter image URLs for WhatsApp previews; certificate share link uses `publicUrl`; E2E DL01 + ST01. Cache v141. **Founder:** paste Play Console app-signing SHA-256 into `assetlinks.json` and verify Digital Asset Links in Play Console (see `LAUNCH_CHECKLIST.md`).
+
+### Changed
+- **PWA launch splash (v140)** — branded indigo splash with icon + cyan radar ring (inline critical CSS for instant first paint); `manifest.json` `background_color` aligned to `#6366f1`; Google Fonts non-blocking; Leaflet/Phosphor/Supabase moved to body end so splash paints before heavy scripts; loader dismissed as soon as the Leaflet map shell is ready (not after backend/async work); SW precache reordered shell-first. Cache v140.
+
 ### Fixed
 - **PWA session resume (v139)** — industry-standard installed-app lifecycle: **cold start** (process killed / tab discarded / fresh session marker) and **BFCache restore** reset to map home without `location.reload()`; **warm resume** (&lt;2 min hidden) preserves mid-report state; **stale** (≥30 min hidden) resets navigation; report camera flow still guarded. `manifest.json` intentionally omits `launch_handler` to avoid forced reload — JS reset handles home. Cache v139.
 - **PWA session resume (v138)** — reopening the installed app after backgrounding no longer leaves Community/Profile (or other stacked modals) open from the last visit; standalone/TWA resets to map home after 5+ minutes hidden or on BFCache restore (`pageshow` persisted), while preserving in-flight report camera return. Cache v138.

@@ -62,10 +62,12 @@ SMOKE_TEST_IDS = frozenset({
     # Citizen core + onboarding combobox
     'C01', 'C02', 'C03', 'C04', 'C04b', 'C05', 'C06', 'C06b', 'C07', 'C08', 'C08b', 'C09',
     'C14', 'C15', 'C16', 'C17', 'C18', 'C19',
+    'DL01',
     # Report flow basics + draft restore
     'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22',
     # PWA cache version + iOS meta/quick checks
     'SW06', 'IOS01', 'IOS02', 'IOS03', 'IOS04',
+    'ST01',
 })
 
 SMOKE_MODE = False
@@ -1157,6 +1159,23 @@ async def run_citizen_tests(s: Suite, browser):
     s.record('C17b', 'Citizen', 'Native share button feature-detect gating', native_share_ok)
 
     s.record('C18', 'Citizen', 'App origin for deep links', (await page.evaluate('() => location.origin')).startswith('http'))
+
+    dl01 = await page.evaluate("""() => {
+      if (window.CIVICRADAR_CONFIG) {
+        window.CIVICRADAR_CONFIG.publicUrl = 'https://civicradarnh.github.io/civicradar';
+      }
+      const link = window.__civicReportDeepLink('e2e-share-id', 'report');
+      try {
+        const u = new URL(link);
+        return u.hostname === 'civicradarnh.github.io'
+          && u.pathname.startsWith('/civicradar')
+          && u.searchParams.get('report') === 'e2e-share-id'
+          && u.searchParams.get('ref') === 'report'
+          && link.startsWith('https://');
+      } catch (e) { return false; }
+    }""")
+
+    s.record('DL01', 'DeepLink', 'WhatsApp share URL is canonical HTTPS ?report=', dl01)
 
 
 
@@ -4546,7 +4565,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v139" in sw_src
+        "civicradar-v141" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4557,6 +4576,34 @@ async def run_extended_scenarios(s: Suite, browser):
     )
 
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
+
+    st01 = False
+
+    try:
+
+        asset_url = f'{BASE}.well-known/assetlinks.json'
+
+        with urllib.request.urlopen(asset_url, timeout=5) as resp:
+
+            payload = json.loads(resp.read().decode('utf-8'))
+
+        st01 = (
+
+            isinstance(payload, list)
+
+            and payload
+
+            and payload[0].get('target', {}).get('package_name') == 'in.civicradar.app'
+
+            and 'delegate_permission/common.handle_all_urls' in (payload[0].get('relation') or [])
+
+        )
+
+    except Exception:
+
+        st01 = False
+
+    s.record('ST01', 'Store', 'assetlinks.json served for TWA', st01)
 
     s.record('IOS01', 'iOS', 'apple-mobile-web-app-capable meta', await page.evaluate(
 
@@ -7165,7 +7212,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
               if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
 
-              const el = document.getElementById('profileOfficialChannels');
+              const el = document.getElementById('communityOfficialChannels');
 
               const channels = typeof getOfficialChannelsForCity === 'function'
 
@@ -7179,7 +7226,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
         )
 
-        s.record(test_id, 'OfficialChannels', f'Profile panel renders for {city}', panel_ok)
+        s.record(test_id, 'OfficialChannels', f'Community Resources panel renders for {city}', panel_ok)
 
 
 
@@ -7568,7 +7615,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v139" in sw_src
+        "civicradar-v141" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7579,6 +7626,34 @@ async def run_smoke_extended_tests(s: Suite, browser):
     )
 
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
+
+    st01 = False
+
+    try:
+
+        asset_url = f'{BASE}.well-known/assetlinks.json'
+
+        with urllib.request.urlopen(asset_url, timeout=5) as resp:
+
+            payload = json.loads(resp.read().decode('utf-8'))
+
+        st01 = (
+
+            isinstance(payload, list)
+
+            and payload
+
+            and payload[0].get('target', {}).get('package_name') == 'in.civicradar.app'
+
+            and 'delegate_permission/common.handle_all_urls' in (payload[0].get('relation') or [])
+
+        )
+
+    except Exception:
+
+        st01 = False
+
+    s.record('ST01', 'Store', 'assetlinks.json served for TWA', st01)
 
     s.record('IOS01', 'iOS', 'apple-mobile-web-app-capable meta', await page.evaluate(
 

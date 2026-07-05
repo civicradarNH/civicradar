@@ -23,6 +23,7 @@
 | P1 | Replace emoji PWA icons with 512×512 PNG | `manifest.json` | ✅ PNG assets exist; manifest + `sw.js` reference `assets/icon-*.png` |
 | P1 | Issue real NGO invite code in Supabase | `ngo_codes` table | ⬜ **Founder only** — demo codes in config for local only |
 | P1 | Phone test (camera, GPS, WhatsApp, PWA) | Real Android device | ⬜ **Founder only** |
+| P1 | **Digital Asset Links** for TWA (`in.civicradar.app`) | `.well-known/assetlinks.json` + Play Console | ⬜ **Founder only** — see § Android TWA below |
 
 ### Already done (agent / prior session)
 
@@ -206,11 +207,28 @@ Application code is at **v120** with Turnstile captcha wired for Supabase auth. 
 | Repo | Git initialized at `C:\civicradar` — push via GitHub Desktop |
 | Pages source | Settings → Pages → **GitHub Actions** |
 | Live URL | `https://civicradarnh.github.io/civicradar/` |
-| Files deployed | `index.html`, legal pages, `manifest.json`, `sw.js`, `robots.txt`, `css/`, `js/`, `assets/` |
+| Files deployed | `index.html`, legal pages, `manifest.json`, `sw.js`, `robots.txt`, `.well-known/assetlinks.json`, `css/`, `js/`, `assets/` |
 | CI gate | Smoke E2E on push; **Skip E2E** available via workflow_dispatch |
 | After deploy | Hard refresh; SW `civicradar-v126` |
 
 See **LAUNCH-WALKTHROUGH.md** for step-by-step commands.
+
+---
+
+## Android TWA — Digital Asset Links (WhatsApp → app)
+
+WhatsApp shares use HTTPS links like `https://civicradarnh.github.io/civicradar/?report=…`. When the Play Store TWA (`in.civicradar.app`) is installed and verified, Android opens those links in the app instead of Chrome.
+
+| Step | Action |
+|------|--------|
+| 1 | Deploy this repo (includes `.well-known/assetlinks.json` at `/civicradar/.well-known/assetlinks.json`) |
+| 2 | Play Console → **Release** → **Setup** → **App signing** → copy **SHA-256 certificate fingerprint** (App signing key) |
+| 3 | Replace `REPLACE_WITH_PLAY_CONSOLE_APP_SIGNING_SHA256` in `.well-known/assetlinks.json` with that fingerprint (uppercase, colon-separated) |
+| 4 | Redeploy via GitHub Pages |
+| 5 | Play Console → **Deep links** → verify domain / asset links (or use [Statement List Generator and Tester](https://developers.google.com/digital-asset-links/tools/generator)) |
+| 6 | On a real Android phone: share a report on WhatsApp → tap link → should open CivicRadar TWA (not browser). Without app installed → browser shows **Open in app** / **Get the app** strip |
+
+**Note:** GitHub project Pages serves asset links under the `/civicradar/` subpath. Bubblewrap/TWA `host` must match `civicradarnh.github.io` with start URL `/civicradar/`. If Play Console verification fails at the domain root, consider a custom domain later.
 
 ---
 
