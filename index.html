@@ -1306,6 +1306,20 @@
         <div class="impact-stat"><span id="aboutWards">0</span><label data-i18n="impact.wards">Wards</label></div>
       </div>
 
+      <!--
+        Guardrails — keep out of the app, in every language and every future edit:
+          - No full surname (first name + last initial only, as below)
+          - No school name
+          - No age (and don't pair name + age together even indirectly)
+          - No personal photo of the developer
+          - No personal contact info — "Contact us" below routes to the
+            operator inbox (FOUNDER.email / getFounderContactEmail()), not a
+            minor's inbox. Do not add a direct mailto/social link here.
+        "Nihira H." stays unchanged in every language — it's a proper noun.
+      -->
+      <h3 class="section-title" data-i18n="about.creditTitle">About the project</h3>
+      <p class="about-story" data-i18n="about.creditNote">CivicRadar is an independent student project — designed and built from scratch by Nihira H., a student developer, to help neighbours in Mumbai, Pune, and Thane report and track local civic hazards. It is not affiliated with, endorsed by, or operated on behalf of any municipal authority. For project, press, or partnership enquiries, please use the contact below.</p>
+
       <button type="button" class="btn btn--outline btn--full" id="btnBecomeCoordinator">
         <i class="ph ph-users-three"></i> <span data-i18n="about.becomeCoord">Become a ward or neighbourhood coordinator</span>
       </button>
