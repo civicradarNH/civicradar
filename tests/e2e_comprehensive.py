@@ -63,7 +63,7 @@ SMOKE_TEST_IDS = frozenset({
     'C01', 'C02', 'C03', 'C04', 'C04b', 'C05', 'C06', 'C06b', 'C07', 'C08', 'C08b', 'C09',
     'C14', 'C15', 'C16', 'C17', 'C18', 'C19',
     # Report flow basics + draft restore
-    'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21',
+    'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22',
     # PWA cache version + iOS meta/quick checks
     'SW06', 'IOS01', 'IOS02', 'IOS03', 'IOS04',
 })
@@ -2953,7 +2953,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
           window.openReportModal(false);
 
-          return document.querySelectorAll("#reportFlowSteps .flow-step").length >= 3;
+          return document.querySelectorAll("#reportFlowSteps .flow-step").length >= 2;
 
         }"""
 
@@ -2991,9 +2991,14 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP02', 'Report', 'No coming-soon locks on launch hazards', soon_count == 0, f'soon={soon_count}')
 
-    s.record('RP03', 'Report', 'Stagnant-water preselected', await page.evaluate(
+    s.record('RP03', 'Report', 'Contextual hazard preselected', await page.evaluate(
 
-        '() => document.getElementById("hazardType").value === "stagnant-water"'
+        """() => {
+          localStorage.removeItem('civicradar_last_hazard');
+          window.openReportModal(false);
+          const expected = window.getContextualDefaultHazard();
+          return document.getElementById('hazardType').value === expected;
+        }"""
 
     ))
 
@@ -3156,6 +3161,21 @@ async def run_extended_scenarios(s: Suite, browser):
     await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
 
     s.record('RP05', 'Report', 'Capture photo button present', await page.is_visible('#btnTakePhoto'))
+
+    capture_step = await page.evaluate(
+
+        """() => {
+          localStorage.removeItem('civicradar_last_hazard');
+          window.openReportModal(true);
+          const capture = document.getElementById('reportStepCapture');
+          const active = document.querySelector('#reportFlowSteps .flow-step[data-step=capture]');
+          return !!(capture && !capture.hidden && capture.classList.contains('report-step--active')
+            && active && active.classList.contains('is-active'));
+        }"""
+
+    )
+
+    s.record('RP22', 'Report', 'Photo-first opens capture step', capture_step)
 
     await page.evaluate('() => document.querySelector("[data-close=report]")?.click()')
 
@@ -3522,25 +3542,25 @@ async def run_extended_scenarios(s: Suite, browser):
 
           const overlay = document.getElementById('reportOverlay');
 
-          const submitStep = document.querySelector('#reportFlowSteps .flow-step[data-step=submit]');
+          const confirmStep = document.querySelector('#reportFlowSteps .flow-step[data-step=confirm]');
 
           const canvas = document.getElementById('imageCanvas');
 
-          const confirmGroup = document.getElementById('photoConfirmGroup');
+          const confirmPanel = document.getElementById('reportStepConfirm');
 
           return !!(overlay && overlay.classList.contains('open')
 
             && canvas && canvas.classList.contains('visible')
 
-            && submitStep && submitStep.classList.contains('is-active')
+            && confirmStep && confirmStep.classList.contains('is-active')
 
-            && confirmGroup && !confirmGroup.classList.contains('hidden'));
+            && confirmPanel && !confirmPanel.hidden);
 
         }"""
 
     )
 
-    s.record('RP11', 'Report', 'Photo accept stays on submit step', photo_ready)
+    s.record('RP11', 'Report', 'Photo accept stays on confirm step', photo_ready)
 
     # Simulated native-camera popstate + Map nav ghost tap during picker must not dismiss report.
 
@@ -4439,7 +4459,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v128" in sw_src
+        "civicradar-v129" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7339,9 +7359,14 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     s.record('RP02', 'Report', 'No coming-soon locks on launch hazards', soon_count == 0, f'soon={soon_count}')
 
-    s.record('RP03', 'Report', 'Stagnant-water preselected', await page.evaluate(
+    s.record('RP03', 'Report', 'Contextual hazard preselected', await page.evaluate(
 
-        '() => document.getElementById("hazardType").value === "stagnant-water"'
+        """() => {
+          localStorage.removeItem('civicradar_last_hazard');
+          window.openReportModal(false);
+          const expected = window.getContextualDefaultHazard();
+          return document.getElementById('hazardType').value === expected;
+        }"""
 
     ))
 
@@ -7356,6 +7381,21 @@ async def run_smoke_extended_tests(s: Suite, browser):
     await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
 
     s.record('RP05', 'Report', 'Capture photo button present', await page.is_visible('#btnTakePhoto'))
+
+    capture_step = await page.evaluate(
+
+        """() => {
+          localStorage.removeItem('civicradar_last_hazard');
+          window.openReportModal(true);
+          const capture = document.getElementById('reportStepCapture');
+          const active = document.querySelector('#reportFlowSteps .flow-step[data-step=capture]');
+          return !!(capture && !capture.hidden && capture.classList.contains('report-step--active')
+            && active && active.classList.contains('is-active'));
+        }"""
+
+    )
+
+    s.record('RP22', 'Report', 'Photo-first opens capture step', capture_step)
 
     await page.evaluate('() => document.querySelector("[data-close=report]")?.click()')
 
@@ -7433,7 +7473,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v128" in sw_src
+        "civicradar-v129" in sw_src
 
         and "'/index.html'" not in sw_src
 

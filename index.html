@@ -334,50 +334,67 @@
     </div>
   </div>
 
-  <!-- Report Modal -->
+  <!-- Report Modal (photo-first: Capture → Confirm) -->
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="reportModal" role="dialog" aria-labelledby="reportTitle">
+    <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="report" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="reportTitle" data-i18n="report.title">Report a Hazard</h2>
-      <div class="flow-steps" id="reportFlowSteps" role="list" aria-label="Report progress">
-        <span class="flow-step is-active" role="listitem" data-step="photo" data-i18n="report.step.photo">Photo</span>
-        <span class="flow-step" role="listitem" data-step="details" data-i18n="report.step.details">Details</span>
-        <span class="flow-step" role="listitem" data-step="submit" data-i18n="report.step.submit">Submit</span>
+      <div class="flow-steps flow-steps--compact" id="reportFlowSteps" role="list" aria-label="Report progress">
+        <span class="flow-step is-active" role="listitem" data-step="capture" data-i18n="report.step.capture">Capture</span>
+        <span class="flow-step" role="listitem" data-step="confirm" data-i18n="report.step.confirm">Confirm</span>
       </div>
-      <div class="form-group hazard-picker-group">
-        <label id="hazardTypeLabel" data-i18n="report.hazardType">Hazard Type</label>
-        <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
-        <input type="hidden" id="hazardType" value="stagnant-water">
-        <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
-        <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
-      </div>
-      <div class="form-group report-photo-section" id="reportPhotoSection">
-        <label data-i18n="report.photoEvidence">Photo Evidence</label>
-        <p class="photo-guidelines" id="photoGuidelines" role="status" aria-live="polite">Photograph the actual stagnant water — not faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
-        <div class="camera-area">
-          <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
-          <button type="button" class="btn btn--outline" id="btnTakePhoto">
-            <i class="ph ph-camera"></i> <span data-i18n="report.capture">Capture Photo</span>
-          </button>
-          <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo safety…</p>
-          <canvas id="imageCanvas" width="640" height="480"></canvas>
+      <input type="hidden" id="hazardType" value="stagnant-water">
+      <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+
+      <!-- Screen A: camera capture (minimal chrome) -->
+      <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
+        <div class="form-group report-photo-section" id="reportPhotoSection">
+          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Photograph the actual hazard — not faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
+          <div class="camera-area camera-area--capture">
+            <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
+              <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
+            </button>
+            <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
+          </div>
         </div>
       </div>
-      <div class="form-group photo-confirm hidden" id="photoConfirmGroup">
-        <p class="photo-confirm__hint" id="photoConfirmHint" data-i18n="report.photoHint">Photo shows the hazard? Tap Submit — or retake if not.</p>
-        <button type="button" class="btn btn--ghost btn--sm photo-confirm__retake" id="btnRetakePhoto">
-          <i class="ph ph-camera"></i> <span data-i18n="report.retake">Retake photo</span>
-        </button>
-      </div>
-      <div class="form-group">
-        <label for="reportNotes" data-i18n="report.notes">Notes (optional)</label>
-        <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Describe the hazard…" data-i18n-ph="report.notesPh"></textarea>
-      </div>
-      <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--primary btn--full" id="btnSubmitReport">
-          <span class="btn__label" data-i18n="report.submit">Submit Report</span>
-        </button>
+
+      <!-- Screen B: confirm — photo hero, hazard chips, ward, notes, submit -->
+      <div class="report-step" id="reportStepConfirm" data-step="confirm" hidden>
+        <div class="report-photo-hero" id="reportPhotoHero">
+          <canvas id="imageCanvas" width="640" height="480"></canvas>
+        </div>
+        <div class="form-group hazard-picker-group hazard-picker-group--compact">
+          <label id="hazardTypeLabel" class="visually-hidden" data-i18n="report.hazardType">Hazard Type</label>
+          <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
+          <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
+          <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
+        </div>
+        <div class="report-ward-chip" id="reportWardChip" role="status">
+          <i class="ph ph-map-pin" aria-hidden="true"></i>
+          <span id="reportWardChipLabel"></span>
+        </div>
+        <div class="report-notes-accordion" id="reportNotesAccordion">
+          <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
+            <span data-i18n="report.addNote">+ Add note</span>
+          </button>
+          <div class="report-notes-body hidden" id="reportNotesBody">
+            <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Notes (optional)</label>
+            <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Add a note — lane, building, landmark…" data-i18n-ph="report.notesPh"></textarea>
+          </div>
+        </div>
+        <div class="photo-confirm hidden" id="photoConfirmGroup" aria-hidden="true">
+          <p class="photo-confirm__hint" id="photoConfirmHint" data-i18n="report.photoHint">Photo shows the hazard? Tap Submit — or retake if not.</p>
+        </div>
+        <div class="modal__sticky-footer modal__sticky-footer--glass">
+          <button type="button" class="btn btn--primary btn--full" id="btnSubmitReport">
+            <span class="btn__label" data-i18n="report.submit">Submit report</span>
+          </button>
+          <button type="button" class="btn btn--ghost btn--full report-retake-btn" id="btnRetakePhoto">
+            <i class="ph ph-camera"></i> <span data-i18n="report.retake">Retake photo</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -5757,3 +5757,228 @@ a,
   min-height: var(--touch-min) !important;
   line-height: var(--touch-min) !important;
 }
+
+/* ============================================================
+   Photo-first report flow (v129)
+   ============================================================ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.report-step:not(.report-step--active) {
+  display: none;
+}
+
+.report-step--active {
+  display: block;
+}
+
+#reportModal.report-modal--capture .hazard-picker-group,
+#reportModal.report-modal--capture #reportStepConfirm {
+  display: none !important;
+}
+
+#reportModal.report-modal--capture {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+#reportModal.report-modal--confirm #reportStepCapture {
+  display: none !important;
+}
+
+#reportModal.report-modal--confirm {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+#reportStepConfirm.report-step--active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+}
+
+.report-photo-hero {
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #1e293b;
+  max-height: min(28vh, 200px);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-photo-hero #imageCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(28vh, 200px);
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.report-photo-hero #imageCanvas.visible {
+  display: block;
+}
+
+.hazard-picker-group--compact {
+  margin-bottom: 0;
+}
+
+.hazard-picker-group--compact .hazard-picker__hint {
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+}
+
+.hazard-picker-group--compact .hazard-tile {
+  min-height: 72px;
+  padding: 10px 8px;
+}
+
+.hazard-picker-group--compact .hazard-tile__example {
+  display: none;
+}
+
+.report-ward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  background: var(--primary-50);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.report-ward-chip i {
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+.report-notes-accordion {
+  margin-top: 2px;
+}
+
+.report-notes-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  padding-left: 0;
+  font-weight: 600;
+}
+
+.report-notes-body textarea {
+  margin-top: 4px;
+}
+
+.camera-area--capture {
+  padding: 8px 0 4px;
+}
+
+.btn--capture {
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+.report-capture-hint {
+  font-size: 0.8125rem;
+  margin-bottom: 12px;
+}
+
+#reportStepConfirm .modal__sticky-footer--glass {
+  margin: auto -24px -32px;
+  margin-top: 8px;
+}
+
+.modal__sticky-footer--glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.82);
+  border-top-color: rgba(226, 232, 240, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal__sticky-footer--glass {
+    background: rgba(15, 23, 42, 0.85);
+    border-top-color: rgba(51, 65, 85, 0.6);
+  }
+
+  .report-ward-chip {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.28);
+  }
+}
+
+.report-retake-btn {
+  margin-top: 8px;
+}
+
+.btn.is-success {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  pointer-events: none;
+}
+
+.btn.is-success .btn__label {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.btn.is-success .ph-check {
+  font-size: 1.35rem;
+}
+
+@keyframes marker-pin-drop {
+  0% {
+    transform: translateY(-22px) scale(0.6);
+    opacity: 0;
+  }
+  65% {
+    transform: translateY(3px) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.marker-pin-drop {
+  animation: marker-pin-drop 0.48s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+  transform-origin: center bottom;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-pin-drop {
+    animation: none;
+  }
+}
+
+@media (max-height: 700px) {
+  .report-photo-hero,
+  .report-photo-hero #imageCanvas {
+    max-height: min(22vh, 160px);
+  }
+
+  .hazard-picker-group--compact .hazard-tile {
+    min-height: 64px;
+    padding: 8px 6px;
+  }
+
+  .hazard-picker-group--compact .hazard-tile i {
+    font-size: 1.25rem;
+  }
+}

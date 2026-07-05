@@ -18,13 +18,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v128';
+  const CIVIC_APP_VERSION = 'v129';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
   const PENDING_NGO_CODE_KEY = 'civicradar_pending_ngo_code';
 
   const REPORT_DRAFT_KEY = 'civicradar_report_draft';
+
+  const LAST_HAZARD_KEY = 'civicradar_last_hazard';
 
   const REPORT_DRAFT_TTL_MS = 30 * 60 * 1000;
 
@@ -2334,11 +2336,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.title': 'Report a hazard',
 
+      'report.step.capture': 'Capture',
+
+      'report.step.confirm': 'Confirm',
+
       'report.step.photo': 'Photo',
 
       'report.step.details': 'Details',
 
       'report.step.submit': 'Submit',
+
+      'report.addNote': '+ Add note',
+
+      'report.wardChip': '{ward}',
+
+      'report.wardGps': 'GPS location on submit',
 
       'report.hazardType': 'Hazard Type',
 
@@ -4523,11 +4535,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.title': 'खतरे की रिपोर्ट करें',
 
+      'report.step.capture': 'फ़ोटो',
+
+      'report.step.confirm': 'पुष्टि',
+
       'report.step.photo': 'फ़ोटो',
 
       'report.step.details': 'विवरण',
 
       'report.step.submit': 'भेजें',
+
+      'report.addNote': '+ टिप्पणी जोड़ें',
+
+      'report.wardChip': '{ward}',
+
+      'report.wardGps': 'भेजते समय GPS स्थान',
 
       'report.hazardType': 'खतरे का प्रकार',
 
@@ -6711,11 +6733,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.title': 'धोक्याची तक्रार करा',
 
+      'report.step.capture': 'फोटो',
+
+      'report.step.confirm': 'पुष्टी',
+
       'report.step.photo': 'फोटो',
 
       'report.step.details': 'तपशील',
 
       'report.step.submit': 'पाठवा',
+
+      'report.addNote': '+ टीप जोडा',
+
+      'report.wardChip': '{ward}',
+
+      'report.wardGps': 'पाठवताना GPS स्थान',
 
       'report.hazardType': 'धोक्याचा प्रकार',
 
@@ -8899,11 +8931,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.title': 'જોખમની ફરિયાદ કરો',
 
+      'report.step.capture': 'ફોટો',
+
+      'report.step.confirm': 'પુષ્ટિ',
+
       'report.step.photo': 'ફોટો',
 
       'report.step.details': 'વિગતો',
 
       'report.step.submit': 'મોકલો',
+
+      'report.addNote': '+ નોંધ ઉમેરો',
+
+      'report.wardChip': '{ward}',
+
+      'report.wardGps': 'મોકલતી વખતે GPS સ્થાન',
 
       'report.hazardType': 'જોખમનો પ્રકાર',
 
@@ -17742,6 +17784,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function isLiveHazardKey(key) {
+
+    return HAZARD_CATEGORIES.some((c) => c.key === key && c.live);
+
+  }
+
+
+
+  function getContextualDefaultHazard() {
+
+    try {
+
+      const last = localStorage.getItem(LAST_HAZARD_KEY);
+
+      if (last && isLiveHazardKey(last)) return last;
+
+    } catch { /* ignore */ }
+
+    if (getSeasonalHook()) return 'stagnant-water';
+
+    const now = new Date();
+
+    const mins = now.getHours() * 60 + now.getMinutes();
+
+    if (mins >= 18 * 60 + 30) return 'streetlight';
+
+    return 'potholes';
+
+  }
+
+
+
+  function normalizeReportStep(step) {
+
+    if (step === 'photo') return 'capture';
+
+    if (step === 'submit' || step === 'details') return 'confirm';
+
+    return step === 'confirm' || step === 'capture' ? step : 'capture';
+
+  }
+
+
+
   function getInterest() {
 
     try { return JSON.parse(localStorage.getItem(INTEREST_KEY)) || {}; }
@@ -18496,33 +18582,115 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateReportFlowSteps(step) {
 
+    const s = normalizeReportStep(step);
+
+    const modal = $('#reportModal');
+
+    if (modal) {
+
+      modal.classList.toggle('report-modal--capture', s === 'capture');
+
+      modal.classList.toggle('report-modal--confirm', s === 'confirm');
+
+    }
+
     $$('#reportFlowSteps .flow-step').forEach((el) => {
 
-      const s = el.dataset.step;
+      const ds = el.dataset.step;
 
       el.classList.remove('is-active', 'is-done');
 
       el.removeAttribute('aria-current');
 
-      if (s === step) {
+      if (ds === s) {
 
         el.classList.add('is-active');
 
         el.setAttribute('aria-current', 'step');
 
-      } else if (
-
-        (step === 'details' && s === 'photo') ||
-
-        (step === 'submit' && (s === 'photo' || s === 'details'))
-
-      ) {
+      } else if (s === 'confirm' && ds === 'capture') {
 
         el.classList.add('is-done');
 
       }
 
     });
+
+    $$('#reportModal .report-step').forEach((panel) => {
+
+      const active = panel.dataset.step === s;
+
+      panel.classList.toggle('report-step--active', active);
+
+      panel.hidden = !active;
+
+    });
+
+  }
+
+
+
+  function updateReportWardChip() {
+
+    const label = $('#reportWardChipLabel');
+
+    if (!label) return;
+
+    const text = user.ward
+
+      ? t('report.wardChip').replace('{ward}', getWardShortName(user.ward))
+
+      : t('report.wardGps');
+
+    label.textContent = text;
+
+  }
+
+
+
+  function collapseReportNotesIfEmpty() {
+
+    const notes = $('#reportNotes');
+
+    const body = $('#reportNotesBody');
+
+    const toggle = $('#btnReportNotesToggle');
+
+    if (!notes || !body || !toggle) return;
+
+    const hasText = !!(notes.value && notes.value.trim());
+
+    body.classList.toggle('hidden', !hasText);
+
+    toggle.classList.toggle('hidden', hasText);
+
+    toggle.setAttribute('aria-expanded', hasText ? 'true' : 'false');
+
+  }
+
+
+
+  function setReportNotesExpanded(expanded) {
+
+    const body = $('#reportNotesBody');
+
+    const toggle = $('#btnReportNotesToggle');
+
+    if (!body || !toggle) return;
+
+    body.classList.toggle('hidden', !expanded);
+
+    toggle.classList.toggle('hidden', expanded);
+
+    toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+    if (expanded) {
+
+      const notesEl = $('#reportNotes');
+
+      requestAnimationFrame(() => { notesEl?.focus(); });
+
+    }
 
   }
 
@@ -19863,9 +20031,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const domDraft = modalOpen ? {
 
-      hazardType: $('#hazardType')?.value || prev.hazardType || 'stagnant-water',
+      hazardType: $('#hazardType')?.value || prev.hazardType || getContextualDefaultHazard(),
 
-      step: hasReportPhotoPreview() ? 'submit' : (prev.step || 'photo'),
+      step: hasReportPhotoPreview() ? 'confirm' : normalizeReportStep(prev.step || 'capture'),
 
       notes: ($('#reportNotes')?.value ?? prev.notes ?? ''),
 
@@ -19873,9 +20041,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     writeReportDraft({
 
-      hazardType: prev.hazardType || 'stagnant-water',
+      hazardType: prev.hazardType || getContextualDefaultHazard(),
 
-      step: prev.step || 'photo',
+      step: normalizeReportStep(prev.step || 'capture'),
 
       notes: prev.notes ?? '',
 
@@ -19937,7 +20105,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (tourState) endTour(false);
 
-    selectHazard(draft.hazardType || 'stagnant-water');
+    selectHazard(draft.hazardType || getContextualDefaultHazard());
 
     renderHazardPicker();
 
@@ -19949,15 +20117,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       showPhotoConfirm();
 
-      updateReportFlowSteps('submit');
+      updateReportFlowSteps('confirm');
 
-      touchReportDraft({ step: 'submit', awaitingPhoto: false });
+      touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
     } else {
 
       resetPhotoConfirm();
 
-      updateReportFlowSteps(draft.step || 'photo');
+      updateReportFlowSteps(normalizeReportStep(draft.step || 'capture'));
 
       if (draft.awaitingPhoto) {
 
@@ -20015,13 +20183,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       showPhotoConfirm();
 
-      updateReportFlowSteps('submit');
+      updateReportFlowSteps('confirm');
 
       finishReportPhotoFlow();
 
     } else if (reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
 
-      updateReportFlowSteps('photo');
+      updateReportFlowSteps('capture');
 
       if (!reportPhotoFlowActive && isReportDraftAwaitingPhoto()) reportPhotoFlowActive = true;
 
@@ -20071,7 +20239,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPhotoFlowActive = true;
 
-    touchReportDraft({ step: 'photo', awaitingPhoto: true });
+    touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
     pushReportPhotoHistory();
 
@@ -20085,17 +20253,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ensureReportModalOpen();
 
-    showPhotoConfirm();
+    selectHazard(getContextualDefaultHazard());
 
-    updateReportFlowSteps('submit');
+    renderHazardPicker();
+
+    showPhotoConfirm();
 
     requestAnimationFrame(() => {
 
-      const group = $('#photoConfirmGroup');
+      const grid = $('#hazardGrid');
 
-      if (group && !group.classList.contains('hidden')) {
+      if (grid && grid.querySelector('.hazard-tile')) {
 
-        group.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        grid.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
       }
 
@@ -20251,7 +20421,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hasPhoto = canvas.classList.contains('visible');
 
-    if (!hasPhoto) selectHazard('stagnant-water');
+    if (!hasPhoto) selectHazard(getContextualDefaultHazard());
 
     else {
 
@@ -20269,7 +20439,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else resetPhotoConfirm();
 
-    updateReportFlowSteps(hasPhoto ? 'submit' : 'photo');
+    updateReportFlowSteps(hasPhoto ? 'confirm' : 'capture');
 
     openModal('report');
 
@@ -20277,7 +20447,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       hazardType: $('#hazardType').value,
 
-      step: hasPhoto ? 'submit' : 'photo',
+      step: hasPhoto ? 'confirm' : 'capture',
 
       awaitingPhoto: openCamera && !hasPhoto,
 
@@ -20295,7 +20465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (overlays.report.classList.contains('open')) openReportPhotoPicker();
 
-        }, 320);
+        }, 50);
 
       });
 
@@ -20304,6 +20474,8 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   window.closeReportModal = function () { closeModal('report'); };
+
+  window.getContextualDefaultHazard = getContextualDefaultHazard;
 
   window.openSuccessModal = function () { openModal('success'); };
 
@@ -21629,7 +21801,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function createReportMarker(report) {
+  function createReportMarker(report, opts) {
 
     if (report.lat == null || report.lng == null) return null;
 
@@ -21678,6 +21850,24 @@ document.addEventListener('DOMContentLoaded', function () {
     reportMarkerMap.set(report.id, marker);
 
     reportMarkerLayer.addLayer(marker);
+
+    if (opts && opts.drop) {
+
+      requestAnimationFrame(() => {
+
+        const el = marker.getElement && marker.getElement();
+
+        if (el) {
+
+          el.classList.add('marker-pin-drop');
+
+          el.addEventListener('animationend', () => el.classList.remove('marker-pin-drop'), { once: true });
+
+        }
+
+      });
+
+    }
 
     return marker;
 
@@ -22645,7 +22835,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         lastReportDataUrl = null;
 
-        updateReportFlowSteps('photo');
+        updateReportFlowSteps('capture');
 
         openReportPhotoPicker();
 
@@ -22677,11 +22867,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wireCollapsibleSection('btnCommunityResourcesToggle', 'communityResourcesBody', 'communityResourcesSection');
 
+    const btnNotesToggle = $('#btnReportNotesToggle');
+
+    if (btnNotesToggle) {
+
+      btnNotesToggle.addEventListener('click', () => setReportNotesExpanded(true));
+
+    }
+
     $('#reportNotes').addEventListener('input', () => {
 
       if ($('#imageCanvas').classList.contains('visible')) {
 
-        updateReportFlowSteps('submit');
+        updateReportFlowSteps('confirm');
 
       }
 
@@ -23459,6 +23657,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (group) group.classList.add('hidden');
 
+    updateReportFlowSteps('capture');
+
+    collapseReportNotesIfEmpty();
+
   }
 
 
@@ -23468,6 +23670,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const group = $('#photoConfirmGroup');
 
     if (group) group.classList.remove('hidden');
+
+    updateReportWardChip();
+
+    collapseReportNotesIfEmpty();
+
+    updateReportFlowSteps('confirm');
 
   }
 
@@ -23495,9 +23703,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     resetPhotoConfirm();
 
-    updateReportFlowSteps('photo');
+    updateReportFlowSteps('capture');
 
-    touchReportDraft({ step: 'photo', awaitingPhoto: false });
+    touchReportDraft({ step: 'capture', awaitingPhoto: false });
 
     const msg = scanResult.i18nKey ? t(scanResult.i18nKey) : (scanResult.message || t('moderation.blocked.irrelevant'));
 
@@ -23603,7 +23811,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         finishReportPhotoFlow();
 
-        touchReportDraft({ step: 'submit', awaitingPhoto: false });
+        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
         advanceReportPhotoReady();
 
@@ -23639,7 +23847,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!submitBtn) return;
 
-    submitBtn.classList.remove('is-loading');
+    submitBtn.classList.remove('is-loading', 'is-success');
 
     submitBtn.disabled = false;
 
@@ -23648,6 +23856,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const label = submitBtn.querySelector('.btn__label');
 
     if (label) label.textContent = t('report.submit');
+
+  }
+
+
+
+  function morphSubmitButtonSuccess(btn) {
+
+    return new Promise((resolve) => {
+
+      if (!btn) { resolve(); return; }
+
+      btn.classList.remove('is-loading');
+
+      btn.disabled = true;
+
+      btn.classList.add('is-success');
+
+      const label = btn.querySelector('.btn__label');
+
+      if (label) label.innerHTML = '<i class="ph ph-check" aria-hidden="true"></i>';
+
+      setTimeout(resolve, 600);
+
+    });
 
   }
 
@@ -23941,35 +24173,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        createReportMarker(report);
+        createReportMarker(report, { drop: true });
+
+        if (map && report.lat != null && report.lng != null) {
+
+          map.setView([report.lat, report.lng], Math.max(map.getZoom(), 15), { animate: true });
+
+        }
 
         const weekBonus = awardWeekBonus();
 
         checkXpLevelUp(prevXp, getTotalCivicXp());
 
-        setButtonLoading(submitBtn, false);
+        try { localStorage.setItem(LAST_HAZARD_KEY, hazard); } catch {}
 
-        closeModal('report');
+        morphSubmitButtonSuccess(submitBtn).then(() => {
 
-        showSuccessModal(weekBonus);
+          closeModal('report');
 
-        maybeShowPwaNudge('report');
+          showSuccessModal(weekBonus);
 
-        updateProfileUI();
+          maybeShowPwaNudge('report');
 
-        updatePersonaUI();
+          updateProfileUI();
 
-        updateCommunitySubtitle();
+          updatePersonaUI();
 
-        renderWardChallenge();
+          updateCommunitySubtitle();
 
-        updateMapEmptyCta();
+          renderWardChallenge();
 
-        updateHomeHero();
+          updateMapEmptyCta();
 
-        renderLeaderboard('wards');
+          updateHomeHero();
 
-        renderLeaderboard('citizens');
+          renderLeaderboard('wards');
+
+          renderLeaderboard('citizens');
+
+        });
 
       },
 
@@ -24259,7 +24501,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     resetSubmitReportButton();
 
-    updateReportFlowSteps('photo');
+    updateReportFlowSteps('capture');
 
   }
 
