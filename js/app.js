@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v148';
+  const CIVIC_APP_VERSION = 'v149';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -760,23 +760,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       case 'pmc_wa':
 
-        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'pmccare.in' } : null;
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'webadmin.pmc.gov.in' } : null;
 
       case 'tmc_portal':
 
       case 'tmc_call':
 
-        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'thanecity.gov.in' } : null;
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'tmc.gov.in' } : null;
 
       case 'swachhata':
 
-        return sw.infoUrl ? { url: sw.infoUrl, label: 'sbm.gov.in' } : null;
+        return sw.infoUrl ? { url: sw.infoUrl, label: 'mohua.gov.in' } : null;
 
       case 'aaple_sarkar': {
 
         const url = corp.aapleSarkarUrl || aaple.portalUrl || BMC.aapleSarkar;
 
-        return url ? { url: url, label: 'grievances.maharashtra.gov.in' } : null;
+        return url ? { url: url, label: 'aaplesarkar.mahaonline.gov.in' } : null;
 
       }
 
@@ -28855,7 +28855,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Citizen report: ${link}`,
 
-        `Portal: https://grievances.maharashtra.gov.in/en`,
+        `Portal: https://aaplesarkar.mahaonline.gov.in/`,
 
       ].join('\n');
 
@@ -28907,7 +28907,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Issue: ${hazard} still unresolved after ${ESCALATION_DAYS.zonal}+ days.`,
 
-        `Please escalate through PMC CARE portal (pmccare.in) or WhatsApp 9689900002.`,
+        `Please escalate through PMC citizen services (webadmin.pmc.gov.in/citizen-services) or WhatsApp 9689900002.`,
 
         `CivicRadar: ${link}`,
 
@@ -28933,7 +28933,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Citizen report: ${link}`,
 
-        `Portal: https://grievances.maharashtra.gov.in/en`,
+        `Portal: https://aaplesarkar.mahaonline.gov.in/`,
 
       ].join('\n');
 
@@ -29065,7 +29065,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('esc.tmc.channelPortal'),
 
-        small: 'thanecity.gov.in',
+        small: 'tmc.gov.in',
 
         recommended: true,
 
@@ -29291,7 +29291,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('esc.pmc.channelPortal'),
 
-        small: 'pmccare.in',
+        small: 'webadmin.pmc.gov.in',
 
       });
 

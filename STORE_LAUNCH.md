@@ -136,9 +136,10 @@ Free Mumbai monsoon hazard map — report stagnant water, track BMC complaints, 
 
 ### What we fixed (paste in Play Console → Release notes)
 
-- Added a dedicated **Official Government Sources** page at `https://civicradarnh.github.io/civicradar/official-sources.html` with verified `.gov.in` links for BMC/MCGM, PMC, TMC, Aaple Sarkar, and Swachhata.
-- In-app: About modal section, Community/Profile official channel blocks, visible source URLs under each channel button, and links from Privacy Policy / Terms.
-- Prominent disclaimer: CivicRadar is **not** a government entity; community map is separate from official filing.
+- Replaced broken or non-.gov.in source URLs in `official-sources.html`, `js/config.js`, and store listing copy.
+- **Removed:** `pmccare.in` (non-.gov.in, unreachable from crawlers), `sbm.gov.in/sbmicc/ICT-platform` (404), `thanecity.gov.in` (connection failures), `grievances.maharashtra.gov.in` (intermittent/unreachable).
+- **Replaced with verified .gov.in links:** PMC `webadmin.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `aaplesarkar.mahaonline.gov.in`, Swachhata-MoHUA `mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
+- Official sources page now shows contact email and all .gov links in static HTML (no JS required).
 
 ### Play Console fields
 
@@ -173,15 +174,15 @@ Mumbai (MCGM/BMC):
 • Helpline: 1916
 
 Pune (PMC):
-• PMC CARE: https://pmccare.in/cep/home
+• PMC citizen services: https://webadmin.pmc.gov.in/citizen-services
 • Helpline: 1800 1030 222
 
 Thane (TMC):
-• TMC citizen portal: https://thanecity.gov.in/
+• TMC official website: https://tmc.gov.in/
 
 Maharashtra & national:
-• Aaple Sarkar grievances: https://grievances.maharashtra.gov.in/en
-• Swachhata-MoHUA: https://sbm.gov.in/sbmicc/ICT-platform
+• Aaple Sarkar grievances: https://aaplesarkar.mahaonline.gov.in/
+• Swachhata-MoHUA (MoHUA): https://mohua.gov.in/cms/swachh-bharat-mission-urban.php
 
 Privacy: https://civicradarnh.github.io/civicradar/privacy.html
 Terms: https://civicradarnh.github.io/civicradar/terms.html

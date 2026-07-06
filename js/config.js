@@ -129,8 +129,8 @@
       corpChannels: {
         name: 'PMC',
         fullName: 'Pune Municipal Corporation',
-        // PMC CARE portal — log and track grievances online (official citizen-services link)
-        grievanceUrl: 'https://pmccare.in/cep/home',
+        // PMC citizen services page — official .gov.in entry point for PMC CARE grievances
+        grievanceUrl: 'https://webadmin.pmc.gov.in/citizen-services',
         whatsapp: '919689900002',
         helpline: '18001030222',
         helplineDisplay: '1800 1030 222',
@@ -138,7 +138,7 @@
         playStoreUrl: 'https://play.google.com/store/apps/details?id=in.gov.pmc.pmccare',
         appStoreUrl: 'https://apps.apple.com/in/app/pmc-care/id1330880892',
         playStoreSearchUrl: 'https://play.google.com/store/search?q=PMC+CARE&c=apps',
-        aapleSarkarUrl: 'https://grievances.maharashtra.gov.in/en',
+        aapleSarkarUrl: 'https://aaplesarkar.mahaonline.gov.in/',
         aapleSarkarPlayStoreUrl: 'https://play.google.com/store/apps/details?id=com.aaplesarkar',
       },
     },
@@ -151,10 +151,10 @@
       corpChannels: {
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',
-        // TMC citizen portal — login → Online citizen services → File a complaint
-        grievanceUrl: 'https://thanecity.gov.in/',
-        // Maharashtra Aaple Sarkar (IGRS) — select TMC as local body when filing
-        aapleSarkarUrl: 'https://grievances.maharashtra.gov.in/en',
+        // TMC official website — online citizen services and complaint filing
+        grievanceUrl: 'https://tmc.gov.in/',
+        // Maharashtra Aaple Sarkar — select TMC as local body when filing
+        aapleSarkarUrl: 'https://aaplesarkar.mahaonline.gov.in/',
         aapleSarkarPlayStoreUrl: 'https://play.google.com/store/apps/details?id=com.aaplesarkar',
         helplines: ['02225331590', '02225331211'],
         helplineDisplay: '022-25331590 · 022-25331211',
@@ -187,13 +187,13 @@
       id: 'swachhata',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.ichangemycity.swachhbharat',
       appStoreUrl: 'https://apps.apple.com/in/app/swachhata-mohua/id1124033628',
-      infoUrl: 'https://sbm.gov.in/sbmicc/ICT-platform',
+      infoUrl: 'https://mohua.gov.in/cms/swachh-bharat-mission-urban.php',
       helpline: '1969',
     },
     aapleSarkar: {
       id: 'aaple_sarkar',
-      portalUrl: 'https://grievances.maharashtra.gov.in/en',
-      legacyPortalUrl: 'https://aaplesarkar.mahaonline.gov.in/',
+      portalUrl: 'https://aaplesarkar.mahaonline.gov.in/',
+      legacyPortalUrl: 'https://grievances.maharashtra.gov.in/en',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.aaplesarkar',
     },
     // Per-city channel order (city corp primary, Swachhata + Aaple Sarkar as cross-cutting).
