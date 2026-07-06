@@ -10,6 +10,7 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 ## [Unreleased]
 
 ### Added
+- **Community after-photo on resolve (v145)** — when a report is community-verified fixed, neighbours who confirmed see a toast with **Add photo** → camera → `set_resolution_image` RPC; reporters get the same optional prompt after the share-win modal; success opens share-win with before/after. Community-specific i18n en/hi/mr/gu (`fix.thanksAddPhoto`, `fix.addAfterPhoto`, `toast.fixPhotoAdded`). Cache v145.
 - **WhatsApp deep links + TWA App Links (v141)** — share URLs stay canonical HTTPS (`publicUrl/?report={id}`) for Android App Link interception; `.well-known/assetlinks.json` for `in.civicradar.app`; mobile-browser landing strip with **Open in app** (Android intent + Play Store fallback) and **Get the app** when `?report=` or `?ref=`; absolute OG/Twitter image URLs for WhatsApp previews; certificate share link uses `publicUrl`; E2E DL01 + ST01. Cache v141. **Founder:** paste Play Console app-signing SHA-256 into `assetlinks.json` and verify Digital Asset Links in Play Console (see `LAUNCH_CHECKLIST.md`).
 
 ### Changed
@@ -231,6 +232,12 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 ### Changed
 - **4-tab navigation (v143)** — Map | Community | Resources | Profile. Official grievance channels, volunteer/pledge entry points, and sponsored offers move to a dedicated Resources tab (pre–Play Store launch). Community focuses on ward stats, leaderboard, and social action. Profile links to Resources tab. Localized en/hi/mr/gu. Cache v143.
 
+## [v144] - 2026-07-05
+
+### Fixed
+- **Toast de-duplication (v144)** — `showToast()` skips stacking an identical non-interactive toast (same type + message) when one is already visible; interactive toasts with action buttons are unchanged. Cache v144.
+
 [v142]: https://github.com/civicradarnh/civicradar/compare/v141...v142
 [v143]: https://github.com/civicradarnh/civicradar/compare/v142...v143
-[Unreleased]: https://github.com/civicradarnh/civicradar/compare/v143...HEAD
+[v144]: https://github.com/civicradarnh/civicradar/compare/v143...v144
+[Unreleased]: https://github.com/civicradarnh/civicradar/compare/v144...HEAD

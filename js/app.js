@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v143';
+  const CIVIC_APP_VERSION = 'v145';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -397,6 +397,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let activeAdminReportId = null;
 
   let adminProofDataUrl = null;
+  // Community fix-photo capture: report id awaiting an optional after-photo.
+  let pendingFixPhotoReportId = null;
 
   let activeEscalationId = null;
 
@@ -3321,6 +3323,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'Optional: add an after photo from Profile.',
 
+      'fix.thanksConfirmed': 'Thanks! You marked this fixed for your neighbours.',
+
+      'fix.thanksAddPhoto': 'Thanks! Add a photo of the fix so neighbours can see?',
+
+      'fix.addAfterPhoto': 'Add a photo of the fix to show the before & after?',
+
+      'fix.addPhotoBtn': 'Add photo',
+
       'reminder.staleCheck': 'Spot near {ward} — still stagnant?',
 
       'reminder.stillThere': 'Still there',
@@ -3966,6 +3976,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoNewPledgeAction': 'Open hub',
 
       'toast.proofAdded': 'Proof photo added — tap confirm to resolve.',
+
+      'toast.fixPhotoAdded': 'After photo saved — neighbours can see the before & after!',
 
       'toast.resolveFail': 'Could not update report status.',
 
@@ -5582,6 +5594,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'वैकल्पिक: प्रोफ़ाइल से बाद की फोटो जोड़ें।',
 
+      'fix.thanksConfirmed': 'धन्यवाद! आपने इसे पड़ोसियों के लिए ठीक चिह्नित किया।',
+
+      'fix.thanksAddPhoto': 'धन्यवाद! ठीक हुई जगह की फोटो जोड़ें ताकि पड़ोसी देख सकें?',
+
+      'fix.addAfterPhoto': 'पहले और बाद की तस्वीर दिखाने के लिए ठीक हुई फोटो जोड़ें?',
+
+      'fix.addPhotoBtn': 'फोटो जोड़ें',
+
       'reminder.staleCheck': '{ward} के पास — क्या पानी अभी भी रुका है?',
 
       'reminder.stillThere': 'अभी भी है',
@@ -6225,6 +6245,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoNewPledgeAction': 'हब खोलें',
 
       'toast.proofAdded': 'प्रमाण फ़ोटो जोड़ी — पुष्टि के लिए फिर दबाएँ।',
+
+      'toast.fixPhotoAdded': 'बाद की फोटो सेव — पड़ोसी पहले और बाद देख सकते हैं!',
 
       'toast.resolveFail': 'स्थिति अपडेट नहीं हो सकी।',
 
@@ -7840,6 +7862,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'पर्यायी: प्रोफाइलमधून नंतरचा फोटो जोडा.',
 
+      'fix.thanksConfirmed': 'धन्यवाद! तुम्ही हे शेजाऱ्यांसाठी ठीक म्हणून चिन्हांकित केले.',
+
+      'fix.thanksAddPhoto': 'धन्यवाद! ठीक झालेल्या जागेचा फोटो जोडा जेणेकरून शेजारी पाहू शकतील?',
+
+      'fix.addAfterPhoto': 'आधी आणि नंतर दाखवण्यासाठी ठीक झालेल्या जागेचा फोटो जोडा?',
+
+      'fix.addPhotoBtn': 'फोटो जोडा',
+
       'reminder.staleCheck': '{ward} जवळ — अजूनही पाणी साचलेले आहे का?',
 
       'reminder.stillThere': 'अजून आहे',
@@ -8483,6 +8513,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoNewPledgeAction': 'हब उघडा',
 
       'toast.proofAdded': 'पुरावा फोटो जोडला — पुष्टीसाठी पुन्हा दाबा.',
+
+      'toast.fixPhotoAdded': 'नंतरचा फोटो जतन — शेजारी आधी आणि नंतर पाहू शकतात!',
 
       'toast.resolveFail': 'स्थिती अपडेट होऊ शकली नाही.',
 
@@ -10098,6 +10130,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.afterPhotoPrompt': 'વૈકલ્પિક: પ્રોફાઇલમાંથી પછીનો ફોટો ઉમેરો.',
 
+      'fix.thanksConfirmed': 'આભાર! તમે આ પડોશીઓ માટે ઠીક તરીકે ચિહ્નિત કર્યું.',
+
+      'fix.thanksAddPhoto': 'આભાર! ઠીક થયેલી જગ્યાનો ફોટો ઉમેરો જેથી પડોશીઓ જોઈ શકે?',
+
+      'fix.addAfterPhoto': 'પહેલાં અને પછી બતાવવા માટે ઠીક થયેલી જગ્યાનો ફોટો ઉમેરો?',
+
+      'fix.addPhotoBtn': 'ફોટો ઉમેરો',
+
       'reminder.staleCheck': '{ward} પાસે — હજુ પાણી ભરાયેલું છે?',
 
       'reminder.stillThere': 'હજુ છે',
@@ -10741,6 +10781,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoNewPledgeAction': 'હબ ખોલો',
 
       'toast.proofAdded': 'પુરાવા ફોટો ઉમેર્યો — પુષ્ટિ માટે ફરી દબાવો.',
+
+      'toast.fixPhotoAdded': 'પછીનો ફોટો સાચવ્યો — પડોશી પહેલાં અને પછી જોઈ શકે!',
 
       'toast.resolveFail': 'સ્થિતિ અપડેટ ન થઈ.',
 
@@ -17871,11 +17913,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!report.resolutionImage) {
 
-          setTimeout(() => showToast(t('fix.afterPhotoPrompt'), 'info', 4500), 1500);
+          setTimeout(() => showToast(t('fix.addAfterPhoto'), 'info', 6000, {
+            label: t('fix.addPhotoBtn'),
+            onClick: () => promptFixPhoto(reportId),
+          }), 1500);
 
         }
 
       }
+
+    } else if (report && !report.resolutionImage) {
+
+      // Neighbour who confirmed — standing at the fixed spot; prompt for after-photo.
+
+      showToast(t('fix.thanksAddPhoto'), 'success', 6000, {
+
+        label: t('fix.addPhotoBtn'),
+
+        onClick: () => promptFixPhoto(reportId),
+
+      });
+
+    } else {
+
+      showToast(t('fix.thanksConfirmed'), 'success', 4000);
 
     }
 
@@ -19503,9 +19564,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
 
+    // De-dupe: identical non-interactive toast already visible → don't stack.
+
+    if (!action) {
+
+      const key = `${type}::${message}`;
+
+      const existing = Array.from(container.children).find((el) => el.dataset && el.dataset.civicToastKey === key);
+
+      if (existing) return;
+
+    }
+
     const toast = document.createElement('div');
 
     toast.className = `toast toast--${type}`;
+
+
+
+    toast.dataset.civicToastKey = `${type}::${message}`;
 
 
 
@@ -30513,6 +30590,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
     e.target.value = '';
 
+  }
+
+
+
+  // Optional "after" photo from the neighbour who just confirmed a fix.
+  // Mirrors the admin proof pattern (same compress + moderation helpers) but
+  // writes to the resolved report's resolutionImage, which the before/after
+  // comparison and share card already render. Fully self-contained input.
+  async function handleFixPhotoCapture(e) {
+    const file = e.target.files && e.target.files[0];
+    const reportId = pendingFixPhotoReportId;
+    pendingFixPhotoReportId = null;
+    if (!file || !reportId) { e.target.value = ''; return; }
+    if (window.ImageModeration) {
+      const fileCheck = ImageModeration.validateFile(file, getModCfg());
+      if (!fileCheck.ok) {
+        const msg = fileCheck.i18nKey ? t(fileCheck.i18nKey) : (fileCheck.message || t('moderation.blocked.fileType'));
+        showToast(msg, 'error', 5000);
+        e.target.value = '';
+        return;
+      }
+    }
+    try {
+      const dataUrl = await compressImageFromFile(file);
+      if (window.ImageModeration && getModCfg().enabled) {
+        const scanCanvasEl = document.createElement('canvas');
+        const scanImg = new Image();
+        await new Promise((resolve, reject) => {
+          scanImg.onload = resolve;
+          scanImg.onerror = reject;
+          scanImg.src = dataUrl;
+        });
+        scanCanvasEl.width = scanImg.width;
+        scanCanvasEl.height = scanImg.height;
+        scanCanvasEl.getContext('2d').drawImage(scanImg, 0, 0);
+        const scan = await ImageModeration.scanCanvas(scanCanvasEl, getModCfg());
+        if (!scan.ok) {
+          const msg = scan.i18nKey ? t(scan.i18nKey) : (scan.message || t('moderation.blocked.irrelevant'));
+          showToast(msg, 'error', 5500);
+          e.target.value = '';
+          return;
+        }
+      }
+      const reports = loadReports();
+      const idx = reports.findIndex((r) => String(r.id) === String(reportId));
+      if (idx === -1) { e.target.value = ''; return; }
+      reports[idx].resolutionImage = dataUrl;
+      try { saveReports(reports); } catch { showToast(t('toast.saveFail'), 'error'); e.target.value = ''; return; }
+      const r = reports[idx];
+      if (Backend.enabled) {
+        Backend.updateReportResolution(
+          reportId, r.status, r.resolvedBy || 'community', r.resolvedAt || new Date().toISOString(),
+          dataUrl, r.resolutionSource || 'community_verified', r.communityVerifiedAt || ''
+        );
+      }
+      if (reportMarkerLayer) refreshReportMarkers();
+      showToast(t('toast.fixPhotoAdded'), 'success', 3000);
+      setTimeout(() => showShareWinModal(reportId, 'community'), 500);
+    } catch {
+      showToast(t('moderation.blocked.fileType'), 'error');
+    }
+    e.target.value = '';
+  }
+
+  // Opens the fix-photo picker (lazily creates its hidden input on first use).
+  function promptFixPhoto(reportId) {
+    pendingFixPhotoReportId = String(reportId);
+    let input = $('#fixPhotoInput');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      input.id = 'fixPhotoInput';
+      input.style.display = 'none';
+      input.addEventListener('change', handleFixPhotoCapture);
+      document.body.appendChild(input);
+    }
+    input.click();
   }
 
 
