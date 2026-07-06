@@ -25,6 +25,23 @@
   --hazard-pothole: #ea580c;
   --hazard-streetlight: #ca8a04;
 
+  /* Municipal corp accents — Resources official-channel cards */
+  --corp-bmc: #1d4ed8;
+  --corp-bmc-bg: rgba(29, 78, 216, 0.07);
+  --corp-bmc-border: rgba(29, 78, 216, 0.24);
+  --corp-pmc: #c2410c;
+  --corp-pmc-bg: rgba(234, 88, 12, 0.07);
+  --corp-pmc-border: rgba(234, 88, 12, 0.24);
+  --corp-tmc: #15803d;
+  --corp-tmc-bg: rgba(21, 128, 61, 0.07);
+  --corp-tmc-border: rgba(21, 128, 61, 0.24);
+  --corp-swachhata: #0891b2;
+  --corp-swachhata-bg: rgba(8, 145, 178, 0.07);
+  --corp-swachhata-border: rgba(8, 145, 178, 0.24);
+  --corp-aaple: #7c3aed;
+  --corp-aaple-bg: rgba(124, 58, 237, 0.07);
+  --corp-aaple-border: rgba(124, 58, 237, 0.24);
+
   /* Semantic */
   --danger: #ef4444;
   --success: #10b981;
@@ -932,6 +949,96 @@ body.persona-lead #btnCamera {
 @media (prefers-reduced-motion: reduce) {
   .map-locate-pill:active {
     transform: none;
+  }
+}
+
+/* Manual pin-drop mode — report GPS fallback (D-2) */
+body.manual-pin-mode #map {
+  cursor: crosshair;
+}
+
+body.manual-pin-mode #map .leaflet-container {
+  cursor: crosshair;
+}
+
+.manual-pin-banner {
+  position: fixed;
+  top: calc(var(--header-height) + var(--persona-bar-height) + env(safe-area-inset-top, 0px) + 8px);
+  left: 12px;
+  right: 12px;
+  z-index: 1003;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min);
+  padding: 10px 12px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-md);
+  background: rgba(255, 251, 235, 0.97);
+  box-shadow: var(--shadow);
+  color: #92400e;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.manual-pin-banner i {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+.manual-pin-banner__btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid rgba(146, 64, 14, 0.25);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: #92400e;
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manual-pin-banner__btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.manual-pin-preview {
+  animation: manual-pin-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes manual-pin-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0)); }
+  50% { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85)); }
+}
+
+.report-geo__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+.report-geo__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manual-pin-preview {
+    animation: none;
   }
 }
 
@@ -3386,6 +3493,15 @@ body.persona-lead .app-open-banner { display: none; }
   border-color: rgba(16, 185, 129, 0.2);
 }
 
+.pledge-card--volunteer .pledge-card__icon { color: var(--success); }
+
+.pledge-card--pledge {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(99, 102, 241, 0.06));
+  border-color: rgba(236, 72, 153, 0.22);
+}
+
+.pledge-card--pledge .pledge-card__icon { color: var(--lead-accent); }
+
 .hours-picker {
   display: flex;
   flex-wrap: wrap;
@@ -4380,8 +4496,150 @@ body.persona-lead .app-open-banner { display: none; }
   border-top: none;
 }
 
+/* ---- Resources modal: section panels + corp-colored channels ---- */
+#resourcesModal .resources-section {
+  margin-top: 1.25rem;
+  padding: 14px 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+#resourcesModal .resources-section--official {
+  margin-top: 0;
+  background: linear-gradient(145deg, var(--corp-bmc-bg), rgba(99, 102, 241, 0.05));
+  border-color: var(--corp-bmc-border);
+}
+
+#resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
+
+#resourcesModal .resources-section--official .official-sources-link { color: var(--corp-bmc); }
+
+#resourcesModal .resources-section--community {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.05), rgba(99, 102, 241, 0.04));
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+#resourcesModal .resources-section--community .resources-section__title i { color: var(--success); }
+
+#resourcesModal .resources-section--community .pledge-card {
+  margin-top: 12px;
+}
+
+#resourcesModal .resources-section--community .pledge-card:first-of-type { margin-top: 0; }
+
+#resourcesModal .resources-section--sponsors {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+#resourcesModal .resources-section--sponsors:not(:has(.impact-wall)) {
+  display: none;
+}
+
+#resourcesModal .resources-section--sponsors .impact-wall {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), rgba(99, 102, 241, 0.04));
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-style: solid;
+}
+
+#resourcesModal .resources-section__title {
+  margin-bottom: 10px;
+}
+
 .resources-action-title {
-  margin: 1.25rem 0 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+/* Per-corp channel cards (Resources modal only) */
+#resourcesModal .esc-channel[data-official-channel="marg"],
+#resourcesModal .esc-channel[data-official-channel="bmc_portal"],
+#resourcesModal .esc-channel[data-official-channel="bmc_call"],
+#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] {
+  background: var(--corp-bmc-bg);
+  border-color: var(--corp-bmc-border);
+}
+
+#resourcesModal .esc-channel[data-official-channel="marg"] i,
+#resourcesModal .esc-channel[data-official-channel="bmc_portal"] i,
+#resourcesModal .esc-channel[data-official-channel="bmc_call"] i {
+  color: var(--corp-bmc);
+}
+
+#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] i { color: var(--whatsapp); }
+
+#resourcesModal .esc-channel[data-official-channel="pmc_care"],
+#resourcesModal .esc-channel[data-official-channel="pmc_wa"] {
+  background: var(--corp-pmc-bg);
+  border-color: var(--corp-pmc-border);
+}
+
+#resourcesModal .esc-channel[data-official-channel="pmc_care"] i { color: var(--corp-pmc); }
+
+#resourcesModal .esc-channel[data-official-channel="pmc_wa"] i { color: var(--whatsapp); }
+
+#resourcesModal .esc-channel[data-official-channel="tmc_portal"],
+#resourcesModal .esc-channel[data-official-channel="tmc_call"] {
+  background: var(--corp-tmc-bg);
+  border-color: var(--corp-tmc-border);
+}
+
+#resourcesModal .esc-channel[data-official-channel="tmc_portal"] i,
+#resourcesModal .esc-channel[data-official-channel="tmc_call"] i {
+  color: var(--corp-tmc);
+}
+
+#resourcesModal .esc-channel[data-official-channel="swachhata"] {
+  background: var(--corp-swachhata-bg);
+  border-color: var(--corp-swachhata-border);
+}
+
+#resourcesModal .esc-channel[data-official-channel="swachhata"] i { color: var(--corp-swachhata); }
+
+#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] {
+  background: var(--corp-aaple-bg);
+  border-color: var(--corp-aaple-border);
+}
+
+#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] i { color: var(--corp-aaple); }
+
+#resourcesModal .esc-channel--recommended {
+  box-shadow: inset 0 0 0 1px rgba(37, 211, 102, 0.35);
+}
+
+#resourcesModal .esc-channel:hover,
+#resourcesModal .esc-channel:focus-visible {
+  filter: brightness(0.97);
+}
+
+#resourcesModal .esc-channel[data-official-channel="marg"]:hover,
+#resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
+#resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
+#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
+  border-color: var(--corp-bmc);
+  background: rgba(29, 78, 216, 0.11);
+}
+
+#resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
+#resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
+  border-color: var(--corp-pmc);
+  background: rgba(234, 88, 12, 0.11);
+}
+
+#resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
+#resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
+  border-color: var(--corp-tmc);
+  background: rgba(21, 128, 61, 0.11);
+}
+
+#resourcesModal .esc-channel[data-official-channel="swachhata"]:hover {
+  border-color: var(--corp-swachhata);
+  background: rgba(8, 145, 178, 0.11);
+}
+
+#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"]:hover {
+  border-color: var(--corp-aaple);
+  background: rgba(124, 58, 237, 0.11);
 }
 
 .official-channels-block__toggle {
@@ -6153,6 +6411,35 @@ a,
   .report-ward-chip {
     background: rgba(99, 102, 241, 0.12);
     border-color: rgba(99, 102, 241, 0.28);
+  }
+
+  #resourcesModal .resources-section--official {
+    background: linear-gradient(145deg, rgba(29, 78, 216, 0.14), rgba(99, 102, 241, 0.08));
+  }
+
+  #resourcesModal .resources-section--community {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.12), rgba(99, 102, 241, 0.08));
+  }
+
+  #resourcesModal .resources-section--sponsors .impact-wall {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.12), rgba(99, 102, 241, 0.08));
+  }
+
+  #resourcesModal .esc-channel[data-official-channel="marg"]:hover,
+  #resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
+  #resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
+  #resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
+    background: rgba(29, 78, 216, 0.2);
+  }
+
+  #resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
+  #resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
+    background: rgba(234, 88, 12, 0.18);
+  }
+
+  #resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
+  #resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
+    background: rgba(21, 128, 61, 0.18);
   }
 }
 

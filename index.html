@@ -169,6 +169,12 @@
       <span data-i18n="location.locate">Turn on location</span>
   </button>
 
+  <div id="manualPinBanner" class="manual-pin-banner hidden" role="status">
+    <i class="ph ph-crosshair-simple" aria-hidden="true"></i>
+    <span id="manualPinBannerText" data-i18n="report.manualPinBanner">Tap the map where the hazard is</span>
+    <button type="button" class="manual-pin-banner__btn" id="btnManualPinCancel" data-i18n="report.manualPinCancel">Cancel</button>
+  </div>
+
   <button type="button" id="btnRecenter" class="map-recenter" data-i18n-aria="aria.recenter" aria-label="Recenter map on your location">
     <i class="ph ph-crosshair"></i>
   </button>
@@ -365,6 +371,20 @@
   </div>
 
   <!-- Report Modal (photo-first: Capture → Confirm) -->
+  <div class="modal-overlay" id="reportGeoOverlay" aria-hidden="true">
+    <div class="modal modal--sm" id="reportGeoModal" role="dialog" aria-labelledby="reportGeoTitle" aria-describedby="reportGeoBody">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="reportGeo" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
+      <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-map-pin"></i></div>
+      <h2 id="reportGeoTitle" data-i18n="report.geoExplainerTitle">Pin this hazard on the map</h2>
+      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">We need your location only to pin the hazard — nothing else.</p>
+      <div class="report-geo__actions">
+        <button type="button" class="btn btn--primary btn--full" id="btnReportGeoContinue" data-i18n="report.geoExplainerContinue">Use my location</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnReportGeoManual" data-i18n="report.geoExplainerManual">Place pin on map instead</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
     <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
@@ -664,8 +684,8 @@
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
       <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official filing links and ways to help in your ward.</p>
 
-      <div class="official-channels-block" id="resourcesOfficialBlock">
-        <h3 class="section-title" data-i18n="official.title">Official grievance channels</h3>
+      <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
+        <h3 class="section-title resources-section__title"><i class="ph ph-seal-check" aria-hidden="true"></i> <span data-i18n="official.title">Official grievance channels</span></h3>
         <p class="field-hint" data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
         <p class="official-sources-all">
@@ -673,28 +693,32 @@
         </p>
       </div>
 
-      <h3 class="section-title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in your ward</span></h3>
+      <div class="resources-section resources-section--community">
+        <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in your ward</span></h3>
 
-      <div class="pledge-card pledge-card--volunteer">
-        <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-        <div class="pledge-card__body">
-          <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-          <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+        <div class="pledge-card pledge-card--volunteer">
+          <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
+          <div class="pledge-card__body">
+            <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
+            <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
-      </div>
 
-      <div class="pledge-card">
-        <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-        <div class="pledge-card__body">
-          <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-          <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+        <div class="pledge-card pledge-card--pledge">
+          <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
+          <div class="pledge-card__body">
+            <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
+            <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
       </div>
 
       <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
-      <div id="impactWall"></div>
+      <div class="resources-section resources-section--sponsors" id="resourcesSponsorsSection">
+        <div id="impactWall"></div>
+      </div>
     </div>
   </div>
 
@@ -876,11 +900,13 @@
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileActivityBody">
-          <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="profile.volunteer">My volunteer signup</span></h3>
-          <div class="profile-volunteer" id="profileVolunteer"></div>
-
-          <h3 class="section-title"><i class="ph ph-hand-coins" aria-hidden="true"></i><span data-i18n="profile.pledges">My pledges</span></h3>
-          <div class="profile-pledge-list" id="profilePledgeList"></div>
+          <div class="profile-resource-link" id="profileCommunityLinkBlock">
+            <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="resources.actionTitle">Help in your ward</span></h3>
+            <p class="field-hint" data-i18n="profile.communityHint">Volunteer sign-up and supply pledges — open from the Resources tab.</p>
+            <button type="button" class="btn btn--outline btn--full" id="btnProfileCommunityHelp">
+              <i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="profile.communityLink">Volunteer &amp; pledges</span>
+            </button>
+          </div>
 
           <h3 class="section-title"><i class="ph ph-map-pin-area" aria-hidden="true"></i><span data-i18n="profile.reports">Your Reports</span></h3>
           <div class="report-list" id="reportList">

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v145';
+  const CIVIC_APP_VERSION = 'v148';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const LAST_HAZARD_KEY = 'civicradar_last_hazard';
 
   const REPORT_DRAFT_TTL_MS = 30 * 60 * 1000;
+
+  const REPORT_GEO_EXPLAINER_KEY = 'civicradar_report_geo_explainer';
 
   const REPORT_NOTES_MAX = 2000;
 
@@ -428,6 +430,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let reportPhotoDismissGuard = 0;
 
+  let reportManualPinDismiss = false;
+
+  let manualPinModeActive = false;
+
+  let manualPinLat = null;
+
+  let manualPinLng = null;
+
+  let manualPinPreviewMarker = null;
+
+  let manualPinMapClickHandler = null;
+
+  let reportGeoExplainerResolve = null;
+
   let appHiddenAt = 0;
 
   let skipReportDraftRestoreOnce = false;
@@ -505,6 +521,8 @@ document.addEventListener('DOMContentLoaded', function () {
     onboarding: $('#onboardingOverlay'),
 
     report: $('#reportOverlay'),
+
+    reportGeo: $('#reportGeoOverlay'),
 
     success: $('#successOverlay'),
 
@@ -2462,6 +2480,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.wardGps': 'GPS location on submit',
 
+      'report.wardManualPin': 'Pin placed on map',
+
+      'report.geoExplainerTitle': 'Pin this hazard on the map',
+
+      'report.geoExplainerBody': 'We need your location only to pin the hazard — nothing else.',
+
+      'report.geoExplainerContinue': 'Use my location',
+
+      'report.geoExplainerManual': 'Place pin on map instead',
+
+      'report.manualPinBanner': 'Tap the map where the hazard is',
+
+      'report.manualPinCancel': 'Cancel',
+
+      'report.placePinOnMap': 'Place pin on map',
+
+      'report.geoEnableHint': 'How to enable location',
+
+      'report.geoEnableHelp': 'Browser settings → Site permissions → Location → Allow for this site. Then tap Submit again.',
+
       'report.hazardType': 'Hazard Type',
 
       'report.hazardHint': 'Tap the hazard you\'re reporting',
@@ -3949,6 +3987,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'Could not get GPS. Turn on location and try again.',
 
+      'toast.gpsFailAction': 'Could not get GPS. Place a pin on the map or turn location on in settings.',
+
+      'toast.manualPinReady': 'Pin placed — tap Submit to finish your report.',
+
       'toast.gpsLocating': 'Finding your location…',
 
       'toast.gpsLowAccuracy': 'Location is approximate (~{m} m). Move outdoors or near a window for better GPS.',
@@ -4096,6 +4138,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.officialHint': 'Verified BMC, PMC, and TMC apps and portals — CivicRadar does not file on your behalf. Open from the Resources tab.',
 
       'profile.officialLink': 'Open Resources',
+
+      'profile.communityHint': 'Volunteer sign-up and supply pledges — open from the Resources tab.',
+
+      'profile.communityLink': 'Volunteer & pledges',
 
       'badge.admin': 'BMC Admin',
 
@@ -4730,6 +4776,26 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'भेजते समय GPS स्थान',
+
+      'report.wardManualPin': 'मैप पर पिन लगाया',
+
+      'report.geoExplainerTitle': 'खतरे को मैप पर पिन करें',
+
+      'report.geoExplainerBody': 'हमें आपकी लोकेशन सिर्फ खतरे को पिन करने के लिए चाहिए — और कुछ नहीं।',
+
+      'report.geoExplainerContinue': 'मेरी लोकेशन उपयोग करें',
+
+      'report.geoExplainerManual': 'मैप पर पिन लगाएँ',
+
+      'report.manualPinBanner': 'जहाँ खतरा है वहाँ मैप पर टैप करें',
+
+      'report.manualPinCancel': 'रद्द करें',
+
+      'report.placePinOnMap': 'मैप पर पिन लगाएँ',
+
+      'report.geoEnableHint': 'लोकेशन कैसे चालू करें',
+
+      'report.geoEnableHelp': 'ब्राउज़र सेटिंग → साइट अनुमति → लोकेशन → Allow। फिर Submit दबाएँ।',
 
       'report.hazardType': 'खतरे का प्रकार',
 
@@ -6218,6 +6284,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS नहीं मिला। लोकेशन चालू करके फिर कोशिश करें।',
 
+      'toast.gpsFailAction': 'GPS नहीं मिला। मैप पर पिन लगाएँ या सेटिंग में लोकेशन चालू करें।',
+
+      'toast.manualPinReady': 'पिन लग गया — Submit दबाकर रिपोर्ट पूरी करें।',
+
       'toast.gpsLocating': 'आपका स्थान खोज रहे हैं…',
 
       'toast.gpsLowAccuracy': 'स्थान अनुमानित है (~{m} मी)। बेहतर GPS के लिए बाहर या खिड़की के पास जाएँ।',
@@ -6365,6 +6435,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.officialHint': 'सत्यापित BMC, PMC और TMC ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। Resources टैब से खोलें।',
 
       'profile.officialLink': 'Resources खोलें',
+
+      'profile.communityHint': 'स्वयंसेवक साइन अप और दान — Resources टैब से खोलें।',
+
+      'profile.communityLink': 'स्वयंसेवा और दान',
 
       'badge.admin': 'BMC एडमिन',
 
@@ -6998,6 +7072,26 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'पाठवताना GPS स्थान',
+
+      'report.wardManualPin': 'नकाशावर पिन लावला',
+
+      'report.geoExplainerTitle': 'धोका नकाशावर पिन करा',
+
+      'report.geoExplainerBody': 'धोका पिन करण्यासाठीच आम्हाला तुमचे स्थान हवे — इतर काही नाही.',
+
+      'report.geoExplainerContinue': 'माझे स्थान वापरा',
+
+      'report.geoExplainerManual': 'नकाशावर पिन लावा',
+
+      'report.manualPinBanner': 'धोका जिथे आहे तिथे नकाशावर टॅप करा',
+
+      'report.manualPinCancel': 'रद्द करा',
+
+      'report.placePinOnMap': 'नकाशावर पिन लावा',
+
+      'report.geoEnableHint': 'स्थान कसे चालू करावे',
+
+      'report.geoEnableHelp': 'ब्राउझर सेटिंग → साइट परवानगी → Location → Allow. मग Submit दाबा.',
 
       'report.hazardType': 'धोक्याचा प्रकार',
 
@@ -8486,6 +8580,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS मिळाला नाही. लोकेशन चालू करून पुन्हा प्रयत्न करा.',
 
+      'toast.gpsFailAction': 'GPS मिळाला नाही. नकाशावर पिन लावा किंवा सेटिंगमध्ये स्थान चालू करा.',
+
+      'toast.manualPinReady': 'पिन लावला — Submit दाबून अहवाल पूर्ण करा.',
+
       'toast.gpsLocating': 'तुमचे स्थान शोधत आहोत…',
 
       'toast.gpsLowAccuracy': 'स्थान अंदाजे आहे (~{m} मी). चांगल्या GPS साठी बाहेर किंवा खिडकीजवळ जा.',
@@ -8633,6 +8731,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.officialHint': 'सत्यापित BMC, PMC आणि TMC अॅप्स आणि पोर्टल — CivicRadar तुमच्या वतीने दाखल करत नाही. Resources टॅबमधून उघडा.',
 
       'profile.officialLink': 'Resources उघडा',
+
+      'profile.communityHint': 'स्वयंसेवक नोंदणी आणि दान — Resources टॅबमधून उघडा.',
+
+      'profile.communityLink': 'स्वयंसेवा आणि दान',
 
       'badge.admin': 'BMC Admin',
 
@@ -9266,6 +9368,26 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'મોકલતી વખતે GPS સ્થાન',
+
+      'report.wardManualPin': 'નકશા પર પિન મૂક્યું',
+
+      'report.geoExplainerTitle': 'જોખમ નકશા પર પિન કરો',
+
+      'report.geoExplainerBody': 'જોખમ પિન કરવા માટે જ અમને તમારું સ્થાન જોઈએ — બીજું કંઈ નહીં.',
+
+      'report.geoExplainerContinue': 'મારું સ્થાન વાપરો',
+
+      'report.geoExplainerManual': 'નકશા પર પિન મૂકો',
+
+      'report.manualPinBanner': 'જોખમ જ્યાં છે ત્યાં નકશા પર ટૅપ કરો',
+
+      'report.manualPinCancel': 'રદ કરો',
+
+      'report.placePinOnMap': 'નકશા પર પિન મૂકો',
+
+      'report.geoEnableHint': 'લોકેશન કેવી રીતે ચાલુ કરવું',
+
+      'report.geoEnableHelp': 'બ્રાઉઝર સેટિંગ → સાઇટ પરવાનગી → Location → Allow. પછી Submit દબાવો.',
 
       'report.hazardType': 'જોખમનો પ્રકાર',
 
@@ -10754,6 +10876,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS મળ્યું નહીં. લોકેશન ચાલુ કરી ફરી પ્રયાસ કરો.',
 
+      'toast.gpsFailAction': 'GPS મળ્યું નહીં. નકશા પર પિન મૂકો અથવા સેટિંગમાં લોકેશન ચાલુ કરો.',
+
+      'toast.manualPinReady': 'પિન મૂક્યું — Submit દબાવી રિપોર્ટ પૂર્ણ કરો.',
+
       'toast.gpsLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
 
       'toast.gpsLowAccuracy': 'સ્થાન અંદાજે છે (~{m} મી). ચોક્કસ GPS માટે બહાર કે બારી પાસે જાઓ.',
@@ -10901,6 +11027,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.officialHint': 'ચકાસેલ BMC, PMC અને TMC એપ્સ અને પોર્ટલ — CivicRadar તમારી તરફથી દાખલ કરતું નથી. Resources ટેબમાંથી ખોલો.',
 
       'profile.officialLink': 'Resources ખોલો',
+
+      'profile.communityHint': 'સ્વયંસેવક નોંધણી અને દાન — Resources ટેબમાંથી ખોલો.',
+
+      'profile.communityLink': 'સ્વયંસેવા અને દાન',
 
       'badge.coord': 'સંકલક હબ',
 
@@ -19054,11 +19184,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!label) return;
 
-    const text = user.ward
+    let text;
 
-      ? t('report.wardChip').replace('{ward}', getWardShortName(user.ward))
+    if (manualPinLat != null && manualPinLng != null) {
 
-      : t('report.wardGps');
+      const pinWard = detectWardFromCoords(manualPinLat, manualPinLng, getUserCity());
+
+      text = pinWard
+
+        ? t('report.wardChip').replace('{ward}', getWardShortName(pinWard))
+
+        : t('report.wardManualPin');
+
+    } else {
+
+      text = user.ward
+
+        ? t('report.wardChip').replace('{ward}', getWardShortName(user.ward))
+
+        : t('report.wardGps');
+
+    }
 
     label.textContent = text;
 
@@ -20734,7 +20880,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       finishReportPhotoFlow();
 
-      clearReportDraft();
+      if (!reportManualPinDismiss) {
+
+        clearReportDraft();
+
+        clearManualPinState();
+
+      }
 
       if (reportCameraTimer) {
 
@@ -20749,6 +20901,16 @@ document.addEventListener('DOMContentLoaded', function () {
     el.classList.remove('open');
 
     el.setAttribute('aria-hidden', 'true');
+
+    if (name === 'reportGeo' && reportGeoExplainerResolve) {
+
+      const resolve = reportGeoExplainerResolve;
+
+      reportGeoExplainerResolve = null;
+
+      resolve('cancel');
+
+    }
 
     const anyOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
 
@@ -20833,6 +20995,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function closeAllModals() {
+
+    if (manualPinModeActive) stopManualPinMode(true);
 
     closeStackedModalsForNav(null);
 
@@ -20965,6 +21129,16 @@ document.addEventListener('DOMContentLoaded', function () {
   window.resetAppSessionUi = resetAppSessionUi;
 
   window.civicMaybeResetSessionOnResume = maybeResetSessionOnResume;
+
+  window.civicTestDropManualPin = function (lat, lng) {
+
+    if (!manualPinModeActive) return false;
+
+    onManualPinMapClick({ latlng: { lat, lng } });
+
+    return manualPinLat != null && manualPinLng != null;
+
+  };
 
   window.civicSessionResumeResetMs = SESSION_RESUME_RESET_MS;
 
@@ -23389,6 +23563,15 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    const btnProfileCommunityHelp = $('#btnProfileCommunityHelp');
+
+    if (btnProfileCommunityHelp) {
+      btnProfileCommunityHelp.addEventListener('click', () => {
+        closeModal('profile');
+        window.openResourcesModal();
+      });
+    }
+
     const btnAboutFeedback = $('#btnAboutFeedback');
 
     if (btnAboutFeedback) {
@@ -24438,6 +24621,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    const btnManualPinCancel = $('#btnManualPinCancel');
+
+    if (btnManualPinCancel) {
+
+      btnManualPinCancel.addEventListener('click', () => {
+
+        stopManualPinMode(true);
+
+        ensureReportModalOpen();
+
+        updateReportFlowSteps('confirm');
+
+      });
+
+    }
+
     $('#btnDismissLocation').addEventListener('click', () => {
 
       // Dismiss = snooze the banner and collapse to the compact locate pill.
@@ -25112,6 +25311,590 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function hasSeenReportGeoExplainer() {
+
+    try { return localStorage.getItem(REPORT_GEO_EXPLAINER_KEY) === '1'; } catch { return false; }
+
+  }
+
+
+
+  function markReportGeoExplainerSeen() {
+
+    try { localStorage.setItem(REPORT_GEO_EXPLAINER_KEY, '1'); } catch { /* ignore */ }
+
+  }
+
+
+
+  async function queryGeolocationPermission() {
+
+    if (!navigator.permissions || !navigator.permissions.query) return false;
+
+    try {
+
+      const status = await navigator.permissions.query({ name: 'geolocation' });
+
+      return status.state === 'granted';
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
+
+
+  function showReportGeoExplainerModal() {
+
+    return new Promise((resolve) => {
+
+      const overlay = overlays.reportGeo;
+
+      if (!overlay) {
+
+        resolve('gps');
+
+        return;
+
+      }
+
+      reportGeoExplainerResolve = resolve;
+
+      const btnContinue = $('#btnReportGeoContinue');
+
+      const btnManual = $('#btnReportGeoManual');
+
+      const title = $('#reportGeoTitle');
+
+      const body = $('#reportGeoBody');
+
+      if (title) title.textContent = t('report.geoExplainerTitle');
+
+      if (body) body.textContent = t('report.geoExplainerBody');
+
+      if (btnContinue) btnContinue.textContent = t('report.geoExplainerContinue');
+
+      if (btnManual) btnManual.textContent = t('report.geoExplainerManual');
+
+      function finish(choice) {
+
+        if (!reportGeoExplainerResolve) return;
+
+        reportGeoExplainerResolve = null;
+
+        if (btnContinue) btnContinue.removeEventListener('click', onContinue);
+
+        if (btnManual) btnManual.removeEventListener('click', onManual);
+
+        closeModal('reportGeo');
+
+        resolve(choice);
+
+      }
+
+      function onContinue() { finish('gps'); }
+
+      function onManual() {
+
+        markReportGeoExplainerSeen();
+
+        startManualPinMode();
+
+        finish('manual');
+
+      }
+
+      if (btnContinue) btnContinue.addEventListener('click', onContinue);
+
+      if (btnManual) btnManual.addEventListener('click', onManual);
+
+      openModal('reportGeo');
+
+    });
+
+  }
+
+
+
+  function showManualPinBanner() {
+
+    const el = $('#manualPinBanner');
+
+    const text = $('#manualPinBannerText');
+
+    const cancel = $('#btnManualPinCancel');
+
+    if (text) text.textContent = t('report.manualPinBanner');
+
+    if (cancel) cancel.textContent = t('report.manualPinCancel');
+
+    if (el) el.classList.remove('hidden');
+
+  }
+
+
+
+  function hideManualPinBanner() {
+
+    $('#manualPinBanner')?.classList.add('hidden');
+
+  }
+
+
+
+  function clearManualPinPreviewMarker() {
+
+    if (manualPinPreviewMarker && map) {
+
+      map.removeLayer(manualPinPreviewMarker);
+
+    }
+
+    manualPinPreviewMarker = null;
+
+  }
+
+
+
+  function setManualPinPreviewMarker(lat, lng) {
+
+    if (!map) return;
+
+    clearManualPinPreviewMarker();
+
+    manualPinPreviewMarker = L.circleMarker([lat, lng], {
+
+      radius: 11,
+
+      fillColor: '#f59e0b',
+
+      color: '#ffffff',
+
+      weight: 3,
+
+      fillOpacity: 0.95,
+
+      className: 'manual-pin-preview',
+
+    }).addTo(map);
+
+    map.setView([lat, lng], Math.max(map.getZoom(), 16), { animate: true });
+
+  }
+
+
+
+  function stopManualPinMode(clearCoords) {
+
+    manualPinModeActive = false;
+
+    document.body.classList.remove('manual-pin-mode');
+
+    hideManualPinBanner();
+
+    if (map && manualPinMapClickHandler) {
+
+      map.off('click', manualPinMapClickHandler);
+
+      manualPinMapClickHandler = null;
+
+    }
+
+    if (clearCoords) {
+
+      manualPinLat = null;
+
+      manualPinLng = null;
+
+      clearManualPinPreviewMarker();
+
+      updateReportWardChip();
+
+    }
+
+  }
+
+
+
+  function clearManualPinState() {
+
+    stopManualPinMode(true);
+
+  }
+
+
+
+  function onManualPinMapClick(e) {
+
+    if (!manualPinModeActive || !e || !e.latlng) return;
+
+    const lat = e.latlng.lat;
+
+    const lng = e.latlng.lng;
+
+    if (!isValidGpsCoords(lat, lng)) return;
+
+    manualPinLat = lat;
+
+    manualPinLng = lng;
+
+    setManualPinPreviewMarker(lat, lng);
+
+    stopManualPinMode(false);
+
+    ensureReportModalOpen();
+
+    updateReportFlowSteps('confirm');
+
+    updateReportWardChip();
+
+    showToast(t('toast.manualPinReady'), 'success', 4500);
+
+  }
+
+
+
+  function startManualPinMode() {
+
+    const submitBtn = $('#btnSubmitReport');
+
+    setButtonLoading(submitBtn, false);
+
+    touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+
+    reportManualPinDismiss = true;
+
+    closeModal('report');
+
+    reportManualPinDismiss = false;
+
+    setNavTab('map');
+
+    manualPinModeActive = true;
+
+    document.body.classList.add('manual-pin-mode');
+
+    showManualPinBanner();
+
+    scheduleMapResize();
+
+    if (map) {
+
+      if (manualPinMapClickHandler) map.off('click', manualPinMapClickHandler);
+
+      manualPinMapClickHandler = onManualPinMapClick;
+
+      map.on('click', manualPinMapClickHandler);
+
+    }
+
+  }
+
+
+
+  function showGeoEnableHelp() {
+
+    showToast(t('report.geoEnableHelp'), 'info', 9000);
+
+  }
+
+
+
+  function handleReportGpsFailure(submitBtn) {
+
+    setButtonLoading(submitBtn, false);
+
+    if (window.CivicAnalytics) CivicAnalytics.perfEnd('report_submit_duration', { gpsFailed: true });
+
+    showToast(t('toast.gpsFailAction'), 'error', 9000, {
+
+      label: t('report.placePinOnMap'),
+
+      onClick: () => startManualPinMode(),
+
+      secondary: {
+
+        label: t('report.geoEnableHint'),
+
+        onClick: () => showGeoEnableHelp(),
+
+      },
+
+    });
+
+  }
+
+
+
+  function finishReportSubmitWithCoords(lat, lng, submitBtn, accuracyM, opts) {
+
+    opts = opts || {};
+
+    const manualPin = !!opts.manualPin;
+
+    if (!isValidGpsCoords(lat, lng)) {
+
+      setButtonLoading(submitBtn, false);
+
+      handleReportGpsFailure(submitBtn);
+
+      return;
+
+    }
+
+    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
+
+      setButtonLoading(submitBtn, false);
+
+      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+
+      return;
+
+    }
+
+    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
+
+      showGpsAccuracyFeedback(accuracyM);
+
+    }
+
+    currentLat = lat;
+
+    currentLng = lng;
+
+    const reports = loadReports();
+
+    const now = Date.now();
+
+
+
+    for (let i = 0; i < reports.length; i++) {
+
+      const r = reports[i];
+
+      if (r.lat == null || r.lng == null) continue;
+
+      if (r.status === 'resolved') continue;
+
+      const age = now - new Date(r.timestamp).getTime();
+
+      if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
+
+      const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
+
+      if (dist < DUPLICATE_RADIUS_M) {
+
+        setButtonLoading(submitBtn, false);
+
+        if (window.CivicAnalytics) {
+
+          CivicAnalytics.track('report_submitted', {
+
+            hazard: $('#hazardType').value,
+
+            hasGps: !manualPin,
+
+            hasPhoto: true,
+
+            path: 'duplicate_corroboration',
+
+          }, user.ward);
+
+          CivicAnalytics.perfEnd('report_submit_duration', { duplicate: true });
+
+        }
+
+        const dupeId = r.id;
+
+        if (ownsReport(r) || hasConfirmed(dupeId)) {
+
+          showToast(t('confirm.ownDupe'), 'info', 4000);
+
+          closeModal('report');
+
+        } else {
+
+          showToast(
+
+            t('confirm.dupe').replace('{backing}', backingSuffix(r.confirmations)),
+
+            'info', 7000, {
+
+            label: t('confirm.dupeAction'),
+
+            onClick: () => {
+
+              if (confirmReport(dupeId)) {
+
+                closeModal('report');
+
+                const marker = reportMarkerMap.get(dupeId);
+
+                if (marker && map) { map.setView([r.lat, r.lng], 16); marker.openPopup(); }
+
+              }
+
+            },
+
+          });
+
+        }
+
+        return;
+
+      }
+
+    }
+
+
+
+    const hazard = $('#hazardType').value;
+
+    const liveHazard = HAZARD_CATEGORIES.find((c) => c.key === hazard && c.live);
+
+    if (!liveHazard) {
+
+      setButtonLoading(submitBtn, false);
+
+      showToast(t('toast.hazardTypeRequired'), 'error');
+
+      return;
+
+    }
+
+    const draft = {
+
+      id: generateId(),
+
+      hazard,
+
+      notes: ($('#reportNotes')?.value ?? ''),
+
+      image: lastReportDataUrl,
+
+      ward: resolveReportWard(lat, lng),
+
+      city: getUserCity(),
+
+      society: user.society || '',
+
+      reporter: user.displayName || 'Citizen',
+
+      reporterId: user.id,
+
+      lat,
+
+      lng,
+
+      timestamp: new Date().toISOString(),
+
+    };
+
+    const report = Object.assign({}, normalizeReport(draft, user.id), sanitizeReportInput(draft));
+
+
+
+    reports.unshift(report);
+
+    const prevXp = getTotalCivicXp();
+
+    try {
+
+      saveReports(reports);
+
+    } catch (err) {
+
+      setButtonLoading(submitBtn, false);
+
+      showToast(t('toast.storageFull'), 'error', 4500);
+
+      return;
+
+    }
+
+
+
+    lastReportId = report.id;
+
+    try { localStorage.setItem(FIRST_REPORT_DONE_KEY, '1'); } catch {}
+
+    Backend.insertReport(report);
+
+    fanOutLocalNbhNewReport(report);
+
+    if (window.CivicAnalytics) {
+
+      CivicAnalytics.track('report_submitted', {
+
+        hazard,
+
+        hasGps: !manualPin,
+
+        hasPhoto: true,
+
+        path: manualPin ? 'manual_pin' : 'new_report',
+
+        city: getUserCity(),
+
+      }, user.ward);
+
+      CivicAnalytics.perfEnd('report_submit_duration');
+
+    }
+
+    createReportMarker(report, { drop: true });
+
+    clearManualPinPreviewMarker();
+
+    manualPinLat = null;
+
+    manualPinLng = null;
+
+    if (map && report.lat != null && report.lng != null) {
+
+      map.setView([report.lat, report.lng], Math.max(map.getZoom(), 15), { animate: true });
+
+    }
+
+    const weekBonus = awardWeekBonus();
+
+    checkXpLevelUp(prevXp, getTotalCivicXp());
+
+    try { localStorage.setItem(LAST_HAZARD_KEY, hazard); } catch {}
+
+    morphSubmitButtonSuccess(submitBtn).then(() => {
+
+      closeModal('report');
+
+      showSuccessModal(weekBonus);
+
+      maybeShowPwaNudge('report');
+
+      updateProfileUI();
+
+      updatePersonaUI();
+
+      updateCommunitySubtitle();
+
+      renderWardChallenge();
+
+      updateMapEmptyCta();
+
+      updateHomeHero();
+
+      renderLeaderboard('wards');
+
+      renderLeaderboard('citizens');
+
+    });
+
+  }
+
+
+
   async function submitReport() {
 
     const canvas = $('#imageCanvas');
@@ -25123,16 +25906,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!canvas.classList.contains('visible')) {
 
       showToast(t('toast.photoRequired'), 'error');
-
-      return;
-
-    }
-
-
-
-    if (!navigator.geolocation) {
-
-      showToast(t('toast.gpsRequired'), 'error');
 
       return;
 
@@ -25164,13 +25937,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    // Submitting a report is an explicit GPS opt-in.
+    lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
+
+
+    if (manualPinLat != null && manualPinLng != null) {
+
+      finishReportSubmitWithCoords(manualPinLat, manualPinLng, submitBtn, null, { manualPin: true });
+
+      return;
+
+    }
+
+
+
+    const granted = await queryGeolocationPermission();
+
+    if (!granted && !hasSeenReportGeoExplainer()) {
+
+      setButtonLoading(submitBtn, false);
+
+      const choice = await showReportGeoExplainerModal();
+
+      if (choice === 'cancel') return;
+
+      if (choice === 'manual') return;
+
+      setButtonLoading(submitBtn, true, t('report.submitting'));
+
+    }
+
+    markReportGeoExplainerSeen();
+
+
+
+    if (!navigator.geolocation) {
+
+      handleReportGpsFailure(submitBtn);
+
+      return;
+
+    }
+
+
 
     user.gpsConsent = true;
 
     saveUser();
-
-    lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
 
     setButtonLoading(submitBtn, true, t('report.submitting'));
 
@@ -25180,277 +25993,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .then((pos) => {
 
-        const lat = pos.coords.latitude;
+        finishReportSubmitWithCoords(
 
-        const lng = pos.coords.longitude;
+          pos.coords.latitude,
 
-        const accuracyM = pos.coords.accuracy;
+          pos.coords.longitude,
 
-        if (!isValidGpsCoords(lat, lng)) {
+          submitBtn,
 
-          setButtonLoading(submitBtn, false);
+          pos.coords.accuracy,
 
-          showToast(t('toast.gpsFail'), 'error', 4500);
+          { manualPin: false }
 
-          return;
-
-        }
-
-        if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
-
-          setButtonLoading(submitBtn, false);
-
-          showToast(t('toast.gpsPoorFix'), 'error', 4500);
-
-          return;
-
-        }
-
-        if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
-
-          showGpsAccuracyFeedback(accuracyM);
-
-        }
-
-        currentLat = lat;
-
-        currentLng = lng;
-
-        const reports = loadReports();
-
-        const now = Date.now();
-
-
-
-        for (let i = 0; i < reports.length; i++) {
-
-          const r = reports[i];
-
-          if (r.lat == null || r.lng == null) continue;
-
-          // Only block against still-pending reports inside the time window.
-
-          // Resolved or stale hazards can legitimately recur and should be re-reportable.
-
-          if (r.status === 'resolved') continue;
-
-          const age = now - new Date(r.timestamp).getTime();
-
-          if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
-
-          const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
-
-          if (dist < DUPLICATE_RADIUS_M) {
-
-            setButtonLoading(submitBtn, false);
-
-            if (window.CivicAnalytics) {
-
-              CivicAnalytics.track('report_submitted', {
-
-                hazard: $('#hazardType').value,
-
-                hasGps: true,
-
-                hasPhoto: true,
-
-                path: 'duplicate_corroboration',
-
-              }, user.ward);
-
-              CivicAnalytics.perfEnd('report_submit_duration', { duplicate: true });
-
-            }
-
-            // Don't create a duplicate — offer to corroborate the existing pin instead.
-
-            const dupeId = r.id;
-
-            if (ownsReport(r) || hasConfirmed(dupeId)) {
-
-              showToast(t('confirm.ownDupe'), 'info', 4000);
-
-              closeModal('report');
-
-            } else {
-
-              showToast(
-
-                t('confirm.dupe').replace('{backing}', backingSuffix(r.confirmations)),
-
-                'info', 7000, {
-
-                label: t('confirm.dupeAction'),
-
-                onClick: () => {
-
-                  if (confirmReport(dupeId)) {
-
-                    closeModal('report');
-
-                    const marker = reportMarkerMap.get(dupeId);
-
-                    if (marker && map) { map.setView([r.lat, r.lng], 16); marker.openPopup(); }
-
-                  }
-
-                },
-
-              });
-
-            }
-
-            return;
-
-          }
-
-        }
-
-
-
-        const hazard = $('#hazardType').value;
-
-        const liveHazard = HAZARD_CATEGORIES.find((c) => c.key === hazard && c.live);
-
-        if (!liveHazard) {
-
-          setButtonLoading(submitBtn, false);
-
-          showToast(t('toast.hazardTypeRequired'), 'error');
-
-          return;
-
-        }
-
-        const draft = {
-
-          id: generateId(),
-
-          hazard,
-
-          notes: ($('#reportNotes')?.value ?? ''),
-
-          image: lastReportDataUrl,
-
-          ward: resolveReportWard(lat, lng),
-
-          city: getUserCity(),
-
-          society: user.society || '',
-
-          reporter: user.displayName || 'Citizen',
-
-          reporterId: user.id,
-
-          lat,
-
-          lng,
-
-          timestamp: new Date().toISOString(),
-
-        };
-
-        const report = Object.assign({}, normalizeReport(draft, user.id), sanitizeReportInput(draft));
-
-
-
-        reports.unshift(report);
-
-        const prevXp = getTotalCivicXp();
-
-        try {
-
-          saveReports(reports);
-
-        } catch (err) {
-
-          setButtonLoading(submitBtn, false);
-
-          showToast(t('toast.storageFull'), 'error', 4500);
-
-          return;
-
-        }
-
-
-
-        lastReportId = report.id;
-
-        try { localStorage.setItem(FIRST_REPORT_DONE_KEY, '1'); } catch {}
-
-        Backend.insertReport(report);
-
-        fanOutLocalNbhNewReport(report);
-
-        if (window.CivicAnalytics) {
-
-          CivicAnalytics.track('report_submitted', {
-
-            hazard,
-
-            hasGps: true,
-
-            hasPhoto: true,
-
-            path: 'new_report',
-
-            city: getUserCity(),
-
-          }, user.ward);
-
-          CivicAnalytics.perfEnd('report_submit_duration');
-
-        }
-
-        createReportMarker(report, { drop: true });
-
-        if (map && report.lat != null && report.lng != null) {
-
-          map.setView([report.lat, report.lng], Math.max(map.getZoom(), 15), { animate: true });
-
-        }
-
-        const weekBonus = awardWeekBonus();
-
-        checkXpLevelUp(prevXp, getTotalCivicXp());
-
-        try { localStorage.setItem(LAST_HAZARD_KEY, hazard); } catch {}
-
-        morphSubmitButtonSuccess(submitBtn).then(() => {
-
-          closeModal('report');
-
-          showSuccessModal(weekBonus);
-
-          maybeShowPwaNudge('report');
-
-          updateProfileUI();
-
-          updatePersonaUI();
-
-          updateCommunitySubtitle();
-
-          renderWardChallenge();
-
-          updateMapEmptyCta();
-
-          updateHomeHero();
-
-          renderLeaderboard('wards');
-
-          renderLeaderboard('citizens');
-
-        });
+        );
 
       })
 
       .catch(() => {
 
-        setButtonLoading(submitBtn, false);
-
-        if (window.CivicAnalytics) CivicAnalytics.perfEnd('report_submit_duration', { gpsFailed: true });
-
-        showToast(t('toast.gpsFail'), 'error', 4500);
+        handleReportGpsFailure(submitBtn);
 
       });
 
@@ -25719,6 +26280,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#photoInput').value = '';
 
     $('#reportNotes').value = '';
+
+    clearManualPinState();
 
     const canvas = $('#imageCanvas');
 
@@ -29990,8 +30553,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (changed) savePledgeStatusSnapshot(snapshot);
 
-    renderProfilePledges();
-
   }
 
 
@@ -30023,74 +30584,6 @@ document.addEventListener('DOMContentLoaded', function () {
       onClick: () => window.openCoordinatorDashboard(),
 
     });
-
-  }
-
-
-
-  function renderProfilePledges() {
-
-    const listEl = $('#profilePledgeList');
-
-    if (!listEl) return;
-
-    if (isAdmin || isLead) {
-
-      listEl.innerHTML = '';
-
-      return;
-
-    }
-
-
-
-    const pledges = getUserPledges();
-
-    if (pledges.length === 0) {
-
-      listEl.innerHTML = `
-
-        <div class="empty-state empty-state--action">
-
-          <i class="ph ph-hand-heart"></i>
-
-          <p>${escapeHtml(t('profile.pledgesEmpty'))}</p>
-
-          <button type="button" class="btn btn--secondary btn--sm" id="btnEmptyPledge">${escapeHtml(t('profile.pledgesEmptyAction'))}</button>
-
-        </div>`;
-
-      const btn = $('#btnEmptyPledge');
-
-      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openResourcesModal(); window.openPledgeModal(); });
-
-      return;
-
-    }
-
-
-
-    listEl.innerHTML = pledges
-
-      .map((p) => `
-
-        <div class="profile-pledge-item">
-
-          <div class="profile-pledge-item__header">
-
-            <span class="profile-pledge-item__type">${escapeHtml(pledgeTypeLabel(p.type))}</span>
-
-            <span class="status-badge ${pledgeStatusBadgeClass(p)}">${escapeHtml(pledgeStatusLabel(p))}</span>
-
-          </div>
-
-          <div class="profile-pledge-item__meta">${escapeHtml((p.ward || '').split('—')[0].trim())} — ${escapeHtml(formatRelativeTime(p.timestamp))}</div>
-
-          ${p.message ? `<p class="profile-pledge-item__message">${escapeHtml(p.message)}</p>` : ''}
-
-        </div>`)
-
-      .join('');
 
   }
 
@@ -30213,8 +30706,6 @@ document.addEventListener('DOMContentLoaded', function () {
     closeModal('pledge');
 
     $('#pledgeMessage').value = '';
-
-    renderProfilePledges();
 
     updatePersonaUI();
 
@@ -31660,10 +32151,6 @@ document.addEventListener('DOMContentLoaded', function () {
         : t('profile.pointsHint.base');
 
 
-
-    renderProfilePledges();
-
-    renderProfileVolunteer();
 
     renderProfileMutedReporters();
 
@@ -33398,8 +33885,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeModal('volunteer');
 
-    renderProfileVolunteer();
-
     updatePersonaUI();
 
   }
@@ -33423,8 +33908,6 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast(t('toast.volunteerRemoved'), 'info');
 
     closeModal('volunteer');
-
-    renderProfileVolunteer();
 
   }
 
@@ -33569,70 +34052,6 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.addEventListener('click', () => unmuteReporter(btn.dataset.unmuteReporter));
 
     });
-
-  }
-
-
-
-  function renderProfileVolunteer() {
-
-    const el = $('#profileVolunteer');
-
-    if (!el) return;
-
-    if (isAdmin || isLead) {
-
-      el.innerHTML = '';
-
-      return;
-
-    }
-
-    const signup = getMyVolunteerSignup();
-
-    if (!signup) {
-
-      el.innerHTML = `
-
-        <div class="empty-state empty-state--action">
-
-          <i class="ph ph-broom"></i>
-
-          <p>${escapeHtml(t('volunteer.empty'))}</p>
-
-          <button type="button" class="btn btn--secondary btn--sm" id="btnEmptyVolunteer">${escapeHtml(t('volunteer.emptyAction'))}</button>
-
-        </div>`;
-
-      const btn = $('#btnEmptyVolunteer');
-
-      if (btn) btn.addEventListener('click', () => { closeModal('profile'); window.openResourcesModal(); window.openVolunteerModal(); });
-
-      return;
-
-    }
-
-    const skills = (signup.skills || [])
-
-      .map((s) => `<span>${escapeHtml(volunteerSkillLabel(s))}</span>`)
-
-      .join('');
-
-    el.innerHTML = `
-
-      <div class="profile-volunteer-card">
-
-        <strong>${escapeHtml(signup.neighbourhood)}</strong>
-
-        <div class="profile-volunteer-card__meta">${escapeHtml(t('volunteer.hoursLabel').replace('{n}', String(signup.hours)))} — ${escapeHtml((signup.ward || '').split('—')[0].trim())}</div>
-
-        <div class="profile-volunteer-card__skills">${skills}</div>
-
-        <button type="button" class="btn btn--outline btn--sm" id="btnEditVolunteer" style="margin-top:10px">${escapeHtml(t('volunteer.edit'))}</button>
-
-      </div>`;
-
-    $('#btnEditVolunteer').addEventListener('click', window.openVolunteerModal);
 
   }
 

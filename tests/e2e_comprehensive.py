@@ -1110,6 +1110,8 @@ async def run_citizen_tests(s: Suite, browser):
 
     await inject_photo(page)
 
+    await page.evaluate("() => localStorage.setItem('civicradar_report_geo_explainer', '1')")
+
     await js_click(page, '#btnSubmitReport')
 
     await page.wait_for_timeout(700)
@@ -3339,6 +3341,86 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
+    # RP23 — GPS denied → manual pin fallback (D-2 v146)
+
+    await close_all_modals(page)
+
+    await page.evaluate(
+
+        """() => {
+
+          window.__geoDenied = true;
+
+          localStorage.setItem('civicradar_report_geo_explainer', '1');
+
+        }"""
+
+    )
+
+    await page.evaluate('() => window.openReportModal(false)')
+
+    await inject_photo(page)
+
+    await page.evaluate('() => { document.getElementById("reportNotes").value = "manual pin test"; }')
+
+    await js_click(page, '#btnSubmitReport')
+
+    await page.wait_for_timeout(900)
+
+    toast_pin_action = await page.evaluate(
+
+        """() => {
+
+          const btns = Array.from(document.querySelectorAll('.toast__action'));
+
+          const btn = btns.find((b) => /pin|map|पिन|पिन|પિન/i.test(b.textContent));
+
+          if (!btn) return false;
+
+          btn.click();
+
+          return true;
+
+        }"""
+
+    )
+
+    await page.wait_for_timeout(500)
+
+    manual_mode = await page.evaluate('() => document.body.classList.contains("manual-pin-mode")')
+
+    pin_dropped = await page.evaluate('() => window.civicTestDropManualPin(19.07625, 72.87785)')
+
+    await page.wait_for_timeout(400)
+
+    await js_click(page, '#btnSubmitReport')
+
+    await page.wait_for_timeout(2500)
+
+    manual_pin_ok = await page.evaluate(
+
+        '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "manual pin test")'
+
+    )
+
+    s.record(
+
+        'RP23',
+
+        'Report',
+
+        'GPS denied → manual pin submit',
+
+        toast_pin_action and manual_mode and pin_dropped and manual_pin_ok,
+
+        f'toast={toast_pin_action} mode={manual_mode} pin={pin_dropped} stored={manual_pin_ok}',
+
+    )
+
+    await page.evaluate('() => { window.__geoDenied = false; }')
+
+    await close_all_modals(page)
+
     # First report: kudos line + progress nudge both shown and non-empty.
 
     first_celebrate = await page.evaluate('() => document.getElementById("successCelebrate").textContent.trim()')
@@ -3746,13 +3828,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('VOL04', 'Volunteer', 'Hours picker present', await page.is_visible('#volunteerHoursPicker'))
 
-    s.record('VOL05', 'Volunteer', 'Remove signup button in profile', await page.evaluate(
+    s.record('VOL05', 'Volunteer', 'Profile links to Resources (no inline signup)', await page.evaluate(
 
         """() => {
 
           window.openProfileModal();
 
-          return !!document.getElementById('btnRemoveVolunteer') || !!document.getElementById('profileVolunteerSection');
+          return !document.getElementById('profileVolunteer')
+
+            && !document.getElementById('profilePledgeList')
+
+            && !!document.getElementById('btnProfileCommunityHelp');
 
         }"""
 
@@ -4571,7 +4657,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v145" in sw_src
+        "civicradar-v148" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7621,7 +7707,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v145" in sw_src
+        "civicradar-v148" in sw_src
 
         and "'/index.html'" not in sw_src
 

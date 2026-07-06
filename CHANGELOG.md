@@ -9,7 +9,12 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Changed
+- **Profile volunteer/pledge dedup (v148)** — removed duplicate volunteer signup and pledge list from Profile → Activity; Resources tab remains the single home. Profile → Activity links to Resources via **Volunteer & pledges**; Account still has **Open Resources** for official channels. Cache v148.
+- **Resources modal color hierarchy (v147)** — official channels, volunteer/pledge, and sponsor sections each get a distinct tinted panel (BMC blue, community emerald, sponsor amber); per-channel cards use corp-specific accents (BMC blue, PMC orange, TMC green, Swachhata teal, Aaple Sarkar violet) with WhatsApp icons kept green; pledge cards differentiated (volunteer emerald vs support rose). Cache v147.
+
 ### Added
+- **Report GPS fallback — manual pin (v146, D-2)** — pre-submit location explainer modal ("We need your location only to pin the hazard — nothing else") shown once before the browser geolocation prompt (skipped when permission already granted); on GPS denial/error, actionable toast with **Place pin on map** + **How to enable location** instead of `toast.gpsFail` dead end; manual pin mode closes the report sheet, shows crosshair + amber banner, user taps map to place pin, report continues with that lat/lng. Localized en/hi/mr/gu. E2E RP23. Cache v146.
 - **Community after-photo on resolve (v145)** — when a report is community-verified fixed, neighbours who confirmed see a toast with **Add photo** → camera → `set_resolution_image` RPC; reporters get the same optional prompt after the share-win modal; success opens share-win with before/after. Community-specific i18n en/hi/mr/gu (`fix.thanksAddPhoto`, `fix.addAfterPhoto`, `toast.fixPhotoAdded`). Cache v145.
 - **WhatsApp deep links + TWA App Links (v141)** — share URLs stay canonical HTTPS (`publicUrl/?report={id}`) for Android App Link interception; `.well-known/assetlinks.json` for `in.civicradar.app`; mobile-browser landing strip with **Open in app** (Android intent + Play Store fallback) and **Get the app** when `?report=` or `?ref=`; absolute OG/Twitter image URLs for WhatsApp previews; certificate share link uses `publicUrl`; E2E DL01 + ST01. Cache v141. **Founder:** paste Play Console app-signing SHA-256 into `assetlinks.json` and verify Digital Asset Links in Play Console (see `LAUNCH_CHECKLIST.md`).
 
