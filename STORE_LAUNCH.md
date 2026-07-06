@@ -118,7 +118,7 @@ Set **17+** or **18+** to match Terms (user-generated content + location).
 ## Store listing copy (template)
 
 **Short description:**  
-Free Mumbai monsoon hazard map — report stagnant water, track BMC complaints, support volunteers. Built by students, not by BMC.
+Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links inside.
 
 **Full description highlights:**
 - Community hazard reporting with photo evidence
@@ -136,10 +136,11 @@ Free Mumbai monsoon hazard map — report stagnant water, track BMC complaints, 
 
 ### What we fixed (paste in Play Console → Release notes)
 
-- Replaced broken or non-.gov.in source URLs in `official-sources.html`, `js/config.js`, and store listing copy.
+- Replaced broken or non-.gov.in source URLs in `official-sources.html`, `js/config.js`, in-app i18n, and store listing copy (v150).
 - **Removed:** `pmccare.in` (non-.gov.in, unreachable from crawlers), `sbm.gov.in/sbmicc/ICT-platform` (404), `thanecity.gov.in` (connection failures), `grievances.maharashtra.gov.in` (intermittent/unreachable).
 - **Replaced with verified .gov.in links:** PMC `webadmin.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `aaplesarkar.mahaonline.gov.in`, Swachhata-MoHUA `mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
-- Official sources page now shows contact email and all .gov links in static HTML (no JS required).
+- Official sources page shows contact email (`civicradarnh@gmail.com`) and all .gov links in static HTML (no JS required).
+- In-app TMC/Aaple Sarkar copy and channel labels now match verified URLs (no thanecity.gov.in or grievances.maharashtra.gov.in as link targets).
 
 ### Play Console fields
 
@@ -188,7 +189,7 @@ Privacy: https://civicradarnh.github.io/civicradar/privacy.html
 Terms: https://civicradarnh.github.io/civicradar/terms.html
 Delete data: https://civicradarnh.github.io/civicradar/delete-account.html
 
-Free for residents. Built by students for neighbours — not by BMC.
+Built by students for neighbours — not by BMC or any government body.
 ```
 
 **Short description (80 chars max):**  

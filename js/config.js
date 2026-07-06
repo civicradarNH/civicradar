@@ -193,7 +193,6 @@
     aapleSarkar: {
       id: 'aaple_sarkar',
       portalUrl: 'https://aaplesarkar.mahaonline.gov.in/',
-      legacyPortalUrl: 'https://grievances.maharashtra.gov.in/en',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.aaplesarkar',
     },
     // Per-city channel order (city corp primary, Swachhata + Aaple Sarkar as cross-cutting).

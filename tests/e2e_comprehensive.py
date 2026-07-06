@@ -4657,7 +4657,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v149" in sw_src
+        "civicradar-v150" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -4933,7 +4933,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sources_body = await page.text_content('body') or ''
 
-        lg07_ok = resp4 is not None and resp4.ok and ('mcgm.gov.in' in sources_body or 'thanecity.gov.in' in sources_body)
+        lg07_ok = resp4 is not None and resp4.ok and ('mcgm.gov.in' in sources_body or 'tmc.gov.in' in sources_body)
 
         s.record('LG07', 'Legal', 'Official sources page loads with gov links', lg07_ok)
 
@@ -7274,9 +7274,9 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
         ('OC01', 'mumbai', WARD, 'marg', ('play.google.com', 'apps.apple.com', 'mcgm')),
 
-        ('OC02', 'pune', PUNE_WARD, 'pmc_care', ('play.google.com', 'pmccare.in', 'pmccare')),
+        ('OC02', 'pune', PUNE_WARD, 'pmc_care', ('play.google.com', 'webadmin.pmc.gov.in')),
 
-        ('OC03', 'thane', THANE_WARD, 'tmc_portal', ('thanecity.gov.in',)),
+        ('OC03', 'thane', THANE_WARD, 'tmc_portal', ('tmc.gov.in',)),
 
     ]
 
@@ -7707,7 +7707,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v149" in sw_src
+        "civicradar-v150" in sw_src
 
         and "'/index.html'" not in sw_src
 

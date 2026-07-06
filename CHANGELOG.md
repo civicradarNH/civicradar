@@ -9,6 +9,9 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Fixed
+- **Play Store government-source compliance (v150)** — removed broken URL targets from in-app i18n (thanecity.gov.in → tmc.gov.in, grievances.maharashtra.gov.in → aaplesarkar.mahaonline.gov.in); dropped `legacyPortalUrl` from config; E2E LG07/OC02/OC03 assert verified domains. Cache v150.
+
 ### Changed
 - **Profile volunteer/pledge dedup (v148)** — removed duplicate volunteer signup and pledge list from Profile → Activity; Resources tab remains the single home. Profile → Activity links to Resources via **Volunteer & pledges**; Account still has **Open Resources** for official channels. Cache v148.
 - **Resources modal color hierarchy (v147)** — official channels, volunteer/pledge, and sponsor sections each get a distinct tinted panel (BMC blue, community emerald, sponsor amber); per-channel cards use corp-specific accents (BMC blue, PMC orange, TMC green, Swachhata teal, Aaple Sarkar violet) with WhatsApp icons kept green; pledge cards differentiated (volunteer emerald vs support rose). Cache v147.
