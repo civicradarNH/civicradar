@@ -1397,6 +1397,80 @@ body.persona-lead .home-hero {
   display: none !important;
 }
 
+/* iOS landing — Add to Home Screen (no App Store) */
+.ios-install-hint {
+  position: fixed;
+  top: calc(var(--header-height) + var(--persona-bar-height) + env(safe-area-inset-top, 0px) + 8px);
+  left: 12px;
+  right: 12px;
+  z-index: 1001;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(34, 211, 238, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+
+.ios-install-hint.hidden { display: none; }
+
+.ios-install-hint__icon {
+  font-size: 1.25rem;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ios-install-hint__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.ios-install-hint__title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-dark);
+  margin: 0 0 2px;
+}
+
+.ios-install-hint__text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ios-install-hint__dismiss {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  margin: -6px -8px -6px 0;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.ios-install-hint__dismiss:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.ios-install-hint__dismiss:active { background: rgba(15, 23, 42, 0.06); }
+
+body.persona-admin .ios-install-hint,
+body.persona-lead .ios-install-hint {
+  display: none !important;
+}
+
 @keyframes home-hero-in {
   from {
     opacity: 0;

@@ -137,6 +137,16 @@
     <p class="home-hero__trust" data-i18n="home.hero.trust">Free · offline · 3 cities · 4 langs</p>
   </section>
 
+  <!-- iOS landing: Add to Home Screen (no App Store) -->
+  <div id="iosInstallHint" class="ios-install-hint hidden" role="region" aria-labelledby="iosInstallHintText">
+    <i class="ph ph-device-mobile ios-install-hint__icon" aria-hidden="true"></i>
+    <div class="ios-install-hint__copy">
+      <p class="ios-install-hint__title" data-i18n="iosInstall.title">Install on iPhone</p>
+      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">Same app as Android — no App Store needed. Open in Safari if needed, then Share → Add to Home Screen.</p>
+    </div>
+    <button type="button" class="ios-install-hint__dismiss" id="btnIosInstallDismiss" data-i18n-aria="iosInstall.dismiss" aria-label="Dismiss">&times;</button>
+  </div>
+
   <div id="mapEmptyCta" class="map-empty-cta hidden" role="status">
     <div class="map-empty-cta__icon-wrap" aria-hidden="true">
       <i class="ph ph-drop"></i>

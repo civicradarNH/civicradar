@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v151';
+  const CIVIC_APP_VERSION = 'v152';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -192,6 +192,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const LOCBANNER_SNOOZE_KEY = 'civicradar_locbanner_snooze';
 
   const LOCBANNER_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+
+  const IOS_INSTALL_SNOOZE_KEY = 'civicradar_ios_install_snooze';
+
+  const IOS_INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 
   const POINTS_PER_REPORT = 50;
 
@@ -2644,6 +2648,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'Not now',
 
+      'iosInstall.title': 'Install on iPhone',
+
+      'iosInstall.hint': 'Same app as Android — no App Store needed. Open in Safari if needed, then Share → Add to Home Screen.',
+
+      'iosInstall.dismiss': 'Dismiss install hint',
+
       'appOpen.title': 'Open in CivicRadar app',
 
       'appOpen.body': 'View this report in the app — faster map & alerts.',
@@ -4943,6 +4953,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'अभी नहीं',
 
+      'iosInstall.title': 'iPhone पर इंस्टॉल करें',
+
+      'iosInstall.hint': 'Android जैसा ही ऐप — App Store की ज़रूरत नहीं। ज़रूरत हो तो Safari में खोलें, फिर Share → Add to Home Screen।',
+
+      'iosInstall.dismiss': 'इंस्टॉल सुझाव बंद करें',
+
       'appOpen.title': 'CivicRadar ऐप में खोलें',
 
       'appOpen.body': 'रिपोर्ट ऐप में देखें — तेज़ नक्शा और अलर्ट।',
@@ -7239,6 +7255,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'आत्ता नाही',
 
+      'iosInstall.title': 'iPhone वर इंस्टॉल करा',
+
+      'iosInstall.hint': 'Android सारखाच अ‍ॅप — App Store नाही लागत. गरज असेल तर Safari मध्ये उघडा, नंतर Share → Add to Home Screen.',
+
+      'iosInstall.dismiss': 'इंस्टॉल सूचना बंद करा',
+
       'appOpen.title': 'CivicRadar अ‍ॅपमध्ये उघडा',
 
       'appOpen.body': 'अहवाल अ‍ॅपमध्ये पहा — जलद नकाशा आणि अलर्ट.',
@@ -9534,6 +9556,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'હોમ સ્ક્રીન પર ઉમેરો',
 
       'pwa.nudgeDismiss': 'હમણાં નહીં',
+
+      'iosInstall.title': 'iPhone પર ઇન્સ્ટોલ કરો',
+
+      'iosInstall.hint': 'Android જેવી જ એપ — App Store જરૂરી નથી. જરૂર પડે તો Safari માં ખોલો, પછી Share → Add to Home Screen.',
+
+      'iosInstall.dismiss': 'ઇન્સ્ટોલ સૂચન બંધ કરો',
 
       'appOpen.title': 'CivicRadar એપમાં ખોલો',
 
@@ -17608,6 +17636,90 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.classList.toggle('home-hero-visible', show);
 
+    updateIosInstallHint();
+
+  }
+
+
+
+  function isIosInstallHintSnoozed() {
+
+    try {
+
+      const ts = parseInt(localStorage.getItem(IOS_INSTALL_SNOOZE_KEY) || '0', 10);
+
+      return ts > 0 && (Date.now() - ts) < IOS_INSTALL_SNOOZE_MS;
+
+    } catch { return false; }
+
+  }
+
+
+
+  function snoozeIosInstallHint() {
+
+    try { localStorage.setItem(IOS_INSTALL_SNOOZE_KEY, String(Date.now())); } catch {}
+
+  }
+
+
+
+  function shouldShowIosInstallHint() {
+
+    if (!isAppleMobile() || isStandalonePwa()) return false;
+
+    if (getActivePersona() !== 'citizen') return false;
+
+    if (isAdmin || isLead) return false;
+
+    if (!user.tosAccepted || !user.ward) return false;
+
+    if (isIosInstallHintSnoozed()) return false;
+
+    const coach = $('#coachMark');
+
+    if (coach && !coach.classList.contains('hidden')) return false;
+
+    const tour = $('#tourOverlay');
+
+    if (tour && !tour.classList.contains('hidden')) return false;
+
+    if (overlays.tos && overlays.tos.classList.contains('open')) return false;
+
+    if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return false;
+
+    return true;
+
+  }
+
+
+
+  function updateIosInstallHint() {
+
+    const el = $('#iosInstallHint');
+
+    if (!el) return;
+
+    const show = shouldShowIosInstallHint();
+
+    const wasHidden = el.classList.contains('hidden');
+
+    el.classList.toggle('hidden', !show);
+
+    if (show && wasHidden && window.CivicAnalytics) CivicAnalytics.track('ios_install_hint_shown', {});
+
+  }
+
+
+
+  function dismissIosInstallHint() {
+
+    snoozeIosInstallHint();
+
+    updateIosInstallHint();
+
+    if (window.CivicAnalytics) CivicAnalytics.track('ios_install_hint_dismissed', {});
+
   }
 
 
@@ -22020,6 +22132,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function maybeShowPwaNudge(trigger) {
 
+    if (isAppleMobile()) return;
+
     if (!canShowPwaNudge()) return;
 
     if (shouldDeferFirstRunNudges() && trigger === 'visit') return;
@@ -22165,6 +22279,8 @@ document.addEventListener('DOMContentLoaded', function () {
   updateMapEmptyCta();
 
   updateHomeHero();
+
+  updateIosInstallHint();
 
   deferNonCritical(() => {
 
@@ -23901,6 +24017,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnSeasonDismiss = $('#btnSeasonHookDismiss');
 
     if (btnSeasonDismiss) btnSeasonDismiss.addEventListener('click', dismissSeasonHook);
+
+    const btnIosInstallDismiss = $('#btnIosInstallDismiss');
+
+    if (btnIosInstallDismiss) btnIosInstallDismiss.addEventListener('click', () => dismissIosInstallHint());
 
     const btnRefDismiss = $('#btnRefWelcomeDismiss');
 

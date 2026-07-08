@@ -9,6 +9,9 @@ Release process and environment details live in [`RELEASE.md`](./RELEASE.md).
 
 ## [Unreleased]
 
+### Added
+- **iOS Add to Home Screen hint (v152)** — dismissible landing banner for iPhone/iPad Safari (not standalone PWA): same app as Android, no App Store; open in Safari if needed, Share → Add to Home Screen. Snoozes 7 days on dismiss. en/hi/mr/gu. Cache v152.
+
 ### Fixed
 - **Play Store government-source compliance (v150)** — removed broken URL targets from in-app i18n (thanecity.gov.in → tmc.gov.in, grievances.maharashtra.gov.in → aaplesarkar.mahaonline.gov.in); dropped `legacyPortalUrl` from config; E2E LG07/OC02/OC03 assert verified domains. Cache v150.
 
