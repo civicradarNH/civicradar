@@ -138,7 +138,7 @@ Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links 
 
 - Replaced broken or non-.gov.in source URLs in `official-sources.html`, `js/config.js`, in-app i18n, and store listing copy (v150).
 - **Removed:** `pmccare.in` (non-.gov.in, unreachable from crawlers), `sbm.gov.in/sbmicc/ICT-platform` (404), `thanecity.gov.in` (connection failures), `grievances.maharashtra.gov.in` (intermittent/unreachable).
-- **Replaced with verified .gov.in links:** PMC `webadmin.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `aaplesarkar.mahaonline.gov.in`, Swachhata-MoHUA `mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
+- **Replaced with verified .gov.in links:** PMC `webadmin.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `aaplesarkar.mahaonline.gov.in`, Swachhata-MoHUA `www.mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
 - Official sources page shows contact email (`civicradarnh@gmail.com`) and all .gov links in static HTML (no JS required).
 - In-app TMC/Aaple Sarkar copy and channel labels now match verified URLs (no thanecity.gov.in or grievances.maharashtra.gov.in as link targets).
 
@@ -183,7 +183,7 @@ Thane (TMC):
 
 Maharashtra & national:
 • Aaple Sarkar grievances: https://aaplesarkar.mahaonline.gov.in/
-• Swachhata-MoHUA (MoHUA): https://mohua.gov.in/cms/swachh-bharat-mission-urban.php
+• Swachhata-MoHUA (MoHUA): https://www.mohua.gov.in/cms/swachh-bharat-mission-urban.php
 
 Privacy: https://civicradarnh.github.io/civicradar/privacy.html
 Terms: https://civicradarnh.github.io/civicradar/terms.html

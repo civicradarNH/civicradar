@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v153';
+  const CIVIC_APP_VERSION = 'v154';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       case 'swachhata':
 
-        return sw.infoUrl ? { url: sw.infoUrl, label: 'mohua.gov.in' } : null;
+        return sw.infoUrl ? { url: sw.infoUrl, label: 'www.mohua.gov.in' } : null;
 
       case 'aaple_sarkar': {
 
