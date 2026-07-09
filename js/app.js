@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v152';
+  const CIVIC_APP_VERSION = 'v153';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1774,6 +1774,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updatePartnerPortalUi();
 
+    if (typeof renderWardPulse === 'function') renderWardPulse();
+
     const wardImpactEl = $('#profileWardImpact');
 
     if (wardImpactEl) {
@@ -2764,6 +2766,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.legend.you': 'You',
 
       'map.legend.aria': 'Map legend: open, fixed, and your pins',
+
+      'pulse.aria': 'Ward pulse: open hazards, fixed this week, and Me too',
+
+      'pulse.open': 'open',
+
+      'pulse.fixedWeek': 'fixed this week',
+
+      'pulse.metoo': 'Me too',
+
+      'pulse.yourWard': 'Your ward',
 
       'reminder.unfiled': '{n} open on the map — share with neighbours or file from Profile.',
 
@@ -5063,6 +5075,16 @@ document.addEventListener('DOMContentLoaded', function () {
       'home.hero.dismiss': 'स्वागत कार्ड बंद करें',
 
       'map.legend.pending': 'खुला',
+
+      'pulse.aria': 'वार्ड पल्स: खुले खतरे, इस सप्ताह ठीक, और Me too',
+
+      'pulse.open': 'खुले',
+
+      'pulse.fixedWeek': 'इस सप्ताह ठीक',
+
+      'pulse.metoo': 'Me too',
+
+      'pulse.yourWard': 'आपका वार्ड',
 
       'map.legend.resolved': 'ठीक',
 
@@ -7366,6 +7388,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.legend.pending': 'उघडे',
 
+      'pulse.aria': 'वॉर्ड पल्स: उघडे धोके, या आठवड्यात सोडवले, आणि Me too',
+
+      'pulse.open': 'उघडे',
+
+      'pulse.fixedWeek': 'या आठवड्यात सोडवले',
+
+      'pulse.metoo': 'Me too',
+
+      'pulse.yourWard': 'तुमचा वॉर्ड',
+
       'map.legend.resolved': 'सोडवले',
 
       'map.legend.you': 'तुम्ही',
@@ -9668,6 +9700,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.legend.pending': 'ખુલ્લા',
 
+      'pulse.aria': 'વોર્ડ પલ્સ: ખુલ્લા જોખમો, આ અઠવાડિયે ઠીક, અને Me too',
+
+      'pulse.open': 'ખુલ્લા',
+
+      'pulse.fixedWeek': 'આ અઠવાડિયે ઠીક',
+
+      'pulse.metoo': 'Me too',
+
+      'pulse.yourWard': 'તમારો વોર્ડ',
+
       'map.legend.resolved': 'ઉકેલાયા',
 
       'map.legend.you': 'તમે',
@@ -11824,6 +11866,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (typeof renderWardChallenge === 'function') renderWardChallenge();
       if (typeof renderLeaderboard === 'function') { renderLeaderboard('wards'); renderLeaderboard('citizens'); }
       if (typeof renderCommunityImpactStats === 'function') renderCommunityImpactStats();
+      if (typeof renderWardPulse === 'function') renderWardPulse();
       if ($('#hazardGrid')) renderHazardPicker();
       if (activeEscalationId) {
         const escReport = findReportById(activeEscalationId);
@@ -13532,6 +13575,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .replace('{cleanup}', String(s.volunteerCleanup));
 
     }
+
+    if (typeof renderWardPulse === 'function') renderWardPulse();
 
   }
 
@@ -17637,6 +17682,12 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.toggle('home-hero-visible', show);
 
     updateIosInstallHint();
+
+    if (typeof renderWardPulse === 'function') renderWardPulse();
+
+    if (map) {
+      try { map.invalidateSize({ pan: false }); } catch { /* ignore */ }
+    }
 
   }
 
@@ -22750,7 +22801,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       radius: 8,
 
-      fillColor: '#6366f1',
+      fillColor: '#0f766e',
 
       color: '#fff',
 
@@ -22766,9 +22817,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         radius: accuracyM,
 
-        color: '#6366f1',
+        color: '#0f766e',
 
-        fillColor: '#6366f1',
+        fillColor: '#0f766e',
 
         fillOpacity: 0.12,
 
@@ -23342,9 +23393,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
     pool.forEach((r) => createReportMarker(r));
 
+    if (typeof renderWardPulse === 'function') renderWardPulse();
+
   }
 
 
+
+  function getUserWardPulseStats() {
+    const ward = user && user.ward;
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    let open = 0;
+    let fixedWeek = 0;
+    let meToo = 0;
+    cityScopedReports(loadReports()).forEach((r) => {
+      if (!ward || r.ward !== ward) return;
+      if (typeof isReportPubliclyHidden === 'function' && isReportPubliclyHidden(r)) return;
+      if (r.status === 'pending') {
+        open += 1;
+        meToo += Number(r.confirmations) || 0;
+      } else if (r.status === 'resolved') {
+        const ts = r.resolvedAt || r.timestamp;
+        if (ts && new Date(ts).getTime() >= weekAgo) fixedWeek += 1;
+      }
+    });
+    return { open, fixedWeek, meToo };
+  }
+
+  function renderWardPulse() {
+    const el = $('#wardPulse');
+    if (!el) return;
+    const nameEl = $('#wardPulseName');
+    const openEl = $('#wardPulseOpen');
+    const fixedEl = $('#wardPulseFixed');
+    const meTooEl = $('#wardPulseMeToo');
+    const wardLabel = (user && user.ward)
+      ? getWardShortName(user.ward)
+      : t('pulse.yourWard');
+    if (nameEl) nameEl.textContent = wardLabel;
+    const stats = getUserWardPulseStats();
+    if (openEl) openEl.textContent = String(stats.open);
+    if (fixedEl) fixedEl.textContent = String(stats.fixedWeek);
+    if (meTooEl) meTooEl.textContent = String(stats.meToo);
+    el.setAttribute('aria-label', t('pulse.aria'));
+  }
 
   function loadReportMarkers() {
 
@@ -27594,7 +27685,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.strokeStyle = dark ? '#6366f1' : '#4f46e5';
+    ctx.strokeStyle = dark ? '#0f766e' : '#0f766e';
 
     ctx.lineWidth = 6;
 
@@ -27602,7 +27693,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
+    ctx.fillStyle = dark ? '#5eead4' : '#0f766e';
 
     ctx.font = '700 48px Outfit, system-ui, sans-serif';
 
@@ -27849,7 +27940,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
+    ctx.fillStyle = dark ? '#5eead4' : '#0f766e';
 
     ctx.font = '700 52px Outfit, system-ui, sans-serif';
 
@@ -32027,6 +32118,8 @@ document.addEventListener('DOMContentLoaded', function () {
     syncCoopRegistryLink();
 
     renderOfficialChannelsSurfaces(null);
+
+    if (typeof renderWardPulse === 'function') renderWardPulse();
 
     const reports = getUserReports();
 
