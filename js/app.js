@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v154';
+  const CIVIC_APP_VERSION = 'v156';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -22801,7 +22801,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       radius: 8,
 
-      fillColor: '#0f766e',
+      fillColor: '#6366f1',
 
       color: '#fff',
 
@@ -22817,9 +22817,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         radius: accuracyM,
 
-        color: '#0f766e',
+        color: '#6366f1',
 
-        fillColor: '#0f766e',
+        fillColor: '#6366f1',
 
         fillOpacity: 0.12,
 
@@ -27685,7 +27685,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.strokeStyle = dark ? '#0f766e' : '#0f766e';
+    ctx.strokeStyle = dark ? '#6366f1' : '#4f46e5';
 
     ctx.lineWidth = 6;
 
@@ -27693,7 +27693,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.fillStyle = dark ? '#5eead4' : '#0f766e';
+    ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
 
     ctx.font = '700 48px Outfit, system-ui, sans-serif';
 
@@ -27940,7 +27940,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.fillStyle = dark ? '#5eead4' : '#0f766e';
+    ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
 
     ctx.font = '700 52px Outfit, system-ui, sans-serif';
 
