@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v158';
+  const CIVIC_APP_VERSION = 'v159';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -15260,7 +15260,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } else if (voted) {
 
-      action = `<button type="button" class="btn btn--outline btn--sm btn--support" disabled><i class="ph ph-check"></i> ${escapeHtml(t('lead.supported'))}</button>`;
+      action = `<button type="button" class="btn btn--secondary btn--sm btn--support" disabled><i class="ph ph-check"></i> ${escapeHtml(t('lead.supported'))}</button>`;
 
     } else {
 
@@ -15490,7 +15490,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           </button>
 
-          <button type="button" class="btn btn--outline btn--sm" data-access-action="reject" data-access-id="${escapeHtml(req.id)}">
+          <button type="button" class="btn btn--secondary btn--sm" data-access-action="reject" data-access-id="${escapeHtml(req.id)}">
 
             <i class="ph ph-x"></i> ${escapeHtml(t('access.reject'))}
 
@@ -15506,7 +15506,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           <code class="claim-code">${escapeHtml(req.claim_code)}</code>
 
-          <button type="button" class="btn btn--outline btn--sm" data-access-action="copy" data-access-code="${escapeHtml(req.claim_code)}">
+          <button type="button" class="btn btn--secondary btn--sm" data-access-action="copy" data-access-code="${escapeHtml(req.claim_code)}">
 
             <i class="ph ph-copy"></i> ${escapeHtml(t('access.copyCode'))}
 
@@ -19326,6 +19326,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
     });
+
+    const fill = $('#reportFlowFill');
+
+    if (fill) fill.style.width = (s === 'confirm' ? '100%' : '50%');
 
     $$('#reportModal .report-step').forEach((panel) => {
 
@@ -27017,11 +27021,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function celebrationHaptic() {
+
+    try {
+
+      if (localStorage.getItem('civicradar_sound_muted') === '1') return;
+
+      if (navigator.vibrate) navigator.vibrate(10);
+
+    } catch { /* unsupported / denied */ }
+
+  }
+
+
+
   function celebrateReportSubmit(reportCount) {
 
     const isFirst = reportCount === 1;
 
     const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(reportCount);
+
+    celebrationHaptic();
 
     launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
 
@@ -28483,7 +28503,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateShareWinNativeButton();
 
-    if (opts.celebrate !== false) launchConfetti();
+    if (opts.celebrate !== false) {
+      celebrationHaptic();
+      launchConfetti();
+    }
 
     openModal('shareWin');
 
@@ -29399,13 +29422,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (dept.phone) {
 
-          actions.push(`<button type="button" class="btn btn--outline btn--sm" data-corp-channel="call" data-corp-phone="${escapeHtml(dept.phone)}">${escapeHtml(dept.phoneDisplay || dept.phone)}</button>`);
+          actions.push(`<button type="button" class="btn btn--secondary btn--sm" data-corp-channel="call" data-corp-phone="${escapeHtml(dept.phone)}">${escapeHtml(dept.phoneDisplay || dept.phone)}</button>`);
 
         }
 
         if (dept.email) {
 
-          actions.push(`<button type="button" class="btn btn--outline btn--sm" data-corp-channel="email" data-corp-email="${escapeHtml(dept.email)}">${escapeHtml(t('esc.tmc.tier.openEmail'))}</button>`);
+          actions.push(`<button type="button" class="btn btn--secondary btn--sm" data-corp-channel="email" data-corp-email="${escapeHtml(dept.email)}">${escapeHtml(t('esc.tmc.tier.openEmail'))}</button>`);
 
         }
 
@@ -30139,7 +30162,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="whatsapp">${escapeHtml(t('esc.tier.openWa'))}</button>
 
@@ -30151,7 +30174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-corp-channel="whatsapp">${escapeHtml(t('esc.pmc.tier.openWa'))}</button>
 
@@ -30163,7 +30186,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="file">${escapeHtml(t('esc.copyAll'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-corp-channel="portal">${escapeHtml(t('esc.corpBtn').replace('{corp}', corp.name || getCityLabel(city)))}</button>
 
@@ -30179,7 +30202,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="${escapeHtml(tobj.key)}">${escapeHtml(corpActions.copy)}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="${escapeHtml(tobj.key)}">${escapeHtml(corpActions.copy)}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="${escapeHtml(corpActions.channel)}"${phoneAttr}>${escapeHtml(corpActions.action)}</button>
 
@@ -30197,7 +30220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="matrix">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="matrix">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="call">${escapeHtml(t('esc.tier.openCall'))}</button>
 
@@ -30209,7 +30232,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="zonal">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="zonal">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="tweet">${escapeHtml(t('esc.tier.openTweet'))}</button>
 
@@ -30221,7 +30244,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="esc-step__actions">
 
-                <button type="button" class="btn btn--outline btn--sm" data-esc-copy="grievance">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="grievance">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
 
                 <button type="button" class="btn btn--primary btn--sm" data-esc-channel="aaple">${escapeHtml(t('esc.tier.openAaple'))}</button>
 
@@ -32478,7 +32501,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const cls = stage.key === 'matrix' || stage.key === 'zonal' || stage.key === 'grievance'
 
-            ? 'btn--primary' : 'btn--outline';
+            ? 'btn--primary' : 'btn--secondary';
 
           action = `<button type="button" class="btn ${cls} btn--sm report-card__cta" data-escalate="${escapeHtml(String(r.id))}">${label}</button>`;
 
@@ -33941,7 +33964,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <div class="queue-item__actions">
 
-              <button type="button" class="btn btn--outline btn--sm" data-copy-1916="${escapeHtml(String(r.id))}" title="${escapeHtml(t('admin.copy1916'))}">${escapeHtml(t('admin.copy1916'))}</button>
+              <button type="button" class="btn btn--secondary btn--sm" data-copy-1916="${escapeHtml(String(r.id))}" title="${escapeHtml(t('admin.copy1916'))}">${escapeHtml(t('admin.copy1916'))}</button>
 
               <button type="button" class="btn btn--primary btn--sm" data-queue-open="${escapeHtml(String(r.id))}">Review</button>
 
@@ -34413,7 +34436,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else if (!delivered) {
 
-          actionBtn = `<button type="button" class="btn btn--outline btn--sm" data-action="deliver" data-pledge-id="${escapeHtml(String(p.id))}">${escapeHtml(t('coord.markDelivered'))}</button>`;
+          actionBtn = `<button type="button" class="btn btn--secondary btn--sm" data-action="deliver" data-pledge-id="${escapeHtml(String(p.id))}">${escapeHtml(t('coord.markDelivered'))}</button>`;
 
         } else {
 

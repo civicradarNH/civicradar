@@ -46,8 +46,8 @@
   <!-- Google Fonts (non-blocking — splash uses system stack until loaded) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap"></noscript>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -414,6 +414,7 @@
         <span class="flow-step is-active" role="listitem" data-step="capture" data-i18n="report.step.capture">Capture</span>
         <span class="flow-step" role="listitem" data-step="confirm" data-i18n="report.step.confirm">Confirm</span>
       </div>
+      <div class="flow-progress" aria-hidden="true"><div class="flow-progress__fill" id="reportFlowFill"></div></div>
       <input type="hidden" id="hazardType" value="stagnant-water">
       <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
 
@@ -511,7 +512,7 @@
               <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
             </p>
             <div class="share-buttons">
-              <button type="button" class="btn btn--dark btn--full" id="btnShareTwitter">
+              <button type="button" class="btn btn--secondary btn--full" id="btnShareTwitter">
                 <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
               </button>
             </div>
@@ -550,10 +551,10 @@
       </button>
       <div class="share-win-instagram">
         <p class="share-win-instagram__hint" data-i18n="shareWin.instagramHint">Save image → post to Instagram Stories</p>
-        <button type="button" class="btn btn--outline btn--full" id="btnShareWinDownload">
+        <button type="button" class="btn btn--secondary btn--full" id="btnShareWinDownload">
           <i class="ph ph-download-simple"></i> <span data-i18n="shareWin.downloadCard">Download success card</span>
         </button>
-        <button type="button" class="btn btn--outline btn--full" id="btnShareWinCopyCaption">
+        <button type="button" class="btn btn--secondary btn--full" id="btnShareWinCopyCaption">
           <i class="ph ph-copy"></i> <span data-i18n="shareWin.copyCaption">Copy caption for Instagram</span>
         </button>
         <button type="button" class="btn btn--secondary btn--full hidden" id="btnShareWinNativeShare" data-i18n-aria="shareWin.nativeShare" aria-label="Share image">
@@ -577,10 +578,10 @@
         <i class="ph ph-whatsapp-logo"></i> <span data-i18n="cert.whatsapp">Share on WhatsApp</span>
       </button>
       <div class="share-win-instagram">
-        <button type="button" class="btn btn--outline btn--full" id="btnCertDownload">
+        <button type="button" class="btn btn--secondary btn--full" id="btnCertDownload">
           <i class="ph ph-download-simple"></i> <span data-i18n="cert.download">Download certificate</span>
         </button>
-        <button type="button" class="btn btn--outline btn--full" id="btnCertCopyCaption">
+        <button type="button" class="btn btn--secondary btn--full" id="btnCertCopyCaption">
           <i class="ph ph-copy"></i> <span data-i18n="cert.copyCaption">Copy caption</span>
         </button>
       </div>
@@ -686,7 +687,7 @@
           <i class="ph ph-users-three" aria-hidden="true"></i>
           <span data-i18n="lead.communityEmpty">No candidates yet in your ward — nominate yourself to get started.</span>
         </div>
-            <button type="button" class="btn btn--outline btn--full" id="btnCommunityBecomeLead">
+            <button type="button" class="btn btn--secondary btn--full" id="btnCommunityBecomeLead">
               <i class="ph ph-hand-heart"></i> <span data-i18n="lead.becomeCta">Become a community lead</span>
             </button>
           </section>
@@ -923,7 +924,7 @@
           <div class="profile-resource-link" id="profileCommunityLinkBlock">
             <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="resources.actionTitle">Help in your ward</span></h3>
             <p class="field-hint" data-i18n="profile.communityHint">Volunteer sign-up and supply pledges — open from the Resources tab.</p>
-            <button type="button" class="btn btn--outline btn--full" id="btnProfileCommunityHelp">
+            <button type="button" class="btn btn--secondary btn--full" id="btnProfileCommunityHelp">
               <i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="profile.communityLink">Volunteer &amp; pledges</span>
             </button>
           </div>
@@ -994,13 +995,13 @@
           <div class="profile-resource-link" id="profileOfficialLinkBlock">
             <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
             <p class="field-hint" data-i18n="profile.officialHint">Verified BMC, PMC, and TMC apps and portals — open from the Resources tab.</p>
-            <button type="button" class="btn btn--outline btn--full" id="btnProfileOfficialChannels">
+            <button type="button" class="btn btn--secondary btn--full" id="btnProfileOfficialChannels">
               <i class="ph ph-megaphone" aria-hidden="true"></i> <span data-i18n="profile.officialLink">Open Resources</span>
             </button>
           </div>
 
           <div class="profile-footer">
-        <button type="button" class="btn btn--outline btn--full hidden" id="btnInstall">
+        <button type="button" class="btn btn--secondary btn--full hidden" id="btnInstall">
           <i class="ph ph-download-simple"></i> <span data-i18n="profile.install">Install CivicRadar app</span>
         </button>
         <button type="button" class="btn btn--ghost btn--full" id="btnAbout">
@@ -1218,7 +1219,7 @@
         <div class="health-panel__body" id="adminHealthStats" aria-live="polite" data-i18n="admin.healthLoading">Loading usage…</div>
       </details>
 
-      <button type="button" class="btn btn--outline btn--full" id="btnOpenTracking">
+      <button type="button" class="btn btn--secondary btn--full" id="btnOpenTracking">
         <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
       </button>
 
@@ -1234,19 +1235,19 @@
             <option value="confirmed" data-i18n-option="admin.sort.confirmed">Most Me too</option>
           </select>
         </div>
-        <button type="button" class="btn btn--outline btn--sm btn--full" id="btnAdminExportCsv">
+        <button type="button" class="btn btn--secondary btn--sm btn--full" id="btnAdminExportCsv">
           <i class="ph ph-file-csv"></i> <span data-i18n="admin.exportCsv">Export ward CSV</span>
         </button>
       </div>
 
       <ul class="queue-list" id="adminQueueList"></ul>
 
-      <button type="button" class="btn btn--outline btn--full" id="btnAccessReviewOpen">
+      <button type="button" class="btn btn--secondary btn--full" id="btnAccessReviewOpen">
         <i class="ph ph-identification-card"></i> <span data-i18n="access.reviewOpen">Access requests</span>
         <span class="badge-count hidden" id="accessReviewBadge">0</span>
       </button>
       <button type="button" class="btn btn--ghost btn--full" id="btnAdminQueueClose" data-i18n="admin.returnMap">Return to map</button>
-      <button type="button" class="btn btn--outline btn--full" id="btnAdminQueueExit" data-i18n="admin.exitMode">Exit BMC mode</button>
+      <button type="button" class="btn btn--secondary btn--full" id="btnAdminQueueExit" data-i18n="admin.exitMode">Exit BMC mode</button>
     </div>
   </div>
 
@@ -1271,7 +1272,7 @@
         Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 pts)
       </div>
 
-      <button type="button" class="btn btn--outline btn--full" id="btnCoordTracking">
+      <button type="button" class="btn btn--secondary btn--full" id="btnCoordTracking">
         <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
       </button>
 
@@ -1287,7 +1288,7 @@
       <h3 class="section-title" id="coordPledgesTitle" data-i18n="coord.pledges">Citizen pledges</h3>
       <ul class="pledge-list" id="coordinatorPledgeList"></ul>
       <button type="button" class="btn btn--ghost btn--full" id="btnCoordinatorClose" data-i18n="admin.returnMap">Return to map</button>
-      <button type="button" class="btn btn--outline btn--full" id="btnCoordinatorExit" data-i18n="coord.exitMode">Exit NGO mode</button>
+      <button type="button" class="btn btn--secondary btn--full" id="btnCoordinatorExit" data-i18n="coord.exitMode">Exit NGO mode</button>
     </div>
   </div>
 
@@ -1308,7 +1309,7 @@
           <span class="proof-compare__label" data-i18n="admin.proofAfter">After (BMC proof)</span>
           <div class="proof-compare__after" id="adminProofAfterWrap">
             <img id="adminProofPreview" alt="After proof photo" hidden>
-            <button type="button" class="btn btn--outline btn--sm btn--full" id="btnAdminProofCapture">
+            <button type="button" class="btn btn--secondary btn--sm btn--full" id="btnAdminProofCapture">
               <i class="ph ph-camera"></i> <span data-i18n="admin.proofCapture">Add proof photo</span>
             </button>
             <input type="file" id="adminProofInput" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
@@ -1324,7 +1325,7 @@
         <p><strong data-i18n="admin.meta.lat">Lat</strong> <span id="adminReportLat">—</span></p>
         <p><strong data-i18n="admin.meta.lng">Lng</strong> <span id="adminReportLng">—</span></p>
       </div>
-      <button type="button" class="btn btn--outline btn--full" id="btnAdminCopy1916">
+      <button type="button" class="btn btn--secondary btn--full" id="btnAdminCopy1916">
         <i class="ph ph-copy"></i> <span data-i18n="admin.copy1916">Copy for 1916</span>
       </button>
       <button type="button" class="btn btn--primary btn--full" id="btnMarkResolved">
@@ -1381,7 +1382,7 @@
         </button>
       </div>
 
-      <button type="button" class="btn btn--outline btn--full" id="btnEscAaple">
+      <button type="button" class="btn btn--secondary btn--full" id="btnEscAaple">
         <i class="ph ph-bank"></i> <span data-i18n="esc.aaple">Aaple Sarkar (state grievance)</span>
       </button>
       </div>
@@ -1401,7 +1402,7 @@
           <p class="field-hint" data-i18n="esc.tmc.deptHint">For stagnant-water follow-ups — Water, Health, or Pollution Control.</p>
           <ul class="esc-dept-list" id="escCorpDeptList"></ul>
         </div>
-        <button type="button" class="btn btn--outline btn--full hidden" id="btnEscCorpAaple">
+        <button type="button" class="btn btn--secondary btn--full hidden" id="btnEscCorpAaple">
           <i class="ph ph-bank"></i> <span data-i18n="esc.tmc.aaple">Aaple Sarkar — select TMC as local body</span>
         </button>
       </div>
@@ -1414,7 +1415,7 @@
         <textarea id="escComplaintText" class="esc-copy-block__text" rows="7" readonly aria-readonly="true"></textarea>
         <p class="field-hint" data-i18n="esc.copyBilingual">For the call centre: you can read the Marathi line in the text block.</p>
         <p class="field-hint" id="escPortalHint" data-i18n="esc.portalHint">On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.</p>
-        <button type="button" class="btn btn--outline btn--sm btn--full" id="btnEscCopyAll">
+        <button type="button" class="btn btn--secondary btn--sm btn--full" id="btnEscCopyAll">
           <i class="ph ph-copy"></i> <span data-i18n="esc.copyAll">Copy all details</span>
         </button>
       </div>
@@ -1502,13 +1503,13 @@
         <a href="official-sources.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.officialSources">Official government sources</a>
       </p>
 
-      <button type="button" class="btn btn--outline btn--full" id="btnBecomeCoordinator">
+      <button type="button" class="btn btn--secondary btn--full" id="btnBecomeCoordinator">
         <i class="ph ph-users-three"></i> <span data-i18n="about.becomeCoord">Become a ward or neighbourhood coordinator</span>
       </button>
-      <button type="button" class="btn btn--outline btn--full" id="btnContactFounder">
+      <button type="button" class="btn btn--secondary btn--full" id="btnContactFounder">
         <i class="ph ph-envelope"></i> <span data-i18n="about.contact">Contact us</span>
       </button>
-      <button type="button" class="btn btn--outline btn--full" id="btnAboutFeedback">
+      <button type="button" class="btn btn--secondary btn--full" id="btnAboutFeedback">
         <i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.menu">Send feedback</span>
       </button>
       <p class="about-map-credits" data-i18n="about.mapCredits">Map data © OpenStreetMap contributors (ODbL). Map powered by Leaflet.</p>
@@ -1682,7 +1683,7 @@
 
           <div class="form-group">
             <label class="form-label"><span data-i18n="access.proofLabel">ID / proof</span> <span class="field-optional" data-i18n="access.proofOptional">(optional — encouraged for BMC)</span></label>
-            <button type="button" class="btn btn--outline btn--full" id="btnAccessProof"><i class="ph ph-paperclip"></i> <span data-i18n="access.proofAdd">Attach proof photo</span></button>
+            <button type="button" class="btn btn--secondary btn--full" id="btnAccessProof"><i class="ph ph-paperclip"></i> <span data-i18n="access.proofAdd">Attach proof photo</span></button>
             <input type="file" id="accessProofInput" accept="image/*" class="hidden">
             <p class="field-hint hidden" id="accessProofName"></p>
           </div>
@@ -1706,7 +1707,7 @@
         <h3 data-i18n="access.confirmTitle">Request received</h3>
         <p data-i18n="access.confirmBody">Thanks! The CivicRadar team will review your request and reach you with a claim code, usually within a few days. Enter that code in the app to unlock your access.</p>
         <p class="access-confirm__note hidden" id="accessConfirmLocalNote" data-i18n="access.confirmLocal">Saved on this device — it will sync to the team when you are back online.</p>
-        <button type="button" class="btn btn--outline btn--full" id="btnAccessConfirmCode" data-i18n="access.haveCode">I already have a claim code</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnAccessConfirmCode" data-i18n="access.haveCode">I already have a claim code</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnAccessDone" data-i18n="access.done">Done</button>
       </div>
     </div>
@@ -1787,7 +1788,7 @@
         <h3 data-i18n="lead.confirmTitle">You're on the ballot!</h3>
         <p data-i18n="lead.confirmBody">Share CivicRadar with neighbours — you need 2 supports to unlock coordinator tools. If someone else runs for the same slot, you both need 5.</p>
         <p class="access-confirm__note hidden" id="leadNomConfirmLocal" data-i18n="lead.confirmLocal">Saved on this device — syncs when you're online.</p>
-        <button type="button" class="btn btn--outline btn--full" id="btnLeadNomViewCommunity" data-i18n="lead.viewCommunity">See candidates in Community</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnLeadNomViewCommunity" data-i18n="lead.viewCommunity">See candidates in Community</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnLeadNomDone" data-i18n="access.done">Done</button>
       </div>
     </div>
@@ -1889,7 +1890,7 @@
         <div class="dashboard-stat"><span id="arRejected">0</span><label data-i18n="access.rejected">Rejected</label></div>
       </div>
       <ul class="queue-list" id="accessReviewList"></ul>
-      <button type="button" class="btn btn--outline btn--full" id="btnAccessReviewTracking">
+      <button type="button" class="btn btn--secondary btn--full" id="btnAccessReviewTracking">
         <i class="ph ph-chart-bar"></i> <span data-i18n="tracking.open">Analytics &amp; tracking</span>
       </button>
       <button type="button" class="btn btn--ghost btn--full" id="btnAccessReviewClose" data-i18n="admin.returnMap">Return to map</button>
