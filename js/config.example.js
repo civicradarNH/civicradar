@@ -94,7 +94,7 @@
       corpChannels: {
         name: 'PMC',
         fullName: 'Pune Municipal Corporation',
-        grievanceUrl: 'https://webadmin.pmc.gov.in/citizen-services',
+        grievanceUrl: 'https://www.pmc.gov.in/',
         whatsapp: '919689900002',
         helpline: '18001030222',
         helplineDisplay: '1800 1030 222',
@@ -102,7 +102,7 @@
         playStoreUrl: 'https://play.google.com/store/apps/details?id=in.gov.pmc.pmccare',
         appStoreUrl: 'https://apps.apple.com/in/app/pmc-care/id1330880892',
         playStoreSearchUrl: 'https://play.google.com/store/search?q=PMC+CARE&c=apps',
-        aapleSarkarUrl: 'https://aaplesarkar.mahaonline.gov.in/',
+        aapleSarkarUrl: 'https://pgportal.gov.in/',
       },
     },
     thane: {
@@ -115,7 +115,7 @@
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',
         grievanceUrl: 'https://tmc.gov.in/',
-        aapleSarkarUrl: 'https://aaplesarkar.mahaonline.gov.in/',
+        aapleSarkarUrl: 'https://pgportal.gov.in/',
         helplines: ['02225331590', '02225331211'],
         helplineDisplay: '022-25331590 · 022-25331211',
         citizenCallCenter: '155300',

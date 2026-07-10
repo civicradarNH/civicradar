@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v157';
+  const CIVIC_APP_VERSION = 'v156';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -322,11 +322,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     whatsapp: '918999228999',            // MyBMC WhatsApp assistant
 
-    portalUrl: 'https://www.mcgm.gov.in/',
+    portalUrl: 'https://www.mcgm.gov.in',
 
     twitter: 'mybmc',                    // @mybmc (X handles civic complaints)
 
-    aapleSarkar: 'https://pgportal.gov.in/', // Maharashtra state grievance portal
+    aapleSarkar: 'https://pgportal.gov.in', // Maharashtra state grievance portal
 
     participateUrl: 'https://participatemumbai.mcgm.gov.in/', // BMC civic engagement (volunteer / CSR — not complaints)
 
@@ -758,19 +758,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       case 'bmc_call':
 
-        return { url: BMC.portalUrl, label: 'www.mcgm.gov.in' };
+        return { url: BMC.portalUrl, label: 'portal.mcgm.gov.in' };
 
       case 'pmc_care':
 
       case 'pmc_wa':
 
-        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'www.pmc.gov.in' } : null;
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'pmc.gov.in' } : null;
 
       case 'tmc_portal':
 
       case 'tmc_call':
 
-        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'tmc.gov.in' } : null;
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'thanecity.gov.in' } : null;
 
       case 'swachhata':
 
@@ -850,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           label: t('official.bmcPortal.label'),
 
-          small: 'www.mcgm.gov.in',
+          small: 'portal.mcgm.gov.in',
 
           url: BMC.portalUrl,
 
@@ -2841,7 +2841,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': 'File with {corp} (optional)',
 
-      'esc.tmc.recommended': 'Recommended: file on tmc.gov.in or call TMC helpline 022-25331590.',
+      'esc.tmc.recommended': 'Recommended: file on thanecity.gov.in or call TMC helpline 022-25331590.',
 
       'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — use any official TMC channel below.',
 
@@ -2859,7 +2859,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'Copied — paste when you file with TMC',
 
-      'esc.tmc.portalHint': 'On tmc.gov.in: login → Online citizen services → File a complaint. Paste details below.',
+      'esc.tmc.portalHint': 'On thanecity.gov.in: login → Online citizen services → File a complaint. Paste details below.',
 
       'esc.tmc.filedConsent': 'I filed on an official TMC channel (portal / helpline / email / 155300 / Aaple Sarkar)',
 
@@ -2889,13 +2889,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'Pollution Control',
 
-      'esc.tmc.tier.file.body': 'File on tmc.gov.in, call 022-25331590 / 022-25331211, email mc@thanecity.gov.in, or use Citizen Call Center 155300. Save your reference number here.',
+      'esc.tmc.tier.file.body': 'File on thanecity.gov.in, call 022-25331590 / 022-25331211, email mc@thanecity.gov.in, or use Citizen Call Center 155300. Save your reference number here.',
 
       'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department (022-25332685). Quote your TMC reference number.',
 
       'esc.tmc.tier.zonal.body': 'Escalate to the Municipal Commissioner (mc@thanecity.gov.in). Tag @TMCaTweetAway on X with the photo for public visibility.',
 
-      'esc.tmc.tier.grievance.body': 'Still ignored after a month? File with Aaple Sarkar (pgportal.gov.in) — select Thane Municipal Corporation as local body.',
+      'esc.tmc.tier.grievance.body': 'Still ignored after a month? File with National grievance portal (pgportal.gov.in) — select Thane Municipal Corporation as local body.',
 
       'esc.tmc.tier.openCall': 'Call TMC',
 
@@ -2953,7 +2953,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.tier.zonal.body': 'Escalate through PMC CARE portal or WhatsApp if your ward has not acted.',
 
-      'esc.pmc.tier.grievance.body': 'Still ignored after a month? File with Aaple Sarkar (pgportal.gov.in) — select Pune Municipal Corporation as local body.',
+      'esc.pmc.tier.grievance.body': 'Still ignored after a month? File with National grievance portal (pgportal.gov.in) — select Pune Municipal Corporation as local body.',
 
       'esc.pmc.tier.openWa': 'Open WhatsApp',
 
@@ -3709,7 +3709,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC citizen portal',
 
-      'official.tmc.small': 'tmc.gov.in',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -3717,7 +3717,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC online portal',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'portal.mcgm.gov.in',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
 
@@ -5156,7 +5156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} में दर्ज करें (वैकल्पिक)',
 
-      'esc.tmc.recommended': 'अनुशंसित: tmc.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
+      'esc.tmc.recommended': 'अनुशंसित: thanecity.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
 
       'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — नीचे किसी भी आधिकारिक TMC चैनल का उपयोग करें।',
 
@@ -5174,7 +5174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'कॉपी हो गया — TMC में दर्ज करते समय चिपकाएँ',
 
-      'esc.tmc.portalHint': 'tmc.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
+      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
 
       'esc.tmc.filedConsent': 'मैंने आधिकारिक TMC चैनल पर दर्ज किया (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
 
@@ -5204,13 +5204,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
 
-      'esc.tmc.tier.file.body': 'tmc.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, या 155300। संदर्भ संख्या यहाँ सहेजें।',
+      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, या 155300। संदर्भ संख्या यहाँ सहेजें।',
 
       'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय या स्वास्थ्य (022-25332685) से फॉलो-अप। TMC संदर्भ संख्या उद्धृत करें।',
 
       'esc.tmc.tier.zonal.body': 'नगर आयुक्त (mc@thanecity.gov.in) तक एस्केलेट। @TMCaTweetAway पर फोटो के साथ टैग करें।',
 
-      'esc.tmc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar (pgportal.gov.in) — Thane Municipal Corporation चुनें।',
+      'esc.tmc.tier.grievance.body': 'एक महीने बाद भी? National grievance portal (pgportal.gov.in) — Thane Municipal Corporation चुनें।',
 
       'esc.tmc.tier.openCall': 'TMC कॉल',
 
@@ -5268,7 +5268,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.tier.zonal.body': 'वार्ड ने कार्रवाई नहीं की? PMC CARE पोर्टल या WhatsApp से एस्केलेट करें।',
 
-      'esc.pmc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar (pgportal.gov.in) — Pune Municipal Corporation चुनें।',
+      'esc.pmc.tier.grievance.body': 'एक महीने बाद भी? National grievance portal (pgportal.gov.in) — Pune Municipal Corporation चुनें।',
 
       'esc.pmc.tier.openWa': 'WhatsApp',
 
@@ -6022,7 +6022,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'tmc.gov.in',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -6030,7 +6030,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'portal.mcgm.gov.in',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक स्वास्थ्य → कीट नियंत्रण → रुका हुआ पानी / मच्छर प्रजनन',
 
@@ -7468,7 +7468,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} मध्ये नोंदवा (पर्यायी)',
 
-      'esc.tmc.recommended': 'शिफारस: tmc.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
+      'esc.tmc.recommended': 'शिफारस: thanecity.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
 
       'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — खालील कोणत्याही अधिकृत TMC चॅनेल वापरा.',
 
@@ -7486,7 +7486,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'कॉपी झाले — TMC मध्ये नोंदवताना पेस्ट करा',
 
-      'esc.tmc.portalHint': 'tmc.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
+      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
 
       'esc.tmc.filedConsent': 'मी अधिकृत TMC चॅनेलवर नोंदवले (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
 
@@ -7516,13 +7516,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
 
-      'esc.tmc.tier.file.body': 'tmc.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, किंवा 155300. संदर्भ क्रमांक येथे जतन करा.',
+      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, किंवा 155300. संदर्भ क्रमांक येथे जतन करा.',
 
       'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय किंवा आरोग्य (022-25332685) यांना फॉलो-अप. TMC संदर्भ क्रमांक द्या.',
 
       'esc.tmc.tier.zonal.body': 'महापालिका आयुक्त (mc@thanecity.gov.in) पर्यंत वाढवा. @TMCaTweetAway वर फोटोसह टॅग.',
 
-      'esc.tmc.tier.grievance.body': 'एक महिन्यानंतरही? Aaple Sarkar (pgportal.gov.in) — Thane Municipal Corporation निवडा.',
+      'esc.tmc.tier.grievance.body': 'एक महिन्यानंतरही? National grievance portal (pgportal.gov.in) — Thane Municipal Corporation निवडा.',
 
       'esc.tmc.tier.openCall': 'TMC कॉल',
 
@@ -7580,7 +7580,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.tier.zonal.body': 'वॉर्डने कारवाई नाही? PMC CARE पोर्टल किंवा WhatsApp वरून वाढवा.',
 
-      'esc.pmc.tier.grievance.body': 'एक महिन्यानंतरही? Aaple Sarkar (pgportal.gov.in) — Pune Municipal Corporation निवडा.',
+      'esc.pmc.tier.grievance.body': 'एक महिन्यानंतरही? National grievance portal (pgportal.gov.in) — Pune Municipal Corporation निवडा.',
 
       'esc.pmc.tier.openWa': 'WhatsApp',
 
@@ -8334,7 +8334,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'tmc.gov.in',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -8342,7 +8342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'portal.mcgm.gov.in',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
 
@@ -9780,7 +9780,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} માં નોંધાવો (વૈકલ્પિક)',
 
-      'esc.tmc.recommended': 'ભલામણ: tmc.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
+      'esc.tmc.recommended': 'ભલામણ: thanecity.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
 
       'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — નીચેના કોઈ પણ અધિકૃત TMC ચેનલનો ઉપયોગ કરો.',
 
@@ -9798,7 +9798,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'કૉપી થયું — TMC માં નોંધાવતી વખતે પેસ્ટ કરો',
 
-      'esc.tmc.portalHint': 'tmc.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
+      'esc.tmc.portalHint': 'thanecity.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
 
       'esc.tmc.filedConsent': 'મેં અધિકૃત TMC ચેનલ પર નોંધાવ્યું (પોર્ટલ / હેલ્પલાઇન / ઈમેલ / 155300 / Aaple Sarkar)',
 
@@ -9828,13 +9828,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'પ્રદૂષણ નિયંત્રણ',
 
-      'esc.tmc.tier.file.body': 'tmc.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, અથવા 155300. સંદર્ભ અહીં સાચવો.',
+      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, અથવા 155300. સંદર્ભ અહીં સાચવો.',
 
       'esc.tmc.tier.matrix.body': 'વોર્ડ ઑફિસ અથવા આરોગ્ય (022-25332685) ને ફોલો-અપ. TMC સંદર્ભ આપો.',
 
       'esc.tmc.tier.zonal.body': 'મ્યુનિસિપલ કમિશનર (mc@thanecity.gov.in) સુધી એસ્કેલેટ. @TMCaTweetAway પર ફોટો સાથે ટૅગ.',
 
-      'esc.tmc.tier.grievance.body': 'એક મહિના પછી પણ? Aaple Sarkar (pgportal.gov.in) — Thane Municipal Corporation પસંદ કરો.',
+      'esc.tmc.tier.grievance.body': 'એક મહિના પછી પણ? National grievance portal (pgportal.gov.in) — Thane Municipal Corporation પસંદ કરો.',
 
       'esc.tmc.tier.openCall': 'TMC કૉલ',
 
@@ -9892,7 +9892,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.tier.zonal.body': 'વોર્ડે કાર્યવાહી નહીં? PMC CARE પોર્ટલ અથવા WhatsApp દ્વારા એસ્કેલેટ.',
 
-      'esc.pmc.tier.grievance.body': 'એક મહિના પછી પણ? Aaple Sarkar (pgportal.gov.in) — Pune Municipal Corporation પસંદ કરો.',
+      'esc.pmc.tier.grievance.body': 'એક મહિના પછી પણ? National grievance portal (pgportal.gov.in) — Pune Municipal Corporation પસંદ કરો.',
 
       'esc.pmc.tier.openWa': 'WhatsApp',
 
@@ -10646,7 +10646,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC નાગરિક પોર્ટલ',
 
-      'official.tmc.small': 'tmc.gov.in',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -10654,7 +10654,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'portal.mcgm.gov.in',
 
       'official.hint.marg.stagnant-water': 'જાહેર આરોગ્ય → કીટ નિયંત્રણ → stagnant water / મચ્છર પ્રજનન',
 
@@ -24073,7 +24073,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnPrivacyContact) {
 
-      // Fall back so the contact never stays as a dead '#' (Play reviewers click these).
+      // Fall back to the project's dedicated address so the footer contact can
+      // never render as a dead '#' link (Play reviewers click these).
       const grievanceEmail = getGrievanceEmail() || 'civicradarnh@gmail.com';
 
       btnPrivacyContact.href = 'mailto:' + grievanceEmail
@@ -24082,17 +24083,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Self-heal static escalation labels if index.html still shows retired BMC deep-link text.
-    // Build needles without embedding retired host strings (Play reviewers Ctrl+F the bundle).
-    const retiredPortalNeedle = ['portal', 'mcgm', 'gov', 'in'].join('.');
-    const retiredAapleNeedle = 'maha' + 'online';
+    // Self-heal any static escalation label still showing the retired BMC
+    // deep-link domain (index.html may lag behind app.js deploys). The live
+    // channel URL is already the stable homepage; this fixes the visible text.
     $$('.esc-channel small').forEach((el) => {
-      const txt = el.textContent || '';
-      if (txt.indexOf(retiredPortalNeedle) !== -1) {
-        el.textContent = 'www.mcgm.gov.in';
-      }
-      if (txt.indexOf(retiredAapleNeedle) !== -1) {
-        el.textContent = 'pgportal.gov.in';
+      if (el.textContent && el.textContent.indexOf('portal.mcgm.gov.in') !== -1) {
+        el.textContent = 'mcgm.gov.in';
       }
     });
 
@@ -29073,7 +29069,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Citizen report: ${link}`,
 
-        `Portal: https://pgportal.gov.in/`,
+        `Portal: https://pgportal.gov.in`,
 
       ].join('\n');
 
@@ -29125,7 +29121,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Issue: ${hazard} still unresolved after ${ESCALATION_DAYS.zonal}+ days.`,
 
-        `Please escalate through PMC citizen services (www.pmc.gov.in/citizen-services) or WhatsApp 9689900002.`,
+        `Please escalate through PMC citizen services (www.pmc.gov.in) or WhatsApp 9689900002.`,
 
         `CivicRadar: ${link}`,
 
@@ -29151,7 +29147,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Citizen report: ${link}`,
 
-        `Portal: https://pgportal.gov.in/`,
+        `Portal: https://pgportal.gov.in`,
 
       ].join('\n');
 
@@ -29283,7 +29279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('esc.tmc.channelPortal'),
 
-        small: 'tmc.gov.in',
+        small: 'thanecity.gov.in',
 
         recommended: true,
 
@@ -29509,7 +29505,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('esc.pmc.channelPortal'),
 
-        small: 'www.pmc.gov.in',
+        small: 'pmc.gov.in',
 
       });
 

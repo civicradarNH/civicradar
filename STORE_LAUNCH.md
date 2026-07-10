@@ -138,7 +138,7 @@ Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links 
 
 - Replaced broken or non-.gov.in source URLs in `official-sources.html`, `js/config.js`, in-app i18n, and store listing copy (v150).
 - **Removed:** `pmccare.in` (non-.gov.in, unreachable from crawlers), `sbm.gov.in/sbmicc/ICT-platform` (404), `thanecity.gov.in` (connection failures), `grievances.maharashtra.gov.in` (intermittent/unreachable).
-- **Replaced with verified .gov.in links:** PMC `webadmin.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `aaplesarkar.mahaonline.gov.in`, Swachhata-MoHUA `www.mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
+- **Replaced with verified .gov.in links:** PMC `www.pmc.gov.in/citizen-services`, TMC `tmc.gov.in`, Aaple Sarkar `pgportal.gov.in`, Swachhata-MoHUA `www.mohua.gov.in/cms/swachh-bharat-mission-urban.php`.
 - Official sources page shows contact email (`civicradarnh@gmail.com`) and all .gov links in static HTML (no JS required).
 - In-app TMC/Aaple Sarkar copy and channel labels now match verified URLs (no thanecity.gov.in or grievances.maharashtra.gov.in as link targets).
 
@@ -170,19 +170,19 @@ OFFICIAL SOURCES (where YOU file complaints)
 Full verified links: https://civicradarnh.github.io/civicradar/official-sources.html
 
 Mumbai (MCGM/BMC):
-• BMC online portal: https://portal.mcgm.gov.in/irj/portal/anonymous/qlcomplaintreg?guest_user=english
+• BMC online portal: https://www.mcgm.gov.in/
 • Participate Mumbai: https://participatemumbai.mcgm.gov.in/
 • Helpline: 1916
 
 Pune (PMC):
-• PMC citizen services: https://webadmin.pmc.gov.in/citizen-services
+• PMC citizen services: https://www.pmc.gov.in/
 • Helpline: 1800 1030 222
 
 Thane (TMC):
 • TMC official website: https://tmc.gov.in/
 
 Maharashtra & national:
-• Aaple Sarkar grievances: https://aaplesarkar.mahaonline.gov.in/
+• Aaple Sarkar grievances: https://pgportal.gov.in/
 • Swachhata-MoHUA (MoHUA): https://www.mohua.gov.in/cms/swachh-bharat-mission-urban.php
 
 Privacy: https://civicradarnh.github.io/civicradar/privacy.html

@@ -4657,7 +4657,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v156" in sw_src
+        "civicradar-v157" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7274,7 +7274,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
         ('OC01', 'mumbai', WARD, 'marg', ('play.google.com', 'apps.apple.com', 'mcgm')),
 
-        ('OC02', 'pune', PUNE_WARD, 'pmc_care', ('play.google.com', 'webadmin.pmc.gov.in')),
+        ('OC02', 'pune', PUNE_WARD, 'pmc_care', ('play.google.com', 'www.pmc.gov.in')),
 
         ('OC03', 'thane', THANE_WARD, 'tmc_portal', ('tmc.gov.in',)),
 
@@ -7707,7 +7707,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v156" in sw_src
+        "civicradar-v157" in sw_src
 
         and "'/index.html'" not in sw_src
 

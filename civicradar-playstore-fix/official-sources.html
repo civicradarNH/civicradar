@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Review with qualified Indian counsel before public launch. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +32,7 @@
       <strong>CivicRadar is NOT a government entity.</strong> CivicRadar is an independent community tool for neighbours in Mumbai, Pune, and Thane. It is not affiliated with, endorsed by, or operated by the Municipal Corporation of Greater Mumbai (MCGM/BMC), Pune Municipal Corporation (PMC), Thane Municipal Corporation (TMC), the Government of Maharashtra, or any government body. We do not submit complaints on your behalf and we do not publish government data as authoritative.
     </div>
 
-    <p>CivicRadar helps residents pin civic hazards on a community map and optionally track progress when <strong>you</strong> file with your local corporation. The links below are the official channels where citizens file and track municipal grievances. CivicRadar deep-links to these sources in-app; this page lists them in one place for transparency and app-store compliance.</p>
+    <p>CivicRadar helps residents pin civic hazards on a community map. When <strong>you</strong> choose to file an official complaint, you do so yourself on your city&rsquo;s own government portal. The links below are the official channels where citizens file and track municipal grievances. This page lists the official channels in one place for transparency.</p>
 
     <h2>How CivicRadar relates to official channels</h2>
     <ul>
@@ -46,7 +45,7 @@
 
     <h3>Mumbai — MCGM / BMC</h3>
     <ul>
-      <li><strong>BMC online complaint portal</strong> — <a href="https://www.mcgm.gov.in/" rel="noopener noreferrer" target="_blank">https://www.mcgm.gov.in/</a></li>
+      <li><strong>BMC online complaint portal</strong> — <a href="https://www.mcgm.gov.in" rel="noopener noreferrer" target="_blank">https://www.mcgm.gov.in</a></li>
       <li><strong>Participate Mumbai</strong> (civic engagement / volunteering — not complaint filing) — <a href="https://participatemumbai.mcgm.gov.in/" rel="noopener noreferrer" target="_blank">https://participatemumbai.mcgm.gov.in/</a></li>
       <li><strong>24×7 BMC helpline</strong> — dial <strong>1916</strong></li>
       <li><strong>MyBMC WhatsApp</strong> — available via the MyBMC ecosystem (see in-app official channels)</li>
@@ -54,25 +53,24 @@
 
     <h3>Pune — PMC</h3>
     <ul>
-      <li><strong>PMC citizen services (PMC CARE grievances)</strong> — <a href="https://www.pmc.gov.in/" rel="noopener noreferrer" target="_blank">https://www.pmc.gov.in/</a></li>
+      <li><strong>PMC citizen services (PMC CARE grievances)</strong> — <a href="https://www.pmc.gov.in" rel="noopener noreferrer" target="_blank">https://www.pmc.gov.in</a></li>
       <li><strong>PMC CARE helpline</strong> — <strong>1800 1030 222</strong></li>
     </ul>
 
     <h3>Thane — TMC</h3>
     <ul>
-      <li><strong>TMC official website</strong> — <a href="https://tmc.gov.in/" rel="noopener noreferrer" target="_blank">https://tmc.gov.in/</a> (online citizen services · file complaints)</li>
+      <li><strong>TMC official website</strong> — <a href="https://www.thanecity.gov.in" rel="noopener noreferrer" target="_blank">https://www.thanecity.gov.in</a> (online citizen services · file complaints)</li>
       <li><strong>TMC helplines</strong> — 022-25331590 · 022-25331211 · citizen call centre <strong>155300</strong></li>
     </ul>
 
     <h3>Maharashtra &amp; national programmes</h3>
     <ul>
-      <li><strong>National grievance portal (CPGRAMS)</strong> — <a href="https://pgportal.gov.in/" rel="noopener noreferrer" target="_blank">https://pgportal.gov.in/</a> (Government of India public grievance portal — select Maharashtra and your local body when filing)</li>
-      <li><strong>Swachhata-MoHUA (Ministry of Housing &amp; Urban Affairs)</strong> — <a href="https://www.mohua.gov.in/cms/swachh-bharat-mission-urban.php" rel="noopener noreferrer" target="_blank">https://www.mohua.gov.in/cms/swachh-bharat-mission-urban.php</a> · helpline <strong>1969</strong> · use the Swachhata-MoHUA mobile app for ward sanitation complaints</li>
+      <li><strong>National grievance portal (CPGRAMS)</strong> — <a href="https://pgportal.gov.in" rel="noopener noreferrer" target="_blank">https://pgportal.gov.in</a> (Government of India public grievance portal; covers state &amp; municipal complaints — select Maharashtra and your local body)</li>
+      <li><strong>Swachhata-MoHUA (Ministry of Housing &amp; Urban Affairs)</strong> — <a href="https://sbm.gov.in" rel="noopener noreferrer" target="_blank">https://sbm.gov.in</a> · helpline <strong>1969</strong> · use the Swachhata-MoHUA mobile app for ward sanitation complaints</li>
     </ul>
 
     <h2>Questions about CivicRadar</h2>
     <p>For privacy, data deletion, or general support about the community app (not municipal services), contact the CivicRadar team at <a href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20official%20sources%20inquiry" data-legal-email>civicradarnh@gmail.com</a>.</p>
-    <p class="legal-meta"><em>Review with qualified Indian counsel before public launch.</em></p>
   </main>
 
   <footer class="legal-footer">
@@ -85,12 +83,12 @@
       var cfg = window.CIVICRADAR_CONFIG || {};
       var legal = cfg.legal || {};
       var founder = cfg.founder || {};
-      var email = legal.grievanceEmail || founder.operatorEmail || founder.email || '';
+      // Fall back to the hardcoded address so an empty/missing config value can
+      // never blank out the contact email a reviewer or user relies on.
+      var email = legal.grievanceEmail || founder.operatorEmail || founder.email || 'civicradarnh@gmail.com';
       document.querySelectorAll('[data-legal-email]').forEach(function (el) {
-        if (email) {
-          el.href = 'mailto:' + email + '?subject=' + encodeURIComponent('CivicRadar — official sources inquiry');
-          el.textContent = email;
-        }
+        el.href = 'mailto:' + email + '?subject=' + encodeURIComponent('CivicRadar — official sources inquiry');
+        el.textContent = email;
       });
     })();
   </script>
