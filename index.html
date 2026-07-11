@@ -447,13 +447,22 @@
           <i class="ph ph-map-pin" aria-hidden="true"></i>
           <span id="reportWardChipLabel"></span>
         </div>
+        <div class="report-pin-confirm" id="reportPinConfirm">
+          <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
+          <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
+          <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+          <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
+            <i class="ph ph-map-trifold" aria-hidden="true"></i>
+            <span data-i18n="report.placePinOnMap">Place pin on map</span>
+          </button>
+        </div>
         <div class="report-notes-accordion" id="reportNotesAccordion">
           <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
-            <span data-i18n="report.addNote">+ Add note</span>
+            <span data-i18n="report.addNote">+ Add landmark</span>
           </button>
           <div class="report-notes-body hidden" id="reportNotesBody">
-            <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Notes (optional)</label>
-            <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Add a note — lane, building, landmark…" data-i18n-ph="report.notesPh"></textarea>
+            <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
+            <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
           </div>
         </div>
         <div class="photo-confirm hidden" id="photoConfirmGroup" aria-hidden="true">

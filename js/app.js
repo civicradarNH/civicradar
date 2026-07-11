@@ -18,8 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v172';
-  const CIVIC_APP_VERSION = 'v173';
+  const CIVIC_APP_VERSION = 'v175';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -285,9 +284,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const GEO_ACCURACY_MAX_M = 5000;
 
-  const GEO_WATCH_MAX_MS = 20000;
+  // Early settle only after consecutive samples agree (WiFi/IP often claims ~50 m but is ~1 km off).
+
+  const GEO_STABLE_SAMPLES = 2;
+
+  const GEO_STABLE_RADIUS_M = 40;
+
+  const GEO_WATCH_MAX_MS = 25000;
 
   const GEO_LOCATE_TIMEOUT_MS = 20000;
+
+  const GEO_REFINE_MS = 45000;
 
   // App URL is used for shareable deep links. Set to your deployed origin in production.
 
@@ -397,7 +404,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let currentLng = null;
 
+  let currentAccuracyM = null;
+
   let lastGeoRequest = 0;
+
+  let locationRefineWatchId = null;
+
+  let locationRefineUntil = 0;
 
   let markerRefreshTimer = null;
 
@@ -446,6 +459,22 @@ document.addEventListener('DOMContentLoaded', function () {
   let manualPinPreviewMarker = null;
 
   let manualPinMapClickHandler = null;
+
+  let confirmPinLat = null;
+
+  let confirmPinLng = null;
+
+  let confirmPinAccuracyM = null;
+
+  let confirmPinUserAdjusted = false;
+
+  let reportPinMap = null;
+
+  let reportPinMarker = null;
+
+  let reportPinAccuracyCircle = null;
+
+  let reportPinSeedToken = 0;
 
   let reportGeoExplainerResolve = null;
 
@@ -2481,7 +2510,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'Submit',
 
-      'report.addNote': '+ Add note',
+      'report.addNote': '+ Add landmark',
+
+      'report.pinDragHint': 'Drag the pin if it\'s not exactly right',
+
+      'report.pinAccuracyGood': 'Location accurate to ~{m} m',
+
+      'report.pinAccuracyFair': 'Location ~{m} m — drag the pin or move to open sky',
+
+      'report.pinAccuracyPoor': 'Location is approximate (~{m} m) — drag the pin onto the hazard',
+
+      'report.pinAccuracyUnknown': 'Confirm the pin is on the hazard — drag to adjust',
+
+      'report.pinAccuracyAdjusted': 'Pin adjusted — looks good',
+
+      'report.pinLocating': 'Finding your location…',
+
+      'report.pinMapAria': 'Adjust hazard location on map',
 
       'report.wardChip': '{ward}',
 
@@ -2517,9 +2562,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'Take photo',
 
-      'report.notes': 'Notes (optional)',
+      'report.notes': 'Landmark (optional)',
 
-      'report.notesPh': 'Add a note — lane, building, landmark…',
+      'report.notesPh': 'Near which shop/building? e.g. opposite Sai Medical',
 
       'report.submit': 'Submit report',
 
@@ -4800,7 +4845,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'भेजें',
 
-      'report.addNote': '+ टिप्पणी जोड़ें',
+      'report.addNote': '+ Landmark जोड़ें',
+
+      'report.pinDragHint': 'पिन सही जगह पर नहीं है तो खींचकर ठीक करें',
+
+      'report.pinAccuracyGood': 'स्थान लगभग ~{m} मी सटीक',
+
+      'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन खींचें या खुली जगह पर जाएँ',
+
+      'report.pinAccuracyPoor': 'स्थान अनुमानित (~{m} मी) — पिन खतरे पर खींचें',
+
+      'report.pinAccuracyUnknown': 'पिन खतरे पर है? ज़रूरत हो तो खींचें',
+
+      'report.pinAccuracyAdjusted': 'पिन ठीक किया गया',
+
+      'report.pinLocating': 'आपका स्थान खोज रहे हैं…',
+
+      'report.pinMapAria': 'खतरे का स्थान मैप पर ठीक करें',
 
       'report.wardChip': '{ward}',
 
@@ -4836,9 +4897,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फ़ोटो लें',
 
-      'report.notes': 'टिप्पणी (वैकल्पिक)',
+      'report.notes': 'Landmark (वैकल्पिक)',
 
-      'report.notesPh': 'खतरे का वर्णन करें…',
+      'report.notesPh': 'किस दुकान/इमारत के पास? जैसे "सई मेडिकल के सामने"',
 
       'report.submit': 'रिपोर्ट भेजें',
 
@@ -7120,7 +7181,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'पाठवा',
 
-      'report.addNote': '+ टीप जोडा',
+      'report.addNote': '+ Landmark जोडा',
+
+      'report.pinDragHint': 'पिन योग्य जागी नसेल तर ओढून ठेवा',
+
+      'report.pinAccuracyGood': 'स्थान सुमारे ~{m} मी अचूक',
+
+      'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन ओढा किंवा मोकळ्या जागी जा',
+
+      'report.pinAccuracyPoor': 'स्थान अंदाजे (~{m} मी) — पिन धोक्यावर ओढा',
+
+      'report.pinAccuracyUnknown': 'पिन धोक्यावर आहे का? गरज असल्यास ओढा',
+
+      'report.pinAccuracyAdjusted': 'पिन सुधारला',
+
+      'report.pinLocating': 'तुमचे स्थान शोधत आहोत…',
+
+      'report.pinMapAria': 'धोक्याचे स्थान नकाशावर समायोजित करा',
 
       'report.wardChip': '{ward}',
 
@@ -7156,9 +7233,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फोटो काढा',
 
-      'report.notes': 'टीप (ऐच्छिक)',
+      'report.notes': 'Landmark (ऐच्छिक)',
 
-      'report.notesPh': 'धोक्याचे वर्णन करा…',
+      'report.notesPh': 'कोणत्या दुकान/इमारतीजवळ? उदा. "साई मेडिकल समोर"',
 
       'report.submit': 'तक्रार पाठवा',
 
@@ -9440,7 +9517,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'મોકલો',
 
-      'report.addNote': '+ નોંધ ઉમેરો',
+      'report.addNote': '+ Landmark ઉમેરો',
+
+      'report.pinDragHint': 'પિન યોગ્ય જગ્યાએ ન હોય તો ખેંચીને સેટ કરો',
+
+      'report.pinAccuracyGood': 'સ્થાન આશરે ~{m} મી ચોક્કસ',
+
+      'report.pinAccuracyFair': 'સ્થાન ~{m} મી — પિન ખેંચો અથવા ખુલ્લી જગ્યાએ જાઓ',
+
+      'report.pinAccuracyPoor': 'સ્થાન અંદાજે (~{m} મી) — પિન જોખમ પર ખેંચો',
+
+      'report.pinAccuracyUnknown': 'પિન જોખમ પર છે? જરૂર હોય તો ખેંચો',
+
+      'report.pinAccuracyAdjusted': 'પિન સમાયોજિત',
+
+      'report.pinLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
+
+      'report.pinMapAria': 'જોખમનું સ્થાન નકશા પર સમાયોજિત કરો',
 
       'report.wardChip': '{ward}',
 
@@ -9476,9 +9569,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'ફોટો લો',
 
-      'report.notes': 'નોંધ (વૈકલ્પિક)',
+      'report.notes': 'Landmark (વૈકલ્પિક)',
 
-      'report.notesPh': 'જોખમનું વર્ણન કરો…',
+      'report.notesPh': 'કઈ દુકાન/ઇમારત પાસે? જેમ કે "સાઈ મેડિકલ સામે"',
 
       'report.submit': 'ફરિયાદ મોકલો',
 
@@ -11696,6 +11789,13 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshSocietyComboboxes();
     updatePhotoGuidelines($('#hazardType')?.value || 'stagnant-water');
     refreshAllContextHints();
+    if ($('#reportStepConfirm') && !$('#reportStepConfirm').hidden) {
+      const hint = $('#reportPinDragHint');
+      if (hint) hint.textContent = t('report.pinDragHint');
+      updateReportPinAccuracyHint();
+      const mapEl = $('#reportPinMap');
+      if (mapEl) mapEl.setAttribute('aria-label', t('report.pinMapAria'));
+    }
   }
 
   function updateSyncStatus() {
@@ -19427,9 +19527,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let text;
 
-    if (manualPinLat != null && manualPinLng != null) {
+    const pinLat = confirmPinLat != null ? confirmPinLat : manualPinLat;
 
-      const pinWard = detectWardFromCoords(manualPinLat, manualPinLng, getUserCity());
+    const pinLng = confirmPinLng != null ? confirmPinLng : manualPinLng;
+
+    if (pinLat != null && pinLng != null) {
+
+      const pinWard = detectWardFromCoords(pinLat, pinLng, getUserCity());
 
       text = pinWard
 
@@ -22773,6 +22877,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const watchMaxMs = opts.watchMaxMs || GEO_WATCH_MAX_MS;
 
+    const minSamples = opts.minSamples != null ? opts.minSamples : GEO_STABLE_SAMPLES;
+
+    const stableRadiusM = opts.stableRadiusM != null ? opts.stableRadiusM : GEO_STABLE_RADIUS_M;
+
     return new Promise((resolve, reject) => {
 
       if (!navigator.geolocation) {
@@ -22798,6 +22906,8 @@ document.addEventListener('DOMContentLoaded', function () {
       let bestPos = null;
 
       let settled = false;
+
+      const samples = [];
 
       const started = Date.now();
 
@@ -22837,6 +22947,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      function samplesAgree() {
+
+        if (samples.length < minSamples) return false;
+
+        const a = samples[samples.length - 1];
+
+        const b = samples[samples.length - 2];
+
+        return getDistanceInMeters(a.lat, a.lng, b.lat, b.lng) <= stableRadiusM;
+
+      }
+
       function onPos(pos) {
 
         const lat = pos.coords.latitude;
@@ -22847,6 +22969,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const acc = pos.coords.accuracy;
 
+        samples.push({ lat, lng, acc, pos });
+
         if (!bestPos || !Number.isFinite(bestPos.coords.accuracy)
 
             || (Number.isFinite(acc) && acc < bestPos.coords.accuracy)) {
@@ -22855,7 +22979,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        if (Number.isFinite(acc) && acc <= targetAccuracy) {
+        // Require agreement between samples — a single WiFi fix often claims ≤50 m while being ~1 km off.
+
+        const confident = Number.isFinite(acc) && acc <= targetAccuracy && samplesAgree();
+
+        const veryConfident = Number.isFinite(acc) && acc <= 25 && samples.length >= 2 && samplesAgree();
+
+        if (confident || veryConfident) {
 
           settle(pos);
 
@@ -22969,6 +23099,110 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function stopUserLocationRefine() {
+
+    if (locationRefineWatchId != null) {
+
+      try { navigator.geolocation.clearWatch(locationRefineWatchId); } catch { /* ignore */ }
+
+      locationRefineWatchId = null;
+
+    }
+
+    locationRefineUntil = 0;
+
+  }
+
+
+
+  // After the first fix, keep listening briefly — WiFi/IP often jumps to real GPS within ~10–30s.
+
+  function startUserLocationRefine() {
+
+    if (!navigator.geolocation || !map) return;
+
+    stopUserLocationRefine();
+
+    locationRefineUntil = Date.now() + GEO_REFINE_MS;
+
+    locationRefineWatchId = navigator.geolocation.watchPosition(
+
+      (pos) => {
+
+        if (Date.now() > locationRefineUntil) {
+
+          stopUserLocationRefine();
+
+          return;
+
+        }
+
+        const lat = pos.coords.latitude;
+
+        const lng = pos.coords.longitude;
+
+        const acc = pos.coords.accuracy;
+
+        if (!isValidGpsCoords(lat, lng)) return;
+
+        if (Number.isFinite(acc) && acc > GEO_ACCURACY_MAX_M) return;
+
+        const prevAcc = currentAccuracyM;
+
+        const moved = (currentLat != null && currentLng != null)
+
+          ? getDistanceInMeters(currentLat, currentLng, lat, lng)
+
+          : Infinity;
+
+        const betterAcc = !Number.isFinite(prevAcc) || (Number.isFinite(acc) && acc < prevAcc * 0.75);
+
+        const bigJumpWithBetterOrSimilar = moved > 80 && (
+
+          !Number.isFinite(prevAcc) || !Number.isFinite(acc) || acc <= prevAcc * 1.15
+
+        );
+
+        if (!betterAcc && !bigJumpWithBetterOrSimilar) return;
+
+        currentLat = lat;
+
+        currentLng = lng;
+
+        currentAccuracyM = Number.isFinite(acc) ? acc : currentAccuracyM;
+
+        updateUserLocationMarker(lat, lng, acc);
+
+        if (moved > 120) {
+
+          try { map.panTo([lat, lng], { animate: true }); } catch { /* ignore */ }
+
+        }
+
+        if (Number.isFinite(acc) && acc <= GEO_ACCURACY_GOOD_M && moved < GEO_STABLE_RADIUS_M) {
+
+          stopUserLocationRefine();
+
+        }
+
+      },
+
+      () => { /* keep previous fix */ },
+
+      { enableHighAccuracy: true, maximumAge: 0, timeout: GEO_LOCATE_TIMEOUT_MS }
+
+    );
+
+    setTimeout(() => {
+
+      if (Date.now() >= locationRefineUntil) stopUserLocationRefine();
+
+    }, GEO_REFINE_MS + 1000);
+
+  }
+
+
+
   function applyLocationFromPosition(pos, opts) {
 
     opts = opts || {};
@@ -22993,6 +23227,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     currentLng = lng;
 
+    currentAccuracyM = Number.isFinite(accuracyM) ? accuracyM : null;
+
     hideLocationBanner();
 
     hideLocatePill();
@@ -23008,6 +23244,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     updateUserLocationMarker(lat, lng, accuracyM);
+
+    if (opts.refine !== false) startUserLocationRefine();
 
     if (opts.showAccuracyFeedback !== false) showGpsAccuracyFeedback(accuracyM);
 
@@ -23197,7 +23435,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (forceFresh) showToast(t('toast.gpsLocating'), 'info', 2500);
 
-    getPrecisePosition({ fresh: true })
+    stopUserLocationRefine();
+
+    getPrecisePosition({
+
+      fresh: true,
+
+      watchMaxMs: forceFresh ? 35000 : GEO_WATCH_MAX_MS,
+
+      minSamples: GEO_STABLE_SAMPLES,
+
+    })
 
       .then((pos) => {
 
@@ -24607,6 +24855,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnPinFullMap = $('#btnReportPinFullMap');
+
+    if (btnPinFullMap) {
+
+      btnPinFullMap.addEventListener('click', () => startManualPinMode());
+
+    }
+
     $('#reportNotes').addEventListener('input', () => {
 
       if ($('#imageCanvas').classList.contains('visible')) {
@@ -25023,13 +25279,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnRecenter').addEventListener('click', () => {
 
-      if (currentLat != null && currentLng != null) {
+      // Re-acquire GPS — panning to a stale WiFi fix keeps the half-mile error.
 
-        map.setView([currentLat, currentLng], 15);
-
-        showToast(t('toast.recentered'), 'info', 2000);
-
-      }
+      requestLocation(true, true);
 
     });
 
@@ -25417,6 +25669,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (group) group.classList.add('hidden');
 
+    clearConfirmPinState();
+
     updateReportFlowSteps('capture');
 
     collapseReportNotesIfEmpty();
@@ -25433,9 +25687,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportWardChip();
 
-    collapseReportNotesIfEmpty();
+    setReportNotesExpanded(true);
 
     updateReportFlowSteps('confirm');
+
+    prepareConfirmPin();
 
   }
 
@@ -25799,6 +26055,422 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+  function clearConfirmPinPreview() {
+
+    if (reportPinAccuracyCircle && reportPinMap) {
+
+      try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
+
+    }
+
+    reportPinAccuracyCircle = null;
+
+    if (reportPinMarker && reportPinMap) {
+
+      try { reportPinMap.removeLayer(reportPinMarker); } catch { /* ignore */ }
+
+    }
+
+    reportPinMarker = null;
+
+    if (reportPinMap) {
+
+      try { reportPinMap.remove(); } catch { /* ignore */ }
+
+    }
+
+    reportPinMap = null;
+
+  }
+
+
+
+  function clearConfirmPinState() {
+
+    reportPinSeedToken += 1;
+
+    clearConfirmPinPreview();
+
+    confirmPinLat = null;
+
+    confirmPinLng = null;
+
+    confirmPinAccuracyM = null;
+
+    confirmPinUserAdjusted = false;
+
+    const accEl = $('#reportPinAccuracy');
+
+    if (accEl) {
+
+      accEl.textContent = '';
+
+      accEl.className = 'report-pin-accuracy';
+
+    }
+
+  }
+
+
+
+  function updateReportPinAccuracyHint() {
+
+    const el = $('#reportPinAccuracy');
+
+    if (!el) return;
+
+    el.className = 'report-pin-accuracy';
+
+    if (confirmPinUserAdjusted) {
+
+      el.textContent = t('report.pinAccuracyAdjusted');
+
+      el.classList.add('report-pin-accuracy--adjusted');
+
+      return;
+
+    }
+
+    const acc = confirmPinAccuracyM;
+
+    if (!Number.isFinite(acc)) {
+
+      el.textContent = t('report.pinAccuracyUnknown');
+
+      return;
+
+    }
+
+    const m = String(Math.round(acc));
+
+    if (acc <= GEO_ACCURACY_GOOD_M) {
+
+      el.textContent = t('report.pinAccuracyGood').replace('{m}', m);
+
+      el.classList.add('report-pin-accuracy--good');
+
+    } else if (acc <= GEO_ACCURACY_POOR_M) {
+
+      el.textContent = t('report.pinAccuracyFair').replace('{m}', m);
+
+      el.classList.add('report-pin-accuracy--fair');
+
+    } else {
+
+      el.textContent = t('report.pinAccuracyPoor').replace('{m}', m);
+
+      el.classList.add('report-pin-accuracy--poor');
+
+    }
+
+  }
+
+
+
+  function setConfirmPinCoords(lat, lng, accuracyM, userAdjusted) {
+
+    if (!isValidGpsCoords(lat, lng)) return false;
+
+    confirmPinLat = lat;
+
+    confirmPinLng = lng;
+
+    if (userAdjusted) {
+
+      confirmPinUserAdjusted = true;
+
+      confirmPinAccuracyM = null;
+
+    } else if (!confirmPinUserAdjusted) {
+
+      confirmPinAccuracyM = Number.isFinite(accuracyM) ? accuracyM : confirmPinAccuracyM;
+
+    }
+
+    updateReportPinAccuracyHint();
+
+    updateReportWardChip();
+
+    return true;
+
+  }
+
+
+
+  function renderConfirmPinMarkerIcon() {
+
+    const adjusted = confirmPinUserAdjusted ? ' report-pin-marker__dot--adjusted' : '';
+
+    return L.divIcon({
+
+      className: 'report-pin-marker',
+
+      html: '<span class="report-pin-marker__dot' + adjusted + '" aria-hidden="true"></span>',
+
+      iconSize: [28, 28],
+
+      iconAnchor: [14, 14],
+
+    });
+
+  }
+
+
+
+  function syncConfirmPinMarker() {
+
+    if (!reportPinMap || confirmPinLat == null || confirmPinLng == null) return;
+
+    const ll = L.latLng(confirmPinLat, confirmPinLng);
+
+    if (reportPinMarker) {
+
+      reportPinMarker.setLatLng(ll);
+
+      reportPinMarker.setIcon(renderConfirmPinMarkerIcon());
+
+    }
+
+    if (reportPinAccuracyCircle) {
+
+      try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
+
+      reportPinAccuracyCircle = null;
+
+    }
+
+    if (!confirmPinUserAdjusted && Number.isFinite(confirmPinAccuracyM) && confirmPinAccuracyM > 0) {
+
+      reportPinAccuracyCircle = L.circle(ll, {
+
+        radius: confirmPinAccuracyM,
+
+        color: '#6366f1',
+
+        fillColor: '#6366f1',
+
+        fillOpacity: 0.1,
+
+        weight: 1,
+
+        interactive: false,
+
+      }).addTo(reportPinMap);
+
+    }
+
+  }
+
+
+
+  function initReportPinPreview(lat, lng, accuracyM, userAdjusted) {
+
+    if (typeof L === 'undefined') return;
+
+    const host = $('#reportPinMap');
+
+    if (!host) return;
+
+    if (!setConfirmPinCoords(lat, lng, accuracyM, !!userAdjusted)) return;
+
+    if (!reportPinMap) {
+
+      reportPinMap = L.map(host, {
+
+        zoomControl: false,
+
+        attributionControl: false,
+
+        dragging: true,
+
+        scrollWheelZoom: false,
+
+        doubleClickZoom: false,
+
+        boxZoom: false,
+
+        keyboard: false,
+
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        maxZoom: 19,
+
+      }).addTo(reportPinMap);
+
+      reportPinMarker = L.marker([confirmPinLat, confirmPinLng], {
+
+        draggable: true,
+
+        autoPan: true,
+
+        icon: renderConfirmPinMarkerIcon(),
+
+      }).addTo(reportPinMap);
+
+      reportPinMarker.on('dragstart', () => {
+
+        if (reportPinAccuracyCircle) {
+
+          try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
+
+          reportPinAccuracyCircle = null;
+
+        }
+
+      });
+
+      reportPinMarker.on('dragend', () => {
+
+        const p = reportPinMarker.getLatLng();
+
+        setConfirmPinCoords(p.lat, p.lng, null, true);
+
+        // Keep full-map manual pin in sync so existing submit path stays coherent.
+
+        manualPinLat = p.lat;
+
+        manualPinLng = p.lng;
+
+        syncConfirmPinMarker();
+
+        try { reportPinMap.panTo(p, { animate: true }); } catch { /* ignore */ }
+
+      });
+
+    } else {
+
+      syncConfirmPinMarker();
+
+    }
+
+    const zoom = zoomForAccuracy(confirmPinAccuracyM);
+
+    reportPinMap.setView([confirmPinLat, confirmPinLng], Math.max(zoom, 16), { animate: false });
+
+    syncConfirmPinMarker();
+
+    requestAnimationFrame(() => {
+
+      try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+      setTimeout(() => {
+
+        try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+      }, 200);
+
+    });
+
+  }
+
+
+
+  function prepareConfirmPin() {
+
+    const hint = $('#reportPinDragHint');
+
+    if (hint) hint.textContent = t('report.pinDragHint');
+
+    const mapEl = $('#reportPinMap');
+
+    if (mapEl) mapEl.setAttribute('aria-label', t('report.pinMapAria'));
+
+    setReportNotesExpanded(true);
+
+    // Full-map manual pin wins if already placed.
+
+    if (manualPinLat != null && manualPinLng != null && isValidGpsCoords(manualPinLat, manualPinLng)) {
+
+      initReportPinPreview(manualPinLat, manualPinLng, null, true);
+
+      return;
+
+    }
+
+    if (confirmPinUserAdjusted && confirmPinLat != null && confirmPinLng != null) {
+
+      initReportPinPreview(confirmPinLat, confirmPinLng, null, true);
+
+      return;
+
+    }
+
+    if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
+
+      initReportPinPreview(currentLat, currentLng, currentAccuracyM, false);
+
+    } else {
+
+      const accEl = $('#reportPinAccuracy');
+
+      if (accEl) {
+
+        accEl.className = 'report-pin-accuracy';
+
+        accEl.textContent = t('report.pinLocating');
+
+      }
+
+    }
+
+    if (!navigator.geolocation) return;
+
+    const token = ++reportPinSeedToken;
+
+    getPrecisePosition({
+
+      fresh: true,
+
+      targetAccuracyM: GEO_ACCURACY_GOOD_M,
+
+      watchMaxMs: 20000,
+
+      minSamples: GEO_STABLE_SAMPLES,
+
+    }).then((pos) => {
+
+      if (token !== reportPinSeedToken) return;
+
+      if (confirmPinUserAdjusted) return;
+
+      if (manualPinLat != null && manualPinLng != null) return;
+
+      initReportPinPreview(
+
+        pos.coords.latitude,
+
+        pos.coords.longitude,
+
+        pos.coords.accuracy,
+
+        false
+
+      );
+
+    }).catch(() => {
+
+      if (token !== reportPinSeedToken) return;
+
+      if (confirmPinLat != null) return;
+
+      const accEl = $('#reportPinAccuracy');
+
+      if (accEl) {
+
+        accEl.className = 'report-pin-accuracy report-pin-accuracy--poor';
+
+        accEl.textContent = t('report.pinAccuracyUnknown');
+
+      }
+
+    });
+
+  }
+
+
   function showManualPinBanner() {
 
     const el = $('#manualPinBanner');
@@ -25921,6 +26593,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     manualPinLng = lng;
 
+    setConfirmPinCoords(lat, lng, null, true);
+
     setManualPinPreviewMarker(lat, lng);
 
     stopManualPinMode(false);
@@ -25930,6 +26604,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updateReportFlowSteps('confirm');
 
     updateReportWardChip();
+
+    prepareConfirmPin();
 
     showToast(t('toast.manualPinReady'), 'success', 4500);
 
@@ -26237,6 +26913,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     manualPinLng = null;
 
+    clearConfirmPinState();
+
     if (map && report.lat != null && report.lng != null) {
 
       map.setView([report.lat, report.lng], Math.max(map.getZoom(), 15), { animate: true });
@@ -26341,6 +27019,26 @@ document.addEventListener('DOMContentLoaded', function () {
     lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
 
 
+
+    if (confirmPinLat != null && confirmPinLng != null) {
+
+      finishReportSubmitWithCoords(
+
+        confirmPinLat,
+
+        confirmPinLng,
+
+        submitBtn,
+
+        confirmPinUserAdjusted ? null : confirmPinAccuracyM,
+
+        { manualPin: !!confirmPinUserAdjusted }
+
+      );
+
+      return;
+
+    }
 
     if (manualPinLat != null && manualPinLng != null) {
 
@@ -26697,6 +27395,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#reportNotes').value = '';
 
     clearManualPinState();
+
+    clearConfirmPinState();
 
     const canvas = $('#imageCanvas');
 
