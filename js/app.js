@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v175';
+  const CIVIC_APP_VERSION = 'v176';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -21522,6 +21522,17 @@ document.addEventListener('DOMContentLoaded', function () {
     onManualPinMapClick({ latlng: { lat, lng } });
 
     return manualPinLat != null && manualPinLng != null;
+
+  };
+
+  /** E2E helper: seed confirm-step pin so submit does not race async GPS. */
+  window.civicTestSetConfirmPin = function (lat, lng, accuracyM, userAdjusted) {
+
+    if (!isValidGpsCoords(lat, lng)) return false;
+
+    initReportPinPreview(lat, lng, Number.isFinite(accuracyM) ? accuracyM : 5, userAdjusted !== false);
+
+    return confirmPinLat != null && confirmPinLng != null;
 
   };
 

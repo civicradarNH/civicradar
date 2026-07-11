@@ -570,6 +570,28 @@ async def inject_photo(page):
 
 
 
+async def seed_confirm_pin(page, lat=19.0760, lng=72.8777, accuracy=5, user_adjusted=True):
+
+    """Deterministic confirm-step pin so submit does not race async GPS."""
+
+    return await page.evaluate(
+
+        """([lat, lng, acc, adj]) => {
+
+          if (typeof window.civicTestSetConfirmPin !== 'function') return false;
+
+          return !!window.civicTestSetConfirmPin(lat, lng, acc, adj);
+
+        }""",
+
+        [lat, lng, accuracy, user_adjusted],
+
+    )
+
+
+
+
+
 async def js_click(page, selector: str):
 
     await page.evaluate(
@@ -659,6 +681,14 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
           navigator.geolocation.watchPosition = (ok) => { ok(geoPos); return 1; };
 
           navigator.geolocation.clearWatch = () => {};
+
+          if (typeof window.syncReportPhotoReturn === 'function') window.syncReportPhotoReturn();
+
+          if (typeof window.civicTestSetConfirmPin === 'function') {
+
+            window.civicTestSetConfirmPin(lat, lng, 5, true);
+
+          }
 
           document.getElementById('btnSubmitReport').click();
 
@@ -4667,7 +4697,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v175" in sw_src
+        "civicradar-v176" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7717,7 +7747,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v175" in sw_src
+        "civicradar-v176" in sw_src
 
         and "'/index.html'" not in sw_src
 
