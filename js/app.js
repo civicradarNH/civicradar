@@ -12091,6 +12091,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  /** Quota-safe localStorage write — never throw into UI handlers. */
+  function safeLocalSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (err) {
+      console.warn('[CivicRadar] localStorage set failed', key, err && err.name);
+      return false;
+    }
+  }
+
   function loadPledges() {
     try {
       const raw = localStorage.getItem(PLEDGES_KEY);

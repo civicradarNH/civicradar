@@ -153,6 +153,11 @@ create table if not exists public.ngo_codes (
 alter table public.ngo_codes add column if not exists neighbourhood text;
 alter table public.ngo_codes add column if not exists coordinator_scope text not null default 'ward'
   check (coordinator_scope in ('ward', 'neighbourhood'));
+
+-- F-02: codes are secrets. Enable RLS with NO policies so PostgREST cannot list them.
+-- Manage rows via SQL editor / service_role only. redeem_ngo_code (SECURITY DEFINER) still works.
+alter table public.ngo_codes enable row level security;
+revoke all on table public.ngo_codes from anon, authenticated;
 -- Ward lead:  insert into public.ngo_codes (code, ward, ngo_name, coordinator_scope)
 --             values ('CLEAN-HW-2026', 'H/W Ward — Bandra West, Khar West', 'Bandra Cares', 'ward');
 -- Neighbourhood lead:
@@ -186,6 +191,8 @@ begin
     'ngo_name', c.ngo_name
   );
 end $$;
+
+grant execute on function public.redeem_ngo_code(text) to anon, authenticated;
 
 -- =====================================================================
 -- Volunteer self-help (citizens) + neighbourhood lead dispatch
