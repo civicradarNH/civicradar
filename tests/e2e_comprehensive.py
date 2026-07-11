@@ -100,7 +100,13 @@ GEO_SCRIPT = """
 
     if (window.__geoDenied) { if (err) err({ code: 1, message: 'denied' }); return -1; }
 
+    // Two samples so getPrecisePosition stability check (v174+) can settle early.
+
     setTimeout(() => ok(pos), 10);
+
+    setTimeout(() => ok(pos), 40);
+
+    setTimeout(() => ok(pos), 80);
 
     watchSeq += 1;
 
@@ -847,6 +853,26 @@ async def run_citizen_tests(s: Suite, browser):
     s.record('C04b', 'Citizen', 'City picker defaults to Mumbai', city_val == 'mumbai', f'city={city_val}')
 
 
+
+    # Ward GPS detect uses getPrecisePosition (may need a short settle after ToS → onboarding).
+
+    await page.wait_for_function(
+
+        """() => {
+
+          const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
+
+          const detected = (document.getElementById('wardDetectedName')?.textContent || '').trim()
+
+            || (document.getElementById('wardInput')?.value || '').trim();
+
+          return u.gpsConsent === true || detected.length > 0;
+
+        }""",
+
+        timeout=8000,
+
+    )
 
     gps = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user")).gpsConsent')
 
@@ -1710,6 +1736,8 @@ async def run_edge_tests(s: Suite, browser):
     await page.evaluate('() => window.openReportModal(false)')
 
     await inject_photo(page)
+
+    await seed_confirm_pin(page)
 
     await js_click(page, '#btnSubmitReport')
 
@@ -2578,7 +2606,21 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.evaluate('() => document.getElementById("onboardCity").dispatchEvent(new Event("change", { bubbles: true }))')
 
-    await page.wait_for_timeout(1500)
+    await page.wait_for_function(
+
+        """() => {
+
+          const t = (document.getElementById('wardDetectedName')?.textContent || '').trim()
+
+            || (document.getElementById('wardInput')?.value || '').trim();
+
+          return t.length > 0;
+
+        }""",
+
+        timeout=8000,
+
+    )
 
     detected = await page.evaluate(
 
@@ -2608,11 +2650,25 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.evaluate('() => document.getElementById("onboardCity").dispatchEvent(new Event("change", { bubbles: true }))')
 
-    await page.wait_for_timeout(1500)
+    await page.wait_for_function(
+
+        """() => {
+
+          const t = (document.getElementById('wardDetectedName')?.textContent || '').trim()
+
+            || (document.getElementById('wardInput')?.value || '').trim();
+
+          return t.length > 0;
+
+        }""",
+
+        timeout=8000,
+
+    )
 
     pd = await page.evaluate(
 
-        '() => document.getElementById("wardDetectedName")?.textContent?.trim() || ""'
+        '() => document.getElementById("wardDetectedName")?.textContent?.trim() || document.getElementById("wardInput")?.value?.trim() || ""'
 
     )
 
@@ -3264,6 +3320,28 @@ async def run_extended_scenarios(s: Suite, browser):
 
           navigator.geolocation.getCurrentPosition = (ok) => ok({ coords: { latitude: 19.0763, longitude: 72.8780, accuracy: 5 } });
 
+          navigator.geolocation.watchPosition = (ok) => {
+
+            const pos = { coords: { latitude: 19.0763, longitude: 72.8780, accuracy: 5 } };
+
+            setTimeout(() => ok(pos), 10);
+
+            setTimeout(() => ok(pos), 40);
+
+            return 1;
+
+          };
+
+          navigator.geolocation.clearWatch = () => {};
+
+          if (typeof window.syncReportPhotoReturn === 'function') window.syncReportPhotoReturn();
+
+          if (typeof window.civicTestSetConfirmPin === 'function') {
+
+            window.civicTestSetConfirmPin(19.0763, 72.8780, 5, true);
+
+          }
+
           document.getElementById('btnSubmitReport').click();
 
           await new Promise(r => setTimeout(r, 2500));
@@ -3458,6 +3536,126 @@ async def run_extended_scenarios(s: Suite, browser):
     )
 
     await ctx_rp23.close()
+
+    # RP24/RP25 — confirm-step draggable pin + landmark notes (v175+)
+
+    ctx_rp24 = await new_ctx(
+
+        browser,
+
+        lat=19.0760,
+
+        lng=72.8777,
+
+        storage={
+
+            'civicradar_user': default_user(id='rp24'),
+
+            'civicradar_coach_seen': '1',
+
+            'civicradar_report_geo_explainer': '1',
+
+        },
+
+    )
+
+    page_rp24 = await ctx_rp24.new_page()
+
+    await goto_app(page_rp24, wait_map=True)
+
+    await page_rp24.evaluate('() => window.openReportModal(false)')
+
+    await inject_photo(page_rp24)
+
+    await page_rp24.wait_for_timeout(600)
+
+    pin_ui = await page_rp24.evaluate(
+
+        """() => {
+
+          const mapEl = document.getElementById('reportPinMap');
+
+          const acc = document.getElementById('reportPinAccuracy');
+
+          const hint = document.getElementById('reportPinDragHint');
+
+          const notesBody = document.getElementById('reportNotesBody');
+
+          const notes = document.getElementById('reportNotes');
+
+          const mapOk = !!(mapEl && mapEl.clientHeight >= 120);
+
+          const accOk = !!(acc && acc.textContent.trim().length > 4);
+
+          const hintOk = !!(hint && /drag|खींच|ओढ|ખેંચ/i.test(hint.textContent));
+
+          const notesOpen = !!(notesBody && !notesBody.classList.contains('hidden'));
+
+          const ph = (notes && (notes.getAttribute('placeholder') || '')) || '';
+
+          const landmarkPh = /shop|building|landmark|दुकान|इमारत|दुकान|ઇમારત|Sai|मेडिकल|મેડિકલ/i.test(ph);
+
+          return { mapOk, accOk, hintOk, notesOpen, landmarkPh };
+
+        }"""
+
+    )
+
+    s.record(
+
+        'RP24',
+
+        'Report',
+
+        'Confirm step shows pin map + accuracy + landmark notes',
+
+        pin_ui.get('mapOk') and pin_ui.get('accOk') and pin_ui.get('hintOk') and pin_ui.get('notesOpen') and pin_ui.get('landmarkPh'),
+
+        str(pin_ui),
+
+    )
+
+    seeded = await seed_confirm_pin(page_rp24, 19.0801, 72.8812, 40, True)
+
+    await page_rp24.evaluate('() => { document.getElementById("reportNotes").value = "opposite Sai Medical"; }')
+
+    await js_click(page_rp24, '#btnSubmitReport')
+
+    await page_rp24.wait_for_timeout(2200)
+
+    pin_submit = await page_rp24.evaluate(
+
+        """() => {
+
+          const reports = JSON.parse(localStorage.getItem('mosquiTrackReports') || '[]');
+
+          const r = reports.find((x) => x.notes === 'opposite Sai Medical');
+
+          if (!r) return { ok: false, reason: 'missing' };
+
+          const near = Math.abs(r.lat - 19.0801) < 0.0002 && Math.abs(r.lng - 72.8812) < 0.0002;
+
+          return { ok: near, lat: r.lat, lng: r.lng };
+
+        }"""
+
+    )
+
+    s.record(
+
+        'RP25',
+
+        'Report',
+
+        'Confirm pin coords used on submit',
+
+        seeded and pin_submit.get('ok'),
+
+        f'seeded={seeded} {pin_submit}',
+
+    )
+
+    await ctx_rp24.close()
 
     # First report: kudos line + progress nudge both shown and non-empty (reuse main extended page).
 
@@ -5148,6 +5346,8 @@ async def run_image_safety_scenarios(s: Suite, browser):
     s.record('IS01', 'ImageSafety', 'Photo hint visible after capture', hint_visible)
 
 
+
+    await seed_confirm_pin(page)
 
     await js_click(page, '#btnSubmitReport')
 
