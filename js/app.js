@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v171';
+  const CIVIC_APP_VERSION = 'v172';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1514,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (store[cityId][ward].length > 20) store[cityId][ward] = store[cityId][ward].slice(0, 20);
 
-    localStorage.setItem(CUSTOM_SOCIETIES_KEY, JSON.stringify(store));
+    safeLocalSet(CUSTOM_SOCIETIES_KEY, JSON.stringify(store));
 
   }
 
@@ -11880,7 +11880,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!I18N[code]) return;
     const prev = currentLang;
     currentLang = code;
-    localStorage.setItem(LANG_KEY, currentLang);
+    safeLocalSet(LANG_KEY, currentLang);
     applyTranslations();
     updatePersonaUI();
     if (prev !== code && window.CivicAnalytics) {
@@ -12045,7 +12045,7 @@ document.addEventListener('DOMContentLoaded', function () {
       delete u.reports;
       delete u.civicPoints;
       delete u.hazardsFixed;
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      safeLocalSet(USER_KEY, JSON.stringify(u));
     }
   }
 
@@ -12194,7 +12194,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function addPointsCache(amount) {
     const prevXp = getTotalCivicXp();
     const next = loadPointsCache() + amount;
-    localStorage.setItem(POINTS_CACHE_KEY, String(next));
+    safeLocalSet(POINTS_CACHE_KEY, String(next));
     checkXpLevelUp(prevXp, getTotalCivicXp());
     return getTotalCivicXp();
   }
@@ -16109,7 +16109,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (last === key) return 0;
 
-    localStorage.setItem(WEEK_BONUS_KEY, key);
+    safeLocalSet(WEEK_BONUS_KEY, key);
 
     addPointsCache(POINTS_WEEK_BONUS);
 
@@ -17403,10 +17403,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function applyNbhPrefsFromProfile(profile) {
     if (!profile) return;
-    if (profile.neighbourhood_new_alerts_enabled === true) localStorage.setItem(NBH_ALERT_NEW_KEY, '1');
-    else if (profile.neighbourhood_new_alerts_enabled === false) localStorage.setItem(NBH_ALERT_NEW_KEY, '0');
-    if (profile.neighbourhood_resolved_alerts_enabled === true) localStorage.setItem(NBH_ALERT_RESOLVED_KEY, '1');
-    else if (profile.neighbourhood_resolved_alerts_enabled === false) localStorage.setItem(NBH_ALERT_RESOLVED_KEY, '0');
+    if (profile.neighbourhood_new_alerts_enabled === true) safeLocalSet(NBH_ALERT_NEW_KEY, '1');
+    else if (profile.neighbourhood_new_alerts_enabled === false) safeLocalSet(NBH_ALERT_NEW_KEY, '0');
+    if (profile.neighbourhood_resolved_alerts_enabled === true) safeLocalSet(NBH_ALERT_RESOLVED_KEY, '1');
+    else if (profile.neighbourhood_resolved_alerts_enabled === false) safeLocalSet(NBH_ALERT_RESOLVED_KEY, '0');
     syncNbhAlertToggles();
   }
 
@@ -17862,7 +17862,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!localStorage.getItem(COACH_KEY)) {
 
-      localStorage.setItem(COACH_KEY, '1');
+      safeLocalSet(COACH_KEY, '1');
 
     }
 
@@ -19552,7 +19552,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (shouldShowHomeHero()) {
 
-      localStorage.setItem(COACH_KEY, '1');
+      safeLocalSet(COACH_KEY, '1');
 
       return;
 
@@ -19566,7 +19566,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function dismissCoachMark() {
 
-    localStorage.setItem(COACH_KEY, '1');
+    safeLocalSet(COACH_KEY, '1');
 
     $('#coachMark').classList.add('hidden');
 
@@ -19778,7 +19778,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!tourState) return;
 
-    localStorage.setItem(TOUR_KEY, '1');
+    safeLocalSet(TOUR_KEY, '1');
 
     const overlay = $('#tourOverlay');
 
@@ -22524,7 +22524,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (demo === 'tour' || demo === 'persona') {
 
-      localStorage.setItem(COACH_KEY, '1');
+      safeLocalSet(COACH_KEY, '1');
 
       if (!user.tosAccepted) user.tosAccepted = true;
 
@@ -27384,7 +27384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (localStorage.getItem(LEAD_NUDGE_SEEN_KEY)) return false;
 
-    localStorage.setItem(LEAD_NUDGE_SEEN_KEY, '1');
+    safeLocalSet(LEAD_NUDGE_SEEN_KEY, '1');
 
     setTimeout(() => {
 
@@ -31289,7 +31289,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveResolvedSeen(ids) {
 
-    localStorage.setItem(RESOLVED_SEEN_KEY, JSON.stringify(ids));
+    safeLocalSet(RESOLVED_SEEN_KEY, JSON.stringify(ids));
 
   }
 
@@ -32044,7 +32044,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const key = el && el.dataset.hookKey;
 
-    if (key) localStorage.setItem(SEASON_HOOK_DISMISS_KEY, key);
+    if (key) safeLocalSet(SEASON_HOOK_DISMISS_KEY, key);
 
     if (el) el.classList.add('hidden');
 
@@ -32136,7 +32136,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function dismissReferralWelcome() {
 
-    localStorage.setItem(REF_WELCOME_KEY, '1');
+    safeLocalSet(REF_WELCOME_KEY, '1');
 
     const el = $('#referralWelcome');
 
@@ -32168,7 +32168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (isAdmin || isLead) return;
 
-    if (loadReports().some(ownsReport)) { localStorage.setItem(REF_WELCOME_KEY, '1'); return; }
+    if (loadReports().some(ownsReport)) { safeLocalSet(REF_WELCOME_KEY, '1'); return; }
 
     if (window.CivicAnalytics) CivicAnalytics.track('ref_welcome_shown', { ref: String(ref).slice(0, 64) });
 
