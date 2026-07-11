@@ -99,6 +99,10 @@ jobs:
           mkdir -p _site
           cp index.html privacy.html terms.html delete-account.html official-sources.html child-safety-standards.html manifest.json sw.js robots.txt _site/
           cp -r css js assets _site/
+          # Local Leaflet, Phosphor SVGs, Supabase SDK (index.html no longer loads these from CDN)
+          if [ -d vendor ]; then cp -r vendor _site/; fi
+          test -f _site/vendor/leaflet/leaflet.js
+          test -f _site/vendor/supabase/supabase.js
           if [ -d .well-known ]; then cp -r .well-known _site/; fi
           test -f _site/child-safety-standards.html
           test -f _site/.well-known/assetlinks.json
