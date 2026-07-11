@@ -2606,6 +2606,8 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.evaluate('() => document.getElementById("onboardCity").dispatchEvent(new Event("change", { bubbles: true }))')
 
+    # Must wait for Thane-specific result — Mumbai may already have filled wardDetectedName
+    # (19.20, 72.98 sits in Mumbai T Ward / Mulund before city switch).
     await page.wait_for_function(
 
         """() => {
@@ -2614,11 +2616,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
             || (document.getElementById('wardInput')?.value || '').trim();
 
-          return t.length > 0;
+          return /TMC Ward|Kopri|Patlipada|Naupada/i.test(t);
 
         }""",
 
-        timeout=8000,
+        timeout=10000,
 
     )
 
@@ -2628,7 +2630,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'TMC Ward' in detected or 'Kopri' in detected, detected[:40])
+    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'TMC Ward' in detected or 'Kopri' in detected or 'Patlipada' in detected, detected[:40])
 
     await ctx.close()
 
@@ -4895,7 +4897,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v176" in sw_src
+        "civicradar-v177" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7947,7 +7949,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v176" in sw_src
+        "civicradar-v177" in sw_src
 
         and "'/index.html'" not in sw_src
 

@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-11 18:33:00
+**Run:** 2026-07-11 18:59:22
 **Server:** http://localhost:8097/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 406 | **Pass:** 405 | **Fail:** 1
+**Total:** 406 | **Pass:** 406 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -98,7 +98,7 @@
 - **Load:** 5 pass / 0 fail
 - **LocationBanner:** 6 pass / 0 fail
 - **Map:** 5 pass / 0 fail
-- **MultiCity:** 9 pass / 1 fail
+- **MultiCity:** 10 pass / 0 fail
 - **Mute:** 1 pass / 0 fail
 - **NGO:** 10 pass / 0 fail
 - **Negative:** 8 pass / 0 fail
@@ -133,7 +133,7 @@
 
 ## Failures
 
-- `MC09` **Thane GPS ward detect** — T Ward — Mulund, Nahur
+_None_
 
 ## Limitations
 
@@ -159,7 +159,7 @@
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Civic Spotter 5B3F |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective · Dadar, Shiva |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -227,8 +227,8 @@
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.00s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -298,7 +298,7 @@
 | MC06 | MultiCity | Pune ward combobox on pledge | PASS |  |
 | MC07 | MultiCity | Mumbai ward combobox on pledge | PASS |  |
 | MC08 | MultiCity | City picker has 3 options | PASS |  |
-| MC09 | MultiCity | Thane GPS ward detect | **FAIL** | T Ward — Mulund, Nahur |
+| MC09 | MultiCity | Thane GPS ward detect | PASS | TMC Ward 32 — Patlipada |
 | MC10 | MultiCity | Pune GPS ward detect | PASS | Ward 25 — Bavdhan |
 | D01 | Demo | Tour mode skips ToS | PASS |  |
 | D02 | Demo | Tour mode seeds ward | PASS |  |

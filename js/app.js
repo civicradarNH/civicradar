@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v176';
+  const CIVIC_APP_VERSION = 'v177';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12864,26 +12864,64 @@ document.addEventListener('DOMContentLoaded', function () {
       [...(recentReps || []), ...(ownReps || [])].forEach((r) => {
         repRows.set(String(r.id), r);
       });
-      if (repRows.size) {
-        const merged = mergeById(
-          loadReports(),
-          [...repRows.values()].map((r) => this.rowToReport(r))
-        );
+      // Authoritative reconcile: merge-only left stale localStorage rows after a
+      // cloud purge, and pushLocalOwned then re-seeded the empty DB. Drop other
+      // users' UUID rows not returned when the recent page is complete; keep only
+      // this user's syncPending drafts. Always write — including when cloud is empty.
+      {
+        const serverMapped = [...repRows.values()].map((r) => this.rowToReport(r));
+        const serverIds = new Set(serverMapped.map((r) => String(r.id)));
+        const recentComplete = (recentReps || []).length < batch;
+        const uuidRe = /^[0-9a-f-]{36}$/i;
         const prevReports = loadReports();
-        saveReports(merged);
+        const localKeep = prevReports.filter((r) => {
+          const id = String(r.id);
+          if (serverIds.has(id)) return false;
+          if (!uuidRe.test(id)) return true;
+          if (String(r.reporterId) === String(uid)) return !!r.syncPending;
+          return !recentComplete;
+        });
+        saveReports([...serverMapped, ...localKeep]);
         processNeighbourhoodAlertsOnSync(prevReports);
       }
       if (pls) {
-        const merged = mergeById(loadPledges(), pls.map((r) => this.rowToPledge(r)));
-        savePledges(merged);
+        const serverMapped = pls.map((r) => this.rowToPledge(r));
+        const serverIds = new Set(serverMapped.map((p) => String(p.id)));
+        const uuidRe = /^[0-9a-f-]{36}$/i;
+        const localKeep = loadPledges().filter((p) => {
+          if (p.mock) return false;
+          const id = String(p.id);
+          if (serverIds.has(id)) return false;
+          if (!uuidRe.test(id)) return true;
+          if (String(p.citizenId) === String(uid)) return !!p.syncPending;
+          return false;
+        });
+        savePledges([...serverMapped, ...localKeep]);
       }
       if (vols) {
-        const merged = mergeById(loadVolunteerSignups(), vols.map((r) => this.rowToVolunteerSignup(r)));
-        saveVolunteerSignups(merged);
+        const serverMapped = vols.map((r) => this.rowToVolunteerSignup(r));
+        const serverIds = new Set(serverMapped.map((v) => String(v.id)));
+        const uuidRe = /^[0-9a-f-]{36}$/i;
+        const localKeep = loadVolunteerSignups().filter((v) => {
+          const id = String(v.id);
+          if (serverIds.has(id)) return false;
+          if (!uuidRe.test(id)) return true;
+          if (String(v.userId) === String(uid)) return !!v.syncPending;
+          return false;
+        });
+        saveVolunteerSignups([...serverMapped, ...localKeep]);
       }
       if (tasks) {
-        const merged = mergeById(loadVolunteerTasks(), tasks.map((r) => this.rowToVolunteerTask(r)));
-        saveVolunteerTasks(merged);
+        const serverMapped = tasks.map((r) => this.rowToVolunteerTask(r));
+        const serverIds = new Set(serverMapped.map((t) => String(t.id)));
+        const uuidRe = /^[0-9a-f-]{36}$/i;
+        const localKeep = loadVolunteerTasks().filter((t) => {
+          const id = String(t.id);
+          if (serverIds.has(id)) return false;
+          if (!uuidRe.test(id)) return true;
+          return !!t.syncPending;
+        });
+        saveVolunteerTasks([...serverMapped, ...localKeep]);
       }
       refreshAllViews();
       } finally {
@@ -12891,21 +12929,43 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     },
 
-    // Best-effort push of this user's local rows that may predate the connection.
+    // Best-effort push of rows created/failed while offline. Only syncPending
+    // rows — never re-upload stale cache after a cloud purge.
     async pushLocalOwned() {
       if (!this.enabled) return;
       const myReports = loadReports().filter(
-        (r) => r.reporterId === user.id && /^[0-9a-f-]{36}$/i.test(String(r.id))
+        (r) => r.syncPending && r.reporterId === user.id && /^[0-9a-f-]{36}$/i.test(String(r.id))
       );
       if (myReports.length) {
-        await Promise.all(myReports.map((r) => this.syncReportInsert(r)));
+        await Promise.all(myReports.map(async (r) => {
+          const { error } = await this.syncReportInsert(r);
+          if (!error) this.markReportSyncPending(r.id, false);
+        }));
       }
       const myPledges = loadPledges().filter(
-        (p) => !p.mock && p.citizenId === user.id && /^[0-9a-f-]{36}$/i.test(String(p.id))
+        (p) => p.syncPending && !p.mock && p.citizenId === user.id && /^[0-9a-f-]{36}$/i.test(String(p.id))
       );
       if (myPledges.length) {
-        await this.client.from('pledges').upsert(myPledges.map((p) => this.pledgeToRow(p)), { onConflict: 'id' });
+        const { error } = await this.client.from('pledges').upsert(myPledges.map((p) => this.pledgeToRow(p)), { onConflict: 'id' });
+        if (!error) {
+          const cleared = loadPledges().map((p) => (
+            myPledges.some((m) => String(m.id) === String(p.id)) ? { ...p, syncPending: false } : p
+          ));
+          savePledges(cleared);
+        }
       }
+    },
+
+    markReportSyncPending(reportId, pending) {
+      const reports = loadReports();
+      let changed = false;
+      reports.forEach((r) => {
+        if (String(r.id) === String(reportId)) {
+          if (!!r.syncPending !== !!pending) changed = true;
+          r.syncPending = !!pending;
+        }
+      });
+      if (changed) saveReports(reports);
     },
 
     subscribe() {
@@ -12925,14 +12985,20 @@ document.addEventListener('DOMContentLoaded', function () {
     },
 
     async insertReport(report) {
-      if (!this.enabled) return;
+      if (!this.enabled) {
+        this.markReportSyncPending(report.id, true);
+        return;
+      }
       const { error } = await this.syncReportInsert(report);
       if (error) {
         console.warn('Report sync failed (saved locally):', error.message);
+        this.markReportSyncPending(report.id, true);
         if (window.CivicAnalytics) {
           CivicAnalytics.trackError(error.message, { context: 'insertReport', source: 'sync' });
         }
         showToast(t('toast.syncLocal'), 'info', 3500);
+      } else {
+        this.markReportSyncPending(report.id, false);
       }
     },
 
@@ -32920,7 +32986,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let wards = realWards;
 
-      const usingDemo = !liveBackend && realWards.length < 2;
+      // Demo seeds only in non-prod offline — never on prod (even if sync fails).
+      const usingDemo = !liveBackend && !isProdEnvironment() && realWards.length < 2;
 
       if (usingDemo) {
 
@@ -33000,7 +33067,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let citizens = aggregateCitizenLeaderboard(sinceTs);
 
-      const usingDemo = !liveBackend && citizens.length < 2;
+      const usingDemo = !liveBackend && !isProdEnvironment() && citizens.length < 2;
 
       if (usingDemo) {
 
@@ -35359,7 +35426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pledges = loadPledges();
 
-    const showMock = !Backend.enabled;
+    const showMock = !Backend.enabled && !isProdEnvironment();
 
     const mockId = getMockPledge().id;
 
