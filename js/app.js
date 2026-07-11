@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v170';
+  const CIVIC_APP_VERSION = 'v171';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12307,6 +12307,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function loadScriptOnce(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[data-civic-src="${src}"]`);
+      if (existing) {
+        if (existing.dataset.civicLoaded === '1') { resolve(); return; }
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', () => reject(new Error('script_load_failed:' + src)), { once: true });
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.dataset.civicSrc = src;
+      s.onload = () => { s.dataset.civicLoaded = '1'; resolve(); };
+      s.onerror = () => reject(new Error('script_load_failed:' + src));
+      document.head.appendChild(s);
+    });
+  }
+
   const Backend = {
     client: null,
     enabled: false,
@@ -12443,10 +12462,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async init() {
       const cfg = window.CIVICRADAR_CONFIG || {};
-      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase) {
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
         updateSyncStatus();
         applyLocalLeadGrants();
         return false; // local-only mode
+      }
+      if (!window.supabase) {
+        try {
+          await loadScriptOnce('vendor/supabase/supabase.js');
+        } catch (e) {
+          console.warn('[CivicRadar] Supabase script failed — staying local', e);
+          updateSyncStatus();
+          applyLocalLeadGrants();
+          return false;
+        }
+      }
+      if (!window.supabase) {
+        updateSyncStatus();
+        applyLocalLeadGrants();
+        return false;
       }
       try {
         this.client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
@@ -22436,7 +22470,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Connect to the shared backend (no-op in local/demo mode). Non-blocking.
 
-  Backend.init().then(() => { handleReportDeepLink(); processLocalNbhQueue(); });
+  // Supabase + sync after first paint — do not block splash/map on the SDK download.
+  setTimeout(() => {
+    Backend.init().then(() => { handleReportDeepLink(); processLocalNbhQueue(); });
+  }, 0);
 
 
 

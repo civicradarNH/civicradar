@@ -49,8 +49,9 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap"></noscript>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <!-- Leaflet (local) + Phosphor subset — no CDN icon kit -->
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/phosphor-lite.css">
 
   <link rel="stylesheet" href="css/styles.css">
   <title>CivicRadar</title>
@@ -1926,11 +1927,11 @@
   <script src="js/ward-detect.js"></script>
   <script src="js/searchable-select.js"></script>
 
-  <!-- Deferred CDN — splash paints while these download -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Map (local) — required for first paint of the map shell -->
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <!-- Turnstile stays CDN (Cloudflare-hosted challenge) -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <!-- Supabase loaded on demand after first paint (see Backend.init) -->
 
   <script src="js/analytics.js"></script>
   <script src="js/image-moderation.js"></script>

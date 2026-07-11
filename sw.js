@@ -1,4 +1,4 @@
-const CACHE = 'civicradar-v170';
+const CACHE = 'civicradar-v171';
 // Runtime config — never precache; always fetch fresh (see network-first below).
 const NETWORK_FIRST = ['/js/config.js'];
 // Relative paths resolve against the SW scope, so precache works both at the
@@ -8,6 +8,15 @@ const ASSETS = [
   'index.html',
   './',
   'css/styles.css',
+  'css/phosphor-lite.css',
+  'vendor/leaflet/leaflet.css',
+  'vendor/leaflet/leaflet.js',
+  'vendor/leaflet/images/marker-icon.png',
+  'vendor/leaflet/images/marker-icon-2x.png',
+  'vendor/leaflet/images/marker-shadow.png',
+  'vendor/leaflet/images/layers.png',
+  'vendor/leaflet/images/layers-2x.png',
+  'vendor/supabase/supabase.js',
   'assets/icon-192.png',
   'assets/icon-512.png',
   'assets/icon-maskable-512.png',
@@ -84,7 +93,18 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cached) => {
       if (cached) return cached;
-      return fetch(e.request).catch(() => {
+      return fetch(e.request).then((res) => {
+        // Runtime-cache vendor icons + other same-origin GETs so offline icons work
+        // after first visit without listing every SVG in ASSETS.
+        if (res && res.ok && url.origin === self.location.origin) {
+          const path = url.pathname;
+          if (path.includes('/vendor/') || path.includes('/css/phosphor-lite')) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy));
+          }
+        }
+        return res;
+      }).catch(() => {
         // Offline + uncached: fall back to the app shell for navigations
         // so deep links / refreshes still open instead of a browser error.
         // Relative match resolves against scope (root or /civicradar/ subpath).
