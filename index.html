@@ -357,20 +357,20 @@
         <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — we detect your ward from GPS next.</p>
       </div>
       <div class="form-group" id="wardDetectGroup">
-        <label data-i18n="onboard.ward">Your Ward</label>
-        <div id="wardDetectStatus" class="ward-detect-status" aria-live="polite">
+        <label for="wardInput" data-i18n="onboard.ward">Your Ward</label>
+        <div id="wardManualGroup">
+          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText">
+          <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+        </div>
+        <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
           <i class="ph ph-crosshair"></i>
-          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Detecting your ward from location…</span>
+          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
         </div>
         <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
           <i class="ph ph-map-pin"></i>
           <span id="wardDetectedName"></span>
         </div>
         <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
-        <div id="wardManualGroup" class="hidden">
-          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError">
-          <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
-        </div>
         <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
         <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
         <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
@@ -1918,21 +1918,23 @@
 
   <div id="civic-turnstile" class="turnstile-offscreen" aria-hidden="true"></div>
 
-  <!-- Deferred from head — splash paints before these download/parse -->
+  <!-- Critical local data first — ward list must be ready before onboarding paints -->
+  <script src="js/config.js"></script>
+  <script src="js/wards/mumbai.js"></script>
+  <script src="js/wards/pune.js"></script>
+  <script src="js/wards/thane.js"></script>
+  <script src="js/ward-detect.js"></script>
+  <script src="js/searchable-select.js"></script>
+
+  <!-- Deferred CDN — splash paints while these download -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-  <script src="js/config.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/image-moderation.js"></script>
-  <script src="js/wards/mumbai.js"></script>
-  <script src="js/wards/pune.js"></script>
-  <script src="js/wards/thane.js"></script>
-  <script src="js/ward-detect.js"></script>
   <script src="js/society-suggestions-data.js"></script>
-  <script src="js/searchable-select.js"></script>
   <script src="js/app.js"></script>
   <script>
     (function () {

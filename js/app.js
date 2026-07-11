@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v169';
+  const CIVIC_APP_VERSION = 'v170';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -20469,7 +20469,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hint) hint.classList.add('hidden');
 
-    $('#wardManualGroup')?.classList.add('hidden');
+    // Ward list is local — keep the picker usable while GPS auto-fill runs.
+    $('#wardManualGroup')?.classList.remove('hidden');
 
     $('#btnWardManual')?.classList.add('hidden');
 
@@ -20577,6 +20578,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (overlays.onboarding && overlays.onboarding.classList.contains('open')) {
 
+      const input = $('#wardInput');
+
+      const typed = (input && input.value.trim()) || '';
+
+      // Don't clobber a ward the user already picked while GPS was running.
+      if (typed && typed !== onboardingDetectedWard) {
+
+        $('#wardDetectStatus')?.classList.add('hidden');
+
+        return null;
+
+      }
+
       showOnboardingWardDetected(ward);
 
     }
@@ -20593,8 +20607,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const input = $('#wardInput');
 
-    if (input) input.value = '';
-
+    // City-change clears the field before calling this; retry/open keep typed value.
     syncOnboardingCityUi(getOnboardingCity());
 
     showOnboardingWardDetecting();
@@ -20607,7 +20620,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    getPrecisePosition({ fresh: true })
+    // Short timeout — list is local; GPS is optional convenience, not a gate.
+    getPrecisePosition({ fresh: true, watchMaxMs: 5000, timeoutMs: 5000 })
 
       .then((pos) => {
 
@@ -20625,9 +20639,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
           showOnboardingWardDetected(ward);
 
-        } else {
+        } else if (!(input && input.value.trim())) {
 
           showOnboardingWardDetectFailed();
+
+        } else {
+
+          $('#wardDetectStatus')?.classList.add('hidden');
 
         }
 
@@ -20635,7 +20653,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .catch(() => {
 
-        showOnboardingWardDetectFailed();
+        if (!(input && input.value.trim())) {
+
+          showOnboardingWardDetectFailed();
+
+        } else {
+
+          $('#wardDetectStatus')?.classList.add('hidden');
+
+          $('#btnWardRetry')?.classList.remove('hidden');
+
+        }
 
       });
 
