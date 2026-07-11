@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v164';
+  const CIVIC_APP_VERSION = 'v166';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -25522,6 +25522,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (label) label.textContent = t('report.submit');
 
+    submitReport.__inFlight = false;
+
+    finishReportSubmitWithCoords._busy = false;
+
   }
 
 
@@ -25537,6 +25541,10 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.disabled = true;
 
       btn.classList.add('is-success');
+
+      submitReport.__inFlight = false;
+
+      finishReportSubmitWithCoords._busy = false;
 
       const label = btn.querySelector('.btn__label');
 
@@ -25576,7 +25584,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!loading && btn && btn.id === 'btnSubmitReport') submitReport.__inFlight = false;
+    if (!loading && btn && btn.id === 'btnSubmitReport') {
+
+      submitReport.__inFlight = false;
+
+      finishReportSubmitWithCoords._busy = false;
+
+    }
 
   }
 
@@ -25902,6 +25916,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function finishReportSubmitWithCoords(lat, lng, submitBtn, accuracyM, opts) {
 
+    if (finishReportSubmitWithCoords._busy) return;
+
+    finishReportSubmitWithCoords._busy = true;
+
     opts = opts || {};
 
     const manualPin = !!opts.manualPin;
@@ -26168,15 +26186,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function submitReport() {
 
+    // Re-entrancy lock: rapid double-tap must not double-file during async GPS/moderation.
     if (submitReport.__inFlight) return;
 
     const canvas = $('#imageCanvas');
 
     const submitBtn = $('#btnSubmitReport');
 
-    if (window.CivicAnalytics) CivicAnalytics.perfStart('report_submit_duration');
-
-    if (!canvas.classList.contains('visible')) {
+    if (!canvas || !canvas.classList.contains('visible')) {
 
       showToast(t('toast.photoRequired'), 'error');
 
@@ -26187,6 +26204,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (submitBtn && (submitBtn.disabled || submitBtn.classList.contains('is-loading'))) return;
 
     submitReport.__inFlight = true;
+
+    if (window.CivicAnalytics) CivicAnalytics.perfStart('report_submit_duration');
 
     setButtonLoading(submitBtn, true, t('report.submitting'));
 
@@ -27032,6 +27051,120 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const CONFETTI_HUES = [4, 28, 45, 160, 190, 230, 280, 330];
 
+  let _audioCtx = null;
+
+  function celebrationSoundMuted() {
+
+    try { return localStorage.getItem('civicradar_sound_muted') === '1'; } catch { return false; }
+
+  }
+
+  function playCelebrationChime() {
+
+    if (celebrationSoundMuted() || prefersReducedMotion()) return;
+
+    try {
+
+      const AC = window.AudioContext || window.webkitAudioContext;
+
+      if (!AC) return;
+
+      if (!_audioCtx) _audioCtx = new AC();
+
+      if (_audioCtx.state === 'suspended') _audioCtx.resume();
+
+      const ctx = _audioCtx;
+
+      const now = ctx.currentTime;
+
+      const master = ctx.createGain();
+
+      master.gain.value = 0.09;
+
+      master.connect(ctx.destination);
+
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+
+        const t0 = now + i * 0.085;
+
+        const osc = ctx.createOscillator();
+
+        const g = ctx.createGain();
+
+        osc.type = 'triangle';
+
+        osc.frequency.value = freq;
+
+        g.gain.setValueAtTime(0.0001, t0);
+
+        g.gain.exponentialRampToValueAtTime(1, t0 + 0.02);
+
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+
+        osc.connect(g);
+
+        g.connect(master);
+
+        osc.start(t0);
+
+        osc.stop(t0 + 0.3);
+
+      });
+
+    } catch { /* best-effort */ }
+
+  }
+
+  window.setCelebrationSoundMuted = (m) => {
+
+    try { localStorage.setItem('civicradar_sound_muted', m ? '1' : '0'); } catch {}
+
+  };
+
+  let _audioPrimed = false;
+
+  function primeCelebrationAudio() {
+
+    if (_audioPrimed) return;
+
+    _audioPrimed = true;
+
+    ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) =>
+
+      window.removeEventListener(evt, primeCelebrationAudio, true)
+
+    );
+
+    try {
+
+      const AC = window.AudioContext || window.webkitAudioContext;
+
+      if (!AC) return;
+
+      if (!_audioCtx) _audioCtx = new AC();
+
+      if (_audioCtx.state === 'suspended') _audioCtx.resume();
+
+      const buf = _audioCtx.createBuffer(1, 1, 22050);
+
+      const src = _audioCtx.createBufferSource();
+
+      src.buffer = buf;
+
+      src.connect(_audioCtx.destination);
+
+      src.start(0);
+
+    } catch { /* retry lazily on next chime */ }
+
+  }
+
+  ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) =>
+
+    window.addEventListener(evt, primeCelebrationAudio, { capture: true, passive: true })
+
+  );
+
   function launchConfetti(opts = {}) {
 
     if (prefersReducedMotion()) return;
@@ -27088,7 +27221,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
 
-      if (localStorage.getItem('civicradar_sound_muted') === '1') return;
+      if (celebrationSoundMuted()) return;
 
       if (navigator.vibrate) navigator.vibrate(10);
 
@@ -27107,6 +27240,8 @@ document.addEventListener('DOMContentLoaded', function () {
     celebrationHaptic();
 
     launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
+
+    if (isFirst || isMilestone) playCelebrationChime();
 
     if (isFirst) {
 
@@ -27184,6 +27319,8 @@ document.addEventListener('DOMContentLoaded', function () {
     addPointsCache(POINTS_FIRST_SHARE);
 
     launchConfetti();
+
+    playCelebrationChime();
 
     showToast(t('share.firstBonus'), 'success', 5500);
 
@@ -27910,6 +28047,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     launchConfetti({ intensity: 'epic' });
 
+    playCelebrationChime();
+
     if (window.CivicAnalytics) {
 
       CivicAnalytics.track('xp_certificate_unlocked', { level: levelId }, user.ward);
@@ -28569,6 +28708,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (opts.celebrate !== false) {
       celebrationHaptic();
       launchConfetti();
+      playCelebrationChime();
     }
 
     openModal('shareWin');
