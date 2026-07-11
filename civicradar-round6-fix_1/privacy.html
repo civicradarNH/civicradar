@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="CivicRadar Privacy Policy — how we collect, use, and protect your data for ward hazard reporting in Mumbai, Pune, and Thane.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/legal.css">
+  <title>Privacy Policy — CivicRadar</title>
+</head>
+<body>
+  <header class="legal-header">
+    <div class="legal-header__inner">
+      <a class="legal-header__brand" href="index.html">📡 CivicRadar</a>
+      <nav class="legal-header__nav" aria-label="Legal">
+        <a href="terms.html">Terms</a>
+        <a href="delete-account.html">Delete data</a>
+        <a href="index.html">App</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="legal-main">
+    <h1>Privacy Policy</h1>
+    <p class="legal-meta">Effective: 21 June 2026 · Last updated: 4 July 2026 · Data fiduciary: CivicRadar (operated by the project maintainers)</p>
+
+    <div class="legal-disclaimer">
+      <strong>Not an official municipal app.</strong> CivicRadar is an independent community tool. It is not affiliated with, endorsed by, or operated by BMC/MCGM, Pune Municipal Corporation (PMC), Thane Municipal Corporation (TMC), or any government body. We deep-link to official corporation channels; we do not submit complaints on your behalf.
+    </div>
+
+    <p>CivicRadar (“we”, “us”, “the app”) helps residents of Mumbai, Pune, and Thane report civic hazards — stagnant water, garbage, potholes, broken streetlights, and related issues — track municipal complaint progress when they file, and take part in community accountability. This Privacy Policy explains what personal data we collect, why, how long we keep it, and your rights — including under India’s Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+
+    <h2>1. Data fiduciary &amp; operator</h2>
+    <p>For purposes of the DPDP Act, the <strong>data fiduciary</strong> is <strong>CivicRadar</strong>, operated by the project maintainers. CivicRadar is an independent community project — not an official municipal or government product.</p>
+    <p><strong>Grievance officer (privacy complaints):</strong> Grievance Officer, CivicRadar — <a id="grievanceEmailLink" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20inquiry" data-legal-email>civicradarnh@gmail.com</a>. We aim to acknowledge privacy grievances within <strong>7 days</strong> and resolve or respond substantively within <strong>30 days</strong>, as required under the DPDP Act (subject to applicable rules).</p>
+
+    <h2>2. Data we collect</h2>
+    <ul>
+      <li><strong>Display name &amp; ward</strong> — chosen during onboarding (stored locally and, if cloud sync is enabled, on our backend).</li>
+      <li><strong>GPS location</strong> — latitude/longitude when you explicitly enable location or submit a hazard report. We ask for separate consent before collecting GPS (DPDP). Location metadata embedded in photos is <strong>stripped on-device (EXIF removal)</strong> before upload.</li>
+      <li><strong>Photos you upload</strong> — hazard evidence images. Processed on-device for type/size checks, EXIF stripping, and basic safety screening before storage. Do not upload photos that show other people’s faces without their consent.</li>
+      <li><strong>Report details</strong> — hazard type, optional notes, complaint numbers you enter, resolution status, community Me too confirmations.</li>
+      <li><strong>Pledges</strong> — optional volunteer supply pledges (type, ward, message).</li>
+      <li><strong>Volunteer signups</strong> — ward, neighbourhood/society, hours, skills, and an <strong>optional phone/WhatsApp number</strong> if you choose to share it with your ward or neighbourhood coordinator. We do not require a phone number for citizens.</li>
+      <li><strong>Device &amp; app data</strong> — language preference, coach-mark/onboarding flags, consent flags, and similar settings in <code>localStorage</code> and <code>sessionStorage</code> on your device (see Cookies &amp; local storage below).</li>
+      <li><strong>Anonymous usage analytics</strong> — only if you opt in at Terms acceptance. We collect anonymized session events (tab views, report actions, errors, load times). No photos, exact GPS, email, display names, or phone numbers are sent. Ward code only where relevant. Events are stored in the <code>analytics_events</code> table when cloud backend is configured.</li>
+      <li><strong>Anonymous account ID</strong> — if cloud sync (Supabase) is enabled, we create an anonymous auth identifier so your reports can sync across devices without a password.</li>
+      <li><strong>Official sign-in (BMC / NGO only)</strong> — email address and one-time codes for authorised partner dashboards. Not required for citizens.</li>
+    </ul>
+    <p>We do <strong>not</strong> require your phone number, Aadhaar, or payment details for citizen features. CivicRadar is free for residents.</p>
+
+    <h2>3. How we use your data</h2>
+    <ul>
+      <li>Pin hazards on the community map and show ward-level statistics.</li>
+      <li>Let you track your reports and earn Civic Hero XP for participation.</li>
+      <li>Sync reports across your devices when cloud backend is configured.</li>
+      <li>Enable BMC officials and NGO coordinators (with verified access) to review and resolve reports in their roles.</li>
+      <li>Match volunteer signups to neighbourhood cleanup offers when you opt in.</li>
+      <li>Moderate user-uploaded photos to reduce abuse (client-side checks; server-side review recommended at scale).</li>
+      <li>Improve reliability (offline caching via service worker).</li>
+      <li>Measure anonymous app health — traffic, errors, and performance — only with your analytics consent.</li>
+    </ul>
+    <p>We do <strong>not</strong> sell your personal data. Future local business sponsorships may show ward-targeted offers in-app; sponsors do not receive your raw GPS, photos, or contact details.</p>
+
+    <h2>4. Legal basis &amp; DPDP (India)</h2>
+    <p>Under the DPDP Act, we process personal data based on your <strong>consent</strong> (GPS, photo uploads, optional volunteer contact, optional analytics) and <strong>legitimate uses</strong> such as compliance with law and responding to grievances. Consent is collected separately where required — Terms acceptance, GPS enablement, and analytics are not bundled into a single mandatory checkbox.</p>
+    <p>You may <strong>withdraw consent</strong> for GPS in device settings or via Profile → Withdraw location consent; for analytics via Profile → Withdraw analytics consent; or erase all data via Profile → Delete my data.</p>
+    <p>As an intermediary under the Information Technology Act, 2000, users are responsible for content they upload. We may remove content that violates our Terms or applicable law.</p>
+
+    <h2>5. Storage, processors &amp; cross-border transfer</h2>
+    <ul>
+      <li><strong>On your device</strong> — reports, profile, and preferences in browser storage when offline or in local-only mode.</li>
+      <li><strong>Supabase</strong> (when configured) — cloud database for report/pledge/volunteer records and analytics, plus a separate object storage bucket for hazard photos (see below). Our backend is hosted in the <strong>Mumbai (ap-south-1) region in India</strong>, so your data is primarily stored on servers in India. Supabase Inc. is a United States company acting as our data processor. Because project maintainers may administer the service from outside India, some processing involves <strong>cross-border transfer</strong> under the DPDP Act — we rely on your consent and on our contract with the processor for this. See <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</li>
+      <li><strong>Third-party CDNs</strong> (loaded when online):
+        <ul>
+          <li><strong>unpkg.com</strong> — Phosphor icons and Leaflet map library</li>
+          <li><strong>cdn.jsdelivr.net</strong> — Supabase JavaScript client; optional on-device NSFW safety-scan models when enabled</li>
+          <li><strong>fonts.googleapis.com</strong> and <strong>fonts.gstatic.com</strong> — Outfit web font</li>
+          <li><strong>OpenStreetMap tile servers</strong> (e.g. <code>tile.openstreetmap.org</code>) — map background tiles</li>
+        </ul>
+      </li>
+    </ul>
+    <p>Hazard photos are uploaded to a dedicated Supabase Storage bucket (not embedded in database rows) in the same Mumbai (ap-south-1) region. Once stored, photo URLs are <strong>publicly accessible</strong> so they can appear on the community map for all users — this is intentional for ward visibility. Upload is restricted by authentication and storage policies; only signed-in reporters can upload, and access policies govern who can read or delete objects.</p>
+    <p><strong>Security note:</strong> BMC partner accounts with official <code>*.gov.in</code> email domains may receive elevated dashboard access automatically when signing in — this is role assignment only, not a claim of government endorsement of CivicRadar.</p>
+
+    <h2>6. Retention</h2>
+    <ul>
+      <li><strong>Community map reports</strong> — retained while relevant to public safety and accountability, typically until resolved and for up to <strong>12 months</strong> thereafter for audit/community stats, unless deletion is requested sooner.</li>
+      <li><strong>Pledges &amp; volunteer signups</strong> — retained while active; removed when you delete your data or remove your signup.</li>
+      <li><strong>Analytics events</strong> — aggregated event rows retained up to <strong>90 days</strong>, then purged or aggregated; deleted on request via Delete my data (session-linked rows).</li>
+      <li><strong>Local-only data</strong> — remains on your device until you clear app data, withdraw specific consents, or use “Delete my data” in Profile.</li>
+      <li><strong>Anonymous accounts</strong> — deleted when you use in-app deletion; residual infrastructure backups may persist up to <strong>30 days</strong>.</li>
+    </ul>
+
+    <h2>7. Sharing</h2>
+    <p>Report locations and photos are visible to other app users on the map (community feature). Optional volunteer phone numbers are visible only to NGO coordinators in your ward/neighbourhood scope — not on the public map. If you share to X/WhatsApp, you choose what to share outside the app. We may disclose data if required by Indian law or to protect safety.</p>
+
+    <h2>8. Children’s privacy &amp; photos of others</h2>
+    <p>CivicRadar is intended for users <strong>18 years and older</strong>. We do not knowingly collect data from minors. School or NSS groups should participate only through a parent, guardian, or coordinator who meets the age requirement and accepts Terms on behalf of the group.</p>
+    <p>Do not upload photos that clearly identify other people (especially minors) without their consent. Hazard photos should focus on the site, not faces.</p>
+    <p>If you believe a minor has submitted data, contact the grievance officer for removal.</p>
+
+    <h2>9. Cookies &amp; local storage</h2>
+    <p>CivicRadar is a progressive web app. We use browser <code>localStorage</code> for reports, profile, pledges, volunteer signups, analytics buffer (if consented), and preferences; <code>sessionStorage</code> for anonymous analytics session IDs. We do not use third-party advertising cookies. Clearing site data in your browser removes local copies.</p>
+
+    <h2>10. Security</h2>
+    <p>We use HTTPS in production, row-level security on the backend, on-device EXIF stripping, and on-device photo checks. No system is perfectly secure; do not upload sensitive documents or selfies with ID cards.</p>
+
+    <h2>11. Government information sources</h2>
+    <p>CivicRadar references official municipal and state channels (BMC/MCGM, PMC, TMC, Aaple Sarkar, Swachhata) for your convenience. We do <strong>not</strong> publish government data as authoritative, operate any government system, or file complaints on your behalf. Verified source URLs are listed on our <a href="official-sources.html">Official Government Sources</a> page.</p>
+
+    <h2>12. Your rights</h2>
+    <p>Under the DPDP Act you may request access, correction, erasure, or withdrawal of consent. In the app:</p>
+    <ul>
+      <li><strong>Profile → Delete my data</strong> — permanent erasure of your reports, pledges, volunteer signup, confirmations, and session analytics.</li>
+      <li><strong>Profile → Withdraw analytics consent</strong> — stops new analytics; clears local analytics buffer.</li>
+      <li><strong>Profile → Withdraw location consent</strong> — stops GPS collection until you re-enable.</li>
+    </ul>
+    <p>Web-accessible deletion instructions (required for app store listings): see our dedicated <a href="delete-account.html">Delete Account &amp; Data</a> page for step-by-step guidance and email fallback.</p>
+    <p>You may also email the grievance officer. We will respond within the timelines stated in section 1.</p>
+
+    <h2>13. International users &amp; operator location</h2>
+    <p>The service focuses on Mumbai, Pune, and Thane, Maharashtra, India, and your data is primarily stored in the Mumbai (ap-south-1) region. Project maintainers may administer the service (including support and data requests) from outside India, which means authorised access to your data may occur from outside India. By using CivicRadar you consent to this cross-border access and to processing by our US-based processor as described in section 5. If you access CivicRadar from outside India, you also consent to processing in India.</p>
+
+    <h2>14. Changes</h2>
+    <p>We may update this policy. Material changes will be reflected in the “Last updated” date. Continued use after changes may require re-acceptance in the app.</p>
+
+    <h2>15. Contact</h2>
+    <p>Privacy questions and DPDP grievances: <strong>Grievance Officer, CivicRadar</strong> at <a id="contactEmailLink" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20inquiry" data-legal-email>civicradarnh@gmail.com</a>, or the support address on your app store listing once published.</p>
+  </main>
+
+  <footer class="legal-footer">
+    <p>© 2026 CivicRadar · <a href="terms.html">Terms of Service</a> · <a href="child-safety-standards.html">Child Safety Standards</a> · <a href="official-sources.html">Official Sources</a> · <a href="delete-account.html">Delete Account &amp; Data</a> · <a href="index.html">Back to app</a></p>
+    <p>Maharashtra community civic tech · Community-built, free for citizens</p>
+  </footer>
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var cfg = window.CIVICRADAR_CONFIG || {};
+      var legal = cfg.legal || {};
+      var founder = cfg.founder || {};
+      var email = legal.grievanceEmail || founder.operatorEmail || founder.email || 'civicradarnh@gmail.com';
+      document.querySelectorAll('[data-legal-email]').forEach(function (el) {
+        if (email) {
+          el.href = 'mailto:' + email + '?subject=' + encodeURIComponent('CivicRadar — privacy inquiry');
+          el.textContent = email;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
