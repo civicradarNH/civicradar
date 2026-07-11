@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v163';
+  const CIVIC_APP_VERSION = 'v164';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -25576,6 +25576,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    if (!loading && btn && btn.id === 'btnSubmitReport') submitReport.__inFlight = false;
+
   }
 
 
@@ -26166,6 +26168,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function submitReport() {
 
+    if (submitReport.__inFlight) return;
+
     const canvas = $('#imageCanvas');
 
     const submitBtn = $('#btnSubmitReport');
@@ -26181,6 +26185,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (submitBtn && (submitBtn.disabled || submitBtn.classList.contains('is-loading'))) return;
+
+    submitReport.__inFlight = true;
 
     setButtonLoading(submitBtn, true, t('report.submitting'));
 
@@ -26224,13 +26230,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!granted && !hasSeenReportGeoExplainer()) {
 
-      setButtonLoading(submitBtn, false);
-
       const choice = await showReportGeoExplainerModal();
 
-      if (choice === 'cancel') return;
+      if (choice === 'cancel') {
 
-      if (choice === 'manual') return;
+        setButtonLoading(submitBtn, false);
+
+        return;
+
+      }
+
+      if (choice === 'manual') {
+
+        setButtonLoading(submitBtn, false);
+
+        return;
+
+      }
 
       setButtonLoading(submitBtn, true, t('report.submitting'));
 
