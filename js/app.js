@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v159';
+  const CIVIC_APP_VERSION = 'v161';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -3837,6 +3837,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.resolved': 'Resolved',
 
+      'fix.by.community': 'Fixed — confirmed by a neighbour',
+
+      'fix.by.self': 'Fixed — verified by the reporter',
+
+      'fix.by.bmc': 'Resolved by {corp}',
+
       'popup.society': 'Society / neighbourhood',
 
       'popup.communityCleared': 'Volunteers cleared — {corp} complaint may still be open',
@@ -6150,6 +6156,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.resolved': 'हल',
 
+      'fix.by.community': 'ठीक — पड़ोसी ने पुष्टि की',
+
+      'fix.by.self': 'ठीक — रिपोर्टर ने सत्यापित',
+
+      'fix.by.bmc': '{corp} द्वारा हल',
+
       'popup.society': 'सोसाइटी / पड़ोस',
 
       'popup.communityCleared': 'स्वयंसेवकों ने साफ किया — {corp} शिकायत अभी खुली हो सकती है',
@@ -8462,6 +8474,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.resolved': 'सोडवले',
 
+      'fix.by.community': 'ठीक — शेजाऱ्याने पुष्टी केली',
+
+      'fix.by.self': 'ठीक — अहवालकर्त्याने पडताळले',
+
+      'fix.by.bmc': '{corp} ने सोडवले',
+
       'popup.society': 'सोसायटी / परिसर',
 
       'popup.communityCleared': 'स्वयंसेवकांनी साफ केले — {corp} तक्रार अजून खुली असू शकते',
@@ -10773,6 +10791,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'popup.pending': 'બાકી',
 
       'popup.resolved': 'ઉકેલાયું',
+
+      'fix.by.community': 'ઠીક — પડોશીએ પુષ્ટિ કરી',
+
+      'fix.by.self': 'ઠીક — રિપોર્ટરે ચકાસ્યું',
+
+      'fix.by.bmc': '{corp} દ્વારા ઉકેલ',
 
       'popup.society': 'સોસાયટી / પડોશ',
 
@@ -18108,19 +18132,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function resolutionStatusLabel(report) {
 
+    if (!report || report.status !== 'resolved') return t('popup.resolved');
+
+    if (report.resolvedBy === 'bmc') {
+      return t('fix.by.bmc').replace('{corp}', getCorpShortName(getReportCity(report)));
+    }
+
     const src = getReportResolutionSource(report);
 
-    if (src === 'community_verified') return t('profile.status.communityVerified');
+    if (src === 'self' || src === 'stale_verified') return t('fix.by.self');
 
-    if (src === 'stale_verified' || src === 'self') return t('profile.status.youMarkedFixed');
+    if (src === 'bmc_admin') {
+      return t('fix.by.bmc').replace('{corp}', getCorpShortName(getReportCity(report)));
+    }
 
-    if (src === 'bmc_admin') return t('profile.status.bmcResolved');
-
-    if (report.resolvedBy === 'citizen') return t('profile.status.resolvedCitizen');
-
-    if (report.resolvedBy === 'bmc') return t('profile.status.resolvedBmc');
-
-    return t('popup.resolved');
+    return t('fix.by.community');
 
   }
 
@@ -18132,25 +18158,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const src = getReportResolutionSource(report);
 
-    let key = 'profile.badge.communityVerified';
-
     let cls = '';
 
     if (src === 'stale_verified' || src === 'self') {
 
-      key = 'profile.badge.youMarkedFixed';
-
       cls = ' report-card__resolution-badge--self';
 
-    } else if (src === 'bmc_admin') {
-
-      key = 'profile.badge.bmcResolved';
+    } else if (src === 'bmc_admin' || report.resolvedBy === 'bmc') {
 
       cls = ' report-card__resolution-badge--bmc';
 
     }
 
-    return `<div class="report-card__resolution-badge${cls}"><i class="ph ph-check-circle"></i> ${escapeHtml(t(key))}</div>`;
+    return `<div class="report-card__resolution-badge${cls}"><i class="ph ph-check-circle"></i> ${escapeHtml(resolutionStatusLabel(report))}</div>`;
 
   }
 
@@ -21469,6 +21489,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     openModal('community');
 
+    // Engaged users (≥1 report) see the volunteer section expanded by default.
+    if (getUserReports().length >= 1) {
+      setCollapsibleSectionOpen('getInvolvedSection', 'getInvolvedBody', 'btnGetInvolvedToggle', true);
+    }
+
   };
 
   window.closeCommunityModal = function () { closeModal('community'); };
@@ -23177,7 +23202,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-          action += `<div class="popup__volunteer"><button type="button" class="popup__btn" data-volunteer-help="${escapeHtml(String(report.id))}"><i class="ph ph-broom"></i> ${escapeHtml(t('popup.helpClean'))}</button></div>`;
+          action += `<div class="popup__volunteer"><button type="button" class="popup__btn popup__btn--secondary" data-volunteer-help="${escapeHtml(String(report.id))}"><i class="ph ph-broom"></i> ${escapeHtml(t('popup.helpClean'))}</button></div>`;
 
         }
 
@@ -23195,7 +23220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       : '';
 
-    const status = report.status === 'resolved' ? t('popup.resolved') : t('popup.pending');
+    const status = report.status === 'resolved' ? resolutionStatusLabel(report) : t('popup.pending');
 
     const societyLine = report.society
 
@@ -23358,6 +23383,20 @@ document.addEventListener('DOMContentLoaded', function () {
     reportMarkerLayer.addLayer(marker);
 
     if (opts && opts.drop) {
+
+      if (typeof marker.setRadius === 'function' && !prefersReducedMotion()) {
+
+        const base = marker.getRadius ? marker.getRadius() : 10;
+
+        marker.setRadius(0.1);
+
+        [0.5, 1.35, 0.9, 1.1, 1].forEach((f, i) =>
+
+          setTimeout(() => { try { marker.setRadius(base * f); } catch { /* marker removed */ } }, 60 + i * 70)
+
+        );
+
+      }
 
       requestAnimationFrame(() => {
 
@@ -30198,13 +30237,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const phoneAttr = corpActions.phone ? ` data-corp-phone="${escapeHtml(corpActions.phone)}"` : '';
 
+            const actionCls = corpActions.channel === 'corp-aaple' ? 'btn--secondary' : 'btn--primary';
+
             actions = `
 
               <div class="esc-step__actions">
 
                 <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="${escapeHtml(tobj.key)}">${escapeHtml(corpActions.copy)}</button>
 
-                <button type="button" class="btn btn--primary btn--sm" data-esc-channel="${escapeHtml(corpActions.channel)}"${phoneAttr}>${escapeHtml(corpActions.action)}</button>
+                <button type="button" class="btn ${actionCls} btn--sm" data-esc-channel="${escapeHtml(corpActions.channel)}"${phoneAttr}>${escapeHtml(corpActions.action)}</button>
 
               </div>`;
 
@@ -30246,7 +30287,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 <button type="button" class="btn btn--secondary btn--sm" data-esc-copy="grievance">${escapeHtml(t('esc.tier.copyFollowUp'))}</button>
 
-                <button type="button" class="btn btn--primary btn--sm" data-esc-channel="aaple">${escapeHtml(t('esc.tier.openAaple'))}</button>
+                <button type="button" class="btn btn--secondary btn--sm" data-esc-channel="aaple">${escapeHtml(t('esc.tier.openAaple'))}</button>
 
               </div>
 
