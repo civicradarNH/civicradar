@@ -187,7 +187,7 @@
       id: 'swachhata',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.ichangemycity.swachhbharat',
       appStoreUrl: 'https://apps.apple.com/in/app/swachhata-mohua/id1124033628',
-      infoUrl: 'https://www.mohua.gov.in/cms/swachh-bharat-mission-urban.php',
+      infoUrl: 'https://www.swachh.city/',
       helpline: '1969',
     },
     aapleSarkar: {
