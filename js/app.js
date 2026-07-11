@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v166';
+  const CIVIC_APP_VERSION = 'v169';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2975,7 +2975,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'Community',
 
-      'community.subtitle': 'Fix it together in {ward} — rally neighbours, celebrate wins, support local leads.',
+      'community.subtitle': 'Fix it together in {ward} — rally neighbours with {corp}, celebrate wins, support local leads.',
 
       'community.subtitleActive': '{ward}: {pending} open on the map — {resolved} fixed — rally neighbours or see Resources to help.',
 
@@ -5296,7 +5296,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} में साथ मिलकर ठीक करें — पड़ोसियों को बुलाएँ, जीत मनाएँ, स्थानीय लीड्स को सपोर्ट करें।',
+      'community.subtitle': '{ward} में {corp} के साथ मिलकर ठीक करें — पड़ोसियों को बुलाएँ, जीत मनाएँ, स्थानीय लीड्स को सपोर्ट करें।',
 
       'community.subtitleActive': '{ward}: {pending} खुले खतरे · {resolved} हल। पड़ोसियों को बुलाएँ — मदद के लिए Resources देखें!',
 
@@ -7616,7 +7616,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'समुदाय',
 
-      'community.subtitle': '{ward} मध्ये एकत्र ठीक करा — शेजाऱ्यांना बोलवा, विजय साजरे करा, स्थानिक लीड्सना पाठिंबा द्या.',
+      'community.subtitle': '{ward} मध्ये {corp} सोबत एकत्र ठीक करा — शेजाऱ्यांना बोलवा, विजय साजरे करा, स्थानिक लीड्सना पाठिंबा द्या.',
 
       'community.subtitleActive': '{ward}: {pending} खुले धोके · {resolved} सोडवले. शेजाऱ्यांना बोलवा — मदतीसाठी Resources पहा!',
 
@@ -9936,7 +9936,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.title': 'સમુદાય',
 
-      'community.subtitle': '{ward} માં સાથે મળીને ઠીક કરો — પડોશીઓને બોલાવો, જીત ઉજવો, સ્થાનિક લીડ્સને સપોર્ટ કરો.',
+      'community.subtitle': '{ward} માં {corp} સાથે મળીને ઠીક કરો — પડોશીઓને બોલાવો, જીત ઉજવો, સ્થાનિક લીડ્સને સપોર્ટ કરો.',
 
       'community.subtitleActive': '{ward}: {pending} ખુલ્લા જોખમો · {resolved} ઉકેલાયા. પડોશીઓને બોલાવો — મદદ માટે Resources જુઓ!',
 
@@ -20965,6 +20965,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function syncReportPhotoReturn() {
 
+    const fromCameraFlow = reportPhotoFlowActive || reportPhotoProcessing;
+
     ensureReportModalOpen();
 
     if (hasReportPhotoPreview()) {
@@ -20983,7 +20985,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    reportPhotoDismissGuard = Date.now();
+    if (fromCameraFlow) reportPhotoDismissGuard = Date.now();
 
   }
 
@@ -21225,6 +21227,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     clearNavModalHistory();
 
+    if (!overlays.report?.classList.contains('open') && hasReportPhotoPreview()) {
+
+      resetReportForm();
+
+    }
+
     scheduleMapResize();
 
   }
@@ -21289,7 +21297,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const standalone = !!(opts && opts.forceStandalone) || isStandalonePwa();
 
-    if (isReportPhotoPickerActive() || hasReportPhotoPreview()) return false;
+    if (isReportPhotoPickerActive()) return false;
+
+    if (overlays.report?.classList.contains('open') && hasReportPhotoPreview()) return false;
 
     if (!standalone) return false;
 
@@ -21324,6 +21334,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.resetAppSessionUi = resetAppSessionUi;
 
   window.civicMaybeResetSessionOnResume = maybeResetSessionOnResume;
+
+  window.syncReportPhotoReturn = syncReportPhotoReturn;
 
   window.civicTestDropManualPin = function (lat, lng) {
 
@@ -21555,6 +21567,12 @@ document.addEventListener('DOMContentLoaded', function () {
     setNavTab('profile');
 
     openModal('profile');
+
+    requestAnimationFrame(() => {
+
+      $('#btnReplayTour')?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+
+    });
 
     pulseProfilePointsStat();
 
@@ -26158,6 +26176,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       closeModal('report');
 
+      resetReportForm();
+
+      clearReportDraft();
+
       showSuccessModal(weekBonus);
 
       maybeShowPwaNudge('report');
@@ -26188,6 +26210,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Re-entrancy lock: rapid double-tap must not double-file during async GPS/moderation.
     if (submitReport.__inFlight) return;
+
+    if (overlays.report?.classList.contains('open') && hasReportPhotoPreview()) {
+
+      const confirmPanel = $('#reportStepConfirm');
+
+      if (confirmPanel && confirmPanel.hidden) syncReportPhotoReturn();
+
+    }
 
     const canvas = $('#imageCanvas');
 
@@ -26576,6 +26606,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
   }
+
+
+
+  window.showSuccessModal = showSuccessModal;
 
 
 

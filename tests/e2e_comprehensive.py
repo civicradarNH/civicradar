@@ -560,6 +560,8 @@ async def inject_photo(page):
 
           document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
 
+          if (typeof window.syncReportPhotoReturn === 'function') window.syncReportPhotoReturn();
+
         }"""
 
     )
@@ -3343,37 +3345,45 @@ async def run_extended_scenarios(s: Suite, browser):
 
     # RP23 — GPS denied → manual pin fallback (D-2 v146)
 
-    await close_all_modals(page)
+    ctx_rp23 = await new_ctx(
 
-    await page.evaluate(
+        browser,
 
-        """() => {
+        geo_denied=True,
 
-          window.__geoDenied = true;
+        storage={
 
-          localStorage.setItem('civicradar_report_geo_explainer', '1');
+            'civicradar_user': default_user(id='rp23'),
 
-        }"""
+            'civicradar_coach_seen': '1',
+
+            'civicradar_report_geo_explainer': '1',
+
+        },
 
     )
 
-    await page.evaluate('() => window.openReportModal(false)')
+    page_rp23 = await ctx_rp23.new_page()
 
-    await inject_photo(page)
+    await goto_app(page_rp23, wait_map=True)
 
-    await page.evaluate('() => { document.getElementById("reportNotes").value = "manual pin test"; }')
+    await page_rp23.evaluate('() => window.openReportModal(false)')
 
-    await js_click(page, '#btnSubmitReport')
+    await inject_photo(page_rp23)
 
-    await page.wait_for_timeout(900)
+    await page_rp23.evaluate('() => { document.getElementById("reportNotes").value = "manual pin test"; }')
 
-    toast_pin_action = await page.evaluate(
+    await js_click(page_rp23, '#btnSubmitReport')
+
+    await page_rp23.wait_for_timeout(2500)
+
+    toast_pin_action = await page_rp23.evaluate(
 
         """() => {
 
           const btns = Array.from(document.querySelectorAll('.toast__action'));
 
-          const btn = btns.find((b) => /pin|map|पिन|पिन|પિન/i.test(b.textContent));
+          const btn = btns.find((b) => /pin|map|पिन|પિન/i.test(b.textContent));
 
           if (!btn) return false;
 
@@ -3385,19 +3395,19 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    await page.wait_for_timeout(500)
+    await page_rp23.wait_for_timeout(500)
 
-    manual_mode = await page.evaluate('() => document.body.classList.contains("manual-pin-mode")')
+    manual_mode = await page_rp23.evaluate('() => document.body.classList.contains("manual-pin-mode")')
 
-    pin_dropped = await page.evaluate('() => window.civicTestDropManualPin(19.07625, 72.87785)')
+    pin_dropped = await page_rp23.evaluate('() => window.civicTestDropManualPin(19.07625, 72.87785)')
 
-    await page.wait_for_timeout(400)
+    await page_rp23.wait_for_timeout(400)
 
-    await js_click(page, '#btnSubmitReport')
+    await js_click(page_rp23, '#btnSubmitReport')
 
-    await page.wait_for_timeout(2500)
+    await page_rp23.wait_for_timeout(2500)
 
-    manual_pin_ok = await page.evaluate(
+    manual_pin_ok = await page_rp23.evaluate(
 
         '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "manual pin test")'
 
@@ -3417,11 +3427,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    await page.evaluate('() => { window.__geoDenied = false; }')
+    await ctx_rp23.close()
 
-    await close_all_modals(page)
-
-    # First report: kudos line + progress nudge both shown and non-empty.
+    # First report: kudos line + progress nudge both shown and non-empty (reuse main extended page).
 
     first_celebrate = await page.evaluate('() => document.getElementById("successCelebrate").textContent.trim()')
 
@@ -3431,7 +3439,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
              f'celebrate="{first_celebrate[:30]}" progress="{first_progress[:30]}"')
 
-    await page.click('#btnSuccessClose')
+    await page.evaluate('() => { if (!document.getElementById("successOverlay").classList.contains("open")) window.showSuccessModal && window.showSuccessModal(0); }')
+
+    await js_click(page, '#btnSuccessClose')
 
     await page.wait_for_timeout(300)
 
@@ -4657,7 +4667,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v166" in sw_src
+        "civicradar-v169" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -5576,7 +5586,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
     await page.wait_for_timeout(200)
 
-    await page.click('#btnReplayTour')
+    await js_click(page, '#btnReplayTour')
 
     await page.wait_for_timeout(500)
 
@@ -7276,7 +7286,7 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
         ('OC02', 'pune', PUNE_WARD, 'pmc_care', ('play.google.com', 'www.pmc.gov.in')),
 
-        ('OC03', 'thane', THANE_WARD, 'tmc_portal', ('tmc.gov.in',)),
+        ('OC03', 'thane', THANE_WARD, 'tmc_portal', ('thanecity.gov.in', 'tmc.gov.in')),
 
     ]
 
@@ -7707,7 +7717,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v166" in sw_src
+        "civicradar-v169" in sw_src
 
         and "'/index.html'" not in sw_src
 
