@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
   const CIVIC_APP_VERSION = 'v172';
+  const CIVIC_APP_VERSION = 'v173';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12542,7 +12543,7 @@ document.addEventListener('DOMContentLoaded', function () {
           await restoreElevatedRole();
         }
         if (window.CivicAnalytics) CivicAnalytics.setSupabaseClient(this.client);
-        showToast(t('toast.syncConnected'), 'success', 3000);
+        // Quiet success — header "Syncing" chip is enough; toast confused end users.
         return true;
       } catch (e) {
         const code = (e && (e.error_code || e.code)) || '';
