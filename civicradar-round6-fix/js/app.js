@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v162';
+  const CIVIC_APP_VERSION = 'v161';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -5938,8 +5938,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.portalHint.streetlight': 'पोर्टल या MARG ऐप: Electrical → streetlight। नीचे विवरण चिपकाएँ।',
 
-      'esc.portalHintNav': 'पोर्टल या MARG ऐप: {hint}। नीचे विवरण चिपकाएँ।',
-
       'esc.filedConsent': 'मैंने आधिकारिक BMC चैनल पर दर्ज किया (1916 / MyBMC / पोर्टल / ऐप)',
 
       'esc.complaintWarn': 'यह सामान्य BMC नंबर जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
@@ -8258,8 +8256,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.portalHint.streetlight': 'पोर्टल किंवा MARG: Electrical → streetlight. खाली तपशील पेस्ट करा.',
 
-      'esc.portalHintNav': 'पोर्टल किंवा MARG: {hint}. खाली तपशील पेस्ट करा.',
-
       'esc.filedConsent': 'मी अधिकृत BMC चॅनेलवर नोंदवले (1916 / MyBMC / पोर्टल / अॅप)',
 
       'esc.complaintWarn': 'सामान्य BMC क्रमांक सारखे दिसत नाही — बरोबर असेल तर जतन करा.',
@@ -9294,6 +9290,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'lang.native': 'ગુજરાતી',
 
       'nav.map': 'નકશો',
+      'badge.admin': 'BMC એડમિન',
+      'esc.portalHintNav': 'પોર્ટલ અથવા MARG એપ પર: {hint}. વિગતો નીચે પેસ્ટ કરો.',
 
       'nav.community': 'સમુદાય',
 
@@ -10578,8 +10576,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.portalHint.streetlight': 'પોર્ટલ અથવા MARG: Electrical → streetlight. નીચે વિગતો પેસ્ટ કરો.',
 
-      'esc.portalHintNav': 'પોર્ટલ અથવા MARG એપ પર: {hint}. વિગતો નીચે પેસ્ટ કરો.',
-
       'esc.filedConsent': 'મેં અધિકૃત BMC ચેનલ પર નોંધાવ્યું (1916 / MyBMC / પોર્ટલ / એપ)',
 
       'esc.complaintWarn': 'સામાન્ય BMC નંબર જેવું લાગતું નથી — સાચું હોય તો સાચવો.',
@@ -11131,8 +11127,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.communityHint': 'સ્વયંસેવક નોંધણી અને દાન — Resources ટેબમાંથી ખોલો.',
 
       'profile.communityLink': 'સ્વયંસેવા અને દાન',
-
-      'badge.admin': 'BMC એડમિન',
 
       'badge.coord': 'સંકલક હબ',
 

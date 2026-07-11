@@ -114,7 +114,7 @@
       corpChannels: {
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',
-        grievanceUrl: 'https://tmc.gov.in/',
+        grievanceUrl: 'https://www.thanecity.gov.in/',
         aapleSarkarUrl: 'https://pgportal.gov.in/',
         helplines: ['02225331590', '02225331211'],
         helplineDisplay: '022-25331590 · 022-25331211',

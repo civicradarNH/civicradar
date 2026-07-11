@@ -152,7 +152,7 @@
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',
         // TMC official website — online citizen services and complaint filing
-        grievanceUrl: 'https://tmc.gov.in/',
+        grievanceUrl: 'https://www.thanecity.gov.in/',
         // Maharashtra Aaple Sarkar — select TMC as local body when filing
         aapleSarkarUrl: 'https://pgportal.gov.in/',
         aapleSarkarPlayStoreUrl: '',

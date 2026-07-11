@@ -19,3 +19,8 @@ Thumbs.db
 !.cursor/rules/
 !.cursor/rules/**
 agent-transcripts/
+
+# Secrets — never commit Cloudflare / API keys
+Turnstile.txt
+Turnstile*.txt
+*.secret

@@ -29,6 +29,7 @@ const ASSETS = [
   'js/society-suggestions-data.js',
   'js/searchable-select.js',
   'js/app.js',
+  'js/demo-tour.js',
   'js/demo-tour-v2.js',
   'robots.txt',
   'assets/og-civicradar.svg',
