@@ -5121,7 +5121,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v190" in sw_src
+        "civicradar-v192" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -7188,6 +7188,28 @@ async def run_access_request_scenarios(s: Suite, browser):
 
 
 
+    # AR13: same claim code cannot be redeemed twice (local mode).
+
+    await page.evaluate('() => window.openAccessClaimModal()')
+
+    await page.wait_for_timeout(250)
+
+    await page.evaluate('(code) => { document.getElementById("accessClaimCode").value = code; }', approved_code)
+
+    await js_click(page, '#btnAccessClaimSubmit')
+
+    await page.wait_for_timeout(300)
+
+    reuse_err = await page.evaluate(
+
+        '() => { const e = document.getElementById("accessClaimError"); return !!(e && !e.classList.contains("hidden")); }'
+
+    )
+
+    s.record('AR13', 'Access', 'Used claim code rejected on second redeem', reuse_err)
+
+
+
     # AR11: a bogus claim code is rejected with an inline error.
 
     await ensure_local_mode(page)
@@ -8222,7 +8244,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v190" in sw_src
+        "civicradar-v192" in sw_src
 
         and "'/index.html'" not in sw_src
 

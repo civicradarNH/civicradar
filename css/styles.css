@@ -5299,6 +5299,11 @@ body.persona-lead .app-open-banner { display: none; }
 .auth-otp { margin-top: 8px; }
 
 /* ---------- Dashboard stat variants ---------- */
+.dashboard-stats--3 { grid-template-columns: repeat(3, 1fr); }
+.dashboard-stats--3 .dashboard-stat { padding: 10px 6px; }
+@media (max-width: 479px) {
+  .dashboard-stats--3 { grid-template-columns: 1fr; }
+}
 .dashboard-stats--4 { grid-template-columns: repeat(4, 1fr); }
 .dashboard-stats--4 .dashboard-stat { padding: 10px 6px; }
 .dashboard-stats--4 .dashboard-stat span { font-size: var(--fs-xl); }

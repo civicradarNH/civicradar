@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v190';
+  const CIVIC_APP_VERSION = 'v192';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -1592,6 +1592,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function isAdminReportInScope(report) {
+
+    if (!report || !isAdmin) return true;
+
+    return isSuperAdmin || getReportCity(report) === 'mumbai';
+
+  }
+
+
+
   function updatePartnerPortalUi() {
 
     const bmcBtn = $('#btnPartnerBmc');
@@ -3155,7 +3165,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.tier.file.body': 'File on thanecity.gov.in, call 022-25331590 / 022-25331211, email mc@thanecity.gov.in, or use Citizen Call Center 155300. Save your reference number here.',
 
-      'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department (022-25332685). Quote your TMC reference number.',
+      'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department (022-25331590). Quote your TMC reference number.',
 
       'esc.tmc.tier.zonal.body': 'Escalate to the Municipal Commissioner (mc@thanecity.gov.in). Tag @TMCaTweetAway on X with the photo for public visibility.',
 
@@ -3234,6 +3244,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.pmc.complaintNotFiled': 'PMC complaint #: (not yet filed)',
 
       'copy1916.pmc.complaintFiled': 'PMC complaint #: {id}',
+
+      'copy1916.tmc.header': 'TMC complaint details (copy & paste for thanecity.gov.in / helpline / email)',
+
+      'copy1916.tmc.complaintNotFiled': 'TMC complaint / reference #: (not yet filed)',
+
+      'copy1916.tmc.complaintFiled': 'TMC complaint / reference #: {id}',
 
       'profile.fileCorp': 'File with {corp}',
 
@@ -4275,6 +4291,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'GPS is required to pin the hazard.',
 
+      'toast.gpsOutsideCity': 'Location is outside your selected city. Move the pin inside city limits or update your city in Profile.',
+
       'toast.hazardTypeRequired': 'Select a live hazard type.',
 
       'toast.storageFull': 'Storage full — oldest report removed. Try again.',
@@ -4857,7 +4875,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.submit': 'Nominate me',
 
+      'lead.confirmTitle': "You're on the ballot!",
+
       'lead.confirmBody': 'Share CivicRadar with neighbours — you need 2 supports to unlock coordinator tools. If someone else runs for the same slot, you both need 5.',
+
+      'lead.confirmLocal': "Saved on this device — syncs when you're online.",
 
       'lead.viewCommunity': 'See candidates in Community',
 
@@ -5498,7 +5520,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, या 155300। संदर्भ संख्या यहाँ सहेजें।',
 
-      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय या स्वास्थ्य (022-25332685) से फॉलो-अप। TMC संदर्भ संख्या उद्धृत करें।',
+      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय या स्वास्थ्य (022-25331590) से फॉलो-अप। TMC संदर्भ संख्या उद्धृत करें।',
 
       'esc.tmc.tier.zonal.body': 'नगर आयुक्त (mc@thanecity.gov.in) तक एस्केलेट। @TMCaTweetAway पर फोटो के साथ टैग करें।',
 
@@ -5577,6 +5599,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.pmc.complaintNotFiled': 'PMC शिकायत #: (अभी दर्ज नहीं)',
 
       'copy1916.pmc.complaintFiled': 'PMC शिकायत #: {id}',
+
+      'copy1916.tmc.header': 'TMC शिकायत विवरण (thanecity.gov.in / हेल्पलाइन / ईमेल के लिए कॉपी-पेस्ट)',
+
+      'copy1916.tmc.complaintNotFiled': 'TMC शिकायत / संदर्भ #: (अभी दर्ज नहीं)',
+
+      'copy1916.tmc.complaintFiled': 'TMC शिकायत / संदर्भ #: {id}',
 
       'profile.fileCorp': '{corp} में दर्ज करें',
 
@@ -6618,6 +6646,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'खतरा पिन के लिए GPS ज़रूरी।',
 
+      'toast.gpsOutsideCity': 'स्थान आपके चुने शहर के बाहर है। पिन शहर की सीमा में लगाएँ या प्रोफ़ाइल में शहर बदलें।',
+
       'toast.hazardTypeRequired': 'एक सक्रिय खतरा प्रकार चुनें।',
 
       'toast.storageFull': 'स्टोरेज भरा — पुरानी रिपोर्ट हटाई। फिर कोशिश करें।',
@@ -7200,7 +7230,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.submit': 'मुझे नामांकित करें',
 
+      'lead.confirmTitle': 'आप मतदान में हैं!',
+
       'lead.confirmBody': 'CivicRadar पड़ोसियों के साथ शेयर करें — समन्वयक टूल्स के लिए 2 समर्थन चाहिए। एक ही स्लॉट पर दो उम्मीदवार हों तो दोनों को 5।',
+
+      'lead.confirmLocal': 'इस डिवाइस पर सहेजा गया — ऑनलाइन होने पर सिंक होगा।',
 
       'lead.viewCommunity': 'Community में उम्मीदवार देखें',
 
@@ -7840,7 +7874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, किंवा 155300. संदर्भ क्रमांक येथे जतन करा.',
 
-      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय किंवा आरोग्य (022-25332685) यांना फॉलो-अप. TMC संदर्भ क्रमांक द्या.',
+      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय किंवा आरोग्य (022-25331590) यांना फॉलो-अप. TMC संदर्भ क्रमांक द्या.',
 
       'esc.tmc.tier.zonal.body': 'महापालिका आयुक्त (mc@thanecity.gov.in) पर्यंत वाढवा. @TMCaTweetAway वर फोटोसह टॅग.',
 
@@ -7919,6 +7953,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.pmc.complaintNotFiled': 'PMC तक्रार #: (अद्याप नोंद नाही)',
 
       'copy1916.pmc.complaintFiled': 'PMC तक्रार #: {id}',
+
+      'copy1916.tmc.header': 'TMC तक्रार तपशील (thanecity.gov.in / हेल्पलाइन / ईमेलसाठी कॉपी-पेस्ट)',
+
+      'copy1916.tmc.complaintNotFiled': 'TMC तक्रार / संदर्भ #: (अद्याप दाखल नाही)',
+
+      'copy1916.tmc.complaintFiled': 'TMC तक्रार / संदर्भ #: {id}',
 
       'profile.fileCorp': '{corp} कडे नोंदवा',
 
@@ -8960,6 +9000,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'धोका पिनसाठी GPS आवश्यक.',
 
+      'toast.gpsOutsideCity': 'स्थान तुमच्या निवडलेल्या शहराच्या बाहेर आहे. पिन शहराच्या मर्यादेत ठेवा किंवा प्रोफाइलमध्ये शहर बदला.',
+
       'toast.hazardTypeRequired': 'सक्रिय धोका प्रकार निवडा.',
 
       'toast.storageFull': 'स्टोरेज भरले — जुनी तक्रार काढली. पुन्हा प्रयत्न करा.',
@@ -9542,7 +9584,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.submit': 'मला nominate करा',
 
+      'lead.confirmTitle': 'तुम्ही मतदानात आहात!',
+
       'lead.confirmBody': 'CivicRadar शेजाऱ्यांसोबत शेअर करा — समन्वयक साधनांसाठी 2 समर्थन हवे. एकाच जागेसाठी दोन उमेदवार असल्यास दोघांनाही 5 हवे.',
+
+      'lead.confirmLocal': 'या डिव्हाइसवर जतन — ऑनलाइन झाल्यावर सिंक होईल.',
 
       'lead.viewCommunity': 'Community मध्ये candidates पहा',
 
@@ -10182,7 +10228,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, અથવા 155300. સંદર્ભ અહીં સાચવો.',
 
-      'esc.tmc.tier.matrix.body': 'વોર્ડ ઑફિસ અથવા આરોગ્ય (022-25332685) ને ફોલો-અપ. TMC સંદર્ભ આપો.',
+      'esc.tmc.tier.matrix.body': 'વોર્ડ ઑફિસ અથવા આરોગ્ય (022-25331590) ને ફોલો-અપ. TMC સંદર્ભ આપો.',
 
       'esc.tmc.tier.zonal.body': 'મ્યુનિસિપલ કમિશનર (mc@thanecity.gov.in) સુધી એસ્કેલેટ. @TMCaTweetAway પર ફોટો સાથે ટૅગ.',
 
@@ -10261,6 +10307,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'copy1916.pmc.complaintNotFiled': 'PMC ફરિયાદ #: (હજુ નોંધ નથી)',
 
       'copy1916.pmc.complaintFiled': 'PMC ફરિયાદ #: {id}',
+
+      'copy1916.tmc.header': 'TMC ફરિયાદ વિગત (thanecity.gov.in / હેલ્પલાઇન / ઈમેલ માટે કૉપી-પેસ્ટ)',
+
+      'copy1916.tmc.complaintNotFiled': 'TMC ફરિયાદ / સંદર્ભ #: (હજી દાખલ નથી)',
+
+      'copy1916.tmc.complaintFiled': 'TMC ફરિયાદ / સંદર્ભ #: {id}',
 
       'profile.fileCorp': '{corp} માં નોંધાવો',
 
@@ -11302,6 +11354,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
+      'toast.gpsOutsideCity': 'સ્થાન તમારા પસંદ કરેલા શહેરની બહાર છે. પિન શહેરની સીમામાં મૂકો અથવા પ્રોફાઇલમાં શહેર બદલો.',
+
       'toast.hazardTypeRequired': 'સક્રિય જોખમ પ્રકાર પસંદ કરો.',
 
       'toast.storageFull': 'સ્ટોરેજ ભરેલું — જૂની ફરિયાદ કાઢી. ફરી પ્રયાસ કરો.',
@@ -11884,7 +11938,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.submit': 'મને nominate કરો',
 
+      'lead.confirmTitle': 'તમે મતપેટી પર છો!',
+
       'lead.confirmBody': 'CivicRadar પડોશીઓ સાથે શેર કરો — સંકલક સાધનો માટે 2 સમર્થન જોઈએ. એક જ જગ્યા માટે બે ઉમેદવાર હોય તો બંનેને 5 જોઈએ.',
+
+      'lead.confirmLocal': 'આ ડિવાઇસ પર સાચવ્યું — ઓનલાઈન થશો ત્યારે સિંક થશે.',
 
       'lead.viewCommunity': 'Community માં candidates જુઓ',
 
@@ -12169,7 +12227,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const name = r.reporter || 'Citizen';
       const ward = r.ward ? r.ward.split('—')[0].trim() : getCityLabel(getReportCity(r));
       if (!byCitizen[key]) {
-        byCitizen[key] = { name, ward, points: 0, isUser: false, isDemo: false };
+        byCitizen[key] = { id: key, name, ward, points: 0, isUser: false, isDemo: false };
       }
       byCitizen[key].points += POINTS_PER_REPORT;
       if (r.status === 'resolved') byCitizen[key].points += POINTS_PER_REPORT;
@@ -13896,6 +13954,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     saveUser();
 
+    stopUserLocationRefine();
+
     showLocationBanner(t('location.withdrawn'));
 
     showToast(t('profile.withdrawGpsDone'), 'info', 4500);
@@ -15078,11 +15138,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const list = getLocalAccessRequests();
 
-        const idx = list.findIndex((r) => r.claim_code === code && r.status === 'approved');
+        const idx = list.findIndex((r) => r.claim_code === code && r.status === 'approved' && !r.claimed_at);
 
         if (idx === -1) {
 
-          const usedIdx = list.findIndex((r) => r.claim_code === code && r.claimed_at);
+          const usedIdx = list.findIndex((r) => r.claim_code === code && (r.claimed_at || r.status === 'claimed'));
 
           if (errEl) {
 
@@ -15099,6 +15159,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const req = list[idx];
 
         req.claimed_at = new Date().toISOString();
+
+        req.status = 'claimed';
 
         saveLocalAccessRequests(list);
 
@@ -21822,7 +21884,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         clearReportDraft();
 
-        clearManualPinState();
+        resetReportForm();
+
+        selectHazard(getContextualDefaultHazard());
+
+        renderHazardPicker();
 
       }
 
@@ -23691,17 +23757,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function showGpsRecoveryActions(message, type, duration) {
+
+    showToast(message, type || 'error', duration || 9000, {
+
+      label: t('report.placePinOnMap'),
+
+      onClick: () => startManualPinMode(),
+
+      secondary: {
+
+        label: t('report.geoEnableHint'),
+
+        onClick: () => showGeoEnableHelp(),
+
+      },
+
+    });
+
+  }
+
+
+
   function showGpsAccuracyFeedback(accuracyM) {
 
     if (!Number.isFinite(accuracyM)) return;
 
     if (accuracyM > GEO_ACCURACY_MAX_M) {
 
-      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+      showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
 
     } else if (accuracyM > GEO_ACCURACY_POOR_M) {
 
-      showToast(t('toast.gpsLowAccuracy').replace('{m}', String(Math.round(accuracyM))), 'info', 4500);
+      showGpsRecoveryActions(
+
+        t('toast.gpsLowAccuracy').replace('{m}', String(Math.round(accuracyM))),
+
+        'info',
+
+        9000
+
+      );
 
     }
 
@@ -23875,7 +23971,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
 
-      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+      showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
 
       return false;
 
@@ -24433,6 +24529,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!reportMarkerLayer) return;
 
+    let reopenId = null;
+
+    reportMarkerMap.forEach((marker, id) => {
+
+      try {
+
+        if (marker && typeof marker.isPopupOpen === 'function' && marker.isPopupOpen()) {
+
+          reopenId = id;
+
+        }
+
+      } catch { /* marker torn down */ }
+
+    });
+
     reportMarkerLayer.clearLayers();
 
     reportMarkerMap.clear();
@@ -24444,6 +24556,18 @@ document.addEventListener('DOMContentLoaded', function () {
     pool = prioritizeMapReports(pool).slice(0, SCALE_CFG.maxMapMarkers);
 
     pool.forEach((r) => createReportMarker(r));
+
+    if (reopenId != null) {
+
+      const marker = reportMarkerMap.get(reopenId);
+
+      if (marker) {
+
+        try { marker.openPopup(); } catch { /* ignore */ }
+
+      }
+
+    }
 
     if (typeof renderWardPulse === 'function') renderWardPulse();
 
@@ -25637,13 +25761,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         disableMeTooControl(cb);
 
-        if (confirmReport(rid)) {
+        // confirmReport → refreshReportMarkers reopens popup with Me-too done state
 
-          showMeTooDoneInPopup(cb);
-
-          if (map) map.closePopup();
-
-        } else if (!hasConfirmed(rid)) {
+        if (!confirmReport(rid) && !hasConfirmed(rid)) {
 
           cb.disabled = false;
 
@@ -27445,21 +27565,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (window.CivicAnalytics) CivicAnalytics.perfEnd('report_submit_duration', { gpsFailed: true });
 
-    showToast(t('toast.gpsFailAction'), 'error', 9000, {
-
-      label: t('report.placePinOnMap'),
-
-      onClick: () => startManualPinMode(),
-
-      secondary: {
-
-        label: t('report.geoEnableHint'),
-
-        onClick: () => showGeoEnableHelp(),
-
-      },
-
-    });
+    showGpsRecoveryActions(t('toast.gpsFailAction'), 'error', 9000);
 
   }
 
@@ -27485,19 +27591,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
+    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
 
       setButtonLoading(submitBtn, false);
 
-      showToast(t('toast.gpsPoorFix'), 'error', 4500);
+      if (accuracyM > GEO_ACCURACY_MAX_M) {
+
+        showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
+
+      } else {
+
+        showGpsRecoveryActions(
+
+          t('toast.gpsLowAccuracy').replace('{m}', String(Math.round(accuracyM))),
+
+          'info',
+
+          9000
+
+        );
+
+      }
 
       return;
-
-    }
-
-    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
-
-      showGpsAccuracyFeedback(accuracyM);
 
     }
 
@@ -27634,6 +27750,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const report = Object.assign({}, normalizeReport(draft, user.id), sanitizeReportInput(draft));
+
+    if (report.lat == null || report.lng == null) {
+
+      setButtonLoading(submitBtn, false);
+
+      showToast(t('toast.gpsOutsideCity'), 'error', 4500);
+
+      finishReportSubmitWithCoords._busy = false;
+
+      return;
+
+    }
 
 
 
@@ -29173,7 +29301,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getSuccessStories() {
 
-    return loadReports()
+    return cityScopedReports(loadReports())
 
       .filter((r) => r.status === 'resolved' || r.communityCleared)
 
@@ -29436,6 +29564,8 @@ document.addEventListener('DOMContentLoaded', function () {
     return new Promise((resolve, reject) => {
 
       const img = new Image();
+
+      if (src && /supabase\.co/i.test(String(src))) img.crossOrigin = 'anonymous';
 
       img.onload = () => resolve(img);
 
@@ -30946,7 +31076,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
 
-        `Request: Please escalate to ward office / Health dept (022-25332685) for anti-larval treatment.`,
+        `Request: Please escalate to ward office / Health dept (022-25331590) for anti-larval treatment.`,
 
         `CivicRadar: ${link}`,
 
@@ -33858,6 +33988,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let citizens = aggregateCitizenLeaderboard(sinceTs);
 
+      citizens = citizens.filter((c) => c.id !== user.id && c.name !== (user.displayName || ''));
+
       const usingDemo = !liveBackend && !isProdEnvironment() && citizens.length < 2;
 
       if (usingDemo) {
@@ -34514,6 +34646,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!report || report.status !== 'pending') return;
 
+    if (!isAdminReportInScope(report)) return;
+
 
 
     activeAdminReportId = reportId;
@@ -34585,6 +34719,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (idx === -1) return false;
 
     if (reports[idx].status === 'resolved') return false;
+
+    if (!isAdminReportInScope(reports[idx])) return false;
 
     const resolvedAt = new Date().toISOString();
 
@@ -34869,7 +35005,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function escapeCsvField(val) {
 
-    const s = val == null ? '' : String(val);
+    let s = val == null ? '' : String(val);
+
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
 
     if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
 
@@ -35009,11 +35147,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = getReportCity(report);
 
-    const headerKey = city === 'pune' ? 'copy1916.pmc.header' : 'copy1916.header';
+    const headerKey = city === 'pune' ? 'copy1916.pmc.header' : city === 'thane' ? 'copy1916.tmc.header' : 'copy1916.header';
 
-    const complaintFiledKey = city === 'pune' ? 'copy1916.pmc.complaintFiled' : 'copy1916.complaintFiled';
+    const complaintFiledKey = city === 'pune' ? 'copy1916.pmc.complaintFiled' : city === 'thane' ? 'copy1916.tmc.complaintFiled' : 'copy1916.complaintFiled';
 
-    const complaintNotFiledKey = city === 'pune' ? 'copy1916.pmc.complaintNotFiled' : 'copy1916.complaintNotFiled';
+    const complaintNotFiledKey = city === 'pune' ? 'copy1916.pmc.complaintNotFiled' : city === 'thane' ? 'copy1916.tmc.complaintNotFiled' : 'copy1916.complaintNotFiled';
 
     const wardParts = parseWardParts(report.ward);
 
@@ -35727,7 +35865,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderAdminQueue() {
 
-    const all = loadReports();
+    const all = isAdmin ? adminScopedReports(loadReports()) : loadReports();
 
     const pending = all.filter((r) => r.status === 'pending' && !r.removed);
 
