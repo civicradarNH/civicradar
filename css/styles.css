@@ -157,6 +157,14 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* UA stylesheets skip body font on form controls — inherit Outfit (and Devanagari via html[lang]). */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 /* Launch splash — critical rules are inlined in index.html for first paint;
    these extend the overlay once styles.css loads (no white flash on handoff). */
 body.app-booting {

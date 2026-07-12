@@ -9,6 +9,8 @@ import json
 
 import os
 
+import re
+
 import socket
 
 import subprocess
@@ -63,8 +65,9 @@ SMOKE_TEST_IDS = frozenset({
     'C01', 'C02', 'C03', 'C04', 'C04b', 'C05', 'C06', 'C06b', 'C07', 'C08', 'C08b', 'C09',
     'C14', 'C15', 'C16', 'C17', 'C18', 'C19',
     'DL01',
-    # Report flow basics + draft restore
+    # Report flow basics + draft restore + ship-glitch guards
     'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22',
+    'RP26', 'UX04', 'UX05',
     # PWA cache version + iOS meta/quick checks
     'SW06', 'IOS01', 'IOS02', 'IOS03', 'IOS04',
     'ST01',
@@ -2308,6 +2311,27 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('UX01', 'UI', 'Active nav tab bold label', '() => { const lbl = document.querySelector("#bottomNav .nav-tab.active span:last-child"); return !!lbl && parseInt(getComputedStyle(lbl).fontWeight, 10) >= 600; }'),
 
+        # Ship-glitch guard: inactive+active nav icons must have inlined mask + non-zero box
+        ('UX04', 'UI', 'Bottom nav icons have mask-image', '''() => {
+          const icons = [...document.querySelectorAll("#bottomNav .nav-tab i.ph")];
+          if (icons.length !== 4) return false;
+          return icons.every((el) => {
+            const before = getComputedStyle(el, "::before");
+            const mask = before.maskImage || before.webkitMaskImage || "";
+            const box = el.getBoundingClientRect();
+            return mask.includes("url(") && box.width >= 8 && box.height >= 8;
+          });
+        }'''),
+
+        ('UX05', 'UI', 'Report notes font matches Outfit path', '''() => {
+          const notes = document.getElementById("reportNotes");
+          const body = document.body;
+          if (!notes || !body) return false;
+          const nf = getComputedStyle(notes).fontFamily.toLowerCase();
+          const bf = getComputedStyle(body).fontFamily.toLowerCase();
+          return nf.includes("outfit") && bf.includes("outfit");
+        }'''),
+
         ('UX02', 'UI', 'Modal title clears close btn', '() => { const h = document.querySelector("#reportModal h2"); return !!h && parseInt(getComputedStyle(h).paddingRight, 10) >= 40; }'),
 
         ('UX03', 'UI', 'Lead candidates light surface', '() => { const el = document.querySelector(".lead-candidates"); if (!el) return true; const bg = getComputedStyle(el).backgroundColor; return bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent"; }'),
@@ -3452,6 +3476,22 @@ async def run_extended_scenarios(s: Suite, browser):
     ))
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
+
+    # RP26 — success thumbnail must survive resetReportForm (ship-glitch class)
+    await page.wait_for_function(
+        '() => document.getElementById("successOverlay")?.classList.contains("open")',
+        timeout=8000,
+    )
+    thumb_ok = await page.evaluate(
+        """() => {
+          const thumb = document.getElementById('successThumbnail');
+          if (!thumb) return false;
+          const src = thumb.getAttribute('src') || thumb.src || '';
+          const visible = !thumb.hidden && thumb.getBoundingClientRect().width > 0;
+          return src.startsWith('data:image') && visible;
+        }"""
+    )
+    s.record('RP26', 'Report', 'Success thumbnail src visible after submit', thumb_ok)
 
     # RP23 — GPS denied → manual pin fallback (D-2 v146)
 
@@ -4897,7 +4937,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v178" in sw_src
+        "civicradar-v179" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -5169,6 +5209,14 @@ async def run_extended_scenarios(s: Suite, browser):
 
         s.record('LG06', 'Legal', 'Delete page mentions Profile flow', 'Delete my data' in delete_body and 'Profile' in delete_body)
 
+        counsel_re = re.compile(r'counsel before|Review with qualified', re.I)
+        no_counsel = (
+            not counsel_re.search(body or '')
+            and not counsel_re.search(terms or '')
+            and not counsel_re.search(delete_body or '')
+        )
+        s.record('LG08', 'Legal', 'No counsel-before-launch placeholder copy', no_counsel)
+
         resp4 = await page.goto(BASE + 'official-sources.html', wait_until='domcontentloaded', timeout=30000)
 
         sources_body = await page.text_content('body') or ''
@@ -5179,7 +5227,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     except Exception as e:
 
-        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government'), ('LG05', 'Delete account page loads'), ('LG06', 'Delete page mentions Profile flow'), ('LG07', 'Official sources page loads with gov links')]:
+        for cid, name in [('LG01', 'Privacy page loads'), ('LG02', 'Privacy mentions DPDP'), ('LG03', 'Terms page loads'), ('LG04', 'Terms mentions not government'), ('LG05', 'Delete account page loads'), ('LG06', 'Delete page mentions Profile flow'), ('LG07', 'Official sources page loads with gov links'), ('LG08', 'No counsel-before-launch placeholder copy')]:
 
             s.record(cid, 'Legal', name, False, str(e)[:60])
 
@@ -7806,7 +7854,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     """Smoke-only extended checks: report basics, SW cache version, iOS meta.
 
-    IDs: RP01-RP08, RP21, SW06, IOS01-IOS04 (see SMOKE_TEST_IDS).
+    IDs: RP01-RP08, RP21, RP26, UX04-UX05, SW06, IOS01-IOS04 (see SMOKE_TEST_IDS).
     """
 
     ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='rp-smoke'), 'civicradar_coach_seen': '1'})
@@ -7937,6 +7985,47 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
+    await page.wait_for_function(
+        '() => document.getElementById("successOverlay")?.classList.contains("open")',
+        timeout=8000,
+    )
+    thumb_ok = await page.evaluate(
+        """() => {
+          const thumb = document.getElementById('successThumbnail');
+          if (!thumb) return false;
+          const src = thumb.getAttribute('src') || thumb.src || '';
+          const visible = !thumb.hidden && thumb.getBoundingClientRect().width > 0;
+          return src.startsWith('data:image') && visible;
+        }"""
+    )
+    s.record('RP26', 'Report', 'Success thumbnail src visible after submit', thumb_ok)
+
+    nav_icons_ok = await page.evaluate(
+        """() => {
+          const icons = [...document.querySelectorAll('#bottomNav .nav-tab i.ph')];
+          if (icons.length !== 4) return false;
+          return icons.every((el) => {
+            const before = getComputedStyle(el, '::before');
+            const mask = before.maskImage || before.webkitMaskImage || '';
+            const box = el.getBoundingClientRect();
+            return mask.includes('url(') && box.width >= 8 && box.height >= 8;
+          });
+        }"""
+    )
+    s.record('UX04', 'UI', 'Bottom nav icons have mask-image', nav_icons_ok)
+
+    notes_font_ok = await page.evaluate(
+        """() => {
+          const notes = document.getElementById('reportNotes');
+          const body = document.body;
+          if (!notes || !body) return false;
+          const nf = getComputedStyle(notes).fontFamily.toLowerCase();
+          const bf = getComputedStyle(body).fontFamily.toLowerCase();
+          return nf.includes('outfit') && bf.includes('outfit');
+        }"""
+    )
+    s.record('UX05', 'UI', 'Report notes font matches Outfit path', notes_font_ok)
+
     await ctx.close()
 
     ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='sw-smoke')})
@@ -7949,7 +8038,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v178" in sw_src
+        "civicradar-v179" in sw_src
 
         and "'/index.html'" not in sw_src
 

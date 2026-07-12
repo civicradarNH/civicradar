@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v178';
+  const CIVIC_APP_VERSION = 'v179';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -24863,6 +24863,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btnRetake.addEventListener('click', () => {
 
+        // Block retake while submit/morph is in flight — clearing lastReportDataUrl
+        // here previously wiped the success-modal thumbnail after the report was saved.
+        if (submitReport.__inFlight) return;
+
+        const submitBtn = $('#btnSubmitReport');
+
+        if (submitBtn && (submitBtn.classList.contains('is-loading') || submitBtn.classList.contains('is-success'))) return;
+
         resetPhotoConfirm();
 
         const canvas = $('#imageCanvas');
@@ -24997,6 +25005,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const notShared = report && !report.communityShared;
 
       closeModal('success');
+
+      const thumb = $('#successThumbnail');
+
+      if (thumb) {
+
+        thumb.removeAttribute('src');
+
+        thumb.hidden = true;
+
+      }
 
       resetReportForm();
 
@@ -27004,20 +27022,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try { localStorage.setItem(LAST_HAZARD_KEY, hazard); } catch {}
 
+    // Capture photo at save time — do not re-read lastReportDataUrl after reset/retake.
+    const savedPhoto = report.image || lastReportDataUrl || null;
+
     morphSubmitButtonSuccess(submitBtn).then(() => {
 
       closeModal('report');
-
-      // Preserve photo for success thumbnail — resetReportForm clears lastReportDataUrl.
-      const photoPreview = lastReportDataUrl;
 
       resetReportForm();
 
       clearReportDraft();
 
-      lastReportDataUrl = photoPreview;
-
-      showSuccessModal(weekBonus);
+      showSuccessModal(weekBonus, savedPhoto);
 
       maybeShowPwaNudge('report');
 
@@ -27382,15 +27398,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function showSuccessModal(weekBonus = 0) {
+  function showSuccessModal(weekBonus = 0, imageUrl) {
 
     const thumb = $('#successThumbnail');
 
+    const photoSrc = imageUrl || lastReportDataUrl || null;
+
+    if (photoSrc) lastReportDataUrl = photoSrc;
+
     if (thumb) {
 
-      if (lastReportDataUrl) {
+      if (photoSrc) {
 
-        thumb.src = lastReportDataUrl;
+        thumb.src = photoSrc;
 
         thumb.hidden = false;
 
