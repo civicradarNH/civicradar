@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v194';
+  const CIVIC_APP_VERSION = 'v195';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -602,6 +602,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let lastReportDataUrl = null;
 
+  let reportPhotoModerationPassed = false;
+
   let lastReportId = null;
 
   let currentLat = null;
@@ -685,6 +687,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportPinAccuracyCircle = null;
 
   let reportPinSeedToken = 0;
+
+  let confirmPinGpsCancel = null;
+
+  let reportPinAttentionTimer = null;
 
   let reportGeoExplainerResolve = null;
 
@@ -21644,6 +21650,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     lastReportDataUrl = null;
 
+    reportPhotoModerationPassed = false;
+
   }
 
 
@@ -21919,6 +21927,14 @@ document.addEventListener('DOMContentLoaded', function () {
       resetSubmitReportButton();
 
       finishReportPhotoFlow('closeModal');
+
+      // Always invalidate in-flight confirm-pin GPS (including startManualPinMode dismiss,
+      // which skips resetReportForm so the watch would otherwise keep running).
+      reportPinSeedToken += 1;
+
+      cancelConfirmPinGpsRefine('close_report_modal');
+
+      setReportPinMapLoading(false);
 
       if (!reportManualPinDismiss) {
 
@@ -23671,6 +23687,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let settled = false;
 
+      let settleTimer = null;
+
       const samples = [];
 
       const started = Date.now();
@@ -23685,6 +23703,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+        if (settleTimer != null) {
+
+          clearTimeout(settleTimer);
+
+          settleTimer = null;
+
+        }
+
       }
 
       function settle(pos, err) {
@@ -23694,6 +23720,12 @@ document.addEventListener('DOMContentLoaded', function () {
         settled = true;
 
         cleanup();
+
+        if (typeof opts.onCancelHandle === 'function') {
+
+          try { opts.onCancelHandle(null); } catch { /* ignore */ }
+
+        }
 
         if (pos && isValidGpsCoords(pos.coords.latitude, pos.coords.longitude)) {
 
@@ -23708,6 +23740,34 @@ document.addEventListener('DOMContentLoaded', function () {
           reject(err || new Error('geo_failed'));
 
         }
+
+      }
+
+      function cancel(reason) {
+
+        if (settled) return;
+
+        settled = true;
+
+        cleanup();
+
+        if (typeof opts.onCancelHandle === 'function') {
+
+          try { opts.onCancelHandle(null); } catch { /* ignore */ }
+
+        }
+
+        const err = new Error(reason || 'geo_cancelled');
+
+        err.code = 'CANCELLED';
+
+        reject(err);
+
+      }
+
+      if (typeof opts.onCancelHandle === 'function') {
+
+        try { opts.onCancelHandle(cancel); } catch { /* ignore */ }
 
       }
 
@@ -23785,7 +23845,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       watchId = navigator.geolocation.watchPosition(onPos, onErr, geoOpts);
 
-      setTimeout(() => {
+      settleTimer = setTimeout(() => {
 
         if (!settled) settle(bestPos, bestPos ? null : new Error('geo_timeout'));
 
@@ -25615,6 +25675,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         lastReportDataUrl = null;
 
+        reportPhotoModerationPassed = false;
+
         updateReportFlowSteps('capture');
 
         openReportPhotoPicker();
@@ -26518,6 +26580,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     lastReportDataUrl = null;
 
+    reportPhotoModerationPassed = false;
+
     resetPhotoConfirm();
 
     updateReportFlowSteps('capture');
@@ -26632,6 +26696,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
           }
 
+          reportPhotoModerationPassed = true;
+
+        } else {
+
+          reportPhotoModerationPassed = true;
+
         }
 
 
@@ -26648,7 +26718,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         advanceReportPhotoReady();
 
-        debugLog('PHOTO', 'handlePhotoCapture success', { w, h });
+        debugLog('PHOTO', 'handlePhotoCapture success', { w, h, moderationPassed: reportPhotoModerationPassed });
 
       };
 
@@ -26712,7 +26782,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (label) label.innerHTML = '<i class="ph ph-check" aria-hidden="true"></i>';
 
-      setTimeout(resolve, 600);
+      setTimeout(resolve, 220);
 
     });
 
@@ -26899,9 +26969,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function cancelConfirmPinGpsRefine(reason) {
+
+    if (!confirmPinGpsCancel) return;
+
+    const cancel = confirmPinGpsCancel;
+
+    confirmPinGpsCancel = null;
+
+    try { cancel(reason || 'confirm_pin_cancelled'); } catch { /* ignore */ }
+
+  }
+
+
+
   function clearConfirmPinState() {
 
     reportPinSeedToken += 1;
+
+    cancelConfirmPinGpsRefine('clear_confirm_pin');
 
     clearConfirmPinPreview();
 
@@ -26914,6 +27000,18 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmPinUserAdjusted = false;
 
     confirmPinProvisional = false;
+
+    if (reportPinAttentionTimer) {
+
+      clearTimeout(reportPinAttentionTimer);
+
+      reportPinAttentionTimer = null;
+
+    }
+
+    const mapEl = $('#reportPinMap');
+
+    if (mapEl) mapEl.classList.remove('report-pin-map--attention');
 
     const accEl = $('#reportPinAccuracy');
 
@@ -27283,23 +27381,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } else {
 
-      if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
+      // City-centre seed while GPS is missing or out-of-city — one provisional reason only.
+      const hadImplausibleCached = currentLat != null && currentLng != null
 
-        debugLog('PIN', 'confirmPinProvisional', { value: true, reason: 'cached GPS implausible for city' });
+        && isValidGpsCoords(currentLat, currentLng);
 
-      }
-
-      // Always seed a visible map (city centre) so confirm is never a blank gray box
-      // while GPS refines — user can drag immediately; GPS replaces if not adjusted.
       const center = getCityCenter();
 
       confirmPinProvisional = true;
 
-      debugLog('PIN', 'confirmPinProvisional', { value: true, reason: 'no GPS yet' });
+      debugLog('PIN', 'confirmPinProvisional', {
+
+        value: true,
+
+        reason: hadImplausibleCached ? 'cached GPS implausible for city' : 'no GPS yet',
+
+      });
 
       initReportPinPreview(center[0], center[1], null, false);
-
-      confirmPinProvisional = true;
 
       setReportPinMapLoading(true);
 
@@ -27327,6 +27426,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const token = ++reportPinSeedToken;
 
+    cancelConfirmPinGpsRefine('restart_refine');
+
     debugLog('PIN', 'GPS refine start', { token });
 
     getPrecisePosition({
@@ -27339,6 +27440,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       minSamples: GEO_STABLE_SAMPLES,
 
+      onCancelHandle: (cancelFn) => {
+
+        confirmPinGpsCancel = cancelFn;
+
+      },
+
     }).then((pos) => {
 
       if (token !== reportPinSeedToken) return;
@@ -27346,6 +27453,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (confirmPinUserAdjusted) return;
 
       if (manualPinLat != null && manualPinLng != null) return;
+
+      if (!overlays.report || !overlays.report.classList.contains('open')) return;
 
       setReportPinMapLoading(false);
 
@@ -27417,11 +27526,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
       );
 
-    }).catch(() => {
+    }).catch((err) => {
 
       if (token !== reportPinSeedToken) return;
 
       if (confirmPinUserAdjusted) return;
+
+      if (err && (err.code === 'CANCELLED' || String(err.message || '').indexOf('cancel') !== -1)) {
+
+        debugLog('PIN', 'GPS refine abort', { token, reason: err.message || 'cancelled' });
+
+        return;
+
+      }
+
+      if (!overlays.report || !overlays.report.classList.contains('open')) {
+
+        debugLog('PIN', 'GPS refine fail ignored', { token, reason: 'report closed' });
+
+        return;
+
+      }
 
       debugLog('PIN', 'GPS refine fail', { token });
 
@@ -27601,6 +27726,81 @@ document.addEventListener('DOMContentLoaded', function () {
     prepareConfirmPin();
 
     showToast(t('toast.manualPinReady'), 'success', 4500);
+
+  }
+
+
+
+  function focusConfirmPinMap() {
+
+    const confirmPanel = $('#reportStepConfirm');
+
+    const pinBlock = $('#reportPinConfirm');
+
+    const mapEl = $('#reportPinMap');
+
+    const hint = $('#reportPinDragHint');
+
+    if (confirmPanel && confirmPanel.hidden) {
+
+      // Stay in report confirm — do not bounce to full-map manual pin.
+      updateReportFlowSteps('confirm');
+
+    }
+
+    const target = pinBlock || mapEl;
+
+    if (target && typeof target.scrollIntoView === 'function') {
+
+      try { target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {
+
+        try { target.scrollIntoView(true); } catch { /* ignore */ }
+
+      }
+
+    }
+
+    if (mapEl) {
+
+      if (!mapEl.hasAttribute('tabindex')) mapEl.setAttribute('tabindex', '-1');
+
+      mapEl.classList.add('report-pin-map--attention');
+
+      try { mapEl.focus({ preventScroll: true }); } catch {
+
+        try { mapEl.focus(); } catch { /* ignore */ }
+
+      }
+
+      if (reportPinAttentionTimer) clearTimeout(reportPinAttentionTimer);
+
+      reportPinAttentionTimer = setTimeout(() => {
+
+        reportPinAttentionTimer = null;
+
+        mapEl.classList.remove('report-pin-map--attention');
+
+      }, 1600);
+
+    }
+
+    if (hint) {
+
+      hint.classList.add('report-pin-drag-hint--pulse');
+
+      setTimeout(() => hint.classList.remove('report-pin-drag-hint--pulse'), 1600);
+
+    }
+
+    scheduleReportPinMapResize();
+
+    debugLog('PIN', 'focusConfirmPinMap', {
+
+      provisional: confirmPinProvisional,
+
+      hasMap: !!reportPinMap,
+
+    });
 
   }
 
@@ -27947,7 +28147,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Capture photo at save time — do not re-read lastReportDataUrl after reset/retake.
     const savedPhoto = report.image || lastReportDataUrl || null;
 
-    morphSubmitButtonSuccess(submitBtn).then(() => {
+    // Short success flash, then success modal — do not wait on the full morph timer.
+    const morphPromise = morphSubmitButtonSuccess(submitBtn);
+
+    const revealSuccess = () => {
 
       closeModal('report');
 
@@ -27975,7 +28178,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderLeaderboard('citizens');
 
-    });
+    };
+
+    // Prefer immediate reveal; morph completes in parallel (button is about to unmount).
+    if (typeof requestAnimationFrame === 'function') {
+
+      requestAnimationFrame(() => setTimeout(revealSuccess, 80));
+
+    } else {
+
+      setTimeout(revealSuccess, 80);
+
+    }
+
+    morphPromise.catch(() => {});
 
   }
 
@@ -28010,17 +28226,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     submitReport.__inFlight = true;
 
+    const submitT0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
+    const markSubmit = (stage) => {
+
+      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
+      debugLog('REPORT', 'submit timing', { stage, ms: Math.round(now - submitT0) });
+
+    };
+
     if (window.CivicAnalytics) CivicAnalytics.perfStart('report_submit_duration');
 
     setButtonLoading(submitBtn, true, t('report.submitting'));
 
+    markSubmit('ui_loading');
 
 
-    if (window.ImageModeration && getModCfg().enabled) {
+
+    // Capture already ran NSFW/pixel moderation — skip duplicate scan+JPEG encode on submit.
+    if (window.ImageModeration && getModCfg().enabled && !reportPhotoModerationPassed) {
 
       setButtonLoading(submitBtn, true, t('moderation.scanning'));
 
       const scan = await ImageModeration.scanCanvas(canvas, getModCfg());
+
+      markSubmit('moderation');
 
       if (!scan.ok) {
 
@@ -28032,11 +28263,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      reportPhotoModerationPassed = true;
+
+    } else {
+
+      markSubmit(reportPhotoModerationPassed ? 'moderation_cached' : 'moderation_skipped');
+
     }
 
 
 
-    lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+    // Reuse capture-time JPEG when present — canvas.toDataURL is expensive on large photos.
+    if (!lastReportDataUrl) {
+
+      lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
+      markSubmit('jpeg_encode');
+
+    } else {
+
+      markSubmit('jpeg_cached');
+
+    }
 
     debugLog('REPORT', 'submitReport pin state', {
 
@@ -28057,6 +28305,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (confirmPinLat != null && confirmPinLng != null && !confirmPinProvisional) {
+
+      markSubmit('pin_ready');
 
       finishReportSubmitWithCoords(
 
@@ -28094,7 +28344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('report.placePinOnMap'),
 
-        onClick: () => startManualPinMode(),
+        onClick: () => focusConfirmPinMap(),
 
       });
 
@@ -28103,6 +28353,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (manualPinLat != null && manualPinLng != null) {
+
+      markSubmit('manual_pin');
 
       finishReportSubmitWithCoords(manualPinLat, manualPinLng, submitBtn, null, { manualPin: true });
 
@@ -28158,15 +28410,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setButtonLoading(submitBtn, true, t('report.submitting'));
 
+    markSubmit('gps_fallback_start');
 
 
-    getPrecisePosition({ fresh: true, targetAccuracyM: GEO_ACCURACY_POOR_M })
+
+    // Fail-fast: confirm-pin path is preferred; submit-time GPS should not hang 20–25s.
+    getPrecisePosition({
+
+      fresh: true,
+
+      targetAccuracyM: GEO_ACCURACY_POOR_M,
+
+      watchMaxMs: 8000,
+
+      timeoutMs: 8000,
+
+      minSamples: 1,
+
+    })
 
       .then((pos) => {
 
         const lat = pos.coords.latitude;
 
         const lng = pos.coords.longitude;
+
+        markSubmit('gps_fallback_settle');
 
         debugLog('REPORT', 'submit GPS settle', {
 
@@ -28205,6 +28474,8 @@ document.addEventListener('DOMContentLoaded', function () {
       })
 
       .catch(() => {
+
+        markSubmit('gps_fallback_fail');
 
         handleReportGpsFailure(submitBtn);
 
@@ -28576,6 +28847,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     lastReportDataUrl = null;
+
+    reportPhotoModerationPassed = false;
 
     resetPhotoConfirm();
 

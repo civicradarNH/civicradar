@@ -6599,6 +6599,17 @@ a,
   animation: report-pin-shimmer 1.2s ease-in-out infinite;
 }
 
+.report-pin-map--attention {
+  outline: 2px solid var(--primary, #6366f1);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-md);
+}
+
+.report-pin-drag-hint--pulse {
+  color: var(--ink-900, #0f172a);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .report-pin-map--loading::after {
     animation: none;
