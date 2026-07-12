@@ -6570,6 +6570,23 @@ a,
   line-height: 1.35;
 }
 
+.report-pin-drag-hint--required {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.report-pin-confirm--needs-adjust {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-pin-confirm--needs-adjust .report-pin-accuracy--poor {
+  color: var(--warning);
+}
+
 .report-pin-map {
   width: 100%;
   height: 160px;

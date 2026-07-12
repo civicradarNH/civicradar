@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v195';
+  const CIVIC_APP_VERSION = 'v196';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2744,6 +2744,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'Drag the pin if it\'s not exactly right',
 
+      'report.pinProvisionalDragHint': 'Drag the pin onto the hazard to submit',
+
       'report.pinAccuracyGood': 'Location accurate to ~{m} m',
 
       'report.pinAccuracyFair': 'Location ~{m} m — drag the pin or move to open sky',
@@ -2751,6 +2753,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.pinAccuracyPoor': 'Location is approximate (~{m} m) — drag the pin onto the hazard',
 
       'report.pinAccuracyUnknown': 'Confirm the pin is on the hazard — drag to adjust',
+
+      'report.pinProvisionalAccuracy': 'GPS isn\'t on the hazard — drag the pin to the exact spot',
 
       'report.pinAccuracyAdjusted': 'Pin adjusted — looks good',
 
@@ -2787,6 +2791,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.hazardHint': 'Tap the hazard you\'re reporting',
 
       'report.photoNext': 'Selected: {hazard} — tap Submit when ready',
+
+      'report.photoNextPin': 'Selected: {hazard} — drag the pin onto the hazard, then Submit',
 
       'report.photoEvidence': 'Photo',
 
@@ -3773,7 +3779,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'sync.localTitle': 'Saved on this device only — syncs when cloud is connected',
 
-      'report.submitting': 'Submitting—',
+      'report.submitting': 'Submitting…',
 
       'success.clock': 'On the community map — not filed with {corp} yet.',
 
@@ -4309,7 +4315,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pinConfirmRequired': 'Confirm the pin on the map — drag it onto the hazard before submitting.',
 
-      'toast.hazardTypeRequired': 'Select a live hazard type.',
+      'toast.hazardTypeRequired': 'Choose what you\'re reporting before submitting.',
 
       'toast.storageFull': 'Storage full — oldest report removed. Try again.',
 
@@ -5107,6 +5113,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'पिन सही जगह पर नहीं है तो खींचकर ठीक करें',
 
+      'report.pinProvisionalDragHint': 'सबमिट करने के लिए पिन खतरे पर खींचें',
+
       'report.pinAccuracyGood': 'स्थान लगभग ~{m} मी सटीक',
 
       'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन खींचें या खुली जगह पर जाएँ',
@@ -5114,6 +5122,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.pinAccuracyPoor': 'स्थान अनुमानित (~{m} मी) — पिन खतरे पर खींचें',
 
       'report.pinAccuracyUnknown': 'पिन खतरे पर है? ज़रूरत हो तो खींचें',
+
+      'report.pinProvisionalAccuracy': 'GPS खतरे पर नहीं है — पिन सही जगह पर खींचें',
 
       'report.pinAccuracyAdjusted': 'पिन ठीक किया गया',
 
@@ -5150,6 +5160,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.hazardHint': 'खतरे का प्रकार चुनें',
 
       'report.photoNext': '{hazard} चुना — तैयार हो तो Submit दबाएँ',
+
+      'report.photoNextPin': '{hazard} चुना — पहले पिन खतरे पर खींचें, फिर Submit',
 
       'report.photoEvidence': 'फ़ोटो प्रमाण',
 
@@ -6674,7 +6686,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pinConfirmRequired': 'मैप पर पिन की पुष्टि करें — सबमिट से पहले पिन खतरे पर खींचें।',
 
-      'toast.hazardTypeRequired': 'एक सक्रिय खतरा प्रकार चुनें।',
+      'toast.hazardTypeRequired': 'सबमिट से पहले खतरे का प्रकार चुनें।',
 
       'toast.storageFull': 'स्टोरेज भरा — पुरानी रिपोर्ट हटाई। फिर कोशिश करें।',
 
@@ -7471,6 +7483,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'पिन योग्य जागी नसेल तर ओढून ठेवा',
 
+      'report.pinProvisionalDragHint': 'पाठवण्यासाठी पिन धोक्यावर ओढा',
+
       'report.pinAccuracyGood': 'स्थान सुमारे ~{m} मी अचूक',
 
       'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन ओढा किंवा मोकळ्या जागी जा',
@@ -7478,6 +7492,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.pinAccuracyPoor': 'स्थान अंदाजे (~{m} मी) — पिन धोक्यावर ओढा',
 
       'report.pinAccuracyUnknown': 'पिन धोक्यावर आहे का? गरज असल्यास ओढा',
+
+      'report.pinProvisionalAccuracy': 'GPS धोक्यावर नाही — पिन योग्य जागी ओढा',
 
       'report.pinAccuracyAdjusted': 'पिन सुधारला',
 
@@ -7514,6 +7530,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.hazardHint': 'धोक्याचा प्रकार निवडा',
 
       'report.photoNext': '{hazard} निवडले — तयार असल्यास Submit दाबा',
+
+      'report.photoNextPin': '{hazard} निवडले — आधी पिन धोक्यावर ओढा, नंतर Submit',
 
       'report.photoEvidence': 'फोटो पुरावा',
 
@@ -9038,7 +9056,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pinConfirmRequired': 'नकाशावर पिनची खात्री करा — पाठवण्यापूर्वी पिन धोक्यावर ओढा.',
 
-      'toast.hazardTypeRequired': 'सक्रिय धोका प्रकार निवडा.',
+      'toast.hazardTypeRequired': 'पाठवण्यापूर्वी धोक्याचा प्रकार निवडा.',
 
       'toast.storageFull': 'स्टोरेज भरले — जुनी तक्रार काढली. पुन्हा प्रयत्न करा.',
 
@@ -9835,6 +9853,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'પિન યોગ્ય જગ્યાએ ન હોય તો ખેંચીને સેટ કરો',
 
+      'report.pinProvisionalDragHint': 'સબમિટ કરવા માટે પિન જોખમ પર ખેંચો',
+
       'report.pinAccuracyGood': 'સ્થાન આશરે ~{m} મી ચોક્કસ',
 
       'report.pinAccuracyFair': 'સ્થાન ~{m} મી — પિન ખેંચો અથવા ખુલ્લી જગ્યાએ જાઓ',
@@ -9842,6 +9862,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.pinAccuracyPoor': 'સ્થાન અંદાજે (~{m} મી) — પિન જોખમ પર ખેંચો',
 
       'report.pinAccuracyUnknown': 'પિન જોખમ પર છે? જરૂર હોય તો ખેંચો',
+
+      'report.pinProvisionalAccuracy': 'GPS જોખમ પર નથી — પિન યોગ્ય જગ્યાએ ખેંચો',
 
       'report.pinAccuracyAdjusted': 'પિન સમાયોજિત',
 
@@ -9878,6 +9900,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.hazardHint': 'જોખમનો પ્રકાર પસંદ કરો',
 
       'report.photoNext': '{hazard} પસંદ — તૈયાર હો તો Submit દબાવો',
+
+      'report.photoNextPin': '{hazard} પસંદ — પહેલા પિન જોખમ પર ખેંચો, પછી Submit',
 
       'report.photoEvidence': 'ફોટો પુરાવો',
 
@@ -11402,7 +11426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pinConfirmRequired': 'નકશા પર પિનની પુષ્ટિ કરો — સબમિટ પહેલાં પિન જોખમ પર ખેંચો.',
 
-      'toast.hazardTypeRequired': 'સક્રિય જોખમ પ્રકાર પસંદ કરો.',
+      'toast.hazardTypeRequired': 'સબમિટ પહેલાં જોખમનો પ્રકાર પસંદ કરો.',
 
       'toast.storageFull': 'સ્ટોરેજ ભરેલું — જૂની ફરિયાદ કાઢી. ફરી પ્રયાસ કરો.',
 
@@ -12132,9 +12156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePhotoGuidelines($('#hazardType')?.value || 'stagnant-water');
     refreshAllContextHints();
     if ($('#reportStepConfirm') && !$('#reportStepConfirm').hidden) {
-      const hint = $('#reportPinDragHint');
-      if (hint) hint.textContent = t('report.pinDragHint');
-      updateReportPinAccuracyHint();
+      syncConfirmPinUiHints();
       const mapEl = $('#reportPinMap');
       if (mapEl) mapEl.setAttribute('aria-label', t('report.pinMapAria'));
     }
@@ -19359,7 +19381,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    cue.textContent = t('report.photoNext').replace('{hazard}', hazardLabel(key));
+    const pinNeeds = confirmPinProvisional && !confirmPinUserAdjusted;
+
+    const tpl = pinNeeds ? t('report.photoNextPin') : t('report.photoNext');
+
+    cue.textContent = tpl.replace('{hazard}', hazardLabel(key));
 
     cue.classList.remove('hidden');
 
@@ -27013,6 +27039,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (mapEl) mapEl.classList.remove('report-pin-map--attention');
 
+    const pinBlock = $('#reportPinConfirm');
+
+    if (pinBlock) pinBlock.classList.remove('report-pin-confirm--needs-adjust');
+
+    const hint = $('#reportPinDragHint');
+
+    if (hint) hint.classList.remove('report-pin-drag-hint--required');
+
+    const fullMapBtn = $('#btnReportPinFullMap');
+
+    if (fullMapBtn) {
+
+      fullMapBtn.classList.remove('btn--secondary');
+
+      fullMapBtn.classList.add('btn--ghost');
+
+    }
+
     const accEl = $('#reportPinAccuracy');
 
     if (accEl) {
@@ -27040,6 +27084,26 @@ document.addEventListener('DOMContentLoaded', function () {
       el.textContent = t('report.pinAccuracyAdjusted');
 
       el.classList.add('report-pin-accuracy--adjusted');
+
+      return;
+
+    }
+
+    if (confirmPinProvisional) {
+
+      const mapEl = $('#reportPinMap');
+
+      if (mapEl && mapEl.classList.contains('report-pin-map--loading')) {
+
+        el.textContent = t('report.pinLocating');
+
+        return;
+
+      }
+
+      el.textContent = t('report.pinProvisionalAccuracy');
+
+      el.classList.add('report-pin-accuracy--poor');
 
       return;
 
@@ -27081,6 +27145,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Inline confirm-step copy when GPS is provisional — toast alone is too late. */
+  function syncConfirmPinUiHints() {
+
+    const needsConfirm = confirmPinProvisional && !confirmPinUserAdjusted;
+
+    const hint = $('#reportPinDragHint');
+
+    if (hint) {
+
+      hint.textContent = t(needsConfirm ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
+
+      hint.classList.toggle('report-pin-drag-hint--required', needsConfirm);
+
+    }
+
+    const pinBlock = $('#reportPinConfirm');
+
+    if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', needsConfirm);
+
+    const fullMapBtn = $('#btnReportPinFullMap');
+
+    if (fullMapBtn) {
+
+      fullMapBtn.classList.toggle('btn--secondary', needsConfirm);
+
+      fullMapBtn.classList.toggle('btn--ghost', !needsConfirm);
+
+    }
+
+    updateReportPinAccuracyHint();
+
+    const hazard = $('#hazardType')?.value;
+
+    if (hazard) updateHazardSelectedCue(hazard);
+
+  }
+
+
+
   function setConfirmPinCoords(lat, lng, accuracyM, userAdjusted) {
 
     if (!isValidGpsCoords(lat, lng)) return false;
@@ -27117,7 +27220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    updateReportPinAccuracyHint();
+    syncConfirmPinUiHints();
 
     updateReportWardChip();
 
@@ -27337,10 +27440,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function prepareConfirmPin() {
 
-    const hint = $('#reportPinDragHint');
-
-    if (hint) hint.textContent = t('report.pinDragHint');
-
     const mapEl = $('#reportPinMap');
 
     if (mapEl) mapEl.setAttribute('aria-label', t('report.pinMapAria'));
@@ -27355,6 +27454,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       initReportPinPreview(manualPinLat, manualPinLng, null, true);
 
+      syncConfirmPinUiHints();
+
       return;
 
     }
@@ -27364,6 +27465,8 @@ document.addEventListener('DOMContentLoaded', function () {
       setReportPinMapLoading(false);
 
       initReportPinPreview(confirmPinLat, confirmPinLng, null, true);
+
+      syncConfirmPinUiHints();
 
       return;
 
@@ -27378,6 +27481,8 @@ document.addEventListener('DOMContentLoaded', function () {
       confirmPinProvisional = false;
 
       initReportPinPreview(currentLat, currentLng, currentAccuracyM, false);
+
+      syncConfirmPinUiHints();
 
     } else {
 
@@ -27402,15 +27507,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setReportPinMapLoading(true);
 
-      const accEl = $('#reportPinAccuracy');
-
-      if (accEl) {
-
-        accEl.className = 'report-pin-accuracy';
-
-        accEl.textContent = t('report.pinLocating');
-
-      }
+      syncConfirmPinUiHints();
 
     }
 
@@ -27418,7 +27515,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setReportPinMapLoading(false);
 
-      updateReportPinAccuracyHint();
+      if (!confirmPinUserAdjusted && (confirmPinLat != null || confirmPinProvisional)) {
+
+        confirmPinProvisional = true;
+
+      }
+
+      syncConfirmPinUiHints();
 
       return;
 
@@ -27506,7 +27609,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         confirmPinAccuracyM = null;
 
-        updateReportPinAccuracyHint();
+        syncConfirmPinUiHints();
 
         scheduleReportPinMapResize();
 
@@ -27554,15 +27657,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (confirmPinLat != null && confirmPinLng != null) {
 
-        const accEl = $('#reportPinAccuracy');
+        if (!confirmPinUserAdjusted) confirmPinProvisional = true;
 
-        if (accEl && !Number.isFinite(confirmPinAccuracyM)) {
-
-          accEl.className = 'report-pin-accuracy report-pin-accuracy--poor';
-
-          accEl.textContent = t('report.pinAccuracyUnknown');
-
-        }
+        syncConfirmPinUiHints();
 
         scheduleReportPinMapResize();
 
@@ -27570,19 +27667,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      confirmPinProvisional = true;
+
       const center = getCityCenter();
 
       initReportPinPreview(center[0], center[1], null, false);
 
-      const accEl = $('#reportPinAccuracy');
+      syncConfirmPinUiHints();
 
-      if (accEl) {
-
-        accEl.className = 'report-pin-accuracy report-pin-accuracy--poor';
-
-        accEl.textContent = t('report.pinAccuracyUnknown');
-
-      }
+      scheduleReportPinMapResize();
 
     });
 
@@ -28339,6 +28432,8 @@ document.addEventListener('DOMContentLoaded', function () {
         lng: confirmPinLng,
 
       });
+
+      syncConfirmPinUiHints();
 
       showToast(t('toast.pinConfirmRequired'), 'info', 8000, {
 
