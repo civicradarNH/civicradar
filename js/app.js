@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v187';
+  const CIVIC_APP_VERSION = 'v188';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2696,6 +2696,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'Not now',
 
+      'update.available': 'A new version of CivicRadar is ready.',
+
+      'update.reload': 'Reload',
+
       'iosInstall.title': 'Install on iPhone',
 
       'iosInstall.hint': 'Same app as Android — no App Store needed. Open in Safari if needed, then Share → Add to Home Screen.',
@@ -5033,6 +5037,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'अभी नहीं',
 
+      'update.available': 'CivicRadar का नया संस्करण तैयार है।',
+
+      'update.reload': 'फिर से लोड करें',
+
       'iosInstall.title': 'iPhone पर इंस्टॉल करें',
 
       'iosInstall.hint': 'Android जैसा ही ऐप — App Store की ज़रूरत नहीं। ज़रूरत हो तो Safari में खोलें, फिर Share → Add to Home Screen।',
@@ -7369,6 +7377,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'आत्ता नाही',
 
+      'update.available': 'CivicRadar ची नवी आवृत्ती तयार आहे.',
+
+      'update.reload': 'पुन्हा लोड करा',
+
       'iosInstall.title': 'iPhone वर इंस्टॉल करा',
 
       'iosInstall.hint': 'Android सारखाच अ‍ॅप — App Store नाही लागत. गरज असेल तर Safari मध्ये उघडा, नंतर Share → Add to Home Screen.',
@@ -9704,6 +9716,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'હોમ સ્ક્રીન પર ઉમેરો',
 
       'pwa.nudgeDismiss': 'હમણાં નહીં',
+
+      'update.available': 'CivicRadar ની નવી આવૃત્તિ તૈયાર છે.',
+
+      'update.reload': 'ફરી લોડ કરો',
 
       'iosInstall.title': 'iPhone પર ઇન્સ્ટોલ કરો',
 
@@ -36202,17 +36218,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function registerServiceWorker() {
 
-    if ('serviceWorker' in navigator) {
+    if (!('serviceWorker' in navigator)) return;
 
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+    let reloaded = false;
 
-      navigator.serviceWorker.addEventListener('message', (ev) => {
+    const reloadOnce = () => {
 
-        if (ev.data && ev.data.type === 'nbh-alert-focus') focusReportOnMap(ev.data.reportId);
+      if (reloaded) return;
 
-      });
+      reloaded = true;
+
+      window.location.reload();
+
+    };
+
+    // Auto-reload only when this page was already controlled (update), not on
+    // first install when skipWaiting + clients.claim would otherwise double-load.
+    const hadController = !!navigator.serviceWorker.controller;
+
+    if (hadController) {
+
+      navigator.serviceWorker.addEventListener('controllerchange', reloadOnce);
 
     }
+
+    navigator.serviceWorker
+
+      .register('sw.js')
+
+      .then((reg) => {
+
+        const checkForUpdate = () => {
+
+          reg.update().catch(() => {});
+
+        };
+
+        checkForUpdate();
+
+        document.addEventListener('visibilitychange', () => {
+
+          if (document.visibilityState === 'visible') checkForUpdate();
+
+        });
+
+        reg.addEventListener('updatefound', () => {
+
+          const installing = reg.installing;
+
+          if (!installing) return;
+
+          installing.addEventListener('statechange', () => {
+
+            if (installing.state !== 'installed') return;
+
+            // First install: no controller yet — skip "update available" toast.
+            if (!navigator.serviceWorker.controller) return;
+
+            // Action toasts persist until dismiss (duration ignored).
+            showToast(t('update.available'), 'info', 0, {
+
+              label: t('update.reload'),
+
+              onClick: () => reloadOnce(),
+
+            });
+
+          });
+
+        });
+
+      })
+
+      .catch(() => {});
+
+    navigator.serviceWorker.addEventListener('message', (ev) => {
+
+      if (ev.data && ev.data.type === 'nbh-alert-focus') focusReportOnMap(ev.data.reportId);
+
+    });
 
   }
 
