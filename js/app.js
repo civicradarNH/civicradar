@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v180';
+  const CIVIC_APP_VERSION = 'v181';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -11825,7 +11825,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const alreadyFlagged = ids.has(String(id));
     ids.add(String(id));
     try {
-      localStorage.setItem(HIDDEN_REPORTS_KEY, JSON.stringify([...ids]));
+      safeLocalSet(HIDDEN_REPORTS_KEY, JSON.stringify([...ids]));
     } catch { /* ignore */ }
     // Hiding also flags the report for moderator review (UGC compliance) —
     // once per device, so repeat hides of the same pin don't inflate the count.
@@ -11880,7 +11880,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ids = loadMutedReporterIds();
     ids.add(String(reporterId));
     try {
-      localStorage.setItem(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
+      safeLocalSet(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
     } catch { /* ignore */ }
     if (map) map.closePopup();
     refreshReportMarkers();
@@ -11894,7 +11894,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ids = loadMutedReporterIds();
     ids.delete(String(reporterId));
     try {
-      localStorage.setItem(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
+      safeLocalSet(MUTED_REPORTERS_KEY, JSON.stringify([...ids]));
     } catch { /* ignore */ }
     refreshReportMarkers();
     renderWardWeekSocialProof();
@@ -12113,7 +12113,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (parsed.society) parsed.society = sanitizeText(parsed.society, 120);
       if (parsed.civicXp == null) parsed.civicXp = 0;
       migrateLegacyReports(parsed);
-      localStorage.setItem(USER_KEY, JSON.stringify(parsed));
+      safeLocalSet(USER_KEY, JSON.stringify(parsed));
       return parsed;
     } catch {
       return defaultUser();
@@ -12186,7 +12186,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveUser() {
     try {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      safeLocalSet(USER_KEY, JSON.stringify(user));
     } catch (err) {
       console.error('Failed to save user profile:', err);
     }
@@ -12214,7 +12214,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function savePledges(pledges) {
     try {
-      localStorage.setItem(PLEDGES_KEY, JSON.stringify(pledges));
+      safeLocalSet(PLEDGES_KEY, JSON.stringify(pledges));
     } catch (err) {
       console.error('Failed to save pledges:', err);
     }
@@ -12231,7 +12231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveVolunteerSignups(rows) {
     try {
-      localStorage.setItem(VOLUNTEER_SIGNUPS_KEY, JSON.stringify(rows));
+      safeLocalSet(VOLUNTEER_SIGNUPS_KEY, JSON.stringify(rows));
     } catch (err) {
       console.error('Failed to save volunteer signups:', err);
     }
@@ -12248,7 +12248,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveVolunteerTasks(rows) {
     try {
-      localStorage.setItem(VOLUNTEER_TASKS_KEY, JSON.stringify(rows));
+      safeLocalSet(VOLUNTEER_TASKS_KEY, JSON.stringify(rows));
     } catch (err) {
       console.error('Failed to save volunteer tasks:', err);
     }
@@ -14070,7 +14070,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function savePendingFeedback(list) {
 
-    try { localStorage.setItem(FEEDBACK_PENDING_KEY, JSON.stringify(list.slice(-50))); }
+    try { safeLocalSet(FEEDBACK_PENDING_KEY, JSON.stringify(list.slice(-50))); }
 
     catch { /* storage full / unavailable — non-fatal */ }
 
@@ -14270,7 +14270,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveLocalAccessRequests(list) {
 
-    try { localStorage.setItem(ACCESS_LOCAL_KEY, JSON.stringify(list.slice(-100))); }
+    try { safeLocalSet(ACCESS_LOCAL_KEY, JSON.stringify(list.slice(-100))); }
 
     catch { /* storage full — non-fatal */ }
 
@@ -14286,7 +14286,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function savePendingAccessSync(list) {
 
-    try { localStorage.setItem(ACCESS_SYNC_KEY, JSON.stringify(list.slice(-50))); }
+    try { safeLocalSet(ACCESS_SYNC_KEY, JSON.stringify(list.slice(-50))); }
 
     catch { /* non-fatal */ }
 
@@ -14926,7 +14926,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveLocalLeadNominations(list) {
 
-    try { localStorage.setItem(LEAD_NOM_LOCAL_KEY, JSON.stringify(list.slice(-200))); }
+    try { safeLocalSet(LEAD_NOM_LOCAL_KEY, JSON.stringify(list.slice(-200))); }
 
     catch { /* non-fatal */ }
 
@@ -14942,7 +14942,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveLocalLeadVotes(list) {
 
-    try { localStorage.setItem(LEAD_VOTES_LOCAL_KEY, JSON.stringify(list.slice(-500))); }
+    try { safeLocalSet(LEAD_VOTES_LOCAL_KEY, JSON.stringify(list.slice(-500))); }
 
     catch { /* non-fatal */ }
 
@@ -16064,7 +16064,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function markXpCertificateSeen(levelId) {
     const set = loadXpCertificatesSeen();
     set.add(levelId);
-    try { localStorage.setItem(XP_CERTS_SEEN_KEY, JSON.stringify(Array.from(set))); } catch {}
+    try { safeLocalSet(XP_CERTS_SEEN_KEY, JSON.stringify(Array.from(set))); } catch {}
   }
 
   function getNewlyUnlockedCertLevels(prevXp, newXp) {
@@ -16406,7 +16406,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setReminderJson(key, val) {
 
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    try { safeLocalSet(key, JSON.stringify(val)); } catch {}
 
   }
 
@@ -16428,7 +16428,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const until = new Date(Date.now() + days * 86400000).toISOString();
 
-    try { localStorage.setItem(key, until); } catch {}
+    try { safeLocalSet(key, until); } catch {}
 
     if (window.CivicAnalytics) {
 
@@ -16450,7 +16450,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function markEscTierShown(reportId, tierKey) {
 
-    try { localStorage.setItem(escTierShownKey(reportId, tierKey), '1'); } catch {}
+    try { safeLocalSet(escTierShownKey(reportId, tierKey), '1'); } catch {}
 
   }
 
@@ -16658,7 +16658,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       show: () => {
 
-        try { localStorage.setItem(REMINDER_UNFILED_MILESTONE_KEY, String(nextMilestone)); } catch {}
+        try { safeLocalSet(REMINDER_UNFILED_MILESTONE_KEY, String(nextMilestone)); } catch {}
 
         showToast(
 
@@ -16982,7 +16982,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setReportReminderOptIn(enabled) {
 
-    try { localStorage.setItem(REPORT_REMINDER_OPTIN_KEY, enabled ? '1' : '0'); } catch {}
+    try { safeLocalSet(REPORT_REMINDER_OPTIN_KEY, enabled ? '1' : '0'); } catch {}
 
     if (window.CivicAnalytics) {
 
@@ -17118,7 +17118,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function markReportReminderShown() {
 
-    try { localStorage.setItem(REPORT_REMINDER_LAST_KEY, new Date().toISOString()); } catch {}
+    try { safeLocalSet(REPORT_REMINDER_LAST_KEY, new Date().toISOString()); } catch {}
 
   }
 
@@ -17248,13 +17248,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function setNbhNewAlertsEnabled(enabled) {
-    try { localStorage.setItem(NBH_ALERT_NEW_KEY, enabled ? '1' : '0'); } catch {}
+    try { safeLocalSet(NBH_ALERT_NEW_KEY, enabled ? '1' : '0'); } catch {}
     if (Backend.enabled) Backend.updateNotificationPrefs({ newAlerts: enabled });
     if (window.CivicAnalytics) CivicAnalytics.track('nbh_alert_optin', { type: 'new', enabled: !!enabled }, user.ward);
   }
 
   function setNbhResolvedAlertsEnabled(enabled) {
-    try { localStorage.setItem(NBH_ALERT_RESOLVED_KEY, enabled ? '1' : '0'); } catch {}
+    try { safeLocalSet(NBH_ALERT_RESOLVED_KEY, enabled ? '1' : '0'); } catch {}
     if (Backend.enabled) Backend.updateNotificationPrefs({ resolvedAlerts: enabled });
     if (window.CivicAnalytics) CivicAnalytics.track('nbh_alert_optin', { type: 'resolved', enabled: !!enabled }, user.ward);
   }
@@ -17345,7 +17345,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function saveNbhAlertLog(log) {
-    try { localStorage.setItem(NBH_ALERT_LOG_KEY, JSON.stringify(log)); } catch {}
+    try { safeLocalSet(NBH_ALERT_LOG_KEY, JSON.stringify(log)); } catch {}
   }
 
   function canSendNbhAlert() {
@@ -17377,7 +17377,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function saveNbhIdSet(key, set) {
-    try { localStorage.setItem(key, JSON.stringify([...set].slice(-500))); } catch {}
+    try { safeLocalSet(key, JSON.stringify([...set].slice(-500))); } catch {}
   }
 
   function loadResolveDigest() {
@@ -17389,7 +17389,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function saveResolveDigest(d) {
-    try { localStorage.setItem(NBH_ALERT_RESOLVE_DIGEST_KEY, JSON.stringify(d)); } catch {}
+    try { safeLocalSet(NBH_ALERT_RESOLVE_DIGEST_KEY, JSON.stringify(d)); } catch {}
   }
 
   function focusReportOnMap(reportId) {
@@ -17510,7 +17510,7 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const q = JSON.parse(localStorage.getItem('civicradar_nbh_local_queue') || '[]');
       q.push({ type: 'new', report: { id: report.id, hazard: report.hazard, society: report.society, ward: report.ward, city: report.city, reporterId: report.reporterId, status: report.status }, at: Date.now() });
-      localStorage.setItem('civicradar_nbh_local_queue', JSON.stringify(q.slice(-50)));
+      safeLocalSet('civicradar_nbh_local_queue', JSON.stringify(q.slice(-50)));
     } catch {}
     processLocalNbhQueue();
   }
@@ -17520,7 +17520,7 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const q = JSON.parse(localStorage.getItem('civicradar_nbh_local_queue') || '[]');
       q.push({ type: 'resolved', report: { id: report.id, hazard: report.hazard, society: report.society, ward: report.ward, city: report.city, reporterId: report.reporterId, status: 'resolved' }, at: Date.now() });
-      localStorage.setItem('civicradar_nbh_local_queue', JSON.stringify(q.slice(-50)));
+      safeLocalSet('civicradar_nbh_local_queue', JSON.stringify(q.slice(-50)));
     } catch {}
     processLocalNbhQueue();
   }
@@ -17541,7 +17541,7 @@ document.addEventListener('DOMContentLoaded', function () {
         remaining.push(item);
       }
     });
-    try { localStorage.setItem('civicradar_nbh_local_queue', JSON.stringify(remaining)); } catch {}
+    try { safeLocalSet('civicradar_nbh_local_queue', JSON.stringify(remaining)); } catch {}
   }
 
   function processNeighbourhoodAlertsOnSync(prevReports) {
@@ -17795,9 +17795,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
 
-      localStorage.setItem(REMINDER_NGO_LAST_SEEN_KEY, now);
+      safeLocalSet(REMINDER_NGO_LAST_SEEN_KEY, now);
 
-      localStorage.setItem(REMINDER_NGO_PLEDGES_LAST_SEEN_KEY, now);
+      safeLocalSet(REMINDER_NGO_PLEDGES_LAST_SEEN_KEY, now);
 
     } catch {}
 
@@ -17953,7 +17953,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function snoozeIosInstallHint() {
 
-    try { localStorage.setItem(IOS_INSTALL_SNOOZE_KEY, String(Date.now())); } catch {}
+    try { safeLocalSet(IOS_INSTALL_SNOOZE_KEY, String(Date.now())); } catch {}
 
   }
 
@@ -18021,7 +18021,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function dismissHomeHero() {
 
-    try { localStorage.setItem(HERO_DISMISSED_KEY, '1'); } catch {}
+    try { safeLocalSet(HERO_DISMISSED_KEY, '1'); } catch {}
 
     updateHomeHero();
 
@@ -18135,7 +18135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     confirmedIdCache = set;
 
-    try { localStorage.setItem(CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
+    try { safeLocalSet(CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
 
   }
 
@@ -18326,7 +18326,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveFixConfirmedSeen(ids) {
 
-    try { localStorage.setItem(FIX_CONFIRMED_SEEN_KEY, JSON.stringify(ids)); } catch {}
+    try { safeLocalSet(FIX_CONFIRMED_SEEN_KEY, JSON.stringify(ids)); } catch {}
 
   }
 
@@ -18525,7 +18525,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     set.add(String(reportId));
 
-    try { localStorage.setItem(FIX_CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
+    try { safeLocalSet(FIX_CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
 
 
 
@@ -19125,7 +19125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     interest[key] = true;
 
-    try { localStorage.setItem(INTEREST_KEY, JSON.stringify(interest)); } catch {}
+    try { safeLocalSet(INTEREST_KEY, JSON.stringify(interest)); } catch {}
 
     // When a backend is connected this is where we'd log aggregate demand.
 
@@ -22125,7 +22125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     hidePwaInstallNudge();
 
-    try { localStorage.setItem(PWA_NUDGE_KEY, '1'); } catch {}
+    try { safeLocalSet(PWA_NUDGE_KEY, '1'); } catch {}
 
     if (window.CivicAnalytics) CivicAnalytics.track('pwa_nudge_dismissed', {});
 
@@ -22207,7 +22207,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       hidePwaInstallNudge();
 
-      try { localStorage.setItem(PWA_NUDGE_KEY, '1'); } catch {}
+      try { safeLocalSet(PWA_NUDGE_KEY, '1'); } catch {}
 
       if (window.CivicAnalytics) CivicAnalytics.track('pwa_installed', {});
 
@@ -22477,7 +22477,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const n = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0', 10) + 1;
 
-      localStorage.setItem(VISIT_COUNT_KEY, String(n));
+      safeLocalSet(VISIT_COUNT_KEY, String(n));
 
       return n;
 
@@ -23384,7 +23384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function snoozeLocBanner() {
 
-    try { localStorage.setItem(LOCBANNER_SNOOZE_KEY, String(Date.now())); } catch {}
+    try { safeLocalSet(LOCBANNER_SNOOZE_KEY, String(Date.now())); } catch {}
 
   }
 
@@ -26052,7 +26052,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function markReportGeoExplainerSeen() {
 
-    try { localStorage.setItem(REPORT_GEO_EXPLAINER_KEY, '1'); } catch { /* ignore */ }
+    try { safeLocalSet(REPORT_GEO_EXPLAINER_KEY, '1'); } catch { /* ignore */ }
 
   }
 
@@ -26974,7 +26974,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     lastReportId = report.id;
 
-    try { localStorage.setItem(FIRST_REPORT_DONE_KEY, '1'); } catch {}
+    try { safeLocalSet(FIRST_REPORT_DONE_KEY, '1'); } catch {}
 
     Backend.insertReport(report);
 
@@ -27020,7 +27020,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkXpLevelUp(prevXp, getTotalCivicXp());
 
-    try { localStorage.setItem(LAST_HAZARD_KEY, hazard); } catch {}
+    try { safeLocalSet(LAST_HAZARD_KEY, hazard); } catch {}
 
     // Capture photo at save time — do not re-read lastReportDataUrl after reset/retake.
     const savedPhoto = report.image || lastReportDataUrl || null;
@@ -27616,7 +27616,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (localStorage.getItem(REFERRAL_REDEEMED_KEY)) return;
 
-      localStorage.setItem(REFERRAL_REDEEMED_KEY, '1');
+      safeLocalSet(REFERRAL_REDEEMED_KEY, '1');
 
       if (!Backend.enabled) return;
 
@@ -27654,7 +27654,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const newJoins = count - rewarded;
 
-      localStorage.setItem(REFERRAL_REWARDED_COUNT_KEY, String(count));
+      safeLocalSet(REFERRAL_REWARDED_COUNT_KEY, String(count));
 
       addPointsCache(POINTS_REFERRAL_JOINED * newJoins);
 
@@ -28040,7 +28040,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.setCelebrationSoundMuted = (m) => {
 
-    try { localStorage.setItem('civicradar_sound_muted', m ? '1' : '0'); } catch {}
+    try { safeLocalSet('civicradar_sound_muted', m ? '1' : '0'); } catch {}
 
   };
 
@@ -28237,7 +28237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (localStorage.getItem(FIRST_SHARE_KEY)) return;
 
-    try { localStorage.setItem(FIRST_SHARE_KEY, '1'); } catch {}
+    try { safeLocalSet(FIRST_SHARE_KEY, '1'); } catch {}
 
     addPointsCache(POINTS_FIRST_SHARE);
 
@@ -28409,7 +28409,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveSuccessStoriesSeen(ids) {
 
-    try { localStorage.setItem(SUCCESS_STORIES_SEEN_KEY, JSON.stringify(ids)); } catch {}
+    try { safeLocalSet(SUCCESS_STORIES_SEEN_KEY, JSON.stringify(ids)); } catch {}
 
   }
 
@@ -28625,7 +28625,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     pendingShareWinAspect = aspect === 'story' ? 'story' : 'square';
 
-    try { localStorage.setItem('civicradar_share_win_aspect', pendingShareWinAspect); } catch {}
+    try { safeLocalSet('civicradar_share_win_aspect', pendingShareWinAspect); } catch {}
 
     pendingSuccessCardBlob = null;
 
@@ -31802,7 +31802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function savePledgeStatusSnapshot(snapshot) {
 
-    try { localStorage.setItem(PLEDGE_STATUS_SNAPSHOT_KEY, JSON.stringify(snapshot)); } catch {}
+    try { safeLocalSet(PLEDGE_STATUS_SNAPSHOT_KEY, JSON.stringify(snapshot)); } catch {}
 
   }
 
@@ -31824,7 +31824,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     credited.add(String(id));
 
-    try { localStorage.setItem(PLEDGE_POINTS_CREDITED_KEY, JSON.stringify([...credited])); } catch {}
+    try { safeLocalSet(PLEDGE_POINTS_CREDITED_KEY, JSON.stringify([...credited])); } catch {}
 
   }
 
@@ -32172,7 +32172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveConfirmedSeen(ids) {
 
-    try { localStorage.setItem(CONFIRMED_SEEN_KEY, JSON.stringify(ids)); } catch {}
+    try { safeLocalSet(CONFIRMED_SEEN_KEY, JSON.stringify(ids)); } catch {}
 
   }
 
