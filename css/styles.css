@@ -4,10 +4,6 @@
 
 :root {
   /* Brand — indigo + cyan (pre-v153 palette; teal trial reverted for contrast) */
-  --brand-50: #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-600: #4f46e5;
-  --brand-700: #6366f1;
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-50: #eef2ff;
@@ -72,15 +68,11 @@
   /* Surfaces & text */
   --bg-main: #f8fafc;
   --canvas: #f8fafc;
-  --ink-900: #0f172a;
-  --ink-600: #475569;
-  --ink-400: #94a3b8;
   --text-dark: #0f172a;
   --text: #0f172a;
   --text-muted: #64748b;
   --surface: #ffffff;
   --border: #e2e8f0;
-  --color-brand-600: #4f46e5;
   --overlay: rgba(0, 0, 0, 0.5);
 
   /* Layout */
@@ -126,14 +118,6 @@
   --fs-lg:   1.125rem;  /* 18px — card titles, modal sub-heads */
   --fs-xl:   1.375rem;  /* 22px — modal h2, screen titles */
   --fs-2xl:  1.75rem;   /* 28px — hero headline, big stat numbers */
-  /* Back-compat aliases (v158) */
-  --text-xs: var(--fs-xs);
-  --text-sm: var(--fs-sm);
-  --text-md: var(--fs-base);
-  --text-body: var(--fs-md);
-  --text-lg: var(--fs-lg);
-  --text-xl: var(--fs-xl);
-  --text-2xl: var(--fs-2xl);
 }
 
 *, *::before, *::after {
@@ -455,9 +439,9 @@ body.app-booting {
   padding: 8px 12px;
   margin-top: 8px;
   border-radius: var(--radius-md);
-  background: var(--brand-50, rgba(99, 102, 241, 0.08));
-  color: var(--ink-600, var(--text-muted));
-  font-size: var(--fs-sm, var(--fs-base));
+  background: var(--primary-50);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
 }
 
 .ward-detect-status i {
@@ -872,7 +856,7 @@ body.persona-lead #btnCamera {
 .ward-pulse__ward {
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--ink-900, var(--text-dark));
+  color: var(--text-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4215,7 +4199,7 @@ body.persona-lead .app-open-banner { display: none; }
   margin-top: 8px;
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--color-brand-600, #6366f1);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -5607,7 +5591,7 @@ html[lang="gu"] .persona-bar {
   z-index: 100000;
   padding: 0.75rem 1rem;
   background: var(--surface);
-  color: var(--color-brand-600);
+  color: var(--primary);
   font-weight: 600;
   font-size: var(--fs-base);
   text-decoration: none;
@@ -5615,7 +5599,7 @@ html[lang="gu"] .persona-bar {
   }
 .skip-link:focus {
   top: 0;
-  outline: 2px solid var(--color-brand-600);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -6511,42 +6495,42 @@ a,
 
 .report-pin-accuracy {
   margin: 0;
-  font-size: var(--text-xs, 0.75rem);
-  font-weight: 500;
-  color: var(--ink-600, var(--text-muted, #475569));
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
   line-height: 1.35;
 }
 
 .report-pin-accuracy--good {
-  color: var(--success, #059669);
+  color: var(--success);
 }
 
 .report-pin-accuracy--fair {
-  color: var(--warning, #D97706);
+  color: var(--warning);
 }
 
 .report-pin-accuracy--poor {
-  color: var(--danger, #DC2626);
+  color: var(--danger);
 }
 
 .report-pin-accuracy--adjusted {
-  color: var(--brand-600, var(--primary, #6366f1));
+  color: var(--primary);
 }
 
 .report-pin-drag-hint {
   margin: 0;
-  font-size: var(--text-xs, 0.75rem);
-  color: var(--ink-400, #94A3B8);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
   line-height: 1.35;
 }
 
 .report-pin-map {
   width: 100%;
   height: 160px;
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   overflow: hidden;
-  background: var(--canvas, #F8FAFC);
+  background: var(--canvas);
   touch-action: none;
 }
 
@@ -6567,18 +6551,18 @@ a,
   height: 22px;
   margin: 3px;
   border-radius: 50%;
-  background: var(--danger, #DC2626);
+  background: var(--danger);
   border: 3px solid #fff;
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(15, 23, 42, 0.18));
+  box-shadow: var(--shadow-md);
 }
 
 .report-pin-marker__dot--adjusted {
-  background: var(--brand-600, var(--primary, #6366f1));
+  background: var(--primary);
 }
 
 .report-pin-fullmap {
   align-self: flex-start;
-  min-height: var(--touch-min, 44px);
+  min-height: var(--touch-min);
   padding-left: 0;
   gap: 6px;
 }
