@@ -42,6 +42,206 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /* ---------- Debug Mode (gated — ?debug=1 or localStorage civicDebug=1) ---------- */
+
+  const CIVIC_DEBUG = (function civicDebugEnabled() {
+
+    try {
+
+      if (new URLSearchParams(window.location.search).get('debug') === '1') return true;
+
+      return localStorage.getItem('civicDebug') === '1';
+
+    } catch (_) { return false; }
+
+  })();
+
+  const DEBUG_MAX_LINES = 80;
+
+  const debugLines = [];
+
+  let debugLogEl = null;
+
+  function debugFmtKv(kv) {
+
+    if (!kv || typeof kv !== 'object') return '';
+
+    return Object.entries(kv)
+
+      .map(([k, v]) => `${k}=${v == null ? 'null' : (typeof v === 'string' ? v : JSON.stringify(v))}`)
+
+      .join(' | ');
+
+  }
+
+  const debugLog = CIVIC_DEBUG ? function debugLog(category, message, kv) {
+
+    const ts = new Date().toISOString().slice(11, 23);
+
+    const suffix = kv ? ` | ${debugFmtKv(kv)}` : '';
+
+    const line = `${ts} [${category}] ${message}${suffix}`;
+
+    debugLines.push(line);
+
+    while (debugLines.length > DEBUG_MAX_LINES) debugLines.shift();
+
+    if (debugLogEl) {
+
+      debugLogEl.textContent = debugLines.join('\n');
+
+      debugLogEl.scrollTop = debugLogEl.scrollHeight;
+
+    }
+
+    try { console.log('[CivicDebug]', line); } catch (_) { /* ignore */ }
+
+  } : function () {};
+
+
+
+  function debugInit() {
+
+    if (!CIVIC_DEBUG) return;
+
+    const panel = document.createElement('div');
+
+    panel.id = 'civicDebugPanel';
+
+    panel.className = 'civic-debug-panel';
+
+    panel.setAttribute('role', 'log');
+
+    panel.setAttribute('aria-label', 'Debug log');
+
+    const header = document.createElement('div');
+
+    header.className = 'civic-debug-panel__header';
+
+    const title = document.createElement('span');
+
+    title.className = 'civic-debug-panel__title';
+
+    title.textContent = 'Debug';
+
+    header.appendChild(title);
+
+    const btnCopy = document.createElement('button');
+
+    btnCopy.type = 'button';
+
+    btnCopy.className = 'civic-debug-panel__btn';
+
+    btnCopy.textContent = 'Copy logs';
+
+    btnCopy.addEventListener('click', () => {
+
+      const text = debugLines.join('\n');
+
+      const done = () => debugLog('SYS', 'logs copied');
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+
+          const ta = document.createElement('textarea');
+
+          ta.value = text;
+
+          ta.style.cssText = 'position:fixed;left:-9999px';
+
+          document.body.appendChild(ta);
+
+          ta.select();
+
+          try { document.execCommand('copy'); done(); } catch (_) { /* ignore */ }
+
+          ta.remove();
+
+        });
+
+      }
+
+    });
+
+    const btnClear = document.createElement('button');
+
+    btnClear.type = 'button';
+
+    btnClear.className = 'civic-debug-panel__btn';
+
+    btnClear.textContent = 'Clear';
+
+    btnClear.addEventListener('click', () => {
+
+      debugLines.length = 0;
+
+      if (debugLogEl) debugLogEl.textContent = '';
+
+      debugLog('SYS', 'logs cleared');
+
+    });
+
+    header.appendChild(btnCopy);
+
+    header.appendChild(btnClear);
+
+    debugLogEl = document.createElement('pre');
+
+    debugLogEl.className = 'civic-debug-panel__log';
+
+    panel.appendChild(header);
+
+    panel.appendChild(debugLogEl);
+
+    document.body.appendChild(panel);
+
+    window.addEventListener('error', (ev) => {
+
+      debugLog('ERR', ev.message || 'error', {
+
+        at: ev.filename ? `${ev.filename}:${ev.lineno}` : 'unknown',
+
+        stack: ev.error && ev.error.stack ? ev.error.stack.split('\n')[0] : '',
+
+      });
+
+    });
+
+    window.addEventListener('unhandledrejection', (ev) => {
+
+      const reason = ev.reason;
+
+      const msg = reason && reason.message ? reason.message : String(reason);
+
+      const stack = reason && reason.stack ? reason.stack.split('\n').slice(0, 2).join(' ') : '';
+
+      debugLog('ERR', 'unhandledrejection', { msg, stack });
+
+    });
+
+    const origErr = console.error;
+
+    console.error = function (...args) {
+
+      try {
+
+        const msg = args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+
+        debugLog('CONSOLE', msg);
+
+      } catch (_) { /* ignore */ }
+
+      return origErr.apply(console, args);
+
+    };
+
+    debugLog('SYS', 'debug mode active');
+
+  }
+
+
+
   function persistPendingAuth(flow, ngoCode) {
 
     try {
@@ -19567,6 +19767,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const s = normalizeReportStep(step);
 
+    debugLog('REPORT', 'updateReportFlowSteps', { step: s });
+
     const modal = $('#reportModal');
 
     if (modal) {
@@ -20148,6 +20350,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function showToast(message, type = 'info', duration = 3500, action = null) {
+
+    debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
 
     const container = $('#toastContainer');
 
@@ -20970,6 +21174,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openModal(name) {
 
+    debugLog('MODAL', 'openModal', { name });
+
     const el = overlays[name];
 
     if (!el) return;
@@ -21308,11 +21514,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const fromCameraFlow = reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto();
 
+    debugLog('PHOTO', 'syncReportPhotoReturn', {
+
+      fromCameraFlow,
+
+      hasPreview: hasReportPhotoPreview(),
+
+      reportPhotoFlowActive,
+
+      reportPhotoProcessing,
+
+    });
+
     ensureReportModalOpen();
 
     reportPhotoDismissGuard = Date.now();
 
     if (hasReportPhotoPreview()) {
+
+      debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'confirm' });
 
       showPhotoConfirm();
 
@@ -21325,6 +21545,8 @@ document.addEventListener('DOMContentLoaded', function () {
       scheduleReportPinMapResize();
 
     } else if (fromCameraFlow || reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
+
+      debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'capture' });
 
       updateReportFlowSteps('capture');
 
@@ -21339,6 +21561,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function finishReportPhotoFlow() {
+
+    debugLog('REPORT', 'reportPhotoProcessing', { value: false, where: 'finishReportPhotoFlow' });
 
     reportPhotoFlowActive = false;
 
@@ -21357,6 +21581,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function failReportPhotoCapture() {
+
+    debugLog('PHOTO', 'handlePhotoCapture fail', { where: 'failReportPhotoCapture' });
 
     finishReportPhotoFlow();
 
@@ -21385,6 +21611,8 @@ document.addEventListener('DOMContentLoaded', function () {
       reportPhotoWatchdogTimer = null;
 
       if (!reportPhotoProcessing && !reportPhotoFlowActive) return;
+
+      debugLog('PHOTO', 'watchdog timeout', { reportPhotoProcessing, reportPhotoFlowActive, hasPreview: hasReportPhotoPreview() });
 
       if (hasReportPhotoPreview()) {
 
@@ -21420,7 +21648,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!pendingSwReload) return;
 
-    if (isReportFlowBusy()) return;
+    if (isReportFlowBusy()) {
+
+      debugLog('SW', 'reload deferred', { reason: 'report flow busy' });
+
+      return;
+
+    }
+
+    debugLog('SW', 'reload flush', { action: 'location.reload' });
 
     pendingSwReload = false;
 
@@ -21455,6 +21691,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function openReportPhotoPicker() {
+
+    debugLog('PHOTO', 'openReportPhotoPicker', { reportPhotoProcessing });
 
     const input = $('#photoInput');
 
@@ -21499,6 +21737,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function closeModal(name) {
+
+    debugLog('MODAL', 'closeModal', { name });
 
     const el = overlays[name];
 
@@ -21870,6 +22110,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.openReportModal = function (openCamera = true) {
 
+    debugLog('REPORT', 'openReportModal', { openCamera });
+
     if (!user.tosAccepted) {
 
       openModal('tos');
@@ -21948,7 +22190,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   };
 
-  window.closeReportModal = function () { closeModal('report'); };
+  window.closeReportModal = function () {
+
+    debugLog('REPORT', 'closeReportModal');
+
+    closeModal('report');
+
+  };
 
   window.getContextualDefaultHazard = getContextualDefaultHazard;
 
@@ -22801,6 +23049,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   initMap();
 
+  debugInit();
+
   initSearchableComboboxes();
 
   bindEvents();
@@ -22824,6 +23074,20 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('visibilitychange', () => {
 
     if (document.visibilityState === 'visible') {
+
+      if (isReportPhotoPickerActive() || hasReportPhotoPreview() || isReportFlowBusy()) {
+
+        debugLog('PHOTO', 'visibilitychange visible during report', {
+
+          pickerActive: isReportPhotoPickerActive(),
+
+          hasPreview: hasReportPhotoPreview(),
+
+          reportBusy: isReportFlowBusy(),
+
+        });
+
+      }
 
       const hiddenMs = appHiddenAt ? Date.now() - appHiddenAt : 0;
 
@@ -25589,7 +25853,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         || (hasReportPhotoPreview() && Date.now() - reportPhotoDismissGuard < PHOTO_RETURN_GUARD_MS);
 
+      const backTargets = ['community', 'resources', 'profile', 'report', 'success', 'shareWin', 'certificate'];
+
+      const backClose = backTargets.some((name) => overlays[name]?.classList.contains('open'));
+
+      const openOverlays = backTargets.filter((name) => overlays[name]?.classList.contains('open'));
+
+      debugLog('POPSTATE', 'popstate', { photoReturn, backClose, openOverlays: openOverlays.join(',') || 'none' });
+
       if (photoReturn) {
+
+        debugLog('POPSTATE', 'branch photoReturn', { action: 'syncReportPhotoReturn' });
 
         syncReportPhotoReturn();
 
@@ -25599,13 +25873,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      const backTargets = ['community', 'resources', 'profile', 'report', 'success', 'shareWin', 'certificate'];
+      if (!backClose) {
 
-      const backClose = backTargets.some((name) => overlays[name]?.classList.contains('open'));
+        debugLog('POPSTATE', 'branch noop', { reason: 'no overlay open' });
 
-      if (!backClose) return;
+        return;
+
+      }
 
       if (overlays.report?.classList.contains('open') && !canDismissReportOverlay()) {
+
+        debugLog('POPSTATE', 'branch blocked', { reason: 'report photo picker active' });
 
         pushNavModalHistory();
 
@@ -25614,6 +25892,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (overlays.success?.classList.contains('open')) dismissSuccessModal();
+
+      debugLog('POPSTATE', 'branch closeStack', { action: 'closeStackedModalsForNav' });
 
       closeStackedModalsForNav(null);
 
@@ -25626,6 +25906,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('pageshow', (e) => {
 
       if (isReportPhotoPickerActive() || hasReportPhotoPreview()) {
+
+        debugLog('PHOTO', 'pageshow during report', { persisted: !!e.persisted, pickerActive: isReportPhotoPickerActive(), hasPreview: hasReportPhotoPreview() });
 
         restoreReportDraftIfNeeded();
 
@@ -25991,6 +26273,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!file) {
 
+      debugLog('PHOTO', 'handlePhotoCapture no file', { reportPhotoFlowActive });
+
       reportPhotoFlowActive = false;
 
       touchReportDraft({ awaitingPhoto: false });
@@ -25998,6 +26282,10 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
 
     }
+
+    debugLog('PHOTO', 'handlePhotoCapture start', { size: file.size, type: file.type });
+
+    debugLog('REPORT', 'reportPhotoProcessing', { value: true, where: 'handlePhotoCapture' });
 
     reportPhotoProcessing = true;
 
@@ -26094,6 +26382,8 @@ document.addEventListener('DOMContentLoaded', function () {
         touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
         advanceReportPhotoReady();
+
+        debugLog('PHOTO', 'handlePhotoCapture success', { w, h });
 
       };
 
@@ -26448,7 +26738,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       confirmPinAccuracyM = Number.isFinite(accuracyM) ? accuracyM : confirmPinAccuracyM;
 
-      if (Number.isFinite(accuracyM)) confirmPinProvisional = false;
+      if (Number.isFinite(accuracyM)) {
+
+        confirmPinProvisional = false;
+
+        debugLog('PIN', 'confirmPinProvisional', { value: false, reason: 'GPS accuracy' });
+
+      }
 
     }
 
@@ -26497,6 +26793,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function scheduleReportPinMapResize() {
 
     if (!reportPinMap) return;
+
+    debugLog('PIN', 'invalidateSize', { where: 'scheduleReportPinMapResize' });
 
     const run = () => {
 
@@ -26573,6 +26871,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function initReportPinPreview(lat, lng, accuracyM, userAdjusted) {
+
+    debugLog('PIN', 'initReportPinPreview', { lat, lng, accuracyM, userAdjusted, provisional: confirmPinProvisional });
 
     if (typeof L === 'undefined') return;
 
@@ -26716,6 +27016,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       confirmPinProvisional = true;
 
+      debugLog('PIN', 'confirmPinProvisional', { value: true, reason: 'no GPS yet' });
+
       initReportPinPreview(center[0], center[1], null, false);
 
       confirmPinProvisional = true;
@@ -26746,6 +27048,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const token = ++reportPinSeedToken;
 
+    debugLog('PIN', 'GPS refine start', { token });
+
     getPrecisePosition({
 
       fresh: true,
@@ -26766,6 +27070,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setReportPinMapLoading(false);
 
+      debugLog('PIN', 'GPS refine settle', {
+
+        lat: pos.coords.latitude,
+
+        lng: pos.coords.longitude,
+
+        accuracy: pos.coords.accuracy,
+
+      });
+
       initReportPinPreview(
 
         pos.coords.latitude,
@@ -26783,6 +27097,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (token !== reportPinSeedToken) return;
 
       if (confirmPinUserAdjusted) return;
+
+      debugLog('PIN', 'GPS refine fail', { token });
 
       setReportPinMapLoading(false);
 
@@ -27229,6 +27545,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+    debugLog('MODAL', 'lastReportId', { value: report.id, where: 'submitReport' });
+
     lastReportId = report.id;
 
     try { safeLocalSet(FIRST_REPORT_DONE_KEY, '1'); } catch {}
@@ -27657,6 +27975,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function dismissSuccessModal() {
 
+    debugLog('MODAL', 'dismissSuccessModal', { lastReportId });
+
     if (!overlays.success || !overlays.success.classList.contains('open')) return;
 
     const reportId = lastReportId;
@@ -27714,6 +28034,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Prevent a later success dismiss / stale id from re-firing the neighbour share nudge
     // while the user is already starting another report.
+    debugLog('MODAL', 'lastReportId', { value: null, where: 'dismissSuccessModal' });
+
     lastReportId = null;
 
   }
@@ -36499,11 +36821,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const reloadOnce = () => {
 
+      debugLog('SW', 'controllerchange', { reloaded, pendingSwReload });
+
       if (reloaded) return;
 
       if (reportBlocksSwReload()) {
 
         pendingSwReload = true;
+
+        debugLog('SW', 'reload blocked', { reason: 'report flow active' });
 
         return;
 
@@ -36512,6 +36838,8 @@ document.addEventListener('DOMContentLoaded', function () {
       reloaded = true;
 
       pendingSwReload = false;
+
+      debugLog('SW', 'reload executing', {});
 
       window.location.reload();
 
@@ -36549,6 +36877,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         reg.addEventListener('updatefound', () => {
 
+          debugLog('SW', 'updatefound', {});
+
           const installing = reg.installing;
 
           if (!installing) return;
@@ -36556,6 +36886,8 @@ document.addEventListener('DOMContentLoaded', function () {
           installing.addEventListener('statechange', () => {
 
             if (installing.state !== 'installed') return;
+
+            debugLog('SW', 'update installed', { hadController: !!navigator.serviceWorker.controller });
 
             // First install: no controller yet — skip "update available" toast.
             if (!navigator.serviceWorker.controller) return;
