@@ -2625,7 +2625,8 @@ body.pwa-nudge-visible #btnCamera {
 }
 
 .success-icon--cert {
-  background: var(--grad-brand);
+  /* Level accent set via --cert-badge in showCertificateModal; fallback brand */
+  background: var(--cert-badge, var(--grad-brand));
 }
 
 .map-empty-cta__encourage {
@@ -7023,5 +7024,178 @@ a,
   white-space: pre-wrap;
   word-break: break-word;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Before/after compare slider (resolved proof) — v193 */
+.ba-slider {
+  width: 100%;
+  margin: 8px 0 4px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.ba-slider__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-main, #f8fafc);
+  box-shadow: var(--shadow-sm);
+}
+
+.ba-slider__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
+}
+
+.ba-slider__before-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.ba-slider__divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ba-slider__handle {
+  position: absolute;
+  top: 50%;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  margin-left: calc(var(--touch-min) / -2);
+  margin-top: calc(var(--touch-min) / -2);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: var(--success);
+  box-shadow: var(--shadow-md);
+  z-index: 3;
+  cursor: ew-resize;
+  padding: 0;
+  touch-action: none;
+}
+
+.ba-slider__handle::before,
+.ba-slider__handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  transform: translateY(-50%);
+}
+
+.ba-slider__handle::before {
+  left: 10px;
+  border-width: 5px 6px 5px 0;
+  border-color: transparent #fff transparent transparent;
+}
+
+.ba-slider__handle::after {
+  right: 10px;
+  border-width: 5px 0 5px 6px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.ba-slider__tag {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(15, 23, 42, 0.55);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+.ba-slider__tag--before { left: 8px; }
+.ba-slider__tag--after { right: 8px; }
+
+.share-win-proof--slider {
+  display: block;
+  grid-template-columns: none;
+}
+
+.popup__ba {
+  margin: 8px 0 4px;
+  min-width: 200px;
+}
+
+.map-popup .ba-slider__frame {
+  aspect-ratio: 16 / 10;
+  max-height: 160px;
+}
+
+/* Level-up certificate ceremony — v193 */
+.success-icon--cert {
+  width: 72px;
+  height: 72px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--cert-badge, var(--primary));
+  box-shadow: var(--shadow-md);
+}
+
+.success-icon--cert.cert-badge--pop {
+  animation: cert-badge-pop 0.55s var(--ease-spring) both;
+}
+
+.certificate-preview {
+  margin: 8px 0 14px;
+}
+
+.certificate-preview__img {
+  max-height: 260px;
+}
+
+.cert-actions--reveal {
+  animation: cert-fade-in 0.28s ease both;
+}
+
+@keyframes cert-badge-pop {
+  0% { transform: scale(0.55); opacity: 0.4; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes cert-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon--cert.cert-badge--pop,
+  .cert-actions--reveal {
+    animation: none !important;
+  }
 }
 

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v192';
+  const CIVIC_APP_VERSION = 'v193';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2901,6 +2901,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'shareWin.footerMsg': 'I helped clean up {location} using {app}!',
 
       'shareWin.fixedLabel': 'Fixed',
+      'shareWin.stampFixed': 'FIXED',
+
+      'ba.dragHint': 'Drag to compare before and after',
+
+      'ba.before': 'Before',
+
+      'ba.after': 'After',
+
 
       'shareWin.aspectSquare': 'Square',
 
@@ -5254,6 +5262,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'shareWin.footerMsg': 'मैंने {app} से {location} साफ करने में मदद की!',
 
       'shareWin.fixedLabel': 'ठीक',
+      'shareWin.stampFixed': 'ठीक',
+
+      'ba.dragHint': 'पहले और बाद की तुलना के लिए खींचें',
+
+      'ba.before': 'पहले',
+
+      'ba.after': 'बाद',
+
 
       'shareWin.aspectSquare': 'वर्ग',
 
@@ -7608,6 +7624,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'shareWin.footerMsg': 'मी {app} वापरून {location} स्वच्छ केले!',
 
       'shareWin.fixedLabel': 'ठीक',
+      'shareWin.stampFixed': 'ठीक',
+
+      'ba.dragHint': 'आधी आणि नंतर तुलना करण्यासाठी ओढा',
+
+      'ba.before': 'आधी',
+
+      'ba.after': 'नंतर',
+
 
       'shareWin.aspectSquare': 'चौरस',
 
@@ -9962,6 +9986,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'shareWin.footerMsg': 'મેં {app} વડે {location} સાફ કરવામાં મદદ કરી!',
 
       'shareWin.fixedLabel': 'ઠીક',
+      'shareWin.stampFixed': 'ઠીક',
+
+      'ba.dragHint': 'પહેલાં અને પછી સરખાવવા ખેંચો',
+
+      'ba.before': 'પહેલાં',
+
+      'ba.after': 'પછી',
+
 
       'shareWin.aspectSquare': 'ચોરસ',
 
@@ -24339,6 +24371,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       : '';
 
+    const hasBeforeImg = isSafeReportImage(report.image);
+
+    const hasAfterImg = isSafeReportImage(report.resolutionImage);
+
+    const proofSlider = (report.status === 'resolved' && hasBeforeImg && hasAfterImg)
+
+      ? `<div class="popup__ba">${buildBeforeAfterSliderHtml(report.image, report.resolutionImage)}</div>`
+
+      : '';
+
+
     return `
 
       <div class="map-popup">
@@ -24350,6 +24393,8 @@ document.addEventListener('DOMContentLoaded', function () {
         ${societyLine}
 
         ${notesLine}
+
+        ${proofSlider}
 
         ${clearedLine}
 
@@ -24460,6 +24505,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     marker.bindPopup(buildReportPopup(report));
+
+    marker.on('popupopen', () => {
+
+      const el = marker.getPopup() && marker.getPopup().getElement();
+
+      if (el) bindBeforeAfterSliders(el);
+
+    });
 
 
 
@@ -29673,6 +29726,100 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  const CERT_LEVEL_BADGE = {
+    observer: { ring: '#64748b', fill: '#94a3b8', glow: '#cbd5e1' },
+    wardWatcher: { ring: '#4f46e5', fill: '#6366f1', glow: '#a5b4fc' },
+    neighbourhoodVoice: { ring: '#0e7490', fill: '#0891b2', glow: '#67e8f8' },
+    civicChampion: { ring: '#b45309', fill: '#d97706', glow: '#fcd34d' },
+    monsoonGuardian: { ring: '#047857', fill: '#059669', glow: '#6ee7b7' },
+    communityLeader: { ring: '#a16207', fill: '#ca8a04', glow: '#fde68a' },
+  };
+
+  function buildBeforeAfterSliderHtml(beforeSrc, afterSrc) {
+    const hint = escapeHtml(t('ba.dragHint'));
+    const beforeLabel = escapeHtml(t('ba.before'));
+    const afterLabel = escapeHtml(t('ba.after'));
+    return `
+      <div class="ba-slider" role="group" aria-label="${hint}">
+        <div class="ba-slider__frame">
+          <img class="ba-slider__img ba-slider__img--after" src="${afterSrc}" alt="${afterLabel}" draggable="false">
+          <div class="ba-slider__before-wrap" style="clip-path: inset(0 50% 0 0)">
+            <img class="ba-slider__img ba-slider__img--before" src="${beforeSrc}" alt="${beforeLabel}" draggable="false">
+          </div>
+          <div class="ba-slider__divider" style="left: 50%" aria-hidden="true"></div>
+          <button type="button" class="ba-slider__handle" style="left: 50%" aria-label="${hint}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" role="slider"></button>
+          <span class="ba-slider__tag ba-slider__tag--before">${beforeLabel}</span>
+          <span class="ba-slider__tag ba-slider__tag--after">${afterLabel}</span>
+        </div>
+      </div>`;
+  }
+
+  function bindBeforeAfterSliders(root) {
+    if (!root) return;
+    const scopes = root.classList && root.classList.contains('ba-slider')
+      ? [root]
+      : Array.from(root.querySelectorAll('.ba-slider'));
+    scopes.forEach((slider) => {
+      if (slider.dataset.baBound === '1') return;
+      slider.dataset.baBound = '1';
+      const wrap = slider.querySelector('.ba-slider__before-wrap');
+      const divider = slider.querySelector('.ba-slider__divider');
+      const handle = slider.querySelector('.ba-slider__handle');
+      const frame = slider.querySelector('.ba-slider__frame');
+      if (!wrap || !handle || !frame) return;
+
+      const setPos = (pct) => {
+        const p = Math.max(2, Math.min(98, pct));
+        const right = 100 - p;
+        wrap.style.clipPath = 'inset(0 ' + right + '% 0 0)';
+        if (divider) divider.style.left = p + '%';
+        handle.style.left = p + '%';
+        handle.setAttribute('aria-valuenow', String(Math.round(p)));
+      };
+
+      const posFromEvent = (ev) => {
+        const rect = frame.getBoundingClientRect();
+        const clientX = (ev.touches && ev.touches[0] ? ev.touches[0].clientX : ev.clientX);
+        if (!rect.width) return 50;
+        return ((clientX - rect.left) / rect.width) * 100;
+      };
+
+      let dragging = false;
+      const onMove = (ev) => {
+        if (!dragging) return;
+        if (ev.cancelable) ev.preventDefault();
+        setPos(posFromEvent(ev));
+      };
+      const onUp = () => {
+        dragging = false;
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onUp);
+      };
+      const onDown = (ev) => {
+        dragging = true;
+        setPos(posFromEvent(ev));
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onUp);
+      };
+      handle.addEventListener('pointerdown', onDown);
+      frame.addEventListener('pointerdown', (ev) => {
+        if (ev.target === handle) return;
+        onDown(ev);
+      });
+      handle.addEventListener('keydown', (ev) => {
+        const cur = Number(handle.getAttribute('aria-valuenow') || 50);
+        if (ev.key === 'ArrowLeft') { ev.preventDefault(); setPos(cur - 5); }
+        if (ev.key === 'ArrowRight') { ev.preventDefault(); setPos(cur + 5); }
+        if (ev.key === 'Home') { ev.preventDefault(); setPos(2); }
+        if (ev.key === 'End') { ev.preventDefault(); setPos(98); }
+      });
+    });
+  }
+
   async function generateCertificateCanvas(levelId) {
 
     const W = 1080;
@@ -29697,21 +29844,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
+    const badge = CERT_LEVEL_BADGE[levelId] || CERT_LEVEL_BADGE.observer;
+
 
 
     const grad = ctx.createLinearGradient(0, 0, W, H);
 
     if (dark) {
 
-      grad.addColorStop(0, '#1e1b4b');
+      grad.addColorStop(0, '#0f172a');
+
+      grad.addColorStop(0.55, '#1e293b');
 
       grad.addColorStop(1, '#0f172a');
 
     } else {
 
-      grad.addColorStop(0, '#eef2ff');
+      grad.addColorStop(0, '#f8fafc');
 
-      grad.addColorStop(1, '#faf5ff');
+      grad.addColorStop(0.5, '#eef2ff');
+
+      grad.addColorStop(1, '#f8fafc');
 
     }
 
@@ -29721,9 +29874,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    ctx.strokeStyle = dark ? '#6366f1' : '#4f46e5';
+    ctx.strokeStyle = dark ? badge.fill : badge.ring;
 
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 5;
 
     ctx.strokeRect(48, 48, W - 96, H - 96);
 
@@ -29731,53 +29884,118 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ctx.fillStyle = dark ? '#a5b4fc' : '#6366f1';
 
-    ctx.font = '700 48px Outfit, system-ui, sans-serif';
+    ctx.font = '700 44px Outfit, system-ui, sans-serif';
 
     ctx.textAlign = 'center';
 
-    ctx.fillText('CivicRadar', W / 2, 160);
-
-
-
-    ctx.fillStyle = dark ? '#c4b5fd' : '#7c3aed';
-
-    ctx.font = '600 36px Outfit, system-ui, sans-serif';
-
-    ctx.fillText(t('cert.cardHeading'), W / 2, 230);
-
-
-
-    ctx.fillStyle = dark ? '#f8fafc' : '#0f172a';
-
-    ctx.font = '700 72px Outfit, system-ui, sans-serif';
-
-    ctx.fillText(levelTitle, W / 2, 420);
-
-
-
-    ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
-
-    ctx.font = '500 40px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
-
-    ctx.fillText(t('cert.awarded').replace('{name}', name), W / 2, 540);
-
-
-
-    ctx.font = '500 36px Outfit, system-ui, sans-serif';
-
-    ctx.fillText(ward, W / 2, 620);
-
-
-
-    ctx.font = '500 32px Outfit, system-ui, sans-serif';
-
-    ctx.fillText(t('cert.date').replace('{date}', dateStr), W / 2, 700);
+    ctx.fillText('CivicRadar', W / 2, 140);
 
 
 
     ctx.fillStyle = dark ? '#94a3b8' : '#64748b';
 
-    ctx.font = '500 28px Outfit, system-ui, sans-serif';
+    ctx.font = '600 30px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.cardHeading'), W / 2, 196);
+
+
+
+    const cx = W / 2;
+
+    const cy = 390;
+
+    const r = 128;
+
+    const radial = ctx.createRadialGradient(cx - 36, cy - 40, 12, cx, cy, r);
+
+    radial.addColorStop(0, badge.glow);
+
+    radial.addColorStop(0.45, badge.fill);
+
+    radial.addColorStop(1, badge.ring);
+
+    ctx.beginPath();
+
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+
+    ctx.fillStyle = radial;
+
+    ctx.fill();
+
+    ctx.lineWidth = 10;
+
+    ctx.strokeStyle = dark ? 'rgba(248,250,252,0.35)' : 'rgba(255,255,255,0.85)';
+
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.arc(cx, cy, r - 22, 0, Math.PI * 2);
+
+    ctx.strokeStyle = dark ? 'rgba(15,23,42,0.35)' : 'rgba(15,23,42,0.12)';
+
+    ctx.lineWidth = 3;
+
+    ctx.stroke();
+
+    // Geometric medal mark (no emoji) — concentric ring + diamond
+    ctx.fillStyle = '#ffffff';
+
+    ctx.beginPath();
+
+    ctx.moveTo(cx, cy - 36);
+
+    ctx.lineTo(cx + 28, cy);
+
+    ctx.lineTo(cx, cy + 36);
+
+    ctx.lineTo(cx - 28, cy);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+
+    ctx.fillStyle = badge.ring;
+
+    ctx.fill();
+
+
+
+    ctx.fillStyle = dark ? '#f8fafc' : '#0f172a';
+
+    ctx.font = '700 64px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(levelTitle, W / 2, 580);
+
+
+
+    ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
+
+    ctx.font = '500 38px "Noto Sans Devanagari", Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.awarded').replace('{name}', name), W / 2, 680);
+
+
+
+    ctx.font = '500 34px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(ward, W / 2, 750);
+
+
+
+    ctx.font = '500 30px Outfit, system-ui, sans-serif';
+
+    ctx.fillText(t('cert.date').replace('{date}', dateStr), W / 2, 820);
+
+
+
+    ctx.fillStyle = dark ? '#94a3b8' : '#64748b';
+
+    ctx.font = '500 26px Outfit, system-ui, sans-serif';
 
     ctx.fillText(t('cert.tagline'), W / 2, H - 120);
 
@@ -29785,7 +30003,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
 
-    ctx.font = '500 24px Outfit, system-ui, sans-serif';
+    ctx.font = '500 22px Outfit, system-ui, sans-serif';
 
     ctx.fillText(location.origin + location.pathname, W / 2, H - 72);
 
@@ -29794,7 +30012,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return canvas;
 
   }
-
 
 
   async function ensureCertificateBlob() {
@@ -29849,14 +30066,101 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+
+
     // Certificate replaces the success modal — leaving both open blocks clicks on success controls.
+
     closeModal('success');
+
+
+
+    const modal = $('#certificateModal');
+
+    const icon = modal && modal.querySelector('.success-icon--cert');
+
+    const previewWrap = $('#certificatePreviewWrap');
+
+    const previewImg = $('#certificateCardPreview');
+
+    const actions = modal && modal.querySelectorAll('.btn, .share-win-instagram');
+
+    const badge = CERT_LEVEL_BADGE[levelId] || CERT_LEVEL_BADGE.observer;
+
+
+
+    if (icon) {
+
+      icon.style.setProperty('--cert-badge', badge.fill);
+
+      icon.classList.remove('cert-badge--pop');
+
+    }
+
+
+
+    if (previewWrap) previewWrap.hidden = true;
+
+    if (previewImg) previewImg.removeAttribute('src');
+
+
+
+    if (actions) actions.forEach((el) => { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
+
+
 
     openModal('certificate');
 
-    launchConfetti({ intensity: 'epic' });
 
-    playCelebrationChime();
+
+    const revealCard = async () => {
+
+      if (icon) icon.classList.add('cert-badge--pop');
+
+      try {
+
+        const canvas = await generateCertificateCanvas(levelId);
+
+        if (previewImg) previewImg.src = canvas.toDataURL('image/png', 0.92);
+
+        if (previewWrap) previewWrap.hidden = false;
+
+      } catch { /* preview optional */ }
+
+
+
+      if (actions) {
+
+        actions.forEach((el) => {
+
+          el.style.opacity = '';
+
+          el.style.pointerEvents = '';
+
+          if (!prefersReducedMotion()) el.classList.add('cert-actions--reveal');
+
+        });
+
+      }
+
+    };
+
+
+
+    if (prefersReducedMotion()) {
+
+      revealCard();
+
+    } else {
+
+      launchConfetti({ intensity: 'epic' });
+
+      setTimeout(() => playCelebrationChime(), 180);
+
+      setTimeout(() => { revealCard(); }, 700);
+
+    }
+
+
 
     if (window.CivicAnalytics) {
 
@@ -29864,8 +30168,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-  }
 
+
+  }
 
 
   async function downloadCertificate() {
@@ -30088,6 +30393,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+
+
+    // Diagonal FIXED stamp on after-photo corner (shareable win card)
+
+    {
+
+      const stamp = (t('shareWin.stampFixed') || fixedLabel || 'FIXED').toString();
+
+      ctx.save();
+
+      ctx.font = '800 36px Outfit, "Noto Sans Devanagari", system-ui, sans-serif';
+
+      const padX = 18;
+
+      const bw = ctx.measureText(stamp).width + padX * 2;
+
+      const bh = 44;
+
+      const sx = rightX + imgW - 24 - bw * 0.15;
+
+      const sy = imgY + 52;
+
+      ctx.translate(sx, sy);
+
+      ctx.rotate(-12 * Math.PI / 180);
+
+      ctx.globalAlpha = 0.88;
+
+      ctx.fillStyle = dark ? 'rgba(16, 185, 129, 0.28)' : 'rgba(16, 185, 129, 0.32)';
+
+      ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+
+      ctx.strokeStyle = '#059669';
+
+      ctx.lineWidth = 3;
+
+      ctx.strokeRect(-bw / 2, -bh / 2, bw, bh);
+
+      ctx.globalAlpha = 0.95;
+
+      ctx.fillStyle = '#047857';
+
+      ctx.textAlign = 'center';
+
+      ctx.textBaseline = 'middle';
+
+      ctx.fillText(stamp, 0, 1);
+
+      ctx.restore();
+
+      ctx.textAlign = 'left';
+
+      ctx.textBaseline = 'alphabetic';
+
+    }
 
 
     const footerY = imgY + imgH + (isStory ? 72 : 56);
@@ -30470,9 +30830,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const hasAfter = isSafeReportImage(report.resolutionImage);
 
-      if (hasBefore || hasAfter) {
+      if (hasBefore && hasAfter) {
 
         proof.hidden = false;
+
+        proof.classList.add('share-win-proof--slider');
+
+        proof.innerHTML = buildBeforeAfterSliderHtml(report.image, report.resolutionImage);
+
+        bindBeforeAfterSliders(proof);
+
+      } else if (hasBefore || hasAfter) {
+
+        proof.hidden = false;
+
+        proof.classList.remove('share-win-proof--slider');
 
         proof.innerHTML = `
 
@@ -30496,10 +30868,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         proof.hidden = true;
 
+        proof.classList.remove('share-win-proof--slider');
+
         proof.innerHTML = '';
 
       }
-
     }
 
 

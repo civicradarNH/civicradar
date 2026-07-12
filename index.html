@@ -582,11 +582,14 @@
     <div class="modal" id="certificateModal" role="dialog" aria-labelledby="certificateTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="certificate" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <div class="success-icon success-icon--cert">
+      <div class="success-icon success-icon--cert" aria-hidden="true">
         <i class="ph ph-medal"></i>
       </div>
       <h2 id="certificateTitle" data-i18n="cert.title">Certificate unlocked!</h2>
       <p class="modal__subtitle" id="certificateSubtitle" data-i18n="cert.subtitle">You reached a new Civic Hero level</p>
+      <div class="share-win-preview certificate-preview" id="certificatePreviewWrap" hidden>
+        <img id="certificateCardPreview" class="share-win-preview__img certificate-preview__img" alt="">
+      </div>
       <button type="button" class="btn btn--whatsapp btn--full" id="btnCertWhatsApp">
         <i class="ph ph-whatsapp-logo"></i> <span data-i18n="cert.whatsapp">Share on WhatsApp</span>
       </button>
