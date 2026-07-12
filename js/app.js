@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v177';
+  const CIVIC_APP_VERSION = 'v178';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -27008,9 +27008,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       closeModal('report');
 
+      // Preserve photo for success thumbnail — resetReportForm clears lastReportDataUrl.
+      const photoPreview = lastReportDataUrl;
+
       resetReportForm();
 
       clearReportDraft();
+
+      lastReportDataUrl = photoPreview;
 
       showSuccessModal(weekBonus);
 
@@ -27381,11 +27386,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const thumb = $('#successThumbnail');
 
-    if (lastReportDataUrl) {
+    if (thumb) {
 
-      thumb.src = lastReportDataUrl;
+      if (lastReportDataUrl) {
 
-      thumb.hidden = false;
+        thumb.src = lastReportDataUrl;
+
+        thumb.hidden = false;
+
+      } else {
+
+        thumb.removeAttribute('src');
+
+        thumb.hidden = true;
+
+      }
 
     }
 

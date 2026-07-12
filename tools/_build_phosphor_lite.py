@@ -62,6 +62,9 @@ def minify_svg(svg: str) -> str:
     svg = re.sub(r"<!--.*?-->", "", svg, flags=re.DOTALL)
     svg = re.sub(r">\s+<", "><", svg)
     svg = re.sub(r"\s+", " ", svg)
+    # Opaque black fill so CSS masks work when currentColor is undefined in SVG docs
+    svg = svg.replace('fill="currentColor"', 'fill="black"')
+    svg = svg.replace("fill='currentColor'", "fill='black'")
     return svg.strip()
 
 
