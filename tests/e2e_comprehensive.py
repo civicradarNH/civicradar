@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 
-"""CivicRadar comprehensive E2E test suite (200+ scenarios)."""
+"""CivicRadar comprehensive E2E test suite (200+ scenarios).
+
+Two-layer test system (see also tools/invariant-lint.js + tests/civicradar.spec.js):
+  1. Structural lint (fast, zero-dep): node tools/invariant-lint.js .
+  2. This file — CI deploy gate via .github/workflows/deploy-pages.yml (--smoke on push).
+  3. JS Playwright smoke (dev): npm run test:playwright — focused regressions, not CI yet.
+
+Prefer extending this suite for new CI coverage; use civicradar.spec.js for tight
+ship-glitch guards (photo hang, scroll trap, console errors) during development.
+"""
 
 import argparse
 import asyncio
@@ -3719,7 +3728,143 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
+    # RP27 — Leaflet pin map must have real size after photo→confirm (not blank gray)
+
+    await page_rp24.evaluate('() => window.openReportModal(false)')
+
+    await inject_photo(page_rp24)
+
+    await page_rp24.wait_for_timeout(700)
+
+    pin_leaflet = await page_rp24.evaluate(
+
+        """() => {
+
+          const mapEl = document.getElementById('reportPinMap');
+
+          if (!mapEl) return { ok: false, reason: 'no-host' };
+
+          const leaf = mapEl.querySelector('.leaflet-container');
+
+          const rect = leaf ? leaf.getBoundingClientRect() : null;
+
+          const sized = !!(rect && rect.width >= 80 && rect.height >= 80);
+
+          window.syncReportPhotoReturn && window.syncReportPhotoReturn();
+
+          const confirm = document.getElementById('reportStepConfirm');
+
+          const overlay = document.getElementById('reportOverlay');
+
+          const modal = document.getElementById('reportModal');
+
+          const confirmOk = !!(overlay && overlay.classList.contains('open')
+
+            && confirm && !confirm.hidden
+
+            && modal && modal.classList.contains('report-modal--confirm'));
+
+          return { ok: sized && confirmOk, sized, confirmOk, w: rect && rect.width, h: rect && rect.height };
+
+        }"""
+
+    )
+
+    s.record(
+
+        'RP27',
+
+        'Report',
+
+        'Photo→confirm pin map Leaflet sized + sync keeps confirm',
+
+        bool(pin_leaflet.get('ok')),
+
+        str(pin_leaflet),
+
+    )
+
     await ctx_rp24.close()
+
+    # RP28 — neighbour share nudge must not appear while report sheet is open
+
+    ctx_rp28 = await new_ctx(
+
+        browser,
+
+        lat=19.0760,
+
+        lng=72.8777,
+
+        storage={
+
+            'civicradar_user': default_user(id='rp28'),
+
+            'civicradar_coach_seen': '1',
+
+            'civicradar_report_geo_explainer': '1',
+
+        },
+
+    )
+
+    page_rp28 = await ctx_rp28.new_page()
+
+    await goto_app(page_rp28, wait_map=True)
+
+    await submit_report_via_api(page_rp28, 19.0760, 72.8777, 'nudge timing seed')
+
+    await page_rp28.wait_for_function(
+
+        '() => document.getElementById("successOverlay")?.classList.contains("open")',
+
+        timeout=8000,
+
+    )
+
+    await js_click(page_rp28, '#btnSuccessClose')
+
+    await page_rp28.evaluate('() => window.openReportModal(false)')
+
+    await page_rp28.wait_for_timeout(700)
+
+    nudge_blocked = await page_rp28.evaluate(
+
+        """() => {
+
+          const overlayOpen = document.getElementById('reportOverlay')?.classList.contains('open');
+
+          const texts = Array.from(document.querySelectorAll('#toastContainer .toast span'))
+
+            .map((el) => (el.textContent || '').toLowerCase());
+
+          const hasNudge = texts.some((t) =>
+
+            t.includes('may not know') || t.includes('पड़ोसियों को अभी') || t.includes('माहीत नसेल') || t.includes('ખબર ન હોય')
+
+          );
+
+          return { ok: !!overlayOpen && !hasNudge, overlayOpen, hasNudge, texts };
+
+        }"""
+
+    )
+
+    s.record(
+
+        'RP28',
+
+        'Report',
+
+        'Share nudge suppressed while report modal open',
+
+        bool(nudge_blocked.get('ok')),
+
+        str(nudge_blocked),
+
+    )
+
+    await ctx_rp28.close()
 
     # First report: kudos line + progress nudge both shown and non-empty (reuse main extended page).
 
@@ -4976,7 +5121,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v188" in sw_src
+        "civicradar-v189" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -8077,7 +8222,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v188" in sw_src
+        "civicradar-v189" in sw_src
 
         and "'/index.html'" not in sw_src
 

@@ -6574,6 +6574,35 @@ a,
   background: var(--canvas);
   /* Confine map gestures to the mini-map; parent sheet uses touch-action: pan-y. */
   touch-action: none;
+  position: relative;
+}
+
+.report-pin-map--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    rgba(248, 250, 252, 0.15) 0%,
+    rgba(248, 250, 252, 0.55) 45%,
+    rgba(248, 250, 252, 0.15) 90%
+  );
+  background-size: 200% 100%;
+  animation: report-pin-shimmer 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-pin-map--loading::after {
+    animation: none;
+    background: rgba(248, 250, 252, 0.35);
+  }
+}
+
+@keyframes report-pin-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .report-pin-map .leaflet-container {

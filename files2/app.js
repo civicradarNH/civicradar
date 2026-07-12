@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v189';
+  const CIVIC_APP_VERSION = 'v187';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -446,8 +446,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let reportCameraTimer = null;
 
-  let reportPhotoWatchdogTimer = null;
-
   let reportPhotoDismissGuard = 0;
 
   let reportManualPinDismiss = false;
@@ -470,8 +468,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let confirmPinUserAdjusted = false;
 
-  let confirmPinProvisional = false;
-
   let reportPinMap = null;
 
   let reportPinMarker = null;
@@ -485,10 +481,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let appHiddenAt = 0;
 
   let skipReportDraftRestoreOnce = false;
-
-  let shareNudgeTimer = null;
-
-  let pendingSwReload = false;
 
   // Ghost taps / popstate after native camera can dismiss the report sheet — guard longer.
 
@@ -2704,10 +2696,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pwa.nudgeDismiss': 'Not now',
 
-      'update.available': 'A new version of CivicRadar is ready.',
-
-      'update.reload': 'Reload',
-
       'iosInstall.title': 'Install on iPhone',
 
       'iosInstall.hint': 'Same app as Android — no App Store needed. Open in Safari if needed, then Share → Add to Home Screen.',
@@ -4064,8 +4052,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoLoginFail': 'Invalid coordinator credentials.',
 
       'toast.photoRequired': 'Add a photo before submitting.',
-
-      'toast.photoFailed': 'Couldn\'t use that photo — try again.',
+      'toast.photoFailed': 'Could not read that photo. Please try taking it again.',
 
       'toast.gpsRequired': 'GPS is required to pin the hazard.',
 
@@ -5046,10 +5033,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'होम स्क्रीन पर जोड़ें',
 
       'pwa.nudgeDismiss': 'अभी नहीं',
-
-      'update.available': 'CivicRadar का नया संस्करण तैयार है।',
-
-      'update.reload': 'फिर से लोड करें',
 
       'iosInstall.title': 'iPhone पर इंस्टॉल करें',
 
@@ -6407,8 +6390,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoLoginFail': 'गलत समन्वयक क्रेडेंशियल।',
 
       'toast.photoRequired': 'भेजने से पहले फ़ोटो जोड़ें।',
-
-      'toast.photoFailed': 'वह फ़ोटो इस्तेमाल नहीं हो सकी — फिर कोशिश करें।',
+      'toast.photoFailed': 'यह फोटो पढ़ी नहीं जा सकी। कृपया फिर से लें।',
 
       'toast.gpsRequired': 'खतरा पिन के लिए GPS ज़रूरी।',
 
@@ -7388,10 +7370,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'होम स्क्रीनवर जोडा',
 
       'pwa.nudgeDismiss': 'आत्ता नाही',
-
-      'update.available': 'CivicRadar ची नवी आवृत्ती तयार आहे.',
-
-      'update.reload': 'पुन्हा लोड करा',
 
       'iosInstall.title': 'iPhone वर इंस्टॉल करा',
 
@@ -8749,8 +8727,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoLoginFail': 'चुकीची समन्वयक ओळखपत्रे.',
 
       'toast.photoRequired': 'पाठवण्यापूर्वी फोटो जोडा.',
-
-      'toast.photoFailed': 'तो फोटो वापरता आला नाही — पुन्हा प्रयत्न करा.',
+      'toast.photoFailed': 'हा फोटो वाचता आला नाही. कृपया पुन्हा घ्या.',
 
       'toast.gpsRequired': 'धोका पिनसाठी GPS आवश्यक.',
 
@@ -9730,10 +9707,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'pwa.nudgeAction': 'હોમ સ્ક્રીન પર ઉમેરો',
 
       'pwa.nudgeDismiss': 'હમણાં નહીં',
-
-      'update.available': 'CivicRadar ની નવી આવૃત્તિ તૈયાર છે.',
-
-      'update.reload': 'ફરી લોડ કરો',
 
       'iosInstall.title': 'iPhone પર ઇન્સ્ટોલ કરો',
 
@@ -11091,8 +11064,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.ngoLoginFail': 'ખોટા સંકલક ક્રેડેન્શિયલ.',
 
       'toast.photoRequired': 'મોકલતા પહેલાં ફોટો ઉમેરો.',
-
-      'toast.photoFailed': 'તે ફોટો વાપરી શકાયો નહીં — ફરી પ્રયાસ કરો.',
+      'toast.photoFailed': 'આ ફોટો વાંચી શકાયો નહીં. કૃપા કરીને ફરી લો.',
 
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
@@ -14465,6 +14437,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (file.size > 8 * 1024 * 1024) { reject(new Error('too_big')); return; }
 
       const reader = new FileReader();
+
+      reader.onerror = () => reject(new Error('read_failed'));
 
       reader.onload = () => {
 
@@ -21226,9 +21200,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     resetSubmitReportButton();
 
-    // Open first so the confirm pin map has a non-zero container when Leaflet inits.
-    openModal('report');
-
     if (hasReportPhotoPreview()) {
 
       showPhotoConfirm();
@@ -21236,8 +21207,6 @@ document.addEventListener('DOMContentLoaded', function () {
       updateReportFlowSteps('confirm');
 
       touchReportDraft({ step: 'confirm', awaitingPhoto: false });
-
-      scheduleReportPinMapResize();
 
     } else {
 
@@ -21255,6 +21224,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    openModal('report');
+
     return true;
 
   }
@@ -21268,19 +21239,6 @@ document.addEventListener('DOMContentLoaded', function () {
       || isReportDraftAwaitingPhoto()
 
       || (Date.now() - reportPhotoDismissGuard < PHOTO_RETURN_GUARD_MS);
-
-  }
-
-
-
-  /** True while mid-report (camera, confirm, or draft) — suppress unrelated toasts/reloads. */
-  function isReportFlowBusy() {
-
-    if (isReportPhotoPickerActive() || isReportDraftAwaitingPhoto()) return true;
-
-    if (overlays.report && overlays.report.classList.contains('open')) return true;
-
-    return false;
 
   }
 
@@ -21306,11 +21264,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function syncReportPhotoReturn() {
 
-    const fromCameraFlow = reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto();
+    const fromCameraFlow = reportPhotoFlowActive || reportPhotoProcessing;
 
     ensureReportModalOpen();
-
-    reportPhotoDismissGuard = Date.now();
 
     if (hasReportPhotoPreview()) {
 
@@ -21320,19 +21276,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       finishReportPhotoFlow();
 
-      touchReportDraft({ step: 'confirm', awaitingPhoto: false });
-
-      scheduleReportPinMapResize();
-
-    } else if (fromCameraFlow || reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
+    } else if (reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
 
       updateReportFlowSteps('capture');
 
-      if (!reportPhotoFlowActive) reportPhotoFlowActive = true;
-
-      touchReportDraft({ step: 'capture', awaitingPhoto: true });
+      if (!reportPhotoFlowActive && isReportDraftAwaitingPhoto()) reportPhotoFlowActive = true;
 
     }
+
+    if (fromCameraFlow) reportPhotoDismissGuard = Date.now();
 
   }
 
@@ -21340,95 +21292,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function finishReportPhotoFlow() {
 
+    // Success path — cancel the capture watchdog.
+    clearTimeout(handlePhotoCapture.__watchdog);
+
     reportPhotoFlowActive = false;
 
     reportPhotoProcessing = false;
-
-    if (reportPhotoWatchdogTimer) {
-
-      clearTimeout(reportPhotoWatchdogTimer);
-
-      reportPhotoWatchdogTimer = null;
-
-    }
-
-  }
-
-
-
-  function failReportPhotoCapture() {
-
-    finishReportPhotoFlow();
-
-    setPhotoScanning(false);
-
-    touchReportDraft({ step: 'capture', awaitingPhoto: false });
-
-    try { $('#photoInput').value = ''; } catch { /* ignore */ }
-
-    ensureReportModalOpen();
-
-    updateReportFlowSteps('capture');
-
-    showToast(t('toast.photoFailed'), 'error');
-
-  }
-
-
-
-  function armReportPhotoWatchdog() {
-
-    if (reportPhotoWatchdogTimer) clearTimeout(reportPhotoWatchdogTimer);
-
-    reportPhotoWatchdogTimer = setTimeout(() => {
-
-      reportPhotoWatchdogTimer = null;
-
-      if (!reportPhotoProcessing && !reportPhotoFlowActive) return;
-
-      if (hasReportPhotoPreview()) {
-
-        finishReportPhotoFlow();
-
-        return;
-
-      }
-
-      failReportPhotoCapture();
-
-    }, 15000);
-
-  }
-
-
-
-  function cancelPendingShareNudge() {
-
-    if (shareNudgeTimer) {
-
-      clearTimeout(shareNudgeTimer);
-
-      shareNudgeTimer = null;
-
-    }
-
-  }
-
-
-
-  function flushPendingSwReload() {
-
-    if (!pendingSwReload) return;
-
-    if (isReportFlowBusy()) return;
-
-    pendingSwReload = false;
-
-    try {
-
-      window.location.reload();
-
-    } catch { /* ignore */ }
 
   }
 
@@ -21525,9 +21394,6 @@ document.addEventListener('DOMContentLoaded', function () {
         reportCameraTimer = null;
 
       }
-
-      // Allow deferred SW reload after mid-report camera/update race.
-      setTimeout(flushPendingSwReload, 0);
 
     }
 
@@ -21788,11 +21654,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isValidGpsCoords(lat, lng)) return false;
 
-    confirmPinProvisional = false;
-
     initReportPinPreview(lat, lng, Number.isFinite(accuracyM) ? accuracyM : 5, userAdjusted !== false);
 
-    return confirmPinLat != null && confirmPinLng != null && !confirmPinProvisional;
+    return confirmPinLat != null && confirmPinLng != null;
 
   };
 
@@ -21887,8 +21751,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
 
     }
-
-    cancelPendingShareNudge();
 
     if (tourState) endTour(false);
 
@@ -22837,10 +22699,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (isReportPhotoPickerActive() || hasReportPhotoPreview()) syncReportPhotoReturn();
 
-      flushPendingSwReload();
-
-      // Do not interrupt mid-report with neighbour/unfiled reminders (camera return).
-      if (!shouldDeferFirstRunNudges() && !isReportFlowBusy()) setTimeout(maybeShowReportReminder, 400);
+      if (!shouldDeferFirstRunNudges()) setTimeout(maybeShowReportReminder, 400);
 
     } else if (document.visibilityState === 'hidden') {
 
@@ -25579,21 +25438,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Android hardware back / browser back: close main sheets instead of leaving the TWA.
 
-    // Camera return pops history — keep the sheet open only while the photo picker is active
-
-    // (or within the dismiss guard). A photo already on confirm must NOT block normal back.
+    // Returning from the native camera also pops history — keep the report sheet open.
 
     window.addEventListener('popstate', () => {
 
-      const photoReturn = isReportPhotoPickerActive()
+      if (isReportPhotoPickerActive() || hasReportPhotoPreview()) {
 
-        || (hasReportPhotoPreview() && Date.now() - reportPhotoDismissGuard < PHOTO_RETURN_GUARD_MS);
-
-      if (photoReturn) {
+        reportPhotoFlowActive = false;
 
         syncReportPhotoReturn();
-
-        if (overlays.report?.classList.contains('open')) pushNavModalHistory();
 
         return;
 
@@ -25945,8 +25798,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     prepareConfirmPin();
 
-    scheduleReportPinMapResize();
-
   }
 
 
@@ -26001,9 +25852,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPhotoProcessing = true;
 
-    armReportPhotoWatchdog();
-
     ensureReportModalOpen();
+
+    // BUGFIX (capture sometimes never returns to the confirm screen):
+    // reportPhotoProcessing gates isReportPhotoPickerActive(). Failure paths
+    // (FileReader error, decode error, a throw in the async scan) previously
+    // left it stuck `true`, so the app believed the camera was still open and
+    // never advanced. Watchdog guarantees the flag is always released.
+    clearTimeout(handlePhotoCapture.__watchdog);
+    handlePhotoCapture.__watchdog = setTimeout(() => {
+      if (!reportPhotoProcessing) return;
+      reportPhotoProcessing = false;
+      reportPhotoFlowActive = false;
+      showToast(t('toast.photoFailed'), 'error', 4000);
+      try { syncReportPhotoReturn(); } catch { /* ignore */ }
+    }, 15000);
 
 
 
@@ -26025,15 +25888,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const reader = new FileReader();
 
-    reader.onerror = () => {
-
-      failReportPhotoCapture();
-
+    // BUGFIX: these failure paths had NO handlers, so a failed read/decode left
+    // reportPhotoProcessing stuck `true` forever — the app thought the camera was
+    // still open and never advanced to the confirm screen (intermittent on
+    // low-memory phones / large photos).
+    const failPhotoCapture = () => {
+      clearTimeout(handlePhotoCapture.__watchdog);
+      reportPhotoProcessing = false;
+      reportPhotoFlowActive = false;
+      showToast(t('toast.photoFailed'), 'error', 4000);
+      try { $('#photoInput').value = ''; } catch { /* ignore */ }
     };
+
+    reader.onerror = failPhotoCapture;
 
     reader.onload = (ev) => {
 
       const img = new Image();
+
+      img.onerror = failPhotoCapture;
 
       img.onload = async () => {
 
@@ -26089,8 +25962,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         finishReportPhotoFlow();
 
-        reportPhotoDismissGuard = Date.now();
-
         touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
         advanceReportPhotoReady();
@@ -26099,7 +25970,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       img.onerror = () => {
 
-        failReportPhotoCapture();
+        finishReportPhotoFlow();
+
+        setPhotoScanning(false);
+
+        showToast(t('moderation.blocked.fileType'), 'error');
+
+        $('#photoInput').value = '';
+
+        ensureReportModalOpen();
 
       };
 
@@ -26314,8 +26193,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function clearConfirmPinPreview() {
 
-    setReportPinMapLoading(false);
-
     if (reportPinAccuracyCircle && reportPinMap) {
 
       try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
@@ -26357,8 +26234,6 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmPinAccuracyM = null;
 
     confirmPinUserAdjusted = false;
-
-    confirmPinProvisional = false;
 
     const accEl = $('#reportPinAccuracy');
 
@@ -26442,13 +26317,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       confirmPinAccuracyM = null;
 
-      confirmPinProvisional = false;
-
     } else if (!confirmPinUserAdjusted) {
 
       confirmPinAccuracyM = Number.isFinite(accuracyM) ? accuracyM : confirmPinAccuracyM;
-
-      if (Number.isFinite(accuracyM)) confirmPinProvisional = false;
 
     }
 
@@ -26475,50 +26346,6 @@ document.addEventListener('DOMContentLoaded', function () {
       iconSize: [28, 28],
 
       iconAnchor: [14, 14],
-
-    });
-
-  }
-
-
-
-  function setReportPinMapLoading(loading) {
-
-    const mapEl = $('#reportPinMap');
-
-    if (!mapEl) return;
-
-    mapEl.classList.toggle('report-pin-map--loading', !!loading);
-
-  }
-
-
-
-  function scheduleReportPinMapResize() {
-
-    if (!reportPinMap) return;
-
-    const run = () => {
-
-      try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
-
-    };
-
-    requestAnimationFrame(() => {
-
-      run();
-
-      requestAnimationFrame(() => {
-
-        run();
-
-        setTimeout(run, 50);
-
-        setTimeout(run, 250);
-
-        setTimeout(run, 600);
-
-      });
 
     });
 
@@ -26658,9 +26485,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPinMap.setView([confirmPinLat, confirmPinLng], Math.max(zoom, 16), { animate: false });
 
+    // BUGFIX (blank / half-loaded pin map): Leaflet measures its container on
+    // creation. The confirm step is display:none until the step flips and the
+    // modal is still animating in, so the container is 0x0 at L.map() time and
+    // no tiles render. Re-measure once the layout has settled — rAF for the
+    // paint, plus a short timeout to cover the modal's transition.
+    const revalidatePinMap = () => {
+      if (!reportPinMap) return;
+      try {
+        reportPinMap.invalidateSize({ pan: false });
+        reportPinMap.setView([confirmPinLat, confirmPinLng], reportPinMap.getZoom(), { animate: false });
+      } catch { /* ignore */ }
+    };
+    requestAnimationFrame(revalidatePinMap);
+    setTimeout(revalidatePinMap, 250);
+    setTimeout(revalidatePinMap, 600);
+
     syncConfirmPinMarker();
 
-    scheduleReportPinMapResize();
+    requestAnimationFrame(() => {
+
+      try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+      setTimeout(() => {
+
+        try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+      }, 200);
+
+    });
 
   }
 
@@ -26682,8 +26535,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (manualPinLat != null && manualPinLng != null && isValidGpsCoords(manualPinLat, manualPinLng)) {
 
-      setReportPinMapLoading(false);
-
       initReportPinPreview(manualPinLat, manualPinLng, null, true);
 
       return;
@@ -26691,8 +26542,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (confirmPinUserAdjusted && confirmPinLat != null && confirmPinLng != null) {
-
-      setReportPinMapLoading(false);
 
       initReportPinPreview(confirmPinLat, confirmPinLng, null, true);
 
@@ -26702,25 +26551,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
 
-      setReportPinMapLoading(false);
-
-      confirmPinProvisional = false;
-
       initReportPinPreview(currentLat, currentLng, currentAccuracyM, false);
 
     } else {
-
-      // Always seed a visible map (city centre) so confirm is never a blank gray box
-      // while GPS refines — user can drag immediately; GPS replaces if not adjusted.
-      const center = getCityCenter();
-
-      confirmPinProvisional = true;
-
-      initReportPinPreview(center[0], center[1], null, false);
-
-      confirmPinProvisional = true;
-
-      setReportPinMapLoading(true);
 
       const accEl = $('#reportPinAccuracy');
 
@@ -26734,15 +26567,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!navigator.geolocation) {
-
-      setReportPinMapLoading(false);
-
-      updateReportPinAccuracyHint();
-
-      return;
-
-    }
+    if (!navigator.geolocation) return;
 
     const token = ++reportPinSeedToken;
 
@@ -26764,8 +26589,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (manualPinLat != null && manualPinLng != null) return;
 
-      setReportPinMapLoading(false);
-
       initReportPinPreview(
 
         pos.coords.latitude,
@@ -26782,31 +26605,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (token !== reportPinSeedToken) return;
 
-      if (confirmPinUserAdjusted) return;
-
-      setReportPinMapLoading(false);
-
-      if (confirmPinLat != null && confirmPinLng != null) {
-
-        const accEl = $('#reportPinAccuracy');
-
-        if (accEl && !Number.isFinite(confirmPinAccuracyM)) {
-
-          accEl.className = 'report-pin-accuracy report-pin-accuracy--poor';
-
-          accEl.textContent = t('report.pinAccuracyUnknown');
-
-        }
-
-        scheduleReportPinMapResize();
-
-        return;
-
-      }
-
-      const center = getCityCenter();
-
-      initReportPinPreview(center[0], center[1], null, false);
+      if (confirmPinLat != null) return;
 
       const accEl = $('#reportPinAccuracy');
 
@@ -27375,7 +27174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    if (confirmPinLat != null && confirmPinLng != null && !confirmPinProvisional) {
+    if (confirmPinLat != null && confirmPinLng != null) {
 
       finishReportSubmitWithCoords(
 
@@ -27685,18 +27484,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let shareNudgeShown = false;
 
-    cancelPendingShareNudge();
-
     if (notShared && reportId) {
 
       shareNudgeShown = true;
 
-      shareNudgeTimer = setTimeout(() => {
-
-        shareNudgeTimer = null;
-
-        // Never show over an in-progress report (FAB reopen right after Done).
-        if (isReportFlowBusy()) return;
+      setTimeout(() => {
 
         showToast(t('success.shareNudge'), 'info', 5500, {
 
@@ -27712,8 +27504,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     maybeShowLeadVolunteerNudge(getUserReports().length, shareNudgeShown ? 6200 : 450);
 
-    // Prevent a later success dismiss / stale id from re-firing the neighbour share nudge
-    // while the user is already starting another report.
+    // BUGFIX (share nudge firing on a later/unrelated close): lastReportId was
+    // never cleared, so any subsequent close of the success overlay re-read the
+    // OLD report, still saw !communityShared, and re-fired the "your neighbours
+    // may not know yet" toast — including during a fresh report. The success
+    // flow for this report is finished here; forget it.
     lastReportId = null;
 
   }
@@ -32626,6 +32421,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const reader = new FileReader();
 
+      reader.onerror = () => reject(new Error('read_failed'));
+
       reader.onload = (ev) => {
 
         const img = new Image();
@@ -36469,119 +36266,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function registerServiceWorker() {
 
-    if (!('serviceWorker' in navigator)) return;
+    if ('serviceWorker' in navigator) {
 
-    let reloaded = false;
+      navigator.serviceWorker.register('sw.js').catch(() => {});
 
-    const reportBlocksSwReload = () => {
+      navigator.serviceWorker.addEventListener('message', (ev) => {
 
-      try {
+        if (ev.data && ev.data.type === 'nbh-alert-focus') focusReportOnMap(ev.data.reportId);
 
-        if (isReportPhotoPickerActive() || isReportDraftAwaitingPhoto()) return true;
-
-        if (overlays.report && overlays.report.classList.contains('open')) return true;
-
-        const raw = sessionStorage.getItem(REPORT_DRAFT_KEY);
-
-        if (!raw) return false;
-
-        const d = JSON.parse(raw);
-
-        return !!(d && d.ts && Date.now() - d.ts < REPORT_DRAFT_TTL_MS);
-
-      } catch {
-
-        return false;
-
-      }
-
-    };
-
-    const reloadOnce = () => {
-
-      if (reloaded) return;
-
-      if (reportBlocksSwReload()) {
-
-        pendingSwReload = true;
-
-        return;
-
-      }
-
-      reloaded = true;
-
-      pendingSwReload = false;
-
-      window.location.reload();
-
-    };
-
-    // Auto-reload only when this page was already controlled (update), not on
-    // first install when skipWaiting + clients.claim would otherwise double-load.
-    const hadController = !!navigator.serviceWorker.controller;
-
-    if (hadController) {
-
-      navigator.serviceWorker.addEventListener('controllerchange', reloadOnce);
+      });
 
     }
-
-    navigator.serviceWorker
-
-      .register('sw.js')
-
-      .then((reg) => {
-
-        const checkForUpdate = () => {
-
-          reg.update().catch(() => {});
-
-        };
-
-        checkForUpdate();
-
-        document.addEventListener('visibilitychange', () => {
-
-          if (document.visibilityState === 'visible') checkForUpdate();
-
-        });
-
-        reg.addEventListener('updatefound', () => {
-
-          const installing = reg.installing;
-
-          if (!installing) return;
-
-          installing.addEventListener('statechange', () => {
-
-            if (installing.state !== 'installed') return;
-
-            // First install: no controller yet — skip "update available" toast.
-            if (!navigator.serviceWorker.controller) return;
-
-            // Action toasts persist until dismiss (duration ignored).
-            showToast(t('update.available'), 'info', 0, {
-
-              label: t('update.reload'),
-
-              onClick: () => reloadOnce(),
-
-            });
-
-          });
-
-        });
-
-      })
-
-      .catch(() => {});
-
-    navigator.serviceWorker.addEventListener('message', (ev) => {
-
-      if (ev.data && ev.data.type === 'nbh-alert-focus') focusReportOnMap(ev.data.reportId);
-
-    });
 
   }
 
