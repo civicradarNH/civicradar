@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v189';
+  const CIVIC_APP_VERSION = 'v190';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -484,6 +484,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const GEO_ACCURACY_MAX_M = 5000;
 
+  // Auto GPS pin on confirm must be near the user's city (laptop WiFi/IP can be accurate but continents away).
+
+  const GEO_CITY_RADIUS_M = 80000;
+
   // Early settle only after consecutive samples agree (WiFi/IP often claims ~50 m but is ~1 km off).
 
   const GEO_STABLE_SAMPLES = 2;
@@ -641,6 +645,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // before async photo processing finishes — guard the report sheet until capture completes.
 
   let reportPhotoFlowActive = false;
+
+  let reportFlowStep = 'capture';
 
   let reportPhotoProcessing = false;
 
@@ -19767,6 +19773,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const s = normalizeReportStep(step);
 
+    if (s === reportFlowStep) {
+
+      debugLog('REPORT', 'updateReportFlowSteps skip', { step: s });
+
+      return;
+
+    }
+
+    reportFlowStep = s;
+
     debugLog('REPORT', 'updateReportFlowSteps', { step: s });
 
     const modal = $('#reportModal');
@@ -21437,13 +21453,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hasReportPhotoPreview()) {
 
-      showPhotoConfirm();
+      requestAnimationFrame(() => {
 
-      updateReportFlowSteps('confirm');
+        showPhotoConfirm();
 
-      touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
-      scheduleReportPinMapResize();
+        scheduleReportPinMapResize();
+
+      });
 
     } else {
 
@@ -21502,6 +21520,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clearReportPhotoPreviewOnly() {
+
+    const canvas = $('#imageCanvas');
+
+    if (canvas) {
+
+      canvas.classList.remove('visible');
+
+      try {
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      } catch { /* ignore */ }
+
+    }
+
+    try { $('#photoInput').value = ''; } catch { /* ignore */ }
+
+    lastReportDataUrl = null;
+
+  }
+
+
+
+  function isPlausibleConfirmPinGps(lat, lng) {
+
+    if (!isValidGpsCoords(lat, lng)) return false;
+
+    if (detectWardFromCoords(lat, lng, getUserCity())) return true;
+
+    const center = getCityCenter();
+
+    return getDistanceInMeters(lat, lng, center[0], center[1]) <= GEO_CITY_RADIUS_M;
+
+  }
+
+
+
   function canDismissReportOverlay() {
 
     return !isReportPhotoPickerActive();
@@ -21536,9 +21594,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       showPhotoConfirm();
 
-      updateReportFlowSteps('confirm');
-
-      finishReportPhotoFlow();
+      finishReportPhotoFlow('syncReportPhotoReturn');
 
       touchReportDraft({ step: 'confirm', awaitingPhoto: false });
 
@@ -21560,9 +21616,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function finishReportPhotoFlow() {
+  function finishReportPhotoFlow(where) {
 
-    debugLog('REPORT', 'reportPhotoProcessing', { value: false, where: 'finishReportPhotoFlow' });
+    const src = where || 'finishReportPhotoFlow';
+
+    const wasActive = reportPhotoFlowActive || reportPhotoProcessing;
+
+    const hadWatchdog = !!reportPhotoWatchdogTimer;
+
+    if (!wasActive && !hadWatchdog) {
+
+      debugLog('REPORT', 'reportPhotoProcessing skip', { where: src, reason: 'already idle' });
+
+      return;
+
+    }
 
     reportPhotoFlowActive = false;
 
@@ -21576,6 +21644,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    debugLog('REPORT', 'reportPhotoProcessing', { value: false, where: src, wasActive });
+
   }
 
 
@@ -21584,9 +21654,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('PHOTO', 'handlePhotoCapture fail', { where: 'failReportPhotoCapture' });
 
-    finishReportPhotoFlow();
-
-    setPhotoScanning(false);
+    finishReportPhotoFlow('failReportPhotoCapture');
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false });
 
@@ -21616,7 +21684,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (hasReportPhotoPreview()) {
 
-        finishReportPhotoFlow();
+        finishReportPhotoFlow('handlePhotoCapture');
 
         return;
 
@@ -21718,7 +21786,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderHazardPicker();
 
-    showPhotoConfirm();
+    requestAnimationFrame(() => showPhotoConfirm());
 
     requestAnimationFrame(() => {
 
@@ -21748,7 +21816,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       resetSubmitReportButton();
 
-      finishReportPhotoFlow();
+      finishReportPhotoFlow('closeModal');
 
       if (!reportManualPinDismiss) {
 
@@ -22136,7 +22204,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const canvas = $('#imageCanvas');
 
-    const hasPhoto = canvas.classList.contains('visible');
+    let hasPhoto = canvas.classList.contains('visible');
+
+    if (openCamera && hasPhoto) {
+
+      debugLog('REPORT', 'openReportModal clearStalePhoto', { reason: 'openCamera intent' });
+
+      clearReportPhotoPreviewOnly();
+
+      clearConfirmPinState();
+
+      hasPhoto = false;
+
+    }
 
     if (!hasPhoto) selectHazard(getContextualDefaultHazard());
 
@@ -22152,13 +22232,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     resetSubmitReportButton();
 
-    if (hasPhoto) showPhotoConfirm();
-
-    else resetPhotoConfirm();
-
-    updateReportFlowSteps(hasPhoto ? 'confirm' : 'capture');
-
     openModal('report');
+
+    if (hasPhoto) {
+
+      requestAnimationFrame(() => showPhotoConfirm());
+
+    } else {
+
+      resetPhotoConfirm();
+
+    }
 
     touchReportDraft({
 
@@ -26235,7 +26319,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function rejectPhoto(scanResult) {
 
-    finishReportPhotoFlow();
+    finishReportPhotoFlow('rejectPhoto');
 
     ensureReportModalOpen();
 
@@ -26375,7 +26459,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
 
-        finishReportPhotoFlow();
+        finishReportPhotoFlow('handlePhotoCapture');
 
         reportPhotoDismissGuard = Date.now();
 
@@ -26738,11 +26822,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       confirmPinAccuracyM = Number.isFinite(accuracyM) ? accuracyM : confirmPinAccuracyM;
 
-      if (Number.isFinite(accuracyM)) {
+      if (Number.isFinite(accuracyM) && isPlausibleConfirmPinGps(lat, lng)) {
 
         confirmPinProvisional = false;
 
         debugLog('PIN', 'confirmPinProvisional', { value: false, reason: 'GPS accuracy' });
+
+      } else if (Number.isFinite(accuracyM)) {
+
+        confirmPinProvisional = true;
+
+        debugLog('PIN', 'confirmPinProvisional', { value: true, reason: 'GPS implausible for city' });
 
       }
 
@@ -27000,7 +27090,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
+    if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)
+
+      && isPlausibleConfirmPinGps(currentLat, currentLng)) {
 
       setReportPinMapLoading(false);
 
@@ -27009,6 +27101,12 @@ document.addEventListener('DOMContentLoaded', function () {
       initReportPinPreview(currentLat, currentLng, currentAccuracyM, false);
 
     } else {
+
+      if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
+
+        debugLog('PIN', 'confirmPinProvisional', { value: true, reason: 'cached GPS implausible for city' });
+
+      }
 
       // Always seed a visible map (city centre) so confirm is never a blank gray box
       // while GPS refines — user can drag immediately; GPS replaces if not adjusted.
@@ -27079,6 +27177,20 @@ document.addEventListener('DOMContentLoaded', function () {
         accuracy: pos.coords.accuracy,
 
       });
+
+      if (!isPlausibleConfirmPinGps(pos.coords.latitude, pos.coords.longitude)) {
+
+        debugLog('PIN', 'GPS refine reject', { reason: 'implausible for city', token });
+
+        setReportPinMapLoading(false);
+
+        confirmPinProvisional = true;
+
+        scheduleReportPinMapResize();
+
+        return;
+
+      }
 
       initReportPinPreview(
 
