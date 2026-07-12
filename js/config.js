@@ -228,13 +228,13 @@
 
   /* ----- About modal & partner contact (edit these) ----- */
   founder: {
-    name: '',  // leave empty — public UI shows "The CivicRadar team"
+    name: 'Nihira',  // public About / impact credit
     role: '',
     school: '',
     location: '',
     // **[YOU]** Public support / partner contact — shown in About modal
     email: 'civicradarnh@gmail.com',                               // e.g. 'hello@yourdomain.com'
-    operatorName: '',  // leave empty — no personal names in public UI
+    operatorName: '',  // leave empty — no personal operator name in public UI
     // **[YOU]** Legal/hosting contact (privacy.html / terms.html fallback)
     operatorEmail: 'civicradarnh@gmail.com',
     operatorRelation: '',

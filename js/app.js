@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v182';
+  const CIVIC_APP_VERSION = 'v184';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -3303,7 +3303,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'About the project',
 
-      'about.creditNote': 'CivicRadar is an independent student project — designed and built from scratch by Nihira H., a student developer, to help neighbours in Mumbai, Pune, and Thane report and track local civic hazards. It is not affiliated with, endorsed by, or operated on behalf of any municipal authority. For project, press, or partnership enquiries, please use the contact below.',
+      'about.creditNote': 'CivicRadar is an independent student project — designed and built from scratch by Nihira to help neighbours in Mumbai, Pune, and Thane report and track local civic hazards. It is not affiliated with, endorsed by, or operated on behalf of any municipal authority. For project, press, or partnership enquiries, please use the contact below.',
 
       'about.privacyTitle': 'Privacy & data',
 
@@ -4379,9 +4379,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'admin.health.resolved': 'Fixed',
 
-      'about.founderDefault': 'The CivicRadar team',
+      'about.founderDefault': 'Nihira',
 
-      'about.teamLabel': 'The CivicRadar team',
+      'about.teamLabel': 'Nihira',
 
       'about.teamRole': 'Community civic reporting',
 
@@ -5640,7 +5640,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'प्रोजेक्ट के बारे में',
 
-      'about.creditNote': 'CivicRadar एक स्वतंत्र स्टूडेंट प्रोजेक्ट है — Nihira H., एक स्टूडेंट डेवलपर, द्वारा शुरू से बनाया गया, ताकि मुंबई, पुणे और ठाणे के पड़ोसी स्थानीय नागरिक खतरों की रिपोर्ट कर सकें और उन्हें ट्रैक कर सकें। यह किसी भी नगर निगम प्राधिकरण से संबद्ध, अनुमोदित या उसकी ओर से संचालित नहीं है। प्रोजेक्ट, प्रेस या साझेदारी संबंधी पूछताछ के लिए कृपया नीचे दिए गए संपर्क का उपयोग करें।',
+      'about.creditNote': 'CivicRadar एक स्वतंत्र स्टूडेंट प्रोजेक्ट है — Nihira द्वारा शुरू से बनाया गया, ताकि मुंबई, पुणे और ठाणे के पड़ोसी स्थानीय नागरिक खतरों की रिपोर्ट कर सकें और उन्हें ट्रैक कर सकें। यह किसी भी नगर निगम प्राधिकरण से संबद्ध, अनुमोदित या उसकी ओर से संचालित नहीं है। प्रोजेक्ट, प्रेस या साझेदारी संबंधी पूछताछ के लिए कृपया नीचे दिए गए संपर्क का उपयोग करें।',
 
       'about.privacyTitle': 'गोपनीयता और डेटा',
 
@@ -6716,9 +6716,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'admin.health.resolved': 'ठीक',
 
-      'about.founderDefault': 'CivicRadar टीम',
+      'about.founderDefault': 'Nihira',
 
-      'about.teamLabel': 'CivicRadar टीम',
+      'about.teamLabel': 'Nihira',
 
       'about.teamRole': 'सामुदायिक नागरिक रिपोर्टिंग',
 
@@ -7976,7 +7976,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'प्रकल्पाबद्दल',
 
-      'about.creditNote': 'CivicRadar हा एक स्वतंत्र विद्यार्थी प्रकल्प आहे — Nihira H., एक विद्यार्थी डेव्हलपर, हिने सुरुवातीपासून तयार केलेला, जेणेकरून मुंबई, पुणे आणि ठाण्यातील शेजारी स्थानिक नागरी धोके नोंदवू शकतील आणि त्यांचा मागोवा घेऊ शकतील. हा कोणत्याही महानगरपालिका प्राधिकरणाशी संलग्न, मान्यताप्राप्त किंवा त्यांच्या वतीने चालवला जाणारा नाही. प्रकल्प, प्रेस किंवा भागीदारीसंबंधी चौकशीसाठी कृपया खालील संपर्क वापरा.',
+      'about.creditNote': 'CivicRadar हा एक स्वतंत्र विद्यार्थी प्रकल्प आहे — Nihira यांनी सुरुवातीपासून तयार केलेला, जेणेकरून मुंबई, पुणे आणि ठाण्यातील शेजारी स्थानिक नागरी धोके नोंदवू शकतील आणि त्यांचा मागोवा घेऊ शकतील. हा कोणत्याही महानगरपालिका प्राधिकरणाशी संलग्न, मान्यताप्राप्त किंवा त्यांच्या वतीने चालवला जाणारा नाही. प्रकल्प, प्रेस किंवा भागीदारीसंबंधी चौकशीसाठी कृपया खालील संपर्क वापरा.',
 
       'about.privacyTitle': 'गोपनीयता आणि डेटा',
 
@@ -9052,9 +9052,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'admin.health.resolved': 'निराकरण',
 
-      'about.founderDefault': 'CivicRadar टीम',
+      'about.founderDefault': 'Nihira',
 
-      'about.teamLabel': 'CivicRadar संघ',
+      'about.teamLabel': 'Nihira',
 
       'about.teamRole': 'सामुदायिक नागरी अहवाल',
 
@@ -10312,7 +10312,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'પ્રોજેક્ટ વિશે',
 
-      'about.creditNote': 'CivicRadar એક સ્વતંત્ર વિદ્યાર્થી પ્રોજેક્ટ છે — Nihira H., એક વિદ્યાર્થી ડેવલપર, દ્વારા શરૂઆતથી બનાવવામાં આવેલ, જેથી મુંબઈ, પુણે અને ઠાણેના પડોશીઓ સ્થાનિક નાગરિક જોખમોની જાણ કરી શકે અને તેને ટ્રેક કરી શકે. તે કોઈપણ મ્યુનિસિપલ ઓથોરિટી સાથે સંલગ્ન, માન્યતાપ્રાપ્ત અથવા તેમના વતી સંચાલિત નથી. પ્રોજેક્ટ, પ્રેસ અથવા ભાગીદારી અંગેની પૂછપરછ માટે કૃપા કરીને નીચે આપેલા સંપર્કનો ઉપયોગ કરો.',
+      'about.creditNote': 'CivicRadar એક સ્વતંત્ર વિદ્યાર્થી પ્રોજેક્ટ છે — Nihira દ્વારા શરૂઆતથી બનાવવામાં આવેલ, જેથી મુંબઈ, પુણે અને ઠાણેના પડોશીઓ સ્થાનિક નાગરિક જોખમોની જાણ કરી શકે અને તેને ટ્રેક કરી શકે. તે કોઈપણ મ્યુનિસિપલ ઓથોરિટી સાથે સંલગ્ન, માન્યતાપ્રાપ્ત અથવા તેમના વતી સંચાલિત નથી. પ્રોજેક્ટ, પ્રેસ અથવા ભાગીદારી અંગેની પૂછપરછ માટે કૃપા કરીને નીચે આપેલા સંપર્કનો ઉપયોગ કરો.',
 
       'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
 
@@ -11388,9 +11388,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'admin.health.resolved': 'ઉકેલાયા',
 
-      'about.founderDefault': 'CivicRadar ટીમ',
+      'about.founderDefault': 'Nihira',
 
-      'about.teamLabel': 'CivicRadar ટીમ',
+      'about.teamLabel': 'Nihira',
 
       'about.teamRole': 'સામુદાયિક નાગરિક રિપોર્ટિંગ',
 
@@ -13954,7 +13954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       '',
 
-      `Project: ${t('about.teamLabel')}`,
+      `Project: ${FOUNDER.name || t('about.teamLabel')}`,
 
       f.tagline || 'Community-driven civic hazard reporting for Mumbai, Pune, and Thane.',
 
