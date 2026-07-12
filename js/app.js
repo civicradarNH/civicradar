@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v193';
+  const CIVIC_APP_VERSION = 'v194';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -4301,6 +4301,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'Location is outside your selected city. Move the pin inside city limits or update your city in Profile.',
 
+      'toast.pinConfirmRequired': 'Confirm the pin on the map — drag it onto the hazard before submitting.',
+
       'toast.hazardTypeRequired': 'Select a live hazard type.',
 
       'toast.storageFull': 'Storage full — oldest report removed. Try again.',
@@ -6664,6 +6666,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'स्थान आपके चुने शहर के बाहर है। पिन शहर की सीमा में लगाएँ या प्रोफ़ाइल में शहर बदलें।',
 
+      'toast.pinConfirmRequired': 'मैप पर पिन की पुष्टि करें — सबमिट से पहले पिन खतरे पर खींचें।',
+
       'toast.hazardTypeRequired': 'एक सक्रिय खतरा प्रकार चुनें।',
 
       'toast.storageFull': 'स्टोरेज भरा — पुरानी रिपोर्ट हटाई। फिर कोशिश करें।',
@@ -9026,6 +9030,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'स्थान तुमच्या निवडलेल्या शहराच्या बाहेर आहे. पिन शहराच्या मर्यादेत ठेवा किंवा प्रोफाइलमध्ये शहर बदला.',
 
+      'toast.pinConfirmRequired': 'नकाशावर पिनची खात्री करा — पाठवण्यापूर्वी पिन धोक्यावर ओढा.',
+
       'toast.hazardTypeRequired': 'सक्रिय धोका प्रकार निवडा.',
 
       'toast.storageFull': 'स्टोरेज भरले — जुनी तक्रार काढली. पुन्हा प्रयत्न करा.',
@@ -11387,6 +11393,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
       'toast.gpsOutsideCity': 'સ્થાન તમારા પસંદ કરેલા શહેરની બહાર છે. પિન શહેરની સીમામાં મૂકો અથવા પ્રોફાઇલમાં શહેર બદલો.',
+
+      'toast.pinConfirmRequired': 'નકશા પર પિનની પુષ્ટિ કરો — સબમિટ પહેલાં પિન જોખમ પર ખેંચો.',
 
       'toast.hazardTypeRequired': 'સક્રિય જોખમ પ્રકાર પસંદ કરો.',
 
@@ -27353,11 +27361,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!isPlausibleConfirmPinGps(pos.coords.latitude, pos.coords.longitude)) {
 
-        debugLog('PIN', 'GPS refine reject', { reason: 'implausible for city', token });
+        debugLog('PIN', 'GPS refine reject', {
+
+          reason: 'implausible for city',
+
+          token,
+
+          rejectedLat: pos.coords.latitude,
+
+          rejectedLng: pos.coords.longitude,
+
+          keepLat: confirmPinLat,
+
+          keepLng: confirmPinLng,
+
+          provisional: true,
+
+        });
 
         setReportPinMapLoading(false);
 
+        // Never apply rejected coords — keep city-center (or last in-city) provisional pin.
+
+        if (confirmPinLat == null || confirmPinLng == null || !isPlausibleConfirmPinGps(confirmPinLat, confirmPinLng)) {
+
+          const center = getCityCenter();
+
+          confirmPinUserAdjusted = false;
+
+          initReportPinPreview(center[0], center[1], null, false);
+
+        }
+
         confirmPinProvisional = true;
+
+        confirmPinAccuracyM = null;
+
+        updateReportPinAccuracyHint();
 
         scheduleReportPinMapResize();
 
@@ -27634,6 +27674,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const manualPin = !!opts.manualPin;
 
+    debugLog('REPORT', 'finishReportSubmitWithCoords', {
+
+      lat,
+
+      lng,
+
+      accuracyM,
+
+      manualPin,
+
+      provisional: confirmPinProvisional,
+
+    });
+
     if (!isValidGpsCoords(lat, lng)) {
 
       setButtonLoading(submitBtn, false);
@@ -27808,9 +27862,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setButtonLoading(submitBtn, false);
 
-      showToast(t('toast.gpsOutsideCity'), 'error', 4500);
+      debugLog('REPORT', 'submit blocked outside city', { lat, lng, city: getUserCity() });
 
-      finishReportSubmitWithCoords._busy = false;
+      showGpsRecoveryActions(t('toast.gpsOutsideCity'), 'error', 9000);
 
       return;
 
@@ -27984,7 +28038,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
 
+    debugLog('REPORT', 'submitReport pin state', {
 
+      lat: confirmPinLat,
+
+      lng: confirmPinLng,
+
+      provisional: confirmPinProvisional,
+
+      accuracy: confirmPinAccuracyM,
+
+      userAdjusted: confirmPinUserAdjusted,
+
+      manualLat: manualPinLat,
+
+      manualLng: manualPinLng,
+
+    });
 
     if (confirmPinLat != null && confirmPinLng != null && !confirmPinProvisional) {
 
@@ -28001,6 +28071,32 @@ document.addEventListener('DOMContentLoaded', function () {
         { manualPin: !!confirmPinUserAdjusted }
 
       );
+
+      return;
+
+    }
+
+    // Provisional city-center pin is intentional — do not re-fetch GPS (often still
+    // out-of-city, which produced a dead "outside city" toast with no recovery).
+    if (confirmPinLat != null && confirmPinLng != null && confirmPinProvisional) {
+
+      setButtonLoading(submitBtn, false);
+
+      debugLog('REPORT', 'submit blocked provisional pin', {
+
+        lat: confirmPinLat,
+
+        lng: confirmPinLng,
+
+      });
+
+      showToast(t('toast.pinConfirmRequired'), 'info', 8000, {
+
+        label: t('report.placePinOnMap'),
+
+        onClick: () => startManualPinMode(),
+
+      });
 
       return;
 
@@ -28068,11 +28164,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .then((pos) => {
 
+        const lat = pos.coords.latitude;
+
+        const lng = pos.coords.longitude;
+
+        debugLog('REPORT', 'submit GPS settle', {
+
+          lat,
+
+          lng,
+
+          accuracy: pos.coords.accuracy,
+
+        });
+
+        if (!isPlausibleConfirmPinGps(lat, lng)) {
+
+          setButtonLoading(submitBtn, false);
+
+          showGpsRecoveryActions(t('toast.gpsOutsideCity'), 'error', 9000);
+
+          return;
+
+        }
+
         finishReportSubmitWithCoords(
 
-          pos.coords.latitude,
+          lat,
 
-          pos.coords.longitude,
+          lng,
 
           submitBtn,
 
