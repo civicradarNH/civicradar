@@ -4249,6 +4249,31 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP12', 'Report', 'Popstate+Map tap during photo keeps report open', race_ok)
 
+    # After camera cancel (no file), dismiss guard must still block Map ghost tap from closing report.
+    cancel_guard_ok = await page.evaluate(
+        """() => {
+          window.openReportModal(false);
+          const input = document.getElementById('photoInput');
+          if (input) {
+            try { input.dispatchEvent(new Event('cancel', { bubbles: true })); } catch (_) {}
+          }
+          // Mimic empty change after dismiss (some WebViews fire change with no file).
+          if (input) {
+            try {
+              const dt = new DataTransfer();
+              input.files = dt.files;
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (_) {}
+          }
+          document.querySelector('#bottomNav .nav-tab[data-tab=map]')?.click();
+          const overlay = document.getElementById('reportOverlay');
+          const captureStep = document.querySelector('#reportFlowSteps .flow-step[data-step=capture]');
+          return !!(overlay && overlay.classList.contains('open')
+            && captureStep && captureStep.classList.contains('is-active'));
+        }"""
+    )
+    s.record('RP12b', 'Report', 'Camera cancel + Map tap keeps report open at capture', cancel_guard_ok)
+
     await ctx.close()
 
 
@@ -5128,7 +5153,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v196" in sw_src
+        "civicradar-v197" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -8251,7 +8276,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v196" in sw_src
+        "civicradar-v197" in sw_src
 
         and "'/index.html'" not in sw_src
 

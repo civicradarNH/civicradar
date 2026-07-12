@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v196';
+  const CIVIC_APP_VERSION = 'v197';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -21786,6 +21786,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Camera cancel / empty file: clear picker flags but arm dismiss guard so Map ghost taps cannot close the sheet. */
+  function exitReportPhotoPickerWithoutCapture(where) {
+
+    const src = where || 'exitReportPhotoPickerWithoutCapture';
+
+    debugLog('PHOTO', 'exit picker without capture', { where: src, reportPhotoFlowActive });
+
+    reportPhotoFlowActive = false;
+
+    reportPhotoDismissGuard = Date.now();
+
+    debugLog('PHOTO', 'dismissGuard armed', { where: src, guardMs: PHOTO_RETURN_GUARD_MS });
+
+    touchReportDraft({ step: 'capture', awaitingPhoto: false });
+
+    ensureReportModalOpen();
+
+    updateReportFlowSteps('capture');
+
+  }
+
+
+
   function failReportPhotoCapture() {
 
     debugLog('PHOTO', 'handlePhotoCapture fail', { where: 'failReportPhotoCapture' });
@@ -25663,9 +25686,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#photoInput').addEventListener('cancel', () => {
 
-      reportPhotoFlowActive = false;
-
-      touchReportDraft({ awaitingPhoto: false });
+      exitReportPhotoPickerWithoutCapture('photoInputCancel');
 
     });
 
@@ -26628,11 +26649,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!file) {
 
-      debugLog('PHOTO', 'handlePhotoCapture no file', { reportPhotoFlowActive });
-
-      reportPhotoFlowActive = false;
-
-      touchReportDraft({ awaitingPhoto: false });
+      exitReportPhotoPickerWithoutCapture('handlePhotoCaptureNoFile');
 
       return;
 
