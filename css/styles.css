@@ -349,6 +349,7 @@ body.app-booting {
   position: absolute;
   top: 10px;
   right: 14px;
+  z-index: 3;
   width: var(--touch-min);
   height: var(--touch-min);
   border: none;
@@ -1217,6 +1218,38 @@ body.manual-pin-mode #map .leaflet-container {
 }
 
 .toast__row span { flex: 1; }
+
+.toast__close {
+  flex-shrink: 0;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  margin: -10px -10px -10px 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #fff;
+  font-size: var(--fs-xl);
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.toast__close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.toast__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  opacity: 1;
+}
 
 .toast__actions {
   display: flex;

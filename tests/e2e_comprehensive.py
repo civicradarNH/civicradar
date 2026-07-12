@@ -3175,6 +3175,28 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ))
 
+    await page.evaluate(
+        """() => {
+          const box = document.getElementById('toastContainer');
+          if (box) box.innerHTML = '';
+          if (typeof window.showToast === 'function') {
+            window.showToast('E2E toast close check', 'info', 30000);
+          }
+        }"""
+    )
+    toast_has_close = await page.evaluate(
+        """() => {
+          const btn = document.querySelector('#toastContainer .toast__close');
+          return !!(btn && (btn.getAttribute('aria-label') || '').trim());
+        }"""
+    )
+    await page.evaluate("() => document.querySelector('#toastContainer .toast__close')?.click()")
+    await page.wait_for_timeout(350)
+    toast_dismissed = await page.evaluate(
+        '() => !document.querySelector("#toastContainer .toast")'
+    )
+    s.record('U29', 'UI', 'Toast has dismiss × control', toast_has_close and toast_dismissed)
+
     s.record('U20', 'UI', 'Flow steps in report modal', await page.evaluate(
 
         """() => {
@@ -4954,7 +4976,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v184" in sw_src
+        "civicradar-v187" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -8055,7 +8077,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v184" in sw_src
+        "civicradar-v187" in sw_src
 
         and "'/index.html'" not in sw_src
 

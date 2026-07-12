@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v184';
+  const CIVIC_APP_VERSION = 'v187';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -20137,11 +20137,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toast.className = `toast toast--${type}`;
 
-
+    toast.setAttribute('role', 'status');
 
     toast.dataset.civicToastKey = `${type}::${message}`;
 
+    let hideTimer = null;
 
+    let fadeTimer = null;
+
+    const clearToastTimers = () => {
+
+      if (hideTimer) clearTimeout(hideTimer);
+
+      if (fadeTimer) clearTimeout(fadeTimer);
+
+      hideTimer = null;
+
+      fadeTimer = null;
+
+    };
+
+    const dismissToast = () => {
+
+      clearToastTimers();
+
+      if (!toast.isConnected) return;
+
+      toast.style.opacity = '0';
+
+      toast.style.transition = 'opacity 0.25s';
+
+      fadeTimer = setTimeout(() => toast.remove(), 250);
+
+    };
 
     const row = document.createElement('div');
 
@@ -20149,7 +20177,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     row.innerHTML =
 
-      `<i class="ph ph-${icons[type] || 'info'}"></i><span>${escapeHtml(message)}</span>`;
+      `<i class="ph ph-${icons[type] || 'info'}" aria-hidden="true"></i><span>${escapeHtml(message)}</span>`;
+
+    const closeBtn = document.createElement('button');
+
+    closeBtn.type = 'button';
+
+    closeBtn.className = 'toast__close';
+
+    closeBtn.setAttribute('aria-label', t('aria.close'));
+
+    closeBtn.innerHTML = '&times;';
+
+    closeBtn.addEventListener('click', (e) => {
+
+      e.stopPropagation();
+
+      dismissToast();
+
+    });
+
+    row.appendChild(closeBtn);
 
     toast.appendChild(row);
 
@@ -20189,6 +20237,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         btn.addEventListener('click', () => {
 
+          clearToastTimers();
+
           if (typeof act.onClick === 'function') act.onClick();
 
           toast.remove();
@@ -20209,15 +20259,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     container.appendChild(toast);
 
-    setTimeout(() => {
+    // Action toasts stay until the user taps an action or × (long CTAs need time).
+    if (!actionList.length) {
 
-      toast.style.opacity = '0';
+      hideTimer = setTimeout(dismissToast, duration);
 
-      toast.style.transition = 'opacity 0.25s';
-
-      setTimeout(() => toast.remove(), 250);
-
-    }, duration);
+    }
 
   }
 
@@ -20895,6 +20942,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!el) return;
 
+    if (shouldPushModalHistory(name)) pushNavModalHistory();
+
     const hadOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
 
     lastFocusedEl = document.activeElement;
@@ -21403,7 +21452,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!open.length) return null;
 
-    const navTabs = new Set(['community', 'profile']);
+    const navTabs = new Set(['community', 'resources', 'profile']);
 
     const elevated = open.filter(([name]) => !navTabs.has(name));
 
@@ -21608,11 +21657,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Push a history entry when opening the full-screen Community/Profile tabs so
+  function isBlockingOverlay(name) {
 
-  // Android's hardware back button closes them instead of leaving the app.
+    return name === 'tos' || name === 'onboarding' || name === 'deleteConfirm';
 
-  // One entry is enough; the popstate handler closes whichever tab is open.
+  }
+
+  function shouldPushModalHistory(name) {
+
+    return name === 'community' || name === 'resources' || name === 'profile'
+
+      || name === 'report' || name === 'success' || name === 'shareWin' || name === 'certificate';
+
+  }
+
+  /** Close a non-blocking overlay with the same semantics as × / Done. */
+  function dismissOverlayByName(name) {
+
+    if (!name || isBlockingOverlay(name)) return false;
+
+    if (name === 'report' && !canDismissReportOverlay()) return false;
+
+    if (name === 'success') dismissSuccessModal();
+
+    else if (name === 'escalation') tryCloseEscalation();
+
+    else {
+
+      closeModal(name);
+
+      if (name === 'community' || name === 'resources' || name === 'profile') setNavTab('map');
+
+    }
+
+    return true;
+
+  }
+
+  // Push a history entry when opening main sheets so Android back closes them
+  // instead of leaving the app. One entry is enough; popstate closes the stack.
 
   function pushNavModalHistory() {
 
@@ -23926,15 +24009,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       el.addEventListener('click', (e) => {
 
-        if (e.target === el && name !== 'tos' && name !== 'onboarding') {
+        if (e.target !== el) return;
 
-          if (name === 'report' && !canDismissReportOverlay()) return;
+        if (isBlockingOverlay(name)) return;
 
-          if (name === 'escalation') tryCloseEscalation();
-
-          else closeModal(name);
-
-        }
+        dismissOverlayByName(name);
 
       });
 
@@ -24733,43 +24812,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btn.addEventListener('click', () => {
 
-        const name = btn.dataset.close;
-
-        if (name === 'report' && !canDismissReportOverlay()) return;
-
-        if (name === 'escalation') tryCloseEscalation();
-
-        else closeModal(name);
-
-        // Community/Profile are full-screen tabs: closing returns to the Map tab
-
-        // so the bottom-nav highlight stays correct.
-
-        if (name === 'community' || name === 'resources' || name === 'profile') setNavTab('map');
-
-      });
-
-    });
-
-
-
-    // Backdrop tap on the Community/Profile overlays dismisses and returns to Map.
-
-    ['community', 'resources', 'profile'].forEach((name) => {
-
-      const overlay = overlays[name];
-
-      if (!overlay) return;
-
-      overlay.addEventListener('click', (e) => {
-
-        if (e.target === overlay) {
-
-          closeModal(name);
-
-          setNavTab('map');
-
-        }
+        dismissOverlayByName(btn.dataset.close);
 
       });
 
@@ -24996,55 +25039,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    $('#btnSuccessClose').addEventListener('click', () => {
-
-      const reportId = lastReportId;
-
-      const report = reportId ? findReportById(reportId) : null;
-
-      const notShared = report && !report.communityShared;
-
-      closeModal('success');
-
-      const thumb = $('#successThumbnail');
-
-      if (thumb) {
-
-        thumb.removeAttribute('src');
-
-        thumb.hidden = true;
-
-      }
-
-      resetReportForm();
-
-      setNavTab('map');
-
-      flushPendingPwaNudge();
-
-      let shareNudgeShown = false;
-
-      if (notShared && reportId) {
-
-        shareNudgeShown = true;
-
-        setTimeout(() => {
-
-          showToast(t('success.shareNudge'), 'info', 5500, {
-
-            label: t('success.shareWhatsapp'),
-
-            onClick: () => shareReportWhatsApp(reportId),
-
-          });
-
-        }, 450);
-
-      }
-
-      maybeShowLeadVolunteerNudge(getUserReports().length, shareNudgeShown ? 6200 : 450);
-
-    });
+    $('#btnSuccessClose').addEventListener('click', () => dismissSuccessModal());
 
 
 
@@ -25412,11 +25407,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const topName = getTopmostOpenModalName();
 
-        if (!topName) return;
+        if (!topName || isBlockingOverlay(topName)) return;
 
-        if (topName === 'report' && !canDismissReportOverlay()) return;
-
-        if (topName !== 'tos' && topName !== 'onboarding') closeModal(topName);
+        dismissOverlayByName(topName);
 
       }
 
@@ -25434,9 +25427,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    // Android hardware back / browser back: close the Community/Profile tab and
-
-    // return to the Map tab instead of navigating away from the app.
+    // Android hardware back / browser back: close main sheets instead of leaving the TWA.
 
     // Returning from the native camera also pops history — keep the report sheet open.
 
@@ -25452,15 +25443,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      const navOpen = ['community', 'profile'].some((name) => overlays[name]?.classList.contains('open'));
+      const backTargets = ['community', 'resources', 'profile', 'report', 'success', 'shareWin', 'certificate'];
 
-      if (navOpen) {
+      const backClose = backTargets.some((name) => overlays[name]?.classList.contains('open'));
 
-        closeStackedModalsForNav(null);
+      if (!backClose) return;
 
-        setNavTab('map');
+      if (overlays.report?.classList.contains('open') && !canDismissReportOverlay()) {
+
+        pushNavModalHistory();
+
+        return;
 
       }
+
+      if (overlays.success?.classList.contains('open')) dismissSuccessModal();
+
+      closeStackedModalsForNav(null);
+
+      setNavTab('map');
 
     });
 
@@ -27393,6 +27394,60 @@ document.addEventListener('DOMContentLoaded', function () {
     const lastReport = lastReportId ? findReportById(lastReportId) : null;
 
     renderOfficialChannelsSurfaces(lastReport);
+
+  }
+
+
+
+  function dismissSuccessModal() {
+
+    if (!overlays.success || !overlays.success.classList.contains('open')) return;
+
+    const reportId = lastReportId;
+
+    const report = reportId ? findReportById(reportId) : null;
+
+    const notShared = report && !report.communityShared;
+
+    closeModal('success');
+
+    const thumb = $('#successThumbnail');
+
+    if (thumb) {
+
+      thumb.removeAttribute('src');
+
+      thumb.hidden = true;
+
+    }
+
+    resetReportForm();
+
+    setNavTab('map');
+
+    flushPendingPwaNudge();
+
+    let shareNudgeShown = false;
+
+    if (notShared && reportId) {
+
+      shareNudgeShown = true;
+
+      setTimeout(() => {
+
+        showToast(t('success.shareNudge'), 'info', 5500, {
+
+          label: t('success.shareWhatsapp'),
+
+          onClick: () => shareReportWhatsApp(reportId),
+
+        });
+
+      }, 450);
+
+    }
+
+    maybeShowLeadVolunteerNudge(getUserReports().length, shareNudgeShown ? 6200 : 450);
 
   }
 
