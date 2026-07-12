@@ -1,7 +1,7 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-11 20:33:12
-**Server:** http://localhost:8097/
+**Run:** 2026-07-12 13:40:42
+**Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 40 | **Pass:** 40 | **Fail:** 0
 
@@ -112,7 +112,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
-| C15 | Citizen | GPS denied blocks submit | PASS |  |
+| C15 | Citizen | GPS denied blocks submit | PASS | toast='Confirm the pin on the map — drag it onto the hazard before submitting.×Place pin on map' |
 | C16 | Citizen | Report submit success modal | PASS | rid=None |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |

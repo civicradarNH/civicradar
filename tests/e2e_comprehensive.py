@@ -1188,7 +1188,14 @@ async def run_citizen_tests(s: Suite, browser):
 
     t = await toast_text(page)
 
-    s.record('C15', 'Citizen', 'GPS denied blocks submit', 'gps' in t.lower() or 'location' in t.lower() or 'fail' in t.lower())
+    # v195+: GPS denied uses provisional city pin + pin-confirm toast (not gpsFail).
+    tl = t.lower()
+    c15_toast = (
+        'gps' in tl or 'location' in tl or 'fail' in tl
+        or 'pin' in tl or 'confirm' in tl or 'map' in tl
+    )
+    c15_blocked = c15_toast and not await is_open(page, 'successOverlay')
+    s.record('C15', 'Citizen', 'GPS denied blocks submit', c15_blocked, f'toast={t!r}')
 
 
 
