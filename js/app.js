@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v181';
+  const CIVIC_APP_VERSION = 'v182';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 

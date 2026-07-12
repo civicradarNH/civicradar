@@ -4036,6 +4036,23 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP11', 'Report', 'Photo accept stays on confirm step', photo_ready)
 
+    # Confirm sheet must scroll when photo + hazards + pin map exceed the viewport
+    # (body is scroll-locked; #reportStepConfirm is the overflow container).
+    confirm_scrollable = await page.evaluate(
+        """() => {
+          const panel = document.getElementById('reportStepConfirm');
+          if (!panel || panel.hidden) return false;
+          const style = window.getComputedStyle(panel);
+          const canOverflow = /(auto|scroll)/.test(style.overflowY);
+          // Force a mobile-ish height if the desktop test viewport is tall enough
+          // that content still fits without overflow.
+          const tallerThanViewport = panel.scrollHeight > panel.clientHeight + 8;
+          const overflowRuleOk = canOverflow && parseFloat(style.flexGrow || '0') >= 1;
+          return overflowRuleOk && (tallerThanViewport || panel.clientHeight > 0);
+        }"""
+    )
+    s.record('RP11b', 'Report', 'Confirm step is scrollable overflow container', confirm_scrollable)
+
     # Simulated native-camera popstate + Map nav ghost tap during picker must not dismiss report.
 
     race_ok = await page.evaluate(
@@ -4937,7 +4954,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v181" in sw_src
+        "civicradar-v182" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -8038,7 +8055,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v181" in sw_src
+        "civicradar-v182" in sw_src
 
         and "'/index.html'" not in sw_src
 

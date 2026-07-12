@@ -6416,6 +6416,7 @@ a,
 #reportModal.report-modal--confirm {
   display: flex;
   flex-direction: column;
+  /* Clip the sheet; scrolling lives on #reportStepConfirm so title/steps stay put. */
   overflow: hidden;
   padding-bottom: 0;
 }
@@ -6426,6 +6427,12 @@ a,
   flex: 1;
   min-height: 0;
   gap: 10px;
+  /* Photo + hazards + pin map + notes exceed ~390×844; must scroll independently of body lock. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 .report-photo-hero {
@@ -6527,10 +6534,12 @@ a,
 .report-pin-map {
   width: 100%;
   height: 160px;
+  flex-shrink: 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   overflow: hidden;
   background: var(--canvas);
+  /* Confine map gestures to the mini-map; parent sheet uses touch-action: pan-y. */
   touch-action: none;
 }
 
@@ -6538,6 +6547,7 @@ a,
   width: 100%;
   height: 100%;
   font-family: var(--font);
+  touch-action: none;
 }
 
 .report-pin-marker {
@@ -6620,6 +6630,7 @@ a,
 }
 
 #reportStepConfirm .modal__sticky-footer--glass {
+  flex-shrink: 0;
   margin: auto -24px -32px;
   margin-top: 12px;
   padding-top: 20px;
