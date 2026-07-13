@@ -152,7 +152,7 @@ textarea {
 /* Launch splash — critical rules are inlined in index.html for first paint;
    these extend the overlay once styles.css loads (no white flash on handoff). */
 body.app-booting {
-  background: #6366f1;
+  background: #4f46e5;
 }
 
 .app-launch {

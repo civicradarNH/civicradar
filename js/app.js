@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v208';
+  const CIVIC_APP_VERSION = 'v209';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -662,6 +662,12 @@ document.addEventListener('DOMContentLoaded', function () {
   let focusTrapHandler = null;
 
   let modalScrollY = 0;
+
+  // Real open-order stack (push on open, remove on close) — getTopmostOpenModalName()
+  // must reflect actual stacking, not the overlays{} object's declaration order, which
+  // rarely matches (e.g. adminReport is declared before adminQueue but always opens on
+  // top of it).
+  let modalOpenOrder = [];
 
   // Native camera / file picker can pop history or deliver a ghost tap on Map nav
 
@@ -17527,7 +17533,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showReportReminderInApp() {
 
-    if (!canShowSessionReminder()) return;
+    if (!canShowSessionReminder()) return false;
 
     sessionReminderCount++;
 
@@ -17548,6 +17554,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }],
 
     });
+
+    return true;
 
   }
 
@@ -17601,8 +17609,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isReportReminderDue()) return;
 
-    markReportReminderShown();
-
     if (window.CivicAnalytics) CivicAnalytics.track('report_reminder_due', {}, user.ward);
 
     let perm = 'default';
@@ -17613,11 +17619,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       trackReminderShown('report_reminder', { channel: 'notification' });
 
-      if (fireReportReminderNotification()) return;
+      if (fireReportReminderNotification()) {
+
+        markReportReminderShown();
+
+        return;
+
+      }
 
     }
 
-    showReportReminderInApp();
+    // Only mark shown once something actually displayed — showReportReminderInApp()
+    // silently no-ops if the per-session reminder cap is already used up, and
+    // marking it shown regardless was suppressing the reminder for
+    // REPORT_REMINDER_DAYS even on sessions where the user never saw it.
+    if (showReportReminderInApp()) markReportReminderShown();
 
   }
 
@@ -21560,6 +21576,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!hadOpen) lastFocusedEl = document.activeElement;
 
+    modalOpenOrder = modalOpenOrder.filter((n) => n !== name);
+
+    modalOpenOrder.push(name);
+
     el.classList.add('open');
 
     el.setAttribute('aria-hidden', 'false');
@@ -21847,13 +21867,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /** True while mid-report (camera, confirm, or draft) — suppress unrelated toasts/reloads. */
+  /** Single source of truth for "don't reload out from under the user" — also used
+      by registerServiceWorker's reload-defer check, so the two can't drift apart. */
   function isReportFlowBusy() {
 
     if (isReportPhotoPickerActive() || isReportDraftAwaitingPhoto()) return true;
 
     if (overlays.report && overlays.report.classList.contains('open')) return true;
 
-    return false;
+    // The success/share/certificate screens are still part of "just submitted a
+    // report" from the user's perspective — a reload here wipes the celebration
+    // and, for shareWin/certificate, an unsaved image blob.
+    if (overlays.success && overlays.success.classList.contains('open')) return true;
+
+    if (overlays.shareWin && overlays.shareWin.classList.contains('open')) return true;
+
+    if (overlays.certificate && overlays.certificate.classList.contains('open')) return true;
+
+    try {
+
+      const raw = sessionStorage.getItem(REPORT_DRAFT_KEY);
+
+      if (!raw) return false;
+
+      const d = JSON.parse(raw);
+
+      return !!(d && d.ts && Date.now() - d.ts < REPORT_DRAFT_TTL_MS);
+
+    } catch {
+
+      return false;
+
+    }
 
   }
 
@@ -22238,6 +22283,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    modalOpenOrder = modalOpenOrder.filter((n) => n !== name);
+
     el.classList.remove('open');
 
     el.setAttribute('aria-hidden', 'true');
@@ -22308,17 +22355,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getTopmostOpenModalName() {
 
-    const open = Object.entries(overlays).filter(([, el]) => el && el.classList.contains('open'));
+    // Sourced from modalOpenOrder (real stacking order) rather than the overlays{}
+    // object's declaration order, which doesn't reliably match — e.g. adminReport
+    // opens on top of adminQueue despite being declared earlier in the object.
+    const open = modalOpenOrder.filter((name) => overlays[name] && overlays[name].classList.contains('open'));
 
     if (!open.length) return null;
 
     const navTabs = new Set(['community', 'resources', 'profile']);
 
-    const elevated = open.filter(([name]) => !navTabs.has(name));
+    const elevated = open.filter((name) => !navTabs.has(name));
 
-    if (elevated.length) return elevated[elevated.length - 1][0];
+    if (elevated.length) return elevated[elevated.length - 1];
 
-    return open[open.length - 1][0];
+    return open[open.length - 1];
 
   }
 
@@ -28581,9 +28631,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const weekBonus = awardWeekBonus();
-
+    // Check the report's own level-up BEFORE awardWeekBonus — it makes its own
+    // addPointsCache -> checkXpLevelUp call internally for the bonus-only delta.
+    // Checking report-delta and bonus-delta as two adjacent, non-overlapping
+    // ranges (instead of the old prevXp -> after-both range PLUS the bonus's own
+    // internal check) stops the same level-up from being detected — and its
+    // confetti/chime/certificate modal shown — twice for one submission.
     checkXpLevelUp(prevXp, getTotalCivicXp());
+
+    const weekBonus = awardWeekBonus();
 
     try { safeLocalSet(LAST_HAZARD_KEY, hazard); } catch {}
 
@@ -28692,7 +28748,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setButtonLoading(submitBtn, true, t('moderation.scanning'));
 
-      const scan = await ImageModeration.scanCanvas(canvas, getModCfg());
+      // Bounded + exception-safe: an unhandled throw or a hung CDN load here (no
+      // timeout of its own, unlike the capture-time scan which the 15s watchdog
+      // covers) would otherwise leave __inFlight/_busy stuck true forever with the
+      // Submit button frozen and no error shown. Fails open on error/timeout,
+      // consistent with the capture-time NSFW-unavailable fallback elsewhere.
+      let scan;
+
+      try {
+
+        scan = await Promise.race([
+
+          ImageModeration.scanCanvas(canvas, getModCfg()),
+
+          new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+
+        ]);
+
+      } catch {
+
+        scan = { ok: true, errored: true };
+
+      }
 
       markSubmit('moderation');
 
@@ -29725,9 +29802,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function buildShareBackedMessage(wardName) {
+  function buildShareBackedMessage(wardFull) {
 
-    const ward = wardName || (user.ward ? getWardShortName(user.ward) : t('share.defaultArea'));
+    // Derive the short display label and the hashtag from the SAME ward — previously
+    // the text used whichever ward was just confirmed but the hashtag always used the
+    // viewer's own ward, so confirming a fix in someone else's ward produced a message
+    // like "Fixed in Ward B" hashtagged #WardAWard.
+    const resolvedWardFull = wardFull || user.ward;
+
+    const ward = resolvedWardFull ? getWardShortName(resolvedWardFull) : t('share.defaultArea');
 
     return fillShareTemplate(t('confirm.shareMsg'), {
 
@@ -29735,7 +29818,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       link: shareAppLink('fixed'),
 
-      wardFull: user.ward,
+      wardFull: resolvedWardFull,
 
     });
 
@@ -31884,6 +31967,19 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!reportId) return;
 
     const report = findReportById(reportId);
+
+    // Don't leak a hidden/removed/muted-reporter report via a false "opened" banner —
+    // reportsForMap() already excludes these from the marker pool, so without this
+    // check the deep link would claim success and pan the map to a pin that was
+    // never actually rendered. Treat it the same as not-found (no retry needed;
+    // visibility won't change with more attempts).
+    if (report && isReportPubliclyHidden(report)) {
+
+      showToast(t('toast.reportNotFound'), 'info', 4000);
+
+      return;
+
+    }
 
     if (!report || report.lat == null) {
 
@@ -34057,9 +34153,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // notifyNgoNewPledges() is called from refreshAllViews() on every realtime pull
+  // (any citywide pledge/report/task change, 800ms-debounced) — since lastSeen only
+  // advances when the lead opens the coordinator dashboard, an unread lead would
+  // otherwise get this persistent action toast re-triggered on unrelated activity
+  // for the rest of the session. The {n} count also changes between calls, so
+  // isToastShowing()'s exact-message dedup alone wouldn't catch every repeat —
+  // this session flag does, and resets naturally on the next full load.
+  let ngoNewPledgeToastShownThisSession = false;
+
   function notifyNgoNewPledges() {
 
     if (!isLead) return;
+
+    if (ngoNewPledgeToastShownThisSession) return;
 
     let lastSeen = localStorage.getItem(REMINDER_NGO_PLEDGES_LAST_SEEN_KEY);
 
@@ -34076,6 +34183,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const newCount = citizenPledges.filter((p) => new Date(p.timestamp).getTime() > cutoff).length;
 
     if (newCount === 0) return;
+
+    ngoNewPledgeToastShownThisSession = true;
 
     showToast(t('toast.ngoNewPledge').replace('{n}', String(newCount)), 'info', 5500, {
 
@@ -34353,7 +34462,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       label: t('confirm.shareBtn'),
 
-      onClick: () => shareBackedWin(wardName),
+      onClick: () => shareBackedWin(fresh[0].ward),
 
     });
 
@@ -34413,7 +34522,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       label: t('confirm.shareBtn'),
 
-      onClick: () => shareBackedWin(wardName),
+      onClick: () => shareBackedWin(fresh[0].ward),
 
     });
 
@@ -34421,9 +34530,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function shareBackedWin(wardName) {
+  function shareBackedWin(wardFull) {
 
-    shareWhatsApp(buildShareBackedMessage(wardName), { context: 'backed_resolved', ward: user.ward });
+    shareWhatsApp(buildShareBackedMessage(wardFull), { context: 'backed_resolved', ward: user.ward });
 
   }
 
@@ -35233,7 +35342,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let citizens = aggregateCitizenLeaderboard(sinceTs);
 
-      citizens = citizens.filter((c) => c.id !== user.id && c.name !== (user.displayName || ''));
+      // id-only: a name-based exclusion would also drop OTHER citizens who happen to
+      // share the viewer's display name (common names aren't unique), silently hiding
+      // a real person from the leaderboard rather than just de-duping the viewer's own row.
+      citizens = citizens.filter((c) => c.id !== user.id);
 
       const usingDemo = !liveBackend && !isProdEnvironment() && citizens.length < 2;
 
@@ -36137,6 +36249,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const idx = reports.findIndex((r) => String(r.id) === String(activeAdminReportId));
 
     if (idx === -1) return;
+
+    if (!isAdminReportInScope(reports[idx])) return;
 
     reports[idx].removed = true;
 
@@ -37454,13 +37568,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!signup) {
 
-      showToast(t('toast.volunteerSignupRequired'), 'info', 4500, {
+      if (!isToastShowing('info', t('toast.volunteerSignupRequired'))) {
 
-        label: t('volunteer.emptyAction'),
+        showToast(t('toast.volunteerSignupRequired'), 'info', 4500, {
 
-        onClick: () => window.openVolunteerModal(),
+          label: t('volunteer.emptyAction'),
 
-      });
+          onClick: () => window.openVolunteerModal(),
+
+        });
+
+      }
 
       return false;
 
@@ -38290,29 +38408,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let reloaded = false;
 
-    const reportBlocksSwReload = () => {
-
-      try {
-
-        if (isReportPhotoPickerActive() || isReportDraftAwaitingPhoto()) return true;
-
-        if (overlays.report && overlays.report.classList.contains('open')) return true;
-
-        const raw = sessionStorage.getItem(REPORT_DRAFT_KEY);
-
-        if (!raw) return false;
-
-        const d = JSON.parse(raw);
-
-        return !!(d && d.ts && Date.now() - d.ts < REPORT_DRAFT_TTL_MS);
-
-      } catch {
-
-        return false;
-
-      }
-
-    };
+    // Delegates to isReportFlowBusy() so the defer-time check and the flush-time
+    // check (flushPendingSwReload) can never drift apart again — that drift was
+    // exactly how a reload could previously slip through mid-report-flow.
+    const reportBlocksSwReload = () => isReportFlowBusy();
 
     const reloadOnce = () => {
 
