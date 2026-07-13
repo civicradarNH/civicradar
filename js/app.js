@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v202';
+  const CIVIC_APP_VERSION = 'v203';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -21913,8 +21913,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       scheduleReportPinMapResize();
 
-    } else if (fromCameraFlow || reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto()) {
+    } else if (!reportPhotoProcessing && (fromCameraFlow || reportPhotoFlowActive || isReportDraftAwaitingPhoto())) {
 
+      // reportPhotoProcessing means handlePhotoCapture is already decoding/scanning the
+      // photo in the background — forcing the capture screen back here mid-flight is what
+      // made "return from camera" look broken (see advanceReportPhotoReady for the real handoff).
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'capture' });
 
       updateReportFlowSteps('capture');
@@ -22101,6 +22104,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const input = $('#photoInput');
 
     if (!input || reportPhotoProcessing) return;
+
+    // Cancel any pending auto-launch timer (openReportModal) so a manual tap on
+    // "Take photo" during that window can't fire the camera intent twice.
+    if (reportCameraTimer) {
+
+      clearTimeout(reportCameraTimer);
+
+      reportCameraTimer = null;
+
+    }
 
     reportPhotoFlowActive = true;
 
@@ -22618,13 +22631,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       requestAnimationFrame(() => {
 
+        // Wait out the modal's 0.35s slide-up transition before firing the camera intent.
+        // Backgrounding the tab mid-transition (camera intents suspend rendering) can freeze
+        // the sheet partway through its animation — it reappears looking cut off ("short page")
+        // once the user returns, instead of fully settled.
         reportCameraTimer = setTimeout(() => {
 
           reportCameraTimer = null;
 
           if (overlays.report.classList.contains('open')) openReportPhotoPicker();
 
-        }, 50);
+        }, 380);
 
       });
 
