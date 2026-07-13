@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v209';
+  const CIVIC_APP_VERSION = 'v210';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -16791,6 +16791,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let bootRemindersDone = false;
 
+  // Reminders are dispatched from three independent, uncoordinated call sites
+  // (boot ~1800ms, proximity ~1300ms on geolocation success, and sync — triggered
+  // any time realtime activity pulls in new data, possibly minutes later) that all
+  // share the one MAX_SESSION_REMINDERS budget. A flat counter alone means whichever
+  // phase happens to fire first can spend the budget on a low-priority reminder and
+  // permanently starve a genuinely more urgent one dispatched later. Track what's
+  // already been shown so a later, strictly-more-urgent candidate can still get a
+  // single bounded exception rather than being silently dropped.
+  let shownReminderPriorities = [];
+
+  let sessionReminderOverridesUsed = 0;
+
+  const MAX_SESSION_REMINDER_OVERRIDES = 1;
+
 
 
   function reminderJson(key, fallback) {
@@ -16935,13 +16949,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
     for (const c of candidates) {
 
-      if (!canShowSessionReminder()) break;
+      if (canShowSessionReminder()) {
 
-      c.show();
+        c.show();
 
-      sessionReminderCount++;
+        sessionReminderCount++;
 
-      trackReminderShown(c.type, c.meta);
+        shownReminderPriorities.push(c.priority);
+
+        trackReminderShown(c.type, c.meta);
+
+        continue;
+
+      }
+
+      // Cap reached — allow one bounded exception for something strictly more urgent
+      // than anything shown so far this session (see note above canShowSessionReminder
+      // usage / shownReminderPriorities). Candidates are priority-sorted ascending, so
+      // once one candidate fails this check, none of the rest in this batch would pass
+      // it either — safe to stop here.
+      const worstShown = shownReminderPriorities.length ? Math.max(...shownReminderPriorities) : -Infinity;
+
+      if (sessionReminderOverridesUsed < MAX_SESSION_REMINDER_OVERRIDES && c.priority < worstShown) {
+
+        c.show();
+
+        shownReminderPriorities.push(c.priority);
+
+        sessionReminderOverridesUsed++;
+
+        trackReminderShown(c.type, Object.assign({ priorityOverride: true }, c.meta));
+
+        continue;
+
+      }
+
+      break;
 
     }
 
@@ -18155,6 +18198,10 @@ document.addEventListener('DOMContentLoaded', function () {
   window.__civicResetReminderSession = function () {
 
     sessionReminderCount = 0;
+
+    shownReminderPriorities = [];
+
+    sessionReminderOverridesUsed = 0;
 
     try {
 

@@ -139,6 +139,13 @@ returns boolean language sql stable security definer set search_path = public as
   select exists (select 1 from public.profiles where id = auth.uid() and role = 'ngo_lead');
 $$;
 
+-- City a BMC official is provisioned for. is_admin() (the platform-operator role,
+-- separate from is_bmc()) is not city-scoped and should bypass checks using this.
+create or replace function public.bmc_city()
+returns text language sql stable security definer set search_path = public as $$
+  select city from public.profiles where id = auth.uid() and role = 'bmc';
+$$;
+
 -- NGO invite codes. Issue one row per onboarded NGO/ward.
 create table if not exists public.ngo_codes (
   code      text primary key,
@@ -286,18 +293,27 @@ create policy "volunteer_tasks_insert_own"
     )
   );
 
+-- Ward-scoped: an NGO lead may only complete tasks in their own provisioned ward
+-- (mirrors volunteer_tasks_select above, which was already correctly scoped — this
+-- was the write-side gap: any is_ngo_lead() could update a task in any ward).
 drop policy if exists "volunteer_tasks_update_roles" on public.volunteer_tasks;
 create policy "volunteer_tasks_update_roles"
   on public.volunteer_tasks for update
   to authenticated
   using (
-    public.is_ngo_lead()
+    (public.is_ngo_lead() and ward = public.coordinator_ward())
     or exists (
       select 1 from public.volunteer_signups vs
       where vs.id = volunteer_signup_id and vs.user_id = auth.uid()
     )
   )
-  with check (public.is_ngo_lead() or auth.uid() is not null);
+  with check (
+    (public.is_ngo_lead() and ward = public.coordinator_ward())
+    or exists (
+      select 1 from public.volunteer_signups vs
+      where vs.id = volunteer_signup_id and vs.user_id = auth.uid()
+    )
+  );
 
 -- =====================================================================
 -- Row Level Security (role-based)
@@ -312,7 +328,12 @@ alter table public.pledges enable row level security;
 drop policy if exists "reports_select_all" on public.reports;
 create policy "reports_select_all"
   on public.reports for select
-  using (removed = false or auth.uid() = reporter_id or public.is_bmc());
+  using (
+    removed = false
+    or auth.uid() = reporter_id
+    or public.is_admin()
+    or (public.is_bmc() and city = public.bmc_city())
+  );
 
 -- Reports: a user may insert only their own rows.
 drop policy if exists "reports_insert_own" on public.reports;
@@ -344,12 +365,15 @@ create policy "pledges_insert_own"
 
 -- Pledges update: the owner, or an NGO lead (deliver / verify hours).
 drop policy if exists "pledges_update_auth" on public.pledges;
+-- Ward-scoped: an NGO lead may only mark delivered / verify hours on pledges
+-- targeted at their own provisioned ward — previously any is_ngo_lead() could
+-- update any pledge regardless of ward.
 drop policy if exists "pledges_update_roles" on public.pledges;
 create policy "pledges_update_roles"
   on public.pledges for update
   to authenticated
-  using (auth.uid() = citizen_id or public.is_ngo_lead())
-  with check (auth.uid() = citizen_id or public.is_ngo_lead());
+  using (auth.uid() = citizen_id or (public.is_ngo_lead() and ward = public.coordinator_ward()))
+  with check (auth.uid() = citizen_id or (public.is_ngo_lead() and ward = public.coordinator_ward()));
 
 -- Users may delete their own reports and pledges (account/data erasure).
 drop policy if exists "reports_delete_own" on public.reports;
@@ -1656,11 +1680,19 @@ create or replace function public.bmc_set_report_status(
 returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if not (public.is_bmc() or public.is_admin()) then
-    raise exception 'not_authorized';
-  end if;
   if not exists (select 1 from public.reports where id = p_report_id) then
     raise exception 'not_found';
+  end if;
+
+  -- is_admin() (platform operator) is not city-scoped and bypasses this; a bmc
+  -- official may only act on reports filed in their own provisioned city.
+  if not (
+    public.is_admin()
+    or (public.is_bmc() and exists (
+      select 1 from public.reports where id = p_report_id and city = public.bmc_city()
+    ))
+  ) then
+    raise exception 'not_authorized';
   end if;
 
   if p_complaint_id is not null then
@@ -1745,7 +1777,17 @@ create or replace function public.ngo_mark_cleared(
 returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if not public.is_ngo_lead() then raise exception 'not_authorized'; end if;
+  -- Ward-scoped: an NGO lead may only clear reports in their own provisioned ward.
+  -- (Neighbourhood-level narrowing beyond ward is a client-side UI convenience, not
+  -- a hard boundary — every coordinator, neighbourhood-scoped or not, is at minimum
+  -- confined to their own ward.)
+  if not (
+    public.is_ngo_lead() and exists (
+      select 1 from public.reports where id = p_report_id and ward = public.coordinator_ward()
+    )
+  ) then
+    raise exception 'not_authorized';
+  end if;
   update public.reports set
     community_cleared = coalesce(p_cleared, true),
     cleared_by = coalesce(p_cleared_by, cleared_by)
@@ -1760,7 +1802,14 @@ create or replace function public.admin_remove_report(p_report_id uuid, p_remove
 returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if not (public.is_bmc() or public.is_admin()) then raise exception 'not_authorized'; end if;
+  if not (
+    public.is_admin()
+    or (public.is_bmc() and exists (
+      select 1 from public.reports where id = p_report_id and city = public.bmc_city()
+    ))
+  ) then
+    raise exception 'not_authorized';
+  end if;
   update public.reports set
     removed = coalesce(p_removed, true),
     removed_at = case when coalesce(p_removed, true) then now() else null end
