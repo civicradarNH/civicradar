@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v204';
+  const CIVIC_APP_VERSION = 'v207';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -58,7 +58,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const DEBUG_MAX_LINES = 80;
 
+  const DEBUG_SESSION_KEY = 'civicradar_debug_log';
+
   const debugLines = [];
+
+  // Restore the log from just before a reload (sessionStorage survives it, plain memory
+  // doesn't) — without this, the one moment worth debugging (why did it reload) is the
+  // one guaranteed to be missing from the panel.
+  if (CIVIC_DEBUG) {
+
+    try {
+
+      const persisted = JSON.parse(sessionStorage.getItem(DEBUG_SESSION_KEY) || '[]');
+
+      if (Array.isArray(persisted) && persisted.length) debugLines.push(...persisted, '--- reload/restart ---');
+
+    } catch { /* ignore */ }
+
+  }
 
   let debugLogEl = null;
 
@@ -85,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
     debugLines.push(line);
 
     while (debugLines.length > DEBUG_MAX_LINES) debugLines.shift();
+
+    try { sessionStorage.setItem(DEBUG_SESSION_KEY, JSON.stringify(debugLines)); } catch { /* ignore */ }
 
     if (debugLogEl) {
 
@@ -175,6 +194,8 @@ document.addEventListener('DOMContentLoaded', function () {
     btnClear.addEventListener('click', () => {
 
       debugLines.length = 0;
+
+      try { sessionStorage.removeItem(DEBUG_SESSION_KEY); } catch { /* ignore */ }
 
       if (debugLogEl) debugLogEl.textContent = '';
 
@@ -20718,6 +20739,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // showToast()'s own de-dupe only covers non-interactive toasts (see above) — action
+  // toasts never auto-dismiss, so a repeat trigger (e.g. tapping Submit again while a
+  // recovery toast is still up) stacks a second identical one indefinitely. Callers that
+  // always resolve to the same fixed action (no per-report/per-instance closure data)
+  // should guard with this before calling showToast.
+  function isToastShowing(type, message) {
+
+    const container = $('#toastContainer');
+
+    const key = `${type}::${message}`;
+
+    return !!(container && Array.from(container.children).some((el) => el.dataset && el.dataset.civicToastKey === key));
+
+  }
+
+
+
   window.showToast = showToast;
 
   window.formatAuthError = formatAuthError;
@@ -24192,7 +24230,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showGpsRecoveryActions(message, type, duration) {
 
-    showToast(message, type || 'error', duration || 9000, {
+    const resolvedType = type || 'error';
+
+    if (isToastShowing(resolvedType, message)) return;
+
+    showToast(message, resolvedType, duration || 9000, {
 
       label: t('report.placePinOnMap'),
 
@@ -28743,13 +28785,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       syncConfirmPinUiHints();
 
-      showToast(t('toast.pinConfirmRequired'), 'info', 8000, {
+      if (!isToastShowing('info', t('toast.pinConfirmRequired'))) {
 
-        label: t('report.placePinOnMap'),
+        showToast(t('toast.pinConfirmRequired'), 'info', 8000, {
 
-        onClick: () => focusConfirmPinMap(),
+          label: t('report.placePinOnMap'),
 
-      });
+          onClick: () => focusConfirmPinMap(),
+
+        });
+
+      }
 
       return;
 
@@ -38340,6 +38386,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // First install: no controller yet — skip "update available" toast.
             if (!navigator.serviceWorker.controller) return;
+
+            if (isToastShowing('info', t('update.available'))) return;
 
             // Action toasts persist until dismiss (duration ignored).
             showToast(t('update.available'), 'info', 0, {
