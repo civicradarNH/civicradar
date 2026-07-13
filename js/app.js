@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v210';
+  const CIVIC_APP_VERSION = 'v211';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12263,10 +12263,16 @@ document.addEventListener('DOMContentLoaded', function () {
     return isReporterMuted(r && r.reporterId);
   }
 
-  function isReportPubliclyHidden(r) {
+  // hiddenIds/mutedIds are optional pre-computed Sets — pass them when calling this
+  // inside a per-report loop (leaderboard aggregation, map filtering, ward pulse)
+  // so the loop isn't re-reading + re-parsing both localStorage keys on every single
+  // report. Falls back to loading fresh for the many single-report call sites.
+  function isReportPubliclyHidden(r, hiddenIds, mutedIds) {
     if (!r || r.removed) return true;
-    if (isReportHidden(r.id)) return true;
-    if (isReportFromMutedReporter(r)) return true;
+    const hidden = hiddenIds || loadHiddenReportIds();
+    if (hidden.has(String(r.id))) return true;
+    const muted = mutedIds || loadMutedReporterIds();
+    if (r.reporterId && muted.has(String(r.reporterId))) return true;
     return false;
   }
 
@@ -12309,8 +12315,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // "this month" leaderboard view alongside the default all-time aggregation.
   function aggregateWardLeaderboard(sinceTs) {
     const byWard = {};
+    const hiddenIds = loadHiddenReportIds();
+    const mutedIds = loadMutedReporterIds();
     cityScopedReports(loadReports()).forEach((r) => {
-      if (!r.ward || isReportPubliclyHidden(r)) return;
+      if (!r.ward || isReportPubliclyHidden(r, hiddenIds, mutedIds)) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       if (!byWard[r.ward]) {
         byWard[r.ward] = { name: r.ward, points: 0, reports: 0, resolved: 0, isUser: false, isDemo: false };
@@ -12327,8 +12335,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function aggregateCitizenLeaderboard(sinceTs) {
     const byCitizen = {};
+    const hiddenIds = loadHiddenReportIds();
+    const mutedIds = loadMutedReporterIds();
     cityScopedReports(loadReports()).forEach((r) => {
-      if (isReportPubliclyHidden(r)) return;
+      if (isReportPubliclyHidden(r, hiddenIds, mutedIds)) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       const key = r.reporterId || r.reporter || 'anon';
       const name = r.reporter || 'Citizen';
@@ -12459,13 +12469,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* ---------- Reports Storage ---------- */
+  // Per-tick cache: a single submitReport()/refreshAllViews() burst can call
+  // loadReports() 10-15+ times (points/streak/badge/leaderboard/marker recompute
+  // etc.), each a full JSON.parse of a blob that carries every report's embedded
+  // photo. Cache clears itself on the next microtask, so it only ever spans one
+  // synchronous burst — nothing can read a stale value across separate calls the
+  // way a longer-lived cache could if some caller mutates the array without
+  // saving. saveReports() below keeps the cache in sync with what it just wrote,
+  // so a load-then-save-then-load within the same burst still sees fresh state.
+  let _reportsCache = null;
+
+  let _reportsCacheClearQueued = false;
+
   function loadReports() {
+    if (_reportsCache) return _reportsCache;
     try {
       const raw = localStorage.getItem(REPORTS_KEY);
-      return raw ? JSON.parse(raw) : [];
+      _reportsCache = raw ? JSON.parse(raw) : [];
     } catch {
-      return [];
+      _reportsCache = [];
     }
+    if (!_reportsCacheClearQueued) {
+      _reportsCacheClearQueued = true;
+      Promise.resolve().then(() => {
+        _reportsCache = null;
+        _reportsCacheClearQueued = false;
+      });
+    }
+    return _reportsCache;
   }
 
   function trimReportsForDevice(reports) {
@@ -12492,6 +12523,7 @@ document.addEventListener('DOMContentLoaded', function () {
     while (true) {
       try {
         localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
+        _reportsCache = reports;
         return;
       } catch (err) {
         if ((err.name === 'QuotaExceededError' || err.code === 22) && reports.length > 0) {
@@ -13843,10 +13875,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderWardChallenge();
 
-      renderLeaderboard('wards');
-
-      renderLeaderboard('citizens');
-
       if (overlays.coordinator && overlays.coordinator.classList.contains('open')) {
 
         renderCoordinatorPledges();
@@ -13867,9 +13895,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderCommunityImpactStats();
 
-      renderWardChallenge();
-
+      // Leaderboard + impact wall + success stories are all Community-tab content —
+      // gated the same way coordinator/adminQueue rendering above is, so a sync tick
+      // doesn't re-sort/re-render lists nobody's currently looking at.
       if (overlays.community && overlays.community.classList.contains('open')) {
+
+        renderLeaderboard('wards');
+
+        renderLeaderboard('citizens');
 
         renderImpactWall();
 
@@ -24954,9 +24987,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function reportsForMap() {
 
+    const hiddenIds = loadHiddenReportIds();
+
+    const mutedIds = loadMutedReporterIds();
+
     let reports = loadReports().filter(
 
-      (r) => !isReportPubliclyHidden(r) && r.lat != null && r.lng != null
+      (r) => !isReportPubliclyHidden(r, hiddenIds, mutedIds) && r.lat != null && r.lng != null
 
     );
 
@@ -25171,12 +25208,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function getUserWardPulseStats() {
     const ward = user && user.ward;
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const hiddenIds = loadHiddenReportIds();
+    const mutedIds = loadMutedReporterIds();
     let open = 0;
     let fixedWeek = 0;
     let meToo = 0;
     cityScopedReports(loadReports()).forEach((r) => {
       if (!ward || r.ward !== ward) return;
-      if (typeof isReportPubliclyHidden === 'function' && isReportPubliclyHidden(r)) return;
+      if (isReportPubliclyHidden(r, hiddenIds, mutedIds)) return;
       if (r.status === 'pending') {
         open += 1;
         meToo += Number(r.confirmations) || 0;
@@ -27709,9 +27748,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // initReportPinPreview() calls this ~2x per report flow (initial seed, then again
+  // once GPS refine settles) — without the in-flight guard, each call stacks its own
+  // 5-run batch, so two calls close together meant up to 10 pending invalidateSize()
+  // passes. A second call while a batch is already running is a no-op; the in-flight
+  // batch's later runs still cover any layout change that happened in between.
+  let reportPinMapResizeScheduled = false;
+
   function scheduleReportPinMapResize() {
 
     if (!reportPinMap) return;
+
+    if (reportPinMapResizeScheduled) return;
+
+    reportPinMapResizeScheduled = true;
 
     debugLog('PIN', 'invalidateSize', { where: 'scheduleReportPinMapResize' });
 
@@ -27733,7 +27783,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setTimeout(run, 250);
 
-        setTimeout(run, 600);
+        setTimeout(() => { run(); reportPinMapResizeScheduled = false; }, 600);
 
       });
 
@@ -27867,16 +27917,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       });
 
-    } else {
-
-      syncConfirmPinMarker();
-
     }
 
     const zoom = zoomForAccuracy(confirmPinAccuracyM);
 
     reportPinMap.setView([confirmPinLat, confirmPinLng], Math.max(zoom, 16), { animate: false });
 
+    // Single sync call covers both the just-created-map and reused-map cases —
+    // this used to run twice back-to-back for the same coordinates on the reuse path.
     syncConfirmPinMarker();
 
     scheduleReportPinMapResize();
@@ -34858,9 +34906,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const byWard = {};
 
+    const hiddenIds = loadHiddenReportIds();
+
+    const mutedIds = loadMutedReporterIds();
+
     cityScopedReports(loadReports()).forEach((r) => {
 
-      if (!r.ward || isReportPubliclyHidden(r)) return;
+      if (!r.ward || isReportPubliclyHidden(r, hiddenIds, mutedIds)) return;
 
       if (!byWard[r.ward]) {
 
@@ -35004,9 +35056,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
+    const hiddenIds = loadHiddenReportIds();
+
+    const mutedIds = loadMutedReporterIds();
+
     const recent = cityScopedReports(loadReports()).filter((r) => {
 
-      if (isReportPubliclyHidden(r)) return false;
+      if (isReportPubliclyHidden(r, hiddenIds, mutedIds)) return false;
 
       if (ward && r.ward !== ward) return false;
 

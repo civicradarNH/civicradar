@@ -252,16 +252,9 @@
     const pixelResult = analyzePixels(ctx, width, height, cfg);
     if (!pixelResult.ok) return pixelResult;
 
-    const img = new Image();
-    img.width = width;
-    img.height = height;
-    img.src = canvas.toDataURL('image/jpeg', 0.92);
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
-
-    const nsfwResult = await classifyNsfw(img, cfg);
+    // nsfwjs's classify() accepts a canvas directly (it wraps tf.browser.fromPixels) —
+    // no need to encode to a JPEG data URL and decode it back into an <img> first.
+    const nsfwResult = await classifyNsfw(canvas, cfg);
     if (!nsfwResult.ok) return nsfwResult;
 
     return pass({ ...pixelResult, ...nsfwResult });
