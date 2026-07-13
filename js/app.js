@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v200';
+  const CIVIC_APP_VERSION = 'v201';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -21386,6 +21386,126 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Modals ---------- */
 
+  function bindFocusTrapForOverlay(overlayEl) {
+
+    if (!overlayEl) return;
+
+    const modal = overlayEl.querySelector('.modal') || overlayEl;
+
+    if (focusTrapHandler) document.removeEventListener('keydown', focusTrapHandler);
+
+    focusTrapHandler = (e) => {
+
+      if (e.key !== 'Tab' || !overlayEl.classList.contains('open')) return;
+
+      const items = getFocusable(modal);
+
+      if (items.length < 2) return;
+
+      const first = items[0];
+
+      const last = items[items.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+
+        e.preventDefault();
+
+        last.focus();
+
+      } else if (!e.shiftKey && document.activeElement === last) {
+
+        e.preventDefault();
+
+        first.focus();
+
+      }
+
+    };
+
+    document.addEventListener('keydown', focusTrapHandler);
+
+  }
+
+  function focusModalLanding(name, overlayEl) {
+
+    const modal = overlayEl.querySelector('.modal') || overlayEl;
+
+    const confirmStep = name === 'report' ? $('#reportStepConfirm') : null;
+
+    const landingOnPhotoConfirm = !!(confirmStep && !confirmStep.hidden);
+
+    if (landingOnPhotoConfirm) {
+
+      // Prefer photo preview over first focusable (notes textarea when expanded).
+
+      focusReportConfirmView();
+
+      return;
+
+    }
+
+    // Announce Terms intent before Privacy Policy / Full Terms links in tab order.
+
+    if (name === 'tos') {
+
+      const tosTitle = $('#tosTitle');
+
+      if (tosTitle) {
+
+        try { tosTitle.focus(); } catch { /* ignore */ }
+
+        return;
+
+      }
+
+    }
+
+    const focusable = getFocusable(modal);
+
+    if (focusable.length) focusable[0].focus();
+
+  }
+
+  function restoreFocusTrapToTopmost() {
+
+    const topName = getTopmostOpenModalName();
+
+    if (!topName) return;
+
+    const topEl = overlays[topName];
+
+    if (!topEl) return;
+
+    bindFocusTrapForOverlay(topEl);
+
+    const modal = topEl.querySelector('.modal') || topEl;
+
+    if (modal.contains(document.activeElement)) return;
+
+    const confirmStep = topName === 'report' ? $('#reportStepConfirm') : null;
+
+    if (confirmStep && !confirmStep.hidden) {
+
+      focusReportConfirmView();
+
+      return;
+
+    }
+
+    const focusable = getFocusable(modal);
+
+    if (focusable.length) {
+
+      focusable[0].focus();
+
+      return;
+
+    }
+
+    try { modal.focus(); } catch { /* ignore */ }
+
+  }
+
   function openModal(name) {
 
     debugLog('MODAL', 'openModal', { name });
@@ -21398,7 +21518,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hadOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
 
-    lastFocusedEl = document.activeElement;
+    // Preserve the page trigger across stacked opens; only restore when all close.
+
+    if (!hadOpen) lastFocusedEl = document.activeElement;
 
     el.classList.add('open');
 
@@ -21428,57 +21550,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (name === 'admin' || name === 'lead') updateAuthMode();
 
-    const modal = el.querySelector('.modal') || el;
+    focusModalLanding(name, el);
 
-    const confirmStep = name === 'report' ? $('#reportStepConfirm') : null;
-
-    const landingOnPhotoConfirm = !!(confirmStep && !confirmStep.hidden);
-
-    if (landingOnPhotoConfirm) {
-
-      // Prefer photo preview over first focusable (notes textarea when expanded).
-
-      focusReportConfirmView();
-
-    } else {
-
-      const focusable = getFocusable(modal);
-
-      if (focusable.length) focusable[0].focus();
-
-    }
-
-    if (focusTrapHandler) document.removeEventListener('keydown', focusTrapHandler);
-
-    focusTrapHandler = (e) => {
-
-      if (e.key !== 'Tab' || !el.classList.contains('open')) return;
-
-      const items = getFocusable(modal);
-
-      if (items.length < 2) return;
-
-      const first = items[0];
-
-      const last = items[items.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-
-        e.preventDefault();
-
-        last.focus();
-
-      } else if (!e.shiftKey && document.activeElement === last) {
-
-        e.preventDefault();
-
-        first.focus();
-
-      }
-
-    };
-
-    document.addEventListener('keydown', focusTrapHandler);
+    bindFocusTrapForOverlay(el);
 
     if (name === 'onboarding') {
 
@@ -22151,19 +22225,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!anyOpen && focusTrapHandler) {
+    if (!anyOpen) {
 
-      document.removeEventListener('keydown', focusTrapHandler);
+      if (focusTrapHandler) {
 
-      focusTrapHandler = null;
+        document.removeEventListener('keydown', focusTrapHandler);
 
-    }
+        focusTrapHandler = null;
 
-    if (!anyOpen && lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
+      }
 
-      try { lastFocusedEl.focus(); } catch { /* ignore */ }
+      if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
 
-      lastFocusedEl = null;
+        try { lastFocusedEl.focus(); } catch { /* ignore */ }
+
+        lastFocusedEl = null;
+
+      }
+
+    } else {
+
+      // Rebind trap + move focus into the still-open parent (e.g. success ← escalation).
+
+      restoreFocusTrapToTopmost();
 
     }
 
