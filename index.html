@@ -298,7 +298,7 @@
 
   <!-- Terms of Service Modal -->
   <div class="modal-overlay" id="tosOverlay" aria-hidden="true">
-    <div class="modal" id="tosModal" role="dialog" aria-labelledby="tosTitle">
+    <div class="modal" id="tosModal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
       <div class="modal__handle"></div>
       <h2 id="tosTitle" data-i18n="tos.title">Terms of Service</h2>
       <div class="flow-steps flow-steps--compact" aria-label="Setup progress">
@@ -338,7 +338,7 @@
 
   <!-- Onboarding Modal -->
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
-    <div class="modal" id="onboardingModal" role="dialog" aria-labelledby="onboardingTitle">
+    <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
       <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
       <div class="flow-steps flow-steps--compact" aria-label="Setup progress">
@@ -393,7 +393,7 @@
 
   <!-- Report Modal (photo-first: Capture → Confirm) -->
   <div class="modal-overlay" id="reportGeoOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="reportGeoModal" role="dialog" aria-labelledby="reportGeoTitle" aria-describedby="reportGeoBody">
+    <div class="modal modal--sm" id="reportGeoModal" role="dialog" aria-modal="true" aria-labelledby="reportGeoTitle" aria-describedby="reportGeoBody">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="reportGeo" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-map-pin"></i></div>
@@ -407,7 +407,7 @@
   </div>
 
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
-    <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-labelledby="reportTitle">
+    <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="report" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="reportTitle" data-i18n="report.title">Report a Hazard</h2>
@@ -434,7 +434,7 @@
 
       <!-- Screen B: confirm — photo hero, hazard chips, ward, notes, submit -->
       <div class="report-step" id="reportStepConfirm" data-step="confirm" hidden>
-        <div class="report-photo-hero" id="reportPhotoHero">
+        <div class="report-photo-hero" id="reportPhotoHero" tabindex="-1">
           <canvas id="imageCanvas" width="640" height="480"></canvas>
         </div>
         <div class="form-group hazard-picker-group hazard-picker-group--compact">
@@ -482,7 +482,7 @@
 
   <!-- Success Modal -->
   <div class="modal-overlay" id="successOverlay" aria-hidden="true">
-    <div class="modal" id="successModal" role="dialog" aria-labelledby="successTitle">
+    <div class="modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="success" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="success-icon">
@@ -541,7 +541,7 @@
 
   <!-- Share Win Modal (resolved / volunteer cleanup) -->
   <div class="modal-overlay" id="shareWinOverlay" aria-hidden="true">
-    <div class="modal" id="shareWinModal" role="dialog" aria-labelledby="shareWinTitle">
+    <div class="modal" id="shareWinModal" role="dialog" aria-modal="true" aria-labelledby="shareWinTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="shareWin" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="success-icon success-icon--win">
@@ -579,7 +579,7 @@
 
   <!-- Civic Hero XP certificate (level-up) -->
   <div class="modal-overlay" id="certificateOverlay" aria-hidden="true">
-    <div class="modal" id="certificateModal" role="dialog" aria-labelledby="certificateTitle">
+    <div class="modal" id="certificateModal" role="dialog" aria-modal="true" aria-labelledby="certificateTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="certificate" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="success-icon success-icon--cert" aria-hidden="true">
@@ -607,7 +607,7 @@
 
   <!-- Leaderboard / Community Modal -->
   <div class="modal-overlay" id="communityOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="communityModal" role="dialog" aria-labelledby="communityTitle">
+    <div class="modal modal--tall" id="communityModal" role="dialog" aria-modal="true" aria-labelledby="communityTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
@@ -715,7 +715,7 @@
 
   <!-- Resources Modal (official channels, volunteer, pledge) -->
   <div class="modal-overlay" id="resourcesOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="resourcesModal" role="dialog" aria-labelledby="resourcesTitle">
+    <div class="modal modal--tall" id="resourcesModal" role="dialog" aria-modal="true" aria-labelledby="resourcesTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
@@ -761,7 +761,7 @@
 
   <!-- Volunteer Signup Modal -->
   <div class="modal-overlay" id="volunteerOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="volunteerModal" role="dialog" aria-labelledby="volunteerTitle">
+    <div class="modal modal--tall" id="volunteerModal" role="dialog" aria-modal="true" aria-labelledby="volunteerTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="volunteer" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="volunteerTitle" data-i18n="volunteer.title">Volunteer in my ward</h2>
@@ -817,7 +817,7 @@
 
   <!-- Pledge Modal -->
   <div class="modal-overlay" id="pledgeOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="pledgeModal" role="dialog" aria-labelledby="pledgeTitle">
+    <div class="modal modal--tall" id="pledgeModal" role="dialog" aria-modal="true" aria-labelledby="pledgeTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="pledge" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="pledgeTitle" data-i18n="pledge.title">Pledge support</h2>
@@ -847,7 +847,7 @@
 
   <!-- Profile Modal -->
   <div class="modal-overlay" id="profileOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="profileModal" role="dialog" aria-labelledby="profileTitle">
+    <div class="modal modal--tall" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="profile" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="profileTitle" data-i18n="profile.title">Your Profile</h2>
@@ -1081,7 +1081,7 @@
 
   <!-- Partner Portal (stakeholder entry) -->
   <div class="modal-overlay" id="partnerOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="partnerModal" role="dialog" aria-labelledby="partnerTitle">
+    <div class="modal modal--sm" id="partnerModal" role="dialog" aria-modal="true" aria-labelledby="partnerTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="partner" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="partnerTitle" data-i18n="partner.title">Volunteer login</h2>
@@ -1116,7 +1116,7 @@
 
   <!-- Admin Login Modal (BMC) -->
   <div class="modal-overlay" id="adminOverlay" aria-hidden="true">
-    <div class="modal modal--sm modal--persona-admin" id="adminModal" role="dialog" aria-labelledby="adminTitle">
+    <div class="modal modal--sm modal--persona-admin" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="admin" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="profile.persona.admin">BMC Admin</p>
@@ -1164,7 +1164,7 @@
 
   <!-- Coordinator Login Modal (NGO Lead) -->
   <div class="modal-overlay" id="leadOverlay" aria-hidden="true">
-    <div class="modal modal--sm modal--persona-lead" id="leadModal" role="dialog" aria-labelledby="leadTitle">
+    <div class="modal modal--sm modal--persona-lead" id="leadModal" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="lead" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--lead" data-i18n="profile.persona.ngo">NGO Coordinator</p>
@@ -1216,7 +1216,7 @@
 
   <!-- BMC Admin Queue Dashboard -->
   <div class="modal-overlay" id="adminQueueOverlay" aria-hidden="true">
-    <div class="modal modal--tall modal--persona-admin" id="adminQueueModal" role="dialog" aria-labelledby="adminQueueTitle">
+    <div class="modal modal--tall modal--persona-admin" id="adminQueueModal" role="dialog" aria-modal="true" aria-labelledby="adminQueueTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="adminQueue" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="profile.persona.admin">BMC Admin</p>
@@ -1269,7 +1269,7 @@
 
   <!-- Coordinator Dashboard -->
   <div class="modal-overlay" id="coordinatorOverlay" aria-hidden="true">
-    <div class="modal modal--tall modal--persona-lead" id="coordinatorModal" role="dialog" aria-labelledby="coordinatorTitle">
+    <div class="modal modal--tall modal--persona-lead" id="coordinatorModal" role="dialog" aria-modal="true" aria-labelledby="coordinatorTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="coordinator" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--lead" data-i18n="profile.persona.ngo">NGO Coordinator</p>
@@ -1310,7 +1310,7 @@
 
   <!-- BMC Admin Report Detail Modal -->
   <div class="modal-overlay" id="adminReportOverlay" aria-hidden="true">
-    <div class="modal modal--persona-admin" id="adminReportModal" role="dialog" aria-labelledby="adminReportTitle">
+    <div class="modal modal--persona-admin" id="adminReportModal" role="dialog" aria-modal="true" aria-labelledby="adminReportTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="adminReport" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="admin.reviewTag">BMC review</p>
@@ -1357,7 +1357,7 @@
 
   <!-- Escalation / File with BMC Modal -->
   <div class="modal-overlay" id="escalationOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="escalationModal" role="dialog" aria-labelledby="escalationTitle">
+    <div class="modal modal--tall" id="escalationModal" role="dialog" aria-modal="true" aria-labelledby="escalationTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="escalation" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="escalationTitle"><i class="ph ph-megaphone"></i> <span id="escTitleText" data-i18n="esc.title">File with BMC (optional)</span></h2>
@@ -1369,24 +1369,32 @@
       <div id="escBmcPanel">
       <h3 class="section-title" data-i18n="esc.fileTitle">File the complaint (free)</h3>
       <p class="field-hint esc-recommended" id="escRecommended" data-i18n="esc.recommended">Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.</p>
-      <p class="field-hint" id="escFileHint">Stagnant water goes to your ward’s Pest Control Officer. Use any channel:</p>
-      <div class="esc-channels">
-        <button type="button" class="esc-channel esc-channel--recommended" id="btnEscWhatsApp">
+      <p class="field-hint" id="escFileHint">Stagnant water goes to your ward’s Pest Control Officer. Start with the recommended channel — or open more ways below.</p>
+      <div class="esc-channels esc-channels--primary">
+        <button type="button" class="esc-channel esc-channel--recommended esc-channel--wide" id="btnEscWhatsApp">
           <i class="ph ph-whatsapp-logo"></i><span>MyBMC WhatsApp</span><small data-i18n="esc.channelWa">Chatbot · pre-fill below</small>
         </button>
-        <button type="button" class="esc-channel" id="btnEscCall">
-          <i class="ph ph-phone-call"></i><span>Call 1916</span><small data-i18n="esc.channelCall">24×7 helpline</small>
-        </button>
-        <button type="button" class="esc-channel" id="btnEscPortal">
-          <i class="ph ph-globe"></i><span data-i18n="esc.channelPortal">Online portal</span><small>www.mcgm.gov.in</small>
-        </button>
-        <button type="button" class="esc-channel" id="btnEscMarg">
-          <i class="ph ph-device-mobile"></i><span data-i18n="esc.margApp">MyBMC MARG app</span><small data-i18n="esc.margAppSmall">Official grievance app</small>
-        </button>
-        <button type="button" class="esc-channel" id="btnEscTweet">
-          <i class="ph ph-x-logo"></i><span>Tag @mybmc</span><small data-i18n="esc.channelTweet">Public pressure</small>
-        </button>
       </div>
+      <details class="esc-more-ways">
+        <summary data-i18n="esc.moreWays">More ways to file</summary>
+        <div class="esc-channels">
+          <button type="button" class="esc-channel" id="btnEscCall">
+            <i class="ph ph-phone-call"></i><span>Call 1916</span><small data-i18n="esc.channelCall">24×7 helpline</small>
+          </button>
+          <button type="button" class="esc-channel" id="btnEscPortal">
+            <i class="ph ph-globe"></i><span data-i18n="esc.channelPortal">Online portal</span><small>www.mcgm.gov.in</small>
+          </button>
+          <button type="button" class="esc-channel" id="btnEscMarg">
+            <i class="ph ph-device-mobile"></i><span data-i18n="esc.margApp">MyBMC MARG app</span><small data-i18n="esc.margAppSmall">Official grievance app</small>
+          </button>
+          <button type="button" class="esc-channel" id="btnEscTweet">
+            <i class="ph ph-x-logo"></i><span>Tag @mybmc</span><small data-i18n="esc.channelTweet">Public pressure</small>
+          </button>
+        </div>
+        <button type="button" class="btn btn--secondary btn--full" id="btnEscAaple">
+          <i class="ph ph-bank"></i> <span data-i18n="esc.aaple">Aaple Sarkar (state grievance)</span>
+        </button>
+      </details>
 
       <div id="escParticipateBlock">
         <h3 class="section-title" data-i18n="esc.participate.title">Community action (optional)</h3>
@@ -1397,17 +1405,13 @@
           <small data-i18n="esc.participate.small">Volunteer · CSR · projects</small>
         </button>
       </div>
-
-      <button type="button" class="btn btn--secondary btn--full" id="btnEscAaple">
-        <i class="ph ph-bank"></i> <span data-i18n="esc.aaple">Aaple Sarkar (state grievance)</span>
-      </button>
       </div>
 
       <div id="escCorpPanel" class="hidden">
         <h3 class="section-title" id="escCorpTitle" data-i18n="esc.corpTitle">File with local corporation (optional)</h3>
         <p class="field-hint esc-recommended hidden" id="escCorpRecommended"></p>
         <p class="field-hint" id="escCorpHint" data-i18n="esc.corpHint">Use your city's official grievance portal to file stagnant-water / pest-control complaints.</p>
-        <div class="esc-channels" id="escCorpChannels"></div>
+        <div id="escCorpChannels"></div>
         <button type="button" class="esc-channel esc-channel--wide hidden" id="btnEscCorpPortal">
           <i class="ph ph-globe"></i>
           <span id="escCorpBtnLabel" data-i18n="esc.corpBtn">Open corporation portal</span>
@@ -1453,8 +1457,10 @@
         <p class="field-hint hidden" id="escDaysSince"></p>
       </div>
 
-      <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
-      <ul class="esc-ladder" id="escLadder"></ul>
+      <div id="escLadderSection" class="hidden">
+        <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
+        <ul class="esc-ladder" id="escLadder"></ul>
+      </div>
 
       <div class="modal__sticky-footer">
         <div class="esc-self-confirm hidden" id="escSelfConfirm">
@@ -1471,7 +1477,7 @@
 
   <!-- About CivicRadar -->
   <div class="modal-overlay" id="aboutOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="aboutModal" role="dialog" aria-labelledby="aboutTitle">
+    <div class="modal modal--tall" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="about" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="aboutTitle"><i class="ph ph-radar"></i> <span data-i18n="about.title">About CivicRadar</span></h2>
@@ -1545,7 +1551,7 @@
 
   <!-- Partner / Sponsor inquiry (monetization lead capture) -->
   <div class="modal-overlay" id="inquiryOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="inquiryModal" role="dialog" aria-labelledby="inquiryTitle">
+    <div class="modal modal--sm" id="inquiryModal" role="dialog" aria-modal="true" aria-labelledby="inquiryTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="inquiry" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="inquiryTitle"><i class="ph ph-handshake"></i> <span data-i18n="inquiry.title">Partner with CivicRadar</span></h2>
@@ -1591,7 +1597,7 @@
 
   <!-- Language Picker -->
   <div class="modal-overlay" id="langOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="langModal" role="dialog" aria-labelledby="langTitle">
+    <div class="modal modal--sm" id="langModal" role="dialog" aria-modal="true" aria-labelledby="langTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="lang" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="langTitle" data-i18n="lang.title"><i class="ph ph-translate"></i> Choose your language</h2>
@@ -1601,7 +1607,7 @@
 
   <!-- Send Feedback (in-app, Supabase-backed) -->
   <div class="modal-overlay" id="feedbackOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="feedbackModal" role="dialog" aria-labelledby="feedbackTitle">
+    <div class="modal modal--sm" id="feedbackModal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="feedback" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="feedbackTitle"><i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.title">Send feedback</span></h2>
@@ -1653,7 +1659,7 @@
 
   <!-- Request BMC access (admin approval — officials only) -->
   <div class="modal-overlay" id="accessRequestOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="accessRequestModal" role="dialog" aria-labelledby="accessRequestTitle">
+    <div class="modal modal--sm" id="accessRequestModal" role="dialog" aria-modal="true" aria-labelledby="accessRequestTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="accessRequest" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="accessRequestTitle"><i class="ph ph-identification-card"></i> <span data-i18n="access.title">Request BMC access</span></h2>
@@ -1731,7 +1737,7 @@
 
   <!-- Peer voting: become NGO / neighbourhood lead -->
   <div class="modal-overlay" id="leadNomOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="leadNomModal" role="dialog" aria-labelledby="leadNomTitle">
+    <div class="modal modal--sm" id="leadNomModal" role="dialog" aria-modal="true" aria-labelledby="leadNomTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="leadNom" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="leadNomTitle"><i class="ph ph-hand-heart"></i> <span data-i18n="lead.title">Become a community lead</span></h2>
@@ -1812,7 +1818,7 @@
 
   <!-- Enter claim code (unlock approved BMC access) -->
   <div class="modal-overlay" id="accessClaimOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="accessClaimModal" role="dialog" aria-labelledby="accessClaimTitle">
+    <div class="modal modal--sm" id="accessClaimModal" role="dialog" aria-modal="true" aria-labelledby="accessClaimTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="accessClaim" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="accessClaimTitle"><i class="ph ph-key"></i> <span data-i18n="access.claimTitle">Enter your claim code</span></h2>
@@ -1832,7 +1838,7 @@
 
   <!-- Tracking dashboard (admin / coordinator) -->
   <div class="modal-overlay" id="trackingOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="trackingModal" role="dialog" aria-labelledby="trackingTitle">
+    <div class="modal modal--tall" id="trackingModal" role="dialog" aria-modal="true" aria-labelledby="trackingTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="tracking" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="trackingTitle"><i class="ph ph-chart-bar"></i> <span data-i18n="tracking.title">Analytics &amp; tracking</span></h2>
@@ -1894,7 +1900,7 @@
 
   <!-- Access requests review (super-admin) -->
   <div class="modal-overlay" id="accessReviewOverlay" aria-hidden="true">
-    <div class="modal modal--tall modal--persona-admin" id="accessReviewModal" role="dialog" aria-labelledby="accessReviewTitle">
+    <div class="modal modal--tall modal--persona-admin" id="accessReviewModal" role="dialog" aria-modal="true" aria-labelledby="accessReviewTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="accessReview" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <p class="persona-tag persona-tag--admin" data-i18n="access.reviewTag">CivicRadar team</p>
@@ -1915,7 +1921,7 @@
 
   <!-- Coming Soon (category teaser / demand capture) -->
   <div class="modal-overlay" id="soonOverlay" aria-hidden="true">
-    <div class="modal modal--sm" id="soonModal" role="dialog" aria-labelledby="soonTitle">
+    <div class="modal modal--sm" id="soonModal" role="dialog" aria-modal="true" aria-labelledby="soonTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="soon" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="soon-icon" id="soonIcon"><i class="ph ph-rocket-launch"></i></div>

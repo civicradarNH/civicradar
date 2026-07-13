@@ -23,7 +23,7 @@
   --hazard-water: #0891b2;
   --hazard-garbage: #15803d;
   --hazard-pothole: #ea580c;
-  --hazard-streetlight: #ca8a04;
+  --hazard-streetlight: #a16207;
 
   /* Municipal corp accents — Resources official-channel cards */
   --corp-bmc: #1d4ed8;
@@ -1898,6 +1898,16 @@ body.pwa-nudge-visible #btnCamera {
 
 .modal--sm {
   max-width: 400px;
+}
+
+/* Back-office overlays: wider desktop sheet (citizen modals stay 480px) */
+@media (min-width: 768px) {
+  #adminQueueOverlay .modal,
+  #coordinatorOverlay .modal,
+  #adminReportOverlay .modal,
+  #accessReviewOverlay .modal {
+    max-width: min(920px, 94vw);
+  }
 }
 
 .modal__handle {
@@ -4660,9 +4670,70 @@ body.persona-lead .app-open-banner { display: none; }
   background: rgba(37, 211, 102, 0.06);
 }
 
+.esc-channels--primary {
+  grid-template-columns: 1fr;
+}
+
 .esc-recommended {
   color: var(--primary);
   font-weight: 600;
+}
+
+.esc-more-ways {
+  margin: 4px 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.esc-more-ways > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min);
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--fs-base);
+  color: var(--text);
+  list-style: none;
+}
+
+.esc-more-ways > summary::-webkit-details-marker { display: none; }
+
+.esc-more-ways > summary::after {
+  content: '';
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.esc-more-ways[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.esc-more-ways[open] > summary::after {
+  transform: rotate(-135deg);
+}
+
+.esc-more-ways .esc-channels {
+  margin: 0;
+  padding: 10px 12px 4px;
+}
+
+.esc-more-ways .btn--full {
+  margin: 0 12px 12px;
+  width: calc(100% - 24px);
+}
+
+#escLadderSection {
+  margin-top: 8px;
 }
 
 .official-channels-block {
@@ -5454,7 +5525,7 @@ body.persona-lead .app-open-banner { display: none; }
 .hazard-tile[data-hazard="stagnant-water"]:not(.hazard-tile--active) { background: rgba(8, 145, 178, 0.06); border-color: rgba(8, 145, 178, 0.25); }
 .hazard-tile[data-hazard="garbage"]:not(.hazard-tile--active) { background: rgba(21, 128, 61, 0.06); border-color: rgba(21, 128, 61, 0.22); }
 .hazard-tile[data-hazard="potholes"]:not(.hazard-tile--active) { background: rgba(234, 88, 12, 0.06); border-color: rgba(234, 88, 12, 0.22); }
-.hazard-tile[data-hazard="streetlight"]:not(.hazard-tile--active) { background: rgba(202, 138, 4, 0.07); border-color: rgba(202, 138, 4, 0.25); }
+.hazard-tile[data-hazard="streetlight"]:not(.hazard-tile--active) { background: rgba(161, 98, 7, 0.07); border-color: rgba(161, 98, 7, 0.28); }
 .hazard-tile__label { font-size: var(--fs-sm); font-weight: 600; text-align: center; line-height: 1.25; word-break: break-word; hyphens: auto; }
 .hazard-tile__example { font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); text-align: center; line-height: 1.25; }
 .hazard-tile__check {

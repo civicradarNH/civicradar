@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v197';
+  const CIVIC_APP_VERSION = 'v200';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -841,6 +841,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let pwaNudgeVisible = false;
 
   let pendingPwaNudge = false;
+
+  let pendingPwaNudgeTrigger = 'report';
+
+  let pwaNudgeDeferTimer = null;
 
 
 
@@ -3137,7 +3141,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.recommended': 'Recommended: file on thanecity.gov.in or call TMC helpline 022-25331590.',
 
-      'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — use any official TMC channel below.',
+      'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — start with the recommended channel, or open more ways below.',
 
       'esc.tmc.channelPortal': 'TMC online portal',
 
@@ -3205,7 +3209,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'Recommended: PMC CARE WhatsApp — fastest for most Pune wards.',
 
-      'esc.pmc.fileHint': 'Stagnant water and mosquito breeding go through PMC CARE. Use any channel:',
+      'esc.pmc.fileHint': 'Stagnant water and mosquito breeding go through PMC CARE. Start with the recommended channel — or open more ways below.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -3879,13 +3883,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileTitle': 'File the complaint (free)',
 
-      'esc.fileHint': 'Stagnant water goes to your ward\'s Pest Control Officer. Use any channel:',
+      'esc.fileHint': 'Stagnant water goes to your ward\'s Pest Control Officer. Start with the recommended channel — or open more ways below.',
 
-      'esc.fileHint.garbage': 'Garbage / solid waste goes through Solid Waste Management. Use any channel:',
+      'esc.fileHint.garbage': 'Garbage / solid waste goes through Solid Waste Management. Start with the recommended channel — or open more ways below.',
 
-      'esc.fileHint.potholes': 'Potholes and road damage go to Roads / Engineering. Use any channel:',
+      'esc.fileHint.potholes': 'Potholes and road damage go to Roads / Engineering. Start with the recommended channel — or open more ways below.',
 
-      'esc.fileHint.streetlight': 'Broken streetlights go to the Electrical department. Use any channel:',
+      'esc.fileHint.streetlight': 'Broken streetlights go to the Electrical department. Start with the recommended channel — or open more ways below.',
+
+      'esc.moreWays': 'More ways to file',
 
       'esc.recommended': 'Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.',
 
@@ -5508,7 +5514,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.recommended': 'अनुशंसित: thanecity.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
 
-      'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — नीचे किसी भी आधिकारिक TMC चैनल का उपयोग करें।',
+      'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
       'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल',
 
@@ -5576,7 +5582,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'अनुशंसित: PMC CARE WhatsApp — अधिकांश Pune वार्डों के लिए सबसे तेज़।',
 
-      'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन PMC CARE के माध्यम से जाता है। कोई भी चैनल:',
+      'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन PMC CARE के माध्यम से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -6250,13 +6256,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileTitle': 'शिकायत दर्ज करें (निःशुल्क)',
 
-      'esc.fileHint': 'रुका पानी आपके वार्ड के कीट नियंत्रण अधिकारी तक जाता है। कोई भी चैनल:',
+      'esc.fileHint': 'रुका पानी आपके वार्ड के कीट नियंत्रण अधिकारी तक जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
 
-      'esc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट Solid Waste Management से जाता है। कोई भी चैनल:',
+      'esc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट Solid Waste Management से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
 
-      'esc.fileHint.potholes': 'गड्ढे और सड़क क्षति Roads / Engineering को जाती है। कोई भी चैनल:',
+      'esc.fileHint.potholes': 'गड्ढे और सड़क क्षति Roads / Engineering को जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
 
-      'esc.fileHint.streetlight': 'खराब स्ट्रीटलाइट Electrical विभाग को जाती है। कोई भी चैनल:',
+      'esc.fileHint.streetlight': 'खराब स्ट्रीटलाइट Electrical विभाग को जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+
+      'esc.moreWays': 'दर्ज करने के और तरीके',
 
       'esc.recommended': 'अनुशंसित: MyBMC WhatsApp — अधिकांश मुंबई वार्डों के लिए सबसे तेज़।',
 
@@ -7878,7 +7886,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.recommended': 'शिफारस: thanecity.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
 
-      'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — खालील कोणत्याही अधिकृत TMC चॅनेल वापरा.',
+      'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
       'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल',
 
@@ -7946,7 +7954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'शिफारस: PMC CARE WhatsApp — बहुतेक Pune वॉर्डांसाठी सर्वात जलद.',
 
-      'esc.pmc.fileHint': 'साचलेले पाणी आणि डास PMC CARE मार्फत जातात. कोणताही चॅनेल:',
+      'esc.pmc.fileHint': 'साचलेले पाणी आणि डास PMC CARE मार्फत जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -8620,13 +8628,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileTitle': 'तक्रार नोंदवा (मोफत)',
 
-      'esc.fileHint': 'साचलेले पाणी वॉर्ड PCO कडे जाते. कोणताही चॅनेल:',
+      'esc.fileHint': 'साचलेले पाणी वॉर्ड PCO कडे जाते. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.fileHint.garbage': 'कचरा / घन कचरा Solid Waste Management मार्गे जातो. कोणताही चॅनेल:',
+      'esc.fileHint.garbage': 'कचरा / घन कचरा Solid Waste Management मार्गे जातो. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान Roads / Engineering कडे जाते. कोणताही चॅनेल:',
+      'esc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान Roads / Engineering कडे जाते. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.fileHint.streetlight': 'बंद पथदिवे Electrical विभागाकडे जातात. कोणताही चॅनेल:',
+      'esc.fileHint.streetlight': 'बंद पथदिवे Electrical विभागाकडे जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.moreWays': 'दाखल करण्याचे अधिक मार्ग',
 
       'esc.recommended': 'शिफारस: MyBMC WhatsApp — बहुतेक मुंबई वॉर्डांसाठी सर्वात जलद.',
 
@@ -10248,7 +10258,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.recommended': 'ભલામણ: thanecity.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
 
-      'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — નીચેના કોઈ પણ અધિકૃત TMC ચેનલનો ઉપયોગ કરો.',
+      'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
 
       'esc.tmc.channelPortal': 'TMC ઑનલાઇન પોર્ટલ',
 
@@ -10316,7 +10326,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'ભલામણ: PMC CARE WhatsApp — મોટાભાગના Pune વોર્ડ માટે સૌથી ઝડપી.',
 
-      'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર PMC CARE દ્વારા જાય છે. કોઈ પણ ચેનલ:',
+      'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -10990,13 +11000,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.fileTitle': 'ફરિયાદ નોંધાવો (મફત)',
 
-      'esc.fileHint': 'ભરાયેલું પાણી વોર્ડ PCO પાસે જાય છે. કોઈ પણ ચેનલ:',
+      'esc.fileHint': 'ભરાયેલું પાણી વોર્ડ PCO પાસે જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
 
-      'esc.fileHint.garbage': 'કચરો / ઘન કચરો Solid Waste Management દ્વારા જાય છે. કોઈ પણ ચેનલ:',
+      'esc.fileHint.garbage': 'કચરો / ઘન કચરો Solid Waste Management દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
 
-      'esc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન Roads / Engineering પાસે જાય છે. કોઈ પણ ચેનલ:',
+      'esc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન Roads / Engineering પાસે જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
 
-      'esc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ Electrical વિભાગ પાસે જાય છે. કોઈ પણ ચેનલ:',
+      'esc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ Electrical વિભાગ પાસે જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.moreWays': 'ફાઇલ કરવાની વધુ રીતો',
 
       'esc.recommended': 'ભલામણ: MyBMC WhatsApp — મોટાભાગના મુંબઈ વોર્ડ માટે સૌથી ઝડપી.',
 
@@ -20029,7 +20041,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function setReportNotesExpanded(expanded) {
+  function setReportNotesExpanded(expanded, opts) {
 
     const body = $('#reportNotesBody');
 
@@ -20043,13 +20055,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 
-    if (expanded) {
+    // Only focus on explicit user expand (toggle tap). Programmatic expand on
+    // photo→confirm must not focus — mobile keyboards open on textarea focus.
+    if (expanded && opts && opts.focus) {
 
       const notesEl = $('#reportNotes');
+
+      if (notesEl && document.activeElement === notesEl) return;
 
       requestAnimationFrame(() => { notesEl?.focus(); });
 
     }
+
+  }
+
+
+
+  function isReportConfirmTextFieldActive() {
+
+    const active = document.activeElement;
+
+    if (!active) return false;
+
+    const confirm = $('#reportStepConfirm');
+
+    if (!confirm || !confirm.contains(active)) return false;
+
+    const tag = (active.tagName || '').toUpperCase();
+
+    return tag === 'TEXTAREA' || tag === 'INPUT' || active.isContentEditable;
+
+  }
+
+
+
+  function focusReportConfirmView() {
+
+    // Don't steal focus mid-typing (resume / re-entry while notes open).
+
+    if (isReportConfirmTextFieldActive()) return;
+
+    const hero = $('#reportPhotoHero');
+
+    if (!hero) return;
+
+    if (!hero.hasAttribute('tabindex')) hero.setAttribute('tabindex', '-1');
+
+    requestAnimationFrame(() => {
+
+      if (isReportConfirmTextFieldActive()) return;
+
+      try { hero.focus({ preventScroll: true }); } catch {
+
+        try { hero.focus(); } catch { /* ignore */ }
+
+      }
+
+    });
 
   }
 
@@ -21278,6 +21340,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         saveUser();
 
+        hideLocationBanner();
+
         currentLat = pos.coords.latitude;
 
         currentLng = pos.coords.longitude;
@@ -21366,9 +21430,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const modal = el.querySelector('.modal') || el;
 
-    const focusable = getFocusable(modal);
+    const confirmStep = name === 'report' ? $('#reportStepConfirm') : null;
 
-    if (focusable.length) focusable[0].focus();
+    const landingOnPhotoConfirm = !!(confirmStep && !confirmStep.hidden);
+
+    if (landingOnPhotoConfirm) {
+
+      // Prefer photo preview over first focusable (notes textarea when expanded).
+
+      focusReportConfirmView();
+
+    } else {
+
+      const focusable = getFocusable(modal);
+
+      if (focusable.length) focusable[0].focus();
+
+    }
 
     if (focusTrapHandler) document.removeEventListener('keydown', focusTrapHandler);
 
@@ -21556,7 +21634,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function restoreReportDraftIfNeeded() {
+  function restoreReportDraftIfNeeded(opts) {
+
+    opts = opts || {};
 
     const draft = readReportDraft();
 
@@ -21572,6 +21652,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Resume while report sheet already open: skip openModal / focus churn.
+    // Photo confirm + pin resize belong to syncReportPhotoReturn on photo-return paths.
+    if (overlays.report?.classList.contains('open')) {
+
+      return true;
+
+    }
+
     if (tourState) endTour(false);
 
     selectHazard(draft.hazardType || getContextualDefaultHazard());
@@ -21584,6 +21672,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Open first so the confirm pin map has a non-zero container when Leaflet inits.
     openModal('report');
+
+    // Caller will run syncReportPhotoReturn — avoid duplicate showPhotoConfirm / pin resize.
+    if (opts.skipPhotoUi) {
+
+      if (draft.awaitingPhoto) {
+
+        reportPhotoFlowActive = true;
+
+        reportPhotoDismissGuard = Date.now();
+
+      }
+
+      return true;
+
+    }
 
     if (hasReportPhotoPreview()) {
 
@@ -23242,6 +23345,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       pendingPwaNudge = true;
 
+      pendingPwaNudgeTrigger = 'report';
+
+      return;
+
+    }
+
+    // Defer if a reminder/action toast is already on screen (boot ~1800/2400 vs nudge ~2500).
+    if (hasActiveToast()) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = trigger;
+
+      scheduleDeferredPwaNudgeFlush();
+
       return;
 
     }
@@ -23252,13 +23370,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function hasActiveToast() {
+
+    const container = $('#toastContainer');
+
+    return !!(container && container.childElementCount > 0);
+
+  }
+
+
+
+  function scheduleDeferredPwaNudgeFlush() {
+
+    if (pwaNudgeDeferTimer) return;
+
+    pwaNudgeDeferTimer = setTimeout(() => {
+
+      pwaNudgeDeferTimer = null;
+
+      if (!pendingPwaNudge) return;
+
+      if (hasActiveToast()) {
+
+        scheduleDeferredPwaNudgeFlush();
+
+        return;
+
+      }
+
+      flushPendingPwaNudge();
+
+    }, 2800);
+
+  }
+
+
+
   function flushPendingPwaNudge() {
+
+    if (pwaNudgeDeferTimer) {
+
+      clearTimeout(pwaNudgeDeferTimer);
+
+      pwaNudgeDeferTimer = null;
+
+    }
 
     if (!pendingPwaNudge) return;
 
     pendingPwaNudge = false;
 
-    maybeShowPwaNudge('report');
+    const trig = pendingPwaNudgeTrigger || 'report';
+
+    pendingPwaNudgeTrigger = 'report';
+
+    maybeShowPwaNudge(trig);
 
   }
 
@@ -23350,11 +23516,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       maybeResetSessionOnResume({ hiddenMs });
 
-      if (!skipReportDraftRestoreOnce) restoreReportDraftIfNeeded();
+      const photoReturn = isReportPhotoPickerActive() || hasReportPhotoPreview();
 
-      else skipReportDraftRestoreOnce = false;
+      if (photoReturn) {
 
-      if (isReportPhotoPickerActive() || hasReportPhotoPreview()) syncReportPhotoReturn();
+        // Single photo-UI path via syncReportPhotoReturn (skip restore's rAF confirm).
+        if (!skipReportDraftRestoreOnce) restoreReportDraftIfNeeded({ skipPhotoUi: true });
+
+        else skipReportDraftRestoreOnce = false;
+
+        syncReportPhotoReturn();
+
+      } else if (!skipReportDraftRestoreOnce) {
+
+        restoreReportDraftIfNeeded();
+
+      } else {
+
+        skipReportDraftRestoreOnce = false;
+
+      }
 
       flushPendingSwReload();
 
@@ -24621,7 +24802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    marker.bindPopup(buildReportPopup(report));
+    marker.bindPopup(() => buildReportPopup(report));
 
     marker.on('popupopen', () => {
 
@@ -24880,6 +25061,8 @@ document.addEventListener('DOMContentLoaded', function () {
       user.displayName = name;
 
       saveUser();
+
+      if (user.gpsConsent) hideLocationBanner();
 
       recordReferralRedemption();
 
@@ -25771,7 +25954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnNotesToggle) {
 
-      btnNotesToggle.addEventListener('click', () => setReportNotesExpanded(true));
+      btnNotesToggle.addEventListener('click', () => setReportNotesExpanded(true, { focus: true }));
 
     }
 
@@ -26283,7 +26466,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         debugLog('PHOTO', 'pageshow during report', { persisted: !!e.persisted, pickerActive: isReportPhotoPickerActive(), hasPreview: hasReportPhotoPreview() });
 
-        restoreReportDraftIfNeeded();
+        // Reopen draft if needed, but let sync own confirm / pin resize once.
+        restoreReportDraftIfNeeded({ skipPhotoUi: true });
 
         syncReportPhotoReturn();
 
@@ -26595,6 +26779,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportWardChip();
 
+    // Expand landmark notes for visibility, but do not focus — that opens the
+    // mobile keyboard and jumps away from the photo confirm view.
     setReportNotesExpanded(true);
 
     updateReportFlowSteps('confirm');
@@ -26602,6 +26788,8 @@ document.addEventListener('DOMContentLoaded', function () {
     prepareConfirmPin();
 
     scheduleReportPinMapResize();
+
+    focusReportConfirmView();
 
   }
 
@@ -32140,6 +32328,78 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function escChannelButtonHtml(ch) {
+
+    const recCls = ch.recommended ? ' esc-channel--recommended' : '';
+
+    const wideCls = ch.recommended ? ' esc-channel--wide' : '';
+
+    const attrs = ch.type === 'call'
+
+      ? `data-corp-channel="call" data-corp-phone="${escapeHtml(ch.phone)}"`
+
+      : ch.type === 'email'
+
+        ? `data-corp-channel="email" data-corp-email="${escapeHtml(ch.email)}"`
+
+        : ch.type === 'tweet'
+
+          ? `data-corp-channel="tweet" data-corp-twitter="${escapeHtml(ch.handle)}"`
+
+          : ch.type === 'whatsapp'
+
+            ? `data-corp-channel="whatsapp"`
+
+            : ch.type === 'app'
+
+              ? `data-corp-channel="app"`
+
+              : `data-corp-channel="portal"`;
+
+    return `<button type="button" class="esc-channel${recCls}${wideCls}" ${attrs}>
+
+        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
+
+      </button>`;
+
+  }
+
+
+
+  function renderEscChannelGroups(channels) {
+
+    const primary = channels.filter((ch) => ch.recommended);
+
+    const rest = channels.filter((ch) => !ch.recommended);
+
+    let html = '';
+
+    if (primary.length) {
+
+      html += `<div class="esc-channels esc-channels--primary">${primary.map(escChannelButtonHtml).join('')}</div>`;
+
+    }
+
+    if (rest.length) {
+
+      html += `<details class="esc-more-ways"><summary>${escapeHtml(t('esc.moreWays'))}</summary>
+
+        <div class="esc-channels">${rest.map(escChannelButtonHtml).join('')}</div>
+
+      </details>`;
+
+    } else if (!primary.length && channels.length) {
+
+      html += `<div class="esc-channels">${channels.map(escChannelButtonHtml).join('')}</div>`;
+
+    }
+
+    return html;
+
+  }
+
+
+
   function renderTmcChannels(corp) {
 
     const container = $('#escCorpChannels');
@@ -32276,31 +32536,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    container.innerHTML = channels.map((ch) => {
-
-      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
-
-      const attrs = ch.type === 'call'
-
-        ? `data-corp-channel="call" data-corp-phone="${escapeHtml(ch.phone)}"`
-
-        : ch.type === 'email'
-
-          ? `data-corp-channel="email" data-corp-email="${escapeHtml(ch.email)}"`
-
-          : ch.type === 'tweet'
-
-            ? `data-corp-channel="tweet" data-corp-twitter="${escapeHtml(ch.handle)}"`
-
-            : `data-corp-channel="portal"`;
-
-      return `<button type="button" class="esc-channel${recCls}" ${attrs}>
-
-        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
-
-      </button>`;
-
-    }).join('');
+    container.innerHTML = renderEscChannelGroups(channels);
 
     if (deptsWrap && deptList && corp.departments && corp.departments.length) {
 
@@ -32462,31 +32698,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    container.innerHTML = channels.map((ch) => {
-
-      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
-
-      const attrs = ch.type === 'call'
-
-        ? `data-corp-channel="call" data-corp-phone="${escapeHtml(ch.phone)}"`
-
-        : ch.type === 'whatsapp'
-
-          ? `data-corp-channel="whatsapp"`
-
-          : ch.type === 'app'
-
-            ? `data-corp-channel="app"`
-
-            : `data-corp-channel="portal"`;
-
-      return `<button type="button" class="esc-channel${recCls}" ${attrs}>
-
-        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
-
-      </button>`;
-
-    }).join('');
+    container.innerHTML = renderEscChannelGroups(channels);
 
     if (aapleBtn) {
 
@@ -32953,6 +33165,12 @@ document.addEventListener('DOMContentLoaded', function () {
     renderFilingProgress($('#escProgress'), report);
 
     updateEscSaveState(report);
+
+
+
+    const ladderSection = $('#escLadderSection');
+
+    if (ladderSection) ladderSection.classList.toggle('hidden', !stage.filed);
 
 
 
