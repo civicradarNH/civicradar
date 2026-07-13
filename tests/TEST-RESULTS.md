@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-12 20:26:08
+**Run:** 2026-07-12 20:31:35
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 40 | **Pass:** 39 | **Fail:** 1
+**Total:** 40 | **Pass:** 40 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -76,7 +76,7 @@
 
 ## Summary by category
 
-- **Citizen:** 19 pass / 1 fail
+- **Citizen:** 20 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **PWA:** 1 pass / 0 fail
 - **Report:** 11 pass / 0 fail
@@ -86,7 +86,7 @@
 
 ## Failures
 
-- `C19b` **PWA nudge after first report** — failed
+_None_
 
 ## Limitations
 
@@ -118,7 +118,7 @@
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
 | DL01 | DeepLink | WhatsApp share URL is canonical HTTPS ?report= | PASS |  |
-| C19b | Citizen | PWA nudge after first report | **FAIL** |  |
+| C19b | Citizen | PWA nudge after first report | PASS |  |
 | C19 | Citizen | Map shows markers after report | PASS | markers=3 |
 | RP01 | Report | Four live hazard tiles at launch | PASS | live=4 |
 | RP02 | Report | No coming-soon locks on launch hazards | PASS | soon=0 |

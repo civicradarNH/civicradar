@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v201';
+  const CIVIC_APP_VERSION = 'v202';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -23435,8 +23435,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Defer if a reminder/action toast is already on screen (boot ~1800/2400 vs nudge ~2500).
-    if (hasActiveToast()) {
+    // Visit-path only: defer while boot/reminder toasts are on screen (~1800/2400 vs nudge ~2500).
+    // Report-path must not defer — first-report + share-nudge toasts stay up for seconds and would
+    // re-schedule forever, so the install bar never appears after Done on the success modal.
+    if (trigger !== 'report' && hasActiveToast()) {
 
       pendingPwaNudge = true;
 

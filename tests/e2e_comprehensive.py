@@ -72,7 +72,7 @@ KNOWN_SUPABASE_FAIL_IDS = frozenset({
 SMOKE_TEST_IDS = frozenset({
     # Citizen core + onboarding combobox
     'C01', 'C02', 'C03', 'C04', 'C04b', 'C05', 'C06', 'C06b', 'C07', 'C08', 'C08b', 'C09',
-    'C14', 'C15', 'C16', 'C17', 'C18', 'C19',
+    'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C19b',
     'DL01',
     # Report flow basics + draft restore + ship-glitch guards
     'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22',
@@ -1260,7 +1260,16 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.click('#btnSuccessClose')
 
-    await page.wait_for_timeout(500)
+    try:
+        await page.wait_for_function(
+            """() => {
+              const el = document.getElementById('pwaInstallNudge');
+              return !!(el && !el.classList.contains('hidden'));
+            }""",
+            timeout=3000,
+        )
+    except Exception:
+        pass
 
     pwa_nudge = await page.evaluate("""() => {
 
@@ -5153,7 +5162,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v201" in sw_src
+        "civicradar-v202" in sw_src
 
         and "'/index.html'" not in sw_src
 
@@ -8276,7 +8285,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     sw_ok = (
 
-        "civicradar-v201" in sw_src
+        "civicradar-v202" in sw_src
 
         and "'/index.html'" not in sw_src
 
