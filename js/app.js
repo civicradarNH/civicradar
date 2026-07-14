@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v211';
+  const CIVIC_APP_VERSION = 'v212';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -3535,6 +3535,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmProceed': 'Yes, delete everything',
 
       'profile.deleteDone': 'Your data has been deleted. You can start fresh.',
+      'profile.deleteFail': "Couldn't delete your data — nothing was removed. Please try again, or email us if it keeps failing.",
 
       'profile.withdrawAnalytics': 'Withdraw analytics consent',
 
@@ -4214,23 +4215,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'Please read and accept before using CivicRadar.',
 
-      'tos.age': 'You must be 18 or older to submit reports and use community features. Under-18? School or NSS groups may participate only with a parent, guardian, or coordinator who is 18+ and accepts Terms on their behalf.',
+      'tos.age': '<strong>Age requirement:</strong> You must be 18 or older to submit reports and use community features. Under-18? School or NSS groups may participate only with a parent, guardian, or coordinator who is 18+ and accepts Terms on their behalf.',
 
-      'tos.emergency': 'CivicRadar is not for emergencies. For life-threatening situations, call 112 immediately.',
+      'tos.emergency': '<strong>Not an emergency service:</strong> CivicRadar is not for emergencies. For life-threatening situations, call 112 immediately.',
 
-      'tos.itAct': 'CivicRadar is an intermediary under the IT Act, 2000. You are responsible for what you upload.',
+      'tos.itAct': '<strong>IT Act intermediary:</strong> CivicRadar is an intermediary under the IT Act, 2000. You are responsible for what you upload.',
 
-      'tos.share': 'Sharing on WhatsApp, X, etc. may expose personal data. You share at your own risk.',
+      'tos.share': '<strong>External sharing:</strong> Sharing on WhatsApp, X, etc. may expose personal data. You share at your own risk.',
 
-      'tos.gps': 'GPS is collected only when you enable location or submit a report — not bundled with Terms acceptance.',
+      'tos.gps': '<strong>DPDP location consent:</strong> GPS is collected only when you enable location or submit a report — not bundled with Terms acceptance.',
 
-      'tos.analytics': 'Anonymous usage analytics (optional) help improve reliability. No photos, GPS, or names are sent.',
+      'tos.analytics': '<strong>Analytics (optional):</strong> Anonymous usage analytics (optional) help improve reliability. No photos, GPS, or names are sent.',
 
       'tos.analyticsOptIn': 'I consent to anonymous usage analytics (optional — withdraw anytime in Profile)',
 
-      'tos.notBmc': 'CivicRadar is independent — not affiliated with or run by BMC, PMC, TMC, or any government body.',
+      'tos.notBmc': '<strong>Not a government app:</strong> CivicRadar is independent — not affiliated with or run by BMC, PMC, TMC, or any government body.',
 
-      'tos.content': 'Upload onsite hazard photos only. No selfies, IDs, or unrelated images. Reports may be moderated.',
+      'tos.content': '<strong>Content rules:</strong> Upload onsite hazard photos only. No selfies, IDs, or unrelated images. Reports may be moderated.',
 
       'tos.accept': 'I am 18+, I accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>',
 
@@ -4276,6 +4277,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.saveFail': 'Could not save.',
 
+      'toast.shareFail': 'Could not share. Try again.',
+
       'toast.adminVerified': 'BMC access verified — review your ward queue.',
 
       'toast.ngoVerified': 'Coordinator verified — manage pledges and volunteers.',
@@ -4288,7 +4291,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.linkSent': 'Sign-in link sent — check your inbox.',
 
-      'toast.authEmailFail': 'Could not send sign-in email. Check Supabase SMTP settings and try again.',
+      'toast.authEmailFail': 'Could not send sign-in email. Please try again in a moment.',
 
       'toast.authCaptchaFail': 'Security check failed — reload the page and try again.',
 
@@ -4403,6 +4406,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.shareWin': 'Share the win with neighbours.',
 
       'toast.cleanupLogged': 'Community cleanup logged. BMC complaint stays open until officially resolved.',
+
+      'pledge.deliverConfirm': 'Mark this pledge as delivered? This cannot be undone.',
+
+      'pledge.verifyConfirm': 'Verify these volunteer hours? This cannot be undone.',
 
       'toast.pledgeDelivered': 'Supplies marked delivered. Verify hours next.',
 
@@ -4971,6 +4978,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.errNeighbourhood': 'Enter your neighbourhood or society.',
 
       'lead.errAlreadyVoted': 'You already supported this candidate.',
+      'lead.errSelfVote': "You can't support your own nomination.",
 
       'lead.errAlreadyNominated': 'You already have an active nomination for this scope.',
 
@@ -5847,7 +5855,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'xp.level.monsoonGuardian': 'मानसून रक्षक',
 
-      'xp.level.communityLeader': 'Community Leader',
+      'xp.level.communityLeader': 'कम्युनिटी लीडर',
 
       'cert.title': 'प्रमाणपत्र अनलॉक!',
 
@@ -5908,6 +5916,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmProceed': 'हाँ, सब कुछ हटाएँ',
 
       'profile.deleteDone': 'आपका डेटा हटा दिया गया। आप नए सिरे से शुरू कर सकते हैं।',
+      'profile.deleteFail': 'आपका डेटा हटाया नहीं जा सका — कुछ भी नहीं हटाया गया। कृपया फिर कोशिश करें, या समस्या बनी रहे तो हमें ईमेल करें।',
 
       'profile.withdrawAnalytics': 'एनालिटिक्स सहमति वापस लें',
 
@@ -6553,7 +6562,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.communityCleared': 'स्वयंसेवकों ने साफ किया — {corp} शिकायत अभी खुली हो सकती है',
 
-      'partner.title': 'पार्टनर एक्सेस',
+      'partner.title': 'वॉलंटियर लॉगिन',
 
       'partner.subtitle': 'NGO समन्वयकों और स्वयंसेवकों के लिए। नगरपालिका एक्सेस निमंत्रण पर।',
 
@@ -6587,25 +6596,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar उपयोग से पहले पढ़ें और स्वीकार करें।',
 
-      'tos.age': 'रिपोर्ट और समुदाय फीचर के लिए 18+ होना ज़रूरी।',
+      'tos.age': '<strong>आयु आवश्यकता:</strong> रिपोर्ट और समुदाय फीचर के लिए 18+ होना ज़रूरी। 18 से कम उम्र? स्कूल या NSS समूह केवल किसी 18+ अभिभावक, गार्जियन या समन्वयक के साथ भाग ले सकते हैं, जो उनकी ओर से Terms स्वीकार करे।',
 
-      'tos.emergency': 'आपात के लिए नहीं। जान को खतरा हो तो 112 डायल करें।',
+      'tos.emergency': '<strong>आपातकालीन सेवा नहीं:</strong> आपात के लिए नहीं। जान को खतरा हो तो 112 डायल करें।',
 
-      'tos.itAct': 'CivicRadar IT Act, 2000 के तहत मध्यस्थ है। अपलोड की ज़िम्मेदारी आपकी।',
+      'tos.itAct': '<strong>IT Act मध्यस्थ:</strong> CivicRadar IT Act, 2000 के तहत मध्यस्थ है। अपलोड की ज़िम्मेदारी आपकी।',
 
-      'tos.share': 'WhatsApp, X आदि पर शेयर से व्यक्तिगत डेटा खुल सकता है — अपने जोखिम पर।',
+      'tos.share': '<strong>बाहरी शेयरिंग:</strong> WhatsApp, X आदि पर शेयर से व्यक्तिगत डेटा खुल सकता है — अपने जोखिम पर।',
 
-      'tos.gps': 'DPDP Act के तहत खतरा नक्शे के लिए GPS सहमति ज़रूरी।',
+      'tos.gps': '<strong>GPS सहमति:</strong> GPS केवल तभी लिया जाता है जब आप लोकेशन चालू करें या रिपोर्ट सबमिट करें — यह Terms स्वीकार करने के साथ बंडल नहीं है।',
 
-      'tos.analytics': 'गुमनाम उपयोग एनालिटिक्स (वैकल्पिक) विश्वसनीयता बढ़ाता है। कोई फ़ोटो, GPS या नाम नहीं भेजा जाता।',
+      'tos.analytics': '<strong>एनालिटिक्स (वैकल्पिक):</strong> गुमनाम उपयोग एनालिटिक्स (वैकल्पिक) विश्वसनीयता बढ़ाता है। कोई फ़ोटो, GPS या नाम नहीं भेजा जाता।',
 
       'tos.analyticsOptIn': 'मैं गुमनाम उपयोग एनालिटिक्स की सहमति देता/देती हूँ (वैकल्पिक — Profile से कभी भी वापस)',
 
-      'tos.notBmc': 'CivicRadar स्वतंत्र है — BMC/MCGM से जुड़ा या चलाया नहीं जाता।',
+      'tos.notBmc': '<strong>सरकारी ऐप नहीं:</strong> CivicRadar स्वतंत्र है — BMC/MCGM से जुड़ा या चलाया नहीं जाता।',
 
-      'tos.content': 'केवल खतरे की ऑन-साइट फ़ोटो। सेल्फ़ी, ID या असंबंधित चित्र नहीं।',
+      'tos.content': '<strong>कंटेंट नियम:</strong> केवल खतरे की ऑन-साइट फ़ोटो। सेल्फ़ी, ID या असंबंधित चित्र नहीं।',
 
-      'tos.accept': 'मैं 18+ हूँ, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> और <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> स्वीकार करता/करती हूँ, GPS संग्रह की सहमति देता/देती हूँ',
+      'tos.accept': 'मैं 18+ हूँ, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> और <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> स्वीकार करता/करती हूँ',
 
       'tos.continue': 'आगे बढ़ें',
 
@@ -6649,6 +6658,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.saveFail': 'सहेजा नहीं जा सका।',
 
+      'toast.shareFail': 'शेयर नहीं हो सका। फिर से कोशिश करें।',
+
       'toast.adminVerified': 'BMC एक्सेस सत्यापित — वार्ड कतार देखें।',
 
       'toast.ngoVerified': 'समन्वयक सत्यापित — दान और स्वयंसेवक देखें।',
@@ -6661,7 +6672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.linkSent': 'साइन-इन लिंक भेजा — इनबॉक्स देखें।',
 
-      'toast.authEmailFail': 'साइन-इन ईमेल नहीं भेजा जा सका — Supabase SMTP सेटिंग जाँचें और फिर कोशिश करें।',
+      'toast.authEmailFail': 'साइन-इन ईमेल नहीं भेजा जा सका। कृपया थोड़ी देर बाद फिर से कोशिश करें।',
 
       'toast.authCaptchaFail': 'सुरक्षा जाँच विफल — पेज रीलोड करें और फिर कोशिश करें।',
 
@@ -6776,6 +6787,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.shareWin': 'पड़ोसियों के साथ जीत शेयर करें।',
 
       'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत आधिकारिक रूप से खुली रह सकती है।',
+
+      'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें? इसे पूर्ववत नहीं किया जा सकता।',
+
+      'pledge.verifyConfirm': 'इन स्वयंसेवक घंटों को सत्यापित करें? इसे पूर्ववत नहीं किया जा सकता।',
 
       'toast.pledgeDelivered': 'सामान वितरित चिह्नित — अब घंटे सत्यापित करें।',
 
@@ -7121,9 +7136,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.successLocal': 'सहेजा गया — ऑनलाइन होने पर हम इसे सिंक कर देंगे।',
 
-      'access.title': 'समन्वयक एक्सेस का अनुरोध करें',
+      'access.title': 'BMC एक्सेस का अनुरोध करें',
 
-      'access.subtitle': 'NGO व सामुदायिक समन्वयकों और BMC अधिकारियों के लिए।',
+      'access.subtitle': 'केवल आमंत्रित BMC अधिकारियों के लिए — कम्युनिटी लीड के लिए पीयर वोटिंग का इस्तेमाल करें।',
 
       'access.step1': 'कुछ आसान जानकारी के साथ आवेदन करें',
 
@@ -7344,6 +7359,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.errNeighbourhood': 'पड़ोस या सोसाइटी दर्ज करें।',
 
       'lead.errAlreadyVoted': 'आप पहले ही इस उम्मीदवार को Support कर चुके हैं।',
+      'lead.errSelfVote': 'आप अपने ही नामांकन को Support नहीं कर सकते।',
 
       'lead.errAlreadyNominated': 'इस क्षेत्र के लिए आपका सक्रिय नामांकन पहले से है।',
 
@@ -8219,7 +8235,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'xp.level.monsoonGuardian': 'पावसाळी रक्षक',
 
-      'xp.level.communityLeader': 'Community Leader',
+      'xp.level.communityLeader': 'कम्युनिटी लीडर',
 
       'cert.title': 'प्रमाणपत्र अनलॉक!',
 
@@ -8280,6 +8296,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmProceed': 'होय, सर्व काही हटवा',
 
       'profile.deleteDone': 'तुमचा डेटा हटवला. तुम्ही पुन्हा सुरू करू शकता.',
+      'profile.deleteFail': 'तुमचा डेटा हटवता आला नाही — काहीही हटवले गेले नाही. कृपया पुन्हा प्रयत्न करा, किंवा समस्या राहिल्यास आम्हाला ईमेल करा.',
 
       'profile.withdrawAnalytics': 'अ‍ॅनालिटिक्स संमती मागे घ्या',
 
@@ -8515,9 +8532,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.body': '{society} जवळ {hazard} सोडवले',
 
-      'notify.nbh.resolved.bodyMany': '{society} जवळ {n} hazards resolve',
+      'notify.nbh.resolved.bodyMany': '{society} जवळ {n} धोके सोडवले',
 
-      'notify.nbh.resolved.cta': 'Map पहा',
+      'notify.nbh.resolved.cta': 'नकाशा पहा',
 
       'notify.report.title': 'आज साचलेले पाणी दिसले का?',
 
@@ -8557,7 +8574,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submitting': 'पाठवत आहे…',
 
-      'success.clock': 'community map वर — {corp} मध्ये अजून file नाही.',
+      'success.clock': 'सामुदायिक नकाशावर — {corp} मध्ये अजून दाखल नाही.',
 
       'community.challenge.empty': '{ward} अजून बोर्डवर नाही — धोका नोंदवा आणि वॉर्डला बोर्डवर आणा.',
 
@@ -8925,7 +8942,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.communityCleared': 'स्वयंसेवकांनी साफ केले — {corp} तक्रार अजून खुली असू शकते',
 
-      'partner.title': 'पार्टनर प्रवेश',
+      'partner.title': 'वॉलंटियर लॉगिन',
 
       'partner.subtitle': 'NGO समन्वयक आणि स्वयंसेवकांसाठी. नगरपालिका प्रवेश निमंत्रणाने.',
 
@@ -8959,25 +8976,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar वापरण्यापूर्वी वाचा आणि स्वीकारा.',
 
-      'tos.age': 'तक्रार आणि समुदाय वैशिष्ट्यांसाठी 18+ आवश्यक.',
+      'tos.age': '<strong>वय आवश्यकता:</strong> तक्रार आणि समुदाय वैशिष्ट्यांसाठी 18+ आवश्यक. 18 पेक्षा कमी वय? शाळा किंवा NSS गट फक्त 18+ पालक, गार्डियन किंवा समन्वयकासोबत सहभागी होऊ शकतात, जो त्यांच्या वतीने Terms स्वीकारेल.',
 
-      'tos.emergency': 'आपत्कालीन नाही. जीवघेणा धोका असल्यास 112 वर कॉल करा.',
+      'tos.emergency': '<strong>आपत्कालीन सेवा नाही:</strong> आपत्कालीन नाही. जीवघेणा धोका असल्यास 112 वर कॉल करा.',
 
-      'tos.itAct': 'CivicRadar IT Act, 2000 अंतर्गत मध्यस्थ आहे. अपलोडची जबाबदारी तुमची.',
+      'tos.itAct': '<strong>IT Act मध्यस्थ:</strong> CivicRadar IT Act, 2000 अंतर्गत मध्यस्थ आहे. अपलोडची जबाबदारी तुमची.',
 
-      'tos.share': 'WhatsApp, X वर शेअर केल्याने वैयक्तिक डेटा उघडू शकतो — स्वतःच्या जोखमीवर.',
+      'tos.share': '<strong>बाह्य शेअरिंग:</strong> WhatsApp, X वर शेअर केल्याने वैयक्तिक डेटा उघडू शकतो — स्वतःच्या जोखमीवर.',
 
-      'tos.gps': 'DPDP Act अंतर्गत धोका नकाशासाठी GPS संमती आवश्यक.',
+      'tos.gps': '<strong>GPS संमती:</strong> GPS फक्त तुम्ही लोकेशन सुरू केल्यावर किंवा तक्रार सबमिट केल्यावरच घेतले जाते — हे Terms स्वीकारण्यासोबत बंडल केलेले नाही.',
 
-      'tos.analytics': 'अनाम उपयोग अ‍ॅनालिटिक्स (पर्यायी) विश्वासार्हता वाढवते. फोटो, GPS किंवा नाव पाठवले जात नाही.',
+      'tos.analytics': '<strong>अ‍ॅनालिटिक्स (पर्यायी):</strong> अनाम उपयोग अ‍ॅनालिटिक्स (पर्यायी) विश्वासार्हता वाढवते. फोटो, GPS किंवा नाव पाठवले जात नाही.',
 
       'tos.analyticsOptIn': 'मी अनाम उपयोग अ‍ॅनालिटिक्सला संमती देतो/देते (पर्यायी — Profile मधून कधीही मागे)',
 
-      'tos.notBmc': 'CivicRadar स्वतंत्र — BMC/MCGM शी संलग्न किंवा चालवले नाही.',
+      'tos.notBmc': '<strong>सरकारी अ‍ॅप नाही:</strong> CivicRadar स्वतंत्र — BMC/MCGM शी संलग्न किंवा चालवले नाही.',
 
-      'tos.content': 'फक्त धोक्याचे ऑन-साइट फोटो. सेल्फी, ID किंवा असंबंधित चित्रे नाहीत.',
+      'tos.content': '<strong>कंटेंट नियम:</strong> फक्त धोक्याचे ऑन-साइट फोटो. सेल्फी, ID किंवा असंबंधित चित्रे नाहीत.',
 
-      'tos.accept': 'मी 18+ आहे, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> आणि <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> स्वीकारतो/स्वीकारते, GPS संग्रहास संमती देतो/देते',
+      'tos.accept': 'मी 18+ आहे, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> आणि <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> स्वीकारतो/स्वीकारते',
 
       'tos.continue': 'पुढे जा',
 
@@ -9021,6 +9038,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.saveFail': 'जतन होऊ शकले नाही.',
 
+      'toast.shareFail': 'शेअर करता आले नाही. पुन्हा प्रयत्न करा.',
+
       'toast.adminVerified': 'BMC प्रवेश सत्यापित — वॉर्ड रांग पाहा.',
 
       'toast.ngoVerified': 'समन्वयक सत्यापित — देणगी आणि स्वयंसेवक पाहा.',
@@ -9033,7 +9052,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.linkSent': 'साइन-इन लिंक पाठवला — इनबॉक्स पाहा.',
 
-      'toast.authEmailFail': 'साइन-इन ईमेल पाठवता आला नाही — Supabase SMTP सेटिंग्ज तपासा आणि पुन्हा प्रयत्न करा.',
+      'toast.authEmailFail': 'साइन-इन ईमेल पाठवता आला नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.',
 
       'toast.authCaptchaFail': 'सुरक्षा तपासणी अयशस्वी — पेज रीलोड करा आणि पुन्हा प्रयत्न करा.',
 
@@ -9148,6 +9167,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.shareWin': 'शेजाऱ्यांसोबत विजय शेअर करा.',
 
       'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार अधिकृतपणे उघडी राहू शकते.',
+
+      'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची? हे पूर्ववत करता येणार नाही.',
+
+      'pledge.verifyConfirm': 'हे स्वयंसेवक तास सत्यापित करायचे? हे पूर्ववत करता येणार नाही.',
 
       'toast.pledgeDelivered': 'साहित्य वितरित — आता तास सत्यापित करा.',
 
@@ -9493,9 +9516,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.successLocal': 'जतन केले — ऑनलाइन झाल्यावर आम्ही ते सिंक करू.',
 
-      'access.title': 'समन्वयक प्रवेशासाठी विनंती करा',
+      'access.title': 'BMC प्रवेशासाठी विनंती करा',
 
-      'access.subtitle': 'NGO व समुदाय समन्वयक आणि BMC अधिकाऱ्यांसाठी.',
+      'access.subtitle': 'फक्त निमंत्रित BMC अधिकाऱ्यांसाठी — सामुदायिक लीडसाठी सहकाऱ्यांचे मतदान वापरा.',
 
       'access.step1': 'काही सोप्या तपशिलांसह अर्ज करा',
 
@@ -9716,6 +9739,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.errNeighbourhood': 'neighbourhood किंवा society प्रविष्ट करा.',
 
       'lead.errAlreadyVoted': 'तुम्ही या candidate ला आधीच Support केले.',
+      'lead.errSelfVote': 'तुम्ही स्वतःच्या नामांकनाला Support करू शकत नाही.',
 
       'lead.errAlreadyNominated': 'या scope साठी active nomination आधीच आहे.',
 
@@ -10136,9 +10160,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.kudos3': 'નોંધાયું! પડોશીઓની કાળજી લેવા બદલ આભાર.',
 
-      'success.kudos4': 'ફરી હાજર — lanes આમ fix.',
+      'success.kudos4': 'તમે ફરી હાજર થયા — આ રીતે ગલીઓ સુધરે છે.',
 
-      'success.kudos5': 'વધુ pin — street thanks.',
+      'success.kudos5': 'વધુ એક પિન — તમારી ગલી તમારો આભાર માને છે.',
 
       'success.streakWeek': 'આ અઠવાડિયે {n} રિપોર્ટ — સરસ!',
 
@@ -10591,7 +10615,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'xp.level.monsoonGuardian': 'ચોમાસુ રક્ષક',
 
-      'xp.level.communityLeader': 'Community Leader',
+      'xp.level.communityLeader': 'કમ્યુનિટી લીડર',
 
       'cert.title': 'પ્રમાણપત્ર અનલૉક!',
 
@@ -10652,6 +10676,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmProceed': 'હા, બધું કાઢી નાખો',
 
       'profile.deleteDone': 'તમારો ડેટા કાઢી નાખ્યો. તમે ફરી શરૂ કરી શકો.',
+      'profile.deleteFail': 'તમારો ડેટા કાઢી શકાયો નહીં — કંઈ પણ કાઢવામાં આવ્યું નથી. કૃપા કરી ફરી પ્રયાસ કરો, અથવા સમસ્યા રહે તો અમને ઈમેલ કરો.',
 
       'profile.withdrawAnalytics': 'એનાલિટિક્સ સંમતિ પાછી લો',
 
@@ -10887,9 +10912,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.body': '{society} નજીક {hazard} ઉકેલાયું',
 
-      'notify.nbh.resolved.bodyMany': '{society} નજીક {n} hazards resolve',
+      'notify.nbh.resolved.bodyMany': '{society} નજીક {n} જોખમો ઉકેલાયા',
 
-      'notify.nbh.resolved.cta': 'Map જુઓ',
+      'notify.nbh.resolved.cta': 'નકશો જુઓ',
 
       'notify.report.title': 'આજે ભરાયેલું પાણી જોયું?',
 
@@ -10929,7 +10954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submitting': 'મોકલાઈ રહ્યું છે…',
 
-      'success.clock': 'community map પર — {corp} માં હજુ file નહીં.',
+      'success.clock': 'સામુદાયિક નકશા પર — {corp} માં હજુ દાખલ નથી.',
 
       'community.challenge.empty': '{ward} હજુ બોર્ડ પર નથી — જોખમની જાણ કરો અને તેને બોર્ડ પર લાવો.',
 
@@ -11297,7 +11322,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'popup.communityCleared': 'સ્વયંસેવકોએ સાફ કર્યું — {corp} ફરિયાદ હજુ ખુલ્લી હોઈ શકે',
 
-      'partner.title': 'પાર્ટનર ઍક્સેસ',
+      'partner.title': 'વોલન્ટિયર લોગિન',
 
       'partner.subtitle': 'NGO સંકલનકર્તા અને સ્વયંસેવકો માટે. નગરપાલિકા ઍક્સેસ આમંત્રણ દ્વારા.',
 
@@ -11331,25 +11356,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar વાપરતા પહેલાં વાંચો અને સ્વીકારો.',
 
-      'tos.age': 'ફરિયાદ અને સમુદાય ફીચર માટે 18+ જરૂરી.',
+      'tos.age': '<strong>ઉંમર જરૂરિયાત:</strong> ફરિયાદ અને સમુદાય ફીચર માટે 18+ જરૂરી. 18થી ઓછી ઉંમર? શાળા અથવા NSS જૂથો ફક્ત 18+ વાલી, ગાર્ડિયન અથવા સંકલક સાથે જ ભાગ લઈ શકે, જે તેમના વતી Terms સ્વીકારે.',
 
-      'tos.emergency': 'આપત્તિ માટે નહીં. જીવને જોખમ હોય તો 112 ડાયલ કરો.',
+      'tos.emergency': '<strong>કટોકટી સેવા નથી:</strong> આપત્તિ માટે નહીં. જીવને જોખમ હોય તો 112 ડાયલ કરો.',
 
-      'tos.itAct': 'CivicRadar IT Act, 2000 અંતર્ગત મધ્યસ્થ છે. અપલોડની જવાબદારી તમારી.',
+      'tos.itAct': '<strong>IT Act મધ્યસ્થ:</strong> CivicRadar IT Act, 2000 અંતર્ગત મધ્યસ્થ છે. અપલોડની જવાબદારી તમારી.',
 
-      'tos.share': 'WhatsApp, X પર શેર કરવાથી વ્યક્તિગત ડેટા ખુલી શકે — પોતાના જોખમે.',
+      'tos.share': '<strong>બાહ્ય શેરિંગ:</strong> WhatsApp, X પર શેર કરવાથી વ્યક્તિગત ડેટા ખુલી શકે — પોતાના જોખમે.',
 
-      'tos.gps': 'DPDP Act અંતર્ગત જોખમ નકશા માટે GPS સંમતિ જરૂરી.',
+      'tos.gps': '<strong>GPS સંમતિ:</strong> GPS ફક્ત ત્યારે જ લેવાય છે જ્યારે તમે લોકેશન ચાલુ કરો અથવા ફરિયાદ સબમિટ કરો — તે Terms સ્વીકારવા સાથે બંડલ નથી.',
 
-      'tos.analytics': 'અનામ ઉપયોગ એનાલિટિક્સ (વૈકલ્પિક) વિશ્વસનીયતા વધારે. ફોટો, GPS કે નામ મોકલાતા નથી.',
+      'tos.analytics': '<strong>એનાલિટિક્સ (વૈકલ્પિક):</strong> અનામ ઉપયોગ એનાલિટિક્સ (વૈકલ્પિક) વિશ્વસનીયતા વધારે. ફોટો, GPS કે નામ મોકલાતા નથી.',
 
       'tos.analyticsOptIn': 'હું અનામ ઉપયોગ એનાલિટિક્સની સંમતિ આપું છું (વૈકલ્પિક — Profile માંથી ક્યારે પણ પાછી)',
 
-      'tos.notBmc': 'CivicRadar સ્વતંત્ર — BMC/MCGM સાથે જોડાયેલું અથવા ચલાવેલું નથી.',
+      'tos.notBmc': '<strong>સરકારી ઍપ નથી:</strong> CivicRadar સ્વતંત્ર — BMC/MCGM સાથે જોડાયેલું અથવા ચલાવેલું નથી.',
 
-      'tos.content': 'ફક્ત જોખમના ઑન-સાઇટ ફોટો. સેલ્ફી, ID અથવા અનિયુક્ત ચિત્રો નહીં.',
+      'tos.content': '<strong>કન્ટેન્ટ નિયમો:</strong> ફક્ત જોખમના ઑન-સાઇટ ફોટો. સેલ્ફી, ID અથવા અનિયુક્ત ચિત્રો નહીં.',
 
-      'tos.accept': 'હું 18+ છું, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> અને <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> સ્વીકારું છું, GPS સંગ્રહની સંમતિ આપું છું',
+      'tos.accept': 'હું 18+ છું, <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> અને <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> સ્વીકારું છું',
 
       'tos.continue': 'આગળ વધો',
 
@@ -11393,6 +11418,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.saveFail': 'સાચવી શકાયું નહીં.',
 
+      'toast.shareFail': 'શેર કરી શકાયું નહીં. ફરી પ્રયાસ કરો.',
+
       'toast.adminVerified': 'BMC ઍક્સેસ ચકાસાયો — વોર્ડ કતાર જુઓ.',
 
       'toast.ngoVerified': 'સંકલક ચકાસાયો — દાન અને સ્વયંસેવક જુઓ.',
@@ -11405,7 +11432,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.linkSent': 'સાઇન-ઇન લિંક મોકલ્યું — ઇનબૉક્સ જુઓ.',
 
-      'toast.authEmailFail': 'સાઇન-ઇન ઇમેઇલ મોકલી શકાઈ નહીં — Supabase SMTP સેટિંગ્સ તપાસો અને ફરી પ્રયાસ કરો.',
+      'toast.authEmailFail': 'સાઇન-ઇન ઇમેઇલ મોકલી શકાઈ નહીં. કૃપા કરી થોડી વાર પછી ફરી પ્રયાસ કરો.',
 
       'toast.authCaptchaFail': 'સુરક્ષા તપાસ નિષ્ફળ — પેજ રીલોડ કરો અને ફરી પ્રયાસ કરો.',
 
@@ -11520,6 +11547,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.shareWin': 'પડોશીઓ સાથે જીત શેર કરો.',
 
       'toast.cleanupLogged': 'સમુદાય સફાઈ લોગ — BMC ફરિયાદ અધિકૃત રીતે ખુલ્લી રહી શકે.',
+
+      'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ? આ પાછું ફેરવી શકાશે નહીં.',
+
+      'pledge.verifyConfirm': 'આ સ્વયંસેવક કલાકો ચકાસીએ? આ પાછું ફેરવી શકાશે નહીં.',
 
       'toast.pledgeDelivered': 'સામગ્રી વિતરિત — હવે કલાક ચકાસો.',
 
@@ -11865,9 +11896,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.successLocal': 'સાચવ્યું — ઓનલાઈન થશો ત્યારે અમે તેને સિંક કરીશું.',
 
-      'access.title': 'સંયોજક ઍક્સેસ માટે વિનંતી કરો',
+      'access.title': 'BMC ઍક્સેસ માટે વિનંતી કરો',
 
-      'access.subtitle': 'NGO અને સમુદાય સંયોજકો તથા BMC અધિકારીઓ માટે.',
+      'access.subtitle': 'ફક્ત આમંત્રિત BMC અધિકારીઓ માટે — સામુદાયિક લીડ માટે પીઅર વોટિંગનો ઉપયોગ કરો.',
 
       'access.step1': 'થોડી ઝડપી વિગતો સાથે અરજી કરો',
 
@@ -12088,6 +12119,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'lead.errNeighbourhood': 'neighbourhood અથવા society દાખલ કરો.',
 
       'lead.errAlreadyVoted': 'તમે આ candidate ને પહેલેથી Support કર્યું.',
+      'lead.errSelfVote': 'તમે તમારા પોતાના નામાંકનને Support કરી શકતા નથી.',
 
       'lead.errAlreadyNominated': 'આ scope માટે active nomination પહેલેથી છે.',
 
@@ -12670,6 +12702,30 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (err) {
       console.error('Failed to save volunteer signups:', err);
     }
+  }
+
+  function markPledgeSyncPending(pledgeId, pending) {
+    const pledges = loadPledges();
+    let changed = false;
+    pledges.forEach((p) => {
+      if (String(p.id) === String(pledgeId)) {
+        if (!!p.syncPending !== !!pending) changed = true;
+        p.syncPending = !!pending;
+      }
+    });
+    if (changed) savePledges(pledges);
+  }
+
+  function markVolunteerSignupSyncPending(signupId, pending) {
+    const rows = loadVolunteerSignups();
+    let changed = false;
+    rows.forEach((v) => {
+      if (String(v.id) === String(signupId)) {
+        if (!!v.syncPending !== !!pending) changed = true;
+        v.syncPending = !!pending;
+      }
+    });
+    if (changed) saveVolunteerSignups(rows);
   }
 
   function loadVolunteerTasks() {
@@ -13389,6 +13445,20 @@ document.addEventListener('DOMContentLoaded', function () {
           savePledges(cleared);
         }
       }
+      const mySignups = loadVolunteerSignups().filter(
+        (v) => v.syncPending && v.userId === user.id && /^[0-9a-f-]{36}$/i.test(String(v.id))
+      );
+      if (mySignups.length) {
+        const { error } = await this.client
+          .from('volunteer_signups')
+          .upsert(mySignups.map((v) => this.volunteerSignupToRow(v)), { onConflict: 'id' });
+        if (!error) {
+          const cleared = loadVolunteerSignups().map((v) => (
+            mySignups.some((m) => String(m.id) === String(v.id)) ? { ...v, syncPending: false } : v
+          ));
+          saveVolunteerSignups(cleared);
+        }
+      }
     },
 
     markReportSyncPending(reportId, pending) {
@@ -13650,9 +13720,18 @@ document.addEventListener('DOMContentLoaded', function () {
     },
 
     async insertPledge(pledge) {
-      if (!this.enabled) return;
+      if (!this.enabled) {
+        markPledgeSyncPending(pledge.id, true);
+        return;
+      }
       const { error } = await this.client.from('pledges').upsert(this.pledgeToRow(pledge), { onConflict: 'id' });
-      if (error) console.warn('Pledge sync failed:', error.message);
+      if (error) {
+        console.warn('Pledge sync failed:', error.message);
+        markPledgeSyncPending(pledge.id, true);
+        showToast(t('toast.syncLocal'), 'info', 3500);
+      } else {
+        markPledgeSyncPending(pledge.id, false);
+      }
     },
 
     async updatePledge(id, fields) {
@@ -13662,11 +13741,20 @@ document.addEventListener('DOMContentLoaded', function () {
     },
 
     async upsertVolunteerSignup(signup) {
-      if (!this.enabled) return;
+      if (!this.enabled) {
+        markVolunteerSignupSyncPending(signup.id, true);
+        return;
+      }
       const { error } = await this.client
         .from('volunteer_signups')
         .upsert(this.volunteerSignupToRow(signup), { onConflict: 'id' });
-      if (error) console.warn('Volunteer signup sync failed:', error.message);
+      if (error) {
+        console.warn('Volunteer signup sync failed:', error.message);
+        markVolunteerSignupSyncPending(signup.id, true);
+        showToast(t('toast.syncLocal'), 'info', 3500);
+      } else {
+        markVolunteerSignupSyncPending(signup.id, false);
+      }
     },
 
     async removeVolunteerSignup(id) {
@@ -13778,11 +13866,20 @@ document.addEventListener('DOMContentLoaded', function () {
         await this.client.rpc('delete_user_data', { p_session_id: sessionId });
       } catch (e) {
         console.warn('delete_user_data RPC failed — falling back to row deletes:', e && e.message);
-        const uid = user.id;
-        if (/^[0-9a-f-]{36}$/i.test(String(uid))) {
-          await this.client.from('reports').delete().eq('reporter_id', uid);
-          await this.client.from('pledges').delete().eq('citizen_id', uid);
-          await this.client.from('volunteer_signups').delete().eq('user_id', uid);
+        try {
+          const uid = user.id;
+          if (/^[0-9a-f-]{36}$/i.test(String(uid))) {
+            await this.client.from('reports').delete().eq('reporter_id', uid);
+            await this.client.from('pledges').delete().eq('citizen_id', uid);
+            await this.client.from('volunteer_signups').delete().eq('user_id', uid);
+          }
+        } catch (e2) {
+          // Re-throw so the caller (executeDeleteMyData) knows this failed and can
+          // tell the user, instead of silently continuing to sign-out/re-auth/local
+          // wipe as if deletion succeeded. Leaving the session as-is (not signing out
+          // here) keeps the user authenticated so "try again" is actually actionable.
+          console.warn('Row-delete fallback also failed:', e2 && e2.message);
+          throw e2;
         }
       }
       await this.signOut();
@@ -14118,25 +14215,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wasConnected = Backend.enabled;
 
-    if (wasConnected) await Backend.deleteMyData();
+    try {
 
-    wipeLocalUserData();
+      if (wasConnected) await Backend.deleteMyData();
 
-    refreshReportMarkers();
+      wipeLocalUserData();
 
-    updateProfileUI();
+      refreshReportMarkers();
 
-    updatePersonaUI();
+      updateProfileUI();
 
-    renderLeaderboard('wards');
+      updatePersonaUI();
 
-    renderLeaderboard('citizens');
+      renderLeaderboard('wards');
 
-    closeModal('profile');
+      renderLeaderboard('citizens');
 
-    showToast(t('profile.deleteDone'), 'success', 5000);
+      closeModal('profile');
 
-    openModal('tos');
+      showToast(t('profile.deleteDone'), 'success', 5000);
+
+      openModal('tos');
+
+    } catch (e) {
+
+      // Previously unguarded: a failure here (e.g. Backend.deleteMyData's RPC-failure
+      // fallback throwing) left the user's data fully intact but the confirm modal
+      // already closed, with no toast and no indication anything went wrong — they'd
+      // reasonably believe deletion succeeded when nothing was actually removed.
+      console.warn('executeDeleteMyData failed:', e && e.message);
+
+      showToast(t('profile.deleteFail'), 'error', 6000);
+
+    }
 
   }
 
@@ -17821,9 +17932,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if ((report.ward || '') !== user.ward) return false;
     const reportSoc = normalizeNbhToken(report.society || report.neighbourhood);
     const userSoc = normalizeNbhToken(user.society);
-    if (reportSoc && userSoc) return reportSoc === userSoc;
-    if (!reportSoc) return true;
-    return false;
+    if (!reportSoc || !userSoc) return true;
+    return reportSoc === userSoc;
   }
 
   function loadNbhAlertLog() {
@@ -17990,22 +18100,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (digest.count > 1) {
       body = t('notify.nbh.resolved.bodyMany').replace('{n}', String(digest.count)).replace('{society}', digest.society || nbhSocietyLabel(report));
     }
-    deliverNbhAlert('resolved', report, body);
-    saveResolveDigest({});
+    const delivered = deliverNbhAlert('resolved', report, body);
+    if (delivered) {
+      saveResolveDigest({});
+    } else {
+      // Rate-limited, not "nothing to say" (count/lastReportId were truthy above) —
+      // keep the digest instead of discarding it and retry after the min-gap window.
+      // Previously this cleared unconditionally, so a resolved-report batch landing
+      // while the 3/24h or 5-min budget was already spent was silently and
+      // permanently lost, with no retry and no indication the fix was ever reported.
+      nbhResolveDigestTimer = setTimeout(flushNbhResolveDigest, NBH_ALERT_MIN_GAP_MS);
+    }
   }
 
   function maybeDeliverNbhResolvedAlert(report) {
     queueNbhResolvedAlert(report);
-  }
-
-  function fanOutLocalNbhNewReport(report) {
-    if (!report) return;
-    try {
-      const q = JSON.parse(localStorage.getItem('civicradar_nbh_local_queue') || '[]');
-      q.push({ type: 'new', report: { id: report.id, hazard: report.hazard, society: report.society, ward: report.ward, city: report.city, reporterId: report.reporterId, status: report.status }, at: Date.now() });
-      safeLocalSet('civicradar_nbh_local_queue', JSON.stringify(q.slice(-50)));
-    } catch {}
-    processLocalNbhQueue();
   }
 
   function fanOutLocalNbhResolved(report) {
@@ -18022,16 +18131,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let q;
     try { q = JSON.parse(localStorage.getItem('civicradar_nbh_local_queue') || '[]'); } catch { return; }
     if (!q.length) return;
+    // 'new' items are legacy leftovers from a removed fan-out path (it only ever
+    // queued the current user's own submission, which the reporterId check below
+    // always filtered out — dead weight). Drain them silently along with the rest.
     const remaining = [];
     q.forEach((item) => {
       const r = item.report;
       if (!r || r.reporterId === user.id) return;
-      if (item.type === 'new' && isNbhNewAlertsEnabled()) {
-        if (!deliverNbhAlert('new', r)) remaining.push(item);
-      } else if (item.type === 'resolved' && isNbhResolvedAlertsEnabled()) {
+      if (item.type === 'resolved' && isNbhResolvedAlertsEnabled()) {
         queueNbhResolvedAlert(r);
-      } else {
-        remaining.push(item);
       }
     });
     try { safeLocalSet('civicradar_nbh_local_queue', JSON.stringify(remaining)); } catch {}
@@ -18382,6 +18490,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Mutual-exclusion guard for the stacked bottom/top attention banners — only one
+  // of appOpenBanner / referralWelcome / homeHero / iosInstallHint should be visible
+  // at a time. Boot order (setupAppOpenBanner -> maybeShowReferralWelcome ->
+  // updateHomeHero -> updateIosInstallHint) doubles as the priority order.
+  function isAnyBannerVisible(excludeId) {
+
+    const ids = ['appOpenBanner', 'referralWelcome', 'homeHero', 'iosInstallHint'];
+
+    return ids.some((id) => {
+
+      if (id === excludeId) return false;
+
+      const el = document.getElementById(id);
+
+      return el && !el.classList.contains('hidden');
+
+    });
+
+  }
+
+
+
   function shouldShowHomeHero() {
 
     if (getActivePersona() !== 'citizen') return false;
@@ -18403,6 +18533,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const demo = new URLSearchParams(location.search).get('demo');
 
     if (demo === 'tour' || demo === 'persona') return false;
+
+    if (isAnyBannerVisible('homeHero')) return false;
 
     return true;
 
@@ -18479,6 +18611,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (overlays.tos && overlays.tos.classList.contains('open')) return false;
 
     if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return false;
+
+    if (isAnyBannerVisible('iosInstallHint')) return false;
 
     return true;
 
@@ -23466,6 +23600,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } catch { /* ignore */ }
 
+    if (isAnyBannerVisible('appOpenBanner')) return false;
+
     const params = new URLSearchParams(location.search);
 
     return !!(params.get('report') || params.get('ref'));
@@ -23739,6 +23875,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Must run before initMap() (which can trigger the location-permission banner via
+  // maybeRequestLocation -> shouldDeferFirstRunNudges) and before runBootSequence()
+  // (same gate, for checkResolvedWins/processBootReminders/maybeShowReportReminder).
+  // It used to run much later in this same synchronous boot flow, so every one of
+  // those first-run checks was reading last session's count, not this session's —
+  // suppressing the GPS banner (and everything else gated by shouldDeferFirstRunNudges)
+  // for a new user's first two full sessions instead of just the first.
+  trackVisitCount();
+
   initMap();
 
   debugInit();
@@ -23838,8 +23983,6 @@ document.addEventListener('DOMContentLoaded', function () {
   maybeShowReferralWelcome();
 
   checkReferralRewards();
-
-  trackVisitCount();
 
   updateMapEmptyCta();
 
@@ -28688,8 +28831,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Backend.insertReport(report);
 
-    fanOutLocalNbhNewReport(report);
-
     if (window.CivicAnalytics) {
 
       CivicAnalytics.track('report_submitted', {
@@ -31092,6 +31233,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeModal('success');
 
+    // dismissSuccessModal()/closeSuccessModal() are the normal exits from the success
+    // modal and both flush a pending PWA-install nudge — this direct closeModal() call
+    // bypassed that, so any nudge queued while the success modal was open (report path,
+    // js/app.js:23617-23619) silently vanished on exactly the sessions most likely to
+    // trigger it: a level-up on report submission.
+    flushPendingPwaNudge();
+
 
 
     const modal = $('#certificateModal');
@@ -31654,7 +31802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (err && err.name === 'AbortError') return;
 
-      showToast(t('toast.saveFail'), 'error');
+      showToast(t('toast.shareFail'), 'error');
 
     }
 
@@ -35326,6 +35474,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (loadReports().some(ownsReport)) { safeLocalSet(REF_WELCOME_KEY, '1'); return; }
 
+    if (isAnyBannerVisible('referralWelcome')) return;
+
     if (window.CivicAnalytics) CivicAnalytics.track('ref_welcome_shown', { ref: String(ref).slice(0, 64) });
 
     renderReferralWelcome();
@@ -38369,6 +38519,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
+    if (!window.confirm(t('pledge.deliverConfirm'))) return;
+
     if (btn) { btn.disabled = true; btn.textContent = t('toast.saving'); }
 
     const pledges = loadPledges();
@@ -38420,6 +38572,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function verifyVolunteerHours(pledgeId, btn) {
 
     if (!isLead) return;
+
+    if (!window.confirm(t('pledge.verifyConfirm'))) return;
 
     if (btn) { btn.disabled = true; btn.textContent = t('toast.verifying'); }
 
