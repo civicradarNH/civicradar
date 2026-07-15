@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v219';
+  const CIVIC_APP_VERSION = 'v222';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -744,6 +744,15 @@ document.addEventListener('DOMContentLoaded', function () {
     return ios ? 2500 : 1500;
 
   })();
+
+  // Some Android WebView/camera-app combos never fire a `change` event at all when
+  // the native camera is dismissed (crash, back-gesture, OS reclaiming memory) — the
+  // picker-return watchdog below only arms once a file actually arrives, so without
+  // this a silently-abandoned camera launch left reportPhotoFlowActive stuck true
+  // forever, which made the report modal's × close button look permanently dead.
+  // Generous timeout: must not fire while the user is still legitimately composing
+  // a shot in the camera app.
+  const REPORT_PHOTO_PICKER_TIMEOUT_MS = 60000;
 
   // PWA/TWA session policy (installed app only — see maybeResetSessionOnResume):
   // • Cold start: OS process killed or tab discarded → map home, modals closed (no reload).
@@ -2837,6 +2846,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.notesPh': 'Near which shop/building? e.g. opposite Sai Medical',
 
+      'report.photoLostRetake': 'Your photo didn\'t survive a refresh — please retake it. Your notes are still here.',
+
+      'report.closeBusy': 'Still working on your photo — try closing again in a moment.',
+
       'report.submit': 'Submit report',
 
       'report.photoHint': 'Photo shows the hazard? Tap Submit — or retake if not.',
@@ -3174,6 +3187,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — start with the recommended channel, or open more ways below.',
 
+      'esc.tmc.fileHint.garbage': 'Garbage / solid waste — start with the recommended channel, or open more ways below.',
+
+      'esc.tmc.fileHint.potholes': 'Potholes and road damage — start with the recommended channel, or open more ways below.',
+
+      'esc.tmc.fileHint.streetlight': 'Broken streetlights — start with the recommended channel, or open more ways below.',
+
       'esc.tmc.channelPortal': 'TMC online portal',
 
       'esc.tmc.channelCall': 'TMC helpline',
@@ -3241,6 +3260,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.pmc.recommended': 'Recommended: PMC CARE WhatsApp — fastest for most Pune wards.',
 
       'esc.pmc.fileHint': 'Stagnant water and mosquito breeding go through PMC CARE. Start with the recommended channel — or open more ways below.',
+
+      'esc.pmc.fileHint.garbage': 'Garbage and solid waste go through PMC CARE. Start with the recommended channel — or open more ways below.',
+
+      'esc.pmc.fileHint.potholes': 'Potholes and road damage go through PMC CARE. Start with the recommended channel — or open more ways below.',
+
+      'esc.pmc.fileHint.streetlight': 'Broken streetlights go through PMC CARE. Start with the recommended channel — or open more ways below.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -3743,9 +3768,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.title': 'Notifications & Privacy',
 
-      'settings.reminder.label': 'Remind me to report stagnant water nearby',
+      'settings.reminder.label': 'Remind me to report hazards nearby',
 
-      'settings.reminder.sub': 'A gentle monsoon-season nudge when you open CivicRadar. No background tracking.',
+      'settings.reminder.sub': 'A gentle nudge when you open CivicRadar — garbage, potholes, streetlights, or stagnant water. No background tracking.',
 
       'settings.reminder.on': 'Reminders on — we\'ll gently nudge you when you open CivicRadar.',
 
@@ -3785,9 +3810,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.cta': 'View on map',
 
-      'notify.report.title': 'Spotted stagnant water today?',
+      'notify.report.title': 'Spotted a hazard today?',
 
-      'notify.report.body': 'If you pass a puddle, clogged drain, or open tank, take 30 seconds to report it.',
+      'notify.report.body': 'Garbage, a pothole, a broken streetlight, or standing water nearby? Take 30 seconds to report it.',
 
       'notify.report.cta': 'Report now',
 
@@ -5226,6 +5251,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.notesPh': 'किस दुकान/इमारत के पास? जैसे "सई मेडिकल के सामने"',
 
+      'report.photoLostRetake': 'रीफ़्रेश के बाद आपकी फ़ोटो नहीं बची — कृपया फिर से लें। आपके नोट्स अभी भी यहाँ हैं।',
+
+      'report.closeBusy': 'अभी भी आपकी फ़ोटो पर काम हो रहा है — कुछ पल बाद फिर से बंद करने की कोशिश करें।',
+
       'report.submit': 'रिपोर्ट भेजें',
 
       'report.photoHint': 'फ़ोटो में खतरा दिख रहा? Submit दबाएँ — नहीं तो Retake।',
@@ -5565,6 +5594,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
+      'esc.tmc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
+
+      'esc.tmc.fileHint.potholes': 'गड्ढे और सड़क क्षति — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
+
+      'esc.tmc.fileHint.streetlight': 'खराब स्ट्रीटलाइट — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
+
       'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल',
 
       'esc.tmc.channelCall': 'TMC हेल्पलाइन',
@@ -5632,6 +5667,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.pmc.recommended': 'अनुशंसित: PMC CARE WhatsApp — अधिकांश Pune वार्डों के लिए सबसे तेज़।',
 
       'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन PMC CARE के माध्यम से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+
+      'esc.pmc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट PMC CARE के माध्यम से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+
+      'esc.pmc.fileHint.potholes': 'गड्ढे और सड़क क्षति PMC CARE के माध्यम से जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+
+      'esc.pmc.fileHint.streetlight': 'खराब स्ट्रीटलाइट PMC CARE के माध्यम से जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -6134,9 +6175,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.title': 'सूचनाएं और गोपनीयता',
 
-      'settings.reminder.label': 'पास में रुका पानी रिपोर्ट करने की याद दिलाएँ',
+      'settings.reminder.label': 'पास के खतरे रिपोर्ट करने की याद दिलाएँ',
 
-      'settings.reminder.sub': 'जब आप CivicRadar खोलें तो मानसून में हल्की याद। कोई बैकग्राउंड ट्रैकिंग नहीं।',
+      'settings.reminder.sub': 'जब आप CivicRadar खोलें तो हल्की याद — कचरा, गड्ढे, स्ट्रीटलाइट या रुका पानी। कोई बैकग्राउंड ट्रैकिंग नहीं।',
 
       'settings.reminder.on': 'याद चालू — जब आप CivicRadar खोलेंगे, हम हल्के से याद दिलाएँगे।',
 
@@ -6176,9 +6217,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.cta': 'नक्शा देखें',
 
-      'notify.report.title': 'आज रुका पानी दिखा?',
+      'notify.report.title': 'आज कोई खतरा दिखा?',
 
-      'notify.report.body': 'अगर पोखर, जाम नाली या खुली टंकी पास से गुज़रें, तो 30 सेकंड में रिपोर्ट करें।',
+      'notify.report.body': 'कचरा, गड्ढा, खराब स्ट्रीटलाइट या रुका पानी पास में दिखा? 30 सेकंड में रिपोर्ट करें।',
 
       'notify.report.cta': 'अभी रिपोर्ट करें',
 
@@ -7616,6 +7657,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.notesPh': 'कोणत्या दुकान/इमारतीजवळ? उदा. "साई मेडिकल समोर"',
 
+      'report.photoLostRetake': 'रिफ्रेशनंतर तुमचा फोटो टिकला नाही — कृपया पुन्हा घ्या. तुमच्या नोंदी अजूनही इथे आहेत.',
+
+      'report.closeBusy': 'अजूनही तुमच्या फोटोवर काम सुरू आहे — थोड्या वेळाने पुन्हा बंद करून पहा.',
+
       'report.submit': 'तक्रार पाठवा',
 
       'report.photoHint': 'फोटोमध्ये धोका दिसतो? Submit — नाहीतर Retake.',
@@ -7955,6 +8000,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
+      'esc.tmc.fileHint.garbage': 'कचरा / घन कचरा — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.tmc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.tmc.fileHint.streetlight': 'बंद पथदिवे — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
+
       'esc.tmc.channelPortal': 'TMC ऑनलाइन पोर्टल',
 
       'esc.tmc.channelCall': 'TMC हेल्पलाइन',
@@ -8022,6 +8073,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.pmc.recommended': 'शिफारस: PMC CARE WhatsApp — बहुतेक Pune वॉर्डांसाठी सर्वात जलद.',
 
       'esc.pmc.fileHint': 'साचलेले पाणी आणि डास PMC CARE मार्फत जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.pmc.fileHint.garbage': 'कचरा / घन कचरा PMC CARE मार्फत जातो. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.pmc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान PMC CARE मार्फत जाते. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+
+      'esc.pmc.fileHint.streetlight': 'बंद पथदिवे PMC CARE मार्फत जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -8524,9 +8581,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.title': 'सूचना आणि गोपनीयता',
 
-      'settings.reminder.label': 'जवळचे साचलेले पाणी नोंदवण्याची आठवण करा',
+      'settings.reminder.label': 'जवळचे धोके नोंदवण्याची आठवण करा',
 
-      'settings.reminder.sub': 'CivicRadar उघडल्यावर पावसाळ्यात सौम्य आठवण. बॅकग्राउंड ट्रॅकिंग नाही.',
+      'settings.reminder.sub': 'CivicRadar उघडल्यावर सौम्य आठवण — कचरा, खड्डे, पथदिवे किंवा साचलेले पाणी. बॅकग्राउंड ट्रॅकिंग नाही.',
 
       'settings.reminder.on': 'आठवणी सुरू — तुम्ही CivicRadar उघडाल तेव्हा आम्ही सौम्यपणे आठवण करू.',
 
@@ -8566,9 +8623,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.cta': 'नकाशा पहा',
 
-      'notify.report.title': 'आज साचलेले पाणी दिसले का?',
+      'notify.report.title': 'आज एखादा धोका दिसला का?',
 
-      'notify.report.body': 'डबके, तुंबलेले गटार किंवा उघडी टाकी जवळून गेलात, तर 30 सेकंदात नोंदवा.',
+      'notify.report.body': 'जवळपास कचरा, खड्डा, बंद पथदिवा किंवा साचलेले पाणी दिसले? 30 सेकंदात नोंदवा.',
 
       'notify.report.cta': 'आत्ता नोंदवा',
 
@@ -10006,6 +10063,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.notesPh': 'કઈ દુકાન/ઇમારત પાસે? જેમ કે "સાઈ મેડિકલ સામે"',
 
+      'report.photoLostRetake': 'રિફ્રેશ પછી તમારો ફોટો ટકી શક્યો નથી — કૃપા કરી ફરી લો. તમારી નોંધ હજુ પણ અહીં છે.',
+
+      'report.closeBusy': 'હજુ પણ તમારા ફોટો પર કામ ચાલુ છે — થોડી વાર પછી ફરી બંધ કરવાનો પ્રયાસ કરો.',
+
       'report.submit': 'ફરિયાદ મોકલો',
 
       'report.photoHint': 'ફોટોમાં જોખમ દેખાય? Submit — નહીં તો Retake.',
@@ -10345,6 +10406,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
 
+      'esc.tmc.fileHint.garbage': 'કચરો / ઘન કચરો — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.tmc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.tmc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
+
       'esc.tmc.channelPortal': 'TMC ઑનલાઇન પોર્ટલ',
 
       'esc.tmc.channelCall': 'TMC હેલ્પલાઇન',
@@ -10412,6 +10479,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'esc.pmc.recommended': 'ભલામણ: PMC CARE WhatsApp — મોટાભાગના Pune વોર્ડ માટે સૌથી ઝડપી.',
 
       'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.pmc.fileHint.garbage': 'કચરો / ઘન કચરો PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.pmc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+
+      'esc.pmc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -10914,9 +10987,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.notifications.title': 'સૂચનાઓ અને ગોપનીયતા',
 
-      'settings.reminder.label': 'નજીકનું ભરાયેલું પાણી ફરિયાદ કરવા યાદ અપાવો',
+      'settings.reminder.label': 'નજીકના જોખમો ફરિયાદ કરવા યાદ અપાવો',
 
-      'settings.reminder.sub': 'CivicRadar ખોલો ત્યારે ચોમાસામાં હળવી યાદ. કોઈ બેકગ્રાઉન્ડ ટ્રેકિંગ નહીં.',
+      'settings.reminder.sub': 'CivicRadar ખોલો ત્યારે હળવી યાદ — કચરો, ખાડા, સ્ટ્રીટલાઇટ અથવા ભરાયેલું પાણી. કોઈ બેકગ્રાઉન્ડ ટ્રેકિંગ નહીં.',
 
       'settings.reminder.on': 'યાદ ચાલુ — તમે CivicRadar ખોલશો ત્યારે અમે હળવેથી યાદ અપાવીશું.',
 
@@ -10956,9 +11029,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'notify.nbh.resolved.cta': 'નકશો જુઓ',
 
-      'notify.report.title': 'આજે ભરાયેલું પાણી જોયું?',
+      'notify.report.title': 'આજે કોઈ જોખમ જોયું?',
 
-      'notify.report.body': 'ખાબોચિયું, ભરાયેલી ગટર કે ખુલ્લી ટાંકી પાસેથી પસાર થાઓ, તો 30 સેકન્ડમાં ફરિયાદ કરો.',
+      'notify.report.body': 'નજીકમાં કચરો, ખાડો, બંધ સ્ટ્રીટલાઇટ કે ભરાયેલું પાણી દેખાયું? 30 સેકન્ડમાં ફરિયાદ કરો.',
 
       'notify.report.cta': 'હમણાં ફરિયાદ કરો',
 
@@ -22110,6 +22183,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       resetPhotoConfirm();
 
+      // draft.step === 'confirm' means a photo was captured before this session
+      // was torn down (SW reload or the OS discarding the backgrounded tab while
+      // the native camera app had focus) — the canvas pixel data itself can't
+      // survive that, only the text fields in this sessionStorage draft can.
+      if (draft.step === 'confirm') {
+
+        showToast(t('report.photoLostRetake'), 'info', 4500);
+
+      }
+
       updateReportFlowSteps(normalizeReportStep(draft.step || 'capture'));
 
       if (draft.awaitingPhoto) {
@@ -22366,7 +22449,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function armReportPhotoWatchdog() {
+  function armReportPhotoWatchdog(timeoutMs) {
 
     if (reportPhotoWatchdogTimer) clearTimeout(reportPhotoWatchdogTimer);
 
@@ -22388,7 +22471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       failReportPhotoCapture();
 
-    }, 15000);
+    }, timeoutMs || 15000);
 
   }
 
@@ -22473,6 +22556,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     reportPhotoFlowActive = true;
+
+    armReportPhotoWatchdog(REPORT_PHOTO_PICKER_TIMEOUT_MS);
 
     touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
@@ -22872,7 +22957,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!name || isBlockingOverlay(name)) return false;
 
-    if (name === 'report' && !canDismissReportOverlay()) return false;
+    if (name === 'report' && !canDismissReportOverlay()) {
+
+      // Otherwise a tap here is silently swallowed — indistinguishable from a
+      // frozen button — while a photo hand-off from the camera is in flight.
+      if (!isToastShowing('info', t('report.closeBusy'))) {
+
+        showToast(t('report.closeBusy'), 'info', 2500);
+
+      }
+
+      return false;
+
+    }
 
     if (name === 'success') dismissSuccessModal();
 
@@ -24488,6 +24585,10 @@ document.addEventListener('DOMContentLoaded', function () {
       function samplesAgree() {
 
         if (samples.length < minSamples) return false;
+
+        // minSamples callers (confirm-pin) have nothing to compare a lone sample
+        // against — treat it as trivially agreeing rather than reading samples[-2].
+        if (minSamples <= 1) return true;
 
         const a = samples[samples.length - 1];
 
@@ -28294,15 +28395,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('PIN', 'GPS refine start', { token });
 
+    // fresh:false (was true) — demanding a brand-new fix here threw away a perfectly
+    // usable position the OS/browser was already holding (the map screen behind this
+    // flow keeps GPS warm), forcing every confirm-pin visit through up to 20s of fresh
+    // acquisition before the pin cleared "provisional" and unblocked submit. Most users
+    // photograph + review + tap submit well inside that window, so they hit the "confirm
+    // the pin" block on essentially every report, even with good GPS. Accepting a
+    // <=15s-old cached fix (same staleness already tolerated elsewhere in this function)
+    // lets the common case resolve near-instantly; the plausibility/ward check below is
+    // what actually guards against a wrong location, not freshness.
     getPrecisePosition({
 
-      fresh: true,
+      fresh: false,
 
       targetAccuracyM: GEO_ACCURACY_GOOD_M,
 
       watchMaxMs: 20000,
 
-      minSamples: GEO_STABLE_SAMPLES,
+      // 1 sample (was GEO_STABLE_SAMPLES=2): the 2-sample agreement check exists to
+      // catch a noisy single WiFi-based fix elsewhere (onboarding ward detect), but
+      // here the ward/city plausibility check just below is the real safety net, the
+      // pin is always draggable, and waiting on a second live sample to agree with the
+      // first was the other half of what made this step feel stuck on a fast device.
+      minSamples: 1,
 
       onCancelHandle: (cancelFn) => {
 
@@ -33695,11 +33810,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         hint.textContent = city === 'thane'
 
-          ? t('esc.tmc.fileHint')
+          ? escHintForHazard('esc.tmc.fileHint', report.hazard)
 
           : city === 'pune'
 
-            ? t('esc.pmc.fileHint')
+            ? escHintForHazard('esc.pmc.fileHint', report.hazard)
 
             : t('esc.corpHint').replace('{corp}', corp.name || getCityLabel(city));
 
@@ -38857,7 +38972,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.addEventListener('visibilitychange', () => {
 
-          if (document.visibilityState === 'visible') checkForUpdate();
+          // Skip while mid-report (e.g. just returned from the native camera) —
+          // no urgency to check for an update right as a fragile photo-return
+          // handoff is happening; the next visible tick catches it instead.
+          if (document.visibilityState === 'visible' && !isReportFlowBusy()) checkForUpdate();
 
         });
 

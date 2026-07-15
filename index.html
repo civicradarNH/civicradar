@@ -59,11 +59,21 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&family=Outfit:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&family=Outfit:wght@400;600;700&display=swap"></noscript>
 
-  <!-- Leaflet (local) + Phosphor subset — no CDN icon kit -->
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/phosphor-lite.css">
-
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Leaflet (local) + Phosphor subset — no CDN icon kit.
+       Loaded async (preload+swap, same trick as the fonts above): as plain
+       render-blocking <link rel="stylesheet"> tags these delayed first paint
+       until all three had downloaded, which is what produced a flash of white
+       before the inline critical-splash CSS above ever got to paint anything —
+       none of this app chrome is visible during the splash (body.app-booting
+       hides it), so it doesn't need to block first paint. -->
+  <link rel="preload" as="style" href="vendor/leaflet/leaflet.css" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="style" href="css/phosphor-lite.css" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="style" href="css/styles.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/phosphor-lite.css">
+    <link rel="stylesheet" href="css/styles.css">
+  </noscript>
   <title>CivicRadar</title>
 </head>
 <body class="app-booting">
