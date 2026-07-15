@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v225';
+  const CIVIC_APP_VERSION = 'v226';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -684,6 +684,16 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportPhotoWatchdogTimer = null;
 
   let reportPhotoDismissGuard = 0;
+
+  // True while the extra history entry pushReportPhotoHistory() pushed for the
+  // camera launch is still sitting unconsumed in the browser history stack.
+  // Unlike PHOTO_RETURN_GUARD_MS (a short fixed window), this doesn't expire —
+  // the entry stays there until an actual popstate pops it, however long the
+  // user spends framing/reviewing the shot in the native camera UI. Relying on
+  // the time-based guard alone let a popstate arriving after that window (e.g.
+  // a slow device batching the WebView resume) be misread as a genuine back
+  // press, closing the report sheet right after a successful capture.
+  let reportPhotoHistoryPending = false;
 
   let reportManualPinDismiss = false;
 
@@ -22539,6 +22549,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       history.pushState({ civicReportPhoto: true }, '');
 
+      reportPhotoHistoryPending = true;
+
     } catch { /* history unavailable */ }
 
   }
@@ -22624,6 +22636,12 @@ document.addEventListener('DOMContentLoaded', function () {
       resetSubmitReportButton();
 
       finishReportPhotoFlow('closeModal');
+
+      // The report closed through this path instead of the popstate handler
+      // consuming it — drop the pending flag so a later, unrelated popstate
+      // (e.g. leaving the map screen) doesn't misread itself as a camera
+      // return and reopen the report modal out of nowhere.
+      reportPhotoHistoryPending = false;
 
       // Always invalidate in-flight confirm-pin GPS (including startManualPinMode dismiss,
       // which skips resetReportForm so the watch would otherwise keep running).
@@ -24034,6 +24052,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  const _loadedScripts = {};
+
+  // Injects a script tag once (idempotent) instead of blocking the initial
+  // synchronous <script> chain in index.html — used for code that every
+  // consumer already null-checks (ImageModeration, CIVICRADAR_SOCIETY_BY_WARD),
+  // so loading it a beat after first paint costs nothing functionally.
+  function loadScriptOnce(src) {
+
+    if (_loadedScripts[src]) return _loadedScripts[src];
+
+    _loadedScripts[src] = new Promise((resolve) => {
+
+      const el = document.createElement('script');
+
+      el.src = src;
+
+      el.onload = () => resolve(true);
+
+      el.onerror = () => resolve(false);
+
+      document.body.appendChild(el);
+
+    });
+
+    return _loadedScripts[src];
+
+  }
+
 
 
   /* ---------- Init ---------- */
@@ -24186,6 +24232,15 @@ document.addEventListener('DOMContentLoaded', function () {
       setTimeout(() => maybeShowPwaNudge('visit'), 2500);
 
     }
+
+    // Neither script's consumers need it before this point — ImageModeration is
+    // always window-guarded, and getSocietyDataByCityWard() already falls back
+    // to window.CIVICRADAR_SOCIETY_BY_WARD directly. Loading them idle instead
+    // of in the initial synchronous <script> chain keeps ~58KB off the path to
+    // first paint/interactive without changing when either feature is ready.
+    loadScriptOnce('js/image-moderation.js');
+
+    loadScriptOnce('js/society-suggestions-data.js');
 
   });
 
@@ -27059,7 +27114,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('popstate', () => {
 
+      // Consume the camera launch's pushed history entry here, not on a timer —
+      // the user may spend far longer than PHOTO_RETURN_GUARD_MS framing/reviewing
+      // the shot in the native camera UI, and a slow device can deliver this
+      // popstate well after that guard window closes.
+      const hadPendingPhotoHistory = reportPhotoHistoryPending;
+
+      reportPhotoHistoryPending = false;
+
       const photoReturn = isReportPhotoPickerActive()
+
+        || hadPendingPhotoHistory
 
         || (hasReportPhotoPreview() && Date.now() - reportPhotoDismissGuard < PHOTO_RETURN_GUARD_MS);
 

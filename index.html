@@ -2006,8 +2006,10 @@
   <!-- Supabase loaded on demand after first paint (see Backend.init) -->
 
   <script src="js/analytics.js"></script>
-  <script src="js/image-moderation.js"></script>
-  <script src="js/society-suggestions-data.js"></script>
+  <!-- image-moderation.js + society-suggestions-data.js load idle, after first
+       paint, via loadScriptOnce() in app.js's boot sequence — every consumer of
+       either already null-checks/falls back, so deferring ~58KB off this
+       synchronous chain costs nothing functionally. -->
   <script src="js/app.js"></script>
   <script>
     (function () {
