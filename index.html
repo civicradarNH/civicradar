@@ -56,8 +56,8 @@
   <!-- Google Fonts (non-blocking — splash uses system stack until loaded) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Outfit:wght@400;600;700&display=swap"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&family=Outfit:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&family=Outfit:wght@400;600;700&display=swap"></noscript>
 
   <!-- Leaflet (local) + Phosphor subset — no CDN icon kit -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
@@ -594,7 +594,7 @@
     </div>
   </div>
 
-  <!-- Civic Hero XP certificate (level-up) -->
+  <!-- Civic Points level-up certificate -->
   <div class="modal-overlay" id="certificateOverlay" aria-hidden="true">
     <div class="modal" id="certificateModal" role="dialog" aria-modal="true" aria-labelledby="certificateTitle">
       <div class="modal__handle"></div>
@@ -876,10 +876,10 @@
         <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
         <p class="profile-card__referral hidden" id="profileReferralLine" aria-live="polite"></p>
         <div class="profile-rewards hidden" id="profileRewards" aria-label="Rewards progress">
-          <div class="profile-xp" id="profileXp" aria-label="Civic Hero XP level">
+          <div class="profile-xp" id="profileXp" aria-label="Civic Points level">
             <div class="profile-xp__header">
               <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
-              <span class="profile-xp__total" id="profileXpTotal">0 XP</span>
+              <span class="profile-xp__total" id="profileXpTotal">0 Civic Points</span>
             </div>
             <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
               <div class="profile-xp__fill" id="profileXpProgress"></div>
@@ -895,7 +895,7 @@
         <div class="profile-card__stats">
           <div class="stat stat--points">
             <span class="stat__value" id="profilePoints">0</span>
-            <span class="stat__label" data-i18n="profile.points">Civic Hero XP</span>
+            <span class="stat__label" data-i18n="profile.points">Civic Points</span>
           </div>
           <div class="stat">
             <span class="stat__value" id="profileFixed">0</span>
@@ -906,7 +906,7 @@
             <span class="stat__label" data-i18n="profile.pending">Open</span>
           </div>
         </div>
-        <p class="profile-card__hint" id="profilePointsHint">50 pts per report · +200 when volunteer hours verified</p>
+        <p class="profile-card__hint" id="profilePointsHint">50 Civic Points per report · +8 Me too · +200 volunteer verified</p>
       </div>
 
       <div class="profile-location profile-details-card" id="profileLocationBlock">
@@ -1096,6 +1096,20 @@
     </div>
   </div>
 
+  <!-- Generic confirm dialog (replaces native browser confirm() calls app-wide) -->
+  <div class="modal-overlay" id="genericConfirmOverlay" aria-hidden="true">
+    <div class="modal modal--sm delete-confirm-modal" id="genericConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="genericConfirmTitle" aria-describedby="genericConfirmBody">
+      <div class="modal__handle"></div>
+      <div class="delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle" id="genericConfirmIcon"></i></div>
+      <h2 id="genericConfirmTitle" class="hidden"></h2>
+      <p class="modal__subtitle" id="genericConfirmBody"></p>
+      <div class="delete-confirm__actions">
+        <button type="button" class="btn btn--primary btn--full" id="btnGenericConfirmCancel"></button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnGenericConfirmProceed"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Partner Portal (stakeholder entry) -->
   <div class="modal-overlay" id="partnerOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="partnerModal" role="dialog" aria-modal="true" aria-labelledby="partnerTitle">
@@ -1147,7 +1161,7 @@
           <input type="email" id="adminEmail" placeholder="name@mcgm.gov.in" autocomplete="email">
           <p class="field-hint" data-i18n="auth.emailHint">Only verified gov.in / mcgm.gov.in addresses get BMC access.</p>
         </div>
-        <button type="button" class="btn btn--primary btn--full" id="btnAdminSendCode" data-i18n="auth.sendCode">Send sign-in link</button>
+        <button type="button" class="btn btn--primary btn--full" id="btnAdminSendCode"><span class="btn__label" data-i18n="auth.sendCode">Send sign-in link</span></button>
         <div class="auth-link-sent hidden" id="adminLinkSentRow">
           <p class="field-hint auth-link-sent__hint" data-i18n="auth.linkInstructions">Check your email and tap the sign-in link. Keep this tab open — you'll return here signed in.</p>
         </div>
@@ -1158,7 +1172,7 @@
               <label for="adminOtp" data-i18n="auth.otp">6-digit code</label>
               <input type="text" id="adminOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
             </div>
-            <button type="button" class="btn btn--primary btn--full" id="btnAdminVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
+            <button type="button" class="btn btn--primary btn--full" id="btnAdminVerify"><span class="btn__label" data-i18n="auth.verifyEnter">Verify &amp; enter</span></button>
           </div>
         </div>
       </div>
@@ -1199,7 +1213,7 @@
           <input type="text" id="leadCode" placeholder="Issued by CivicRadar operator" data-i18n-ph="auth.ngoCodePh" autocomplete="off">
           <p class="field-hint" data-i18n="coord.codeHint">Coordinators receive a code when onboarded — ward-wide or neighbourhood (RWA/society) scope.</p>
         </div>
-        <button type="button" class="btn btn--primary btn--full" id="btnLeadSendCode" data-i18n="auth.sendCode">Send sign-in link</button>
+        <button type="button" class="btn btn--primary btn--full" id="btnLeadSendCode"><span class="btn__label" data-i18n="auth.sendCode">Send sign-in link</span></button>
         <div class="auth-link-sent hidden" id="leadLinkSentRow">
           <p class="field-hint auth-link-sent__hint" data-i18n="auth.linkInstructions">Check your email and tap the sign-in link. Keep this tab open — you'll return here signed in.</p>
         </div>
@@ -1210,7 +1224,7 @@
               <label for="leadOtp" data-i18n="auth.otp">6-digit code</label>
               <input type="text" id="leadOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
             </div>
-            <button type="button" class="btn btn--primary btn--full" id="btnLeadVerify" data-i18n="auth.verifyEnter">Verify &amp; enter</button>
+            <button type="button" class="btn btn--primary btn--full" id="btnLeadVerify"><span class="btn__label" data-i18n="auth.verifyEnter">Verify &amp; enter</span></button>
           </div>
         </div>
       </div>
@@ -1302,7 +1316,7 @@
         <div class="dashboard-stat dashboard-stat--ok"><span id="coordCleared">0</span><label data-i18n="coord.cleared">Community-cleared</label></div>
       </div>
       <div class="workflow-hint" data-i18n="coord.workflow">
-        Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 pts)
+        Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 Civic Points)
       </div>
 
       <button type="button" class="btn btn--secondary btn--full" id="btnCoordTracking">
@@ -1361,14 +1375,16 @@
       <button type="button" class="btn btn--secondary btn--full" id="btnAdminCopy1916">
         <i class="ph ph-copy"></i> <span data-i18n="admin.copy1916">Copy for 1916</span>
       </button>
-      <button type="button" class="btn btn--primary btn--full" id="btnMarkResolved">
-        <span class="btn__label" data-i18n="admin.markResolved">Mark as resolved</span>
-      </button>
-      <p class="field-hint" id="adminResolveHint" data-i18n="admin.resolveHint">Citizen gets credit and the pin turns green.</p>
       <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnAdminRemoveContent">
         <i class="ph ph-flag"></i> <span data-i18n="admin.removeContent">Remove content</span>
       </button>
       <button type="button" class="btn btn--ghost btn--full" id="btnAdminReportClose" data-i18n="admin.close">Close</button>
+      <div class="modal__sticky-footer">
+        <button type="button" class="btn btn--primary btn--full" id="btnMarkResolved">
+          <span class="btn__label" data-i18n="admin.markResolved">Mark as resolved</span>
+        </button>
+        <p class="field-hint" id="adminResolveHint" data-i18n="admin.resolveHint">Citizen gets credit and the pin turns green.</p>
+      </div>
     </div>
   </div>
 
@@ -1384,6 +1400,7 @@
       <div class="esc-progress" id="escProgress" aria-label="Filing progress"></div>
 
       <div id="escBmcPanel">
+      <p class="esc-step-label" data-i18n="esc.step1">Step 1 · File</p>
       <h3 class="section-title" data-i18n="esc.fileTitle">File the complaint (free)</h3>
       <p class="field-hint esc-recommended" id="escRecommended" data-i18n="esc.recommended">Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.</p>
       <p class="field-hint" id="escFileHint">Stagnant water goes to your ward’s Pest Control Officer. Start with the recommended channel — or open more ways below.</p>
@@ -1412,19 +1429,10 @@
           <i class="ph ph-bank"></i> <span data-i18n="esc.aaple">Aaple Sarkar (state grievance)</span>
         </button>
       </details>
-
-      <div id="escParticipateBlock">
-        <h3 class="section-title" data-i18n="esc.participate.title">Community action (optional)</h3>
-        <p class="field-hint" data-i18n="esc.participate.hint">Participate Mumbai is BMC’s official portal for volunteering and CSR — not for filing pest-control complaints. Use it to join clean-ups or propose ward projects.</p>
-        <button type="button" class="esc-channel esc-channel--wide" id="btnEscParticipate">
-          <i class="ph ph-hand-heart"></i>
-          <span data-i18n="esc.participate.btn">Participate Mumbai</span>
-          <small data-i18n="esc.participate.small">Volunteer · CSR · projects</small>
-        </button>
-      </div>
       </div>
 
       <div id="escCorpPanel" class="hidden">
+        <p class="esc-step-label" data-i18n="esc.step1">Step 1 · File</p>
         <h3 class="section-title" id="escCorpTitle" data-i18n="esc.corpTitle">File with local corporation (optional)</h3>
         <p class="field-hint esc-recommended hidden" id="escCorpRecommended"></p>
         <p class="field-hint" id="escCorpHint" data-i18n="esc.corpHint">Use your city's official grievance portal to file stagnant-water / pest-control complaints.</p>
@@ -1468,15 +1476,25 @@
           <button type="button" class="btn btn--primary btn--sm" id="btnEscSaveId" data-i18n="esc.save" disabled>Save</button>
         </div>
         <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
-        <p class="field-hint" data-i18n="esc.complaintHint">Saving your complaint number starts the official clock and unlocks follow-up steps.</p>
-        <p class="field-hint" data-i18n="esc.saveUnlock">After save: escalation ladder, days-since-filed tracker, and follow-up copy templates unlock.</p>
+        <p class="field-hint" data-i18n="esc.complaintHint">Saving starts the official clock and unlocks the escalation ladder, days-since-filed tracker, and follow-up templates.</p>
         <p class="field-hint hidden" id="escFiledNote"><i class="ph ph-check-circle"></i> <span id="escFiledNoteText" data-i18n="esc.filedNote">Filed with BMC — escalation steps unlock as deadlines pass.</span></p>
         <p class="field-hint hidden" id="escDaysSince"></p>
       </div>
 
       <div id="escLadderSection" class="hidden">
+        <p class="esc-step-label" data-i18n="esc.step2">Step 2 · Track &amp; escalate</p>
         <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
         <ul class="esc-ladder" id="escLadder"></ul>
+      </div>
+
+      <div id="escParticipateBlock" class="esc-participate">
+        <h3 class="section-title" data-i18n="esc.participate.title">Community action (optional)</h3>
+        <p class="field-hint" data-i18n="esc.participate.hint">Participate Mumbai is BMC’s official portal for volunteering and CSR — not for filing pest-control complaints. Use it to join clean-ups or propose ward projects.</p>
+        <button type="button" class="esc-channel esc-channel--wide" id="btnEscParticipate">
+          <i class="ph ph-hand-heart"></i>
+          <span data-i18n="esc.participate.btn">Participate Mumbai</span>
+          <small data-i18n="esc.participate.small">Volunteer · CSR · projects</small>
+        </button>
       </div>
 
       <div class="modal__sticky-footer">
@@ -1667,9 +1685,11 @@
 
         <p class="form-error hidden" id="feedbackError" role="alert" aria-live="assertive"></p>
 
-        <button type="submit" class="btn btn--primary btn--full" id="btnFeedbackSubmit">
-          <span class="btn__label" data-i18n="feedback.submit">Send feedback</span>
-        </button>
+        <div class="modal__sticky-footer">
+          <button type="submit" class="btn btn--primary btn--full" id="btnFeedbackSubmit">
+            <span class="btn__label" data-i18n="feedback.submit">Send feedback</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -1734,10 +1754,12 @@
 
           <p class="form-error hidden" id="accessError" role="alert" aria-live="assertive"></p>
 
-          <button type="submit" class="btn btn--primary btn--full" id="btnAccessSubmit">
-            <span class="btn__label" data-i18n="access.submit">Submit request</span>
-          </button>
-          <button type="button" class="btn btn--ghost btn--full" id="btnAccessHaveCode" data-i18n="access.haveCode">I already have a claim code</button>
+          <div class="modal__sticky-footer">
+            <button type="submit" class="btn btn--primary btn--full" id="btnAccessSubmit">
+              <span class="btn__label" data-i18n="access.submit">Submit request</span>
+            </button>
+            <button type="button" class="btn btn--ghost btn--full" id="btnAccessHaveCode" data-i18n="access.haveCode">I already have a claim code</button>
+          </div>
         </form>
       </div>
 
@@ -1816,9 +1838,11 @@
 
           <p class="form-error hidden" id="leadNomError" role="alert" aria-live="assertive"></p>
 
-          <button type="submit" class="btn btn--primary btn--full" id="btnLeadNomSubmit">
-            <span class="btn__label" data-i18n="lead.submit">Nominate me</span>
-          </button>
+          <div class="modal__sticky-footer">
+            <button type="submit" class="btn btn--primary btn--full" id="btnLeadNomSubmit">
+              <span class="btn__label" data-i18n="lead.submit">Nominate me</span>
+            </button>
+          </div>
         </form>
       </div>
 

@@ -42,9 +42,11 @@
   --corp-aaple-bg: rgba(124, 58, 237, 0.07);
   --corp-aaple-border: rgba(124, 58, 237, 0.24);
 
-  /* Semantic */
-  --danger: #ef4444;
-  --success: #10b981;
+  /* Semantic — darkened from red-500/emerald-500 (v213): those failed WCAG AA
+     text contrast (3.76:1 / 2.54:1 on white) at the small bold sizes used for
+     stat numbers and status labels. red-600 / emerald-700 clear 4.5:1. */
+  --danger: #dc2626;
+  --success: #047857;
   --warning: #f59e0b;
   --warning-rgb: 245, 158, 11;
   --warning-soft-bg: #fffbeb;
@@ -110,7 +112,9 @@
 
   /* Type scale — the ONLY font sizes allowed in this app */
   --font: 'Outfit', system-ui, sans-serif;
-  --font-devanagari: 'Noto Sans Devanagari', 'Outfit', sans-serif;
+  /* Applied via html[lang="hi"|"mr"|"gu"] below — despite the name this also
+     covers Gujarati script, which Noto Sans Devanagari has no glyphs for. */
+  --font-devanagari: 'Noto Sans Devanagari', 'Noto Sans Gujarati', 'Outfit', sans-serif;
   --fs-xs:   0.75rem;   /* 12px — badges, timestamps, fine print */
   --fs-sm:   0.8125rem; /* 13px — captions, hints, secondary labels */
   --fs-base: 0.9375rem; /* 15px — body, buttons, inputs, list items */
@@ -228,11 +232,11 @@ body.app-booting {
 }
 
 .header__sync--cloud {
-  color: #059669;
+  color: var(--success);
 }
 
 .header__sync--cloud::before {
-  background: #10b981;
+  background: var(--success);
 }
 
 .header__sync--local {
@@ -998,9 +1002,18 @@ body.persona-lead #wardPulse {
   background: rgba(146, 64, 14, 0.1);
 }
 
+.location-banner__close:active {
+  transform: scale(0.92);
+  background: rgba(146, 64, 14, 0.16);
+}
+
 .location-banner__close:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-banner__close:active { transform: none; }
 }
 
 .map-locate-pill {
@@ -1803,7 +1816,8 @@ body.pwa-nudge-visible #btnCamera {
   background: transparent;
   color: #fff;
   border-radius: var(--radius-full);
-  padding: 4px 10px;
+  min-height: 30px;
+  padding: 6px 12px;
   font-size: var(--fs-xs);
   font-weight: 600;
   cursor: pointer;
@@ -2189,6 +2203,7 @@ body.pwa-nudge-visible #btnCamera {
 .btn--primary {
   background: var(--primary);
   color: #fff;
+  font-weight: 700;
 }
 
 .btn--primary:hover:not(:disabled) {
@@ -2607,8 +2622,7 @@ body.pwa-nudge-visible #btnCamera {
 
 .profile-xp__total {
   font-size: var(--fs-xs);
-  font-weight: 600;
-  opacity: 0.9;
+  font-weight: 700;
 }
 
 .profile-xp__track {
@@ -3157,7 +3171,7 @@ body.persona-lead .app-open-banner { display: none; }
   flex-direction: column;
   gap: 6px;
   border-style: solid;
-  border-color: #10b981;
+  border-color: var(--success);
   background: rgba(16, 185, 129, 0.12);
   color: #065f46;
   font-size: var(--fs-base);
@@ -3167,7 +3181,7 @@ body.persona-lead .app-open-banner { display: none; }
 .proof-compare__check {
   font-size: var(--fs-2xl);
   line-height: 1;
-  color: #10b981;
+  color: var(--success);
 }
 
 .share-win-instagram {
@@ -3417,7 +3431,7 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .report-card__proof img.report-card__thumb--after {
-  border-color: #10b981;
+  border-color: var(--success);
 }
 
 .report-card__proof-label {
@@ -3752,6 +3766,17 @@ body.persona-lead .app-open-banner { display: none; }
 
 #escalationModal .modal__sticky-footer .esc-self-confirm {
   margin-bottom: 0;
+}
+
+#accessRequestModal .modal__sticky-footer,
+#leadNomModal .modal__sticky-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#accessRequestModal .modal__sticky-footer .btn--ghost {
+  margin-top: 0;
 }
 
 .coord-scope-tag {
@@ -5293,6 +5318,24 @@ body.persona-lead .app-open-banner { display: none; }
 .esc-self-confirm p { margin: 2px 0 0; font-size: var(--fs-xs); color: var(--text-muted, #64748b); line-height: 1.4; }
 .esc-self-confirm button { flex-shrink: 0; }
 
+.esc-step-label {
+  margin: 0 0 4px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.esc-participate {
+  margin-top: 4px;
+  padding: 12px 14px 14px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  background: var(--surface);
+}
+.esc-participate .section-title { margin-top: 0; }
+
 /* ---------- Role Badges ---------- */
 
 .role-badges {
@@ -5619,6 +5662,27 @@ body.persona-lead .app-open-banner { display: none; }
   background: var(--accent); color: #fff;
   font-family: var(--font); font-size: var(--fs-sm); font-weight: 700;
   cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.15s ease;
+}
+.popup__btn:active { transform: scale(0.97); }
+.popup__btn:disabled,
+.popup__btn--busy {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.popup__btn--busy::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .popup__btn:active { transform: none; }
+  .popup__btn--busy::after { animation: none; }
 }
 .popup__follow-hint {
   margin: 6px 0 0;
@@ -5989,8 +6053,6 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
   background: var(--surface);
   color: var(--warning-dark);
   }
-.lb-rank.silver {  }
-.lb-rank.bronze {  }
 
 /* ---- Cards: resting elevation so depth is consistent everywhere ---- */
 .queue-item,
@@ -5998,7 +6060,6 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
     transition: box-shadow 0.2s ease, border-color 0.2s ease,
     transform 0.12s var(--ease-spring);
 }
-.hazard-tile--active {  }
 .hazard-tile:not(.hazard-tile--soon):active { transform: scale(0.97); }
 
 /* ---- Empty states: warmer, on-brand icon ---- */
@@ -7056,7 +7117,11 @@ a,
 #btnCamera:active,
 .hazard-tile:active,
 .esc-channel:active,
-.civic-combobox__option:active {
+.civic-combobox__option:active,
+.nav-tab:active,
+.segment-control__btn:active,
+.cr-section__toggle:active,
+.lang-option:active {
   transform: scale(0.97);
   transition: transform 0.08s ease;
 }
@@ -7066,7 +7131,11 @@ a,
   #btnCamera:active,
   .hazard-tile:active,
   .esc-channel:active,
-  .civic-combobox__option:active { transform: none; }
+  .civic-combobox__option:active,
+  .nav-tab:active,
+  .segment-control__btn:active,
+  .cr-section__toggle:active,
+  .lang-option:active { transform: none; }
 }
 
 /* ---- Debug panel (?debug=1 or localStorage civicDebug=1) ---- */

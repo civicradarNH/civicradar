@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v212';
+  const CIVIC_APP_VERSION = 'v219';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -721,6 +721,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let reportGeoExplainerResolve = null;
 
+  let genericConfirmResolve = null;
+
   let appHiddenAt = 0;
 
   let skipReportDraftRestoreOnce = false;
@@ -818,6 +820,8 @@ document.addEventListener('DOMContentLoaded', function () {
     profile: $('#profileOverlay'),
 
     deleteConfirm: $('#deleteConfirmOverlay'),
+
+    genericConfirm: $('#genericConfirmOverlay'),
 
     admin: $('#adminOverlay'),
 
@@ -3458,9 +3462,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.points': 'Civic Points',
 
-      'profile.xpTotalLabel': '{n} XP',
+      'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{n} XP to {level}',
+      'profile.xpToNext': '{n} Civic Points to {level}',
 
       'profile.xpMax': 'Max level — Community Leader!',
 
@@ -3533,6 +3537,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmCancel': 'Keep my data',
 
       'profile.deleteConfirmProceed': 'Yes, delete everything',
+
+      'common.cancel': 'Cancel',
+
+      'common.confirm': 'Confirm',
+
+      'volunteer.removeConfirm': 'Remove your volunteer signup? This cannot be undone.',
 
       'profile.deleteDone': 'Your data has been deleted. You can start fresh.',
       'profile.deleteFail': "Couldn't delete your data — nothing was removed. Please try again, or email us if it keeps failing.",
@@ -3909,6 +3919,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.subtitle': 'CivicRadar shows hazards on the community map. Filing with BMC is your choice — it starts the official clock. This is not a BMC channel.',
 
+      'esc.step1': 'Step 1 · File',
+
       'esc.fileTitle': 'File the complaint (free)',
 
       'esc.fileHint': 'Stagnant water goes to your ward\'s Pest Control Officer. Start with the recommended channel — or open more ways below.',
@@ -3957,8 +3969,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintWarn': 'This doesn\'t look like a typical BMC number — you can still save if it\'s correct.',
 
-      'esc.saveUnlock': 'After save: escalation ladder, days-since-filed tracker, and follow-up copy templates unlock.',
-
       'esc.closeNudge': 'No complaint number saved yet — you can file and save anytime from Profile.',
 
       'esc.daysSince': '{n} days since you filed with BMC',
@@ -3993,9 +4003,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintPh': 'e.g. N/2026/123456',
 
-      'esc.complaintHint': 'Saving your complaint number starts the official clock and unlocks follow-up steps.',
+      'esc.complaintHint': 'Saving starts the official clock and unlocks the escalation ladder, days-since-filed tracker, and follow-up templates.',
 
       'esc.filedNote': 'Filed with BMC — escalation steps unlock as deadlines pass.',
+
+      'esc.step2': 'Step 2 · Track & escalate',
 
       'esc.ladderTitle': 'Escalation ladder',
 
@@ -4117,9 +4129,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.neighbourMany': 'neighbours said Me too',
 
-      'profile.pointsHint.base': '50 XP per report · +8 Me too · +200 volunteer verified',
+      'profile.pointsHint.base': '50 Civic Points per report · +8 Me too · +200 volunteer verified',
 
-      'profile.pointsHint.bonus': '{n} reports — 50 pts — +{bonus} volunteer bonus',
+      'profile.pointsHint.bonus': '{n} reports — 50 Civic Points — +{bonus} volunteer bonus',
 
       'profile.greeting': 'Hello, {name}',
 
@@ -4263,7 +4275,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.status.delivered': 'Delivered',
 
-      'pledge.status.verified': 'Verified (+200 pts)',
+      'pledge.status.verified': 'Verified (+200 Civic Points)',
 
       'pledge.submit': 'Submit pledge',
 
@@ -4415,6 +4427,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'Hours verified! +200 Civic Points credited.',
 
+      'toast.hoursVerifiedOther': 'Hours verified for {name}. +{points} Civic Points credited to them.',
+
       'toast.saving': 'Saving—',
 
       'toast.verifying': 'Verifying—',
@@ -4477,7 +4491,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coord.hubSubtitle': 'Review citizen pledges and verify volunteer time.',
 
-      'coord.workflow': 'Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 pts)',
+      'coord.workflow': 'Dispatch volunteers → log cleanup → confirm supplies → verify hours (+200 Civic Points)',
 
       'coord.openHazards': 'Open hazards in your ward',
 
@@ -5839,9 +5853,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.points': 'Civic Points',
 
-      'profile.xpTotalLabel': '{n} XP',
+      'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} तक {n} XP',
+      'profile.xpToNext': '{level} तक {n} Civic Points',
 
       'profile.xpMax': 'अधिकतम स्तर — Community Leader!',
 
@@ -5914,6 +5928,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmCancel': 'मेरा डेटा रखें',
 
       'profile.deleteConfirmProceed': 'हाँ, सब कुछ हटाएँ',
+
+      'common.cancel': 'रद्द करें',
+
+      'common.confirm': 'पुष्टि करें',
+
+      'volunteer.removeConfirm': 'आपका स्वयंसेवक पंजीकरण हटाएँ? इसे पूर्ववत नहीं किया जा सकता।',
 
       'profile.deleteDone': 'आपका डेटा हटा दिया गया। आप नए सिरे से शुरू कर सकते हैं।',
       'profile.deleteFail': 'आपका डेटा हटाया नहीं जा सका — कुछ भी नहीं हटाया गया। कृपया फिर कोशिश करें, या समस्या बनी रहे तो हमें ईमेल करें।',
@@ -6290,6 +6310,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.subtitle': 'CivicRadar खतरे सामुदायिक मानचित्र पर दिखाता है। BMC में दर्ज करना वैकल्पिक है लेकिन आधिकारिक घड़ी शुरू करता है — यह आधिकारिक BMC चैनल नहीं है।',
 
+      'esc.step1': 'चरण 1 · दर्ज करें',
+
       'esc.fileTitle': 'शिकायत दर्ज करें (निःशुल्क)',
 
       'esc.fileHint': 'रुका पानी आपके वार्ड के कीट नियंत्रण अधिकारी तक जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
@@ -6338,8 +6360,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintWarn': 'यह सामान्य BMC नंबर जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
 
-      'esc.saveUnlock': 'सहेजने के बाद: एस्केलेशन सीढ़ी, दिन-गिनती, फॉलो-अप टेक्स्ट।',
-
       'esc.closeNudge': 'शिकायत नंबर अभी सहेजा नहीं — Profile से कभी भी दर्ज कर सकते हैं।',
 
       'esc.daysSince': 'BMC में दर्ज किए {n} दिन',
@@ -6374,9 +6394,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintPh': 'उदा. N/2026/123456',
 
-      'esc.complaintHint': 'नंबर सहेजने से जवाबदेही घड़ी शुरू होती है।',
+      'esc.complaintHint': 'नंबर सहेजने से जवाबदेही घड़ी शुरू होती है और एस्केलेशन सीढ़ी, दिन-गिनती व फॉलो-अप टेम्पलेट अनलॉक होते हैं।',
 
       'esc.filedNote': 'BMC में दर्ज — समय सीमा पर आगे बढ़ाएँ।',
+
+      'esc.step2': 'चरण 2 · ट्रैक करें और आगे बढ़ाएँ',
 
       'esc.ladderTitle': 'आगे बढ़ाने की सीढ़ी',
 
@@ -6498,7 +6520,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.neighbourMany': 'पड़ोसियों ने मुझे भी कहा',
 
-      'profile.pointsHint.base': '50 अंक/रिपोर्ट · +200 स्वयंसेवा',
+      'profile.pointsHint.base': '50 Civic Points/रिपोर्ट · +8 मुझे भी · +200 स्वयंसेवा',
 
       'profile.pointsHint.bonus': '{n} × 50 · +{bonus} बोनस',
 
@@ -6644,7 +6666,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.status.delivered': 'वितरित',
 
-      'pledge.status.verified': 'सत्यापित (+200 अंक)',
+      'pledge.status.verified': 'सत्यापित (+200 Civic Points)',
 
       'pledge.submit': 'दान भेजें',
 
@@ -6796,6 +6818,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Points मिले।',
 
+      'toast.hoursVerifiedOther': '{name} के घंटे सत्यापित हुए। उन्हें +{points} Civic Points मिले।',
+
       'toast.saving': 'सहेजा जा रहा…',
 
       'toast.verifying': 'सत्यापित हो रहा…',
@@ -6858,7 +6882,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coord.hubSubtitle': 'नागरिक दान देखें, स्वयंसेवक घंटे सत्यापित करें।',
 
-      'coord.workflow': 'भेजें → सफ़ाई लॉग → सामान पुष्टि → घंटे (+200 अंक)',
+      'coord.workflow': 'भेजें → सफ़ाई लॉग → सामान पुष्टि → घंटे (+200 Civic Points)',
 
       'coord.openHazards': 'वार्ड में खुले खतरे',
 
@@ -7324,7 +7348,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmLocal': 'इस डिवाइस पर सहेजा गया — ऑनलाइन होने पर सिंक होगा।',
 
-      'lead.viewCommunity': 'Community में उम्मीदवार देखें',
+      'lead.viewCommunity': 'समुदाय में उम्मीदवार देखें',
 
       'lead.profileCta': 'वार्ड या पड़ोस लीड बनें',
 
@@ -7365,7 +7389,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.errAlreadyLead': 'आप पहले से यह लीड भूमिका रखते हैं।',
 
-      'lead.nominated': 'नामांकन भेजा — Community में समर्थन जुटाएँ!',
+      'lead.nominated': 'नामांकन भेजा — समुदाय में समर्थन जुटाएँ!',
 
       'lead.nominatedLocal': 'नामांकन सहेजा — ऑनलाइन होने पर सिंक होगा।',
 
@@ -8219,9 +8243,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.points': 'Civic Points',
 
-      'profile.xpTotalLabel': '{n} XP',
+      'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} पर्यंत {n} XP',
+      'profile.xpToNext': '{level} पर्यंत {n} Civic Points',
 
       'profile.xpMax': 'कमाल स्तर — Community Leader!',
 
@@ -8294,6 +8318,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmCancel': 'माझा डेटा ठेवा',
 
       'profile.deleteConfirmProceed': 'होय, सर्व काही हटवा',
+
+      'common.cancel': 'रद्द करा',
+
+      'common.confirm': 'खात्री करा',
+
+      'volunteer.removeConfirm': 'तुमची स्वयंसेवक नोंदणी काढायची? हे पूर्ववत करता येणार नाही.',
 
       'profile.deleteDone': 'तुमचा डेटा हटवला. तुम्ही पुन्हा सुरू करू शकता.',
       'profile.deleteFail': 'तुमचा डेटा हटवता आला नाही — काहीही हटवले गेले नाही. कृपया पुन्हा प्रयत्न करा, किंवा समस्या राहिल्यास आम्हाला ईमेल करा.',
@@ -8560,7 +8590,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} शेजाऱ्यांनी पाठिंबा · {ward} — ही विजय स्क्रीनशॉट करा! 🏆',
 
-      'toast.fixConfirmed': '+10 गुण — तपासणीसाठी धन्यवाद!',
+      'toast.fixConfirmed': '+10 Civic Points — तपासणीसाठी धन्यवाद!',
 
       'toast.communityResolved': 'समुदाय-सत्यापित ठीक — तक्रारीसाठी धन्यवाद!',
 
@@ -8670,6 +8700,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.subtitle': 'CivicRadar धोके सामुदायिक नकाशावर दाखवते. BMC मध्ये नोंदवणे पर्यायी आहे पण अधिकृत घड्याळ सुरू करते — हे अधिकृत BMC चॅनेल नाही.',
 
+      'esc.step1': 'टप्पा 1 · दाखल करा',
+
       'esc.fileTitle': 'तक्रार नोंदवा (मोफत)',
 
       'esc.fileHint': 'साचलेले पाणी वॉर्ड PCO कडे जाते. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
@@ -8718,8 +8750,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintWarn': 'सामान्य BMC क्रमांक सारखे दिसत नाही — बरोबर असेल तर जतन करा.',
 
-      'esc.saveUnlock': 'जतन केल्यावर: पायऱ्या, दिवस मोजणी, फॉलो-अप मजकूर.',
-
       'esc.closeNudge': 'तक्रार क्रमांक अजून जतन नाही — Profile मधून कधीही नोंदवा.',
 
       'esc.daysSince': 'BMC नोंद {n} दिवस',
@@ -8754,9 +8784,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintPh': 'उदा. N/2026/123456',
 
-      'esc.complaintHint': 'क्रमांक जतन केल्यावर जबाबदारी घड्याळ सुरू.',
+      'esc.complaintHint': 'क्रमांक जतन केल्यावर जबाबदारी घड्याळ सुरू होते आणि पायऱ्या, दिवस मोजणी व फॉलो-अप टेम्पलेट अनलॉक होतात.',
 
       'esc.filedNote': 'BMC कडे नोंद — मुदतीनुसार पुढे न्या.',
+
+      'esc.step2': 'टप्पा 2 · ट्रॅक करा आणि पुढे न्या',
 
       'esc.ladderTitle': 'पुढे नेण्याची पायऱ्या',
 
@@ -8878,7 +8910,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.neighbourMany': 'शेजाऱ्यांनी मला पण म्हटले',
 
-      'profile.pointsHint.base': '50 गुण/तक्रार · +200 स्वयंसेवा',
+      'profile.pointsHint.base': '50 Civic Points/तक्रार · +8 मला पण · +200 स्वयंसेवा',
 
       'profile.pointsHint.bonus': '{n} × 50 · +{bonus} बोनस',
 
@@ -9024,7 +9056,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.status.delivered': 'वितरित',
 
-      'pledge.status.verified': 'सत्यापित (+200 गुण)',
+      'pledge.status.verified': 'सत्यापित (+200 Civic Points)',
 
       'pledge.submit': 'देणगी पाठवा',
 
@@ -9176,6 +9208,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'तास सत्यापित! +200 Civic Points.',
 
+      'toast.hoursVerifiedOther': '{name} चे तास सत्यापित झाले. त्यांना +{points} Civic Points मिळाले.',
+
       'toast.saving': 'जतन होत आहे…',
 
       'toast.verifying': 'सत्यापन होत आहे…',
@@ -9238,7 +9272,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coord.hubSubtitle': 'नागरिक देणगी पाहा, स्वयंसेवक तास सत्यापित करा.',
 
-      'coord.workflow': 'पाठवा → सफाई लॉग → साहित्य → तास (+200 गुण)',
+      'coord.workflow': 'पाठवा → सफाई लॉग → साहित्य → तास (+200 Civic Points)',
 
       'coord.openHazards': 'वॉर्डमधील उघडे धोके',
 
@@ -9664,13 +9698,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.discoverNudgeCta': 'अधिक जाणून घ्या',
 
-      'lead.step1': 'वॉर्ड आणि scope सह nominate',
+      'lead.step1': 'वॉर्ड आणि क्षेत्रासह नामांकन करा',
 
       'lead.step2': 'शेजारी समर्थन दाबतील',
 
       'lead.step3': '2 समर्थन = भूमिका (दोन उमेदवार असल्यास प्रत्येकाला 5)',
 
-      'lead.roleLabel': 'Lead प्रकार',
+      'lead.roleLabel': 'लीड प्रकार',
 
       'lead.roleWard': 'वॉर्ड NGO लीड',
 
@@ -9682,7 +9716,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.orgLabel': 'संस्था / RWA',
 
-      'lead.orgPh': 'NGO किंवा society नाव',
+      'lead.orgPh': 'NGO किंवा सोसायटीचे नाव',
 
       'lead.neighbourhoodLabel': 'परिसर / सोसायटी / लेन',
 
@@ -9696,7 +9730,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.pitchPh': 'मतदारांसाठी छोटी नोंद',
 
-      'lead.submit': 'मला nominate करा',
+      'lead.submit': 'मला नामांकित करा',
 
       'lead.confirmTitle': 'तुम्ही मतदानात आहात!',
 
@@ -9704,25 +9738,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmLocal': 'या डिव्हाइसवर जतन — ऑनलाइन झाल्यावर सिंक होईल.',
 
-      'lead.viewCommunity': 'Community मध्ये candidates पहा',
+      'lead.viewCommunity': 'समुदायात उमेदवार पहा',
 
-      'lead.profileCta': 'वॉर्ड किंवा neighbourhood lead व्हा',
+      'lead.profileCta': 'वॉर्ड किंवा परिसर लीड व्हा',
 
-      'lead.partnerCta': 'Community lead व्हा — peer support ने मिळवा',
+      'lead.partnerCta': 'समुदाय लीड व्हा — peer support ने मिळवा',
 
-      'lead.communityTitle': 'समुदाय leads',
+      'lead.communityTitle': 'समुदाय लीड',
 
-      'lead.communityHint': 'सफाई coordinator म्हणून volunteer शेजाऱ्यांना Support करा. 2 = role; अनेक candidates = प्रत्येकाला 5.',
+      'lead.communityHint': 'सफाई समन्वयासाठी स्वयंसेवक शेजाऱ्यांना Support करा. 2 समर्थन = भूमिका; अनेक उमेदवार = प्रत्येकाला 5.',
 
       'lead.communityEmpty': 'तुमच्या वॉर्डमध्ये अजून उमेदवार नाही — स्वतःला नामांकित करा.',
 
-      'lead.becomeCta': 'Community lead व्हा',
+      'lead.becomeCta': 'समुदाय लीड व्हा',
 
       'lead.support': 'समर्थन',
 
       'lead.supported': 'समर्थित',
 
-      'lead.progress': '{count}/{threshold} support',
+      'lead.progress': '{count}/{threshold} समर्थन',
 
       'lead.progressCoLead': 'co-lead साठी {count}/{threshold}',
 
@@ -9736,26 +9770,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.errWard': 'वॉर्ड निवडा.',
 
-      'lead.errNeighbourhood': 'neighbourhood किंवा society प्रविष्ट करा.',
+      'lead.errNeighbourhood': 'परिसर किंवा सोसायटी प्रविष्ट करा.',
 
-      'lead.errAlreadyVoted': 'तुम्ही या candidate ला आधीच Support केले.',
+      'lead.errAlreadyVoted': 'तुम्ही या उमेदवाराला आधीच Support केले.',
       'lead.errSelfVote': 'तुम्ही स्वतःच्या नामांकनाला Support करू शकत नाही.',
 
-      'lead.errAlreadyNominated': 'या scope साठी active nomination आधीच आहे.',
+      'lead.errAlreadyNominated': 'या क्षेत्रासाठी तुमचे सक्रिय नामांकन आधीच आहे.',
 
-      'lead.errAlreadyLead': 'तुम्ही आधीच ही lead role धरता.',
+      'lead.errAlreadyLead': 'तुम्ही आधीच ही लीड भूमिका धरता.',
 
-      'lead.nominated': 'नामांकन पाठवले — Community मध्ये समर्थन मिळवा!',
+      'lead.nominated': 'नामांकन पाठवले — समुदायात समर्थन मिळवा!',
 
-      'lead.nominatedLocal': 'Nomination जतन — online झाल्यावर sync.',
+      'lead.nominatedLocal': 'नामांकन जतन — ऑनलाइन झाल्यावर सिंक.',
 
-      'lead.voted': 'Support मोजला — शेजाऱ्याला पाठिंबा दिल्याबद्दल धन्यवाद!',
+      'lead.voted': 'समर्थन मोजले — शेजाऱ्याला पाठिंबा दिल्याबद्दल धन्यवाद!',
 
       'lead.granted': 'आवश्यक समर्थन पूर्ण — समन्वयक प्रवेश खुला!',
 
       'lead.submitError': 'पाठवता आले नाही — पुन्हा प्रयत्न.',
 
-      'lead.voteError': 'Support नोंदवता आला नाही — पुन्हा प्रयत्न.',
+      'lead.voteError': 'समर्थन नोंदवता आले नाही — पुन्हा प्रयत्न.',
 
     },
     gu: {
@@ -10599,9 +10633,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.points': 'Civic Points',
 
-      'profile.xpTotalLabel': '{n} XP',
+      'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} સુધી {n} XP',
+      'profile.xpToNext': '{level} સુધી {n} Civic Points',
 
       'profile.xpMax': 'મહત્તમ સ્તર — Community Leader!',
 
@@ -10674,6 +10708,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.deleteConfirmCancel': 'મારો ડેટા રાખો',
 
       'profile.deleteConfirmProceed': 'હા, બધું કાઢી નાખો',
+
+      'common.cancel': 'રદ કરો',
+
+      'common.confirm': 'ખાતરી કરો',
+
+      'volunteer.removeConfirm': 'તમારી સ્વયંસેવક નોંધણી કાઢી નાખીએ? આ પાછું ફેરવી શકાશે નહીં.',
 
       'profile.deleteDone': 'તમારો ડેટા કાઢી નાખ્યો. તમે ફરી શરૂ કરી શકો.',
       'profile.deleteFail': 'તમારો ડેટા કાઢી શકાયો નહીં — કંઈ પણ કાઢવામાં આવ્યું નથી. કૃપા કરી ફરી પ્રયાસ કરો, અથવા સમસ્યા રહે તો અમને ઈમેલ કરો.',
@@ -10940,7 +10980,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.impact': '{n} પડોશીઓએ ટેકો · {ward} — આ જીત સ્ક્રીનશોટ કરો! 🏆',
 
-      'toast.fixConfirmed': '+10 પોઇન્ટ — તપાસ માટે આભાર!',
+      'toast.fixConfirmed': '+10 Civic Points — તપાસ માટે આભાર!',
 
       'toast.communityResolved': 'સમુદાય-સત્યાપિત ઠીક — ફરિયાદ માટે આભાર!',
 
@@ -11050,6 +11090,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.subtitle': 'CivicRadar જોખમો સામુદાયિક નકશા પર બતાવે છે. BMC માં નોંધાવવું વૈકલ્પિક છે પણ અધિકૃત ઘડિયાળ શરૂ કરે — આ અધિકૃત BMC ચેનલ નથી.',
 
+      'esc.step1': 'પગલું 1 · ફાઇલ કરો',
+
       'esc.fileTitle': 'ફરિયાદ નોંધાવો (મફત)',
 
       'esc.fileHint': 'ભરાયેલું પાણી વોર્ડ PCO પાસે જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
@@ -11098,8 +11140,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintWarn': 'સામાન્ય BMC નંબર જેવું લાગતું નથી — સાચું હોય તો સાચવો.',
 
-      'esc.saveUnlock': 'સાચવ્યા પછી: પગથિયાં, દિવસ ગણતરી, ફોલો-અપ ટેક્સ્ટ.',
-
       'esc.closeNudge': 'ફરિયાદ નંબર હજુ સાચવ્યો નથી — Profile માંથી ક્યારે પણ નોંધાવો.',
 
       'esc.daysSince': 'BMC નોંધ {n} દિવસ',
@@ -11134,9 +11174,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintPh': 'દા.ત. N/2026/123456',
 
-      'esc.complaintHint': 'નંબર સાચવતાં જવાબદારી ઘડિયાળ શરૂ.',
+      'esc.complaintHint': 'નંબર સાચવતાં જવાબદારી ઘડિયાળ શરૂ થાય છે અને પગથિયાં, દિવસ ગણતરી તથા ફોલો-અપ ટેમ્પલેટ અનલૉક થાય છે.',
 
       'esc.filedNote': 'BMC માં નોંધ — મુદત પર આગળ.',
+
+      'esc.step2': 'પગલું 2 · ટ્રેક કરો અને આગળ વધારો',
 
       'esc.ladderTitle': 'એસ્કેલેશન પગથિયાં',
 
@@ -11258,7 +11300,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.neighbourMany': 'પડોશીઓએ મને પણ કહ્યું',
 
-      'profile.pointsHint.base': '50 પોઈન્ટ/ફરિયાદ · +200 સ્વયંસેવા',
+      'profile.pointsHint.base': '50 Civic Points/ફરિયાદ · +8 મને પણ · +200 સ્વયંસેવા',
 
       'profile.pointsHint.bonus': '{n} × 50 · +{bonus} બોનસ',
 
@@ -11404,7 +11446,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.status.delivered': 'વિતરિત',
 
-      'pledge.status.verified': 'ચકાસાયેલ (+200 પોઈન્ટ)',
+      'pledge.status.verified': 'ચકાસાયેલ (+200 Civic Points)',
 
       'pledge.submit': 'દાન મોકલો',
 
@@ -11522,7 +11564,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeStatusDelivered': 'સંકલકે તમારી પ્રતિજ્ઞા વિતરિત તરીકે ચિહ્નિત કરી.',
 
-      'toast.pledgeStatusVerified': 'સ્વયંસેવક કલાક ચકાસાયા — +200 સિવિક પોઈન્ટ!',
+      'toast.pledgeStatusVerified': 'સ્વયંસેવક કલાક ચકાસાયા — +200 Civic Points!',
 
       'toast.ngoNewPledge': 'તમારા વોર્ડમાં {n} નવી નાગરિક પ્રતિજ્ઞા.',
 
@@ -11555,6 +11597,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.pledgeDelivered': 'સામગ્રી વિતરિત — હવે કલાક ચકાસો.',
 
       'toast.hoursVerified': 'કલાક ચકાસાયા! +200 Civic Points.',
+
+      'toast.hoursVerifiedOther': '{name} ના કલાક ચકાસાયા. તેમને +{points} Civic Points મળ્યા.',
 
       'toast.saving': 'સાચવી રહ્યા છીએ…',
 
@@ -11618,7 +11662,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coord.hubSubtitle': 'નાગરિક દાન જુઓ, સ્વયંસેવક કલાક ચકાસો.',
 
-      'coord.workflow': 'મોકલો → સફાઈ લોગ → સામગ્રી → કલાક (+200 પોઈન્ટ)',
+      'coord.workflow': 'મોકલો → સફાઈ લોગ → સામગ્રી → કલાક (+200 Civic Points)',
 
       'coord.openHazards': 'વોર્ડમાં ખુલ્લા જોખમ',
 
@@ -12044,13 +12088,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.discoverNudgeCta': 'વધુ જાણો',
 
-      'lead.step1': 'વોર્ડ અને scope સાથે nominate',
+      'lead.step1': 'વોર્ડ અને વિસ્તાર સાથે નામાંકન',
 
       'lead.step2': 'પડોશીઓ સમર્થન આપશે',
 
       'lead.step3': '2 સમર્થન = ભૂમિકા (બે candidate હોય તો દરેકને 5)',
 
-      'lead.roleLabel': 'Lead પ્રકાર',
+      'lead.roleLabel': 'લીડ પ્રકાર',
 
       'lead.roleWard': 'વોર્ડ NGO લીડ',
 
@@ -12062,7 +12106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.orgLabel': 'સંસ્થા / RWA',
 
-      'lead.orgPh': 'NGO અથવા society નામ',
+      'lead.orgPh': 'NGO અથવા સોસાયટીનું નામ',
 
       'lead.neighbourhoodLabel': 'પડોશ / સોસાયટી / ગલી',
 
@@ -12076,7 +12120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.pitchPh': 'મતદારો માટે ટૂંકી નોંધ',
 
-      'lead.submit': 'મને nominate કરો',
+      'lead.submit': 'મને નામાંકિત કરો',
 
       'lead.confirmTitle': 'તમે મતપેટી પર છો!',
 
@@ -12084,25 +12128,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmLocal': 'આ ડિવાઇસ પર સાચવ્યું — ઓનલાઈન થશો ત્યારે સિંક થશે.',
 
-      'lead.viewCommunity': 'Community માં candidates જુઓ',
+      'lead.viewCommunity': 'સમુદાયમાં ઉમેદવારો જુઓ',
 
-      'lead.profileCta': 'વોર્ડ અથવા neighbourhood lead બનો',
+      'lead.profileCta': 'વોર્ડ અથવા પડોશ લીડ બનો',
 
-      'lead.partnerCta': 'Community lead બનો — peer support થી મેળવો',
+      'lead.partnerCta': 'સામુદાયિક લીડ બનો — peer support થી મેળવો',
 
-      'lead.communityTitle': 'સામુદાયિક leads',
+      'lead.communityTitle': 'સામુદાયિક લીડ',
 
-      'lead.communityHint': 'સફાઈ coordinator તરીકે volunteer પડોશીઓને Support કરો. 2 = role; ઘણા candidates = દરેકને 5.',
+      'lead.communityHint': 'સફાઈ સંકલન માટે સ્વયંસેવક પડોશીઓને Support કરો. 2 સમર્થન = ભૂમિકા; ઘણા ઉમેદવારો = દરેકને 5.',
 
       'lead.communityEmpty': 'તમારા વોર્ડમાં હજુ ઉમેદવાર નથી — પોતાની ઉમેદવારી નોંધાવો.',
 
-      'lead.becomeCta': 'Community lead બનો',
+      'lead.becomeCta': 'સામુદાયિક લીડ બનો',
 
       'lead.support': 'સમર્થન',
 
       'lead.supported': 'સમર્થિત',
 
-      'lead.progress': '{count}/{threshold} support',
+      'lead.progress': '{count}/{threshold} સમર્થન',
 
       'lead.progressCoLead': 'co-lead માટે {count}/{threshold}',
 
@@ -12116,26 +12160,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.errWard': 'વોર્ડ પસંદ કરો.',
 
-      'lead.errNeighbourhood': 'neighbourhood અથવા society દાખલ કરો.',
+      'lead.errNeighbourhood': 'પડોશ અથવા સોસાયટી દાખલ કરો.',
 
-      'lead.errAlreadyVoted': 'તમે આ candidate ને પહેલેથી Support કર્યું.',
+      'lead.errAlreadyVoted': 'તમે આ ઉમેદવારને પહેલેથી Support કર્યું.',
       'lead.errSelfVote': 'તમે તમારા પોતાના નામાંકનને Support કરી શકતા નથી.',
 
-      'lead.errAlreadyNominated': 'આ scope માટે active nomination પહેલેથી છે.',
+      'lead.errAlreadyNominated': 'આ વિસ્તાર માટે તમારું સક્રિય નામાંકન પહેલેથી છે.',
 
-      'lead.errAlreadyLead': 'તમે પહેલેથી આ lead role ધરાવો છો.',
+      'lead.errAlreadyLead': 'તમે પહેલેથી આ લીડ ભૂમિકા ધરાવો છો.',
 
-      'lead.nominated': 'ઉમેદવારી મોકલી — Community માં સમર્થન મેળવો!',
+      'lead.nominated': 'ઉમેદવારી મોકલી — સમુદાયમાં સમર્થન મેળવો!',
 
-      'lead.nominatedLocal': 'Nomination સાચવ્યું — online થાય ત્યારે sync.',
+      'lead.nominatedLocal': 'નામાંકન સાચવ્યું — ઓનલાઈન થાય ત્યારે સિંક થશે.',
 
-      'lead.voted': 'Support ગણ્યું — પડોશીને પાછળ ઊભા રહ્યા બદલ આભાર!',
+      'lead.voted': 'સમર્થન ગણાયું — પડોશીને પાછળ ઊભા રહ્યા બદલ આભાર!',
 
       'lead.granted': 'જરૂરી સમર્થન પૂર્ણ — સંકલક ઍક્સેસ અનલૉક!',
 
       'lead.submitError': 'મોકલી શકાયું નહીં — ફરી પ્રયાસ.',
 
-      'lead.voteError': 'Support નોંધાઈ શક્યું નહીં — ફરી પ્રયાસ.',
+      'lead.voteError': 'સમર્થન નોંધાઈ શક્યું નહીં — ફરી પ્રયાસ.',
 
     },
   };
@@ -21184,6 +21228,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.disabled = true;
 
+    btn.classList.add('is-loading');
+
     persistPendingAuth('admin');
 
     try {
@@ -21220,6 +21266,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btn.disabled = false;
 
+      btn.classList.remove('is-loading');
+
     }
 
   }
@@ -21236,13 +21284,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.disabled = true;
 
+    btn.classList.add('is-loading');
+
     const { error } = await Backend.verifyEmailCode(email, token);
 
-    if (error) { btn.disabled = false; showToast(t('toast.codeInvalid'), 'error'); return; }
+    if (error) { btn.disabled = false; btn.classList.remove('is-loading'); showToast(t('toast.codeInvalid'), 'error'); return; }
 
     const profile = await Backend.getMyRole();
 
     btn.disabled = false;
+
+    btn.classList.remove('is-loading');
 
     if (profile && profile.role === 'admin') {
 
@@ -21282,6 +21334,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.disabled = true;
 
+    btn.classList.add('is-loading');
+
     persistPendingAuth('lead', code);
 
     try {
@@ -21318,6 +21372,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btn.disabled = false;
 
+      btn.classList.remove('is-loading');
+
     }
 
   }
@@ -21336,13 +21392,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.disabled = true;
 
+    btn.classList.add('is-loading');
+
     const { error } = await Backend.verifyEmailCode(email, token);
 
-    if (error) { btn.disabled = false; showToast(t('toast.codeInvalid'), 'error'); return; }
+    if (error) { btn.disabled = false; btn.classList.remove('is-loading'); showToast(t('toast.codeInvalid'), 'error'); return; }
 
     const { data, error: rpcError } = await Backend.redeemNgoCode(code);
 
     btn.disabled = false;
+
+    btn.classList.remove('is-loading');
 
     if (rpcError || !data) {
 
@@ -22513,6 +22573,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    if (name === 'genericConfirm' && genericConfirmResolve) {
+
+      const resolve = genericConfirmResolve;
+
+      genericConfirmResolve = null;
+
+      resolve(false);
+
+    }
+
     const anyOpen = Object.values(overlays).some((o) => o && o.classList.contains('open'));
 
     if (!anyOpen) {
@@ -22785,7 +22855,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function isBlockingOverlay(name) {
 
-    return name === 'tos' || name === 'onboarding' || name === 'deleteConfirm';
+    return name === 'tos' || name === 'onboarding' || name === 'deleteConfirm' || name === 'genericConfirm';
 
   }
 
@@ -26572,7 +26642,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         e.preventDefault();
 
-        if (window.confirm(t('safety.hideConfirm'))) hideReportFromMap(hideBtn.dataset.hide);
+        const hideId = hideBtn.dataset.hide;
+
+        confirmAction({ body: t('safety.hideConfirm') }).then((ok) => { if (ok) hideReportFromMap(hideId); });
 
         return;
 
@@ -26584,7 +26656,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         e.preventDefault();
 
-        if (window.confirm(t('mute.hideConfirm'))) muteReporter(muteBtn.dataset.muteReporter);
+        const muteId = muteBtn.dataset.muteReporter;
+
+        confirmAction({ body: t('mute.hideConfirm') }).then((ok) => { if (ok) muteReporter(muteId); });
 
         return;
 
@@ -27518,6 +27592,55 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
+
+  // Styled replacement for window.confirm(). Resolves true on explicit confirm,
+  // false on cancel / backdrop-blocked (this overlay is a blocking overlay, so it
+  // only resolves via the buttons or the closeModal special-case above).
+  function confirmAction(opts) {
+    const options = opts || {};
+    return new Promise((resolve) => {
+      const overlay = overlays.genericConfirm;
+      if (!overlay) {
+        resolve(window.confirm(options.body || options.title || ''));
+        return;
+      }
+      const titleEl = $('#genericConfirmTitle');
+      const bodyEl = $('#genericConfirmBody');
+      const iconEl = $('#genericConfirmIcon');
+      const btnCancel = $('#btnGenericConfirmCancel');
+      const btnProceed = $('#btnGenericConfirmProceed');
+
+      if (titleEl) {
+        titleEl.textContent = options.title || '';
+        titleEl.classList.toggle('hidden', !options.title);
+      }
+      if (bodyEl) bodyEl.textContent = options.body || '';
+      if (iconEl) iconEl.className = options.danger === false ? 'ph ph-question' : 'ph ph-warning-circle';
+      if (btnCancel) btnCancel.textContent = options.cancelLabel || t('common.cancel');
+      if (btnProceed) {
+        btnProceed.textContent = options.confirmLabel || t('common.confirm');
+        btnProceed.classList.toggle('btn--danger-text', options.danger !== false);
+      }
+
+      genericConfirmResolve = resolve;
+
+      function finish(result) {
+        if (!genericConfirmResolve) return;
+        genericConfirmResolve = null;
+        if (btnCancel) btnCancel.removeEventListener('click', onCancel);
+        if (btnProceed) btnProceed.removeEventListener('click', onProceed);
+        closeModal('genericConfirm');
+        resolve(result);
+      }
+      function onCancel() { finish(false); }
+      function onProceed() { finish(true); }
+
+      if (btnCancel) btnCancel.addEventListener('click', onCancel);
+      if (btnProceed) btnProceed.addEventListener('click', onProceed);
+
+      openModal('genericConfirm');
+    });
+  }
 
   function showReportGeoExplainerModal() {
 
@@ -36495,43 +36618,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!window.confirm(t('admin.removeConfirm'))) return;
+    const reportId = activeAdminReportId;
 
-    const reports = loadReports();
+    confirmAction({ body: t('admin.removeConfirm') }).then((ok) => {
 
-    const idx = reports.findIndex((r) => String(r.id) === String(activeAdminReportId));
+      if (!ok) return;
 
-    if (idx === -1) return;
+      const reports = loadReports();
 
-    if (!isAdminReportInScope(reports[idx])) return;
+      const idx = reports.findIndex((r) => String(r.id) === String(reportId));
 
-    reports[idx].removed = true;
+      if (idx === -1) return;
 
-    reports[idx].removedAt = new Date().toISOString();
+      if (!isAdminReportInScope(reports[idx])) return;
 
-    try {
+      reports[idx].removed = true;
 
-      saveReports(reports);
+      reports[idx].removedAt = new Date().toISOString();
 
-    } catch {
+      try {
 
-      showToast(t('toast.resolveFail'), 'error');
+        saveReports(reports);
 
-      return;
+      } catch {
 
-    }
+        showToast(t('toast.resolveFail'), 'error');
 
-    Backend.removeReportContent(activeAdminReportId);
+        return;
 
-    closeModal('adminReport');
+      }
 
-    activeAdminReportId = null;
+      Backend.removeReportContent(reportId);
 
-    renderAdminQueue();
+      closeModal('adminReport');
 
-    refreshReportMarkers();
+      activeAdminReportId = null;
 
-    showToast(t('admin.removeSuccess'), 'success');
+      renderAdminQueue();
+
+      refreshReportMarkers();
+
+      showToast(t('admin.removeSuccess'), 'success');
+
+    });
 
   }
 
@@ -37775,17 +37904,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!existing) return;
 
-    if (!window.confirm(t('volunteer.remove') + '?')) return;
+    confirmAction({ body: t('volunteer.removeConfirm') }).then((ok) => {
 
-    const rows = loadVolunteerSignups().filter((v) => String(v.id) !== String(existing.id));
+      if (!ok) return;
 
-    saveVolunteerSignups(rows);
+      const rows = loadVolunteerSignups().filter((v) => String(v.id) !== String(existing.id));
 
-    Backend.removeVolunteerSignup(existing.id);
+      saveVolunteerSignups(rows);
 
-    showToast(t('toast.volunteerRemoved'), 'info');
+      Backend.removeVolunteerSignup(existing.id);
 
-    closeModal('volunteer');
+      showToast(t('toast.volunteerRemoved'), 'info');
+
+      closeModal('volunteer');
+
+    });
 
   }
 
@@ -38519,51 +38652,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    if (!window.confirm(t('pledge.deliverConfirm'))) return;
+    confirmAction({ body: t('pledge.deliverConfirm'), danger: false }).then((ok) => {
 
-    if (btn) { btn.disabled = true; btn.textContent = t('toast.saving'); }
+      if (!ok) return;
 
-    const pledges = loadPledges();
+      if (btn) { btn.disabled = true; btn.textContent = t('toast.saving'); }
 
-    let p = pledges.find((x) => String(x.id) === String(pledgeId));
+      const pledges = loadPledges();
 
-    if (!p) {
+      let p = pledges.find((x) => String(x.id) === String(pledgeId));
 
-      // First interaction with the demo pledge persists it.
+      if (!p) {
 
-      p = { ...getMockPledge(), delivered: true };
+        // First interaction with the demo pledge persists it.
 
-      pledges.unshift(p);
+        p = { ...getMockPledge(), delivered: true };
 
-    } else {
+        pledges.unshift(p);
 
-      p.delivered = true;
+      } else {
 
-    }
+        p.delivered = true;
 
-    savePledges(pledges);
+      }
 
-    if (!p.mock) Backend.updatePledge(p.id, { delivered: true });
+      savePledges(pledges);
 
-    if (window.CivicAnalytics) {
+      if (!p.mock) Backend.updatePledge(p.id, { delivered: true });
 
-      CivicAnalytics.track('pledge_delivered', { pledgeId: String(p.id) }, p.ward);
+      if (window.CivicAnalytics) {
 
-    }
+        CivicAnalytics.track('pledge_delivered', { pledgeId: String(p.id) }, p.ward);
 
-    if (p.citizenId === user.id) {
+      }
 
-      const snapshot = loadPledgeStatusSnapshot();
+      if (p.citizenId === user.id) {
 
-      snapshot[String(p.id)] = 'delivered';
+        const snapshot = loadPledgeStatusSnapshot();
 
-      savePledgeStatusSnapshot(snapshot);
+        snapshot[String(p.id)] = 'delivered';
 
-    }
+        savePledgeStatusSnapshot(snapshot);
 
-    showToast(t('toast.pledgeDelivered'), 'info');
+      }
 
-    renderCoordinatorPledges();
+      showToast(t('toast.pledgeDelivered'), 'info');
+
+      renderCoordinatorPledges();
+
+    });
 
   }
 
@@ -38573,85 +38710,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    if (!window.confirm(t('pledge.verifyConfirm'))) return;
+    confirmAction({ body: t('pledge.verifyConfirm'), danger: false }).then((ok) => {
 
-    if (btn) { btn.disabled = true; btn.textContent = t('toast.verifying'); }
+      if (!ok) return;
 
+      if (btn) { btn.disabled = true; btn.textContent = t('toast.verifying'); }
 
+      setTimeout(() => {
 
-    setTimeout(() => {
+        const pledges = loadPledges();
 
-      const pledges = loadPledges();
+        let p = pledges.find((x) => String(x.id) === String(pledgeId));
 
-      let p = pledges.find((x) => String(x.id) === String(pledgeId));
+        if (!p) {
 
-      if (!p) {
+          p = { ...getMockPledge(), delivered: true, hoursVerified: true };
 
-        p = { ...getMockPledge(), delivered: true, hoursVerified: true };
+          pledges.unshift(p);
 
-        pledges.unshift(p);
+        } else {
 
-      } else {
+          p.hoursVerified = true;
 
-        p.hoursVerified = true;
-
-        p.delivered = true;
-
-      }
-
-      savePledges(pledges);
-
-      if (!p.mock) Backend.updatePledge(p.id, { delivered: true, verified: true });
-
-
-
-      if (window.CivicAnalytics) {
-
-        CivicAnalytics.track('pledge_verified', { pledgeId: String(p.id) }, p.ward);
-
-      }
-
-
-
-      // Credit points only when the pledging citizen is this device's user
-
-      // (or the demo pledge). Cross-device crediting uses sync + snapshot.
-
-      const creditsLocalUser = p.mock === true || !p.citizenId || p.citizenId === user.id;
-
-      if (creditsLocalUser) {
-
-        if (!loadPledgePointsCredited().has(String(p.id))) {
-
-          addPointsCache(VERIFY_HOURS_BONUS);
-
-          markPledgePointsCredited(p.id);
+          p.delivered = true;
 
         }
 
-        const snapshot = loadPledgeStatusSnapshot();
+        savePledges(pledges);
 
-        snapshot[String(p.id)] = 'verified';
+        if (!p.mock) Backend.updatePledge(p.id, { delivered: true, verified: true });
 
-        savePledgeStatusSnapshot(snapshot);
+        if (window.CivicAnalytics) {
 
-        updateProfileUI();
+          CivicAnalytics.track('pledge_verified', { pledgeId: String(p.id) }, p.ward);
 
-        renderLeaderboard('wards');
+        }
 
-        renderLeaderboard('citizens');
+        // Credit points only when the pledging citizen is this device's user
 
-        showToast(t('toast.hoursVerified'), 'success');
+        // (or the demo pledge). Cross-device crediting uses sync + snapshot.
 
-      } else {
+        const creditsLocalUser = p.mock === true || !p.citizenId || p.citizenId === user.id;
 
-        showToast(`Hours verified for ${p.citizen || 'citizen'}. +200 points credited to them.`, 'success');
+        if (creditsLocalUser) {
 
-      }
+          if (!loadPledgePointsCredited().has(String(p.id))) {
 
-      renderCoordinatorPledges();
+            addPointsCache(VERIFY_HOURS_BONUS);
 
-    }, 1200);
+            markPledgePointsCredited(p.id);
+
+          }
+
+          const snapshot = loadPledgeStatusSnapshot();
+
+          snapshot[String(p.id)] = 'verified';
+
+          savePledgeStatusSnapshot(snapshot);
+
+          updateProfileUI();
+
+          renderLeaderboard('wards');
+
+          renderLeaderboard('citizens');
+
+          showToast(t('toast.hoursVerified'), 'success');
+
+        } else {
+
+          showToast(t('toast.hoursVerifiedOther').replace('{name}', p.citizen || 'Citizen').replace('{points}', String(VERIFY_HOURS_BONUS)), 'success');
+
+        }
+
+        renderCoordinatorPledges();
+
+      }, 1200);
+
+    });
 
   }
 
