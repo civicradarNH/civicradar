@@ -5158,19 +5158,37 @@ async def run_extended_scenarios(s: Suite, browser):
 
     # GitHub Pages /civicradar/ subpath (root-absolute paths would 404 there).
 
-    sw_src = await page.evaluate('() => fetch(`sw.js?e2e=${Date.now()}`, { cache: "no-store" }).then(r => r.text())')
+    # Fetched directly over HTTP (not via page.evaluate/fetch) — routing this
+    # through the page lets an already-active Service Worker intercept the
+    # request, which was flaky deep in the full suite (passed in isolation,
+    # failed after hundreds of prior tests had left SW state in the shared
+    # browser context). sw.js is a static, unauthenticated file, so a plain
+    # request from the test process is both simpler and immune to that.
+    sw_ok = False
 
-    sw_ok = (
+    try:
 
-        "civicradar-v224" in sw_src
+        sw_url = f'{BASE}sw.js?e2e={int(time.time() * 1000)}'
 
-        and "'/index.html'" not in sw_src
+        with urllib.request.urlopen(sw_url, timeout=5) as resp:
 
-        and "'/js/app.js'" not in sw_src
+            sw_src = resp.read().decode('utf-8')
 
-        and "'index.html'" in sw_src
+        sw_ok = (
 
-    )
+            "civicradar-v224" in sw_src
+
+            and "'/index.html'" not in sw_src
+
+            and "'/js/app.js'" not in sw_src
+
+            and "'index.html'" in sw_src
+
+        )
+
+    except Exception:
+
+        sw_ok = False
 
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
 
@@ -8281,19 +8299,37 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     await goto_app(page)
 
-    sw_src = await page.evaluate('() => fetch(`sw.js?e2e=${Date.now()}`, { cache: "no-store" }).then(r => r.text())')
+    # Fetched directly over HTTP (not via page.evaluate/fetch) — routing this
+    # through the page lets an already-active Service Worker intercept the
+    # request, which was flaky deep in the full suite (passed in isolation,
+    # failed after hundreds of prior tests had left SW state in the shared
+    # browser context). sw.js is a static, unauthenticated file, so a plain
+    # request from the test process is both simpler and immune to that.
+    sw_ok = False
 
-    sw_ok = (
+    try:
 
-        "civicradar-v224" in sw_src
+        sw_url = f'{BASE}sw.js?e2e={int(time.time() * 1000)}'
 
-        and "'/index.html'" not in sw_src
+        with urllib.request.urlopen(sw_url, timeout=5) as resp:
 
-        and "'/js/app.js'" not in sw_src
+            sw_src = resp.read().decode('utf-8')
 
-        and "'index.html'" in sw_src
+        sw_ok = (
 
-    )
+            "civicradar-v224" in sw_src
+
+            and "'/index.html'" not in sw_src
+
+            and "'/js/app.js'" not in sw_src
+
+            and "'index.html'" in sw_src
+
+        )
+
+    except Exception:
+
+        sw_ok = False
 
     s.record('SW06', 'PWA', 'SW precache uses scope-relative paths (subpath-safe)', sw_ok)
 
