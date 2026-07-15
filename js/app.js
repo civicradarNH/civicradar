@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v222';
+  const CIVIC_APP_VERSION = 'v224';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -22491,11 +22491,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Broader than isReportFlowBusy(): every escalation action (WhatsApp, call,
+  // tweet, email) sends the user out of the app and back, which is the same
+  // visibilitychange trigger that made the report flow reload mid-camera-return.
+  // An SW reload while the escalation modal is open would silently close it.
+  function isSwReloadUnsafe() {
+
+    if (isReportFlowBusy()) return true;
+
+    if (overlays.escalation && overlays.escalation.classList.contains('open')) return true;
+
+    return false;
+
+  }
+
+
+
   function flushPendingSwReload() {
 
     if (!pendingSwReload) return;
 
-    if (isReportFlowBusy()) {
+    if (isSwReloadUnsafe()) {
 
       debugLog('SW', 'reload deferred', { reason: 'report flow busy' });
 
@@ -24636,6 +24652,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      // enableHighAccuracy:true (GPS-satellite-only) routinely produces zero fixes
+      // under heavy cloud cover — exactly the monsoon conditions this app targets —
+      // or deep indoors, leaving callers (confirm-pin) stuck with nothing to show but
+      // a permanently "provisional" pin. Network/WiFi-based location is fast, works
+      // in those conditions, and is accurate enough for the plausibility checks
+      // callers actually need, so try it once before finally giving up.
+      let lowAccuracyTried = opts.lowAccuracyFallback === false;
+
+      function tryLowAccuracyFallback(fallbackErr) {
+
+        if (lowAccuracyTried || settled) {
+
+          settle(bestPos, fallbackErr);
+
+          return;
+
+        }
+
+        lowAccuracyTried = true;
+
+        navigator.geolocation.getCurrentPosition(
+
+          (pos) => settle(pos),
+
+          () => settle(bestPos, fallbackErr),
+
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
+
+        );
+
+      }
+
       function onErr(err) {
 
         if (bestPos) {
@@ -24644,15 +24692,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-          navigator.geolocation.getCurrentPosition(
-
-            (pos) => settle(pos),
-
-            (e) => settle(null, e),
-
-            geoOpts
-
-          );
+          tryLowAccuracyFallback(err);
 
         }
 
@@ -24662,7 +24702,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       settleTimer = setTimeout(() => {
 
-        if (!settled) settle(bestPos, bestPos ? null : new Error('geo_timeout'));
+        if (settled) return;
+
+        if (bestPos) {
+
+          settle(bestPos);
+
+        } else {
+
+          tryLowAccuracyFallback(new Error('geo_timeout'));
+
+        }
 
       }, watchMaxMs + 500);
 
@@ -29415,6 +29465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // Fail-fast: confirm-pin path is preferred; submit-time GPS should not hang 20–25s.
+    // lowAccuracyFallback:false — the confirm-pin step already tried that path.
     getPrecisePosition({
 
       fresh: true,
@@ -29426,6 +29477,8 @@ document.addEventListener('DOMContentLoaded', function () {
       timeoutMs: 8000,
 
       minSamples: 1,
+
+      lowAccuracyFallback: false,
 
     })
 
@@ -32672,59 +32725,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function buildComplaintText(report) {
 
-    const wardParts = parseWardParts(report.ward || user.ward);
 
-    const wardLine = formatWardForCopy(wardParts);
-
-    const category = bmcCategoryLabel(report.hazard);
-
-    const loc =
-
-      report.lat != null && report.lng != null
-
-        ? ` GPS: ${report.lat.toFixed(6)}, ${report.lng.toFixed(6)}. Maps: https://maps.google.com/?q=${report.lat},${report.lng}.`
-
-        : '';
-
-    const gpsWarn = (report.lat != null && isGpsOutsideCity(report.lat, report.lng, getReportCity(report)))
-
-      ? ` ${te('copy1916.gpsWarning').replace('{city}', getCityLabel(getReportCity(report)))}.`
-
-      : '';
-
-    const link = reportCopyDeepLink(report.id);
-
-    const linkNote = isLocalhostOrigin() && !getPublicAppUrl() ? ` ${te('copy1916.linkLocalhostNote')}` : '';
-
-    const marathiLead = I18N.mr[`copy1916.marathiLead.${report.hazard}`] || '';
-
-    const marathiAction = I18N.mr[`copy1916.marathiAction.${report.hazard}`] || '';
-
-    const marathi = marathiLead
-
-      ? ` Marathi: ${marathiLead.replace('{ward}', wardLine)} ${marathiAction}`
-
-      : '';
-
-    const cityLabel = getCityLabel(getReportCity(report));
-
-    return (
-
-      `${category} in Ward ${wardLine}, ${cityLabel}.${loc}${gpsWarn} ` +
-
-      `Please depute the ward Pest Control Officer for anti-larval treatment.` +
-
-      (report.notes ? ` Landmark: ${report.notes}.` : '') +
-
-      ` CivicRadar: ${link}.${linkNote}${marathi}`
-
-    );
-
+  // Follow-up templates below were originally written stagnant-water-only
+  // (pest control / anti-larval treatment); this maps each hazard to its own
+  // department action so a pothole/garbage/streetlight report doesn't get an
+  // "escalate for pest-control action" message sent to the ward officer.
+  function escFollowUpPhrase(hazard) {
+    const phrases = {
+      'stagnant-water': { action: 'pest-control / anti-larval treatment', subject: 'stagnant water / mosquito breeding' },
+      'garbage': { action: 'garbage clearance', subject: 'garbage clearance' },
+      'potholes': { action: 'pothole repair', subject: 'pothole repair' },
+      'streetlight': { action: 'streetlight repair', subject: 'streetlight repair' },
+    };
+    return phrases[hazard] || phrases['stagnant-water'];
   }
-
-
 
   function buildFollowUpText(report, tier) {
 
@@ -32756,7 +32771,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           `Ward: ${wardFull}`,
 
-          `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+          `Issue: ${hazard} — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
 
           `Request: Please escalate for pest-control / drainage action.`,
 
@@ -32804,9 +32819,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Ward: ${wardFull}`,
 
-        `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+        `Issue: ${hazard} — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
 
-        `Request: Please escalate to Ward Complaint Officer / Assistant Municipal Commissioner for pest-control action.`,
+        `Request: Please escalate to Ward Complaint Officer / Assistant Municipal Commissioner for ${escFollowUpPhrase(report.hazard).action}.`,
 
         `CivicRadar: ${link}`,
 
@@ -32830,7 +32845,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Ward: ${wardFull}`,
 
-        `Subject: Status of pest-control / stagnant water complaint filed with BMC`,
+        `Subject: Status of ${escFollowUpPhrase(report.hazard).subject} complaint filed with BMC`,
 
         `Question: Please provide current status, assigned officer, and expected resolution date for the above complaint.`,
 
@@ -32866,9 +32881,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Ward: ${wardFull}`,
 
-        `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+        `Issue: ${hazard} — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
 
-        `Request: Please escalate to ward office / Health dept (022-25331590) for anti-larval treatment.`,
+        `Request: Please escalate to ward office / Health dept (022-25331590) for ${escFollowUpPhrase(report.hazard).action}.`,
 
         `CivicRadar: ${link}`,
 
@@ -32894,7 +32909,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Local body: Thane Municipal Corporation`,
 
-        `Subject: Status of stagnant water / mosquito breeding complaint`,
+        `Subject: Status of ${escFollowUpPhrase(report.hazard).subject} complaint`,
 
         `Question: Please provide current status, assigned officer, and expected resolution date.`,
 
@@ -32932,9 +32947,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Ward: ${wardFull}`,
 
-        `Issue: ${hazard} / stagnant water — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
+        `Issue: ${hazard} — still unresolved after ${ESCALATION_DAYS.matrix}+ days.`,
 
-        `Request: Please escalate via PMC CARE or toll-free helpline 1800 1030 222 for anti-larval treatment.`,
+        `Request: Please escalate via PMC CARE or toll-free helpline 1800 1030 222 for ${escFollowUpPhrase(report.hazard).action}.`,
 
         `CivicRadar: ${link}`,
 
@@ -32972,7 +32987,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         `Local body: Pune Municipal Corporation`,
 
-        `Subject: Status of stagnant water / mosquito breeding complaint`,
+        `Subject: Status of ${escFollowUpPhrase(report.hazard).subject} complaint`,
 
         `Question: Please provide current status, assigned officer, and expected resolution date.`,
 
@@ -33490,7 +33505,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!wa) return;
 
-    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Stagnant water hazard in Pune.');
+    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Hazard report — CivicRadar');
 
     window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
 
@@ -33546,7 +33561,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const h = handle || 'TMCaTweetAway';
 
-    const text = encodeURIComponent(report ? buildFollowUpText(report, tier || 'zonal') : `Stagnant water hazard in Thane. @${h} #CivicRadar`);
+    const text = encodeURIComponent(report ? buildFollowUpText(report, tier || 'zonal') : `Hazard report — CivicRadar. @${h} #CivicRadar`);
 
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
 
@@ -34158,7 +34173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'whatsapp' }, report?.ward);
 
-    const text = encodeURIComponent(report ? buildComplaintText(report) : 'Stagnant water hazard in Mumbai.');
+    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Hazard report — CivicRadar');
 
     window.open(`https://wa.me/${BMC.whatsapp}?text=${text}`, '_blank');
 
@@ -38918,7 +38933,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Delegates to isReportFlowBusy() so the defer-time check and the flush-time
     // check (flushPendingSwReload) can never drift apart again — that drift was
     // exactly how a reload could previously slip through mid-report-flow.
-    const reportBlocksSwReload = () => isReportFlowBusy();
+    const reportBlocksSwReload = () => isSwReloadUnsafe();
 
     const reloadOnce = () => {
 
@@ -38975,7 +38990,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // Skip while mid-report (e.g. just returned from the native camera) —
           // no urgency to check for an update right as a fragile photo-return
           // handoff is happening; the next visible tick catches it instead.
-          if (document.visibilityState === 'visible' && !isReportFlowBusy()) checkForUpdate();
+          if (document.visibilityState === 'visible' && !isSwReloadUnsafe()) checkForUpdate();
 
         });
 
