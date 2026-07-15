@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v224';
+  const CIVIC_APP_VERSION = 'v225';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -24278,8 +24278,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       updatePersonaUI();
 
-      updateHomeHero();
-
+      // updateHomeHero() is intentionally not called here — setupAppOpenBanner()/
+      // maybeShowReferralWelcome() run later in this same synchronous init and
+      // need first dibs on the shared banner slot (see isAnyBannerVisible's
+      // "boot order doubles as priority order" comment); calling it this early
+      // let home hero win by default before referral/app-open ever got a turn.
+      // The later updateHomeHero() call picks up all state set above.
       updateMapEmptyCta();
 
       const restoredReportDraft = restoreReportDraftIfNeeded();
@@ -29091,9 +29095,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    reports.unshift(report);
-
+    // Snapshot XP before unshift — loadReports() memoizes its result for the rest
+    // of this tick (see _reportsCache), and reports is that same cached array, so
+    // capturing prevXp after the unshift would silently already count the new
+    // report's own POINTS_PER_REPORT toward "before", masking any level-up the
+    // report itself causes (as opposed to one from a bonus added afterward).
     const prevXp = getTotalCivicXp();
+
+    reports.unshift(report);
 
     try {
 

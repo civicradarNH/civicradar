@@ -2791,6 +2791,20 @@ async def run_extended_scenarios(s: Suite, browser):
 
     })
 
+    # shouldShowAppOpenBanner() also fires on ?ref= (it's meant for anyone
+    # arriving via a shared/deep link, not just referrals specifically), and
+    # per the documented boot-order priority (setupAppOpenBanner runs before
+    # maybeShowReferralWelcome — see isAnyBannerVisible's comment) it's
+    # intended to win the shared banner slot. Suppress it here so this test
+    # isolates the referral-welcome behavior it's actually checking, same as
+    # a real visitor who already dismissed the open-in-app prompt this session.
+
+    await ctx.add_init_script(
+
+        "sessionStorage.setItem('civicradar_app_open_banner_dismiss', '1');"
+
+    )
+
     page = await ctx.new_page()
 
     await goto_app(page, query='ref=neighbour123')
@@ -3011,7 +3025,12 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await inject_photo(page)
 
-    await page.wait_for_timeout(300)
+    # inject_photo() sets app.js's reportPhotoDismissGuard (PHOTO_RETURN_GUARD_MS =
+    # 1500ms non-iOS / 2500ms iOS) — a deliberate guard that keeps the report
+    # overlay from being closed right after a camera hand-off. 300ms was shorter
+    # than that window, so closeAllModals() below was a reliable no-op, not a
+    # flake. Wait past the longest (iOS) window with margin.
+    await page.wait_for_timeout(2700)
 
     await page.evaluate('() => window.closeAllModals()')
 
@@ -3594,9 +3613,25 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page_rp23.wait_for_timeout(500)
 
-    manual_mode = await page_rp23.evaluate('() => document.body.classList.contains("manual-pin-mode")')
+    # With GPS denied, submitReport() blocks on the provisional confirm-pin and
+    # shows toast.pinConfirmRequired, whose "Place pin on map" action calls
+    # focusConfirmPinMap() — which stays on the confirm step and scrolls to its
+    # own draggable pin, not startManualPinMode()'s separate full-map flow (that
+    # path is reserved for a harder GPS failure, e.g. no navigator.geolocation
+    # at all). Simulate the user dragging that pin via the same test hook RP25
+    # already uses, then resubmit.
 
-    pin_dropped = await page_rp23.evaluate('() => window.civicTestDropManualPin(19.07625, 72.87785)')
+    still_on_confirm = await page_rp23.evaluate(
+
+        '() => !document.getElementById("reportStepConfirm")?.hidden'
+
+    )
+
+    pin_dropped = await page_rp23.evaluate(
+
+        '() => !!window.civicTestSetConfirmPin(19.07625, 72.87785, 5, true)'
+
+    )
 
     await page_rp23.wait_for_timeout(400)
 
@@ -3616,11 +3651,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
         'Report',
 
-        'GPS denied → manual pin submit',
+        'GPS denied → confirm-pin drag submit',
 
-        toast_pin_action and manual_mode and pin_dropped and manual_pin_ok,
+        toast_pin_action and still_on_confirm and pin_dropped and manual_pin_ok,
 
-        f'toast={toast_pin_action} mode={manual_mode} pin={pin_dropped} stored={manual_pin_ok}',
+        f'toast={toast_pin_action} confirmStep={still_on_confirm} pin={pin_dropped} stored={manual_pin_ok}',
 
     )
 
@@ -3760,11 +3795,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
           if (!mapEl) return { ok: false, reason: 'no-host' };
 
-          const leaf = mapEl.querySelector('.leaflet-container');
+          // Leaflet's L.map(el) makes el itself the .leaflet-container (adds the
+          // class directly to the passed element) rather than creating a child
+          // wrapper, so mapEl.querySelector('.leaflet-container') — a descendant
+          // search — can never find it; check mapEl's own class/size instead,
+          // same as RP24's already-working mapEl.clientHeight check above.
 
-          const rect = leaf ? leaf.getBoundingClientRect() : null;
+          const isLeaflet = mapEl.classList.contains('leaflet-container');
 
-          const sized = !!(rect && rect.width >= 80 && rect.height >= 80);
+          const rect = mapEl.getBoundingClientRect();
+
+          const sized = !!(isLeaflet && rect.width >= 80 && rect.height >= 80);
 
           window.syncReportPhotoReturn && window.syncReportPhotoReturn();
 
@@ -3780,7 +3821,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
             && modal && modal.classList.contains('report-modal--confirm'));
 
-          return { ok: sized && confirmOk, sized, confirmOk, w: rect && rect.width, h: rect && rect.height };
+          return { ok: sized && confirmOk, sized, confirmOk, w: rect.width, h: rect.height };
 
         }"""
 
@@ -5176,7 +5217,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v224" in sw_src
+            "civicradar-v225" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8317,7 +8358,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v224" in sw_src
+            "civicradar-v225" in sw_src
 
             and "'/index.html'" not in sw_src
 
