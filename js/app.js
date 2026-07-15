@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v226';
+  const CIVIC_APP_VERSION = 'v227';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -763,6 +763,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Generous timeout: must not fire while the user is still legitimately composing
   // a shot in the camera app.
   const REPORT_PHOTO_PICKER_TIMEOUT_MS = 60000;
+
+  // Re-armed once the file actually lands, covering FileReader + Image decode +
+  // moderation scan — a fixed processing budget, not user think-time, but still
+  // needs real headroom for a slow device/first NSFW-model load. Was previously
+  // left to armReportPhotoWatchdog()'s bare 15s default, which the capture-time
+  // scan (now bounded to 8s below) could still occasionally miss on a weak device.
+  const REPORT_PHOTO_PROCESSING_TIMEOUT_MS = 20000;
 
   // PWA/TWA session policy (installed app only — see maybeResetSessionOnResume):
   // • Cold start: OS process killed or tab discarded → map home, modals closed (no reload).
@@ -27567,7 +27574,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPhotoProcessing = true;
 
-    armReportPhotoWatchdog();
+    armReportPhotoWatchdog(REPORT_PHOTO_PROCESSING_TIMEOUT_MS);
 
     ensureReportModalOpen();
 
@@ -27633,7 +27640,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
           setPhotoScanning(true);
 
-          const scan = await ImageModeration.scanCanvas(canvas, getModCfg());
+          // Bounded + exception-safe, same as the submit-time scan below — this
+          // call previously had no timeout of its own, so a slow/hung scan (first
+          // NSFW model load on a weak connection, weak CPU) could run well past
+          // the photo watchdog's own budget; the watchdog would then fire and
+          // fail the capture while this promise was still pending, and when it
+          // eventually resolved the code kept going anyway (advancing to confirm
+          // after the UI had already reset to capture with a "photo failed"
+          // toast) — a confusing race, and on a real hang, no way to recover
+          // short of the picker's outer 60s watchdog.
+          let scan;
+
+          try {
+
+            scan = await Promise.race([
+
+              ImageModeration.scanCanvas(canvas, getModCfg()),
+
+              new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+
+            ]);
+
+          } catch {
+
+            scan = { ok: true, errored: true };
+
+          }
 
           setPhotoScanning(false);
 
