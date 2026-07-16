@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#4f46e5">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <meta name="description" content="CivicRadar — free ward hazard map for Mumbai, Pune &amp; Thane. Pin garbage, potholes, streetlights &amp; stagnant water in your ward. Me too, beat rival wards. WhatsApp-ready · 4 languages · no login.">
   <!-- iOS / Android home-screen install metadata -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -334,21 +334,25 @@
         <span class="flow-step" data-i18n="flow.ready">Ready</span>
       </div>
       <p class="modal__subtitle" data-i18n="tos.subtitle">Please read and accept before using CivicRadar.</p>
-      <p class="legal-links">
-        <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-        ·
-        <a href="terms.html" target="_blank" rel="noopener noreferrer">Full Terms of Service</a>
-      </p>
-      <ol class="tos-clauses">
-        <li data-i18n-html="tos.age"><strong>Age requirement:</strong> You must be 18 or older to submit reports and use community features.</li>
-        <li data-i18n-html="tos.emergency"><strong>Not an emergency service:</strong> CivicRadar is not for emergencies. For life-threatening situations, call 112 immediately.</li>
-        <li data-i18n-html="tos.itAct"><strong>IT Act intermediary:</strong> CivicRadar is an intermediary under the IT Act, 2000. You are responsible for what you upload.</li>
-        <li data-i18n-html="tos.share"><strong>External sharing:</strong> Sharing on WhatsApp, X, etc. may expose personal data. You share at your own risk.</li>
-        <li data-i18n-html="tos.gps"><strong>DPDP location consent:</strong> GPS is collected only when you enable location or submit a report — not bundled with Terms acceptance.</li>
-        <li data-i18n-html="tos.analytics"><strong>Analytics (optional):</strong> Anonymous usage events help us improve reliability. No photos, GPS, or names are sent.</li>
-        <li data-i18n-html="tos.notBmc"><strong>Not a government app:</strong> CivicRadar is independent — not affiliated with or run by BMC, PMC, TMC, or any government body.</li>
-        <li data-i18n-html="tos.content"><strong>Content rules:</strong> Upload onsite hazard photos only. No selfies, IDs, or unrelated images. Reports may be moderated.</li>
-      </ol>
+      <p class="tos-summary" data-i18n="tos.summary">CivicRadar is a free community hazard map (not a government service). You must be 18+, upload only onsite hazard photos, and file official complaints yourself with BMC/PMC/TMC.</p>
+      <details class="tos-details">
+        <summary data-i18n="tos.readFull">Read full terms</summary>
+        <ol class="tos-clauses">
+          <li data-i18n-html="tos.age"><strong>Age requirement:</strong> You must be 18 or older to submit reports and use community features.</li>
+          <li data-i18n-html="tos.emergency"><strong>Not an emergency service:</strong> CivicRadar is not for emergencies. For life-threatening situations, call 112 immediately.</li>
+          <li data-i18n-html="tos.itAct"><strong>IT Act intermediary:</strong> CivicRadar is an intermediary under the IT Act, 2000. You are responsible for what you upload.</li>
+          <li data-i18n-html="tos.share"><strong>External sharing:</strong> Sharing on WhatsApp, X, etc. may expose personal data. You share at your own risk.</li>
+          <li data-i18n-html="tos.gps"><strong>DPDP location consent:</strong> GPS is collected only when you enable location or submit a report — not bundled with Terms acceptance.</li>
+          <li data-i18n-html="tos.analytics"><strong>Analytics (optional):</strong> Anonymous usage events help us improve reliability. No photos, GPS, or names are sent.</li>
+          <li data-i18n-html="tos.notBmc"><strong>Not a government app:</strong> CivicRadar is independent — not affiliated with or run by BMC, PMC, TMC, or any government body.</li>
+          <li data-i18n-html="tos.content"><strong>Content rules:</strong> Upload onsite hazard photos only. No selfies, IDs, or unrelated images. Reports may be moderated.</li>
+        </ol>
+        <p class="legal-links">
+          <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          ·
+          <a href="terms.html" target="_blank" rel="noopener noreferrer">Full Terms of Service</a>
+        </p>
+      </details>
       <label class="checkbox-row">
         <input type="checkbox" id="tosAccept">
         <span data-i18n-html="tos.accept">I am 18+, I accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
@@ -477,6 +481,11 @@
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
+            <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--block"></div>
+              <div class="skeleton skeleton--line skeleton--line-short"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -663,11 +672,17 @@
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — rally neighbours, celebrate wins, support local leads.</p>
 
       <div class="community-summary" id="communitySummary">
-        <div class="impact-stats" id="communityImpactStats" aria-live="polite">
+        <div class="impact-stats is-skeleton" id="communityImpactStats" aria-live="polite">
           <div class="impact-stat impact-stat--reports"><span id="impactReports">0</span><label data-i18n="impact.reports">Reports</label></div>
           <div class="impact-stat impact-stat--ok"><span id="impactResolved">0</span><label data-i18n="impact.resolved">Fixed</label></div>
           <div class="impact-stat impact-stat--metoo"><span id="impactConfirmations">0</span><label data-i18n="impact.confirms">Me too</label></div>
           <div class="impact-stat impact-stat--pledges"><span id="impactPledges">0</span><label data-i18n="impact.pledges">Pledges</label></div>
+          <div class="skeleton-stack skeleton-stack--impact" id="communityImpactSkeleton" aria-hidden="true">
+            <div class="skeleton skeleton--stat"></div>
+            <div class="skeleton skeleton--stat"></div>
+            <div class="skeleton skeleton--stat"></div>
+            <div class="skeleton skeleton--stat"></div>
+          </div>
         </div>
       </div>
 
@@ -1002,7 +1017,12 @@
 
           <h3 class="section-title"><i class="ph ph-map-pin-area" aria-hidden="true"></i><span data-i18n="profile.reports">Your Reports</span></h3>
           <div class="report-list" id="reportList">
-            <p class="empty-state" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
+            <div class="skeleton-stack skeleton-stack--list" id="reportListSkeleton" aria-hidden="true">
+              <div class="skeleton skeleton--row"></div>
+              <div class="skeleton skeleton--row"></div>
+              <div class="skeleton skeleton--row"></div>
+            </div>
+            <p class="empty-state hidden" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
           </div>
         </div>
       </div>

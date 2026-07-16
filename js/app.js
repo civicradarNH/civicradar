@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v232';
+  const CIVIC_APP_VERSION = 'v234';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -3991,6 +3991,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.moreWays': 'More ways to file',
 
+      'esc.tier.markDone': 'Mark done',
+
+      'esc.tier.doneBadge': 'Done',
+
+      'esc.tier.nextBadge': 'Next step',
+
+      'esc.tier.lockedBadge': 'Later',
+
       'esc.recommended': 'Recommended: MyBMC WhatsApp — fastest for most Mumbai wards.',
 
       'esc.channelWa': 'Chatbot — pre-fill below',
@@ -4284,6 +4292,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'tos.title': 'Terms of Service',
 
       'tos.subtitle': 'Please read and accept before using CivicRadar.',
+
+      'tos.summary': 'CivicRadar is a free community hazard map (not a government service). You must be 18+, upload only onsite hazard photos, and file official complaints yourself with BMC/PMC/TMC.',
+
+      'tos.readFull': 'Read full terms',
 
       'tos.age': '<strong>Age requirement:</strong> You must be 18 or older to submit reports and use community features. Under-18? School or NSS groups may participate only with a parent, guardian, or coordinator who is 18+ and accepts Terms on their behalf.',
 
@@ -6408,6 +6420,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.moreWays': 'दर्ज करने के और तरीके',
 
+      'esc.tier.markDone': 'पूर्ण चिह्नित करें',
+
+      'esc.tier.doneBadge': 'हो गया',
+
+      'esc.tier.nextBadge': 'अगला कदम',
+
+      'esc.tier.lockedBadge': 'बाद में',
+
       'esc.recommended': 'अनुशंसित: MyBMC WhatsApp — अधिकांश मुंबई वार्डों के लिए सबसे तेज़।',
 
       'esc.channelWa': 'चैटबॉट · नीचे से कॉपी करें',
@@ -6701,6 +6721,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'tos.title': 'सेवा की शर्तें',
 
       'tos.subtitle': 'CivicRadar उपयोग से पहले पढ़ें और स्वीकार करें।',
+
+      'tos.summary': 'CivicRadar मुफ़्त सामुदायिक खतरा मानचित्र है (सरकारी सेवा नहीं)। 18+ होना ज़रूरी; केवल ऑन-साइट खतरे की फ़ोटो; आधिकारिक शिकायत BMC/PMC/TMC पर स्वयं दर्ज करें।',
+
+      'tos.readFull': 'पूरी शर्तें पढ़ें',
 
       'tos.age': '<strong>आयु आवश्यकता:</strong> रिपोर्ट और समुदाय फीचर के लिए 18+ होना ज़रूरी। 18 से कम उम्र? स्कूल या NSS समूह केवल किसी 18+ अभिभावक, गार्जियन या समन्वयक के साथ भाग ले सकते हैं, जो उनकी ओर से Terms स्वीकार करे।',
 
@@ -8824,6 +8848,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.moreWays': 'दाखल करण्याचे अधिक मार्ग',
 
+      'esc.tier.markDone': 'पूर्ण म्हणून चिन्हांकित करा',
+
+      'esc.tier.doneBadge': 'झाले',
+
+      'esc.tier.nextBadge': 'पुढील पाऊल',
+
+      'esc.tier.lockedBadge': 'नंतर',
+
       'esc.recommended': 'शिफारस: MyBMC WhatsApp — बहुतेक मुंबई वॉर्डांसाठी सर्वात जलद.',
 
       'esc.channelWa': 'चॅटबॉट · खाली कॉपी',
@@ -9117,6 +9149,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'tos.title': 'सेवा अटी',
 
       'tos.subtitle': 'CivicRadar वापरण्यापूर्वी वाचा आणि स्वीकारा.',
+
+      'tos.summary': 'CivicRadar मोफत समुदाय धोका नकाशा आहे (सरकारी सेवा नाही). 18+ आवश्यक; फक्त ऑन-साइट धोक्याचे फोटो; अधिकृत तक्रार BMC/PMC/TMC कडे स्वतः दाखल करा.',
+
+      'tos.readFull': 'पूर्ण अटी वाचा',
 
       'tos.age': '<strong>वय आवश्यकता:</strong> तक्रार आणि समुदाय वैशिष्ट्यांसाठी 18+ आवश्यक. 18 पेक्षा कमी वय? शाळा किंवा NSS गट फक्त 18+ पालक, गार्डियन किंवा समन्वयकासोबत सहभागी होऊ शकतात, जो त्यांच्या वतीने Terms स्वीकारेल.',
 
@@ -11240,6 +11276,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.moreWays': 'ફાઇલ કરવાની વધુ રીતો',
 
+      'esc.tier.markDone': 'પૂર્ણ ચિહ્નિત કરો',
+
+      'esc.tier.doneBadge': 'થઈ ગયું',
+
+      'esc.tier.nextBadge': 'આગલું પગલું',
+
+      'esc.tier.lockedBadge': 'પછીથી',
+
       'esc.recommended': 'ભલામણ: MyBMC WhatsApp — મોટાભાગના મુંબઈ વોર્ડ માટે સૌથી ઝડપી.',
 
       'esc.channelWa': 'ચેટબોટ · નીચેથી કૉપી',
@@ -11533,6 +11577,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'tos.title': 'સેવાની શરતો',
 
       'tos.subtitle': 'CivicRadar વાપરતા પહેલાં વાંચો અને સ્વીકારો.',
+
+      'tos.summary': 'CivicRadar મફત સમુદાય જોખમ નકશો છે (સરકારી સેવા નથી). 18+ જરૂરી; ફક્ત ઑન-સાઇટ જોખમના ફોટો; અધિકૃત ફરિયાદ BMC/PMC/TMC પર પોતે ફાઇલ કરો.',
+
+      'tos.readFull': 'સંપૂર્ણ શરતો વાંચો',
 
       'tos.age': '<strong>ઉંમર જરૂરિયાત:</strong> ફરિયાદ અને સમુદાય ફીચર માટે 18+ જરૂરી. 18થી ઓછી ઉંમર? શાળા અથવા NSS જૂથો ફક્ત 18+ વાલી, ગાર્ડિયન અથવા સંકલક સાથે જ ભાગ લઈ શકે, જે તેમના વતી Terms સ્વીકારે.',
 
@@ -12812,6 +12860,7 @@ document.addEventListener('DOMContentLoaded', function () {
       status: r.status || 'pending',
       complaintId: r.complaintId || '',
       filedAt: r.filedAt || '',
+      escTiersDone: Array.isArray(r.escTiersDone) ? r.escTiersDone.filter((k) => ['file', 'matrix', 'zonal', 'grievance'].includes(k)) : [],
       resolvedBy: r.resolvedBy || '',
       resolvedAt: r.resolvedAt || '',
       resolutionImage: r.resolutionImage || '',
@@ -14504,6 +14553,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const s = getCommunityImpactStats();
 
     const w = getWeekImpactStats();
+
+    const impactRoot = $('#communityImpactStats');
+
+    if (impactRoot) impactRoot.classList.remove('is-skeleton');
+
+    const impactSkel = $('#communityImpactSkeleton');
+
+    if (impactSkel) impactSkel.classList.add('hidden');
 
     const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
 
@@ -23373,7 +23430,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderSeasonalHook();
 
-    renderCommunityImpactStats();
+    const impactRoot = $('#communityImpactStats');
+
+    const impactSkel = $('#communityImpactSkeleton');
+
+    if (impactRoot) impactRoot.classList.add('is-skeleton');
+
+    if (impactSkel) impactSkel.classList.remove('hidden');
 
     renderWardWeekSocialProof();
 
@@ -23390,6 +23453,8 @@ document.addEventListener('DOMContentLoaded', function () {
     setNavTab('community');
 
     openModal('community');
+
+    requestAnimationFrame(() => { renderCommunityImpactStats(); });
 
     // Engaged users (≥1 report) see the volunteer section expanded by default.
     if (getUserReports().length >= 1) {
@@ -23444,19 +23509,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     resetProfileSectionsOnOpen();
 
-    updateProfileUI();
+    const reportList = $('#reportList');
+
+    if (reportList) {
+
+      reportList.innerHTML = `<div class="skeleton-stack skeleton-stack--list" id="reportListSkeleton" aria-hidden="true">
+              <div class="skeleton skeleton--row"></div>
+              <div class="skeleton skeleton--row"></div>
+              <div class="skeleton skeleton--row"></div>
+            </div>`;
+
+    }
 
     setNavTab('profile');
 
     openModal('profile');
 
+    // Let the skeleton paint one frame before sync list fill.
     requestAnimationFrame(() => {
+
+      updateProfileUI();
 
       $('#btnReplayTour')?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
 
-    });
+      pulseProfilePointsStat();
 
-    pulseProfilePointsStat();
+    });
 
     checkResolvedWins();
 
@@ -25785,25 +25863,96 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    reportMarkerLayer.clearLayers();
-
-    reportMarkerMap.clear();
-
     let pool = reportsForMap();
 
     if (map) pool = reportsInViewport(pool);
 
     pool = prioritizeMapReports(pool).slice(0, SCALE_CFG.maxMapMarkers);
 
-    pool.forEach((r) => createReportMarker(r));
+    const nextIds = new Set(pool.map((r) => r.id));
 
+    // Remove markers no longer in the visible pool (keeps open popup DOM when id stays).
+    [...reportMarkerMap.keys()].forEach((id) => {
+
+      if (nextIds.has(id)) return;
+
+      const marker = reportMarkerMap.get(id);
+
+      try { if (marker) reportMarkerLayer.removeLayer(marker); } catch { /* ignore */ }
+
+      reportMarkerMap.delete(id);
+
+    });
+
+    pool.forEach((r) => {
+
+      const existing = reportMarkerMap.get(r.id);
+
+      if (!existing) {
+
+        createReportMarker(r);
+
+        return;
+
+      }
+
+      try {
+
+        if (typeof existing.setLatLng === 'function') existing.setLatLng([r.lat, r.lng]);
+
+        if (typeof existing.setStyle === 'function') {
+
+          existing.setStyle({ fillColor: getMarkerColor(r.status) });
+
+        }
+
+        // Lazy factory for next open; refresh live popup content without teardown.
+        existing.bindPopup(() => buildReportPopup(r));
+
+        if (typeof existing.isPopupOpen === 'function' && existing.isPopupOpen()) {
+
+          const popup = existing.getPopup && existing.getPopup();
+
+          if (popup && typeof popup.setContent === 'function') {
+
+            popup.setContent(buildReportPopup(r));
+
+            const el = popup.getElement && popup.getElement();
+
+            if (el) bindBeforeAfterSliders(el);
+
+          }
+
+        }
+
+      } catch {
+
+        try { reportMarkerLayer.removeLayer(existing); } catch { /* ignore */ }
+
+        reportMarkerMap.delete(r.id);
+
+        createReportMarker(r);
+
+      }
+
+    });
+
+    // Fallback: reopen if the open pin was briefly removed (viewport cull) then returned.
     if (reopenId != null) {
 
       const marker = reportMarkerMap.get(reopenId);
 
       if (marker) {
 
-        try { marker.openPopup(); } catch { /* ignore */ }
+        try {
+
+          if (!(typeof marker.isPopupOpen === 'function' && marker.isPopupOpen())) {
+
+            marker.openPopup();
+
+          }
+
+        } catch { /* ignore */ }
 
       }
 
@@ -25868,6 +26017,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function bindEvents() {
 
     bindHazardPicker();
+
+    initSheetDragDismiss();
 
     Object.entries(overlays).forEach(([name, el]) => {
 
@@ -27657,9 +27808,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const status = $('#photoScanStatus');
 
+    const skel = $('#photoScanSkeleton');
+
     if (btn) btn.classList.toggle('is-scanning', active);
 
     if (status) status.classList.toggle('hidden', !active);
+
+    if (skel) {
+
+      skel.classList.toggle('hidden', !active);
+
+      skel.setAttribute('aria-hidden', active ? 'false' : 'true');
+
+    }
 
   }
 
@@ -30759,6 +30920,263 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+  function isMobileSheetViewport() {
+
+    return !(window.matchMedia && window.matchMedia('(min-width: 768px)').matches);
+
+  }
+
+  function initSheetDragDismiss() {
+
+    const DISMISS_PX = 110;
+
+    const DISMISS_VELOCITY = 0.55;
+
+    Object.entries(overlays).forEach(([name, overlay]) => {
+
+      if (!overlay || isBlockingOverlay(name)) return;
+
+      const modal = overlay.querySelector('.modal');
+
+      if (!modal) return;
+
+      let startY = 0;
+
+      let startX = 0;
+
+      let dragging = false;
+
+      let decided = false;
+
+      let dy = 0;
+
+      let lastY = 0;
+
+      let lastT = 0;
+
+      let velocity = 0;
+
+      let fromHandle = false;
+
+      function dragZone(target) {
+
+        if (!target || !modal.contains(target)) return false;
+
+        if (target.closest('.modal__handle')) return true;
+
+        if (target.closest('button, a, input, select, textarea, label, .btn, .civic-combobox')) return false;
+
+        const rect = modal.getBoundingClientRect();
+
+        // Top strip (~ handle + title band) only.
+        return (target === modal || modal.firstElementChild === target || !!target.closest('.modal__handle'))
+
+          || (typeof target.getBoundingClientRect === 'function'
+
+            && target.getBoundingClientRect().top - rect.top < 72
+
+            && modal.scrollTop <= 0);
+
+      }
+
+      function resetDrag(animate) {
+
+        dragging = false;
+
+        decided = false;
+
+        dy = 0;
+
+        fromHandle = false;
+
+        modal.classList.remove('is-sheet-dragging');
+
+        if (!animate || prefersReducedMotion()) {
+
+          modal.style.transition = '';
+
+          modal.style.transform = '';
+
+          return;
+
+        }
+
+        modal.style.transition = 'transform 0.36s var(--ease-spring)';
+
+        modal.style.transform = '';
+
+        window.setTimeout(() => { modal.style.transition = ''; }, 300);
+
+      }
+
+      function finishDismiss() {
+
+        modal.classList.remove('is-sheet-dragging');
+
+        modal.style.transition = prefersReducedMotion() ? 'none' : 'transform 0.32s var(--ease-sheet, cubic-bezier(0.32, 0.72, 0, 1))';
+
+        modal.style.transform = 'translate3d(0, 110%, 0)';
+
+        window.setTimeout(() => {
+
+          modal.style.transition = '';
+
+          modal.style.transform = '';
+
+          dismissOverlayByName(name);
+
+        }, prefersReducedMotion() ? 0 : 180);
+
+      }
+
+      modal.addEventListener('touchstart', (e) => {
+
+        if (!isMobileSheetViewport() || !overlay.classList.contains('open')) return;
+
+        if (!e.touches || e.touches.length !== 1) return;
+
+        const t = e.touches[0];
+
+        fromHandle = !!e.target.closest('.modal__handle');
+
+        if (!fromHandle && !dragZone(e.target)) return;
+
+        if (!fromHandle && modal.scrollTop > 0) return;
+
+        startY = t.clientY;
+
+        startX = t.clientX;
+
+        lastY = startY;
+
+        lastT = Date.now();
+
+        velocity = 0;
+
+        dragging = false;
+
+        decided = false;
+
+        dy = 0;
+
+      }, { passive: true });
+
+      modal.addEventListener('touchmove', (e) => {
+
+        if (!isMobileSheetViewport() || startY === 0) return;
+
+        if (!e.touches || e.touches.length !== 1) return;
+
+        const t = e.touches[0];
+
+        const deltaY = t.clientY - startY;
+
+        const deltaX = t.clientX - startX;
+
+        if (!decided) {
+
+          if (Math.abs(deltaY) < 8 && Math.abs(deltaX) < 8) return;
+
+          decided = true;
+
+          // Content scroll wins over sheet drag (unless pulling from handle at top).
+          if (!fromHandle && (modal.scrollTop > 0 || (deltaY < 0 && Math.abs(deltaY) >= Math.abs(deltaX)))) {
+
+            startY = 0;
+
+            return;
+
+          }
+
+          if (Math.abs(deltaX) > Math.abs(deltaY) && !fromHandle) {
+
+            startY = 0;
+
+            return;
+
+          }
+
+          if (deltaY <= 0 && !fromHandle) {
+
+            startY = 0;
+
+            return;
+
+          }
+
+          dragging = true;
+
+          modal.classList.add('is-sheet-dragging');
+
+          modal.style.transition = 'none';
+
+        }
+
+        if (!dragging) return;
+
+        // User started scrolling content mid-gesture.
+        if (!fromHandle && modal.scrollTop > 0) {
+
+          resetDrag(false);
+
+          startY = 0;
+
+          return;
+
+        }
+
+        dy = Math.max(0, deltaY);
+
+        const now = Date.now();
+
+        const dt = Math.max(1, now - lastT);
+
+        velocity = (t.clientY - lastY) / dt;
+
+        lastY = t.clientY;
+
+        lastT = now;
+
+        modal.style.transform = `translate3d(0, ${dy}px, 0)`;
+
+        if (e.cancelable) e.preventDefault();
+
+      }, { passive: false });
+
+      modal.addEventListener('touchend', () => {
+
+        if (!dragging) {
+
+          startY = 0;
+
+          return;
+
+        }
+
+        const shouldDismiss = dy >= DISMISS_PX || (dy > 48 && velocity > DISMISS_VELOCITY);
+
+        startY = 0;
+
+        if (shouldDismiss) finishDismiss();
+
+        else resetDrag(true);
+
+      }, { passive: true });
+
+      modal.addEventListener('touchcancel', () => {
+
+        if (dragging) resetDrag(false);
+
+        startY = 0;
+
+      }, { passive: true });
+
+    });
+
+  }
+
+
   function prefersReducedMotion() {
 
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -32985,6 +33403,141 @@ document.addEventListener('DOMContentLoaded', function () {
 
    */
 
+
+  const ESC_TIERS_DONE_KEY = 'civicradar_esc_tiers_done_v1';
+
+  const ESC_TIER_ORDER = ['file', 'matrix', 'zonal', 'grievance'];
+
+  function loadEscTiersDoneMap() {
+
+    try {
+
+      const raw = localStorage.getItem(ESC_TIERS_DONE_KEY);
+
+      const parsed = raw ? JSON.parse(raw) : {};
+
+      return parsed && typeof parsed === 'object' ? parsed : {};
+
+    } catch { return {}; }
+
+  }
+
+  function saveEscTiersDoneMap(map) {
+
+    try { safeLocalSet(ESC_TIERS_DONE_KEY, JSON.stringify(map || {})); } catch { /* quota */ }
+
+  }
+
+  function getEscTiersDone(report) {
+
+    if (!report) return [];
+
+    const map = loadEscTiersDoneMap();
+
+    const fromStore = Array.isArray(map[String(report.id)]) ? map[String(report.id)] : [];
+
+    const fromReport = Array.isArray(report.escTiersDone) ? report.escTiersDone : [];
+
+    const set = new Set([...fromStore, ...fromReport].filter((k) => ESC_TIER_ORDER.includes(k)));
+
+    if (report.complaintId) set.add('file');
+
+    if (report.status === 'resolved') ESC_TIER_ORDER.forEach((k) => set.add(k));
+
+    return ESC_TIER_ORDER.filter((k) => set.has(k));
+
+  }
+
+  function markEscTierDone(reportId, tierKey) {
+
+    if (!reportId || !ESC_TIER_ORDER.includes(tierKey)) return;
+
+    const map = loadEscTiersDoneMap();
+
+    const key = String(reportId);
+
+    const cur = new Set(Array.isArray(map[key]) ? map[key] : []);
+
+    cur.add(tierKey);
+
+    // Completing a later tier implies earlier ones were handled.
+    const idx = ESC_TIER_ORDER.indexOf(tierKey);
+
+    for (let i = 0; i <= idx; i++) cur.add(ESC_TIER_ORDER[i]);
+
+    map[key] = ESC_TIER_ORDER.filter((k) => cur.has(k));
+
+    saveEscTiersDoneMap(map);
+
+    const reports = loadReports();
+
+    const rIdx = reports.findIndex((r) => String(r.id) === key);
+
+    if (rIdx !== -1) {
+
+      reports[rIdx].escTiersDone = map[key].slice();
+
+      try { saveReports(reports); } catch { /* ignore */ }
+
+    }
+
+  }
+
+  function resolveEscTierStates(report, stage) {
+
+    const days = stage.filed ? stage.days : 0;
+
+    const doneSet = new Set(getEscTiersDone(report));
+
+    const thresholds = {
+
+      file: 0,
+
+      matrix: ESCALATION_DAYS.matrix,
+
+      zonal: ESCALATION_DAYS.zonal,
+
+      grievance: ESCALATION_DAYS.grievance,
+
+    };
+
+    const states = {};
+
+    let currentAssigned = false;
+
+    ESC_TIER_ORDER.forEach((key) => {
+
+      if (report.status === 'resolved' || doneSet.has(key)) {
+
+        states[key] = 'done';
+
+        return;
+
+      }
+
+      const due = key === 'file' ? !stage.filed : (stage.filed && days >= thresholds[key]);
+
+      if (!currentAssigned && due) {
+
+        states[key] = 'active';
+
+        currentAssigned = true;
+
+      } else {
+
+        states[key] = 'locked';
+
+      }
+
+    });
+
+    // If nothing is due yet but filed, keep next future tier locked (file already done).
+    // If not filed, file is active above.
+    return states;
+
+  }
+
+
   function findReportById(id) {
 
     return loadReports().find((r) => String(r.id) === String(id));
@@ -34389,23 +34942,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+    const tierStates = resolveEscTierStates(report, stage);
+
     $('#escLadder').innerHTML = tiers
 
       .map((tobj) => {
 
-        let state = 'locked';
-
-        if (report.status === 'resolved') state = 'done';
-
-        else if (tobj.key === 'file') state = stage.filed ? 'done' : 'active';
-
-        else if (stage.filed && days >= tobj.threshold) state = 'active';
+        const state = tierStates[tobj.key] || 'locked';
 
         const icon = state === 'done' ? 'check-circle' : state === 'active' ? 'arrow-circle-right' : 'lock-simple';
 
+        const badge = state === 'done'
+
+          ? `<span class="esc-step__badge esc-step__badge--done">${escapeHtml(t('esc.tier.doneBadge'))}</span>`
+
+          : state === 'active'
+
+            ? `<span class="esc-step__badge esc-step__badge--next">${escapeHtml(t('esc.tier.nextBadge'))}</span>`
+
+            : `<span class="esc-step__badge esc-step__badge--locked">${escapeHtml(t('esc.tier.lockedBadge'))}</span>`;
+
         let actions = '';
 
-        if (state === 'active' || (tobj.key === 'file' && !stage.filed)) {
+        if (state === 'active' || (tobj.key === 'file' && !stage.filed && state !== 'done')) {
 
           const corpActions = getEscTierActionLabels(city, tobj.key);
 
@@ -34513,7 +35072,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const tierOfficialId = getEscTierOfficialChannel(city, tobj.key, report.hazard);
 
-          if (tierOfficialId && (state === 'active' || (tobj.key === 'file' && !stage.filed))) {
+          if (tierOfficialId && state === 'active') {
 
             const tierMeta = resolveOfficialChannelMeta(tierOfficialId, city);
 
@@ -34535,17 +35094,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
           }
 
+          if (state === 'active' && tobj.key !== 'file') {
+
+            actions += `
+
+              <div class="esc-step__actions">
+
+                <button type="button" class="btn btn--ghost btn--sm" data-esc-mark-done="${escapeHtml(tobj.key)}">${escapeHtml(t('esc.tier.markDone'))}</button>
+
+              </div>`;
+
+          }
+
         }
 
         return `
 
-          <li class="esc-step esc-step--${state}">
+          <li class="esc-step esc-step--${state}" data-esc-tier="${escapeHtml(tobj.key)}">
 
             <i class="ph ph-${icon}"></i>
 
             <div>
 
-              <strong>${escapeHtml(tobj.title)}</strong>
+              <strong>${escapeHtml(tobj.title)} ${badge}</strong>
 
               <p>${escapeHtml(tobj.body)}</p>
 
@@ -34669,11 +35240,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function markActiveEscTierFromEvent(e) {
+
+    const stepEl = e.target.closest('.esc-step[data-esc-tier]');
+
+    if (!stepEl || !activeEscalationId) return;
+
+    const tier = stepEl.dataset.escTier;
+
+    if (!tier || tier === 'file') return;
+
+    if (!stepEl.classList.contains('esc-step--active')) return;
+
+    markEscTierDone(activeEscalationId, tier);
+
+    const refreshed = findReportById(activeEscalationId);
+
+    if (refreshed) renderEscalation(refreshed);
+
+  }
+
   function handleEscLadderAction(e) {
 
     if (e.target.closest('[data-official-channel]')) {
 
       handleOfficialChannelClick(e);
+
+      markActiveEscTierFromEvent(e);
 
       return;
 
@@ -34684,6 +35277,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (corpBtn) {
 
       handleCorpChannelClick(e);
+
+      markActiveEscTierFromEvent(e);
 
       return;
 
@@ -34708,6 +35303,26 @@ document.addEventListener('DOMContentLoaded', function () {
         : 'esc.copyFollowUpDone';
 
       copyEscText(text, copyKey);
+
+      return;
+
+    }
+
+    const markBtn = e.target.closest('[data-esc-mark-done]');
+
+    if (markBtn) {
+
+      const tier = markBtn.dataset.escMarkDone;
+
+      if (tier && activeEscalationId) {
+
+        markEscTierDone(activeEscalationId, tier);
+
+        const refreshed = findReportById(activeEscalationId);
+
+        if (refreshed) renderEscalation(refreshed);
+
+      }
 
       return;
 
@@ -34740,6 +35355,8 @@ document.addEventListener('DOMContentLoaded', function () {
     else if (ch === 'corp-wa') openCorpWhatsApp(report, corp);
 
     else if (ch === 'corp-portal') escalationOpenCorpPortal();
+
+    markActiveEscTierFromEvent(e);
 
   }
 
@@ -34826,6 +35443,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     Backend.updateReportFiling(activeEscalationId, val, reports[idx].filedAt);
+
+    markEscTierDone(activeEscalationId, 'file');
 
     trackBmcEvent('bmc_complaint_saved', { reportId: String(activeEscalationId), firstTime }, reports[idx].ward);
 
