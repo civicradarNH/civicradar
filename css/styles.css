@@ -71,6 +71,9 @@
   --bg-main: #f8fafc;
   --canvas: #f8fafc;
   --text-dark: #0f172a;
+  --ink-900: #0f172a;
+  --ink-600: #475569;
+  --ink-400: #94a3b8;
   --text: #0f172a;
   --text-muted: #64748b;
   --surface: #ffffff;
@@ -141,6 +144,7 @@ html, body {
   font-family: var(--font);
   background: var(--bg-main);
   color: var(--text-dark);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
 }
@@ -7393,5 +7397,375 @@ a,
   .cert-actions--reveal {
     animation: none !important;
   }
+}
+
+/* ============================================================
+   v232 — Premium native-mobile polish (Clean SaaS)
+   ============================================================ */
+
+/* Indic readability — taller Devanagari/Gujarati line boxes */
+html[lang="hi"] body,
+html[lang="mr"] body,
+html[lang="gu"] body {
+  line-height: 1.6;
+}
+
+/* ---- Bottom sheets: handle + safe sheet chrome ---- */
+.modal__handle {
+  width: 36px;
+  height: 5px;
+  background: #cbd5e1;
+  border-radius: var(--radius-pill);
+  margin: 2px auto 14px;
+  flex-shrink: 0;
+}
+
+.modal {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.14);
+  padding-top: 12px;
+}
+
+/* Blocking / confirm dialogs stay centered (not swipe sheets) */
+#tosOverlay,
+#onboardingOverlay,
+#deleteConfirmOverlay,
+#genericConfirmOverlay {
+  align-items: center;
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+#tosOverlay .modal,
+#onboardingOverlay .modal,
+#deleteConfirmOverlay .modal,
+#genericConfirmOverlay .modal {
+  border-radius: var(--radius-xl);
+  transform: translateY(18px) scale(0.98);
+  max-height: min(88vh, 100dvh);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  box-shadow: var(--shadow-lg);
+}
+
+#tosOverlay.open .modal,
+#onboardingOverlay.open .modal,
+#deleteConfirmOverlay.open .modal,
+#genericConfirmOverlay.open .modal {
+  transform: translateY(0) scale(1);
+}
+
+#tosOverlay .modal__handle,
+#onboardingOverlay .modal__handle,
+#deleteConfirmOverlay .modal__handle,
+#genericConfirmOverlay .modal__handle {
+  display: none;
+}
+
+/* Desktop ≥768px: centered dialogs for all overlays */
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .modal {
+    border-radius: var(--radius-xl);
+    max-height: min(88vh, 900px);
+    transform: translateY(14px) scale(0.98);
+    padding-bottom: 28px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal__handle {
+    display: none;
+  }
+
+  #communityOverlay,
+  #profileOverlay {
+    padding-bottom: 24px;
+  }
+
+  #communityModal,
+  #profileModal {
+    max-height: min(88vh, 900px);
+  }
+}
+
+/* Report / confirm: generous tap padding */
+#reportModal {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#reportModal.report-modal--confirm #reportStepConfirm.report-step--active {
+  padding-bottom: 8px;
+  animation: report-step-in 0.22s ease-out both;
+}
+
+@keyframes report-step-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #reportModal.report-modal--confirm #reportStepConfirm.report-step--active {
+    animation: none;
+  }
+}
+
+/* ---- FAB: brand fill + soft colored shadow + optional pulse ---- */
+#btnCamera {
+  background: var(--grad-brand);
+  box-shadow: var(--shadow-pop);
+  min-height: var(--touch-min);
+  animation: fab-breathe 2.8s ease-in-out infinite;
+}
+
+#btnCamera:hover {
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.5);
+}
+
+#btnCamera:active {
+  transform: translateX(-50%) scale(0.96);
+  animation: none;
+}
+
+@keyframes fab-breathe {
+  0%, 100% {
+    box-shadow: var(--shadow-pop);
+  }
+  50% {
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.52), 0 0 0 10px rgba(99, 102, 241, 0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #btnCamera {
+    animation: none;
+  }
+}
+
+/* Keep OSM attribution clear of FAB / snackbar band */
+.leaflet-bottom.leaflet-right,
+.leaflet-bottom.leaflet-left {
+  margin-bottom: 4px;
+}
+
+/* ---- Map glass chrome (readable in glare) ---- */
+.ward-pulse {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-legend {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(226, 232, 240, 0.9);
+}
+
+.location-banner {
+  background: rgba(255, 251, 235, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+}
+
+.map-locate-pill {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.map-recenter {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+/* ---- Bottom nav: brand active + ink-400 inactive ---- */
+.nav-tab {
+  color: var(--ink-400);
+  transition: color 0.2s ease-out, background 0.2s ease-out, transform 0.15s ease-out;
+}
+
+.nav-tab.active {
+  color: var(--primary);
+}
+
+.nav-tab.active i {
+  color: var(--primary);
+}
+
+.nav-tab.active::before {
+  width: 32px;
+  height: 3px;
+  border-radius: 0 0 var(--radius-pill) var(--radius-pill);
+  background: var(--primary);
+}
+
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-50);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nav-tab > i,
+.nav-tab > span,
+.nav-tab .nav-tab__icon-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-tab:active {
+  transform: scale(0.97);
+}
+
+/* ---- Toast → bottom snackbar ---- */
+.toast-container {
+  top: auto;
+  bottom: calc(var(--nav-height) + var(--fab-size) + 16px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 24px));
+  z-index: 3000;
+}
+
+.toast {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: snackbar-in 0.28s ease-out;
+}
+
+.toast--success {
+  background: var(--toast-success-bg);
+}
+
+@keyframes snackbar-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+body.home-hero-visible .toast-container,
+body.persona-admin .toast-container,
+body.persona-lead .toast-container,
+body.pwa-nudge-visible .toast-container {
+  bottom: calc(var(--nav-height) + 16px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ---- Micro-interactions: snappy press (preserve FAB centering) ---- */
+.btn,
+.report-card,
+.queue-item,
+.hazard-tile,
+.cr-section__toggle,
+.pledge-card,
+.success-story-card {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background 0.2s ease-out, border-color 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.report-card:active,
+.queue-item:active,
+.pledge-card:active {
+  transform: scale(0.985);
+}
+
+/* Universal :active must not strip FAB translateX */
+#btnCamera:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-card:active,
+  .queue-item:active,
+  .pledge-card:active,
+  .nav-tab:active {
+    transform: none;
+  }
+}
+
+/* ---- Streak step tracker (profile) ---- */
+.streak-tracker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.streak-tracker.hidden {
+  display: none;
+}
+
+.streak-tracker__step {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.22);
+  transition: background 0.25s ease-out, transform 0.2s ease-out;
+}
+
+.streak-tracker__step.is-filled {
+  background: #fff;
+}
+
+.streak-tracker__step.is-current {
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+  transform: scaleY(1.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak-tracker__step {
+    transition: none;
+  }
+  .streak-tracker__step.is-current {
+    transform: none;
+  }
+}
+
+/* ---- Certificate / level-up ceremony polish ---- */
+.success-icon--cert {
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35), var(--shadow-md);
+}
+
+.success-icon--cert.cert-badge--pop {
+  animation: cert-badge-pop 0.6s var(--ease-spring) both;
+}
+
+#certificateModal .modal__subtitle {
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.certificate-preview {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 

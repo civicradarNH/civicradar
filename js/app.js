@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v231';
+  const CIVIC_APP_VERSION = 'v232';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -36644,6 +36644,28 @@ document.addEventListener('DOMContentLoaded', function () {
           : '';
 
         streakLineEl.classList.toggle('hidden', streak < 1);
+
+      }
+
+      const streakTrackerEl = $('#profileStreakTracker');
+
+      if (streakTrackerEl) {
+
+        const filled = Math.min(4, Math.max(0, streak));
+
+        streakTrackerEl.classList.toggle('hidden', streak < 1);
+
+        streakTrackerEl.setAttribute('aria-hidden', streak < 1 ? 'true' : 'false');
+
+        streakTrackerEl.querySelectorAll('.streak-tracker__step').forEach((step) => {
+
+          const week = Number(step.getAttribute('data-week')) || 0;
+
+          step.classList.toggle('is-filled', week > 0 && week <= filled);
+
+          step.classList.toggle('is-current', week === filled && filled > 0 && filled < 4);
+
+        });
 
       }
 
