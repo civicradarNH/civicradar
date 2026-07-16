@@ -21376,35 +21376,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.classList.add('is-loading');
 
-    const { error } = await Backend.verifyEmailCode(email, token);
+    // Wrapped end-to-end: an unguarded await here (unlike the sibling send-code
+    // flows) left the button permanently disabled/spinning on a hang or thrown
+    // error with no toast and no recovery short of reloading.
+    try {
 
-    if (error) { btn.disabled = false; btn.classList.remove('is-loading'); showToast(t('toast.codeInvalid'), 'error'); return; }
+      const { error } = await Backend.verifyEmailCode(email, token);
 
-    const profile = await Backend.getMyRole();
+      if (error) { showToast(t('toast.codeInvalid'), 'error'); return; }
 
-    btn.disabled = false;
+      const profile = await Backend.getMyRole();
 
-    btn.classList.remove('is-loading');
+      if (profile && profile.role === 'admin') {
 
-    if (profile && profile.role === 'admin') {
+        isSuperAdmin = true;
 
-      isSuperAdmin = true;
+        window.isSuperAdmin = true;
 
-      window.isSuperAdmin = true;
+        refreshAccessReviewBadge();
 
-      refreshAccessReviewBadge();
+        grantBmcAccess();
 
-      grantBmcAccess();
+      } else if (profile && profile.role === 'bmc') {
 
-    } else if (profile && profile.role === 'bmc') {
+        grantBmcAccess();
 
-      grantBmcAccess();
+      } else {
 
-    } else {
+        await Backend.signOut();
 
-      await Backend.signOut();
+        showToast(t('toast.bmcUnauthorized'), 'error', 5000);
 
-      showToast(t('toast.bmcUnauthorized'), 'error', 5000);
+      }
+
+    } catch (e) {
+
+      showToast(formatAuthError(e), 'error', 5500);
+
+    } finally {
+
+      btn.disabled = false;
+
+      btn.classList.remove('is-loading');
 
     }
 
@@ -21484,41 +21497,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.classList.add('is-loading');
 
-    const { error } = await Backend.verifyEmailCode(email, token);
+    // Wrapped end-to-end (see adminVerify) — three sequential unguarded awaits
+    // here left the button permanently disabled/spinning on a hang or thrown
+    // error with no toast and no recovery short of reloading.
+    try {
 
-    if (error) { btn.disabled = false; btn.classList.remove('is-loading'); showToast(t('toast.codeInvalid'), 'error'); return; }
+      const { error } = await Backend.verifyEmailCode(email, token);
 
-    const { data, error: rpcError } = await Backend.redeemNgoCode(code);
+      if (error) { showToast(t('toast.codeInvalid'), 'error'); return; }
 
-    btn.disabled = false;
+      const { data, error: rpcError } = await Backend.redeemNgoCode(code);
 
-    btn.classList.remove('is-loading');
+      if (rpcError || !data) {
 
-    if (rpcError || !data) {
+        await Backend.signOut();
 
-      await Backend.signOut();
+        showToast(t('toast.ngoCodeInvalid'), 'error', 5000);
 
-      showToast(t('toast.ngoCodeInvalid'), 'error', 5000);
+        return;
 
-      return;
+      }
+
+      const assignment = typeof data === 'object' ? data : { ward: data };
+
+      const profile = await Backend.getMyRole();
+
+      grantLeadAccess(
+
+        assignment.ward || (profile && profile.ward),
+
+        (profile && profile.coordinator_scope) || assignment.coordinator_scope || 'ward',
+
+        (profile && profile.neighbourhood_label) || assignment.neighbourhood_label || '',
+
+        assignment.city || (profile && profile.city) || ''
+
+      );
+
+    } catch (e) {
+
+      showToast(formatAuthError(e), 'error', 5500);
+
+    } finally {
+
+      btn.disabled = false;
+
+      btn.classList.remove('is-loading');
 
     }
-
-    const assignment = typeof data === 'object' ? data : { ward: data };
-
-    const profile = await Backend.getMyRole();
-
-    grantLeadAccess(
-
-      assignment.ward || (profile && profile.ward),
-
-      (profile && profile.coordinator_scope) || assignment.coordinator_scope || 'ward',
-
-      (profile && profile.neighbourhood_label) || assignment.neighbourhood_label || '',
-
-      assignment.city || (profile && profile.city) || ''
-
-    );
 
   }
 
@@ -22788,6 +22814,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function closeStackedModalsForNav(keepName) {
 
+    // Manual-pin mode closes the report modal and arms a map click handler; every
+    // nav-switch path needs to tear it down, not just the map-tab/closeAllModals
+    // path — otherwise switching to Community/Resources/Profile while a pin drop
+    // is armed leaves the handler live, and the next map tap silently hijacks
+    // into the report flow instead of doing what the user expects.
+    if (manualPinModeActive) stopManualPinMode(true);
+
     Object.keys(overlays).forEach((name) => {
 
       if (name === keepName) return;
@@ -22805,8 +22838,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function closeAllModals() {
-
-    if (manualPinModeActive) stopManualPinMode(true);
 
     closeStackedModalsForNav(null);
 
