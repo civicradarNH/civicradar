@@ -1186,18 +1186,15 @@ async def run_citizen_tests(s: Suite, browser):
 
     await js_click(page, '#btnSubmitReport')
 
-    await page.wait_for_timeout(700)
+    await page.wait_for_timeout(2500)
 
-    t = await toast_text(page)
-
-    # v195+: GPS denied uses provisional city pin + pin-confirm toast (not gpsFail).
-    tl = t.lower()
-    c15_toast = (
-        'gps' in tl or 'location' in tl or 'fail' in tl
-        or 'pin' in tl or 'confirm' in tl or 'map' in tl
+    # v231+: provisional city pin is optional to drag — submit allowed with current coords.
+    c15_ok = await is_open(page, 'successOverlay')
+    stored = await page.evaluate(
+        '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").length >= 1'
     )
-    c15_blocked = c15_toast and not await is_open(page, 'successOverlay')
-    s.record('C15', 'Citizen', 'GPS denied blocks submit', c15_blocked, f'toast={t!r}')
+    s.record('C15', 'Citizen', 'GPS denied still submits with provisional pin', c15_ok and stored,
+             f'success={c15_ok} stored={stored}')
 
 
 
@@ -3601,51 +3598,12 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page_rp23.wait_for_timeout(2500)
 
-    toast_pin_action = await page_rp23.evaluate(
+    # v231+: GPS denied seeds a provisional city pin; drag is optional — submit must succeed
+    # without requiring confirm-pin drag or the old pinConfirmRequired toast block.
 
-        """() => {
-
-          const btns = Array.from(document.querySelectorAll('.toast__action'));
-
-          const btn = btns.find((b) => /pin|map|पिन|પિન/i.test(b.textContent));
-
-          if (!btn) return false;
-
-          btn.click();
-
-          return true;
-
-        }"""
-
+    success_open = await page_rp23.evaluate(
+        '() => !!document.getElementById("successOverlay")?.classList.contains("open")'
     )
-
-    await page_rp23.wait_for_timeout(500)
-
-    # With GPS denied, submitReport() blocks on the provisional confirm-pin and
-    # shows toast.pinConfirmRequired, whose "Place pin on map" action calls
-    # focusConfirmPinMap() — which stays on the confirm step and scrolls to its
-    # own draggable pin, not startManualPinMode()'s separate full-map flow (that
-    # path is reserved for a harder GPS failure, e.g. no navigator.geolocation
-    # at all). Simulate the user dragging that pin via the same test hook RP25
-    # already uses, then resubmit.
-
-    still_on_confirm = await page_rp23.evaluate(
-
-        '() => !document.getElementById("reportStepConfirm")?.hidden'
-
-    )
-
-    pin_dropped = await page_rp23.evaluate(
-
-        '() => !!window.civicTestSetConfirmPin(19.07625, 72.87785, 5, true)'
-
-    )
-
-    await page_rp23.wait_for_timeout(400)
-
-    await js_click(page_rp23, '#btnSubmitReport')
-
-    await page_rp23.wait_for_timeout(2500)
 
     manual_pin_ok = await page_rp23.evaluate(
 
@@ -3659,11 +3617,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
         'Report',
 
-        'GPS denied → confirm-pin drag submit',
+        'GPS denied → provisional pin submit without drag',
 
-        toast_pin_action and still_on_confirm and pin_dropped and manual_pin_ok,
+        success_open and manual_pin_ok,
 
-        f'toast={toast_pin_action} confirmStep={still_on_confirm} pin={pin_dropped} stored={manual_pin_ok}',
+        f'success={success_open} stored={manual_pin_ok}',
 
     )
 
@@ -4333,6 +4291,32 @@ async def run_extended_scenarios(s: Suite, browser):
         }"""
     )
     s.record('RP12b', 'Report', 'Camera cancel + Map tap keeps report open at capture', cancel_guard_ok)
+
+    # Camera disclosure must stack above the report sheet; Continue must arm picker sync (gesture-safe).
+    disclosure_stack_ok = await page.evaluate(
+        """() => {
+          try { localStorage.removeItem('civicradar_report_camera_disclosure'); } catch (_) {}
+          window.openReportModal(false);
+          const report = document.getElementById('reportOverlay');
+          const cam = document.getElementById('reportCameraOverlay');
+          if (!report || !cam) return false;
+          document.getElementById('btnTakePhoto')?.click();
+          if (!cam.classList.contains('open') || !report.classList.contains('open')) return false;
+          const rz = parseInt(getComputedStyle(report).zIndex, 10) || 0;
+          const cz = parseInt(getComputedStyle(cam).zIndex, 10) || 0;
+          if (cz <= rz) return false;
+          // Continue must leave disclosure closed, park report, and keep report open.
+          document.getElementById('btnReportCameraContinue')?.click();
+          const parked = report.classList.contains('report-overlay--picker-parked');
+          const camClosed = !cam.classList.contains('open');
+          const disclosureSeen = localStorage.getItem('civicradar_report_camera_disclosure') === '1';
+          // Cleanup for later tests
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          report.classList.remove('report-overlay--picker-parked');
+          return camClosed && parked && disclosureSeen && report.classList.contains('open');
+        }"""
+    )
+    s.record('RP12c', 'Report', 'Camera disclosure stacks above report; Continue parks for picker', disclosure_stack_ok)
 
     await ctx.close()
 
@@ -5227,7 +5211,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v229" in sw_src
+            "civicradar-v231" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8368,7 +8352,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v229" in sw_src
+            "civicradar-v231" in sw_src
 
             and "'/index.html'" not in sw_src
 

@@ -1872,6 +1872,23 @@ body.pwa-nudge-visible #btnCamera {
   visibility: visible;
 }
 
+/* Disclosure / geo / confirm sheets must sit above #reportOverlay. Same base
+   z-index + later DOM siblings previously buried #reportCameraOverlay under the
+   report sheet, so Continue was unreachable and the OS picker felt "behind". */
+#reportCameraOverlay,
+#reportGeoOverlay,
+#genericConfirmOverlay {
+  z-index: 2350;
+}
+
+/* Park report chrome while the OS camera/gallery chooser is up (TWA/WebView).
+   Use opacity + pointer-events — not visibility:hidden — so a descendant
+   file input (if still inside) can still receive .click(). */
+#reportOverlay.report-overlay--picker-parked {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
 /* Community & Profile are full-screen tabs: keep them BELOW the bottom nav so the
    tab bar shows through and users can always switch tabs / return to Map. The
    sheet is capped and lifted so its content never hides behind the nav. */
@@ -6714,8 +6731,8 @@ a,
 }
 
 .report-pin-drag-hint--required {
-  color: var(--warning);
-  font-weight: 600;
+  color: var(--ink-600, var(--text-secondary, #475569));
+  font-weight: 500;
 }
 
 .report-pin-confirm--needs-adjust {

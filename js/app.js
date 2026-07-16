@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v229';
+  const CIVIC_APP_VERSION = 'v231';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -2815,17 +2815,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'Drag the pin if it\'s not exactly right',
 
-      'report.pinProvisionalDragHint': 'Drag the pin onto the hazard to submit',
+      'report.pinProvisionalDragHint': 'Drag the pin if this spot isn\'t exact — optional',
 
       'report.pinAccuracyGood': 'Location accurate to ~{m} m',
 
       'report.pinAccuracyFair': 'Location ~{m} m — drag the pin or move to open sky',
 
-      'report.pinAccuracyPoor': 'Location is approximate (~{m} m) — drag the pin onto the hazard',
+      'report.pinAccuracyPoor': 'Location is approximate (~{m} m) — drag the pin if needed',
 
-      'report.pinAccuracyUnknown': 'Confirm the pin is on the hazard — drag to adjust',
+      'report.pinAccuracyUnknown': 'Check the pin is on the hazard — drag to adjust if needed',
 
-      'report.pinProvisionalAccuracy': 'GPS isn\'t on the hazard — drag the pin to the exact spot',
+      'report.pinProvisionalAccuracy': 'Approximate location — drag the pin if it isn\'t on the hazard',
 
       'report.pinAccuracyAdjusted': 'Pin adjusted — looks good',
 
@@ -2869,7 +2869,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoNext': 'Selected: {hazard} — tap Submit when ready',
 
-      'report.photoNextPin': 'Selected: {hazard} — drag the pin onto the hazard, then Submit',
+      'report.photoNextPin': 'Selected: {hazard} — Submit when ready (drag the pin only if needed)',
 
       'report.photoEvidence': 'Photo',
 
@@ -4419,7 +4419,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'Location is outside your selected city. Move the pin inside city limits or update your city in Profile.',
 
-      'toast.pinConfirmRequired': 'Confirm the pin on the map — drag it onto the hazard before submitting.',
+      'toast.pinConfirmRequired': 'You can drag the pin on the map if the location isn\'t exact.',
 
       'toast.hazardTypeRequired': 'Choose what you\'re reporting before submitting.',
 
@@ -5230,17 +5230,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'पिन सही जगह पर नहीं है तो खींचकर ठीक करें',
 
-      'report.pinProvisionalDragHint': 'सबमिट करने के लिए पिन खतरे पर खींचें',
+      'report.pinProvisionalDragHint': 'जगह ठीक न हो तो पिन खींचें — ज़रूरी नहीं',
 
       'report.pinAccuracyGood': 'स्थान लगभग ~{m} मी सटीक',
 
       'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन खींचें या खुली जगह पर जाएँ',
 
-      'report.pinAccuracyPoor': 'स्थान अनुमानित (~{m} मी) — पिन खतरे पर खींचें',
+      'report.pinAccuracyPoor': 'स्थान अनुमानित (~{m} मी) — ज़रूरत हो तो पिन खींचें',
 
       'report.pinAccuracyUnknown': 'पिन खतरे पर है? ज़रूरत हो तो खींचें',
 
-      'report.pinProvisionalAccuracy': 'GPS खतरे पर नहीं है — पिन सही जगह पर खींचें',
+      'report.pinProvisionalAccuracy': 'अनुमानित स्थान — पिन खतरे पर न हो तो खींचें',
 
       'report.pinAccuracyAdjusted': 'पिन ठीक किया गया',
 
@@ -5284,7 +5284,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoNext': '{hazard} चुना — तैयार हो तो Submit दबाएँ',
 
-      'report.photoNextPin': '{hazard} चुना — पहले पिन खतरे पर खींचें, फिर Submit',
+      'report.photoNextPin': '{hazard} चुना — तैयार हों तो Submit (पिन केवल ज़रूरत पर खींचें)',
 
       'report.photoEvidence': 'फ़ोटो प्रमाण',
 
@@ -6836,7 +6836,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'स्थान आपके चुने शहर के बाहर है। पिन शहर की सीमा में लगाएँ या प्रोफ़ाइल में शहर बदलें।',
 
-      'toast.pinConfirmRequired': 'मैप पर पिन की पुष्टि करें — सबमिट से पहले पिन खतरे पर खींचें।',
+      'toast.pinConfirmRequired': 'जगह ठीक न हो तो मैप पर पिन खींच सकते हैं।',
 
       'toast.hazardTypeRequired': 'सबमिट से पहले खतरे का प्रकार चुनें।',
 
@@ -7646,17 +7646,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'पिन योग्य जागी नसेल तर ओढून ठेवा',
 
-      'report.pinProvisionalDragHint': 'पाठवण्यासाठी पिन धोक्यावर ओढा',
+      'report.pinProvisionalDragHint': 'जागा बरोबर नसेल तर पिन ओढा — ऐच्छिक',
 
       'report.pinAccuracyGood': 'स्थान सुमारे ~{m} मी अचूक',
 
       'report.pinAccuracyFair': 'स्थान ~{m} मी — पिन ओढा किंवा मोकळ्या जागी जा',
 
-      'report.pinAccuracyPoor': 'स्थान अंदाजे (~{m} मी) — पिन धोक्यावर ओढा',
+      'report.pinAccuracyPoor': 'स्थान अंदाजे (~{m} मी) — गरज असल्यास पिन ओढा',
 
       'report.pinAccuracyUnknown': 'पिन धोक्यावर आहे का? गरज असल्यास ओढा',
 
-      'report.pinProvisionalAccuracy': 'GPS धोक्यावर नाही — पिन योग्य जागी ओढा',
+      'report.pinProvisionalAccuracy': 'अंदाजे स्थान — पिन धोक्यावर नसेल तर ओढा',
 
       'report.pinAccuracyAdjusted': 'पिन सुधारला',
 
@@ -7700,7 +7700,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoNext': '{hazard} निवडले — तयार असल्यास Submit दाबा',
 
-      'report.photoNextPin': '{hazard} निवडले — आधी पिन धोक्यावर ओढा, नंतर Submit',
+      'report.photoNextPin': '{hazard} निवडले — तयार असल्यास Submit (गरज असल्यास पिन ओढा)',
 
       'report.photoEvidence': 'फोटो पुरावा',
 
@@ -9252,7 +9252,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'स्थान तुमच्या निवडलेल्या शहराच्या बाहेर आहे. पिन शहराच्या मर्यादेत ठेवा किंवा प्रोफाइलमध्ये शहर बदला.',
 
-      'toast.pinConfirmRequired': 'नकाशावर पिनची खात्री करा — पाठवण्यापूर्वी पिन धोक्यावर ओढा.',
+      'toast.pinConfirmRequired': 'जागा बरोबर नसेल तर नकाशावर पिन ओढू शकता.',
 
       'toast.hazardTypeRequired': 'पाठवण्यापूर्वी धोक्याचा प्रकार निवडा.',
 
@@ -10062,17 +10062,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinDragHint': 'પિન યોગ્ય જગ્યાએ ન હોય તો ખેંચીને સેટ કરો',
 
-      'report.pinProvisionalDragHint': 'સબમિટ કરવા માટે પિન જોખમ પર ખેંચો',
+      'report.pinProvisionalDragHint': 'જરૂર હોય તો પિન ખેંચો — વૈકલ્પિક',
 
       'report.pinAccuracyGood': 'સ્થાન આશરે ~{m} મી ચોક્કસ',
 
       'report.pinAccuracyFair': 'સ્થાન ~{m} મી — પિન ખેંચો અથવા ખુલ્લી જગ્યાએ જાઓ',
 
-      'report.pinAccuracyPoor': 'સ્થાન અંદાજે (~{m} મી) — પિન જોખમ પર ખેંચો',
+      'report.pinAccuracyPoor': 'સ્થાન અંદાજે (~{m} મી) — જરૂર હોય તો પિન ખેંચો',
 
       'report.pinAccuracyUnknown': 'પિન જોખમ પર છે? જરૂર હોય તો ખેંચો',
 
-      'report.pinProvisionalAccuracy': 'GPS જોખમ પર નથી — પિન યોગ્ય જગ્યાએ ખેંચો',
+      'report.pinProvisionalAccuracy': 'અંદાજિત સ્થાન — જોખમ પર ન હોય તો પિન ખેંચો',
 
       'report.pinAccuracyAdjusted': 'પિન સમાયોજિત',
 
@@ -10116,7 +10116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoNext': '{hazard} પસંદ — તૈયાર હો તો Submit દબાવો',
 
-      'report.photoNextPin': '{hazard} પસંદ — પહેલા પિન જોખમ પર ખેંચો, પછી Submit',
+      'report.photoNextPin': '{hazard} પસંદ — તૈયાર હો તો Submit (જરૂર હોય તો પિન ખેંચો)',
 
       'report.photoEvidence': 'ફોટો પુરાવો',
 
@@ -11668,7 +11668,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsOutsideCity': 'સ્થાન તમારા પસંદ કરેલા શહેરની બહાર છે. પિન શહેરની સીમામાં મૂકો અથવા પ્રોફાઇલમાં શહેર બદલો.',
 
-      'toast.pinConfirmRequired': 'નકશા પર પિનની પુષ્ટિ કરો — સબમિટ પહેલાં પિન જોખમ પર ખેંચો.',
+      'toast.pinConfirmRequired': 'જરૂર હોય તો નકશા પર પિન ખેંચીને ઠીક કરો — વૈકલ્પિક.',
 
       'toast.hazardTypeRequired': 'સબમિટ પહેલાં જોખમનો પ્રકાર પસંદ કરો.',
 
@@ -22469,6 +22469,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'confirm' });
 
+      unparkReportOverlayForPicker();
+
       showPhotoConfirm();
 
       finishReportPhotoFlow('syncReportPhotoReturn');
@@ -22477,11 +22479,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       scheduleReportPinMapResize();
 
-    } else if (!reportPhotoProcessing && (fromCameraFlow || reportPhotoFlowActive || isReportDraftAwaitingPhoto())) {
+    } else if (reportPhotoProcessing) {
+
+      // Decoding/scanning — show the report sheet again (was parked for the OS picker).
+      unparkReportOverlayForPicker();
+
+    } else if (fromCameraFlow || reportPhotoFlowActive || isReportDraftAwaitingPhoto()) {
 
       // reportPhotoProcessing means handlePhotoCapture is already decoding/scanning the
       // photo in the background — forcing the capture screen back here mid-flight is what
       // made "return from camera" look broken (see advanceReportPhotoReady for the real handoff).
+      // Stay parked while the OS picker may still be up; cancel/change handlers unpark.
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'capture' });
 
       updateReportFlowSteps('capture');
@@ -22524,6 +22532,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    unparkReportOverlayForPicker();
+
     debugLog('REPORT', 'reportPhotoProcessing', { value: false, where: src, wasActive });
 
   }
@@ -22544,6 +22554,8 @@ document.addEventListener('DOMContentLoaded', function () {
     debugLog('PHOTO', 'dismissGuard armed', { where: src, guardMs: PHOTO_RETURN_GUARD_MS });
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false });
+
+    unparkReportOverlayForPicker();
 
     ensureReportModalOpen();
 
@@ -22679,6 +22691,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function parkReportOverlayForPicker() {
+
+    const el = overlays.report;
+
+    if (el) el.classList.add('report-overlay--picker-parked');
+
+  }
+
+
+
+  function unparkReportOverlayForPicker() {
+
+    const el = overlays.report;
+
+    if (el) el.classList.remove('report-overlay--picker-parked');
+
+  }
+
+
+
+  /** Push history + open the system camera/gallery. Must stay sync in a user gesture. */
+  function launchReportPhotoInput() {
+
+    pushReportPhotoHistory();
+
+    const input = $('#photoInput');
+
+    if (input) input.click();
+
+  }
+
+
+
   function openReportPhotoPicker() {
 
     debugLog('PHOTO', 'openReportPhotoPicker', { reportPhotoProcessing });
@@ -22706,17 +22751,21 @@ document.addEventListener('DOMContentLoaded', function () {
     touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
     // Play prominent disclosure: show in-app camera purpose before OS camera / file picker.
+    // Continue must call launchReportPhotoInput() synchronously in that click handler
+    // (not via Promise.then / setTimeout) or iOS/Android WebViews drop the gesture.
     ensureCameraDisclosureThen(
 
       () => {
 
-        pushReportPhotoHistory();
+        parkReportOverlayForPicker();
 
-        input.click();
+        launchReportPhotoInput();
 
       },
 
       () => {
+
+        unparkReportOverlayForPicker();
 
         finishReportPhotoFlow('camera_disclosure_cancel');
 
@@ -23253,6 +23302,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderHazardPicker();
 
     resetSubmitReportButton();
+
+    unparkReportOverlayForPicker();
 
     openModal('report');
 
@@ -27710,6 +27761,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     armReportPhotoWatchdog(REPORT_PHOTO_PROCESSING_TIMEOUT_MS);
 
+    unparkReportOverlayForPicker();
+
     ensureReportModalOpen();
 
 
@@ -27975,13 +28028,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function showReportCameraDisclosureModal() {
+  function showReportCameraDisclosureModal(opts) {
+
+    const onContinueSync = opts && typeof opts.onContinueSync === 'function' ? opts.onContinueSync : null;
 
     return new Promise((resolve) => {
 
       const overlay = overlays.reportCamera;
 
       if (!overlay) {
+
+        if (onContinueSync) onContinueSync();
 
         resolve(true);
 
@@ -28007,7 +28064,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (btnCancel) btnCancel.textContent = t('common.cancel');
 
-      function finish(ok) {
+      function dismissCameraOverlayQuiet() {
+
+        // Close without restoreFocusTrapToTopmost() — focusing the report sheet
+        // before input.click() breaks the user-gesture chain on iOS/Android WebViews.
+        modalOpenOrder = modalOpenOrder.filter((n) => n !== 'reportCamera');
+
+        overlay.classList.remove('open');
+
+        overlay.setAttribute('aria-hidden', 'true');
+
+      }
+
+      function finish(ok, runSyncContinue) {
 
         if (!reportCameraDisclosureResolve) return;
 
@@ -28016,6 +28085,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btnContinue) btnContinue.removeEventListener('click', onContinue);
 
         if (btnCancel) btnCancel.removeEventListener('click', onCancel);
+
+        if (ok && runSyncContinue && onContinueSync) {
+
+          dismissCameraOverlayQuiet();
+
+          // Must stay inside the Continue click stack (no await / Promise.then).
+          onContinueSync();
+
+          resolve(true);
+
+          requestAnimationFrame(() => {
+
+            if (typeof restoreFocusTrapToTopmost === 'function') restoreFocusTrapToTopmost();
+
+          });
+
+          return;
+
+        }
 
         closeModal('reportCamera');
 
@@ -28027,11 +28115,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         markCameraDisclosureSeen();
 
-        finish(true);
+        finish(true, true);
 
       }
 
-      function onCancel() { finish(false); }
+      function onCancel() { finish(false, false); }
 
       if (btnContinue) btnContinue.addEventListener('click', onContinue);
 
@@ -28055,11 +28143,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    showReportCameraDisclosureModal().then((ok) => {
+    // Pass onContinue as sync hook so input.click() runs in the Continue click
+    // handler — not in a microtask after closeModal resolves the Promise.
+    showReportCameraDisclosureModal({ onContinueSync: onContinue }).then((ok) => {
 
-      if (ok) onContinue();
-
-      else if (typeof onCancel === 'function') onCancel();
+      if (!ok && typeof onCancel === 'function') onCancel();
 
     });
 
@@ -28391,32 +28479,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  /** Inline confirm-step copy when GPS is provisional — toast alone is too late. */
+  /** Inline confirm-step copy — drag is optional; soft hint when GPS is provisional. */
   function syncConfirmPinUiHints() {
 
-    const needsConfirm = confirmPinProvisional && !confirmPinUserAdjusted;
+    const softHint = confirmPinProvisional && !confirmPinUserAdjusted;
 
     const hint = $('#reportPinDragHint');
 
     if (hint) {
 
-      hint.textContent = t(needsConfirm ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
+      hint.textContent = t(softHint ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
 
-      hint.classList.toggle('report-pin-drag-hint--required', needsConfirm);
+      hint.classList.toggle('report-pin-drag-hint--required', softHint);
 
     }
 
     const pinBlock = $('#reportPinConfirm');
 
-    if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', needsConfirm);
+    if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', softHint);
 
     const fullMapBtn = $('#btnReportPinFullMap');
 
     if (fullMapBtn) {
 
-      fullMapBtn.classList.toggle('btn--secondary', needsConfirm);
+      fullMapBtn.classList.toggle('btn--secondary', softHint);
 
-      fullMapBtn.classList.toggle('btn--ghost', !needsConfirm);
+      fullMapBtn.classList.toggle('btn--ghost', !softHint);
 
     }
 
@@ -29696,9 +29784,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    if (confirmPinLat != null && confirmPinLng != null && !confirmPinProvisional) {
+    if (confirmPinLat != null && confirmPinLng != null) {
 
-      markSubmit('pin_ready');
+      // Provisional city-center / approximate GPS is allowed — drag-to-adjust is optional.
+      // Still sanitize in finishReportSubmitWithCoords (rejects truly out-of-city coords).
+      markSubmit(confirmPinProvisional && !confirmPinUserAdjusted ? 'pin_provisional' : 'pin_ready');
 
       finishReportSubmitWithCoords(
 
@@ -29713,38 +29803,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { manualPin: !!confirmPinUserAdjusted }
 
       );
-
-      return;
-
-    }
-
-    // Provisional city-center pin is intentional — do not re-fetch GPS (often still
-    // out-of-city, which produced a dead "outside city" toast with no recovery).
-    if (confirmPinLat != null && confirmPinLng != null && confirmPinProvisional) {
-
-      setButtonLoading(submitBtn, false);
-
-      debugLog('REPORT', 'submit blocked provisional pin', {
-
-        lat: confirmPinLat,
-
-        lng: confirmPinLng,
-
-      });
-
-      syncConfirmPinUiHints();
-
-      if (!isToastShowing('info', t('toast.pinConfirmRequired'))) {
-
-        showToast(t('toast.pinConfirmRequired'), 'info', 8000, {
-
-          label: t('report.placePinOnMap'),
-
-          onClick: () => focusConfirmPinMap(),
-
-        });
-
-      }
 
       return;
 

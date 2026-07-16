@@ -437,7 +437,8 @@
     </div>
   </div>
 
-  <!-- Camera in-context disclosure (Play / DPDP — before system camera prompt) -->
+  <!-- Camera in-context disclosure (Play / DPDP — before system camera prompt).
+       Lives above the report sheet in z-index; keep outside #reportOverlay. -->
   <div class="modal-overlay" id="reportCameraOverlay" aria-hidden="true">
     <div class="modal modal--sm" id="reportCameraModal" role="dialog" aria-modal="true" aria-labelledby="reportCameraTitle" aria-describedby="reportCameraBody">
       <div class="modal__handle"></div>
@@ -452,6 +453,9 @@
     </div>
   </div>
 
+  <!-- Outside report sheet so parking the overlay for the OS picker never hides the input. -->
+  <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
     <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
@@ -463,7 +467,6 @@
       </div>
       <div class="flow-progress" aria-hidden="true"><div class="flow-progress__fill" id="reportFlowFill"></div></div>
       <input type="hidden" id="hazardType" value="stagnant-water">
-      <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
 
       <!-- Screen A: camera capture (minimal chrome) -->
       <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
