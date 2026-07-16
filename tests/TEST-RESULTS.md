@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-14 08:31:28
+**Run:** 2026-07-16 04:59:06
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 412 | **Pass:** 404 | **Fail:** 8
+**Total:** 417 | **Pass:** 417 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -110,9 +110,9 @@
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
 - **Profile:** 4 pass / 0 fail
-- **Referral:** 3 pass / 1 fail
+- **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
-- **Report:** 31 pass / 2 fail
+- **Report:** 34 pass / 0 fail
 - **Rewards:** 2 pass / 0 fail
 - **Security:** 1 pass / 0 fail
 - **Share:** 1 pass / 0 fail
@@ -121,30 +121,19 @@
 - **Storage:** 2 pass / 0 fail
 - **Store:** 1 pass / 0 fail
 - **Sync:** 1 pass / 0 fail
-- **System:** 0 pass / 1 fail
-- **Tour:** 4 pass / 0 fail
+- **Tour:** 9 pass / 0 fail
 - **Tracking:** 5 pass / 0 fail
-- **UI:** 35 pass / 3 fail
+- **UI:** 38 pass / 0 fail
 - **Viral:** 4 pass / 0 fail
 - **Volunteer:** 7 pass / 0 fail
 - **Ward:** 8 pass / 0 fail
-- **XP:** 3 pass / 1 fail
+- **XP:** 4 pass / 0 fail
 - **i18n:** 9 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
 
 ## Failures
 
-- `RF01` **Ref param shows welcome banner** — failed
-- `U25` **closeAllModals closes report with photo** — failed
-- `U26` **Community nav clears stacked report** — failed
-- `U28b` **Warm resume preserves; stale resets to map** — failed
-- `RP23` **GPS denied → manual pin submit** — toast=True mode=False pin=False stored=False
-- `RP27` **Photo→confirm pin map Leaflet sized + sync keeps confirm** — {'ok': False, 'sized': False, 'confirmOk': True, 'w': None, 'h': None}
-- `XP03` **Level up shows certificate offer** — failed
-- `ERR-Tour` **Suite Tour crashed** — Page.reload: Timeout 30000ms exceeded.
-Call log:
-  - waiting for navigation until "domcontentloaded"
-
+_None_
 
 ## Limitations
 
@@ -170,7 +159,7 @@ Call log:
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Map Sherpa · Dadar, Shiva #CBA |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective F298 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -179,8 +168,8 @@ Call log:
 | C10-gu | Citizen | Language switch GU | PASS |  |
 | C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
-| C15 | Citizen | GPS denied blocks submit | PASS | toast='Confirm the pin on the map — drag it onto the hazard before submitting.×Place pin on map' |
-| C16 | Citizen | Report submit success modal | PASS | rid=None |
+| C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
+| C16 | Citizen | Report submit success modal | PASS | rid=8f082015-aa44-4e9d-ab04-a0f6b2351546 |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
@@ -238,8 +227,8 @@ Call log:
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.05s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 18ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -321,7 +310,7 @@ Call log:
 | D06 | Demo | Persona mode skips ToS | PASS |  |
 | D07 | Demo | Persona mode map visible | PASS |  |
 | D08 | Demo | Persona startPersonaDemo exported | PASS |  |
-| RF01 | Referral | Ref param shows welcome banner | **FAIL** |  |
+| RF01 | Referral | Ref param shows welcome banner | PASS |  |
 | RF02 | Referral | Ref dismiss hides banner | PASS |  |
 | RF03 | Referral | Ref dismiss sets seen flag | PASS |  |
 | RF04 | Referral | Ref hidden in demo tour | PASS |  |
@@ -346,11 +335,11 @@ Call log:
 | U12 | UI | Profile nav opens modal | PASS |  |
 | U12b | UI | Resources nav opens modal | PASS |  |
 | U13 | UI | Map nav closes modals | PASS |  |
-| U25 | UI | closeAllModals closes report with photo | **FAIL** |  |
-| U26 | UI | Community nav clears stacked report | **FAIL** |  |
+| U25 | UI | closeAllModals closes report with photo | PASS |  |
+| U26 | UI | Community nav clears stacked report | PASS |  |
 | U27 | UI | Profile nav clears pledge stack | PASS |  |
 | U28 | UI | Session reset returns to map home | PASS |  |
-| U28b | UI | Warm resume preserves; stale resets to map | **FAIL** |  |
+| U28b | UI | Warm resume preserves; stale resets to map | PASS |  |
 | U21 | UI | Community close btn returns to Map | PASS |  |
 | U22 | UI | Profile close btn returns to Map | PASS |  |
 | U23 | UI | Community backdrop tap returns to Map | PASS |  |
@@ -380,10 +369,10 @@ Call log:
 | RP07 | Report | Report stored in localStorage | PASS |  |
 | RP08 | Report | Success overlay has celebrate el | PASS |  |
 | RP26 | Report | Success thumbnail src visible after submit | PASS |  |
-| RP23 | Report | GPS denied → manual pin submit | **FAIL** | toast=True mode=False pin=False stored=False |
+| RP23 | Report | GPS denied → provisional pin submit without drag | PASS | success=True stored=True |
 | RP24 | Report | Confirm step shows pin map + accuracy + landmark notes | PASS | {'mapOk': True, 'accOk': True, 'hintOk': True, 'notesOpen': True, 'landmarkPh': True} |
 | RP25 | Report | Confirm pin coords used on submit | PASS | seeded=True {'ok': True, 'lat': 19.0801, 'lng': 72.8812} |
-| RP27 | Report | Photo→confirm pin map Leaflet sized + sync keeps confirm | **FAIL** | {'ok': False, 'sized': False, 'confirmOk': True, 'w': None, 'h': None} |
+| RP27 | Report | Photo→confirm pin map Leaflet sized + sync keeps confirm | PASS | {'ok': True, 'sized': True, 'confirmOk': True, 'w': 348, 'h': 160} |
 | RP28 | Report | Share nudge suppressed while report modal open | PASS | {'ok': True, 'overlayOpen': True, 'hasNudge': False, 'texts': ['first report logged — welcome aboard! 🌧️']} |
 | RP13 | Report | First report shows celebrate + progress | PASS | celebrate="Your first report — your lane " progress="Badge unlocked! 2 more to your" |
 | RP14 | Report | Non-milestone report shows rotating kudos | PASS | celebrate="Logged! Thanks for looking out for your " |
@@ -394,13 +383,14 @@ Call log:
 | XP01b | XP | Profile shows total XP after report | PASS | xp="125" |
 | XP02 | XP | Me too adds Civic Points | PASS |  |
 | MT01 | Citizen | Duplicate Me too blocked per report | PASS |  |
-| XP03 | XP | Level up shows certificate offer | **FAIL** |  |
+| XP03 | XP | Level up shows certificate offer | PASS |  |
 | RP09 | Report | Near-duplicate triggers Me too | PASS |  |
 | RP10 | Report | Report notes maxlength enforced | PASS |  |
 | RP11 | Report | Photo accept stays on confirm step | PASS |  |
 | RP11b | Report | Confirm step is scrollable overflow container | PASS |  |
 | RP12 | Report | Popstate+Map tap during photo keeps report open | PASS |  |
 | RP12b | Report | Camera cancel + Map tap keeps report open at capture | PASS |  |
+| RP12c | Report | Camera disclosure stacks above report; Continue parks for picker | PASS |  |
 | VOL01 | Volunteer | Blocked without neighbourhood | PASS |  |
 | VOL02 | Volunteer | Blocked without skills | PASS |  |
 | VOL03 | Volunteer | Signup saved with valid data | PASS |  |
@@ -509,10 +499,11 @@ Call log:
 | TR02 | Tour | Replay-tour entry present in Profile | PASS |  |
 | TR03 | Tour | Tour auto-shows after coach explainer on first run | PASS |  |
 | TR04 | Tour | Completing tour hides overlay + sets seen flag | PASS |  |
-| ERR-Tour | System | Suite Tour crashed | **FAIL** | Page.reload: Timeout 30000ms exceeded.
-Call log:
-  - waiting for navigation until "domcontentloaded"
- |
+| TR06 | Tour | Tour does not reappear on reload once seen | PASS |  |
+| TR05 | Tour | Skip hides tour + sets seen flag | PASS |  |
+| TR07 | Tour | Replay entry restarts tour on demand | PASS |  |
+| TR08 | Tour | Tour does NOT show in demo mode | PASS |  |
+| TR09 | Tour | Tour does NOT show for referral (?ref=) entry | PASS |  |
 | RR01 | Reminder | Report-reminder opt-in toggle present | PASS |  |
 | RR02 | Reminder | Enable persists opt-in with no Notification API (no error) | PASS |  |
 | RR03 | Reminder | Disable persists opt-out | PASS |  |

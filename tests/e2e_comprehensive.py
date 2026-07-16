@@ -620,6 +620,18 @@ async def js_click(page, selector: str):
 
     )
 
+
+async def dismiss_toasts(page):
+    """Clear toast stack so overlays do not intercept Playwright pointer clicks."""
+    await page.evaluate(
+        """() => {
+          const tc = document.getElementById('toastContainer');
+          if (tc) tc.innerHTML = '';
+          document.body.classList.remove('pwa-nudge-visible');
+        }"""
+    )
+
+
 async def dismiss_civic_comboboxes(page):
     await page.evaluate(
         '''() => {
@@ -657,8 +669,21 @@ async def wait_for_map_ready(page, timeout=20000):
 
 
 async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test hazard'):
+    # Photo-first flow + optional ImageModeration scan need the report sheet open;
+    # moderation alone can take several seconds after click.
+    await page.evaluate(
+        """() => {
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          try { localStorage.setItem('civicradar_report_geo_explainer', '1'); } catch (_) {}
+          if (typeof window.openReportModal === 'function') window.openReportModal(false);
+        }"""
+    )
+    try:
+        await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
+    except Exception:
+        pass
 
-    rid = await page.evaluate(
+    await page.evaluate(
 
         """async ([lat, lng, notes]) => {
 
@@ -710,19 +735,38 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
 
           document.getElementById('btnSubmitReport').click();
 
-          await new Promise(r => setTimeout(r, 1800));
-
-          return window.lastReportId || null;
-
         }""",
 
         [lat, lng, notes],
 
     )
 
-    await page.wait_for_timeout(400)
+    try:
+        await page.wait_for_function(
+            """(notes) => {
+              const reps = JSON.parse(localStorage.getItem('mosquiTrackReports') || '[]');
+              if (reps.some((r) => r.notes === notes)) return true;
+              if (document.getElementById('successOverlay')?.classList.contains('open')) return true;
+              // Near-duplicate path: Me too / corroborate toast, no new report row.
+              const toast = (document.getElementById('toastContainer')?.textContent || '').toLowerCase();
+              return toast.includes('me too') || toast.includes('already') || toast.includes('corroborat');
+            }""",
+            arg=notes,
+            timeout=12000,
+        )
+    except Exception:
+        pass
 
-    return rid
+    await page.wait_for_timeout(200)
+
+    return await page.evaluate(
+        """(notes) => {
+          const reps = JSON.parse(localStorage.getItem('mosquiTrackReports') || '[]');
+          const hit = reps.find((r) => r.notes === notes);
+          return hit ? hit.id : null;
+        }""",
+        notes,
+    )
 
 
 
@@ -1632,17 +1676,19 @@ async def run_ngo_admin_tests(s: Suite, browser):
 
         await page.wait_for_timeout(400)
 
-        await page.click('#btnMarkResolved')
+        # Admin-verified / reminder toasts sit above the sheet and block Playwright clicks.
+        await dismiss_toasts(page)
 
-        await page.wait_for_timeout(300)
+        # First resolve tap confirms + prompts for after photo (second tap opens file picker).
+        await js_click(page, '#btnMarkResolved')
 
-        await page.click('#btnMarkResolved')
-
-        await page.wait_for_timeout(300)
+        await page.wait_for_timeout(400)
 
         t = await toast_text(page)
 
-        s.record('A07', 'BMC', 'Resolve requires proof photo', 'proof' in t.lower() or 'photo' in t.lower())
+        tl = t.lower()
+
+        s.record('A07', 'BMC', 'Resolve requires proof photo', 'proof' in tl or 'photo' in tl or 'after' in tl)
 
     else:
 
@@ -3540,18 +3586,26 @@ async def run_extended_scenarios(s: Suite, browser):
 
     rid = await submit_report_via_api(page, 19.0762, 72.8779, 'extended test')
 
+    try:
+        await page.wait_for_function(
+            '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "extended test")',
+            timeout=5000,
+        )
+    except Exception:
+        pass
+
     s.record('RP07', 'Report', 'Report stored in localStorage', await page.evaluate(
 
-        f'() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "extended test")'
+        '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "extended test")'
 
-    ))
+    ) or bool(rid))
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
     # RP26 — success thumbnail must survive resetReportForm (ship-glitch class)
     await page.wait_for_function(
         '() => document.getElementById("successOverlay")?.classList.contains("open")',
-        timeout=8000,
+        timeout=12000,
     )
     thumb_ok = await page.evaluate(
         """() => {
@@ -8277,17 +8331,25 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     rid = await submit_report_via_api(page, 19.0762, 72.8779, 'smoke extended test')
 
+    try:
+        await page.wait_for_function(
+            '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "smoke extended test")',
+            timeout=5000,
+        )
+    except Exception:
+        pass
+
     s.record('RP07', 'Report', 'Report stored in localStorage', await page.evaluate(
 
         '() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").some(r => r.notes === "smoke extended test")'
 
-    ))
+    ) or bool(rid))
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
     await page.wait_for_function(
         '() => document.getElementById("successOverlay")?.classList.contains("open")',
-        timeout=8000,
+        timeout=12000,
     )
     thumb_ok = await page.evaluate(
         """() => {
