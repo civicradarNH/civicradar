@@ -30,7 +30,7 @@ Trusted Web Activity wraps your PWA in Chrome Custom Tabs with your domain verif
 2. Install [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) or use PWABuilder.
 3. Set `packageId` to **`in.civicradar.app`**, app name, icon (512×512 PNG).
 4. Configure **Digital Asset Links** — repo ships `.well-known/assetlinks.json` (deployed to `https://civicradarnh.github.io/civicradar/.well-known/assetlinks.json`). Paste your Play Console **App signing SHA-256** into that file before expecting verified App Links.
-5. Target **API 34+** (Google Play requirement; check current target API in Play Console).
+5. Target **API 35+ / API 36** when Play Console requires it (Android 15–16 edge-to-edge). Set `targetSdkVersion` / `compileSdk` in the Bubblewrap / `civicradar-android` project — not in this web repo.
 6. Declare permissions in Play Console matching the app:
    - **Location** (precise) — hazard pin accuracy
    - **Camera** — hazard photo evidence

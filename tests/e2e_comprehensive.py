@@ -864,7 +864,9 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C04b', 'Citizen', 'City picker defaults to Mumbai', city_val == 'mumbai', f'city={city_val}')
 
-
+    # Play / DPDP: GPS is opt-in — tap Detect ward with GPS before OS prompt.
+    if await page.is_visible('#btnWardDetectGps'):
+        await js_click(page, '#btnWardDetectGps')
 
     # Ward GPS detect uses getPrecisePosition (may need a short settle after ToS → onboarding).
 
@@ -2655,6 +2657,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.evaluate('() => document.getElementById("onboardCity").dispatchEvent(new Event("change", { bubbles: true }))')
 
+    if await page.is_visible('#btnWardDetectGps'):
+        await js_click(page, '#btnWardDetectGps')
+
     # Must wait for Thane-specific result — Mumbai may already have filled wardDetectedName
     # (19.20, 72.98 sits in Mumbai T Ward / Mulund before city switch).
     await page.wait_for_function(
@@ -2700,6 +2705,9 @@ async def run_extended_scenarios(s: Suite, browser):
     await page.evaluate('() => document.getElementById("onboardCity").value = "pune"')
 
     await page.evaluate('() => document.getElementById("onboardCity").dispatchEvent(new Event("change", { bubbles: true }))')
+
+    if await page.is_visible('#btnWardDetectGps'):
+        await js_click(page, '#btnWardDetectGps')
 
     await page.wait_for_function(
 
@@ -4283,6 +4291,8 @@ async def run_extended_scenarios(s: Suite, browser):
 
         """() => {
 
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+
           window.openReportModal(false);
 
           document.getElementById('btnTakePhoto').click();
@@ -5217,7 +5227,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v228" in sw_src
+            "civicradar-v229" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8358,7 +8368,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v228" in sw_src
+            "civicradar-v229" in sw_src
 
             and "'/index.html'" not in sw_src
 

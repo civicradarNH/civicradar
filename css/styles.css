@@ -437,6 +437,17 @@ body.app-booting {
   margin: 0 0 14px;
 }
 
+.ward-detect-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ward-detect-prompt.hidden {
+  display: none;
+}
+
 .ward-detect-status {
   display: flex;
   align-items: center;

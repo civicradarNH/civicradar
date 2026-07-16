@@ -2,9 +2,9 @@
 
 **Audit date:** 4 July 2026 (July re-audit)
 
-**App version:** `v120` — Cloudflare Turnstile captcha on Supabase auth (site key in `js/config.js`; secret is founder-only in Supabase dashboard)
+**App version:** `v229` — Closed Testing Play pre-submission audit (GPS/camera in-context disclosure, assetlinks template, SW offline shell)
 
-**Verdict:** **Ready with 6 founder steps** — config, PWA icons, and deploy workflow are in place; founder must complete Supabase dashboard setup, HTTPS deploy, counsel review, and phone smoke test before real users.
+**Verdict:** **Ready with founder Android + Play Console steps** — web PWA remediations for Closed Testing are in-repo; founder must paste Play App Signing SHA-256 into assetlinks, complete Data Safety form, and ship the TWA AAB from `civicradar-android`.
 
 ---
 
@@ -171,7 +171,7 @@ One ward, 2–3 WhatsApp groups. Share `publicUrl` + NGO code with coordinator.
 | TODO / FIXME in app code | ✅ None |
 | XSS sanitization | ✅ User inputs sanitized |
 | Analytics + GPS consent unbundled | ✅ Separate from ToS accept |
-| Service worker cache version | ✅ `civicradar-v126` |
+| Service worker cache version | ✅ `civicradar-v229` |
 | Legal page links | ✅ privacy ↔ terms ↔ index |
 | Legal emails in config | ✅ `civicradarnh@gmail.com` |
 | Turnstile integration (v120) | ✅ Site key in config; secret founder-only in Supabase |
@@ -209,7 +209,7 @@ Application code is at **v120** with Turnstile captcha wired for Supabase auth. 
 | Live URL | `https://civicradarnh.github.io/civicradar/` |
 | Files deployed | `index.html`, legal pages, `manifest.json`, `sw.js`, `robots.txt`, `.well-known/assetlinks.json`, `css/`, `js/`, `assets/` |
 | CI gate | Smoke E2E on push; **Skip E2E** available via workflow_dispatch |
-| After deploy | Hard refresh; SW `civicradar-v126` |
+| After deploy | Hard refresh; SW `civicradar-v229` |
 
 See **LAUNCH-WALKTHROUGH.md** for step-by-step commands.
 

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v228';
+  const CIVIC_APP_VERSION = 'v229';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const REPORT_DRAFT_TTL_MS = 30 * 60 * 1000;
 
   const REPORT_GEO_EXPLAINER_KEY = 'civicradar_report_geo_explainer';
+
+  const REPORT_CAMERA_DISCLOSURE_KEY = 'civicradar_report_camera_disclosure';
 
   const REPORT_NOTES_MAX = 2000;
 
@@ -731,6 +733,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let reportGeoExplainerResolve = null;
 
+  let reportCameraDisclosureResolve = null;
+
   let genericConfirmResolve = null;
 
   let appHiddenAt = 0;
@@ -832,6 +836,8 @@ document.addEventListener('DOMContentLoaded', function () {
     report: $('#reportOverlay'),
 
     reportGeo: $('#reportGeoOverlay'),
+
+    reportCamera: $('#reportCameraOverlay'),
 
     success: $('#successOverlay'),
 
@@ -2669,9 +2675,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': 'Ward hazard map for {city}',
 
-      'location.banner': 'Turn on location to pin hazards accurately.',
+      'location.banner': 'CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.',
 
-      'location.bannerNearby': 'Enable location to report hazards and see nearby issues.',
+      'location.bannerNearby': 'Enable location to pin hazards on the community map and see nearby issues. Location is shared only as report pins — not sold.',
 
       'location.unavailable': 'Location unavailable in this browser.',
 
@@ -2749,7 +2755,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'Your city',
 
-      'onboard.cityHint': 'Pick where you live — we\'ll find your ward from your location next.',
+      'onboard.cityHint': 'Pick where you live — then choose your ward or detect it with location.',
 
       'onboard.ward': 'Your ward',
 
@@ -2759,7 +2765,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'Show all options',
 
-      'onboard.wardHint': 'Pick from {city}\'s wards, or let us detect it.',
+      'onboard.wardHint': 'Pick from {city}\'s wards, or detect with GPS.',
 
       'onboard.wardDetecting': 'Finding your ward from your location…',
 
@@ -2770,6 +2776,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardRetry': 'Try again',
 
       'onboard.wardDetectFailed': 'Couldn\'t find your ward. Pick it yourself, or turn on location.',
+
+      'onboard.gpsDisclosure': 'Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.',
+
+      'onboard.wardDetectCta': 'Detect ward with GPS',
 
       'onboard.name': 'Display name',
 
@@ -2831,11 +2841,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'Pin this hazard on the map',
 
-      'report.geoExplainerBody': 'We need your location only to pin the hazard — nothing else.',
+      'report.geoExplainerBody': 'We use your precise location only to place this hazard pin on the community map. Pins and photos are visible to neighbours in your ward. We do not sell your location.',
 
       'report.geoExplainerContinue': 'Use my location',
 
       'report.geoExplainerManual': 'Place pin on map instead',
+
+      'report.cameraDisclosureTitle': 'Photo for your hazard report',
+
+      'report.cameraDisclosureBody': 'CivicRadar uses the camera only to capture hazard evidence. Photos appear on the community map. EXIF location is stripped on-device. Avoid faces and documents.',
+
+      'report.cameraDisclosureContinue': 'Continue to camera',
 
       'report.manualPinBanner': 'Tap the map where the hazard is',
 
@@ -2873,15 +2889,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'Retake photo',
 
-      'moderation.guidelines': 'Snap a clear photo of the hazard — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines': 'Camera is used only for hazard evidence — photos appear on the community map. Tap Take photo when ready. Avoid faces and documents. EXIF location is stripped on-device.',
 
-      'moderation.guidelines.stagnant-water': 'Snap the stagnant water — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.stagnant-water': 'Snap the stagnant water — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
 
-      'moderation.guidelines.garbage': 'Snap the garbage pile or dump — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.garbage': 'Snap the garbage pile or dump — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
 
-      'moderation.guidelines.potholes': 'Snap the pothole or road damage — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.potholes': 'Snap the pothole or road damage — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
 
-      'moderation.guidelines.streetlight': 'Snap the broken streetlight — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.',
+      'moderation.guidelines.streetlight': 'Snap the broken streetlight — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
 
       'moderation.scanning': 'Checking photo…',
 
@@ -5074,9 +5090,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} के लिए वार्ड खतरा नक्शा',
 
-      'location.banner': 'सटीक रिपोर्ट के लिए स्थान चालू करें।',
+      'location.banner': 'CivicRadar सटीक स्थान से खतरे को सामुदायिक नक्शे पर पिन करता है (पड़ोसियों को दिखता है)। चालू करें दबाएँ — या रिपोर्ट करते समय मैन्युअल पिन लगाएँ।',
 
-      'location.bannerNearby': 'खतरे रिपोर्ट करने और आस-पास की समस्याएँ देखने के लिए स्थान चालू करें।',
+      'location.bannerNearby': 'खतरे पिन करने और आस-पास की समस्याएँ देखने के लिए स्थान चालू करें। स्थान सिर्फ रिपोर्ट पिन के रूप में साझा होता है — बेचा नहीं जाता।',
 
       'location.unavailable': 'इस ब्राउज़र में स्थान उपलब्ध नहीं है।',
 
@@ -5154,7 +5170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'आपका शहर',
 
-      'onboard.cityHint': 'चुनें कि आप कहाँ रहते हैं — अगले चरण में हम आपके स्थान से आपका वार्ड ढूंढेंगे।',
+      'onboard.cityHint': 'चुनें कि आप कहाँ रहते हैं — फिर वार्ड चुनें या GPS से पता लगाएँ।',
 
       'onboard.ward': 'आपका वार्ड',
 
@@ -5164,7 +5180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सभी विकल्प दिखाएँ',
 
-      'onboard.wardHint': '{city} के वार्डों में से चुनें, या हमें पता लगाने दें।',
+      'onboard.wardHint': '{city} के वार्डों में से चुनें, या GPS से पता लगाएँ।',
 
       'onboard.wardDetecting': 'आपके स्थान से आपका वार्ड ढूंढ रहे हैं…',
 
@@ -5175,6 +5191,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardRetry': 'फिर कोशिश करें',
 
       'onboard.wardDetectFailed': 'आपका वार्ड नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
+
+      'onboard.gpsDisclosure': 'वैकल्पिक: CivicRadar एक बार आपके सटीक स्थान से वार्ड सुझा सकता है। रिपोर्ट दर्ज करने तक स्थान नक्शे पर साझा नहीं होता। आप सूची से भी वार्ड चुन सकते हैं।',
+
+      'onboard.wardDetectCta': 'GPS से वार्ड पता लगाएँ',
 
       'onboard.name': 'प्रदर्शित नाम',
 
@@ -5236,11 +5256,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'खतरे को मैप पर पिन करें',
 
-      'report.geoExplainerBody': 'हमें आपकी लोकेशन सिर्फ खतरे को पिन करने के लिए चाहिए — और कुछ नहीं।',
+      'report.geoExplainerBody': 'हम आपका सटीक स्थान सिर्फ इस खतरे को सामुदायिक नक्शे पर पिन करने के लिए उपयोग करते हैं। पिन और फ़ोटो आपके वार्ड के पड़ोसियों को दिखते हैं। हम स्थान नहीं बेचते।',
 
       'report.geoExplainerContinue': 'मेरी लोकेशन उपयोग करें',
 
       'report.geoExplainerManual': 'मैप पर पिन लगाएँ',
+
+      'report.cameraDisclosureTitle': 'खतरा रिपोर्ट के लिए फ़ोटो',
+
+      'report.cameraDisclosureBody': 'CivicRadar कैमरा सिर्फ खतरे का प्रमाण लेने के लिए उपयोग करता है। फ़ोटो सामुदायिक नक्शे पर दिखती हैं। EXIF स्थान डिवाइस पर हटाया जाता है। चेहरे और दस्तावेज़ न लें।',
+
+      'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
       'report.manualPinBanner': 'जहाँ खतरा है वहाँ मैप पर टैप करें',
 
@@ -5278,15 +5304,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'फिर से लें',
 
-      'moderation.guidelines': 'खतरे की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines': 'कैमरा सिर्फ खतरे के प्रमाण के लिए — फ़ोटो सामुदायिक नक्शे पर दिखती हैं। तैयार होने पर फ़ोटो लें दबाएँ। चेहरे और दस्तावेज़ न लें। EXIF स्थान डिवाइस पर हटाया जाता है।',
 
-      'moderation.guidelines.stagnant-water': 'रुके हुए पानी की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.stagnant-water': 'रुके हुए पानी की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
 
-      'moderation.guidelines.garbage': 'कचरे के ढेर या डंप की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.garbage': 'कचरे के ढेर की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
 
-      'moderation.guidelines.potholes': 'गड्ढे या सड़क की क्षति की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.potholes': 'गड्ढे की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
 
-      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की स्पष्ट फ़ोटो लें — नीचे बटन दबाएँ। चेहरे, दस्तावेज़ या असंबंधित वस्तुएँ नहीं। स्थान डेटा गोपनीयता के लिए हटाया जाता है।',
+      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
 
       'moderation.scanning': 'फ़ोटो सुरक्षा जाँच हो रही है…',
 
@@ -7480,9 +7506,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} साठी वॉर्ड धोका नकाशा',
 
-      'location.banner': 'अचूक तक्रारीसाठी स्थान चालू करा.',
+      'location.banner': 'CivicRadar अचूक स्थानाने धोके सामुदायिक नकाशावर पिन करते (शेजाऱ्यांना दिसते). चालू करा दाबा — किंवा तक्रार करताना मॅन्युअल पिन लावा.',
 
-      'location.bannerNearby': 'धोके नोंदवण्यासाठी आणि जवळपासच्या समस्या पाहण्यासाठी स्थान चालू करा.',
+      'location.bannerNearby': 'धोके पिन करण्यासाठी आणि जवळपासच्या समस्या पाहण्यासाठी स्थान चालू करा. स्थान फक्त तक्रार पिन म्हणून शेअर होते — विकले जात नाही.',
 
       'location.unavailable': 'या ब्राउझरमध्ये स्थान उपलब्ध नाही.',
 
@@ -7560,7 +7586,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'तुमचे शहर',
 
-      'onboard.cityHint': 'कुठे राहता ते निवडा — पुढच्या टप्प्यात आम्ही तुमच्या स्थानावरून वॉर्ड शोधू.',
+      'onboard.cityHint': 'कुठे राहता ते निवडा — नंतर वॉर्ड निवडा किंवा GPS ने शोधा.',
 
       'onboard.ward': 'तुमचा वॉर्ड',
 
@@ -7570,7 +7596,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सर्व पर्याय दाखवा',
 
-      'onboard.wardHint': '{city} च्या वॉर्डांमधून निवडा, किंवा आम्हाला शोधू द्या.',
+      'onboard.wardHint': '{city} च्या वॉर्डांमधून निवडा, किंवा GPS ने शोधा.',
 
       'onboard.wardDetecting': 'तुमच्या स्थानावरून तुमचा वॉर्ड शोधत आहोत…',
 
@@ -7581,6 +7607,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardRetry': 'पुन्हा प्रयत्न करा',
 
       'onboard.wardDetectFailed': 'तुमचा वॉर्ड सापडला नाही. स्वतः निवडा, किंवा लोकेशन सुरू करा.',
+
+      'onboard.gpsDisclosure': 'ऐच्छिक: CivicRadar एकदा तुमच्या अचूक स्थानाने वॉर्ड सुचवू शकते. तक्रार दाखल करेपर्यंत स्थान नकाशावर शेअर होत नाही. यादीतूनही वॉर्ड निवडता येईल.',
+
+      'onboard.wardDetectCta': 'GPS ने वॉर्ड शोधा',
 
       'onboard.name': 'प्रदर्शित नाव',
 
@@ -7642,11 +7672,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'धोका नकाशावर पिन करा',
 
-      'report.geoExplainerBody': 'धोका पिन करण्यासाठीच आम्हाला तुमचे स्थान हवे — इतर काही नाही.',
+      'report.geoExplainerBody': 'आम्ही तुमचे अचूक स्थान फक्त हा धोका सामुदायिक नकाशावर पिन करण्यासाठी वापरतो. पिन आणि फोटो तुमच्या वॉर्डच्या शेजाऱ्यांना दिसतात. आम्ही स्थान विकत नाही.',
 
       'report.geoExplainerContinue': 'माझे स्थान वापरा',
 
       'report.geoExplainerManual': 'नकाशावर पिन लावा',
+
+      'report.cameraDisclosureTitle': 'धोका तक्रारीसाठी फोटो',
+
+      'report.cameraDisclosureBody': 'CivicRadar कॅमेरा फक्त धोक्याचा पुरावा घेण्यासाठी वापरतो. फोटो सामुदायिक नकाशावर दिसतात. EXIF स्थान डिव्हाइसवर काढले जाते. चेहरे आणि कागदपत्रे टाळा.',
+
+      'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
       'report.manualPinBanner': 'धोका जिथे आहे तिथे नकाशावर टॅप करा',
 
@@ -7684,15 +7720,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'पुन्हा काढा',
 
-      'moderation.guidelines': 'धोक्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी — फोटो सामुदायिक नकाशावर दिसतात. तयार असल्यास फोटो काढा दाबा. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान डिव्हाइसवर काढले जाते.',
 
-      'moderation.guidelines.stagnant-water': 'साचलेल्या पाण्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.stagnant-water': 'साचलेल्या पाण्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
 
-      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा किंवा डंपचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
 
-      'moderation.guidelines.potholes': 'खड्ड्याचा किंवा रस्त्याच्या नुकसानाचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.potholes': 'खड्ड्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
 
-      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा स्पष्ट फोटो काढा — खालील बटण दाबा. चेहरे, कागदपत्रे किंवा असंबंधित वस्तू नाहीत. स्थान डेटा गोपनीयतेसाठी काढला जातो.',
+      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
 
       'moderation.scanning': 'फोटो सुरक्षा तपासणी…',
 
@@ -9886,9 +9922,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} માટે વોર્ડ જોખમ નકશો',
 
-      'location.banner': 'સચોટ ફરિયાદ માટે સ્થાન ચાલુ કરો.',
+      'location.banner': 'CivicRadar ચોક્કસ સ્થાનથી જોખમો સમુદાય નકશા પર પિન કરે છે (પડોશીઓને દેખાય). ચાલુ કરો દબાવો — અથવા ફરિયાદ કરતી વખતે મેન્યુઅલ પિન મૂકો.',
 
-      'location.bannerNearby': 'જોખમોની ફરિયાદ કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો.',
+      'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો. સ્થાન ફક્ત રિપોર્ટ પિન તરીકે શેર થાય છે — વેચાતું નથી.',
 
       'location.unavailable': 'આ બ્રાઉઝરમાં સ્થાન ઉપલબ્ધ નથી.',
 
@@ -9966,7 +10002,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'તમારું શહેર',
 
-      'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછીના પગલામાં અમે તમારા સ્થાનથી તમારો વોર્ડ શોધીશું.',
+      'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછી વોર્ડ પસંદ કરો અથવા GPS થી શોધો.',
 
       'onboard.ward': 'તમારો વોર્ડ',
 
@@ -9976,7 +10012,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'બધા વિકલ્પો બતાવો',
 
-      'onboard.wardHint': '{city}ના વોર્ડમાંથી પસંદ કરો, અથવા અમને શોધવા દો.',
+      'onboard.wardHint': '{city}ના વોર્ડમાંથી પસંદ કરો, અથવા GPS થી શોધો.',
 
       'onboard.wardDetecting': 'તમારા સ્થાનથી તમારો વોર્ડ શોધી રહ્યા છીએ…',
 
@@ -9987,6 +10023,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardRetry': 'ફરી પ્રયત્ન કરો',
 
       'onboard.wardDetectFailed': 'તમારો વોર્ડ મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
+
+      'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
+
+      'onboard.wardDetectCta': 'GPS થી વોર્ડ શોધો',
 
       'onboard.name': 'પ્રદર્શિત નામ',
 
@@ -10048,11 +10088,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'જોખમ નકશા પર પિન કરો',
 
-      'report.geoExplainerBody': 'જોખમ પિન કરવા માટે જ અમને તમારું સ્થાન જોઈએ — બીજું કંઈ નહીં.',
+      'report.geoExplainerBody': 'અમે તમારું ચોક્કસ સ્થાન ફક્ત આ જોખમ સમુદાય નકશા પર પિન કરવા માટે વાપરીએ છીએ. પિન અને ફોટો તમારા વોર્ડના પડોશીઓને દેખાય છે. અમે સ્થાન વેચતા નથી.',
 
       'report.geoExplainerContinue': 'મારું સ્થાન વાપરો',
 
       'report.geoExplainerManual': 'નકશા પર પિન મૂકો',
+
+      'report.cameraDisclosureTitle': 'જોખમ ફરિયાદ માટે ફોટો',
+
+      'report.cameraDisclosureBody': 'CivicRadar કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે વાપરે છે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
+
+      'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
       'report.manualPinBanner': 'જોખમ જ્યાં છે ત્યાં નકશા પર ટૅપ કરો',
 
@@ -10090,15 +10136,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'ફરી લો',
 
-      'moderation.guidelines': 'જોખમનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines': 'કૅમેરા ફક્ત જોખમના પુરાવા માટે — ફોટો સમુદાય નકશા પર દેખાય છે. તૈયાર હો તો ફોટો લો દબાવો. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે.',
 
-      'moderation.guidelines.stagnant-water': 'ભરાયેલા પાણીનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.stagnant-water': 'ભરાયેલા પાણીનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
 
-      'moderation.guidelines.garbage': 'કચરાના ઢગાળા કે ડંપનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.garbage': 'કચરાના ઢગળાનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
 
-      'moderation.guidelines.potholes': 'ખાડા કે રસ્તાની નુકસાનનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.potholes': 'ખાડાનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
 
-      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો સ્પષ્ટ ફોટો લો — નીચેનું બટન દબાવો. ચહેરા, દસ્તાવેજો કે અસંબંધિત વસ્તુઓ નહીં. સ્થાન ડેટા ગોપનીયતા માટે દૂર કરવામાં આવે છે.',
+      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
 
       'moderation.scanning': 'ફોટો સલામતી તપાસ…',
 
@@ -14272,6 +14318,10 @@ document.addEventListener('DOMContentLoaded', function () {
       VOLUNTEER_SIGNUPS_KEY, VOLUNTEER_TASKS_KEY,
 
       LOCBANNER_SNOOZE_KEY,
+
+      REPORT_GEO_EXPLAINER_KEY,
+
+      REPORT_CAMERA_DISCLOSURE_KEY,
 
       NBH_ALERT_NEW_KEY, NBH_ALERT_RESOLVED_KEY, NBH_ALERT_LOG_KEY,
 
@@ -21610,7 +21660,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function showOnboardingWardDetectPrompt() {
+
+    onboardingDetectedWard = '';
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
+
+    $('#wardDetectStatus')?.classList.add('hidden');
+
+    $('#wardDetected')?.classList.add('hidden');
+
+    $('#wardDetectedHint')?.classList.add('hidden');
+
+    $('#wardManualGroup')?.classList.remove('hidden');
+
+    $('#btnWardManual')?.classList.add('hidden');
+
+    $('#btnWardRetry')?.classList.add('hidden');
+
+  }
+
+
+
   function showOnboardingWardDetecting() {
+
+    $('#wardDetectPrompt')?.classList.add('hidden');
 
     const status = $('#wardDetectStatus');
 
@@ -21643,6 +21717,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     onboardingDetectedWard = ward;
 
+    $('#wardDetectPrompt')?.classList.add('hidden');
+
     const input = $('#wardInput');
 
     if (input) input.value = ward;
@@ -21672,6 +21748,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function showOnboardingWardDetectFailed() {
 
     onboardingDetectedWard = '';
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
 
     $('#wardDetectStatus')?.classList.add('hidden');
 
@@ -22034,11 +22112,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         $('#btnWardRetry')?.classList.remove('hidden');
 
+        $('#wardDetectPrompt')?.classList.add('hidden');
+
         refreshSocietyForOnboarding();
 
       } else {
 
-        startOnboardingWardDetect();
+        // Play / DPDP: do not call geolocation until the user taps Detect ward with GPS.
+        showOnboardingWardDetectPrompt();
 
       }
 
@@ -22616,15 +22697,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Arm photo-flow guards immediately so Map/ghost taps during the disclosure
+    // sheet cannot dismiss the report (same race RP12 covers for the OS picker).
     reportPhotoFlowActive = true;
 
     armReportPhotoWatchdog(REPORT_PHOTO_PICKER_TIMEOUT_MS);
 
     touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
-    pushReportPhotoHistory();
+    // Play prominent disclosure: show in-app camera purpose before OS camera / file picker.
+    ensureCameraDisclosureThen(
 
-    input.click();
+      () => {
+
+        pushReportPhotoHistory();
+
+        input.click();
+
+      },
+
+      () => {
+
+        finishReportPhotoFlow('camera_disclosure_cancel');
+
+        touchReportDraft({ step: 'capture', awaitingPhoto: false });
+
+      }
+
+    );
 
   }
 
@@ -22722,6 +22822,16 @@ document.addEventListener('DOMContentLoaded', function () {
       reportGeoExplainerResolve = null;
 
       resolve('cancel');
+
+    }
+
+    if (name === 'reportCamera' && reportCameraDisclosureResolve) {
+
+      const resolve = reportCameraDisclosureResolve;
+
+      reportCameraDisclosureResolve = null;
+
+      resolve(false);
 
     }
 
@@ -23162,29 +23272,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       step: hasPhoto ? 'confirm' : 'capture',
 
-      awaitingPhoto: openCamera && !hasPhoto,
+      awaitingPhoto: false,
 
     });
 
-    if (openCamera && !hasPhoto) {
+    // Do not auto-launch the camera. Play / DPDP require in-context disclosure and an
+    // explicit tap on Take photo before the system camera / file picker opens.
+    if (reportCameraTimer) {
 
-      if (reportCameraTimer) clearTimeout(reportCameraTimer);
+      clearTimeout(reportCameraTimer);
 
-      requestAnimationFrame(() => {
-
-        // Wait out the modal's 0.35s slide-up transition before firing the camera intent.
-        // Backgrounding the tab mid-transition (camera intents suspend rendering) can freeze
-        // the sheet partway through its animation — it reappears looking cut off ("short page")
-        // once the user returns, instead of fully settled.
-        reportCameraTimer = setTimeout(() => {
-
-          reportCameraTimer = null;
-
-          if (overlays.report.classList.contains('open')) openReportPhotoPicker();
-
-        }, 380);
-
-      });
+      reportCameraTimer = null;
 
     }
 
@@ -25866,6 +25964,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnWardRetry) btnWardRetry.addEventListener('click', startOnboardingWardDetect);
 
+    const btnWardDetectGps = $('#btnWardDetectGps');
+
+    if (btnWardDetectGps) btnWardDetectGps.addEventListener('click', startOnboardingWardDetect);
+
     const onboardCity = $('#onboardCity');
 
     if (onboardCity) {
@@ -25878,7 +25980,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         syncOnboardingCityUi(getOnboardingCity());
 
-        startOnboardingWardDetect();
+        // Re-show GPS opt-in — never auto-prompt the OS location dialog on city change.
+        showOnboardingWardDetectPrompt();
 
       });
 
@@ -27851,6 +27954,114 @@ document.addEventListener('DOMContentLoaded', function () {
   function markReportGeoExplainerSeen() {
 
     try { safeLocalSet(REPORT_GEO_EXPLAINER_KEY, '1'); } catch { /* ignore */ }
+
+  }
+
+
+
+  function hasSeenCameraDisclosure() {
+
+    try { return localStorage.getItem(REPORT_CAMERA_DISCLOSURE_KEY) === '1'; } catch { return false; }
+
+  }
+
+
+
+  function markCameraDisclosureSeen() {
+
+    try { safeLocalSet(REPORT_CAMERA_DISCLOSURE_KEY, '1'); } catch { /* ignore */ }
+
+  }
+
+
+
+  function showReportCameraDisclosureModal() {
+
+    return new Promise((resolve) => {
+
+      const overlay = overlays.reportCamera;
+
+      if (!overlay) {
+
+        resolve(true);
+
+        return;
+
+      }
+
+      reportCameraDisclosureResolve = resolve;
+
+      const btnContinue = $('#btnReportCameraContinue');
+
+      const btnCancel = $('#btnReportCameraCancel');
+
+      const title = $('#reportCameraTitle');
+
+      const body = $('#reportCameraBody');
+
+      if (title) title.textContent = t('report.cameraDisclosureTitle');
+
+      if (body) body.textContent = t('report.cameraDisclosureBody');
+
+      if (btnContinue) btnContinue.textContent = t('report.cameraDisclosureContinue');
+
+      if (btnCancel) btnCancel.textContent = t('common.cancel');
+
+      function finish(ok) {
+
+        if (!reportCameraDisclosureResolve) return;
+
+        reportCameraDisclosureResolve = null;
+
+        if (btnContinue) btnContinue.removeEventListener('click', onContinue);
+
+        if (btnCancel) btnCancel.removeEventListener('click', onCancel);
+
+        closeModal('reportCamera');
+
+        resolve(ok);
+
+      }
+
+      function onContinue() {
+
+        markCameraDisclosureSeen();
+
+        finish(true);
+
+      }
+
+      function onCancel() { finish(false); }
+
+      if (btnContinue) btnContinue.addEventListener('click', onContinue);
+
+      if (btnCancel) btnCancel.addEventListener('click', onCancel);
+
+      openModal('reportCamera');
+
+    });
+
+  }
+
+
+
+  function ensureCameraDisclosureThen(onContinue, onCancel) {
+
+    if (hasSeenCameraDisclosure()) {
+
+      onContinue();
+
+      return;
+
+    }
+
+    showReportCameraDisclosureModal().then((ok) => {
+
+      if (ok) onContinue();
+
+      else if (typeof onCancel === 'function') onCancel();
+
+    });
 
   }
 

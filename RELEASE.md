@@ -115,7 +115,8 @@ red smoke test.
   ```
 
 - **Service worker cache bump** — the SW cache constant in `sw.js` is currently
-  `const CACHE = 'civicradar-v67';`. **Bump this number on every production release**
+  `const CACHE = 'civicradar-v229'` (keep in step with `CIVIC_APP_VERSION` in
+  `js/app.js`). **Bump this number on every production release**
   that changes cached assets (HTML/CSS/JS), so returning users get the new files
   instead of a stale cache. (Owned by the app agent — coordinate the bump as part of
   the release; see Follow-ups.)

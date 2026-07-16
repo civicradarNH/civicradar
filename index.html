@@ -207,7 +207,7 @@
 
   <div id="locationBanner" class="location-banner hidden" role="status">
     <i class="ph ph-map-pin"></i>
-    <span id="locationBannerText" data-i18n="location.banner">Turn on location to pin hazards accurately.</span>
+    <span id="locationBannerText" data-i18n="location.banner">CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.</span>
     <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
     <button type="button" class="location-banner__close" id="btnDismissLocation" data-i18n-aria="location.dismiss" aria-label="Dismiss">&times;</button>
   </div>
@@ -382,12 +382,16 @@
           <option value="pune" data-i18n-option="city.pune">Pune</option>
           <option value="thane" data-i18n-option="city.thane">Thane</option>
         </select>
-        <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — we detect your ward from GPS next.</p>
+        <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
       </div>
       <div class="form-group" id="wardDetectGroup">
         <label for="wardInput" data-i18n="onboard.ward">Your Ward</label>
+        <div id="wardDetectPrompt" class="ward-detect-prompt">
+          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
+          <button type="button" class="btn btn--secondary btn--full" id="btnWardDetectGps" data-i18n="onboard.wardDetectCta">Detect ward with GPS</button>
+        </div>
         <div id="wardManualGroup">
-          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText">
+          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
           <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
         </div>
         <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
@@ -425,10 +429,25 @@
       <button type="button" class="modal__close" data-close="reportGeo" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-map-pin"></i></div>
       <h2 id="reportGeoTitle" data-i18n="report.geoExplainerTitle">Pin this hazard on the map</h2>
-      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">We need your location only to pin the hazard — nothing else.</p>
+      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">We use your precise location only to place this hazard pin on the community map. Pins and photos are visible to neighbours in your ward. We do not sell your location.</p>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportGeoContinue" data-i18n="report.geoExplainerContinue">Use my location</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnReportGeoManual" data-i18n="report.geoExplainerManual">Place pin on map instead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera in-context disclosure (Play / DPDP — before system camera prompt) -->
+  <div class="modal-overlay" id="reportCameraOverlay" aria-hidden="true">
+    <div class="modal modal--sm" id="reportCameraModal" role="dialog" aria-modal="true" aria-labelledby="reportCameraTitle" aria-describedby="reportCameraBody">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="reportCamera" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
+      <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-camera"></i></div>
+      <h2 id="reportCameraTitle" data-i18n="report.cameraDisclosureTitle">Photo for your hazard report</h2>
+      <p class="modal__subtitle" id="reportCameraBody" data-i18n="report.cameraDisclosureBody">CivicRadar uses the camera only to capture hazard evidence. Photos appear on the community map. EXIF location is stripped on-device. Avoid faces and documents.</p>
+      <div class="report-geo__actions">
+        <button type="button" class="btn btn--primary btn--full" id="btnReportCameraContinue" data-i18n="report.cameraDisclosureContinue">Continue to camera</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnReportCameraCancel" data-i18n="common.cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -449,7 +468,7 @@
       <!-- Screen A: camera capture (minimal chrome) -->
       <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
         <div class="form-group report-photo-section" id="reportPhotoSection">
-          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a clear photo of the hazard — tap the button below. Avoid faces, documents, or unrelated objects. Location data is stripped for privacy.</p>
+          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Camera is used only for hazard evidence — photos appear on the community map. Tap Take photo when ready. Avoid faces and documents. EXIF location is stripped on-device.</p>
           <div class="camera-area camera-area--capture">
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
