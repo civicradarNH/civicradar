@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v227';
+  const CIVIC_APP_VERSION = 'v228';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -35250,7 +35250,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         scanCanvasEl.getContext('2d').drawImage(scanImg, 0, 0);
 
-        const scan = await ImageModeration.scanCanvas(scanCanvasEl, getModCfg());
+        // Bounded + fail-open, same as the citizen report scan — this had no
+        // timeout of its own, so a slow/hung scan left the admin stuck with no
+        // feedback and no way to proceed short of reloading the page.
+        const scan = await Promise.race([
+
+          ImageModeration.scanCanvas(scanCanvasEl, getModCfg()),
+
+          new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+
+        ]);
 
         if (!scan.ok) {
 
@@ -35327,7 +35336,12 @@ document.addEventListener('DOMContentLoaded', function () {
         scanCanvasEl.width = scanImg.width;
         scanCanvasEl.height = scanImg.height;
         scanCanvasEl.getContext('2d').drawImage(scanImg, 0, 0);
-        const scan = await ImageModeration.scanCanvas(scanCanvasEl, getModCfg());
+        // Bounded + fail-open, same as the citizen report scan — an unbounded
+        // await here left the neighbour stuck with no feedback if the scan hung.
+        const scan = await Promise.race([
+          ImageModeration.scanCanvas(scanCanvasEl, getModCfg()),
+          new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+        ]);
         if (!scan.ok) {
           const msg = scan.i18nKey ? t(scan.i18nKey) : (scan.message || t('moderation.blocked.irrelevant'));
           showToast(msg, 'error', 5500);
