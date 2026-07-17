@@ -21100,19 +21100,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const container = $('#toastContainer');
 
+    if (!container) return;
+
     const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
 
-    // De-dupe: identical non-interactive toast already visible → don't stack.
-
-    if (!action) {
-
-      const key = `${type}::${message}`;
-
-      const existing = Array.from(container.children).find((el) => el.dataset && el.dataset.civicToastKey === key);
-
-      if (existing) return;
-
-    }
+    // Single snackbar: replace any previous toast immediately (no stack).
+    while (container.firstChild) container.removeChild(container.firstChild);
 
     const toast = document.createElement('div');
 
@@ -25381,11 +25374,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!Number.isFinite(accuracyM)) return;
 
+    // Confirm step already shows inline `.report-pin-accuracy` — skip the floating
+    // "Location is approximate" snackbar while the report sheet is open.
+    const reportOpen = !!(overlays.report && overlays.report.classList.contains('open'));
+
     if (accuracyM > GEO_ACCURACY_MAX_M) {
+
+      if (reportOpen) return;
 
       showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
 
     } else if (accuracyM > GEO_ACCURACY_POOR_M) {
+
+      if (reportOpen) return;
 
       showGpsRecoveryActions(
 
@@ -30029,27 +30030,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_POOR_M) {
+    // Approximate GPS is allowed on confirm (inline `.report-pin-accuracy`).
+    // Only block truly unusable fixes — do not resurface the blue approximate toast.
+    if (!manualPin && Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
 
       setButtonLoading(submitBtn, false);
 
-      if (accuracyM > GEO_ACCURACY_MAX_M) {
+      finishReportSubmitWithCoords._busy = false;
 
-        showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
-
-      } else {
-
-        showGpsRecoveryActions(
-
-          t('toast.gpsLowAccuracy').replace('{m}', String(Math.round(accuracyM))),
-
-          'info',
-
-          9000
-
-        );
-
-      }
+      showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
 
       return;
 

@@ -21,8 +21,8 @@
     .app-launch__dots span:nth-child(2){animation-delay:.16s}
     .app-launch__dots span:nth-child(3){animation-delay:.32s}
     .app-launch--done{opacity:0;visibility:hidden;pointer-events:none}
-    html.app-booting .header,html.app-booting #personaBar,html.app-booting #wardPulse,html.app-booting #main,html.app-booting #bottomNav,html.app-booting #btnCamera,html.app-booting #roleBadges,
-    body.app-booting .header,body.app-booting #personaBar,body.app-booting #wardPulse,body.app-booting #main,body.app-booting #bottomNav,body.app-booting #btnCamera,body.app-booting #roleBadges{visibility:hidden}
+    html.app-booting .header,html.app-booting #personaBar,html.app-booting #mapHud,html.app-booting #wardPulse,html.app-booting #main,html.app-booting #bottomNav,html.app-booting #btnCamera,html.app-booting #roleBadges,
+    body.app-booting .header,body.app-booting #personaBar,body.app-booting #mapHud,body.app-booting #wardPulse,body.app-booting #main,body.app-booting #bottomNav,body.app-booting #btnCamera,body.app-booting #roleBadges{visibility:hidden}
     @keyframes launch-logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
     @keyframes launch-ring{0%{transform:scale(.78);opacity:.9}100%{transform:scale(1.55);opacity:0}}
     @keyframes launch-dot{0%,80%,100%{opacity:.4;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
@@ -142,19 +142,26 @@
     <button type="button" class="persona-bar__action hidden" id="personaBarAction"></button>
   </div>
 
-  <!-- Ward pulse — floating bento capsule -->
-  <div id="wardPulse" class="ward-pulse" role="status" aria-live="polite" data-i18n-aria="pulse.aria" aria-label="Ward pulse">
-    <div class="ward-pulse__row">
-      <span class="ward-pulse__ward" id="wardPulseName">Your ward</span>
-      <div class="ward-pulse__stats">
-        <span class="ward-pulse__stat ward-pulse__stat--open"><strong id="wardPulseOpen">0</strong> <span data-i18n="pulse.open">open</span></span>
-        <span class="ward-pulse__stat ward-pulse__stat--fixed"><strong id="wardPulseFixed">0</strong> <span data-i18n="pulse.fixedWeek">fixed this week</span></span>
-        <span class="ward-pulse__stat ward-pulse__stat--metoo"><strong id="wardPulseMeToo">0</strong> <span data-i18n="pulse.metoo">Me too</span></span>
+  <!-- Map HUD — pulse + legend as one compact horizontal row -->
+  <div id="mapHud" class="map-hud">
+    <div id="wardPulse" class="ward-pulse" role="status" aria-live="polite" data-i18n-aria="pulse.aria" aria-label="Ward pulse">
+      <div class="ward-pulse__row">
+        <span class="ward-pulse__ward" id="wardPulseName">Your ward</span>
+        <div class="ward-pulse__stats">
+          <span class="ward-pulse__stat ward-pulse__stat--open"><strong id="wardPulseOpen">0</strong> <span data-i18n="pulse.open">open</span></span>
+          <span class="ward-pulse__stat ward-pulse__stat--fixed"><strong id="wardPulseFixed">0</strong> <span data-i18n="pulse.fixedWeek">fixed this week</span></span>
+          <span class="ward-pulse__stat ward-pulse__stat--metoo"><strong id="wardPulseMeToo">0</strong> <span data-i18n="pulse.metoo">Me too</span></span>
+        </div>
+      </div>
+      <div class="ward-pulse__meter" aria-hidden="true">
+        <span class="ward-pulse__meter-open" id="wardPulseMeterOpen" style="width:0%"></span>
+        <span class="ward-pulse__meter-fixed" id="wardPulseMeterFixed" style="width:0%"></span>
       </div>
     </div>
-    <div class="ward-pulse__meter" aria-hidden="true">
-      <span class="ward-pulse__meter-open" id="wardPulseMeterOpen" style="width:0%"></span>
-      <span class="ward-pulse__meter-fixed" id="wardPulseMeterFixed" style="width:0%"></span>
+    <div id="mapLegend" class="map-legend" data-i18n-aria="map.legend.aria" aria-label="Map legend">
+      <span class="map-legend__item"><i class="dot dot--pending"></i> <span data-i18n="map.legend.pending">Open</span></span>
+      <span class="map-legend__item"><i class="dot dot--resolved"></i> <span data-i18n="map.legend.resolved">Fixed</span></span>
+      <span class="map-legend__item"><i class="dot dot--you"></i> <span data-i18n="map.legend.you">You</span></span>
     </div>
   </div>
 
@@ -205,12 +212,6 @@
   </div>
 
   <!-- Map overlays -->
-  <div id="mapLegend" class="map-legend" data-i18n-aria="map.legend.aria" aria-label="Map legend">
-    <span class="map-legend__item"><i class="dot dot--pending"></i> <span data-i18n="map.legend.pending">Open</span></span>
-    <span class="map-legend__item"><i class="dot dot--resolved"></i> <span data-i18n="map.legend.resolved">Fixed</span></span>
-    <span class="map-legend__item"><i class="dot dot--you"></i> <span data-i18n="map.legend.you">You</span></span>
-  </div>
-
   <div id="locationBanner" class="location-banner hidden" role="status">
     <i class="ph ph-map-pin"></i>
     <span id="locationBannerText" data-i18n="location.banner">CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.</span>

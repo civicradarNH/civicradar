@@ -6934,6 +6934,7 @@ a,
   width: 100%;
   height: 160px;
   flex-shrink: 0;
+  margin-bottom: 24px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   overflow: hidden;
@@ -7829,23 +7830,50 @@ html[lang="gu"] body {
   transform: scale(0.97);
 }
 
-/* ---- Toast → bottom snackbar ---- */
+/* ---- Toast → single bottom snackbar (v240) ---- */
 .toast-container {
   top: auto;
   bottom: calc(
-    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
-    + var(--attr-clearance) + var(--fab-size) + 12px
+    var(--nav-height) + var(--fab-size) + 24px + env(safe-area-inset-bottom, 0px)
   );
   left: 50%;
   transform: translateX(-50%);
-  width: min(420px, calc(100vw - 24px));
-  z-index: 3000;
+  width: auto;
+  max-width: min(420px, calc(100vw - 24px));
+  align-items: center;
+  gap: 0;
+  z-index: 3200;
 }
 
 .toast {
-  border-radius: var(--radius-md);
+  width: max-content;
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
   box-shadow: var(--shadow-lg);
   animation: snackbar-in 0.28s ease-out;
+  align-items: center;
+}
+
+.toast--multi,
+.toast--interactive {
+  width: min(420px, calc(100vw - 24px));
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+}
+
+.toast__row {
+  align-items: center;
+}
+
+.toast i {
+  margin-top: 0;
+  font-size: var(--fs-md);
+}
+
+.toast__close {
+  margin: -6px -8px -6px 4px;
 }
 
 .toast--success {
@@ -7868,8 +7896,18 @@ body.persona-admin .toast-container,
 body.persona-lead .toast-container,
 body.pwa-nudge-visible .toast-container {
   bottom: calc(
-    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 16px
+    var(--nav-height) + 24px + env(safe-area-inset-bottom, 0px)
   );
+}
+
+/* Suppress background shouts while a content sheet is open (keep snackbar) */
+body.modal-open #locationBanner,
+body.modal-open #pwaInstallNudge,
+html.modal-open #locationBanner,
+html.modal-open #pwaInstallNudge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* ---- Micro-interactions: snappy press (preserve FAB centering) ---- */
@@ -7980,9 +8018,19 @@ body.pwa-nudge-visible .toast-container {
     --text-muted: #94a3b8;
     --border: #334155;
     --overlay: rgba(0, 0, 0, 0.72);
-    --primary-50: rgba(99, 102, 241, 0.18);
-    --primary-100: rgba(99, 102, 241, 0.28);
-    --primary-glow: rgba(99, 102, 241, 0.35);
+    /* WCAG: lighter indigo fill + dark label on primary CTAs */
+    --primary: #818cf8;
+    --primary-dark: #a5b4fc;
+    --primary-hover: #a5b4fc;
+    --brand-600: #818cf8;
+    --brand-700: #a5b4fc;
+    --primary-50: rgba(129, 140, 248, 0.18);
+    --primary-100: rgba(129, 140, 248, 0.28);
+    --primary-glow: rgba(129, 140, 248, 0.35);
+    --grad-brand: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+    --grad-brand-cyan: linear-gradient(135deg, #818cf8 0%, #22d3ee 140%);
+    --shadow-cta: 0 4px 14px rgba(129, 140, 248, 0.35);
+    --shadow-pop: 0 6px 20px rgba(129, 140, 248, 0.4);
     --warning-soft-bg: #422006;
     --warning-soft-border: #854d0e;
     --warning-dark: #fde68a;
@@ -8008,6 +8056,34 @@ body.pwa-nudge-visible .toast-container {
     --shadow-3: 0 16px 40px rgba(0, 0, 0, 0.55);
     --success: #34d399;
     --danger: #f87171;
+  }
+
+  /* Primary CTAs: dark ink on light indigo (FAB keeps light label) */
+  .btn--primary {
+    color: #0f172a !important;
+  }
+  .btn--primary:hover:not(:disabled):not(.is-loading) {
+    color: #0f172a !important;
+  }
+  .success-footer .btn--primary,
+  .success-footer .btn--primary:hover:not(:disabled):not(.is-loading) {
+    color: var(--text-muted) !important;
+  }
+  #btnCamera,
+  .fab {
+    color: #fff !important;
+  }
+
+  .hazard-selected-cue,
+  .report-card__cleared,
+  .popup__cleared {
+    color: #c7d2fe !important;
+  }
+
+  .field-error {
+    color: var(--danger);
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
   }
 
   html {
@@ -8525,5 +8601,102 @@ body.persona-lead .map-legend {
 @media (prefers-color-scheme: dark) {
   .ward-pulse__meter {
     background: rgba(51, 65, 85, 0.9);
+  }
+}
+
+/* ============================================================
+   UX/a11y Pass B — Map HUD row + translucent pills (v240)
+   Merges pulse + legend under floating header; keeps Spatial HUD.
+   ============================================================ */
+.map-hud {
+  position: fixed;
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
+  );
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
+  z-index: 1001;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  pointer-events: none;
+}
+
+.map-hud::-webkit-scrollbar {
+  display: none;
+}
+
+.map-hud > .ward-pulse,
+.map-hud > .map-legend {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  pointer-events: auto;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  padding: 4px 10px;
+  font-size: var(--fs-xs);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.map-hud > .ward-pulse {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: min(280px, 72vw);
+}
+
+.map-hud > .ward-pulse .ward-pulse__meter {
+  height: 3px;
+}
+
+.map-hud > .map-legend {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+body.home-hero-visible .map-hud > .ward-pulse,
+body.persona-admin .map-hud > .ward-pulse,
+body.persona-lead .map-hud > .ward-pulse {
+  display: none !important;
+}
+
+body.home-hero-visible .map-legend,
+body.persona-admin .map-legend,
+body.persona-lead .map-legend {
+  top: auto; /* row layout — ignore old stacked offset */
+}
+
+body.sheet-depth .map-hud,
+body.sheet-depth-blocking .map-hud {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-hud > .ward-pulse,
+  .map-hud > .map-legend,
+  .map-locate-pill,
+  .map-recenter {
+    background: rgba(17, 24, 39, 0.55);
+    border-color: rgba(148, 163, 184, 0.28);
   }
 }
