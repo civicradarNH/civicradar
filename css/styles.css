@@ -84,6 +84,7 @@
   --header-height: 52px;
   --persona-bar-height: 40px;
   --ward-pulse-height: 44px;
+  --map-hud-height: 40px;
   --nav-height: 56px;
   --fab-size: 56px;
   --touch-min: 44px;
@@ -1035,9 +1036,13 @@ body.persona-lead #wardPulse {
 
 .location-banner {
   position: fixed;
-  top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 52px);
-  left: 12px;
-  right: 12px;
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
+    + var(--map-hud-height) + var(--hud-gap)
+  );
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   z-index: 1002;
   display: flex;
   align-items: center;
@@ -1045,7 +1050,7 @@ body.persona-lead #wardPulse {
   padding: 10px 12px;
   background: var(--warning-soft-bg);
   border: 1px solid var(--warning-soft-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   font-size: var(--fs-sm);
   color: var(--warning-dark);
   }
@@ -1059,9 +1064,9 @@ body.persona-lead #wardPulse {
   margin-left: auto;
   min-height: var(--touch-min);
   padding: 8px 14px;
-  border: none;
+  border: 1px solid rgba(180, 83, 9, 0.35);
   border-radius: var(--radius-sm);
-  background: var(--warning);
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
   color: #fff;
   font-family: var(--font);
   font-size: var(--fs-sm);
@@ -1069,6 +1074,7 @@ body.persona-lead #wardPulse {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  box-shadow: inset 0 -1px 0 rgba(120, 53, 15, 0.18);
 }
 
 .location-banner__close {
@@ -2017,6 +2023,19 @@ body.pwa-nudge-visible #btnCamera {
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
+
+/* Sticky CTA sheets: last inputs must clear the sticky footer (v241) */
+.modal:has(> .modal__sticky-footer),
+#onboardingModal,
+#reportStepConfirm.report-step--active {
+  scroll-padding-bottom: 96px;
+}
+
+.modal > *:has(+ .modal__sticky-footer),
+#onboardingModal > *:has(+ .modal__sticky-footer),
+#reportStepConfirm > *:has(+ .modal__sticky-footer) {
+  margin-bottom: 96px;
+}
 
 .modal--tall {
   max-height: min(92vh, 100dvh);
@@ -7684,7 +7703,8 @@ html[lang="gu"] body {
 }
 
 #reportModal.report-modal--confirm #reportStepConfirm.report-step--active {
-  padding-bottom: 8px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: 96px;
   animation: report-step-in 0.22s ease-out both;
 }
 
@@ -7768,6 +7788,17 @@ html[lang="gu"] body {
   box-shadow: var(--shadow-md);
 }
 
+@media (prefers-color-scheme: dark) {
+  .location-banner {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: var(--text);
+    box-shadow: var(--shadow-md);
+  }
+}
+
 .map-locate-pill {
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(10px);
@@ -7830,24 +7861,24 @@ html[lang="gu"] body {
   transform: scale(0.97);
 }
 
-/* ---- Toast → single bottom snackbar (v240) ---- */
+/* ---- Toast → native snackbar (v241) ---- */
 .toast-container {
   top: auto;
   bottom: calc(
-    var(--nav-height) + var(--fab-size) + 24px + env(safe-area-inset-bottom, 0px)
+    var(--nav-height) + var(--fab-size) + 32px + env(safe-area-inset-bottom, 0px)
   );
   left: 50%;
   transform: translateX(-50%);
   width: auto;
-  max-width: min(420px, calc(100vw - 24px));
+  max-width: 90vw;
   align-items: center;
   gap: 0;
-  z-index: 3200;
+  z-index: 9999;
 }
 
 .toast {
-  width: max-content;
-  max-width: min(420px, calc(100vw - 24px));
+  width: fit-content;
+  max-width: 90vw;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
   font-size: var(--fs-sm);
@@ -7858,9 +7889,11 @@ html[lang="gu"] body {
 
 .toast--multi,
 .toast--interactive {
-  width: min(420px, calc(100vw - 24px));
+  width: fit-content;
+  max-width: 90vw;
   border-radius: var(--radius-lg);
-  padding: 10px 14px;
+  padding: 10px 16px;
+  white-space: normal;
 }
 
 .toast__row {
@@ -7896,7 +7929,7 @@ body.persona-admin .toast-container,
 body.persona-lead .toast-container,
 body.pwa-nudge-visible .toast-container {
   bottom: calc(
-    var(--nav-height) + 24px + env(safe-area-inset-bottom, 0px)
+    var(--nav-height) + 32px + env(safe-area-inset-bottom, 0px)
   );
 }
 
@@ -8128,7 +8161,23 @@ html.modal-open #pwaInstallNudge {
   }
 
   .location-banner {
-    background: rgba(66, 32, 6, 0.94);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: var(--text);
+  }
+
+  .location-banner i,
+  .location-banner__close {
+    color: var(--text);
+  }
+
+  .location-banner__btn {
+    background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fff;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   }
 
   .modal__sticky-footer {
@@ -8517,8 +8566,17 @@ html.modal-open #pwaInstallNudge {
   }
 
   .location-banner {
-    background: rgba(66, 32, 6, 0.92);
-    border-color: rgba(133, 77, 14, 0.7);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: var(--text);
+  }
+
+  .location-banner__btn {
+    background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fff;
   }
 
   .skeleton {
@@ -8605,8 +8663,8 @@ body.persona-lead .map-legend {
 }
 
 /* ============================================================
-   UX/a11y Pass B — Map HUD row + translucent pills (v240)
-   Merges pulse + legend under floating header; keeps Spatial HUD.
+   UX/a11y Pass B — Map HUD row + translucent pills (v240→v241)
+   Merges pulse + legend under floating header; no overlap with chrome.
    ============================================================ */
 .map-hud {
   position: fixed;
@@ -8622,6 +8680,8 @@ body.persona-lead .map-legend {
   flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
+  min-height: var(--map-hud-height);
+  max-height: calc(var(--map-hud-height) + 8px);
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -8635,21 +8695,24 @@ body.persona-lead .map-legend {
 
 .map-hud > .ward-pulse,
 .map-hud > .map-legend {
-  position: static;
-  top: auto;
-  left: auto;
-  right: auto;
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
   pointer-events: auto;
   flex: 0 0 auto;
   width: auto;
   max-width: none;
   min-height: 0;
-  padding: 4px 10px;
+  height: auto;
+  margin: 0;
+  padding: 6px 10px;
   font-size: var(--fs-xs);
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: var(--radius-pill);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
@@ -8657,20 +8720,27 @@ body.persona-lead .map-legend {
 .map-hud > .ward-pulse {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-width: min(280px, 72vw);
+  justify-content: center;
+  gap: 3px;
+  max-width: min(260px, 68vw);
 }
 
 .map-hud > .ward-pulse .ward-pulse__meter {
   height: 3px;
 }
 
+.map-hud > .ward-pulse .ward-pulse__ward {
+  max-width: 38%;
+}
+
 .map-hud > .map-legend {
   display: flex;
   flex-wrap: nowrap;
+  align-items: center;
   gap: 8px;
   font-weight: 600;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 body.home-hero-visible .map-hud > .ward-pulse,
@@ -8679,10 +8749,25 @@ body.persona-lead .map-hud > .ward-pulse {
   display: none !important;
 }
 
+body.home-hero-visible,
+body.persona-admin,
+body.persona-lead {
+  --map-hud-height: 32px;
+}
+
 body.home-hero-visible .map-legend,
 body.persona-admin .map-legend,
 body.persona-lead .map-legend {
   top: auto; /* row layout — ignore old stacked offset */
+}
+
+/* Keep locate/coords clear of the HUD row (not stacked under pulse) */
+.map-locate-pill {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
+    + var(--map-hud-height) + var(--hud-gap)
+  );
 }
 
 body.sheet-depth .map-hud,
@@ -8699,4 +8784,10 @@ body.sheet-depth-blocking .map-hud {
     background: rgba(17, 24, 39, 0.55);
     border-color: rgba(148, 163, 184, 0.28);
   }
+}
+
+/* Sticky-footer sheets: scroll focus + last-field clearance (margin above) */
+#onboardingOverlay #onboardingModal,
+#tosOverlay .modal:has(> .modal__sticky-footer) {
+  scroll-padding-bottom: 96px;
 }

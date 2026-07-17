@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v240';
+  const CIVIC_APP_VERSION = 'v241';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -21094,6 +21094,9 @@ document.addEventListener('DOMContentLoaded', function () {
     setCollapsibleSectionOpen('profileAccountSection', 'profileAccountBody', 'btnProfileAccountToggle', false);
   }
 
+  // One snackbar at a time — new toast instantly replaces previous (timers + DOM).
+  let _activeToastDismiss = null;
+
   function showToast(message, type = 'info', duration = 3500, action = null) {
 
     debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
@@ -21104,7 +21107,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
 
-    // Single snackbar: replace any previous toast immediately (no stack).
+    // Instant replace: cancel prior timers and clear DOM (no stack, no fade race).
+    if (typeof _activeToastDismiss === 'function') {
+      try { _activeToastDismiss(true); } catch (_) { /* ignore */ }
+      _activeToastDismiss = null;
+    }
     while (container.firstChild) container.removeChild(container.firstChild);
 
     const toast = document.createElement('div');
@@ -21131,11 +21138,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     };
 
-    const dismissToast = () => {
+    const dismissToast = (instant) => {
 
       clearToastTimers();
 
+      if (_activeToastDismiss === dismissToast) _activeToastDismiss = null;
+
       if (!toast.isConnected) return;
+
+      if (instant) {
+        toast.remove();
+        return;
+      }
 
       toast.style.opacity = '0';
 
@@ -21144,6 +21158,8 @@ document.addEventListener('DOMContentLoaded', function () {
       fadeTimer = setTimeout(() => toast.remove(), 250);
 
     };
+
+    _activeToastDismiss = dismissToast;
 
     const row = document.createElement('div');
 
@@ -21212,6 +21228,8 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', () => {
 
           clearToastTimers();
+
+          if (_activeToastDismiss === dismissToast) _activeToastDismiss = null;
 
           if (typeof act.onClick === 'function') act.onClick();
 
