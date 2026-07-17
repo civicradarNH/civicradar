@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-17 00:47:18
+**Run:** 2026-07-17 01:03:29
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 424 | **Pass:** 414 | **Fail:** 10
+**Total:** 420 | **Pass:** 418 | **Fail:** 2
 
 ## Fixes applied this run
 
@@ -94,8 +94,8 @@
 - **HomeHero:** 7 pass / 0 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
-- **Legal:** 6 pass / 8 fail
-- **Load:** 4 pass / 1 fail
+- **Legal:** 10 pass / 0 fail
+- **Load:** 5 pass / 0 fail
 - **LocationBanner:** 6 pass / 0 fail
 - **Map:** 5 pass / 0 fail
 - **MultiCity:** 10 pass / 0 fail
@@ -105,7 +105,7 @@
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 8 pass / 0 fail
+- **PWA:** 7 pass / 1 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -134,31 +134,7 @@
 ## Failures
 
 - `E16` **Invalid ward cleared on load** — failed
-- `L05` **Analytics batch enqueue** — failed
-- `LG01` **Privacy page loads** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG02` **Privacy mentions DPDP** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG03` **Terms page loads** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG04` **Terms mentions not government** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG05` **Delete account page loads** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG06` **Delete page mentions Profile flow** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG07` **Official sources page loads with gov links** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
-- `LG08` **No counsel-before-launch placeholder copy** — Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin
+- `SW06` **SW precache uses scope-relative paths (subpath-safe)** — failed
 
 ## Limitations
 
@@ -184,7 +160,7 @@ Call log:
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Mate 2B6F |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ward Scout #7F7D |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -194,7 +170,7 @@ Call log:
 | C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=a0ab4fda-f87d-4a1f-a205-3f563412229f |
+| C16 | Citizen | Report submit success modal | PASS | rid=9dbaf351-40ec-4f79-a5b5-86dff4266081 |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
@@ -252,10 +228,10 @@ Call log:
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | **FAIL** |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.16s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 19ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
-| L05 | Load | Analytics batch enqueue | **FAIL** |  |
+| L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
 | M02 | Map | Map legend visible | PASS |  |
 | M03 | Map | Recenter button | PASS |  |
@@ -479,7 +455,7 @@ Call log:
 | SW03 | PWA | Manifest href valid | PASS |  |
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
-| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | **FAIL** |  |
 | ST01 | Store | assetlinks.json served for TWA | PASS |  |
 | IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
 | IOS02 | iOS | viewport-fit=cover | PASS |  |
@@ -499,30 +475,10 @@ Call log:
 | LG02 | Legal | Privacy mentions DPDP | PASS |  |
 | LG03 | Legal | Terms page loads | PASS |  |
 | LG04 | Legal | Terms mentions not government | PASS |  |
-| LG01 | Legal | Privacy page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG02 | Legal | Privacy mentions DPDP | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG03 | Legal | Terms page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG04 | Legal | Terms mentions not government | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG05 | Legal | Delete account page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG06 | Legal | Delete page mentions Profile flow | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG07 | Legal | Official sources page loads with gov links | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
-| LG08 | Legal | No counsel-before-launch placeholder copy | **FAIL** | Page.goto: Timeout 30000ms exceeded.
-Call log:
-  - navigatin |
+| LG05 | Legal | Delete account page loads | PASS |  |
+| LG06 | Legal | Delete page mentions Profile flow | PASS |  |
+| LG08 | Legal | No counsel-before-launch placeholder copy | PASS |  |
+| LG07 | Legal | Official sources page loads with gov links | PASS |  |
 | HF01 | Map | Hidden report excluded from count | PASS |  |
 | MR01 | Mute | Muted reporter excluded from visible reports | PASS |  |
 | CL01 | Celebration | Success modal open after report | PASS |  |

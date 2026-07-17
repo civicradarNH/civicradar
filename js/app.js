@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v239';
+  const CIVIC_APP_VERSION = 'v240';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -12824,9 +12824,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!parsed.city || !cityCfg[parsed.city]) parsed.city = DEFAULT_CITY;
       if (parsed.analyticsConsent == null) parsed.analyticsConsent = false;
       if (parsed.displayName) parsed.displayName = sanitizeDisplayName(parsed.displayName);
-      // Ward catalog loads idle (ward-detect.js). Do not wipe a stored ward
-      // before the catalog is ready — empty datalist would false-reject it.
-      if (parsed.ward && window.CivicWardDetect && !isValidWard(parsed.ward, parsed.city)) parsed.ward = '';
+      // Strip tags always. Catalog validation only when ward-detect.js is ready
+      // (idle-loaded) — empty datalist would false-reject a real stored ward.
+      if (parsed.ward) {
+        parsed.ward = sanitizeText(parsed.ward, REPORT_WARD_MAX);
+        if (parsed.ward && window.CivicWardDetect && !isValidWard(parsed.ward, parsed.city)) {
+          parsed.ward = '';
+        }
+      }
       if (parsed.society) parsed.society = sanitizeText(parsed.society, 120);
       if (parsed.civicXp == null) parsed.civicXp = 0;
       migrateLegacyReports(parsed);
@@ -24789,6 +24794,13 @@ document.addEventListener('DOMContentLoaded', function () {
   wardDetectReady = loadScriptOnce('js/ward-detect.js').then(() => {
 
     try { populateWardDatalists(); } catch { /* ignore */ }
+
+    try {
+      if (user && user.ward && !isValidWard(user.ward, user.city)) {
+        user.ward = '';
+        saveUser();
+      }
+    } catch { /* ignore */ }
 
   });
 
