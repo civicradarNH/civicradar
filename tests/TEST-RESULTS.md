@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-16 04:59:06
+**Run:** 2026-07-17 00:47:18
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 417 | **Pass:** 417 | **Fail:** 0
+**Total:** 424 | **Pass:** 414 | **Fail:** 10
 
 ## Fixes applied this run
 
@@ -88,14 +88,14 @@
 - **DeepLink:** 2 pass / 0 fail
 - **Demo:** 8 pass / 0 fail
 - **Differentiation:** 2 pass / 0 fail
-- **Edge:** 17 pass / 0 fail
+- **Edge:** 16 pass / 1 fail
 - **Escalation:** 6 pass / 0 fail
 - **Feedback:** 7 pass / 0 fail
 - **HomeHero:** 7 pass / 0 fail
 - **ImageSafety:** 7 pass / 0 fail
 - **LeadVote:** 8 pass / 0 fail
-- **Legal:** 10 pass / 0 fail
-- **Load:** 5 pass / 0 fail
+- **Legal:** 6 pass / 8 fail
+- **Load:** 4 pass / 1 fail
 - **LocationBanner:** 6 pass / 0 fail
 - **Map:** 5 pass / 0 fail
 - **MultiCity:** 10 pass / 0 fail
@@ -112,7 +112,7 @@
 - **Profile:** 4 pass / 0 fail
 - **Referral:** 4 pass / 0 fail
 - **Reminder:** 7 pass / 0 fail
-- **Report:** 34 pass / 0 fail
+- **Report:** 37 pass / 0 fail
 - **Rewards:** 2 pass / 0 fail
 - **Security:** 1 pass / 0 fail
 - **Share:** 1 pass / 0 fail
@@ -133,7 +133,32 @@
 
 ## Failures
 
-_None_
+- `E16` **Invalid ward cleared on load** — failed
+- `L05` **Analytics batch enqueue** — failed
+- `LG01` **Privacy page loads** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG02` **Privacy mentions DPDP** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG03` **Terms page loads** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG04` **Terms mentions not government** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG05` **Delete account page loads** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG06` **Delete page mentions Profile flow** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG07` **Official sources page loads with gov links** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
+- `LG08` **No counsel-before-launch placeholder copy** — Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin
 
 ## Limitations
 
@@ -159,7 +184,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Drain Detective F298 |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Mate 2B6F |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle uses PMC | PASS |  |
@@ -169,7 +194,7 @@ _None_
 | C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=8f082015-aa44-4e9d-ab04-a0f6b2351546 |
+| C16 | Citizen | Report submit success modal | PASS | rid=a0ab4fda-f87d-4a1f-a205-3f563412229f |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
@@ -225,12 +250,12 @@ _None_
 | E14 | Edge | Local demo sync status shown | PASS |  |
 | E15 | Edge | Map empty CTA visible | PASS |  |
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
-| E16 | Edge | Invalid ward cleared on load | PASS |  |
+| E16 | Edge | Invalid ward cleared on load | **FAIL** |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.05s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 18ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.02s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 8ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
-| L05 | Load | Analytics batch enqueue | PASS |  |
+| L05 | Load | Analytics batch enqueue | **FAIL** |  |
 | M01 | Map | Leaflet map container | PASS |  |
 | M02 | Map | Map legend visible | PASS |  |
 | M03 | Map | Recenter button | PASS |  |
@@ -391,6 +416,9 @@ _None_
 | RP12 | Report | Popstate+Map tap during photo keeps report open | PASS |  |
 | RP12b | Report | Camera cancel + Map tap keeps report open at capture | PASS |  |
 | RP12c | Report | Camera disclosure stacks above report; Continue parks for picker | PASS |  |
+| RP12d | Report | Stuck processing: × close force-resets and dismisses | PASS |  |
+| RP12e | Report | Empty/corrupt photo stays on capture with retry CTA | PASS |  |
+| RP12f | Report | Cancel clears stuck processing and returns to capture | PASS |  |
 | VOL01 | Volunteer | Blocked without neighbourhood | PASS |  |
 | VOL02 | Volunteer | Blocked without skills | PASS |  |
 | VOL03 | Volunteer | Signup saved with valid data | PASS |  |
@@ -471,10 +499,30 @@ _None_
 | LG02 | Legal | Privacy mentions DPDP | PASS |  |
 | LG03 | Legal | Terms page loads | PASS |  |
 | LG04 | Legal | Terms mentions not government | PASS |  |
-| LG05 | Legal | Delete account page loads | PASS |  |
-| LG06 | Legal | Delete page mentions Profile flow | PASS |  |
-| LG08 | Legal | No counsel-before-launch placeholder copy | PASS |  |
-| LG07 | Legal | Official sources page loads with gov links | PASS |  |
+| LG01 | Legal | Privacy page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG02 | Legal | Privacy mentions DPDP | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG03 | Legal | Terms page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG04 | Legal | Terms mentions not government | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG05 | Legal | Delete account page loads | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG06 | Legal | Delete page mentions Profile flow | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG07 | Legal | Official sources page loads with gov links | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
+| LG08 | Legal | No counsel-before-launch placeholder copy | **FAIL** | Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigatin |
 | HF01 | Map | Hidden report excluded from count | PASS |  |
 | MR01 | Mute | Muted reporter excluded from visible reports | PASS |  |
 | CL01 | Celebration | Success modal open after report | PASS |  |
