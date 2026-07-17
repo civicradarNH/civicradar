@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v234';
+  const CIVIC_APP_VERSION = 'v238';
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       maxMapMarkers: 150,
 
-      mapMarkerDebounceMs: 250,
+      mapMarkerDebounceMs: 280,
 
       geoThrottleMs: 15000,
 
@@ -643,6 +643,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let markerRefreshTimer = null;
 
+  let wardDetectReady = Promise.resolve();
+
   let activeAdminReportId = null;
 
   let adminProofDataUrl = null;
@@ -680,6 +682,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportFlowStep = 'capture';
 
   let reportPhotoProcessing = false;
+
+  // Bumped on every photo-flow teardown so in-flight FileReader / decode / moderation
+  // completions after cancel/close/watchdog cannot re-enter confirm or leave scanning on.
+  let reportPhotoCaptureGen = 0;
 
   let reportCameraTimer = null;
 
@@ -2113,9 +2119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const streak = getReportWeekStreak();
 
-      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount)) +
-
-        (streak >= 2 ? ` — ${t('profile.streak').replace('{n}', String(streak))}` : '');
+      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
 
     }
 
@@ -2705,7 +2709,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'Welcome to your ward map',
 
-      'coach.body': 'Three taps to report: your spot, a photo, and your neighbours are in the loop.',
+      'coach.body': 'Open spots show on this map — tap Report when you see a hazard in your lane.',
 
       'coach.got': 'Got it',
 
@@ -2841,7 +2845,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'Pin this hazard on the map',
 
-      'report.geoExplainerBody': 'We use your precise location only to place this hazard pin on the community map. Pins and photos are visible to neighbours in your ward. We do not sell your location.',
+      'report.geoExplainerBody': 'We use your precise location only to place this hazard pin on the community map. Pins and photos are visible to neighbours in your ward. Location is not sold or used for marketing.',
 
       'report.geoExplainerContinue': 'Use my location',
 
@@ -2849,7 +2853,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'Photo for your hazard report',
 
-      'report.cameraDisclosureBody': 'CivicRadar uses the camera only to capture hazard evidence. Photos appear on the community map. EXIF location is stripped on-device. Avoid faces and documents.',
+      'report.cameraDisclosureBody': 'CivicRadar uses the camera only to capture hazard evidence for your report. Photos appear on the community map. EXIF location is stripped on-device. Photos are not sold or used for marketing. Avoid faces and documents.',
 
       'report.cameraDisclosureContinue': 'Continue to camera',
 
@@ -2885,7 +2889,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'Submit report',
 
-      'report.photoHint': 'Photo shows the hazard? Tap Submit — or retake if not.',
+      'report.photoHint': 'Does this photo show the hazard clearly?',
 
       'report.retake': 'Retake photo',
 
@@ -3370,7 +3374,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.subtitle': 'Fix it together in {ward} — rally neighbours with {corp}, celebrate wins, support local leads.',
 
-      'community.subtitleActive': '{ward}: {pending} open on the map — {resolved} fixed — rally neighbours or see Resources to help.',
+      'community.subtitleActive': '{ward}: {pending} of yours still open — rally neighbours or see Resources.',
 
       'community.topWards': 'Top Wards',
 
@@ -4089,7 +4093,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you. Full source links on our official sources page.',
+      'official.subtitle': 'CivicRadar does not file for you — open a verified .gov app or portal below.',
 
       'official.viewAllSources': 'View all official sources',
 
@@ -4793,9 +4797,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.dismiss': 'Dismiss seasonal tip',
 
-      'social.wardWeek': '📍 {n} neighbour(s) reported in {ward} this week',
+      'social.wardWeek': '{n} neighbour(s) reported in {ward} this week',
 
-      'social.wardWeekBacked': '🦟 {n} reported — {c} backed in {ward} this week',
+      'social.wardWeekResolved': '{n} reported — {r} fixed in {ward} this week',
+
+      'social.wardWeekBacked': '{n} reported — {c} backed in {ward} this week',
+
+      'social.wardWeekFull': '{n} reported — {r} fixed — {c} backed in {ward} this week',
 
       'social.wardWeekEmpty': 'No reports from {ward} yet this week — be the one neighbours follow.',
 
@@ -5132,7 +5140,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'आपके वार्ड के नक्शे में आपका स्वागत है',
 
-      'coach.body': 'रिपोर्ट करने के तीन टैप: अपनी जगह, एक फोटो, और आपके पड़ोसी सूचित हो जाते हैं।',
+      'coach.body': 'खुले खतरे इस नक्शे पर दिखते हैं — गली में खतरा दिखे तो Report दबाएँ।',
 
       'coach.got': 'चलो शुरू करें',
 
@@ -5268,7 +5276,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'खतरे को मैप पर पिन करें',
 
-      'report.geoExplainerBody': 'हम आपका सटीक स्थान सिर्फ इस खतरे को सामुदायिक नक्शे पर पिन करने के लिए उपयोग करते हैं। पिन और फ़ोटो आपके वार्ड के पड़ोसियों को दिखते हैं। हम स्थान नहीं बेचते।',
+      'report.geoExplainerBody': 'हम आपका सटीक स्थान सिर्फ इस खतरे को सामुदायिक नक्शे पर पिन करने के लिए उपयोग करते हैं। पिन और फ़ोटो आपके वार्ड के पड़ोसियों को दिखते हैं। स्थान नहीं बेचा जाता और मार्केटिंग के लिए उपयोग नहीं होता।',
 
       'report.geoExplainerContinue': 'मेरी लोकेशन उपयोग करें',
 
@@ -5276,7 +5284,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'खतरा रिपोर्ट के लिए फ़ोटो',
 
-      'report.cameraDisclosureBody': 'CivicRadar कैमरा सिर्फ खतरे का प्रमाण लेने के लिए उपयोग करता है। फ़ोटो सामुदायिक नक्शे पर दिखती हैं। EXIF स्थान डिवाइस पर हटाया जाता है। चेहरे और दस्तावेज़ न लें।',
+      'report.cameraDisclosureBody': 'CivicRadar कैमरा सिर्फ खतरे का प्रमाण लेने के लिए उपयोग करता है। फ़ोटो सामुदायिक नक्शे पर दिखती हैं। EXIF स्थान डिवाइस पर हटाया जाता है। फ़ोटो नहीं बेची जातीं और मार्केटिंग के लिए उपयोग नहीं होतीं। चेहरे और दस्तावेज़ न लें।',
 
       'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
@@ -5312,7 +5320,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'रिपोर्ट भेजें',
 
-      'report.photoHint': 'फ़ोटो में खतरा दिख रहा? Submit दबाएँ — नहीं तो Retake।',
+      'report.photoHint': 'फ़ोटो में खतरा साफ़ दिख रहा है?',
 
       'report.retake': 'फिर से लें',
 
@@ -5799,7 +5807,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.subtitle': '{ward} में {corp} के साथ मिलकर ठीक करें — पड़ोसियों को बुलाएँ, जीत मनाएँ, स्थानीय लीड्स को सपोर्ट करें।',
 
-      'community.subtitleActive': '{ward}: {pending} खुले खतरे · {resolved} हल। पड़ोसियों को बुलाएँ — मदद के लिए Resources देखें!',
+      'community.subtitleActive': '{ward}: आपके {pending} अभी खुले — पड़ोसियों को बुलाएँ या Resources देखें।',
 
       'community.topWards': 'शीर्ष वार्ड',
 
@@ -6518,7 +6526,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता। सभी स्रोत लिंक आधिकारिक स्रोत पेज पर।',
+      'official.subtitle': 'CivicRadar आपकी ओर से दर्ज नहीं करता — नीचे सत्यापित .gov ऐप खोलें।',
 
       'official.viewAllSources': 'सभी आधिकारिक स्रोत देखें',
 
@@ -7222,9 +7230,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.dismiss': 'मौसमी सुझाव बंद करें',
 
-      'social.wardWeek': '👥 इस सप्ताह {ward} में {n} पड़ोसियों ने रिपोर्ट की',
+      'social.wardWeek': 'इस सप्ताह {ward} में {n} पड़ोसियों ने रिपोर्ट की',
 
-      'social.wardWeekBacked': '👥 इस सप्ताह {ward} में {n} रिपोर्ट · {c} समर्थन',
+      'social.wardWeekResolved': 'इस सप्ताह {ward}: {n} रिपोर्ट · {r} हल',
+
+      'social.wardWeekBacked': 'इस सप्ताह {ward} में {n} रिपोर्ट · {c} समर्थन',
+
+      'social.wardWeekFull': 'इस सप्ताह {ward}: {n} रिपोर्ट · {r} हल · {c} समर्थन',
 
       'social.wardWeekEmpty': 'इस सप्ताह {ward} से अभी तक कोई रिपोर्ट नहीं — पड़ोसी आपका अनुसरण करेंगे।',
 
@@ -7560,7 +7572,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'तुमच्या वॉर्ड नकाशात स्वागत आहे',
 
-      'coach.body': 'नोंदवण्यासाठी तीन टॅप: तुमची जागा, एक फोटो, आणि तुमचे शेजारी कळवले जातात.',
+      'coach.body': 'खुले धोके या नकाशावर दिसतात — गल्लीत धोका दिसला तर Report दाबा.',
 
       'coach.got': 'चला सुरू करू',
 
@@ -7696,7 +7708,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'धोका नकाशावर पिन करा',
 
-      'report.geoExplainerBody': 'आम्ही तुमचे अचूक स्थान फक्त हा धोका सामुदायिक नकाशावर पिन करण्यासाठी वापरतो. पिन आणि फोटो तुमच्या वॉर्डच्या शेजाऱ्यांना दिसतात. आम्ही स्थान विकत नाही.',
+      'report.geoExplainerBody': 'आम्ही तुमचे अचूक स्थान फक्त हा धोका सामुदायिक नकाशावर पिन करण्यासाठी वापरतो. पिन आणि फोटो तुमच्या वॉर्डच्या शेजाऱ्यांना दिसतात. स्थान विकले जात नाही आणि मार्केटिंगसाठी वापरले जात नाही.',
 
       'report.geoExplainerContinue': 'माझे स्थान वापरा',
 
@@ -7704,7 +7716,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'धोका तक्रारीसाठी फोटो',
 
-      'report.cameraDisclosureBody': 'CivicRadar कॅमेरा फक्त धोक्याचा पुरावा घेण्यासाठी वापरतो. फोटो सामुदायिक नकाशावर दिसतात. EXIF स्थान डिव्हाइसवर काढले जाते. चेहरे आणि कागदपत्रे टाळा.',
+      'report.cameraDisclosureBody': 'CivicRadar कॅमेरा फक्त धोक्याचा पुरावा घेण्यासाठी वापरतो. फोटो सामुदायिक नकाशावर दिसतात. EXIF स्थान डिव्हाइसवर काढले जाते. फोटो विकले जात नाहीत आणि मार्केटिंगसाठी वापरले जात नाहीत. चेहरे आणि कागदपत्रे टाळा.',
 
       'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
@@ -7740,7 +7752,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'तक्रार पाठवा',
 
-      'report.photoHint': 'फोटोमध्ये धोका दिसतो? Submit — नाहीतर Retake.',
+      'report.photoHint': 'फोटोमध्ये धोका स्पष्ट दिसतो का?',
 
       'report.retake': 'पुन्हा काढा',
 
@@ -8227,7 +8239,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.subtitle': '{ward} मध्ये {corp} सोबत एकत्र ठीक करा — शेजाऱ्यांना बोलवा, विजय साजरे करा, स्थानिक लीड्सना पाठिंबा द्या.',
 
-      'community.subtitleActive': '{ward}: {pending} खुले धोके · {resolved} सोडवले. शेजाऱ्यांना बोलवा — मदतीसाठी Resources पहा!',
+      'community.subtitleActive': '{ward}: तुमचे {pending} अजून खुले — शेजाऱ्यांना बोलवा किंवा Resources पहा.',
 
       'community.topWards': 'अव्वल वॉर्ड',
 
@@ -8946,7 +8958,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'सत्यापित .gov अॅप आणि पोर्टल — CivicRadar तुमच्या वतीने नोंदवत नाही. सर्व स्रोत दुवे अधिकृत स्रोत पानावर.',
+      'official.subtitle': 'CivicRadar तुमच्या वतीने नोंदवत नाही — खाली सत्यापित .gov अ॑प उघडा.',
 
       'official.viewAllSources': 'सर्व अधिकृत स्रोत पहा',
 
@@ -9650,9 +9662,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.dismiss': 'हंगामी सूचना बंद करा',
 
-      'social.wardWeek': '👥 या आठवड्यात {ward} मध्ये {n} शेजाऱ्यांनी नोंद केली',
+      'social.wardWeek': 'या आठवड्यात {ward} मध्ये {n} शेजाऱ्यांनी नोंद केली',
 
-      'social.wardWeekBacked': '👥 या आठवड्यात {ward}: {n} नोंदी · {c} पाठिंबा',
+      'social.wardWeekResolved': 'या आठवड्यात {ward}: {n} नोंदी · {r} सोडवले',
+
+      'social.wardWeekBacked': 'या आठवड्यात {ward}: {n} नोंदी · {c} पाठिंबा',
+
+      'social.wardWeekFull': 'या आठवड्यात {ward}: {n} नोंदी · {r} सोडवले · {c} पाठिंबा',
 
       'social.wardWeekEmpty': 'या आठवड्यात {ward} मधून अजून कोणतीही तक्रार नाही — शेजारी तुमचे अनुसरण करतील.',
 
@@ -9988,7 +10004,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'તમારા વોર્ડના નકશામાં આપનું સ્વાગત છે',
 
-      'coach.body': 'રિપોર્ટ કરવા માટે ત્રણ ટૅપ: તમારી જગ્યા, એક ફોટો, અને તમારા પડોશીઓને ખબર પડી જાય છે.',
+      'coach.body': 'ખુલ્લા જોખમો આ નકશા પર દેખાય છે — શેરીમાં જોખમ દેખાય તો Report દબાવો.',
 
       'coach.got': 'ચાલો શરૂ કરીએ',
 
@@ -10124,7 +10140,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'જોખમ નકશા પર પિન કરો',
 
-      'report.geoExplainerBody': 'અમે તમારું ચોક્કસ સ્થાન ફક્ત આ જોખમ સમુદાય નકશા પર પિન કરવા માટે વાપરીએ છીએ. પિન અને ફોટો તમારા વોર્ડના પડોશીઓને દેખાય છે. અમે સ્થાન વેચતા નથી.',
+      'report.geoExplainerBody': 'અમે તમારું ચોક્કસ સ્થાન ફક્ત આ જોખમ સમુદાય નકશા પર પિન કરવા માટે વાપરીએ છીએ. પિન અને ફોટો તમારા વોર્ડના પડોશીઓને દેખાય છે. સ્થાન વેચાતું નથી અને માર્કેટિંગ માટે વપરાતું નથી.',
 
       'report.geoExplainerContinue': 'મારું સ્થાન વાપરો',
 
@@ -10132,7 +10148,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'જોખમ ફરિયાદ માટે ફોટો',
 
-      'report.cameraDisclosureBody': 'CivicRadar કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે વાપરે છે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
+      'report.cameraDisclosureBody': 'CivicRadar કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે વાપરે છે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ફોટો વેચાતા નથી અને માર્કેટિંગ માટે વપરાતા નથી. ચહેરા અને દસ્તાવેજો ટાળો.',
 
       'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
@@ -10168,7 +10184,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.submit': 'ફરિયાદ મોકલો',
 
-      'report.photoHint': 'ફોટોમાં જોખમ દેખાય? Submit — નહીં તો Retake.',
+      'report.photoHint': 'ફોટોમાં જોખમ સ્પષ્ટ દેખાય છે?',
 
       'report.retake': 'ફરી લો',
 
@@ -10655,7 +10671,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.subtitle': '{ward} માં {corp} સાથે મળીને ઠીક કરો — પડોશીઓને બોલાવો, જીત ઉજવો, સ્થાનિક લીડ્સને સપોર્ટ કરો.',
 
-      'community.subtitleActive': '{ward}: {pending} ખુલ્લા જોખમો · {resolved} ઉકેલાયા. પડોશીઓને બોલાવો — મદદ માટે Resources જુઓ!',
+      'community.subtitleActive': '{ward}: તમારા {pending} હજુ ખુલ્લા — પડોશીઓને બોલાવો અથવા Resources જુઓ.',
 
       'community.topWards': 'ટોચના વોર્ડ',
 
@@ -11374,7 +11390,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'ચકાસેલ .gov એપ અને પોર્ટલ — CivicRadar તમારી તરફથી નોંધાવતું નથી. બધા સ્રોત લિંક અધિકૃત સ્રોત પૃષ્ઠ પર.',
+      'official.subtitle': 'CivicRadar તમારી તરફથી નોંધાવતું નથી — નીચે ચકાસેલ .gov એપ ખોલો.',
 
       'official.viewAllSources': 'બધા અધિકૃત સ્રોતો જુઓ',
 
@@ -12078,9 +12094,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'season.dismiss': 'મોસમી સૂચન બંધ કરો',
 
-      'social.wardWeek': '👥 આ અઠવાડિયે {ward} માં {n} પડોશીઓએ નોંધ્યું',
+      'social.wardWeek': 'આ અઠવાડિયે {ward} માં {n} પડોશીઓએ નોંધ્યું',
 
-      'social.wardWeekBacked': '👥 આ અઠવાડિયે {ward}: {n} નોંધ · {c} સમર્થન',
+      'social.wardWeekResolved': 'આ અઠવાડિયે {ward}: {n} નોંધ · {r} ઉકેલાયા',
+
+      'social.wardWeekBacked': 'આ અઠવાડિયે {ward}: {n} નોંધ · {c} સમર્થન',
+
+      'social.wardWeekFull': 'આ અઠવાડિયે {ward}: {n} નોંધ · {r} ઉકેલાયા · {c} સમર્થન',
 
       'social.wardWeekEmpty': 'આ અઠવાડિયે {ward} માંથી હજુ કોઈ રિપોર્ટ નથી — પડોશીઓ તમને અનુસરશે.',
 
@@ -14584,13 +14604,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (weekEl) {
 
-      weekEl.textContent = t('impact.week')
+      // Ward-scoped social line under "Your ward this week" already covers weekly
+      // counts when a ward is set — hide the city-wide duplicate.
+      if (user && user.ward) {
 
-        .replace('{reports}', String(w.reports))
+        weekEl.textContent = '';
 
-        .replace('{resolved}', String(w.resolved))
+        weekEl.classList.add('hidden');
 
-        .replace('{confirms}', String(w.confirmations));
+      } else {
+
+        weekEl.classList.remove('hidden');
+
+        weekEl.textContent = t('impact.week')
+
+          .replace('{reports}', String(w.reports))
+
+          .replace('{resolved}', String(w.resolved))
+
+          .replace('{confirms}', String(w.confirmations));
+
+      }
 
     }
 
@@ -21891,7 +21925,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function startOnboardingWardDetect() {
+  async function startOnboardingWardDetect() {
+
+    try { await wardDetectReady; } catch { /* ignore */ }
 
     onboardingDetectedWard = '';
 
@@ -21965,6 +22001,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Modals ---------- */
 
+  const SHEET_DEPTH_BLOCKING = new Set(['tos', 'onboarding']);
+
+  function syncSheetDepthClass() {
+    try {
+      const open = modalOpenOrder.filter((n) => overlays[n] && overlays[n].classList.contains('open'));
+      const hasBlocking = open.some((n) => SHEET_DEPTH_BLOCKING.has(n));
+      const hasContent = open.some((n) => !SHEET_DEPTH_BLOCKING.has(n));
+      const depth = hasContent && !hasBlocking;
+      document.body.classList.toggle('sheet-depth', depth);
+      document.body.classList.toggle('sheet-depth-blocking', hasBlocking);
+      document.documentElement.classList.toggle('sheet-depth', depth);
+      document.documentElement.classList.toggle('sheet-depth-blocking', hasBlocking);
+      if (!open.length) {
+        document.body.classList.remove('sheet-depth', 'sheet-depth-blocking');
+        document.documentElement.classList.remove('sheet-depth', 'sheet-depth-blocking');
+      }
+    } catch { /* ignore */ }
+  }
+
+
   function bindFocusTrapForOverlay(overlayEl) {
 
     if (!overlayEl) return;
@@ -22006,6 +22062,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function focusModalLanding(name, overlayEl) {
+
+    if (!overlayEl) return;
 
     const modal = overlayEl.querySelector('.modal') || overlayEl;
 
@@ -22091,7 +22149,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const el = overlays[name];
 
-    if (!el) return;
+    if (!el || !el.classList) return;
 
     if (shouldPushModalHistory(name)) pushNavModalHistory();
 
@@ -22133,9 +22191,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (name === 'admin' || name === 'lead') updateAuthMode();
 
-    focusModalLanding(name, el);
+    try { focusModalLanding(name, el); } catch { /* ignore */ }
 
-    bindFocusTrapForOverlay(el);
+    try { bindFocusTrapForOverlay(el); } catch { /* ignore */ }
+
+    syncSheetDepthClass();
 
     if (name === 'onboarding') {
 
@@ -22516,6 +22576,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       reportPhotoProcessing,
 
+      visibility: document.visibilityState,
+
     });
 
     ensureReportModalOpen();
@@ -22539,15 +22601,33 @@ document.addEventListener('DOMContentLoaded', function () {
     } else if (reportPhotoProcessing) {
 
       // Decoding/scanning — show the report sheet again (was parked for the OS picker).
+      debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'processing' });
+
       unparkReportOverlayForPicker();
+
+      // Never leave the confirm step visible without a canvas preview while scanning.
+      if (reportFlowStep === 'confirm') {
+
+        resetPhotoConfirm();
+
+        updateReportFlowSteps('capture');
+
+      }
 
     } else if (fromCameraFlow || reportPhotoFlowActive || isReportDraftAwaitingPhoto()) {
 
-      // reportPhotoProcessing means handlePhotoCapture is already decoding/scanning the
-      // photo in the background — forcing the capture screen back here mid-flight is what
-      // made "return from camera" look broken (see advanceReportPhotoReady for the real handoff).
-      // Stay parked while the OS picker may still be up; cancel/change handlers unpark.
+      // App is foreground again without a file yet (cancel pending, or change not fired).
+      // Unpark once visible so the user is not trapped behind opacity:0 chrome; stay parked
+      // only while the document is still hidden (native picker may still own the screen).
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'capture' });
+
+      if (document.visibilityState === 'visible') {
+
+        unparkReportOverlayForPicker();
+
+      }
+
+      resetPhotoConfirm();
 
       updateReportFlowSteps('capture');
 
@@ -22569,13 +22649,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hadWatchdog = !!reportPhotoWatchdogTimer;
 
+    // Always clear scanning chrome — even on an "already idle" path — so a late
+    // moderation await cannot leave Take photo disabled with "Checking photo…".
+    setPhotoScanning(false);
+
+    // Drop draft awaitingPhoto so isReportPhotoPickerActive cannot stay true after
+    // a force-reset (dismiss/watchdog/cancel) and keep blocking later UI.
+    try {
+
+      const d = readReportDraft();
+
+      if (d && d.awaitingPhoto) touchReportDraft({ awaitingPhoto: false });
+
+    } catch { /* ignore */ }
+
     if (!wasActive && !hadWatchdog) {
+
+      unparkReportOverlayForPicker();
 
       debugLog('REPORT', 'reportPhotoProcessing skip', { where: src, reason: 'already idle' });
 
       return;
 
     }
+
+    reportPhotoCaptureGen += 1;
 
     reportPhotoFlowActive = false;
 
@@ -22591,20 +22689,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     unparkReportOverlayForPicker();
 
-    debugLog('REPORT', 'reportPhotoProcessing', { value: false, where: src, wasActive });
+    debugLog('REPORT', 'reportPhotoProcessing', {
+
+      value: false,
+
+      where: src,
+
+      wasActive,
+
+      captureGen: reportPhotoCaptureGen,
+
+    });
 
   }
 
 
 
-  /** Camera cancel / empty file: clear picker flags but arm dismiss guard so Map ghost taps cannot close the sheet. */
+  /** Camera cancel / empty file: clear picker + processing flags but arm dismiss guard so Map ghost taps cannot close the sheet. */
   function exitReportPhotoPickerWithoutCapture(where) {
 
     const src = where || 'exitReportPhotoPickerWithoutCapture';
 
-    debugLog('PHOTO', 'exit picker without capture', { where: src, reportPhotoFlowActive });
+    debugLog('PHOTO', 'exit picker without capture', {
 
-    reportPhotoFlowActive = false;
+      where: src,
+
+      reportPhotoFlowActive,
+
+      reportPhotoProcessing,
+
+    });
+
+    // Must clear reportPhotoProcessing too — some WebViews fire cancel after change
+    // started, which previously left processing=true and permanently disabled Take photo.
+    finishReportPhotoFlow(src);
 
     reportPhotoDismissGuard = Date.now();
 
@@ -22612,9 +22730,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false });
 
-    unparkReportOverlayForPicker();
-
     ensureReportModalOpen();
+
+    if (!hasReportPhotoPreview()) resetPhotoConfirm();
 
     updateReportFlowSteps('capture');
 
@@ -22632,7 +22750,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try { $('#photoInput').value = ''; } catch { /* ignore */ }
 
+    clearReportPhotoPreviewOnly();
+
     ensureReportModalOpen();
+
+    resetPhotoConfirm();
 
     updateReportFlowSteps('capture');
 
@@ -22646,17 +22768,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (reportPhotoWatchdogTimer) clearTimeout(reportPhotoWatchdogTimer);
 
+    const ms = timeoutMs || 15000;
+
+    debugLog('PHOTO', 'watchdog armed', { ms, reportPhotoProcessing, reportPhotoFlowActive });
+
     reportPhotoWatchdogTimer = setTimeout(() => {
 
       reportPhotoWatchdogTimer = null;
 
       if (!reportPhotoProcessing && !reportPhotoFlowActive) return;
 
-      debugLog('PHOTO', 'watchdog timeout', { reportPhotoProcessing, reportPhotoFlowActive, hasPreview: hasReportPhotoPreview() });
+      debugLog('PHOTO', 'watchdog timeout', {
+
+        reportPhotoProcessing,
+
+        reportPhotoFlowActive,
+
+        hasPreview: hasReportPhotoPreview(),
+
+        step: reportFlowStep,
+
+      });
+
+      // Always drop scanning chrome + re-enable Take photo before branching.
+      setPhotoScanning(false);
 
       if (hasReportPhotoPreview()) {
 
-        finishReportPhotoFlow('handlePhotoCapture');
+        finishReportPhotoFlow('watchdogPreviewReady');
+
+        // Preview exists but flow never advanced — land on confirm.
+        showPhotoConfirm();
+
+        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+
+        scheduleReportPinMapResize();
 
         return;
 
@@ -22664,7 +22810,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       failReportPhotoCapture();
 
-    }, timeoutMs || 15000);
+    }, ms);
 
   }
 
@@ -22868,7 +23014,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const el = overlays[name];
 
-    if (!el) return;
+    if (!el || !el.classList) {
+
+      modalOpenOrder = modalOpenOrder.filter((n) => n !== name);
+
+      syncSheetDepthClass();
+
+      return;
+
+    }
 
     if (name === 'report') {
 
@@ -22997,10 +23151,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Rebind trap + move focus into the still-open parent (e.g. success ← escalation).
 
-      restoreFocusTrapToTopmost();
+      try { restoreFocusTrapToTopmost(); } catch { /* ignore */ }
 
     }
 
+
+    syncSheetDepthClass();
   }
 
 
@@ -23220,6 +23376,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
   };
 
+  /** E2E helper: inspect report-photo flow flags (stuck-processing regressions). */
+  window.__civicTestReportPhotoFlags = function () {
+
+    const btn = document.getElementById('btnTakePhoto');
+
+    const status = document.getElementById('photoScanStatus');
+
+    const report = document.getElementById('reportOverlay');
+
+    return {
+
+      processing: !!reportPhotoProcessing,
+
+      flowActive: !!reportPhotoFlowActive,
+
+      captureGen: reportPhotoCaptureGen,
+
+      step: reportFlowStep,
+
+      scanning: !!(btn && btn.classList.contains('is-scanning')),
+
+      takePhotoDisabled: !!(btn && (btn.disabled || btn.classList.contains('is-scanning'))),
+
+      statusVisible: !!(status && !status.classList.contains('hidden')),
+
+      parked: !!(report && report.classList.contains('report-overlay--picker-parked')),
+
+      hasPreview: hasReportPhotoPreview(),
+
+    };
+
+  };
+
+  /** E2E helper: simulate stuck processing/scanning/parked UI without a photo. */
+  window.__civicTestStickReportPhotoProcessing = function () {
+
+    reportPhotoProcessing = true;
+
+    reportPhotoFlowActive = true;
+
+    setPhotoScanning(true);
+
+    parkReportOverlayForPicker();
+
+    updateReportFlowSteps('confirm');
+
+    touchReportDraft({ step: 'confirm', awaitingPhoto: true });
+
+    return window.__civicTestReportPhotoFlags();
+
+  };
+
   window.civicSessionResumeResetMs = SESSION_RESUME_RESET_MS;
 
   window.civicWarmResumePreserveMs = WARM_RESUME_PRESERVE_MS;
@@ -23245,17 +23453,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!name || isBlockingOverlay(name)) return false;
 
+    try {
+
     if (name === 'report' && !canDismissReportOverlay()) {
 
-      // Otherwise a tap here is silently swallowed — indistinguishable from a
-      // frozen button — while a photo hand-off from the camera is in flight.
-      if (!isToastShowing('info', t('report.closeBusy'))) {
+      // Force-reset stuck picker/processing so × / backdrop / drag-dismiss can never
+      // trap the user behind a permanent "Checking photo…" / dead Take photo state.
+      // Map ghost taps still use closeStackedModalsForNav + isReportPhotoPickerActive.
+      debugLog('REPORT', 'dismiss force-reset', {
 
-        showToast(t('report.closeBusy'), 'info', 2500);
+        processing: reportPhotoProcessing,
 
-      }
+        flowActive: reportPhotoFlowActive,
 
-      return false;
+      });
+
+      finishReportPhotoFlow('dismissForceReset');
 
     }
 
@@ -23272,6 +23485,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     return true;
+
+    } catch (err) {
+
+      try { console.warn('dismissOverlayByName', name, err); } catch { /* ignore */ }
+
+      return false;
+
+    }
 
   }
 
@@ -23459,6 +23680,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Engaged users (≥1 report) see the volunteer section expanded by default.
     if (getUserReports().length >= 1) {
       setCollapsibleSectionOpen('getInvolvedSection', 'getInvolvedBody', 'btnGetInvolvedToggle', true);
+    }
+
+    // Surface weekly ward facts once — subtitle keeps only a short personal open nudge.
+    const minePending = getUserReports().filter((r) => r.status === 'pending').length;
+    const weekStats = typeof getWardWeekStats === 'function' ? getWardWeekStats(user.ward) : null;
+    if (minePending > 0 || (weekStats && weekStats.reports > 0)) {
+      setCollapsibleSectionOpen('communityWardImpactSection', 'communityWardImpactBody', 'btnCommunityWardImpactToggle', true);
     }
 
   };
@@ -24349,21 +24577,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Init ---------- */
 
+  let _launchHideScheduled = false;
+
   function hideAppLaunch() {
 
     const el = document.getElementById('appLaunch');
 
-    if (!el || el.classList.contains('app-launch--done')) return;
+    if (!el || el.classList.contains('app-launch--done') || _launchHideScheduled) return;
 
-    el.classList.add('app-launch--done');
+    _launchHideScheduled = true;
 
-    document.body.classList.remove('app-booting');
+    // Wait for map/chrome first paint under the splash, then fade. Keep
+    // app-booting (indigo canvas) until the fade finishes — removing it at
+    // fade-start exposed --bg-main (#f8fafc) through a translucent splash.
+    requestAnimationFrame(() => {
 
-    const remove = () => { if (el.parentNode) el.remove(); };
+      requestAnimationFrame(() => {
 
-    el.addEventListener('transitionend', remove, { once: true });
+        if (!el.parentNode || el.classList.contains('app-launch--done')) return;
 
-    setTimeout(remove, 400);
+        el.classList.add('app-launch--done');
+
+        let finished = false;
+
+        const onEnd = (e) => {
+
+          if (e.target === el) finish();
+
+        };
+
+        const finish = () => {
+
+          if (finished) return;
+
+          finished = true;
+
+          el.removeEventListener('transitionend', onEnd);
+
+          document.documentElement.classList.remove('app-booting');
+
+          document.body.classList.remove('app-booting');
+
+          document.documentElement.style.removeProperty('background-color');
+
+          document.body.style.removeProperty('background-color');
+
+          document.body.style.removeProperty('margin');
+
+          if (el.parentNode) el.remove();
+
+        };
+
+        el.addEventListener('transitionend', onEnd);
+
+        setTimeout(finish, 400);
+
+      });
+
+    });
 
   }
 
@@ -24506,6 +24777,26 @@ document.addEventListener('DOMContentLoaded', function () {
     loadScriptOnce('js/image-moderation.js');
 
     loadScriptOnce('js/society-suggestions-data.js');
+
+  });
+
+
+
+  // Off HTML critical path — still SW-precached for offline.
+
+  wardDetectReady = loadScriptOnce('js/ward-detect.js').then(() => {
+
+    try { populateWardDatalists(); } catch { /* ignore */ }
+
+  });
+
+  loadScriptOnce('js/analytics.js').then(() => {
+
+    try {
+
+      if (window.CivicAnalytics && user) CivicAnalytics.setConsent(!!user.analyticsConsent);
+
+    } catch { /* ignore */ }
 
   });
 
@@ -25701,9 +25992,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
 
-      const bounds = map.getBounds().pad(0.12);
+      const bounds = map.getBounds().pad(0.2);
 
-      return reports.filter((r) => bounds.contains([r.lat, r.lng]));
+      return reports.filter((r) => {
+
+        if (r.lat == null || r.lng == null) return false;
+
+        try { return bounds.contains([r.lat, r.lng]); } catch { return false; }
+
+      });
 
     } catch {
 
@@ -25735,13 +26032,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  let markerRefreshRaf = 0;
+
   function scheduleRefreshReportMarkers() {
 
     if (!reportMarkerLayer) return;
 
     clearTimeout(markerRefreshTimer);
 
-    markerRefreshTimer = setTimeout(refreshReportMarkers, SCALE_CFG.mapMarkerDebounceMs);
+    if (markerRefreshRaf) cancelAnimationFrame(markerRefreshRaf);
+
+    markerRefreshRaf = requestAnimationFrame(() => {
+
+      markerRefreshRaf = 0;
+
+      markerRefreshTimer = setTimeout(refreshReportMarkers, SCALE_CFG.mapMarkerDebounceMs);
+
+    });
 
   }
 
@@ -25867,7 +26174,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (map) pool = reportsInViewport(pool);
 
+    // Keep an open popup pin mounted even if it briefly leaves the padded bounds.
+
+    if (reopenId != null && !pool.some((r) => r.id === reopenId)) {
+
+      const keep = reportsForMap().find((r) => r.id === reopenId);
+
+      if (keep) pool = [keep, ...pool];
+
+    }
+
     pool = prioritizeMapReports(pool).slice(0, SCALE_CFG.maxMapMarkers);
+
+    if (reopenId != null && !pool.some((r) => r.id === reopenId)) {
+
+      const keep = reportsForMap().find((r) => r.id === reopenId);
+
+      if (keep) pool = [keep, ...pool.slice(0, Math.max(0, SCALE_CFG.maxMapMarkers - 1))];
+
+    }
 
     const nextIds = new Set(pool.map((r) => r.id));
 
@@ -26001,6 +26326,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (openEl) openEl.textContent = String(stats.open);
     if (fixedEl) fixedEl.textContent = String(stats.fixedWeek);
     if (meTooEl) meTooEl.textContent = String(stats.meToo);
+    const meterOpen = $('#wardPulseMeterOpen');
+    const meterFixed = $('#wardPulseMeterFixed');
+    const total = Math.max(1, (stats.open || 0) + (stats.fixedWeek || 0));
+    if (meterOpen) meterOpen.style.width = `${Math.round(((stats.open || 0) / total) * 100)}%`;
+    if (meterFixed) meterFixed.style.width = `${Math.round(((stats.fixedWeek || 0) / total) * 100)}%`;
     el.setAttribute('aria-label', t('pulse.aria'));
   }
 
@@ -26022,13 +26352,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Object.entries(overlays).forEach(([name, el]) => {
 
+      if (!el) return;
+
       el.addEventListener('click', (e) => {
 
         if (e.target !== el) return;
 
         if (isBlockingOverlay(name)) return;
 
-        dismissOverlayByName(name);
+        try { dismissOverlayByName(name); } catch { /* ignore */ }
 
       });
 
@@ -26036,13 +26368,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#tosAccept').addEventListener('change', (e) => {
+    const tosAcceptEl = $('#tosAccept');
 
-      $('#btnTosContinue').disabled = !e.target.checked;
+    if (tosAcceptEl) tosAcceptEl.addEventListener('change', (e) => {
+
+      const btn = $('#btnTosContinue');
+
+      if (btn) btn.disabled = !e.target.checked;
 
     });
 
-    $('#btnTosContinue').addEventListener('click', () => {
+    const btnTosContinue = $('#btnTosContinue');
+    if (btnTosContinue) btnTosContinue.addEventListener('click', () => {
 
       user.tosAccepted = true;
 
@@ -26627,7 +26964,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    $('#btnDeleteData').addEventListener('click', () => { deleteMyData(); });
+    const btnDeleteData = $('#btnDeleteData');
+    if (btnDeleteData) btnDeleteData.addEventListener('click', () => { deleteMyData(); });
 
     $('#btnDeleteConfirmCancel').addEventListener('click', () => closeModal('deleteConfirm'));
 
@@ -26910,7 +27248,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    $('#btnTakePhoto').addEventListener('click', () => openReportPhotoPicker());
+    const btnTakePhotoEl = $('#btnTakePhoto');
+    if (btnTakePhotoEl) btnTakePhotoEl.addEventListener('click', () => openReportPhotoPicker());
 
     $('#photoInput').addEventListener('change', handlePhotoCapture);
 
@@ -27345,7 +27684,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#btnEnableLocation').addEventListener('click', () => {
+    const btnEnableLocation = $('#btnEnableLocation');
+
+    if (btnEnableLocation) btnEnableLocation.addEventListener('click', () => {
 
       // Tapping "Enable" is an explicit opt-in to GPS collection.
 
@@ -27501,9 +27842,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (overlays.report?.classList.contains('open') && !canDismissReportOverlay()) {
 
-        debugLog('POPSTATE', 'branch blocked', { reason: 'report photo picker active' });
+        // Explicit back while stuck processing: force-reset and close (never dead-end).
+        debugLog('POPSTATE', 'branch forceClose', { reason: 'report photo busy — user back' });
 
-        pushNavModalHistory();
+        finishReportPhotoFlow('popstateForceClose');
+
+        closeStackedModalsForNav(null);
+
+        setNavTab('map');
 
         return;
 
@@ -27804,21 +28150,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setPhotoScanning(active) {
 
+    const on = !!active;
+
+    debugLog('REPORT', 'setPhotoScanning', { active: on, processing: reportPhotoProcessing });
+
     const btn = $('#btnTakePhoto');
 
     const status = $('#photoScanStatus');
 
     const skel = $('#photoScanSkeleton');
 
-    if (btn) btn.classList.toggle('is-scanning', active);
+    if (btn) {
 
-    if (status) status.classList.toggle('hidden', !active);
+      btn.classList.toggle('is-scanning', on);
+
+      btn.disabled = on;
+
+    }
+
+    if (status) status.classList.toggle('hidden', !on);
 
     if (skel) {
 
-      skel.classList.toggle('hidden', !active);
+      skel.classList.toggle('hidden', !on);
 
-      skel.setAttribute('aria-hidden', active ? 'false' : 'true');
+      skel.setAttribute('aria-hidden', on ? 'false' : 'true');
 
     }
 
@@ -27843,6 +28199,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function showPhotoConfirm() {
+
+    if (!hasReportPhotoPreview()) {
+
+      debugLog('PHOTO', 'showPhotoConfirm blocked', { reason: 'no preview' });
+
+      resetPhotoConfirm();
+
+      updateReportFlowSteps('capture');
+
+      return;
+
+    }
 
     const group = $('#photoConfirmGroup');
 
@@ -27904,19 +28272,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function handlePhotoCapture(e) {
 
-    const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
 
-    if (!file) {
+    if (!file || !file.size) {
 
-      exitReportPhotoPickerWithoutCapture('handlePhotoCaptureNoFile');
+      exitReportPhotoPickerWithoutCapture(file ? 'handlePhotoCaptureEmptyFile' : 'handlePhotoCaptureNoFile');
 
       return;
 
     }
 
-    debugLog('PHOTO', 'handlePhotoCapture start', { size: file.size, type: file.type });
+    const captureGen = ++reportPhotoCaptureGen;
 
-    debugLog('REPORT', 'reportPhotoProcessing', { value: true, where: 'handlePhotoCapture' });
+    debugLog('PHOTO', 'handlePhotoCapture start', {
+
+      size: file.size,
+
+      type: file.type,
+
+      captureGen,
+
+    });
+
+    debugLog('REPORT', 'reportPhotoProcessing', {
+
+      value: true,
+
+      where: 'handlePhotoCapture',
+
+      captureGen,
+
+    });
 
     reportPhotoProcessing = true;
 
@@ -27925,6 +28311,11 @@ document.addEventListener('DOMContentLoaded', function () {
     unparkReportOverlayForPicker();
 
     ensureReportModalOpen();
+
+    // Stay on capture with retry CTA while decoding — never show empty confirm.
+    resetPhotoConfirm();
+
+    updateReportFlowSteps('capture');
 
 
 
@@ -27944,9 +28335,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+    const stillCurrent = () => captureGen === reportPhotoCaptureGen;
+
+
+
     const reader = new FileReader();
 
     reader.onerror = () => {
+
+      if (!stillCurrent()) {
+
+        debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'reader.onerror', captureGen });
+
+        return;
+
+      }
 
       failReportPhotoCapture();
 
@@ -27954,104 +28357,183 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reader.onload = (ev) => {
 
+      if (!stillCurrent()) {
+
+        debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'reader.onload', captureGen });
+
+        return;
+
+      }
+
       const img = new Image();
 
       img.onload = async () => {
 
-        const canvas = $('#imageCanvas');
+        if (!stillCurrent()) {
 
-        const ctx = canvas.getContext('2d');
+          debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'img.onload', captureGen });
 
-        let w = img.width;
-
-        let h = img.height;
-
-        if (w > CANVAS_MAX_WIDTH) {
-
-          h = (h * CANVAS_MAX_WIDTH) / w;
-
-          w = CANVAS_MAX_WIDTH;
+          return;
 
         }
 
-        canvas.width = w;
+        try {
 
-        canvas.height = h;
+          const canvas = $('#imageCanvas');
 
-        // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
+          if (!canvas) {
 
-        ctx.drawImage(img, 0, 0, w, h);
-
-
-
-        if (window.ImageModeration && getModCfg().enabled) {
-
-          setPhotoScanning(true);
-
-          // Bounded + exception-safe, same as the submit-time scan below — this
-          // call previously had no timeout of its own, so a slow/hung scan (first
-          // NSFW model load on a weak connection, weak CPU) could run well past
-          // the photo watchdog's own budget; the watchdog would then fire and
-          // fail the capture while this promise was still pending, and when it
-          // eventually resolved the code kept going anyway (advancing to confirm
-          // after the UI had already reset to capture with a "photo failed"
-          // toast) — a confusing race, and on a real hang, no way to recover
-          // short of the picker's outer 60s watchdog.
-          let scan;
-
-          try {
-
-            scan = await Promise.race([
-
-              ImageModeration.scanCanvas(canvas, getModCfg()),
-
-              new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
-
-            ]);
-
-          } catch {
-
-            scan = { ok: true, errored: true };
-
-          }
-
-          setPhotoScanning(false);
-
-          if (!scan.ok) {
-
-            rejectPhoto(scan);
+            failReportPhotoCapture();
 
             return;
 
           }
 
-          reportPhotoModerationPassed = true;
+          const ctx = canvas.getContext('2d');
 
-        } else {
+          let w = img.width;
 
-          reportPhotoModerationPassed = true;
+          let h = img.height;
+
+          if (!w || !h) {
+
+            failReportPhotoCapture();
+
+            return;
+
+          }
+
+          if (w > CANVAS_MAX_WIDTH) {
+
+            h = (h * CANVAS_MAX_WIDTH) / w;
+
+            w = CANVAS_MAX_WIDTH;
+
+          }
+
+          canvas.width = w;
+
+          canvas.height = h;
+
+          // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
+
+          ctx.drawImage(img, 0, 0, w, h);
+
+
+
+          if (window.ImageModeration && getModCfg().enabled) {
+
+            setPhotoScanning(true);
+
+            // Bounded + exception-safe — hung NSFW model load must not outlive the
+            // processing watchdog or leave scanning UI on after cancel/close.
+            let scan;
+
+            try {
+
+              scan = await Promise.race([
+
+                ImageModeration.scanCanvas(canvas, getModCfg()),
+
+                new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+
+              ]);
+
+            } catch {
+
+              scan = { ok: true, errored: true };
+
+            }
+
+            if (!stillCurrent()) {
+
+              setPhotoScanning(false);
+
+              debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'afterModeration', captureGen });
+
+              return;
+
+            }
+
+            setPhotoScanning(false);
+
+            if (!scan.ok) {
+
+              rejectPhoto(scan);
+
+              return;
+
+            }
+
+            reportPhotoModerationPassed = true;
+
+          } else {
+
+            reportPhotoModerationPassed = true;
+
+          }
+
+
+
+          if (!stillCurrent()) {
+
+            debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'beforeConfirm', captureGen });
+
+            return;
+
+          }
+
+          canvas.classList.add('visible');
+
+          lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
+          finishReportPhotoFlow('handlePhotoCapture');
+
+          reportPhotoDismissGuard = Date.now();
+
+          touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+
+          advanceReportPhotoReady();
+
+          debugLog('PHOTO', 'handlePhotoCapture success', {
+
+            w,
+
+            h,
+
+            moderationPassed: reportPhotoModerationPassed,
+
+            captureGen,
+
+          });
+
+        } catch (err) {
+
+          debugLog('PHOTO', 'handlePhotoCapture exception', {
+
+            msg: err && err.message ? String(err.message).slice(0, 120) : 'error',
+
+            captureGen,
+
+          });
+
+          if (stillCurrent()) failReportPhotoCapture();
+
+          else setPhotoScanning(false);
 
         }
-
-
-
-        canvas.classList.add('visible');
-
-        lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-
-        finishReportPhotoFlow('handlePhotoCapture');
-
-        reportPhotoDismissGuard = Date.now();
-
-        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
-
-        advanceReportPhotoReady();
-
-        debugLog('PHOTO', 'handlePhotoCapture success', { w, h, moderationPassed: reportPhotoModerationPassed });
 
       };
 
       img.onerror = () => {
+
+        if (!stillCurrent()) {
+
+          debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'img.onerror', captureGen });
+
+          return;
+
+        }
 
         failReportPhotoCapture();
 
@@ -28061,7 +28543,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     };
 
-    reader.readAsDataURL(file);
+    try {
+
+      reader.readAsDataURL(file);
+
+    } catch (err) {
+
+      debugLog('PHOTO', 'handlePhotoCapture readAsDataURL throw', {
+
+        msg: err && err.message ? String(err.message).slice(0, 120) : 'error',
+
+      });
+
+      failReportPhotoCapture();
+
+    }
 
   }
 
@@ -28649,7 +29145,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hint) {
 
-      hint.textContent = t(softHint ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
+      // Accuracy line already says "drag the pin" for fair/poor/unknown —
+      // keep a separate drag hint only for good accuracy, or when provisional.
+      const acc = confirmPinAccuracyM;
+      const accuracyMentionsDrag = (!softHint && !confirmPinUserAdjusted)
+        && (!Number.isFinite(acc) || (Number.isFinite(acc) && acc > GEO_ACCURACY_GOOD_M));
+      if (accuracyMentionsDrag) {
+        hint.classList.add('hidden');
+      } else {
+        hint.classList.remove('hidden');
+        hint.textContent = t(softHint ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
+      }
 
       hint.classList.toggle('report-pin-drag-hint--required', softHint);
 
@@ -29983,7 +30489,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const granted = await queryGeolocationPermission();
 
-    if (!granted && !hasSeenReportGeoExplainer()) {
+    // Play: in-app disclosure must complete before the system location prompt.
+
+    if (!granted) {
 
       const choice = await showReportGeoExplainerModal();
 
@@ -36318,8 +36826,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pending = mine.filter((r) => r.status === 'pending').length;
 
-    const resolved = mine.filter((r) => r.status === 'resolved').length;
-
     const wardLabel = user.ward ? user.ward.split('—')[0].trim() : t('header.context');
 
     el.textContent = pending > 0
@@ -36329,8 +36835,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .replace('{ward}', wardLabel)
 
         .replace('{pending}', String(pending))
-
-        .replace('{resolved}', String(resolved))
 
       : t('community.subtitle')
 
@@ -36539,6 +37043,32 @@ document.addEventListener('DOMContentLoaded', function () {
       el.textContent = t('social.wardWeekEmpty').replace('{ward}', wardLabel);
 
       el.classList.add('ward-week-social--empty');
+
+    } else if (w.resolved > 0 && w.backed > 0) {
+
+      el.textContent = t('social.wardWeekFull')
+
+        .replace('{n}', String(w.reports))
+
+        .replace('{r}', String(w.resolved))
+
+        .replace('{c}', String(w.backed))
+
+        .replace('{ward}', wardLabel);
+
+      el.classList.remove('ward-week-social--empty');
+
+    } else if (w.resolved > 0) {
+
+      el.textContent = t('social.wardWeekResolved')
+
+        .replace('{n}', String(w.reports))
+
+        .replace('{r}', String(w.resolved))
+
+        .replace('{ward}', wardLabel);
+
+      el.classList.remove('ward-week-social--empty');
 
     } else if (w.backed > 0) {
 
@@ -37176,9 +37706,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       wardImpactEl.classList.remove('hidden');
 
-      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount)) +
-
-        (streak >= 2 ? ` — ${t('profile.streak').replace('{n}', String(streak))}` : '');
+      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
 
     } else if (wardImpactEl) {
 
@@ -37298,6 +37826,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (nextBadgeHintEl) {
 
+        // Report-count badge hint only here; current streak stays on profileStreakLine.
+        // Append weeks-to-next-streak-badge (unique progress, not a repeat of streak count).
         let hint = t(milestone.hintKey).replace('{n}', String(milestone.remaining));
 
         if (streakInfo.nextKey && streakInfo.weeksToNext > 0) {

@@ -80,13 +80,17 @@
   --border: #e2e8f0;
   --overlay: rgba(0, 0, 0, 0.5);
 
-  /* Layout */
-  --header-height: 56px;
+  /* Layout — Spatial HUD (v238): map full-bleed; chrome floats above */
+  --header-height: 52px;
   --persona-bar-height: 40px;
-  --ward-pulse-height: 40px;
-  --nav-height: 64px;
+  --ward-pulse-height: 44px;
+  --nav-height: 56px;
   --fab-size: 56px;
   --touch-min: 44px;
+  --hud-inset: 12px;
+  --hud-gap: 8px;
+  --dock-float: 10px;
+  --attr-clearance: 28px;
 
   /* Radii */
   --radius-sm: 8px;
@@ -163,10 +167,12 @@ textarea {
   font-family: inherit;
 }
 
-/* Launch splash — critical rules are inlined in index.html for first paint;
-   these extend the overlay once styles.css loads (no white flash on handoff). */
+/* Launch splash — critical rules are inlined in index.html for first paint.
+   styles.css loads async and would otherwise overwrite html/body to --bg-main
+   (#f8fafc ≈ white) while the splash is still up — keep indigo until boot ends. */
+html.app-booting,
 body.app-booting {
-  background: #4f46e5;
+  background: #6366f1;
 }
 
 .app-launch {
@@ -179,20 +185,22 @@ body.app-booting {
 
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + var(--hud-gap));
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   z-index: 1000;
-  height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  height: var(--header-height);
   min-height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: env(safe-area-inset-top, 0px) 16px 0;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  padding: 0 14px 0 16px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(var(--glass-blur, 20px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-hud, var(--shadow-md));
   }
 
 .header__brand {
@@ -271,11 +279,12 @@ body.app-booting {
 /* Persona context bar */
 .persona-bar {
   position: fixed;
-  top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
-  left: 0;
-  right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height) + var(--hud-gap));
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   z-index: 999;
   min-height: var(--persona-bar-height);
+  max-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -283,21 +292,26 @@ body.app-booting {
   padding: 8px 14px;
   font-size: var(--fs-xs);
   line-height: 1.35;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-hud, var(--shadow-sm));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
 }
 
 .persona-bar--citizen {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(238, 242, 255, 0.88);
   color: #3730a3;
 }
 
 .persona-bar--admin {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(254, 242, 242, 0.9);
   color: #991b1b;
 }
 
 .persona-bar--lead {
-  background: rgba(236, 72, 153, 0.1);
+  background: rgba(253, 242, 248, 0.9);
   color: #9d174d;
 }
 
@@ -563,7 +577,12 @@ body.app-booting {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: calc(var(--nav-height) + 80px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 72px
+  );
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .coach-mark__card {
@@ -848,32 +867,75 @@ body.persona-lead #btnCamera {
    ============================================ */
 
 #map {
+  /* Full-bleed canvas behind floating HUD (fixed = viewport, not #main box) */
   position: fixed;
-  top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px));
-  left: 0;
-  right: 0;
-  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
+  transition: transform 0.38s var(--ease-sheet, ease), filter 0.38s ease;
+  transform-origin: center center;
 }
 
-/* Ward pulse — map-first dashboard strip (Clean SaaS) */
+/* Slight outdoor readability boost — keep pins/labels clear */
+#map .leaflet-tile-pane {
+  filter: contrast(1.04) saturate(1.06) brightness(1.01);
+}
+
+/* Ward pulse — floating bento capsule (Clean SaaS) */
 .ward-pulse {
   position: fixed;
-  top: calc(var(--header-height) + var(--persona-bar-height) + env(safe-area-inset-top, 0px));
-  left: 0;
-  right: 0;
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
+  );
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: auto;
   z-index: 1001;
-  height: var(--ward-pulse-height);
+  width: min(320px, calc(100vw - (var(--hud-inset) * 2) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  min-height: var(--ward-pulse-height);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-hud, var(--shadow-md));
+  }
+
+.ward-pulse__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  }
+  gap: 10px;
+  min-width: 0;
+}
+
+.ward-pulse__meter {
+  display: flex;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.ward-pulse__meter-open {
+  height: 100%;
+  background: var(--danger);
+  transition: width 0.35s var(--ease-out-soft, ease);
+}
+
+.ward-pulse__meter-fixed {
+  height: 100%;
+  background: var(--success);
+  transition: width 0.35s var(--ease-out-soft, ease);
+}
 
 .ward-pulse.hidden {
   display: none;
@@ -932,18 +994,24 @@ body.persona-lead #wardPulse {
 
 .map-legend {
   position: fixed;
-  top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 10px);
-  left: 12px;
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
+    + var(--ward-pulse-height) + 10px
+  );
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
   z-index: 1002;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border);
-    font-size: var(--fs-xs);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-hud, var(--shadow-sm));
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -1168,8 +1236,11 @@ body.manual-pin-mode #map .leaflet-container {
 
 .map-recenter {
   position: fixed;
-  right: 12px;
-  bottom: calc(var(--nav-height) + 80px + env(safe-area-inset-bottom, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 64px
+  );
   z-index: 1002;
   width: 44px;
   height: 44px;
@@ -1669,21 +1740,23 @@ body.persona-lead .ios-install-hint {
 
 #bottomNav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  /* Above the Community/Profile overlays (2000) so the tab bar stays visible and
-     tappable there; other overlays sit above the nav (2200) and still cover it. */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--dock-float));
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
+  /* Above Community/Resources/Profile overlays (2000) so the tab bar stays visible
+     and tappable there; other overlays sit above the nav (2200) and still cover it. */
   z-index: 2100;
-  height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  height: var(--nav-height);
   min-height: var(--nav-height);
   display: flex;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: var(--shadow-2);
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(var(--glass-blur, 20px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-hud, var(--shadow-md));
+  padding: 0 4px;
+  padding-bottom: 0;
 }
 
 .nav-tab {
@@ -1746,12 +1819,12 @@ body.persona-lead .ios-install-hint {
 .nav-tab.active::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 28px;
+  width: 22px;
   height: 3px;
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: var(--primary);
 }
 
@@ -1765,7 +1838,11 @@ body.persona-lead .ios-install-hint {
 
 #btnCamera {
   position: fixed;
-  bottom: calc(var(--nav-height) + 12px + env(safe-area-inset-bottom, 0px));
+  /* Clear floating dock + OSM attribution band */
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 8px
+  );
   left: 50%;
   transform: translateX(-50%);
   z-index: 1001;
@@ -1775,7 +1852,7 @@ body.persona-lead .ios-install-hint {
   padding: 0 18px;
   border-radius: var(--radius-full);
   border: none;
-  background: var(--grad-brand-cyan);
+  background: var(--grad-brand);
   color: #fff;
   font-size: var(--fs-xl);
   cursor: pointer;
@@ -1784,6 +1861,7 @@ body.persona-lead .ios-install-hint {
   justify-content: center;
   gap: 8px;
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s;
+  box-shadow: var(--shadow-pop);
 }
 
 #btnCamera:hover {
@@ -1795,15 +1873,19 @@ body.persona-lead .ios-install-hint {
 }
 
 body.pwa-nudge-visible #btnCamera {
-  bottom: calc(var(--nav-height) + 52px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 52px
+  );
 }
 
 .pwa-nudge {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 8px);
   z-index: 1500;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1899,18 +1981,24 @@ body.pwa-nudge-visible #btnCamera {
   pointer-events: none;
 }
 
-/* Community & Profile are full-screen tabs: keep them BELOW the bottom nav so the
-   tab bar shows through and users can always switch tabs / return to Map. The
-   sheet is capped and lifted so its content never hides behind the nav. */
+/* Community / Resources / Profile are full-screen tabs: keep them BELOW the
+   bottom nav so the tab bar shows through and users can always switch tabs /
+   return to Map. The sheet is capped and lifted so content never hides behind nav. */
 #communityOverlay,
+#resourcesOverlay,
 #profileOverlay {
   z-index: 2000;
-  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 8px
+  );
 }
 
 #communityModal,
+#resourcesModal,
 #profileModal {
-  max-height: calc(100dvh - var(--nav-height) - env(safe-area-inset-bottom, 0px));
+  max-height: calc(
+    100dvh - env(safe-area-inset-bottom, 0px) - var(--dock-float) - var(--nav-height) - 8px
+  );
 }
 
 .modal {
@@ -7576,11 +7664,13 @@ html[lang="gu"] body {
   }
 
   #communityOverlay,
+  #resourcesOverlay,
   #profileOverlay {
     padding-bottom: 24px;
   }
 
   #communityModal,
+  #resourcesModal,
   #profileModal {
     max-height: min(88vh, 900px);
   }
@@ -7641,10 +7731,17 @@ html[lang="gu"] body {
   }
 }
 
-/* Keep OSM attribution clear of FAB / snackbar band */
+/* Keep OSM attribution + zoom clear of floating dock + FAB */
+.leaflet-bottom {
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 4px
+  ) !important;
+}
+
 .leaflet-bottom.leaflet-right,
 .leaflet-bottom.leaflet-left {
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 /* ---- Map glass chrome (readable in glare) ---- */
@@ -7735,7 +7832,10 @@ html[lang="gu"] body {
 /* ---- Toast → bottom snackbar ---- */
 .toast-container {
   top: auto;
-  bottom: calc(var(--nav-height) + var(--fab-size) + 16px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + var(--fab-size) + 12px
+  );
   left: 50%;
   transform: translateX(-50%);
   width: min(420px, calc(100vw - 24px));
@@ -7767,7 +7867,9 @@ body.home-hero-visible .toast-container,
 body.persona-admin .toast-container,
 body.persona-lead .toast-container,
 body.pwa-nudge-visible .toast-container {
-  bottom: calc(var(--nav-height) + 16px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 16px
+  );
 }
 
 /* ---- Micro-interactions: snappy press (preserve FAB centering) ---- */
@@ -7913,13 +8015,32 @@ body.pwa-nudge-visible .toast-container {
   }
 
   .header {
-    background: rgba(17, 24, 39, 0.82);
-    border-bottom-color: rgba(51, 65, 85, 0.85);
+    background: rgba(17, 24, 39, 0.88);
+    border-color: rgba(148, 163, 184, 0.28);
   }
 
   #bottomNav {
-    background: rgba(17, 24, 39, 0.92);
-    border-top-color: rgba(51, 65, 85, 0.9);
+    background: rgba(17, 24, 39, 0.9);
+    border-color: rgba(148, 163, 184, 0.28);
+  }
+
+  .persona-bar--citizen {
+    background: rgba(49, 46, 129, 0.72);
+    color: #c7d2fe;
+  }
+
+  .persona-bar--admin {
+    background: rgba(127, 29, 29, 0.72);
+    color: #fecaca;
+  }
+
+  .persona-bar--lead {
+    background: rgba(131, 24, 67, 0.72);
+    color: #fbcfe8;
+  }
+
+  #map .leaflet-tile-pane {
+    filter: contrast(0.95) saturate(0.75) brightness(0.88);
   }
 
   .ward-pulse,
@@ -8342,3 +8463,67 @@ body.pwa-nudge-visible .toast-container {
   }
 }
 
+
+
+/* map empty: hide redundant three-beat when encourage is shown */
+.map-empty-cta:not(.hidden) .map-empty-cta__encourage:not(:empty) ~ .map-empty-cta__hint {
+  display: none;
+}
+
+/* ============================================================
+   Spatial HUD / Floating Bento (v238)
+   Full-bleed map + floating glass chrome. Sheet depth on open.
+   ============================================================ */
+
+/* Z-axis: content sheets gently push the map back */
+body.sheet-depth #map {
+  transform: scale(0.96);
+  filter: brightness(0.92);
+  pointer-events: none;
+}
+
+body.sheet-depth-blocking #map {
+  transform: none;
+  filter: brightness(0.78);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.sheet-depth #map {
+    transform: none;
+    filter: brightness(0.9);
+  }
+  #map {
+    transition: none;
+  }
+  .ward-pulse__meter-open,
+  .ward-pulse__meter-fixed {
+    transition: none;
+  }
+}
+
+/* When pulse hidden, legend sits under persona capsule */
+body.home-hero-visible .map-legend,
+body.persona-admin .map-legend,
+body.persona-lead .map-legend {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + 10px
+  );
+}
+
+/* Compact pulse stats on narrow phones */
+@media (max-width: 360px) {
+  .ward-pulse {
+    width: calc(100vw - (var(--hud-inset) * 2) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  }
+  .ward-pulse__stats {
+    gap: 6px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .ward-pulse__meter {
+    background: rgba(51, 65, 85, 0.9);
+  }
+}

@@ -4372,6 +4372,93 @@ async def run_extended_scenarios(s: Suite, browser):
     )
     s.record('RP12c', 'Report', 'Camera disclosure stacks above report; Continue parks for picker', disclosure_stack_ok)
 
+    # RP12d — stuck processing must not trap × close; force-reset clears scanning + unparks.
+    stuck_close_ok = await page.evaluate(
+        """() => {
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          window.openReportModal(false);
+          if (typeof window.__civicTestStickReportPhotoProcessing !== 'function') return { ok: false, reason: 'no hook' };
+          window.__civicTestStickReportPhotoProcessing();
+          const before = window.__civicTestReportPhotoFlags();
+          document.querySelector('#reportOverlay [data-close=report]')?.click();
+          const after = window.__civicTestReportPhotoFlags();
+          const closed = !document.getElementById('reportOverlay')?.classList.contains('open');
+          return {
+            ok: !!(before.processing && before.scanning && before.parked
+              && closed && !after.processing && !after.scanning && !after.parked),
+            before, after, closed,
+          };
+        }"""
+    )
+    s.record(
+        'RP12d',
+        'Report',
+        'Stuck processing: × close force-resets and dismisses',
+        bool(stuck_close_ok and stuck_close_ok.get('ok')),
+        '' if stuck_close_ok and stuck_close_ok.get('ok') else str(stuck_close_ok),
+    )
+
+    # RP12e — corrupt / empty photo must stay on capture with Take photo re-enabled.
+    corrupt_ok = await page.evaluate(
+        """() => new Promise((resolve) => {
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          window.openReportModal(false);
+          const input = document.getElementById('photoInput');
+          if (!input) { resolve({ ok: false, reason: 'no input' }); return; }
+          const empty = new File([new Uint8Array(0)], 'empty.jpg', { type: 'image/jpeg' });
+          const dt = new DataTransfer();
+          dt.items.add(empty);
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+          setTimeout(() => {
+            const flags = window.__civicTestReportPhotoFlags
+              ? window.__civicTestReportPhotoFlags()
+              : {};
+            const captureStep = document.querySelector('#reportFlowSteps .flow-step[data-step=capture]');
+            const onCapture = !!(captureStep && captureStep.classList.contains('is-active'));
+            const open = document.getElementById('reportOverlay')?.classList.contains('open');
+            resolve({
+              ok: !!(open && onCapture && !flags.processing && !flags.scanning && !flags.takePhotoDisabled && !flags.parked && !flags.hasPreview),
+              flags, onCapture, open,
+            });
+          }, 400);
+        })"""
+    )
+    s.record(
+        'RP12e',
+        'Report',
+        'Empty/corrupt photo stays on capture with retry CTA',
+        bool(corrupt_ok and corrupt_ok.get('ok')),
+        '' if corrupt_ok and corrupt_ok.get('ok') else str(corrupt_ok),
+    )
+
+    # RP12f — cancel after a stuck processing flag must clear processing and unpark.
+    cancel_clear_ok = await page.evaluate(
+        """() => {
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          window.openReportModal(false);
+          window.__civicTestStickReportPhotoProcessing();
+          document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
+          const input = document.getElementById('photoInput');
+          try { input.dispatchEvent(new Event('cancel', { bubbles: true })); } catch (_) {}
+          const flags = window.__civicTestReportPhotoFlags();
+          const captureStep = document.querySelector('#reportFlowSteps .flow-step[data-step=capture]');
+          return {
+            ok: !!(flags && !flags.processing && !flags.scanning && !flags.parked && !flags.takePhotoDisabled
+              && captureStep && captureStep.classList.contains('is-active')
+              && document.getElementById('reportOverlay')?.classList.contains('open')),
+            flags,
+          };
+        }"""
+    )
+    s.record(
+        'RP12f',
+        'Report',
+        'Cancel clears stuck processing and returns to capture',
+        bool(cancel_clear_ok and cancel_clear_ok.get('ok')),
+        '' if cancel_clear_ok and cancel_clear_ok.get('ok') else str(cancel_clear_ok),
+    )
+
     await ctx.close()
 
 
@@ -5265,7 +5352,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v234" in sw_src
+            "civicradar-v238" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8414,7 +8501,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v234" in sw_src
+            "civicradar-v238" in sw_src
 
             and "'/index.html'" not in sw_src
 
