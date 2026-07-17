@@ -1755,18 +1755,18 @@ body.persona-lead .ios-install-hint {
 #bottomNav,
 .bottom-nav {
   position: fixed;
-  /* Safe-area lives in padding-bottom so the dock can grow without
-     stretching tab icons (content box stays --nav-height). */
-  bottom: var(--dock-float);
+  /* Safe-area in bottom offset (not padding) so the pill sits above the
+     gesture bar without deforming border-radius; icons stay --nav-height. */
+  bottom: calc(var(--dock-float) + env(safe-area-inset-bottom, 12px));
   left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
   right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   /* Above Community/Resources/Profile overlays (2000) so the tab bar stays visible
      and tappable there; other overlays sit above the nav (2200) and still cover it. */
   z-index: 2100;
   height: auto;
-  min-height: calc(var(--nav-height) + env(safe-area-inset-bottom, 16px));
+  min-height: var(--nav-height);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(var(--glass-blur, 20px));
   -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
@@ -1774,7 +1774,6 @@ body.persona-lead .ios-install-hint {
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-hud, var(--shadow-md));
   padding: 0 4px;
-  padding-bottom: env(safe-area-inset-bottom, 16px);
 }
 
 .nav-tab {
@@ -7883,7 +7882,7 @@ html[lang="gu"] body {
 /* ---- Toast → native snackbar (v241) ---- */
 .toast-container {
   top: auto;
-  /* Clears floating dock (content + safe-area padding) + FAB + gesture bar */
+  /* Clears floating dock (offset + nav height) + FAB + gesture bar */
   bottom: calc(
     var(--dock-float) + var(--nav-height) + var(--fab-size) + 32px
     + env(safe-area-inset-bottom, 0px)
@@ -8661,6 +8660,8 @@ html.modal-open #pwaInstallNudge {
       0 6px 16px rgba(0, 0, 0, 0.4),
       0 14px 32px rgba(0, 0, 0, 0.35);
   }
+
+  .modal__handle { background: #475569; }
 
   .modal {
     background: var(--glass-sheet);
