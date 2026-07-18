@@ -2203,6 +2203,16 @@ async def run_load_tests(s: Suite, browser):
 
     s.record('L04', 'Load', 'Rapid corroboration increments', conf >= 5, f'n={conf}')
 
+    # analytics.js is lazy-loaded via requestIdleCallback (js/app.js loadScriptOnce),
+    # not a synchronous <script> tag, so it may not be attached yet right after reload.
+    try:
+
+        await page.wait_for_function('() => !!window.CivicAnalytics', timeout=10000)
+
+    except Exception:
+
+        pass
+
     s.record('L05', 'Load', 'Analytics batch enqueue', await page.evaluate(
 
         '() => { if (!window.CivicAnalytics) return false; for (let i=0;i<12;i++) CivicAnalytics.track("load_test",{i}); return true; }'
@@ -4001,6 +4011,10 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RW02', 'Rewards', 'Profile rewards bar visible after reports', profile_rewards)
 
+    # #successPoints counts up from 0 over 800ms (animateValue) — without this
+    # wait the read below can catch it mid-animation (e.g. "+49") instead of settled.
+    await page.wait_for_timeout(900)
+
     xp_success_label = await page.evaluate(
 
         '() => { const el = document.getElementById("successPoints"); return el ? el.textContent : ""; }'
@@ -5352,7 +5366,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v248" in sw_src
+            "civicradar-v251" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8501,7 +8515,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v248" in sw_src
+            "civicradar-v251" in sw_src
 
             and "'/index.html'" not in sw_src
 

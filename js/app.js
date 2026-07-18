@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v248';
+  const CIVIC_APP_VERSION = 'v251';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -14530,8 +14530,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       closeModal('profile');
 
-      showToast(t('profile.deleteDone'), 'success', 5000);
-
+      // No success toast here: the toast-container's z-index (3000) sits above
+      // every modal-overlay (2200) by design so status toasts stay visible over
+      // ordinary modals, but that means a toast fired right before this reopens
+      // the full-screen ToS/onboarding gate visually collides with it — and the
+      // gate reappearing is itself the confirmation that data was wiped.
       openModal('tos');
 
     } catch (e) {
@@ -20015,6 +20018,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function selectHazard(key) {
 
+    Haptics.tap();
+
     $('#hazardType').value = key;
 
     $$('#hazardGrid .hazard-tile').forEach((t) => {
@@ -21140,11 +21145,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
 
-    if (type === 'error') Haptics.error();
-
     const container = $('#toastContainer');
 
     if (!container) return;
+
+    // De-dupe: an identical non-interactive toast already showing keeps its own
+    // countdown instead of being torn down and rebuilt — otherwise a repeating
+    // condition (e.g. a persistent poor-GPS-fix retry) re-vibrates the device
+    // and restarts the timer on every retry tick.
+    if (!action) {
+      const key = `${type}::${message}`;
+      const existing = Array.from(container.children).find((el) => el.dataset && el.dataset.civicToastKey === key);
+      if (existing) return;
+    }
+
+    if (type === 'error') Haptics.error();
 
     const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
 
@@ -28079,6 +28094,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // (or within the dismiss guard). A photo already on confirm must NOT block normal back.
 
     window.addEventListener('popstate', () => {
+
+      // The camera-disclosure and GPS-explainer sub-dialogs never push their own
+      // history entry (they sit on top of the already-pushed report modal), so
+      // without this they fall into the photoReturn branch below — which restores
+      // the popped history entry but never closes the sheet, leaving hardware
+      // back visibly inert while either is open. Treat back as their Cancel
+      // action instead, same as backdrop-tap/Escape already do via closeModal's
+      // resolve-hook, then restore history protection for the report modal
+      // underneath since that entry is what actually got consumed.
+      if (overlays.reportCamera?.classList.contains('open')) {
+
+        closeModal('reportCamera');
+
+        if (overlays.report?.classList.contains('open')) pushNavModalHistory();
+
+        return;
+
+      }
+
+      if (overlays.reportGeo?.classList.contains('open')) {
+
+        closeModal('reportGeo');
+
+        if (overlays.report?.classList.contains('open')) pushNavModalHistory();
+
+        return;
+
+      }
 
       // Consume the camera launch's pushed history entry here, not on a timer —
       // the user may spend far longer than PHOTO_RETURN_GUARD_MS framing/reviewing

@@ -218,9 +218,13 @@
       const chunk = buffer.slice(0, 50);
       const ok = await flushToSupabase(chunk);
       if (ok && supabaseClient) {
-        const sent = new Set(chunk.map((r) => r.created_at + r.session_id));
+        // event_type must stay in the key — created_at is millisecond precision and
+        // several events routinely share a timestamp within one session (e.g. boot
+        // perf marks fired in the same tick), so key-ing on timestamp+session alone
+        // can prune a different, still-unsent event out of the retry buffer.
+        const sent = new Set(chunk.map((r) => r.created_at + r.event_type + r.session_id));
         const remaining = loadBuffer().filter(
-          (r) => !sent.has(r.created_at + r.session_id)
+          (r) => !sent.has(r.created_at + r.event_type + r.session_id)
         );
         saveBuffer(remaining);
       }

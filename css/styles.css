@@ -85,16 +85,16 @@
   --border: #e2e8f0;
   --overlay: rgba(0, 0, 0, 0.5);
 
-  /* Layout — Spatial HUD (v238): map full-bleed; chrome floats above */
-  --header-height: 52px;
-  --persona-bar-height: 40px;
-  --ward-pulse-height: 44px;
-  --map-hud-height: 40px;
+  /* Layout — Spatial HUD (v238, condensed v250): map full-bleed; chrome floats above */
+  --header-height: 44px;
+  --persona-bar-height: 34px;
+  --ward-pulse-height: 38px;
+  --map-hud-height: 34px;
   --nav-height: 56px;
   --fab-size: 56px;
   --touch-min: 44px;
   --hud-inset: 12px;
-  --hud-gap: 8px;
+  --hud-gap: 5px;
   --dock-float: 10px;
   --attr-clearance: 28px;
 
@@ -221,7 +221,9 @@ body.app-booting {
 
 .header__titles {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -229,18 +231,18 @@ body.app-booting {
   line-height: 1.2;
 }
 
+/* Condensed HUD (v250): ward context already surfaces in the ward-pulse pill
+   directly below for citizens, and in the persona bar for admin/lead — this
+   line stays updated by JS for that reason but is redundant on-screen. */
 .header__context {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--text-muted);
+  display: none;
 }
 
 .header__sync {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  margin-top: 2px;
-  font-size: var(--fs-xs);
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -290,20 +292,28 @@ body.app-booting {
   right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   z-index: 999;
   min-height: var(--persona-bar-height);
-  max-height: 72px;
+  max-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 14px;
+  padding: 6px 14px;
   font-size: var(--fs-xs);
-  line-height: 1.35;
+  line-height: 1.3;
   border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-pill);
   box-shadow: var(--shadow-hud, var(--shadow-sm));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   overflow: hidden;
+}
+
+.persona-bar__main p {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
 }
 
 .persona-bar--citizen {
@@ -900,6 +910,40 @@ body.persona-lead #btnCamera {
   filter: contrast(1.04) saturate(1.06) brightness(1.01);
 }
 
+/* HUD legibility scrims (v250): soft gradient fades behind the floating
+   header/persona/ward pills and the bottom nav, so those glass pills can stay
+   translucent over bright map tiles without needing a heavier solid backing. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+body::before {
+  top: 0;
+  height: 140px;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.16), rgba(15, 23, 42, 0));
+}
+
+body::after {
+  bottom: 0;
+  height: 90px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0));
+}
+
+@media (prefers-color-scheme: dark) {
+  body::before {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0));
+  }
+  body::after {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0));
+  }
+}
+
 /* Ward pulse — floating bento capsule (Clean SaaS) */
 .ward-pulse {
   position: fixed;
@@ -1450,32 +1494,25 @@ body.manual-pin-mode #map .leaflet-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 10px;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 14px;
   border-radius: 50%;
   background: var(--grad-brand-cyan);
+  box-shadow: var(--shadow-md);
 }
 
 .map-empty-cta__icon-wrap i {
-  font-size: var(--fs-2xl);
+  font-size: 34px;
   color: #fff;
 }
 
 .map-empty-cta__title {
-  font-size: var(--fs-base);
-  font-weight: 700;
+  font-size: var(--fs-xl);
+  font-weight: 800;
   color: var(--text-dark);
-  margin-bottom: 6px;
-  line-height: 1.35;
-}
-
-.map-empty-cta__hint {
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  line-height: 1.35;
-  opacity: 0.9;
+  margin: 0 0 16px;
+  line-height: 1.3;
 }
 
 .map-empty-cta .btn { width: 100%; }
@@ -2517,7 +2554,7 @@ body.pwa-nudge-visible #btnCamera {
 
 .esc-step__badge--locked {
   background: var(--canvas);
-  color: var(--ink-400);
+  color: var(--ink-600);
   border: 1px solid var(--border);
 }
 
@@ -2946,15 +2983,6 @@ body.pwa-nudge-visible #btnCamera {
 .success-icon--cert {
   /* Level accent set via --cert-badge in showCertificateModal; fallback brand */
   background: var(--cert-badge, var(--grad-brand));
-}
-
-.map-empty-cta__encourage {
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--primary);
-  margin: 0 0 4px;
-  line-height: 1.35;
-  text-align: center;
 }
 
 .leaflet-interactive.marker-pin-drop {
@@ -5538,22 +5566,25 @@ body.persona-lead .app-open-banner { display: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--bg-main, #f1f5f9);
   color: var(--text-muted, #94a3b8);
   font-size: var(--fs-xs);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .status-stepper__step.is-done .status-stepper__icon {
   background: var(--success, #10b981);
   color: #fff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
 }
 
 .status-stepper__step.is-active .status-stepper__icon {
-  background: rgba(99, 102, 241, 0.14);
-  color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
 }
 
 .status-stepper__label {
@@ -5881,12 +5912,12 @@ body.persona-lead .app-open-banner { display: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-height: 84px;
+  gap: 6px;
+  min-height: 108px;
   min-width: 44px;
-  padding: 14px 10px;
+  padding: 16px 10px;
   border: 2px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--surface);
   cursor: pointer;
   font-family: var(--font);
@@ -5896,7 +5927,7 @@ body.persona-lead .app-open-banner { display: none; }
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.hazard-tile i { font-size: var(--fs-xl); }
+.hazard-tile i { font-size: 32px; }
 .hazard-tile[data-hazard="stagnant-water"] i { color: var(--hazard-water); }
 .hazard-tile[data-hazard="garbage"] i { color: var(--hazard-garbage); }
 .hazard-tile[data-hazard="potholes"] i { color: var(--hazard-pothole); }
@@ -5906,7 +5937,7 @@ body.persona-lead .app-open-banner { display: none; }
 .hazard-tile[data-hazard="garbage"]:not(.hazard-tile--active) { background: rgba(21, 128, 61, 0.06); border-color: rgba(21, 128, 61, 0.22); }
 .hazard-tile[data-hazard="potholes"]:not(.hazard-tile--active) { background: rgba(234, 88, 12, 0.06); border-color: rgba(234, 88, 12, 0.22); }
 .hazard-tile[data-hazard="streetlight"]:not(.hazard-tile--active) { background: rgba(161, 98, 7, 0.07); border-color: rgba(161, 98, 7, 0.28); }
-.hazard-tile__label { font-size: var(--fs-sm); font-weight: 600; text-align: center; line-height: 1.25; word-break: break-word; hyphens: auto; }
+.hazard-tile__label { font-size: var(--fs-md); font-weight: 700; text-align: center; line-height: 1.25; word-break: break-word; hyphens: auto; }
 .hazard-tile__example { font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); text-align: center; line-height: 1.25; }
 .hazard-tile__check {
   position: absolute;
@@ -7453,11 +7484,11 @@ a,
 
 /* ---- Spec Pass 5b: report flow progress bar ---- */
 .flow-progress {
-  height: 3px;
+  height: 4px;
   background: var(--border);
   border-radius: var(--radius-full);
   overflow: hidden;
-  margin: 6px 0 2px;
+  margin: 8px 0 4px;
 }
 .flow-progress__fill {
   height: 100%;
@@ -8893,11 +8924,6 @@ html.modal-open #pwaInstallNudge {
 }
 
 
-
-/* map empty: hide redundant three-beat when encourage is shown */
-.map-empty-cta:not(.hidden) .map-empty-cta__encourage:not(:empty) ~ .map-empty-cta__hint {
-  display: none;
-}
 
 /* ============================================================
    Spatial HUD / Floating Bento (v238)
