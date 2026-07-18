@@ -1055,18 +1055,6 @@ body.persona-lead #wardPulse {
   display: none !important;
 }
 
-/* Compressed HUD (v252): citizens get one slim ward-pulse token pill instead
-   of a second, text-paragraph persona bar stacked above it — that bar stays
-   fully live for admin/lead, where it's the only status readout and carries
-   the overdue-count/exit-mode action button. */
-body.persona-citizen {
-  --persona-bar-height: 0px;
-}
-
-body.persona-citizen #personaBar {
-  display: none !important;
-}
-
 .map-legend {
   position: fixed;
   top: calc(
@@ -2087,16 +2075,13 @@ body.pwa-nudge-visible #btnCamera {
   pointer-events: none;
 }
 
-/* Community / Resources / Profile: nav-bar coexistence is handled by their own
-   modal padding-bottom (below) reserving space above the dock, not by sitting
-   under the nav's z-index (2100) — a lower z-index here let the nav bar cover
-   this overlay's own close button whenever the sheet rendered shorter than
-   the nav's occupied region (short content, reduced viewport height from
-   mobile browser chrome, etc.). Sit above the nav like every other overlay. */
+/* Community / Resources / Profile sit under the tab bar (z below nav) so tabs
+   stay tappable. Dock sheet to bottom:0 — do not lift with overlay padding
+   (that gap exposed the map). Clear nav via modal padding-bottom instead. */
 #communityOverlay,
 #resourcesOverlay,
 #profileOverlay {
-  z-index: 2150;
+  z-index: 2000;
   padding-bottom: 0;
 }
 
