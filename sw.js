@@ -1,4 +1,4 @@
-const CACHE = 'civicradar-v245';
+const CACHE = 'civicradar-v247';
 const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',

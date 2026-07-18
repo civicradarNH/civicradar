@@ -5,7 +5,10 @@
 :root {
   /* Brand — indigo + cyan (pre-v153 palette; teal trial reverted for contrast) */
   --primary: #6366f1;
+  --primary-rgb: 99, 102, 241;
   --primary-dark: #4f46e5;
+  --brand-600: #6366f1;
+  --brand-700: #4f46e5;
   --primary-50: #eef2ff;
   --primary-100: #e0e7ff;
   --primary-glow: rgba(99, 102, 241, 0.28);
@@ -77,6 +80,7 @@
   --text: #0f172a;
   --text-muted: #64748b;
   --surface: #ffffff;
+  --surface-rgb: 255, 255, 255;
   --surface-light: #f1f5f9;
   --border: #e2e8f0;
   --overlay: rgba(0, 0, 0, 0.5);
@@ -118,7 +122,7 @@
   --grad-brand: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   --grad-brand-cyan: linear-gradient(135deg, #6366f1 0%, #22d3ee 140%);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-sheet: cubic-bezier(0.175, 0.885, 0.32, 1.15);
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-press: 0.4s;
   --glass-sheet: rgba(255, 255, 255, 0.85);
@@ -777,15 +781,16 @@ body.app-booting {
 .dashboard-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 14px;
 }
 
 .dashboard-stat {
-  padding: 12px;
+  padding: 16px;
   background: var(--bg-main);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   text-align: center;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
 .dashboard-stat span {
@@ -793,13 +798,16 @@ body.app-booting {
   font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .dashboard-stat label {
   font-size: var(--fs-xs);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .workflow-hint {
@@ -879,8 +887,12 @@ body.persona-lead #btnCamera {
   width: 100%;
   height: 100%;
   z-index: 1;
-  transition: transform 0.38s var(--ease-sheet, ease), filter 0.38s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    filter 0.4s ease,
+    border-radius 0.4s ease;
   transform-origin: center center;
+  border-radius: 0;
 }
 
 /* Slight outdoor readability boost — keep pins/labels clear */
@@ -980,6 +992,7 @@ body.persona-lead #btnCamera {
   font-weight: 700;
   color: var(--text-dark);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .ward-pulse__stat--open strong { color: var(--danger); }
@@ -1758,8 +1771,11 @@ body.persona-lead .ios-install-hint {
   /* Safe-area in bottom offset (not padding) so the pill sits above the
      gesture bar without deforming border-radius; icons stay --nav-height. */
   bottom: calc(var(--dock-float) + env(safe-area-inset-bottom, 12px));
-  left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
-  right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
+  /* ≈ width: calc(100% - 32px); margin: 0 16px — plus notch safe-areas */
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  width: auto;
+  margin: 0;
   /* Above Community/Resources/Profile overlays (2000) so the tab bar stays visible
      and tappable there; other overlays sit above the nav (2200) and still cover it. */
   z-index: 2100;
@@ -1767,12 +1783,15 @@ body.persona-lead .ios-install-hint {
   min-height: var(--nav-height);
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(var(--glass-blur, 20px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(var(--surface-rgb), 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(var(--surface-rgb), 0.55);
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-hud, var(--shadow-md));
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.1),
+    0 8px 28px rgba(var(--primary-rgb), 0.1),
+    0 0 0 1px rgba(var(--primary-rgb), 0.06);
   padding: 0 4px;
 }
 
@@ -2097,6 +2116,22 @@ body.pwa-nudge-visible #btnCamera {
   font-weight: 700;
   margin-bottom: 4px;
   line-height: 1.25;
+  position: sticky;
+  top: -16px;
+  z-index: 10;
+  margin-top: -8px;
+  padding-top: 16px;
+  padding-bottom: 8px;
+  transition: background 0.2s, backdrop-filter 0.2s, -webkit-backdrop-filter 0.2s, border-color 0.2s;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.modal h2.is-scrolled {
+  background: rgba(var(--surface-rgb, 255, 255, 255), 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
 }
 
 .modal:has(.modal__close) h2 {
@@ -2386,6 +2421,11 @@ body.pwa-nudge-visible #btnCamera {
   background: transparent;
   color: var(--text-muted);
   margin-top: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn--ghost:active:not(:disabled) {
+  background: rgba(15, 23, 42, 0.04);
 }
 
 .btn--sm {
@@ -2450,7 +2490,8 @@ body.pwa-nudge-visible #btnCamera {
   margin-bottom: 12px;
 }
 
-.modal.is-sheet-dragging {
+.modal.is-sheet-dragging,
+.modal.is-dragging {
   transition: none !important;
   touch-action: none;
 }
@@ -2868,6 +2909,8 @@ body.pwa-nudge-visible #btnCamera {
 .profile-xp__total {
   font-size: var(--fs-xs);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .profile-xp__track {
@@ -2882,7 +2925,15 @@ body.pwa-nudge-visible #btnCamera {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: var(--surface);
+  background-color: var(--surface);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-juice 2s infinite linear;
   transition: width 0.5s ease;
 }
 
@@ -3886,6 +3937,8 @@ body.persona-lead .app-open-banner { display: none; }
   font-weight: 700;
   color: var(--primary);
   font-size: var(--fs-base);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* ============================================
@@ -4085,16 +4138,17 @@ body.persona-lead .app-open-banner { display: none; }
 .impact-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 14px;
 }
 .impact-stats--about { margin-bottom: 16px; }
 .impact-stat {
-  padding: 10px 6px;
+  padding: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   text-align: center;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
   }
 .impact-stat span {
   display: block;
@@ -4102,12 +4156,14 @@ body.persona-lead .app-open-banner { display: none; }
   font-weight: 700;
   color: var(--primary);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 .impact-stat label {
   font-size: var(--fs-xs);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  font-weight: 700;
   line-height: 1.25;
   word-break: break-word;
   hyphens: auto;
@@ -4436,11 +4492,45 @@ body.persona-lead .app-open-banner { display: none; }
    ============================================ */
 
 .profile-card {
+  position: relative;
+  overflow: hidden;
   background: var(--grad-brand-cyan);
   border-radius: var(--radius-lg);
   padding: 24px;
   color: #fff;
   margin-bottom: 20px;
+}
+
+/* Aurora ambient glow (Fuselab-inspired, subtle primary tint) */
+.profile-card::before {
+  content: '';
+  position: absolute;
+  inset: -45%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 45% at 35% 30%,
+    rgba(var(--primary-rgb), 0.2) 0%,
+    rgba(var(--primary-rgb), 0.08) 42%,
+    transparent 68%
+  );
+  animation: aurora-spin 20s linear infinite;
+}
+
+.profile-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes aurora-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-card::before {
+    animation: none;
+  }
 }
 
 /* Carries the hero card's elevation down into the plain settings fields
@@ -4588,6 +4678,8 @@ body.persona-lead .app-open-banner { display: none; }
   font-size: var(--fs-2xl);
   font-weight: 700;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .stat__label {
@@ -4595,7 +4687,8 @@ body.persona-lead .app-open-banner { display: none; }
   opacity: 0.85;
   margin-top: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .section-title {
@@ -4713,9 +4806,9 @@ body.persona-lead .app-open-banner { display: none; }
   font-size: var(--fs-base);
   line-height: 1.5;
   padding: 28px 20px;
-  background: var(--bg-main);
-  border: 1.5px dashed rgba(148, 163, 184, 0.45);
-  border-radius: var(--radius);
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: var(--radius-lg);
 }
 
 /* Hidden admin triggers (tap ward name 5×) */
@@ -5567,7 +5660,7 @@ body.persona-lead .app-open-banner { display: none; }
   margin: 0 0 4px;
   font-size: var(--fs-xs);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--primary);
 }
@@ -5660,12 +5753,12 @@ body.persona-lead .app-open-banner { display: none; }
 
 /* ---------- Dashboard stat variants ---------- */
 .dashboard-stats--3 { grid-template-columns: repeat(3, 1fr); }
-.dashboard-stats--3 .dashboard-stat { padding: 10px 6px; }
+.dashboard-stats--3 .dashboard-stat { padding: 16px; }
 @media (max-width: 479px) {
   .dashboard-stats--3 { grid-template-columns: 1fr; }
 }
 .dashboard-stats--4 { grid-template-columns: repeat(4, 1fr); }
-.dashboard-stats--4 .dashboard-stat { padding: 10px 6px; }
+.dashboard-stats--4 .dashboard-stat { padding: 16px; }
 .dashboard-stats--4 .dashboard-stat span { font-size: var(--fs-xl); }
 .dashboard-stat--warn span { color: var(--warning-fg); }
 .dashboard-stat--ok span { color: var(--success); }
@@ -5828,8 +5921,16 @@ body.persona-lead .app-open-banner { display: none; }
   line-height: 1;
 }
 .hazard-tile--active {
-  border-color: var(--primary);
-  background: rgba(99, 102, 241, 0.08);
+  /* Conduit gradient border — surface fill + indigo edge (no purple) */
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--primary), var(--brand-700, var(--primary-dark))) border-box;
+  box-shadow: inset 0 0 14px rgba(var(--primary-rgb), 0.12);
+  color: var(--text-dark);
+}
+.hazard-tile--active .hazard-tile__label {
+  color: var(--text-dark);
 }
 .hazard-tile--active .hazard-tile__check {
   opacity: 1;
@@ -6105,7 +6206,7 @@ a:focus-visible {
   background: var(--bg-main);
 }
 .btn--ghost:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(15, 23, 42, 0.04);
   color: var(--text-dark);
 }
 
@@ -6505,7 +6606,15 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 .lead-candidate__bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  background: var(--surface);
+  background-color: var(--surface);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-juice 2s infinite linear;
   transition: width 0.3s ease;
 }
 .lead-candidate__count {
@@ -7027,6 +7136,14 @@ a,
 .report-pin-marker {
   background: transparent;
   border: none;
+  transition: transform 0.35s var(--ease-spring), filter 0.35s var(--ease-spring);
+  will-change: transform;
+}
+
+/* Sniper lock-on: lift while map/pin is panning, spring back on settle */
+.report-pin-marker.is-panning {
+  transform: translateY(-12px) scale(1.06);
+  filter: drop-shadow(0 10px 12px rgba(15, 23, 42, 0.28));
 }
 
 .report-pin-marker__dot {
@@ -7042,6 +7159,17 @@ a,
 
 .report-pin-marker__dot--adjusted {
   background: var(--primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-pin-marker {
+    transition: none;
+    will-change: auto;
+  }
+  .report-pin-marker.is-panning {
+    transform: none;
+    filter: none;
+  }
 }
 
 .report-pin-fullmap {
@@ -7281,11 +7409,15 @@ a,
 .btn--ghost {
   background: transparent;
   color: var(--text-muted);
-    border: none;
+  border: none;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .btn--ghost:hover:not(:disabled) {
-  background: var(--bg-main);
+  background: rgba(15, 23, 42, 0.04);
   color: var(--text-dark);
+}
+.btn--ghost:active:not(:disabled) {
+  background: rgba(15, 23, 42, 0.04);
 }
 /* Channel buttons: brand color in icon only (except success-modal WhatsApp) */
 .btn--whatsapp {
@@ -7331,12 +7463,30 @@ a,
 .flow-progress__fill {
   height: 100%;
   width: 50%;
-  background: var(--primary);
+  background-color: var(--primary);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-juice 2s infinite linear;
   border-radius: inherit;
   transition: width 0.35s var(--ease-spring, ease);
 }
+
+@keyframes shimmer-juice {
+  to { background-position: 200% 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .flow-progress__fill { transition: none; }
+  .flow-progress__fill,
+  .profile-xp__fill,
+  .lead-candidate__bar-fill {
+    transition: none;
+    animation: none;
+  }
 }
 
 /* ---- Spec Pass 5c: card entrance (subtle) ---- */
@@ -8064,6 +8214,7 @@ html.modal-open #pwaInstallNudge {
     --bg-main: #0b1220;
     --canvas: #0b1220;
     --surface: #111827;
+    --surface-rgb: 17, 24, 39;
     --surface-light: #1f2937;
     /* Primary text — user names + existing aliases (light on dark) */
     --text-primary: #f9fafb;
@@ -8079,6 +8230,7 @@ html.modal-open #pwaInstallNudge {
     --overlay: rgba(0, 0, 0, 0.72);
     /* WCAG: lighter indigo fill + dark label on primary CTAs */
     --primary: #818cf8;
+    --primary-rgb: 129, 140, 248;
     --primary-dark: #a5b4fc;
     --primary-hover: #a5b4fc;
     --brand-600: #818cf8;
@@ -8167,10 +8319,14 @@ html.modal-open #pwaInstallNudge {
     stroke: currentColor;
   }
   .hazard-tile--active {
-    color: var(--text-primary);
+    color: #e5e7eb;
+    background:
+      linear-gradient(var(--surface), var(--surface)) padding-box,
+      linear-gradient(135deg, var(--primary), var(--brand-700)) border-box;
+    box-shadow: inset 0 0 14px rgba(var(--primary-rgb), 0.18);
   }
   .hazard-tile--active .hazard-tile__label {
-    color: var(--text-primary);
+    color: #e5e7eb;
   }
 
   /* Primary CTAs: dark ink on light indigo (FAB keeps light label) */
@@ -8212,8 +8368,12 @@ html.modal-open #pwaInstallNudge {
 
   #bottomNav,
   .bottom-nav {
-    background: rgba(17, 24, 39, 0.9);
+    background: rgba(var(--surface-rgb), 0.9);
     border-color: rgba(148, 163, 184, 0.28);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.28),
+      0 8px 28px rgba(var(--primary-rgb), 0.12),
+      0 0 0 1px rgba(var(--primary-rgb), 0.1);
   }
 
   .persona-bar--citizen {
@@ -8329,7 +8489,7 @@ html.modal-open #pwaInstallNudge {
    ============================================================ */
 :root {
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-sheet: cubic-bezier(0.175, 0.885, 0.32, 1.15);
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-press: 0.4s;
   --glass-sheet: rgba(255, 255, 255, 0.85);
@@ -8360,7 +8520,8 @@ html.modal-open #pwaInstallNudge {
   -webkit-transform: translate3d(0, 0, 0);
 }
 
-.modal.is-sheet-dragging {
+.modal.is-sheet-dragging,
+.modal.is-dragging {
   transition: none !important;
   touch-action: none;
 }
@@ -8737,26 +8898,36 @@ html.modal-open #pwaInstallNudge {
    Full-bleed map + floating glass chrome. Sheet depth on open.
    ============================================================ */
 
-/* Z-axis: content sheets gently push the map back */
+/* Z-axis: content sheets push the map back (scale + dim + soft blur) */
 body.sheet-depth #map {
-  transform: scale(0.96);
-  filter: brightness(0.92);
+  transform: scale(0.95);
+  filter: brightness(0.7) blur(2px);
+  border-radius: 16px;
+  overflow: hidden;
   pointer-events: none;
 }
 
 body.sheet-depth-blocking #map {
   transform: none;
   filter: brightness(0.78);
+  border-radius: 0;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   body.sheet-depth #map {
     transform: none;
-    filter: brightness(0.9);
+    filter: brightness(0.7);
+    border-radius: 0;
+    overflow: visible;
+  }
+  body.sheet-depth-blocking #map {
+    transform: none;
+    filter: brightness(0.78);
+    border-radius: 0;
   }
   #map {
-    transition: none;
+    transition: filter 0.4s ease;
   }
   .ward-pulse__meter-open,
   .ward-pulse__meter-fixed {
@@ -8918,4 +9089,90 @@ body.sheet-depth-blocking .map-hud {
 #onboardingOverlay #onboardingModal,
 #tosOverlay .modal:has(> .modal__sticky-footer) {
   scroll-padding-bottom: 96px;
+}
+
+/* ============================================================
+   High-Density Minimalism (v246) — Linear / Wealthfront / Lattice / Notion
+   ============================================================ */
+
+/* Lattice bento resting shadow (light) already on .dashboard-stat / .impact-stat */
+
+@media (prefers-color-scheme: dark) {
+  /* Linear machined dark surfaces — inset edge, no heavy borders */
+  .report-card,
+  .pledge-card,
+  .dashboard-stat,
+  .profile-details-card,
+  .esc-step,
+  .impact-stat {
+    border: none !important;
+    border-color: transparent;
+    background: #111827;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .esc-step--active {
+    background: rgba(129, 140, 248, 0.12);
+    box-shadow:
+      inset 0 0 0 1px rgba(129, 140, 248, 0.35),
+      0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .empty-state {
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .btn--ghost:hover:not(:disabled),
+  .btn--ghost:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+  }
+}
+
+/* ============================================================
+   Cinematic polish (v247) — Fuselab-inspired, Clean SaaS constraints
+   Aurora · floating glass dock · conduit hazard · map kinetics
+   ============================================================ */
+
+/* Dock metrics unchanged (--dock-float / --nav-height): FAB, toast, OSM
+   clearance keep Spatial HUD formulas from v244+. */
+
+/* Radar pulse — confirm-pin settle / location confirmed / submit success */
+.radar-pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 650;
+  box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.18);
+  animation: sonar-boom 0.9s var(--ease-out-soft, ease-out) forwards;
+}
+
+@keyframes sonar-boom {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(2.75);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-pulse {
+    animation: none;
+    display: none;
+  }
+  .profile-card::before {
+    animation: none;
+  }
 }

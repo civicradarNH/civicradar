@@ -18,7 +18,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v245';
+  const CIVIC_APP_VERSION = 'v247';
+
+  const Haptics = {
+    tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
+    success: () => { if (navigator.vibrate) navigator.vibrate([20, 50, 30]); },
+    error: () => { if (navigator.vibrate) navigator.vibrate([30, 40, 30, 40, 30]); }
+  };
+
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function animateValue(element, start, end, duration, opts) {
+    if (!element) return;
+    const format = (opts && typeof opts.format === 'function')
+      ? opts.format
+      : (n) => String(Math.round(n));
+    const from = Number(start) || 0;
+    const to = Number(end) || 0;
+    const ms = Math.max(0, Number(duration) || 800);
+    if (prefersReducedMotion() || ms === 0 || from === to) {
+      element.textContent = format(to);
+      return;
+    }
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / ms);
+      const eased = 1 - Math.pow(1 - p, 3);
+      element.textContent = format(from + (to - from) * eased);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
 
@@ -640,6 +672,11 @@ document.addEventListener('DOMContentLoaded', function () {
   let locationRefineWatchId = null;
 
   let locationRefineUntil = 0;
+
+  // Atmospheric swoop: first cold GPS center only (not every pan / modal / refine).
+  let mapLocateSwoopDone = false;
+
+  let mapLocateSwoopTimer = null;
 
   let markerRefreshTimer = null;
 
@@ -19194,6 +19231,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     launchConfetti({ intensity: 'mini' });
 
+    Haptics.success();
+
     showToast(t('confirm.meTooThanks'), 'success', 3200, {
 
       label: t('share.meTooBtn'),
@@ -21101,6 +21140,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
 
+    if (type === 'error') Haptics.error();
+
     const container = $('#toastContainer');
 
     if (!container) return;
@@ -22190,6 +22231,15 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('modal-open');
 
     document.body.style.overflow = 'hidden';
+
+    try {
+      const modalEl = el.querySelector('.modal');
+      if (modalEl) {
+        const heading = modalEl.querySelector('h2');
+        if (heading) heading.classList.remove('is-scrolled');
+        syncModalStickyHeader(modalEl);
+      }
+    } catch { /* ignore */ }
 
     if (!hadOpen) {
 
@@ -25112,6 +25162,196 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function isAutomatedBrowser() {
+
+    try {
+
+      return !!(typeof navigator !== 'undefined' && navigator.webdriver);
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
+
+
+  /** Radar pulse overlay on a map host; no-op under reduced motion. */
+  function playRadarPulse(container, opts) {
+
+    opts = opts || {};
+
+    if (!container || prefersReducedMotion()) return;
+
+    const prev = container.querySelector(':scope > .radar-pulse');
+
+    if (prev) {
+
+      try { prev.remove(); } catch { /* ignore */ }
+
+    }
+
+    const el = document.createElement('span');
+
+    el.className = 'radar-pulse';
+
+    el.setAttribute('aria-hidden', 'true');
+
+    container.appendChild(el);
+
+    if (opts.haptic) {
+
+      try { Haptics.success(); } catch { /* ignore */ }
+
+    }
+
+    const cleanup = () => {
+
+      try { el.remove(); } catch { /* ignore */ }
+
+    };
+
+    el.addEventListener('animationend', cleanup, { once: true });
+
+    setTimeout(cleanup, 1400);
+
+  }
+
+
+
+  function setConfirmPinPanning(on) {
+
+    if (!reportPinMarker || prefersReducedMotion()) return;
+
+    let el = null;
+
+    try { el = reportPinMarker.getElement(); } catch { el = null; }
+
+    if (!el) return;
+
+    el.classList.toggle('is-panning', !!on);
+
+  }
+
+
+
+  function wireReportPinMapKinetics() {
+
+    if (!reportPinMap || reportPinMap._civicKineticsWired) return;
+
+    reportPinMap._civicKineticsWired = true;
+
+    reportPinMap.on('movestart', (e) => {
+
+      if (prefersReducedMotion()) return;
+
+      // Ignore programmatic setView — only user pan / marker-drag autoPan.
+      const markerDragging = !!(reportPinMarker && reportPinMarker.dragging
+
+        && typeof reportPinMarker.dragging.moving === 'function'
+
+        && reportPinMarker.dragging.moving());
+
+      if (!(e && e.originalEvent) && !markerDragging) return;
+
+      setConfirmPinPanning(true);
+
+    });
+
+    reportPinMap.on('moveend', () => {
+
+      const el = reportPinMarker && reportPinMarker.getElement
+
+        ? reportPinMarker.getElement()
+
+        : null;
+
+      const wasPanning = !!(el && el.classList.contains('is-panning'));
+
+      setConfirmPinPanning(false);
+
+      if (!wasPanning || prefersReducedMotion()) return;
+
+      try { Haptics.tap(); } catch { /* ignore */ }
+
+    });
+
+  }
+
+
+
+  /**
+   * First cold GPS locate: setView(~11) then flyTo(~16–17). Later recenters: setView only.
+   * Skips flyTo for reduced-motion and Playwright (navigator.webdriver).
+   */
+  function centerMapOnUser(lat, lng, accuracyM, opts) {
+
+    opts = opts || {};
+
+    if (!map || !isValidGpsCoords(lat, lng)) return;
+
+    const finalZoom = zoomForAccuracy(accuracyM);
+
+    if (mapLocateSwoopTimer) {
+
+      clearTimeout(mapLocateSwoopTimer);
+
+      mapLocateSwoopTimer = null;
+
+    }
+
+    const canSwoop = !mapLocateSwoopDone
+
+      && !prefersReducedMotion()
+
+      && !isAutomatedBrowser();
+
+    if (!canSwoop) {
+
+      try { map.setView([lat, lng], finalZoom); } catch { /* ignore */ }
+
+      mapLocateSwoopDone = true;
+
+      if (opts.pulse) playRadarPulse($('#map'));
+
+      return;
+
+    }
+
+    mapLocateSwoopDone = true;
+
+    try { map.setView([lat, lng], 11, { animate: false }); } catch { /* ignore */ }
+
+    mapLocateSwoopTimer = setTimeout(() => {
+
+      mapLocateSwoopTimer = null;
+
+      if (!map) return;
+
+      try {
+
+        map.flyTo([lat, lng], finalZoom, { duration: 2.5, easeLinearity: 0.1 });
+
+      } catch {
+
+        try { map.setView([lat, lng], finalZoom); } catch { /* ignore */ }
+
+      }
+
+      if (opts.pulse) {
+
+        setTimeout(() => playRadarPulse($('#map')), 2600);
+
+      }
+
+    }, 400);
+
+  }
+
+
+
   function getPrecisePosition(opts) {
 
     opts = opts || {};
@@ -25610,7 +25850,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (opts.recenter && map) {
 
-      map.setView([lat, lng], zoomForAccuracy(accuracyM));
+      // First cold locate: atmospheric swoop; later recenters stay setView-only.
+      centerMapOnUser(lat, lng, accuracyM, { pulse: true });
 
     }
 
@@ -26382,6 +26623,8 @@ document.addEventListener('DOMContentLoaded', function () {
     bindHazardPicker();
 
     initSheetDragDismiss();
+
+    initModalStickyHeaders();
 
     Object.entries(overlays).forEach(([name, el]) => {
 
@@ -27247,7 +27490,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#btnCamera').addEventListener('click', () => window.openReportModal(true));
+    $('#btnCamera').addEventListener('click', () => {
+      Haptics.tap();
+      window.openReportModal(true);
+    });
 
     const mapEmptyBtn = $('#btnMapEmptyReport');
 
@@ -27395,7 +27641,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    $('#btnSubmitReport').addEventListener('click', submitReport);
+    $('#btnSubmitReport').addEventListener('click', () => {
+      Haptics.tap();
+      submitReport();
+    });
 
 
 
@@ -29435,7 +29684,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }).addTo(reportPinMap);
 
+      wireReportPinMapKinetics();
+
       reportPinMarker.on('dragstart', () => {
+
+        setConfirmPinPanning(true);
 
         if (reportPinAccuracyCircle) {
 
@@ -29448,6 +29701,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       reportPinMarker.on('dragend', () => {
+
+        setConfirmPinPanning(false);
 
         const p = reportPinMarker.getLatLng();
 
@@ -29463,7 +29718,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try { reportPinMap.panTo(p, { animate: true }); } catch { /* ignore */ }
 
+        // Pulse only — moveend already taps when the pin was lifted.
+        playRadarPulse(host);
+
       });
+
+    } else {
+
+      wireReportPinMapKinetics();
 
     }
 
@@ -29685,6 +29947,9 @@ document.addEventListener('DOMContentLoaded', function () {
         false
 
       );
+
+      // Location confirmed on confirm-pin map after GPS refine settles.
+      playRadarPulse($('#reportPinMap'), { haptic: true });
 
     }).catch((err) => {
 
@@ -30929,7 +31194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       ptsEl.innerHTML =
 
-        `+${total} <span class="success-points__label">${escapeHtml(t('success.points'))}</span>` +
+        `+<span class="success-points__num">0</span> <span class="success-points__label">${escapeHtml(t('success.points'))}</span>` +
 
         (weekBonus > 0
 
@@ -30940,6 +31205,9 @@ document.addEventListener('DOMContentLoaded', function () {
       void ptsEl.offsetWidth;
 
       ptsEl.classList.add('is-animating');
+
+      const numEl = ptsEl.querySelector('.success-points__num');
+      if (numEl) animateValue(numEl, 0, total, 800);
 
     }
 
@@ -30959,7 +31227,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (officialToggle) officialToggle.setAttribute('aria-expanded', 'false');
 
+    Haptics.success();
+
     openModal('success');
+
+    // Submit-success sonar on the main map (haptic already fired above).
+    playRadarPulse($('#map'));
 
     requestAnimationFrame(() => {
 
@@ -31458,7 +31731,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function initSheetDragDismiss() {
 
-    const DISMISS_PX = 110;
+    const DISMISS_PX = 100;
 
     const DISMISS_VELOCITY = 0.55;
 
@@ -31488,6 +31761,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let fromHandle = false;
 
+      function scrollTopOf(modalEl) {
+        let top = modalEl.scrollTop || 0;
+        const nested = modalEl.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
+        if (nested) top = Math.max(top, nested.scrollTop || 0);
+        return top;
+      }
+
       function dragZone(target) {
 
         if (!target || !modal.contains(target)) return false;
@@ -31505,8 +31785,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             && target.getBoundingClientRect().top - rect.top < 72
 
-            && modal.scrollTop <= 0);
+            && scrollTopOf(modal) <= 0);
 
+      }
+
+      function setDraggingClass(on) {
+        modal.classList.toggle('is-sheet-dragging', on);
+        modal.classList.toggle('is-dragging', on);
       }
 
       function resetDrag(animate) {
@@ -31519,7 +31804,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         fromHandle = false;
 
-        modal.classList.remove('is-sheet-dragging');
+        setDraggingClass(false);
 
         if (!animate || prefersReducedMotion()) {
 
@@ -31531,7 +31816,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        modal.style.transition = 'transform 0.36s var(--ease-spring)';
+        modal.style.transition = 'transform 0.36s var(--ease-sheet, cubic-bezier(0.175, 0.885, 0.32, 1.15))';
 
         modal.style.transform = '';
 
@@ -31541,9 +31826,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       function finishDismiss() {
 
-        modal.classList.remove('is-sheet-dragging');
+        setDraggingClass(false);
 
-        modal.style.transition = prefersReducedMotion() ? 'none' : 'transform 0.32s var(--ease-sheet, cubic-bezier(0.32, 0.72, 0, 1))';
+        modal.style.transition = prefersReducedMotion() ? 'none' : 'transform 0.32s var(--ease-sheet, cubic-bezier(0.175, 0.885, 0.32, 1.15))';
 
         modal.style.transform = 'translate3d(0, 110%, 0)';
 
@@ -31571,7 +31856,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!fromHandle && !dragZone(e.target)) return;
 
-        if (!fromHandle && modal.scrollTop > 0) return;
+        if (!fromHandle && scrollTopOf(modal) > 0) return;
 
         startY = t.clientY;
 
@@ -31610,7 +31895,7 @@ document.addEventListener('DOMContentLoaded', function () {
           decided = true;
 
           // Content scroll wins over sheet drag (unless pulling from handle at top).
-          if (!fromHandle && (modal.scrollTop > 0 || (deltaY < 0 && Math.abs(deltaY) >= Math.abs(deltaX)))) {
+          if (!fromHandle && (scrollTopOf(modal) > 0 || (deltaY < 0 && Math.abs(deltaY) >= Math.abs(deltaX)))) {
 
             startY = 0;
 
@@ -31636,7 +31921,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           dragging = true;
 
-          modal.classList.add('is-sheet-dragging');
+          setDraggingClass(true);
 
           modal.style.transition = 'none';
 
@@ -31645,7 +31930,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!dragging) return;
 
         // User started scrolling content mid-gesture.
-        if (!fromHandle && modal.scrollTop > 0) {
+        if (!fromHandle && scrollTopOf(modal) > 0) {
 
           resetDrag(false);
 
@@ -31667,7 +31952,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         lastT = now;
 
-        modal.style.transform = `translate3d(0, ${dy}px, 0)`;
+        modal.style.transform = `translateY(${dy}px)`;
 
         if (e.cancelable) e.preventDefault();
 
@@ -31683,7 +31968,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        const shouldDismiss = dy >= DISMISS_PX || (dy > 48 && velocity > DISMISS_VELOCITY);
+        const shouldDismiss = dy > DISMISS_PX || (dy > 48 && velocity > DISMISS_VELOCITY);
 
         startY = 0;
 
@@ -31705,13 +31990,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-
-  function prefersReducedMotion() {
-
-    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
+  function getModalScrollParent(modal) {
+    if (!modal) return null;
+    const nested = modal.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
+    try {
+      const style = window.getComputedStyle(modal);
+      const oy = style.overflowY || '';
+      // Prefer nested scroller when .modal itself is clipped (e.g. report confirm).
+      if (nested && /(hidden|clip)/.test(oy)) return nested;
+      if (/(auto|scroll|overlay)/.test(oy)) return modal;
+    } catch { /* ignore */ }
+    return nested || modal;
   }
 
+  function syncModalStickyHeader(modal) {
+    if (!modal) return;
+    const heading = modal.querySelector('h2');
+    if (!heading) return;
+    const scroller = getModalScrollParent(modal) || modal;
+    const top = scroller.scrollTop || 0;
+    heading.classList.toggle('is-scrolled', top > 10);
+  }
+
+  function initModalStickyHeaders() {
+    Object.values(overlays).forEach((overlay) => {
+      if (!overlay) return;
+      const modal = overlay.querySelector('.modal');
+      if (!modal) return;
+      const onScroll = () => syncModalStickyHeader(modal);
+      modal.addEventListener('scroll', onScroll, { passive: true });
+      modal.querySelectorAll('.report-step, .modal__body, [data-modal-scroll]').forEach((el) => {
+        el.addEventListener('scroll', onScroll, { passive: true });
+      });
+    });
+  }
 
 
   const CONFETTI_HUES = [4, 28, 45, 160, 190, 230, 280, 330];
@@ -31888,7 +32200,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (celebrationSoundMuted()) return;
 
-      if (navigator.vibrate) navigator.vibrate(10);
+      Haptics.success();
 
     } catch { /* unsupported / denied */ }
 
@@ -31902,7 +32214,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(reportCount);
 
-    celebrationHaptic();
+    // Haptics.success already fired in showSuccessModal — skip duplicate pulse.
 
     launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
 
@@ -37737,7 +38049,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#profilePoints').textContent = getTotalCivicXp().toLocaleString();
+    const profilePtsEl = $('#profilePoints');
+    if (profilePtsEl) {
+      const nextPts = getTotalCivicXp();
+      const prevPts = parseInt(String(profilePtsEl.textContent || '0').replace(/[^\d-]/g, ''), 10);
+      const startPts = Number.isFinite(prevPts) ? prevPts : nextPts;
+      animateValue(profilePtsEl, startPts, nextPts, 800, {
+        format: (n) => Math.round(n).toLocaleString(),
+      });
+    }
 
     $('#profileFixed').textContent = resolved.length;
 
