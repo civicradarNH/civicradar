@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v251';
+  const CIVIC_APP_VERSION = 'v253';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },

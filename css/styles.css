@@ -1055,6 +1055,18 @@ body.persona-lead #wardPulse {
   display: none !important;
 }
 
+/* Compressed HUD (v252): citizens get one slim ward-pulse token pill instead
+   of a second, text-paragraph persona bar stacked above it — that bar stays
+   fully live for admin/lead, where it's the only status readout and carries
+   the overdue-count/exit-mode action button. */
+body.persona-citizen {
+  --persona-bar-height: 0px;
+}
+
+body.persona-citizen #personaBar {
+  display: none !important;
+}
+
 .map-legend {
   position: fixed;
   top: calc(
@@ -1083,6 +1095,18 @@ body.persona-lead #wardPulse {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Static legend (v252) — moved out of the map HUD into the Community tab;
+   reuses .map-legend__item/.dot styling but sits inline in modal flow. */
+.legend-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px 0 14px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .dot {
@@ -1176,28 +1200,32 @@ body.persona-lead #wardPulse {
   .location-banner__close:active { transform: none; }
 }
 
+/* Icon-only FAB (v252) — was a top-left text pill contributing to HUD stack
+   clutter; occupies the exact same slot as #btnRecenter (mutually exclusive,
+   see updateMapLocationControls) so it sits right above the zoom controls
+   instead of competing with the header/persona/ward-pulse cluster for space. */
 .map-locate-pill {
   position: fixed;
-  top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 52px);
-  left: 12px;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 64px
+  );
   z-index: 1002;
-  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
-    color: var(--primary);
-  font-family: var(--font);
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  color: var(--primary);
   cursor: pointer;
 }
 
 .map-locate-pill i {
-  font-size: var(--fs-md);
+  font-size: var(--fs-xl);
   flex-shrink: 0;
 }
 
@@ -1813,8 +1841,9 @@ body.persona-lead .ios-install-hint {
   right: max(16px, env(safe-area-inset-right, 0px));
   width: auto;
   margin: 0;
-  /* Above Community/Resources/Profile overlays (2000) so the tab bar stays visible
-     and tappable there; other overlays sit above the nav (2200) and still cover it. */
+  /* Sits below every modal overlay (2150+) now — a close button that a short
+     sheet could leave unreachable behind the nav is worse than losing the old
+     "tap the nav through an open sheet" shortcut. */
   z-index: 2100;
   height: auto;
   min-height: var(--nav-height);
@@ -2058,13 +2087,16 @@ body.pwa-nudge-visible #btnCamera {
   pointer-events: none;
 }
 
-/* Community / Resources / Profile sit under the tab bar (z below nav) so tabs
-   stay tappable. Dock sheet to bottom:0 — do not lift with overlay padding
-   (that gap exposed the map). Clear nav via modal padding-bottom instead. */
+/* Community / Resources / Profile: nav-bar coexistence is handled by their own
+   modal padding-bottom (below) reserving space above the dock, not by sitting
+   under the nav's z-index (2100) — a lower z-index here let the nav bar cover
+   this overlay's own close button whenever the sheet rendered shorter than
+   the nav's occupied region (short content, reduced viewport height from
+   mobile browser chrome, etc.). Sit above the nav like every other overlay. */
 #communityOverlay,
 #resourcesOverlay,
 #profileOverlay {
-  z-index: 2000;
+  z-index: 2150;
   padding-bottom: 0;
 }
 
@@ -9010,6 +9042,7 @@ body.persona-lead .map-legend {
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-height: var(--map-hud-height);
   max-height: calc(var(--map-hud-height) + 8px);
@@ -9090,15 +9123,6 @@ body.home-hero-visible .map-legend,
 body.persona-admin .map-legend,
 body.persona-lead .map-legend {
   top: auto; /* row layout — ignore old stacked offset */
-}
-
-/* Keep locate/coords clear of the HUD row (not stacked under pulse) */
-.map-locate-pill {
-  top: calc(
-    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
-    + var(--hud-gap) + var(--persona-bar-height) + var(--hud-gap)
-    + var(--map-hud-height) + var(--hud-gap)
-  );
 }
 
 body.sheet-depth .map-hud,

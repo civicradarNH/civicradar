@@ -158,11 +158,6 @@
         <span class="ward-pulse__meter-fixed" id="wardPulseMeterFixed" style="width:0%"></span>
       </div>
     </div>
-    <div id="mapLegend" class="map-legend" data-i18n-aria="map.legend.aria" aria-label="Map legend">
-      <span class="map-legend__item"><i class="dot dot--pending"></i> <span data-i18n="map.legend.pending">Open</span></span>
-      <span class="map-legend__item"><i class="dot dot--resolved"></i> <span data-i18n="map.legend.resolved">Fixed</span></span>
-      <span class="map-legend__item"><i class="dot dot--you"></i> <span data-i18n="map.legend.you">You</span></span>
-    </div>
   </div>
 
   <main id="main">
@@ -219,7 +214,6 @@
 
   <button type="button" id="btnLocatePill" class="map-locate-pill hidden" data-i18n-aria="location.locateAria" aria-label="Turn on location">
     <i class="ph ph-map-pin"></i>
-      <span data-i18n="location.locate">Turn on location</span>
   </button>
 
   <div id="manualPinBanner" class="manual-pin-banner hidden" role="status">
@@ -675,6 +669,12 @@
       <button type="button" class="modal__close" data-close="community" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="communityTitle" data-i18n="community.title">Community</h2>
       <p class="modal__subtitle" id="communitySubtitle" data-i18n="community.subtitle">Fix it together in your ward — rally neighbours, celebrate wins, support local leads.</p>
+
+      <div id="mapLegend" class="legend-inline" data-i18n-aria="map.legend.aria" aria-label="Map legend">
+        <span class="map-legend__item"><i class="dot dot--pending"></i> <span data-i18n="map.legend.pending">Open</span></span>
+        <span class="map-legend__item"><i class="dot dot--resolved"></i> <span data-i18n="map.legend.resolved">Fixed</span></span>
+        <span class="map-legend__item"><i class="dot dot--you"></i> <span data-i18n="map.legend.you">You</span></span>
+      </div>
 
       <div class="community-summary" id="communitySummary">
         <div class="impact-stats is-skeleton" id="communityImpactStats" aria-live="polite">
