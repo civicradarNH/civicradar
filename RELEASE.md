@@ -114,12 +114,15 @@ red smoke test.
   git push origin v1.4.0
   ```
 
-- **Service worker cache bump** — the SW cache constant in `sw.js` is currently
-  `const CACHE = 'civicradar-v229'` (keep in step with `CIVIC_APP_VERSION` in
-  `js/app.js`). **Bump this number on every production release**
-  that changes cached assets (HTML/CSS/JS), so returning users get the new files
-  instead of a stale cache. (Owned by the app agent — coordinate the bump as part of
-  the release; see Follow-ups.)
+- **Service worker cache bump** — keep `sw.js` `CACHE` (`civicradar-vNNN`) in
+  lockstep with `CIVIC_APP_VERSION` in `js/app.js`, and update SW06 in
+  `tests/e2e_comprehensive.py`. **Bump on every production release** that changes
+  cached assets (HTML/CSS/JS). GitHub Pages cannot set custom `Cache-Control`
+  headers on HTML — the versioned SW cache is the update lever.
+- **Stuck on a stale PWA (testers)** — open `?clearSw=1` on the app URL (unregisters
+  the service worker, clears Cache Storage, reloads once). Or Chrome/Android:
+  site settings → Clear & reset. TWA/Play builds use the same origin SW; after a
+  web deploy, use the in-app Reload toast or `?clearSw=1` / clear site data.
 - **CHANGELOG** — move items from `[Unreleased]` into a dated version section in
   `CHANGELOG.md` for each release.
 

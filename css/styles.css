@@ -1119,7 +1119,8 @@ body.persona-lead #wardPulse {
   right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   z-index: 1002;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
   padding: 10px 12px;
   background: var(--warning-soft-bg);
@@ -1129,13 +1130,34 @@ body.persona-lead #wardPulse {
   color: var(--warning-dark);
   }
 
-.location-banner i {
+/* Two-row layout (v255) — icon+text on their own line, actions on the next
+   one, right-aligned. Sharing a single row squeezed the "Turn on" button
+   into an awkward mid-sentence wrap on narrow phones. Text itself is
+   untouched (DPDP location-consent notice, not something to trim). */
+.location-banner__msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.location-banner__msg i {
   font-size: var(--fs-lg);
   flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.location-banner span#locationBannerText {
+  line-height: 1.4;
+}
+
+.location-banner__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .location-banner__btn {
-  margin-left: auto;
   min-height: var(--touch-min);
   padding: 8px 14px;
   border: 1px solid rgba(180, 83, 9, 0.35);

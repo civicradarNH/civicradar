@@ -1,4 +1,16 @@
-const CACHE = 'civicradar-v254';
+/* CivicRadar service worker.
+ *
+ * Ship checklist (any HTML/CSS/JS change):
+ *   1. Bump CIVIC_APP_VERSION in js/app.js (e.g. v255)
+ *   2. Set CACHE below to the same suffix: 'civicradar-v255'
+ *   3. Update SW06 expected string in tests/e2e_comprehensive.py
+ *
+ * Testers stuck on a stale build: open
+ *   …/civicradar/?clearSw=1
+ * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
+ * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
+ */
+const CACHE = 'civicradar-v256';
 const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',
@@ -15,7 +27,7 @@ const SECONDARY_ASSETS = [
   'child-safety-standards.html', 'css/legal.css', 'js/analytics.js',
   'js/image-moderation.js', 'js/wards/mumbai.js', 'js/wards/pune.js', 'js/wards/thane.js',
   'js/ward-detect.js', 'js/society-suggestions-data.js', 'js/searchable-select.js',
-  'js/demo-tour-v2.js', 'robots.txt', 'assets/og-civicradar.svg',
+  'js/demo-cloud-v2.js', 'robots.txt', 'assets/og-civicradar.svg',
 ];
 const ASSETS = SHELL_ASSETS.concat(SECONDARY_ASSETS);
 function cacheUrls(cache, urls) {
@@ -28,6 +40,9 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
   self.clients.claim();
+});
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 function isNetworkFirst(url) {
   return NETWORK_FIRST.some((p) => url.pathname === p || url.pathname.endsWith(p));

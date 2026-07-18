@@ -206,10 +206,14 @@
 
   <!-- Map overlays -->
   <div id="locationBanner" class="location-banner hidden" role="status">
-    <i class="ph ph-map-pin"></i>
-    <span id="locationBannerText" data-i18n="location.banner">CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.</span>
-    <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
-    <button type="button" class="location-banner__close" id="btnDismissLocation" data-i18n-aria="location.dismiss" aria-label="Dismiss">&times;</button>
+    <div class="location-banner__msg">
+      <i class="ph ph-map-pin"></i>
+      <span id="locationBannerText" data-i18n="location.banner">CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.</span>
+    </div>
+    <div class="location-banner__actions">
+      <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
+      <button type="button" class="location-banner__close" id="btnDismissLocation" data-i18n-aria="location.dismiss" aria-label="Dismiss">&times;</button>
+    </div>
   </div>
 
   <button type="button" id="btnLocatePill" class="map-locate-pill hidden" data-i18n-aria="location.locateAria" aria-label="Turn on location">

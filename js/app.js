@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Constants ---------- */
 
-  // Build tag attached to feedback rows. Kept in step with the SW cache version.
+  // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v254';
+  const CIVIC_APP_VERSION = 'v256';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -21084,6 +21084,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (shouldShowHomeHero()) return;
 
+    // Don't stack the interactive tour over the location-permission banner —
+    // it isn't part of isAnyBannerVisible's coordinated set (that only covers
+    // the dismissible top-of-map banners), so without this the tour's own
+    // "Welcome to your ward map" card visually collided with it on first run.
+    const locBanner = $('#locationBanner');
+
+    if (locBanner && !locBanner.classList.contains('hidden')) return;
+
     startTour();
 
   }
@@ -40917,9 +40925,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- PWA Service Worker ---------- */
 
+  /** Tester escape hatch: ?clearSw=1 → unregister SW, delete caches, reload once. */
+  function clearServiceWorkerForTesters() {
+
+    try {
+
+      const params = new URLSearchParams(window.location.search);
+
+      if (params.get('clearSw') !== '1') return false;
+
+      const FLAG = 'civic_clear_sw_done';
+
+      if (sessionStorage.getItem(FLAG) === '1') {
+
+        sessionStorage.removeItem(FLAG);
+
+        params.delete('clearSw');
+
+        const q = params.toString();
+
+        const clean = window.location.pathname + (q ? '?' + q : '') + window.location.hash;
+
+        history.replaceState(null, '', clean);
+
+        return false;
+
+      }
+
+      sessionStorage.setItem(FLAG, '1');
+
+      debugLog('SW', 'clearSw=1', { action: 'unregister+clearCaches' });
+
+      const done = () => { window.location.reload(); };
+
+      const clearCaches = () => (
+
+        typeof caches !== 'undefined'
+
+          ? caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+
+          : Promise.resolve()
+
+      );
+
+      navigator.serviceWorker.getRegistrations()
+
+        .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+
+        .then(clearCaches)
+
+        .then(done)
+
+        .catch(done);
+
+      return true;
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
   function registerServiceWorker() {
 
     if (!('serviceWorker' in navigator)) return;
+
+    if (clearServiceWorkerForTesters()) return;
 
     let reloaded = false;
 
@@ -40954,6 +41027,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     };
 
+    const activateWaitingThenReload = () => {
+
+      navigator.serviceWorker.getRegistration().then((reg) => {
+
+        if (reg && reg.waiting) {
+
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+          // controllerchange → reloadOnce when this page was already controlled.
+          if (!navigator.serviceWorker.controller) reloadOnce();
+
+          return;
+
+        }
+
+        reloadOnce();
+
+      }).catch(() => reloadOnce());
+
+    };
+
     // Auto-reload only when this page was already controlled (update), not on
     // first install when skipWaiting + clients.claim would otherwise double-load.
     const hadController = !!navigator.serviceWorker.controller;
@@ -40969,6 +41063,13 @@ document.addEventListener('DOMContentLoaded', function () {
       .register('sw.js')
 
       .then((reg) => {
+
+        // Waiting worker from a prior install — activate immediately.
+        if (reg.waiting) {
+
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+        }
 
         const checkForUpdate = () => {
 
@@ -41011,7 +41112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               label: t('update.reload'),
 
-              onClick: () => reloadOnce(),
+              onClick: () => activateWaitingThenReload(),
 
             });
 
