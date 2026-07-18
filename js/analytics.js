@@ -207,17 +207,20 @@
     if (flushing) return;
     flushing = true;
     try {
+      // Sync drain + persist first so a WebView kill cannot drop events.
       const pending = queue.splice(0, queue.length);
-      if (!pending.length) return;
-
-      const buffer = loadBuffer().concat(pending);
+      let buffer = loadBuffer().concat(pending);
       saveBuffer(buffer);
 
-      const ok = await flushToSupabase(pending);
+      if (navigator.onLine === false) return;
+      if (!buffer.length) return;
+
+      const chunk = buffer.slice(0, 50);
+      const ok = await flushToSupabase(chunk);
       if (ok && supabaseClient) {
-        const sent = new Set(pending.map((r) => r.created_at + r.event_type + r.session_id));
+        const sent = new Set(chunk.map((r) => r.created_at + r.session_id));
         const remaining = loadBuffer().filter(
-          (r) => !sent.has(r.created_at + r.event_type + r.session_id)
+          (r) => !sent.has(r.created_at + r.session_id)
         );
         saveBuffer(remaining);
       }
@@ -411,6 +414,7 @@
       }
       startFlushTimer();
       global.addEventListener('pagehide', () => flush());
+      global.addEventListener('online', () => flush());
       global.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') flush();
       });
