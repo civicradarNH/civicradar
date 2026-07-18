@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with the SW cache version.
 
-  const CIVIC_APP_VERSION = 'v247';
+  const CIVIC_APP_VERSION = 'v248';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -31761,32 +31761,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
       let fromHandle = false;
 
+      let canSwipeDismiss = false;
+
       function scrollTopOf(modalEl) {
-        let top = modalEl.scrollTop || 0;
-        const nested = modalEl.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
-        if (nested) top = Math.max(top, nested.scrollTop || 0);
+        const scroller = getModalScrollParent(modalEl) || modalEl;
+        let top = scroller.scrollTop || 0;
+        // Also consider nested steppers when the outer modal is the clip parent.
+        if (scroller === modalEl) {
+          const nested = modalEl.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
+          if (nested) top = Math.max(top, nested.scrollTop || 0);
+        }
         return top;
       }
 
-      function dragZone(target) {
-
+      /** Strict swipe-dismiss gate (v248): handle, or pull-to-close at scroll top. */
+      function computeCanSwipeDismiss(target) {
         if (!target || !modal.contains(target)) return false;
-
+        // A) Drag handle always starts a dismiss gesture.
         if (target.closest('.modal__handle')) return true;
-
-        if (target.closest('button, a, input, select, textarea, label, .btn, .civic-combobox')) return false;
-
-        const rect = modal.getBoundingClientRect();
-
-        // Top strip (~ handle + title band) only.
-        return (target === modal || modal.firstElementChild === target || !!target.closest('.modal__handle'))
-
-          || (typeof target.getBoundingClientRect === 'function'
-
-            && target.getBoundingClientRect().top - rect.top < 72
-
-            && scrollTopOf(modal) <= 0);
-
+        // Never steal taps on controls.
+        if (target.closest('button, a, input, select, textarea, label, .btn, .civic-combobox, .modal__close')) {
+          return false;
+        }
+        // B) Content / scroll container only when already scrolled to top (pull-to-close).
+        if (scrollTopOf(modal) !== 0) return false;
+        const scroller = getModalScrollParent(modal) || modal;
+        const contentRoot = modal.querySelector('.modal__content') || scroller;
+        return contentRoot === target || contentRoot.contains(target);
       }
 
       function setDraggingClass(on) {
@@ -31803,6 +31804,8 @@ document.addEventListener('DOMContentLoaded', function () {
         dy = 0;
 
         fromHandle = false;
+
+        canSwipeDismiss = false;
 
         setDraggingClass(false);
 
@@ -31850,13 +31853,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!e.touches || e.touches.length !== 1) return;
 
-        const t = e.touches[0];
-
         fromHandle = !!e.target.closest('.modal__handle');
 
-        if (!fromHandle && !dragZone(e.target)) return;
+        canSwipeDismiss = computeCanSwipeDismiss(e.target);
 
-        if (!fromHandle && scrollTopOf(modal) > 0) return;
+        if (!canSwipeDismiss) return;
+
+        const t = e.touches[0];
 
         startY = t.clientY;
 
@@ -31878,6 +31881,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       modal.addEventListener('touchmove', (e) => {
 
+        if (!canSwipeDismiss) return;
+
         if (!isMobileSheetViewport() || startY === 0) return;
 
         if (!e.touches || e.touches.length !== 1) return;
@@ -31894,8 +31899,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
           decided = true;
 
-          // Content scroll wins over sheet drag (unless pulling from handle at top).
+          // Content scroll wins over sheet drag (unless pulling from handle).
+          // At-top pull-down (deltaY > 0) keeps dismiss; upward keeps native scroll.
           if (!fromHandle && (scrollTopOf(modal) > 0 || (deltaY < 0 && Math.abs(deltaY) >= Math.abs(deltaX)))) {
+
+            canSwipeDismiss = false;
 
             startY = 0;
 
@@ -31905,6 +31913,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (Math.abs(deltaX) > Math.abs(deltaY) && !fromHandle) {
 
+            canSwipeDismiss = false;
+
             startY = 0;
 
             return;
@@ -31912,6 +31922,8 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
           if (deltaY <= 0 && !fromHandle) {
+
+            canSwipeDismiss = false;
 
             startY = 0;
 
@@ -31962,6 +31974,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!dragging) {
 
+          canSwipeDismiss = false;
+
           startY = 0;
 
           return;
@@ -31969,6 +31983,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const shouldDismiss = dy > DISMISS_PX || (dy > 48 && velocity > DISMISS_VELOCITY);
+
+        canSwipeDismiss = false;
 
         startY = 0;
 
@@ -31981,6 +31997,8 @@ document.addEventListener('DOMContentLoaded', function () {
       modal.addEventListener('touchcancel', () => {
 
         if (dragging) resetDrag(false);
+
+        canSwipeDismiss = false;
 
         startY = 0;
 
