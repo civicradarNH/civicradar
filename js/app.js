@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v267';
+  const CIVIC_APP_VERSION = 'v271';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -28,6 +28,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function prefersReducedMotion() {
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /** One-shot success pop on Me too / Mark Resolved — skips when reduced-motion. */
+  function triggerBtnPop(el) {
+    if (!el || !el.classList || prefersReducedMotion()) return;
+    el.classList.remove('btn-pop-active');
+    void el.offsetWidth;
+    el.classList.add('btn-pop-active');
+    const done = () => {
+      el.classList.remove('btn-pop-active');
+      el.removeEventListener('animationend', done);
+    };
+    el.addEventListener('animationend', done);
+    setTimeout(done, 350);
   }
 
   function animateValue(element, start, end, duration, opts) {
@@ -12615,14 +12629,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!dupeId) return;
     const reports = loadReports();
     const r = reports.find((x) => String(x.id) === String(dupeId));
-    if (confirmReport(dupeId)) {
-      clearReportDuplicateUi();
-      closeModal('report');
-      if (r && map) {
-        map.setView([r.lat, r.lng], 16);
-        const marker = reportMarkerMap.get(dupeId);
-        if (marker) marker.openPopup();
-      }
+    const meTooBtn = $('#btnReportDupeMeToo');
+    if (confirmReport(dupeId, meTooBtn)) {
+      const finish = () => {
+        clearReportDuplicateUi();
+        closeModal('report');
+        if (r && map) {
+          map.setView([r.lat, r.lng], 16);
+          const marker = reportMarkerMap.get(dupeId);
+          if (marker) marker.openPopup();
+        }
+      };
+      // Let btn-pop finish before tearing down the sheet button.
+      if (meTooBtn && !prefersReducedMotion()) setTimeout(finish, 320);
+      else finish();
     }
   }
 
@@ -19359,7 +19379,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // instead of filing a duplicate. Boosts the report's priority + social proof.
 
-  function confirmReport(reportId) {
+  function confirmReport(reportId, sourceEl) {
 
     const id = String(reportId);
 
@@ -19429,15 +19449,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (reportMarkerLayer) refreshReportMarkers();
+    // Pop before marker refresh (popup buttons are rebuilt) — keep existing success haptic only.
+    Haptics.success();
+    triggerBtnPop(sourceEl);
 
-    updateProfileUI();
-
-    if (isAdmin) renderAdminQueue();
+    const paintAfterPop = () => {
+      if (reportMarkerLayer) refreshReportMarkers();
+      updateProfileUI();
+      if (isAdmin) renderAdminQueue();
+    };
+    if (sourceEl && !prefersReducedMotion()) {
+      setTimeout(paintAfterPop, 320);
+    } else {
+      paintAfterPop();
+    }
 
     launchConfetti({ intensity: 'mini' });
-
-    Haptics.success();
 
     showToast(t('confirm.meTooThanks'), 'success', 3200, {
 
@@ -26706,6 +26733,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (el) bindBeforeAfterSliders(el);
 
+      const pathEl = marker.getElement && marker.getElement();
+
+      if (pathEl) pathEl.classList.add('marker-active');
+
+    });
+
+    marker.on('popupclose', () => {
+
+      const pathEl = marker.getElement && marker.getElement();
+
+      if (pathEl) pathEl.classList.remove('marker-active');
+
     });
 
 
@@ -28001,9 +28040,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnReportDupeMeToo) {
 
       btnReportDupeMeToo.addEventListener('click', () => {
-
-        Haptics.tap();
-
+        // Haptics.success fires inside confirmReport — skip tap to avoid double pulse.
         corroborateReportDupeFromSheet();
 
       });
@@ -28148,7 +28185,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // confirmReport → refreshReportMarkers reopens popup with Me-too done state
 
-        if (!confirmReport(rid) && !hasConfirmed(rid)) {
+        if (!confirmReport(rid, cb) && !hasConfirmed(rid)) {
 
           cb.disabled = false;
 
@@ -39051,13 +39088,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (applyResolution(activeAdminReportId, 'bmc', adminProofDataUrl, 'bmc_admin')) {
 
-      closeModal('adminReport');
+      Haptics.success();
+      triggerBtnPop(btn);
 
-      activeAdminReportId = null;
-
-      renderAdminQueue();
-
-      showToast(t('toast.resolvedProof'), 'success');
+      const finish = () => {
+        closeModal('adminReport');
+        activeAdminReportId = null;
+        renderAdminQueue();
+        showToast(t('toast.resolvedProof'), 'success');
+      };
+      if (!prefersReducedMotion()) setTimeout(finish, 320);
+      else finish();
 
     }
 
