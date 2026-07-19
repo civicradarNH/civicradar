@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v258';
+  const CIVIC_APP_VERSION = 'v259';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -38306,7 +38306,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#profilePointsHint').textContent =
+    // Element removed in the v259 profile declutter (points-math micro-copy
+    // under the stats row) — keep the write guarded rather than deleting the
+    // logic so the hint can be reinstated behind a (?) affordance later.
+    const pointsHintEl = $('#profilePointsHint');
+
+    if (pointsHintEl) pointsHintEl.textContent =
 
       bonus > 0
 

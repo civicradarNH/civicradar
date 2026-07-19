@@ -743,6 +743,72 @@ body.app-booting {
   text-align: center;
 }
 
+/* Grouped settings lists (v259) — the footer's loose stack of ghost buttons,
+   inline legal links, and partner links becomes three iOS-style inset groups.
+   Styling-only: every button/anchor keeps its id, classes, and handler; the
+   group wrapper normalizes them into uniform tappable rows. */
+.profile-list-group {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+  text-align: left;
+}
+
+.profile-list-group > button,
+.profile-list-group > a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--text-dark);
+  text-align: left;
+  text-decoration: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.profile-list-group > button:last-child,
+.profile-list-group > a:last-child {
+  border-bottom: none;
+}
+
+.profile-list-group > button::after,
+.profile-list-group > a::after {
+  content: '\276F';
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.profile-list-group > button:active,
+.profile-list-group > a:active {
+  background: var(--bg-main, #f1f5f9);
+}
+
+.profile-list-group i {
+  flex-shrink: 0;
+  font-size: var(--fs-md);
+  color: var(--primary);
+}
+
+.profile-list-group .btn--danger-text,
+.profile-list-group .btn--danger-text i {
+  color: var(--danger);
+}
+
 .partner-link {
   display: inline-flex;
   align-items: center;
@@ -5611,6 +5677,17 @@ body.persona-lead .app-open-banner { display: none; }
 
 #profileModal .cr-section:first-of-type { margin-top: 16px; }
 #profileModal .profile-details-card { margin-bottom: 0; }
+
+/* Flatten the location block's box-in-a-box (v259) — the section heading and
+   grouped inputs carry the structure; the outer card border added a second
+   visual layer inside an already-carded modal. */
+#profileModal #profileLocationBlock {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
 #profileModal .profile-footer { margin-top: 8px; }
 
 .esc-step__official {

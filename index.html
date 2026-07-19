@@ -973,7 +973,6 @@
             <span class="stat__label" data-i18n="profile.pending">Open</span>
           </div>
         </div>
-        <p class="profile-card__hint" id="profilePointsHint">50 Civic Points per report · +8 Me too · +200 volunteer verified</p>
       </div>
 
       <div class="profile-location profile-details-card" id="profileLocationBlock">
@@ -1097,51 +1096,43 @@
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileAccountBody">
-          <div class="profile-resource-link" id="profileOfficialLinkBlock">
-            <h3 class="section-title"><i class="ph ph-megaphone" aria-hidden="true"></i><span data-i18n="official.title">Official grievance channels</span></h3>
-            <p class="field-hint" data-i18n="profile.officialHint">Verified BMC, PMC, and TMC apps and portals — open from the Resources tab.</p>
-            <button type="button" class="btn btn--secondary btn--full" id="btnProfileOfficialChannels">
-              <i class="ph ph-megaphone" aria-hidden="true"></i> <span data-i18n="profile.officialLink">Open Resources</span>
-            </button>
-          </div>
-
           <div class="profile-footer">
         <button type="button" class="btn btn--secondary btn--full hidden" id="btnInstall">
           <i class="ph ph-download-simple"></i> <span data-i18n="profile.install">Install CivicRadar app</span>
         </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnAbout">
-          <i class="ph ph-info"></i> <span data-i18n="profile.about">About CivicRadar</span>
-        </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnReplayTour">
-          <i class="ph ph-compass"></i> <span data-i18n="tour.replay">Replay app tour</span>
-        </button>
-        <button type="button" class="btn btn--ghost btn--full" id="btnProfileFeedback">
-          <i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.menu">Send feedback</span>
-        </button>
-        <div class="profile-legal">
-          <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
-          <span aria-hidden="true">·</span>
-          <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
-          <span aria-hidden="true">·</span>
-          <a href="delete-account.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.deleteAccount">Delete account</a>
-          <span aria-hidden="true">·</span>
-          <a id="btnPrivacyContact" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance" data-i18n="profile.privacyContact">Privacy / grievance contact</a>
+        <div class="profile-list-group" role="group" aria-label="App and support">
+          <button type="button" class="btn btn--ghost btn--full" id="btnAbout">
+            <i class="ph ph-info"></i> <span data-i18n="profile.about">About CivicRadar</span>
+          </button>
+          <button type="button" class="btn btn--ghost btn--full" id="btnReplayTour">
+            <i class="ph ph-compass"></i> <span data-i18n="tour.replay">Replay app tour</span>
+          </button>
+          <button type="button" class="btn btn--ghost btn--full" id="btnProfileFeedback">
+            <i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.menu">Send feedback</span>
+          </button>
         </div>
-        <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
-          <i class="ph ph-trash"></i> <span data-i18n="profile.deleteData">Delete my data</span>
-        </button>
-        <button type="button" class="partner-link" id="btnPartnerAccess">
-          <i class="ph ph-buildings"></i> <span data-i18n="profile.partner">Volunteer / NGO login</span>
-        </button>
-        <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
-          <i class="ph ph-handshake"></i> <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
-        </button>
-        <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
-          <i class="ph ph-hand-heart"></i> <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
-        </button>
-        <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
-          <i class="ph ph-identification-card"></i> <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
-        </button>
+        <div class="profile-list-group" role="group" aria-label="Get involved">
+          <button type="button" class="partner-link" id="btnPartnerAccess">
+            <i class="ph ph-buildings"></i> <span data-i18n="profile.partner">Volunteer / NGO login</span>
+          </button>
+          <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
+            <i class="ph ph-hand-heart"></i> <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
+          </button>
+          <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
+            <i class="ph ph-handshake"></i> <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
+          </button>
+          <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
+            <i class="ph ph-identification-card"></i> <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
+          </button>
+        </div>
+        <div class="profile-list-group" role="group" aria-label="Legal and account">
+          <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
+          <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
+          <a id="btnPrivacyContact" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance" data-i18n="profile.privacyContact">Privacy / grievance contact</a>
+          <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
+            <i class="ph ph-trash"></i> <span data-i18n="profile.deleteData">Delete my data</span>
+          </button>
+        </div>
           </div>
         </div>
       </div>
