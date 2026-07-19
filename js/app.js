@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v261';
+  const CIVIC_APP_VERSION = 'v263';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -761,6 +761,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let confirmPinUserAdjusted = false;
 
   let confirmPinProvisional = false;
+
+  let reportDupeTargetId = null;
 
   let reportPinMap = null;
 
@@ -3800,6 +3802,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'Me too',
 
+      'confirm.dupeInline': '{n} neighbours already pinned this within 10 m.',
+
+      'confirm.dupeInlineOne': '1 neighbour already pinned this within 10 m.',
+
       'confirm.ownDupe': 'You already pinned this spot. Track it in Profile.',
 
       'profile.unfiledBanner': '{n} open — not filed with {corp} yet. Sharing helps too; each spot needs its own complaint if you file officially.',
@@ -6241,6 +6247,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'मुझे भी',
 
+      'confirm.dupeInline': '{n} पड़ोसियों ने 10 मी. के भीतर पहले ही पिन किया है।',
+
+      'confirm.dupeInlineOne': '1 पड़ोसी ने 10 मी. के भीतर पहले ही पिन किया है।',
+
       'confirm.ownDupe': 'आपने यहाँ पहले ही पिन किया है। प्रोफ़ाइल में देखें।',
 
       'profile.unfiledBanner': '{n} खुले — {corp} में अभी दर्ज नहीं। साझा करना भी मदद करता है; आधिकारिक दर्ज करने पर हर स्थान की अलग शिकायत।',
@@ -8680,6 +8690,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'confirm.dupe': '10 मी.च्या आत CivicRadar वर पिन आहे{backing}. पाठिंबा द्या — सोडवल्यावर कळवू.',
 
       'confirm.dupeAction': 'मला पण',
+
+      'confirm.dupeInline': '{n} शेजाऱ्यांनी 10 मी.च्या आत आधीच पिन केले आहे.',
+
+      'confirm.dupeInlineOne': '1 शेजाऱ्याने 10 मी.च्या आत आधीच पिन केले आहे.',
 
       'confirm.ownDupe': 'तुम्ही येथे आधीच पिन केले आहे. प्रोफाइलमध्ये पहा.',
 
@@ -11121,6 +11135,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'મને પણ',
 
+      'confirm.dupeInline': '{n} પડોશીઓએ 10 મી.ની અંદર પહેલેથી પિન કર્યું છે.',
+
+      'confirm.dupeInlineOne': '1 પડોશીએ 10 મી.ની અંદર પહેલેથી પિન કર્યું છે.',
+
       'confirm.ownDupe': 'તમે અહીં પહેલેથી પિન કર્યું છે. પ્રોફાઇલમાં જુઓ.',
 
       'profile.unfiledBanner': '{n} ખુલ્લા — {corp} પર હજુ નોંધાયા નથી. શેર કરવું પણ મદદ કરે; અધિકૃત નોંધાવો તો દરેક સ્થળ માટે અલગ ફરિયાદ.',
@@ -12486,6 +12504,120 @@ document.addEventListener('DOMContentLoaded', function () {
     return n === 1 ? t('confirm.backingOne') : t('confirm.backingMany').replace('{n}', String(n));
   }
 
+  function findSubmitDuplicate(lat, lng) {
+    if (lat == null || lng == null) return null;
+    const reports = loadReports();
+    const now = Date.now();
+    let best = null;
+    let bestDist = DUPLICATE_RADIUS_M;
+    for (let i = 0; i < reports.length; i++) {
+      const r = reports[i];
+      if (r.lat == null || r.lng == null) continue;
+      if (r.status === 'resolved') continue;
+      const age = now - new Date(r.timestamp).getTime();
+      if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
+      const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = r;
+      }
+    }
+    return best;
+  }
+
+  function dupeInlineMessage(report) {
+    const n = Math.max(1, (Number(report && report.confirmations) || 0) + 1);
+    if (n === 1) return t('confirm.dupeInlineOne');
+    return t('confirm.dupeInline').replace('{n}', String(n));
+  }
+
+  function clearReportDuplicateUi() {
+    reportDupeTargetId = null;
+    const warn = $('#inlineDuplicateWarning');
+    const textEl = $('#inlineDuplicateWarningText');
+    const meTooBtn = $('#btnReportDupeMeToo');
+    const submitBtn = $('#btnSubmitReport');
+    if (warn) {
+      warn.classList.add('hidden');
+      warn.hidden = true;
+    }
+    if (textEl) textEl.textContent = '';
+    if (meTooBtn) {
+      meTooBtn.classList.add('hidden');
+      meTooBtn.hidden = true;
+      meTooBtn.disabled = false;
+    }
+    if (submitBtn) {
+      submitBtn.classList.remove('hidden');
+      submitBtn.hidden = false;
+    }
+  }
+
+  function showReportDuplicateUi(report) {
+    if (!report || !report.id) {
+      clearReportDuplicateUi();
+      return;
+    }
+    reportDupeTargetId = String(report.id);
+    const warn = $('#inlineDuplicateWarning');
+    const textEl = $('#inlineDuplicateWarningText');
+    const meTooBtn = $('#btnReportDupeMeToo');
+    const submitBtn = $('#btnSubmitReport');
+    if (textEl) textEl.textContent = dupeInlineMessage(report);
+    if (warn) {
+      warn.classList.remove('hidden');
+      warn.hidden = false;
+    }
+    if (submitBtn) {
+      submitBtn.classList.add('hidden');
+      submitBtn.hidden = true;
+      setButtonLoading(submitBtn, false);
+    }
+    if (meTooBtn) {
+      const label = meTooBtn.querySelector('.btn__label');
+      if (label) label.textContent = t('confirm.dupeAction');
+      meTooBtn.classList.remove('hidden');
+      meTooBtn.hidden = false;
+      meTooBtn.disabled = false;
+    }
+  }
+
+  function refreshReportDuplicateUi() {
+    const lat = confirmPinLat != null ? confirmPinLat : manualPinLat;
+    const lng = confirmPinLng != null ? confirmPinLng : manualPinLng;
+    if (lat == null || lng == null) {
+      clearReportDuplicateUi();
+      return;
+    }
+    const hit = findSubmitDuplicate(lat, lng);
+    if (!hit) {
+      clearReportDuplicateUi();
+      return;
+    }
+    // Own / already-backed: keep Submit; submit path still toasts + closes.
+    if (ownsReport(hit) || hasConfirmed(hit.id)) {
+      clearReportDuplicateUi();
+      return;
+    }
+    showReportDuplicateUi(hit);
+  }
+
+  function corroborateReportDupeFromSheet() {
+    const dupeId = reportDupeTargetId;
+    if (!dupeId) return;
+    const reports = loadReports();
+    const r = reports.find((x) => String(x.id) === String(dupeId));
+    if (confirmReport(dupeId)) {
+      clearReportDuplicateUi();
+      closeModal('report');
+      if (r && map) {
+        map.setView([r.lat, r.lng], 16);
+        const marker = reportMarkerMap.get(dupeId);
+        if (marker) marker.openPopup();
+      }
+    }
+  }
+
   function getUnfiledReports() {
     return getUserReports().filter((r) => r.status === 'pending' && !r.complaintId);
   }
@@ -12512,6 +12644,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     updateHazardSelectedCue($('#hazardType')?.value || '');
     updateMapEmptyCta();
+    if (reportDupeTargetId) {
+      const r = loadReports().find((x) => String(x.id) === String(reportDupeTargetId));
+      if (r) showReportDuplicateUi(r);
+      else clearReportDuplicateUi();
+    }
   }
 
   function applyTranslations() {
@@ -21265,30 +21402,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       `<i class="ph ph-${icons[type] || 'info'}" aria-hidden="true"></i><span>${escapeHtml(message)}</span>`;
 
-    const closeBtn = document.createElement('button');
-
-    closeBtn.type = 'button';
-
-    closeBtn.className = 'toast__close';
-
-    closeBtn.setAttribute('aria-label', t('aria.close'));
-
-    closeBtn.innerHTML = '&times;';
-
-    closeBtn.addEventListener('click', (e) => {
-
-      e.stopPropagation();
-
-      dismissToast();
-
-    });
-
-    row.appendChild(closeBtn);
-
-    toast.appendChild(row);
-
-
-
     const actionList = [];
 
     if (action) {
@@ -21305,7 +21418,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (actionList.length) {
+    const bindActionClick = (btn, act) => {
+
+      btn.addEventListener('click', () => {
+
+        clearToastTimers();
+
+        if (_activeToastDismiss === dismissToast) _activeToastDismiss = null;
+
+        if (typeof act.onClick === 'function') act.onClick();
+
+        toast.remove();
+
+      });
+
+    };
+
+    // Single action → bold text link on the right (Material-style snackbar).
+    // Multiple actions stay in the secondary row below the message.
+    if (actionList.length === 1) {
+
+      const btn = document.createElement('button');
+
+      btn.type = 'button';
+
+      btn.className = 'toast__action toast__action--primary';
+
+      btn.textContent = actionList[0].label;
+
+      bindActionClick(btn, actionList[0]);
+
+      row.appendChild(btn);
+
+      toast.classList.add('toast--interactive');
+
+    } else if (actionList.length > 1) {
 
       const wrap = document.createElement('div');
 
@@ -21321,17 +21468,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         btn.textContent = act.label;
 
-        btn.addEventListener('click', () => {
-
-          clearToastTimers();
-
-          if (_activeToastDismiss === dismissToast) _activeToastDismiss = null;
-
-          if (typeof act.onClick === 'function') act.onClick();
-
-          toast.remove();
-
-        });
+        bindActionClick(btn, act);
 
         wrap.appendChild(btn);
 
@@ -21343,12 +21480,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Keep × for action / sticky (duration 0) / long toasts; hide for short auto-dismiss (<4s).
+    const sticky = actionList.length > 0 || duration === 0;
+
+    const showClose = sticky || duration >= 4000;
+
+    if (showClose) {
+
+      const closeBtn = document.createElement('button');
+
+      closeBtn.type = 'button';
+
+      closeBtn.className = 'toast__close';
+
+      closeBtn.setAttribute('aria-label', t('aria.close'));
+
+      closeBtn.innerHTML = '&times;';
+
+      closeBtn.addEventListener('click', (e) => {
+
+        e.stopPropagation();
+
+        dismissToast();
+
+      });
+
+      row.appendChild(closeBtn);
+
+    }
+
+    // Message row first so multi-action wrap (if any) stays below.
+    toast.insertBefore(row, toast.firstChild);
+
 
 
     container.appendChild(toast);
 
-    // Action toasts stay until the user taps an action or × (long CTAs need time).
-    if (!actionList.length) {
+    // Action / duration-0 toasts stay until the user taps an action or ×.
+    if (!sticky) {
 
       hideTimer = setTimeout(dismissToast, duration);
 
@@ -27607,6 +27776,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (submitBtn && (submitBtn.classList.contains('is-loading') || submitBtn.classList.contains('is-success'))) return;
 
+        clearReportDuplicateUi();
+
         resetPhotoConfirm();
 
         const canvas = $('#imageCanvas');
@@ -27700,6 +27871,20 @@ document.addEventListener('DOMContentLoaded', function () {
       Haptics.tap();
       submitReport();
     });
+
+    const btnReportDupeMeToo = $('#btnReportDupeMeToo');
+
+    if (btnReportDupeMeToo) {
+
+      btnReportDupeMeToo.addEventListener('click', () => {
+
+        Haptics.tap();
+
+        corroborateReportDupeFromSheet();
+
+      });
+
+    }
 
 
 
@@ -28948,6 +29133,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     finishReportSubmitWithCoords._busy = false;
 
+    // Keep submit visible after reset; clear any prior near-dupe Me too swap.
+
+    clearReportDuplicateUi();
+
   }
 
 
@@ -29435,6 +29624,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    clearReportDuplicateUi();
+
   }
 
 
@@ -29601,6 +29792,8 @@ document.addEventListener('DOMContentLoaded', function () {
     syncConfirmPinUiHints();
 
     updateReportWardChip();
+
+    refreshReportDuplicateUi();
 
     return true;
 
@@ -30426,87 +30619,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     currentLng = lng;
 
-    const reports = loadReports();
+    const dupeHit = findSubmitDuplicate(lat, lng);
 
-    const now = Date.now();
+    if (dupeHit) {
 
+      setButtonLoading(submitBtn, false);
 
+      if (window.CivicAnalytics) {
 
-    for (let i = 0; i < reports.length; i++) {
+        CivicAnalytics.track('report_submitted', {
 
-      const r = reports[i];
+          hazard: $('#hazardType').value,
 
-      if (r.lat == null || r.lng == null) continue;
+          hasGps: !manualPin,
 
-      if (r.status === 'resolved') continue;
+          hasPhoto: true,
 
-      const age = now - new Date(r.timestamp).getTime();
+          path: 'duplicate_corroboration',
 
-      if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
+        }, user.ward);
 
-      const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
-
-      if (dist < DUPLICATE_RADIUS_M) {
-
-        setButtonLoading(submitBtn, false);
-
-        if (window.CivicAnalytics) {
-
-          CivicAnalytics.track('report_submitted', {
-
-            hazard: $('#hazardType').value,
-
-            hasGps: !manualPin,
-
-            hasPhoto: true,
-
-            path: 'duplicate_corroboration',
-
-          }, user.ward);
-
-          CivicAnalytics.perfEnd('report_submit_duration', { duplicate: true });
-
-        }
-
-        const dupeId = r.id;
-
-        if (ownsReport(r) || hasConfirmed(dupeId)) {
-
-          showToast(t('confirm.ownDupe'), 'info', 4000);
-
-          closeModal('report');
-
-        } else {
-
-          showToast(
-
-            t('confirm.dupe').replace('{backing}', backingSuffix(r.confirmations)),
-
-            'info', 7000, {
-
-            label: t('confirm.dupeAction'),
-
-            onClick: () => {
-
-              if (confirmReport(dupeId)) {
-
-                closeModal('report');
-
-                const marker = reportMarkerMap.get(dupeId);
-
-                if (marker && map) { map.setView([r.lat, r.lng], 16); marker.openPopup(); }
-
-              }
-
-            },
-
-          });
-
-        }
-
-        return;
+        CivicAnalytics.perfEnd('report_submit_duration', { duplicate: true });
 
       }
+
+      const dupeId = dupeHit.id;
+
+      if (ownsReport(dupeHit) || hasConfirmed(dupeId)) {
+
+        clearReportDuplicateUi();
+
+        showToast(t('confirm.ownDupe'), 'info', 4000);
+
+        closeModal('report');
+
+      } else {
+
+        // Inline sheet nudge + Me too primary (no center modal / action toast).
+        showReportDuplicateUi(dupeHit);
+
+      }
+
+      return;
 
     }
 

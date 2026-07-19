@@ -542,6 +542,36 @@ async def toast_text(page) -> str:
 
 
 
+async def duplicate_prompt_text(page) -> str:
+
+    """Inline near-dupe sheet copy, Me too CTA, or legacy toast."""
+
+    return await page.evaluate(
+
+        """() => {
+
+          const warn = document.getElementById('inlineDuplicateWarning');
+
+          const meToo = document.getElementById('btnReportDupeMeToo');
+
+          const inlineOn = !!(warn && !warn.hidden && !warn.classList.contains('hidden'));
+
+          const btnOn = !!(meToo && !meToo.hidden && !meToo.classList.contains('hidden'));
+
+          const parts = [];
+
+          if (inlineOn) parts.push(warn.textContent || '');
+
+          if (btnOn) parts.push(meToo.textContent || '');
+
+          parts.push(document.getElementById('toastContainer')?.textContent || '');
+
+          return parts.join(' ');
+
+        }"""
+
+    )
+
 
 
 async def inject_photo(page):
@@ -747,7 +777,12 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
               const reps = JSON.parse(localStorage.getItem('mosquiTrackReports') || '[]');
               if (reps.some((r) => r.notes === notes)) return true;
               if (document.getElementById('successOverlay')?.classList.contains('open')) return true;
-              // Near-duplicate path: Me too / corroborate toast, no new report row.
+              // Near-duplicate path: inline Me too sheet (or legacy toast), no new report row.
+              const warn = document.getElementById('inlineDuplicateWarning');
+              const meToo = document.getElementById('btnReportDupeMeToo');
+              const inlineOn = !!(warn && !warn.hidden && !warn.classList.contains('hidden'));
+              const btnOn = !!(meToo && !meToo.hidden && !meToo.classList.contains('hidden'));
+              if (inlineOn || btnOn) return true;
               const toast = (document.getElementById('toastContainer')?.textContent || '').toLowerCase();
               return toast.includes('me too') || toast.includes('already') || toast.includes('corroborat');
             }""",
@@ -1348,9 +1383,9 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.wait_for_timeout(800)
 
-    t = await toast_text(page)
+    t = await duplicate_prompt_text(page)
 
-    s.record('C20', 'Citizen', 'Duplicate nearby Me too prompt', 'me too' in t.lower() or 'already' in t.lower() or 'corroborat' in t.lower())
+    s.record('C20', 'Citizen', 'Duplicate nearby Me too prompt', 'me too' in t.lower() or 'already' in t.lower() or 'pinned' in t.lower() or 'corroborat' in t.lower())
 
 
 
@@ -4202,9 +4237,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.wait_for_timeout(600)
 
-    t = await toast_text(page)
+    t = await duplicate_prompt_text(page)
 
-    s.record('RP09', 'Report', 'Near-duplicate triggers Me too', any(x in t.lower() for x in ('me too', 'already', 'corroborat')))
+    s.record('RP09', 'Report', 'Near-duplicate triggers Me too', any(x in t.lower() for x in ('me too', 'already', 'pinned', 'corroborat')))
 
     s.record('RP10', 'Report', 'Report notes maxlength enforced', await page.evaluate(
 
@@ -5366,7 +5401,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v261" in sw_src
+            "civicradar-v263" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8515,7 +8550,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v261" in sw_src
+            "civicradar-v263" in sw_src
 
             and "'/index.html'" not in sw_src
 

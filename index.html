@@ -534,8 +534,16 @@
           <p class="photo-confirm__hint" id="photoConfirmHint" data-i18n="report.photoHint">Does this photo show the hazard clearly?</p>
         </div>
         <div class="modal__sticky-footer modal__sticky-footer--glass">
+          <div class="inline-duplicate-warning hidden" id="inlineDuplicateWarning" role="status" aria-live="polite" hidden>
+            <i class="ph ph-info" aria-hidden="true"></i>
+            <p class="inline-duplicate-warning__text" id="inlineDuplicateWarningText"></p>
+          </div>
           <button type="button" class="btn btn--primary btn--full" id="btnSubmitReport">
             <span class="btn__label" data-i18n="report.submit">Submit report</span>
+          </button>
+          <button type="button" class="btn btn--primary btn--full hidden" id="btnReportDupeMeToo" hidden>
+            <i class="ph ph-hand-pointing" aria-hidden="true"></i>
+            <span class="btn__label" data-i18n="confirm.dupeAction">Me too</span>
           </button>
           <button type="button" class="btn btn--ghost btn--full report-retake-btn" id="btnRetakePhoto">
             <i class="ph ph-camera"></i> <span data-i18n="report.retake">Retake photo</span>
