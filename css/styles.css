@@ -393,7 +393,9 @@ body.app-booting {
   position: absolute;
   top: 10px;
   right: 14px;
-  z-index: 3;
+  /* Above sticky .modal h2 (z-index: 10) — padding-right on h2 is visual
+     clearance only; without a higher z-index the heading steals × taps. */
+  z-index: 20;
   width: var(--touch-min);
   height: var(--touch-min);
   min-width: var(--touch-min);

@@ -1,8 +1,8 @@
 /* CivicRadar service worker.
  *
  * Ship checklist (any HTML/CSS/JS change):
- *   1. Bump CIVIC_APP_VERSION in js/app.js (e.g. v255)
- *   2. Set CACHE below to the same suffix: 'civicradar-v255'
+ *   1. Bump CIVIC_APP_VERSION in js/app.js (e.g. v261)
+ *   2. Set CACHE below to the same suffix: 'civicradar-v261'
  *   3. Update SW06 expected string in tests/e2e_comprehensive.py
  *
  * Testers stuck on a stale build: open
@@ -10,7 +10,7 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v260';
+const CACHE = 'civicradar-v261';
 const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',
