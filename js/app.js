@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v274';
+  const CIVIC_APP_VERSION = 'v275';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -21386,6 +21386,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  // Sticky Join CTA sits over the floating bottom nav. Closing onboarding can
+  // deliver a ghost tap onto Community/Resources/Profile — park nav briefly.
+  let navTabGhostGuardUntil = 0;
+
+  function armNavTabGhostGuard(ms) {
+
+    navTabGhostGuardUntil = Date.now() + (typeof ms === 'number' ? ms : 450);
+
+  }
+
+  function isNavTabGhostGuarded() {
+
+    return Date.now() < navTabGhostGuardUntil;
+
+  }
+
 
 
   /* ---------- Toast Notifications ---------- */
@@ -27143,6 +27159,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       closeModal('onboarding');
 
+      // Land on Map (default tab). Guard + settle absorb sticky-footer → nav ghost taps
+      // (Join CTA sits over Community/Resources on the floating dock).
+      setNavTab('map');
+
+      armNavTabGhostGuard(450);
+
+      setTimeout(() => {
+
+        const stole = ['community', 'resources', 'profile'].some(
+
+          (n) => overlays[n] && overlays[n].classList.contains('open')
+
+        );
+
+        if (stole) closeStackedModalsForNav(null);
+
+        setNavTab('map');
+
+      }, 300);
+
       updateHeaderContext();
 
       updateProfileUI();
@@ -28365,6 +28401,15 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.addEventListener('click', () => {
 
         if (isReportPhotoPickerActive()) return;
+
+        // Post-onboarding Join CTA can ghost-click a nav tab under the sticky footer.
+        if (isNavTabGhostGuarded()) {
+
+          setNavTab('map');
+
+          return;
+
+        }
 
         setNavTab(tab.dataset.tab);
 
