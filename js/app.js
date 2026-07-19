@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v263';
+  const CIVIC_APP_VERSION = 'v264';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -30729,6 +30729,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // capturing prevXp after the unshift would silently already count the new
     // report's own POINTS_PER_REPORT toward "before", masking any level-up the
     // report itself causes (as opposed to one from a bonus added afterward).
+    // Must load here: findSubmitDuplicate() uses its own local list and no longer
+    // leaves a `reports` binding in this scope (v263 extract regressed submit).
+    const reports = loadReports();
+
     const prevXp = getTotalCivicXp();
 
     reports.unshift(report);
