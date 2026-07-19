@@ -236,6 +236,8 @@ body.app-booting {
 
 .header__titles > span:first-child {
   line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Condensed HUD (v250): ward context already surfaces in the ward-pulse pill
@@ -254,6 +256,12 @@ body.app-booting {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Status, not success — do not compete with "fixed" green */
+  color: var(--ink-400, #94a3b8);
 }
 
 .header__sync::before {
@@ -265,11 +273,11 @@ body.app-booting {
 }
 
 .header__sync--cloud {
-  color: var(--success);
+  color: var(--ink-400, #94a3b8);
 }
 
 .header__sync--cloud::before {
-  background: var(--success);
+  background: var(--primary);
 }
 
 .header__sync--local {
@@ -523,6 +531,13 @@ body.app-booting {
   font-size: var(--fs-base);
   font-weight: 600;
   gap: 10px;
+  /* One glow max on onboarding — Detect owns it; Join stays flat/secondary */
+  box-shadow: var(--shadow-cta);
+}
+
+#onboardingModal .modal__sticky-footer .btn--primary,
+#onboardingModal .modal__sticky-footer .btn--secondary {
+  box-shadow: var(--shadow-sm);
 }
 
 #onboardingModal .btn--detect .ph {
@@ -1267,6 +1282,41 @@ body.persona-lead #wardPulse {
   color: var(--warning-dark);
   }
 
+/* Compact chip — keeps map viewport clear after onboarding (Gemini 4 / P0) */
+.location-banner--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.location-banner--compact .location-banner__msg {
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+}
+
+.location-banner--compact .location-banner__msg span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+}
+
+.location-banner--compact .location-banner__actions {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.location-banner--compact .location-banner__btn {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: var(--fs-xs);
+}
+
 /* Two-row layout (v255) — icon+text on their own line, actions on the next
    one, right-aligned. Sharing a single row squeezed the "Turn on" button
    into an awkward mid-sentence wrap on narrow phones. Text itself is
@@ -1297,9 +1347,10 @@ body.persona-lead #wardPulse {
 .location-banner__btn {
   min-height: var(--touch-min);
   padding: 8px 14px;
-  border: 1px solid rgba(180, 83, 9, 0.35);
-  border-radius: var(--radius-sm);
-  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  /* Warning chip border + brand indigo fill (P1 — don't outshout Report FAB) */
+  border: 1.5px solid var(--warning, #d97706);
+  border-radius: var(--radius-md);
+  background: var(--primary);
   color: #fff;
   font-family: var(--font);
   font-size: var(--fs-sm);
@@ -1307,7 +1358,7 @@ body.persona-lead #wardPulse {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: inset 0 -1px 0 rgba(120, 53, 15, 0.18);
+  box-shadow: var(--shadow-sm);
 }
 
 .location-banner__close {
@@ -1345,6 +1396,44 @@ body.persona-lead #wardPulse {
 
 @media (prefers-reduced-motion: reduce) {
   .location-banner__close:active { transform: none; }
+}
+
+/* Location banner owns top chrome — collapse persona so map keeps viewport */
+body.location-banner-visible {
+  --persona-bar-height: 0px;
+}
+
+body.location-banner-visible .persona-bar {
+  display: none !important;
+}
+
+body.location-banner-visible .location-banner {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--map-hud-height) + var(--hud-gap)
+  );
+}
+
+.report-capture-exif {
+  margin: 8px 0 0;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--ink-400, #94a3b8);
+  text-align: center;
+}
+
+.onboard-society-context {
+  margin: 0 0 6px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Quiet Report FAB while a pin popup is open (Me too toast owns WhatsApp) */
+body.map-popup-open #btnCamera {
+  opacity: 0.35;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.92);
 }
 
 /* Icon-only FAB (v252) — was a top-left text pill contributing to HUD stack
@@ -1650,6 +1739,34 @@ body.manual-pin-mode #map .leaflet-container {
 .toast__action--primary {
   background: transparent;
   border: none;
+}
+
+.toast__action--whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--whatsapp, #25D366);
+  color: #fff !important;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  min-height: 36px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  opacity: 1;
+  text-decoration: none !important;
+}
+
+.toast__action--whatsapp:hover {
+  background: #20bd5a;
+  opacity: 1;
+  text-decoration: none !important;
+  filter: brightness(1.04);
+}
+
+.toast__action--whatsapp .ph {
+  font-size: 1.1em;
+  color: #fff;
 }
 
 @keyframes toast-in {
@@ -2388,6 +2505,13 @@ body.pwa-nudge-visible #btnCamera {
 
 .modal:has(.modal__close) h2 {
   padding-right: 44px;
+}
+
+/* ToS lands focus on #tosTitle (tabindex=-1) — brand ring instead of UA white box */
+.modal h2[tabindex="-1"]:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 .modal__subtitle {
@@ -4547,11 +4671,42 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--success, #10b981);
 }
 
-.popup__btn--fix {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-    font-weight: 600;
+.popup__btn--fix,
+.popup__btn--ghost {
+  background: transparent;
+  color: var(--ink-600, #475569);
+  border: none;
+  font-weight: 500;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  min-height: auto;
+  padding: 6px 0;
+  margin-top: 6px;
+}
+
+.popup__more {
+  margin-top: 8px;
+}
+
+.popup__more > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-400, #94a3b8);
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.popup__more > summary::-webkit-details-marker { display: none; }
+
+.popup__more-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
 }
 
 .popup__btn--secondary {
@@ -7845,12 +8000,12 @@ a,
   animation: none; /* restraint: no competing pulse vs FAB */
 }
 
-/* ---- Spec Pass 2d: the only two intentional glows ---- */
+/* ---- Spec Pass 2d: glow on FAB only; sheet primaries stay flat ---- */
 .btn--primary {
-  box-shadow: var(--shadow-cta);
+  box-shadow: var(--shadow-sm);
 }
 .btn--primary:hover:not(:disabled):not(.is-loading) {
-  box-shadow: var(--shadow-cta);
+  box-shadow: var(--shadow-sm);
 }
 #btnCamera,
 .fab {
@@ -8504,17 +8659,8 @@ html[lang="gu"] body {
 }
 
 .nav-tab.active::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 44px;
-  height: 28px;
-  border-radius: var(--radius-pill);
-  background: var(--primary-50);
-  z-index: 0;
-  pointer-events: none;
+  /* Quieter selected state — no large glow pill behind icon */
+  content: none;
 }
 
 .nav-tab > i,
@@ -8956,10 +9102,10 @@ body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge {
   }
 
   .location-banner__btn {
-    background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
-    border-color: rgba(251, 191, 36, 0.4);
-    color: #fff !important;
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    background: var(--primary);
+    border-color: var(--warning, #f59e0b);
+    color: #0f172a !important;
+    box-shadow: var(--shadow-sm);
   }
 
   .modal__sticky-footer {
@@ -9435,9 +9581,9 @@ body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge {
   }
 
   .location-banner__btn {
-    background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
-    border-color: rgba(251, 191, 36, 0.4);
-    color: #fff !important;
+    background: var(--primary);
+    border-color: var(--warning, #f59e0b);
+    color: #0f172a !important;
   }
 
   .skeleton {
@@ -9589,7 +9735,7 @@ body.persona-lead .map-legend {
   flex-direction: column;
   justify-content: center;
   gap: 3px;
-  max-width: min(260px, 68vw);
+  max-width: min(300px, 78vw);
 }
 
 .map-hud > .ward-pulse .ward-pulse__meter {
@@ -9597,7 +9743,27 @@ body.persona-lead .map-legend {
 }
 
 .map-hud > .ward-pulse .ward-pulse__ward {
-  max-width: 38%;
+  max-width: 48%;
+  flex-shrink: 0;
+}
+
+/* Narrow phones: numbers only — labels live in aria-label */
+@media (max-width: 380px) {
+  .map-hud > .ward-pulse .ward-pulse__stat > span:not(strong) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stats {
+    gap: 8px;
+  }
 }
 
 .map-hud > .map-legend {

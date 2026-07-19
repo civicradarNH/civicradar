@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v275';
+  const CIVIC_APP_VERSION = 'v278';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1990,6 +1990,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setNeighbourhoodFieldHint('leadNomNeighbourhoodHint', 'lead.neighbourhoodHint', ward, count);
 
+    const ctx = $('#onboardSocietyContext');
+
+    if (ctx) {
+
+      if (ward) {
+
+        ctx.textContent = t('onboard.societyContext').replace('{ward}', getWardShortName(ward) || ward);
+
+        ctx.classList.remove('hidden');
+
+      } else {
+
+        ctx.textContent = '';
+
+        ctx.classList.add('hidden');
+
+      }
+
+    }
+
   }
 
 
@@ -2734,6 +2754,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.',
 
+      'location.bannerCompact': 'Turn on location to pin hazards — or place a pin when reporting.',
+
       'location.bannerNearby': 'Enable location to pin hazards on the community map and see nearby issues. Location is shared only as report pins — not sold.',
 
       'location.unavailable': 'Location unavailable in this browser.',
@@ -2788,7 +2810,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.citizen.idle': 'Spotted a hazard nearby? Report it in 30 seconds — your neighbours will thank you.',
 
-      'persona.wardImpact': '{ward}: {n} reports from your neighbours so far. Add yours.',
+      'persona.wardImpact': '{ward}: {n} neighbour reports. Add yours.',
 
       'persona.unfiled': '{n} open spots on your ward map — share with neighbours, or file officially from Resources.',
 
@@ -2848,9 +2870,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardError': 'Pick a ward from the list, or turn on location.',
 
-      'onboard.society': 'Society or neighbourhood (optional)',
+      'onboard.society': 'Neighbourhood or society (optional)',
 
-      'onboard.societyPh': 'Your society or RWA name, if it\'s not listed',
+      'onboard.societyPh': 'Society or RWA name',
+
+      'onboard.societyContext': 'Neighbourhood in {ward}',
 
       'onboard.societyHintNoWard': 'Pick your ward first to see nearby societies.',
 
@@ -2934,13 +2958,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'Tap the hazard you\'re reporting',
 
-      'report.photoNext': 'Selected: {hazard} — tap Submit when ready',
+      'report.photoNext': '{hazard} selected',
 
-      'report.photoNextPin': 'Selected: {hazard} — Submit when ready (drag the pin only if needed)',
+      'report.photoNextPin': '{hazard} selected — drag pin if needed',
 
       'report.photoEvidence': 'Photo',
 
       'report.capture': 'Take photo',
+
+      'report.captureExifHint': 'EXIF location is stripped on-device. Photos stay on the community map only.',
 
       'report.notes': 'Landmark (optional)',
 
@@ -2956,15 +2982,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'Retake photo',
 
-      'moderation.guidelines': 'Camera is used only for hazard evidence — photos appear on the community map. Tap Take photo when ready. Avoid faces and documents. EXIF location is stripped on-device.',
+      'moderation.guidelines': 'Snap the hazard — avoid faces and documents.',
 
-      'moderation.guidelines.stagnant-water': 'Snap the stagnant water — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
+      'moderation.guidelines.stagnant-water': 'Snap the stagnant water — avoid faces and documents.',
 
-      'moderation.guidelines.garbage': 'Snap the garbage pile or dump — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
+      'moderation.guidelines.garbage': 'Snap the garbage pile — avoid faces and documents.',
 
-      'moderation.guidelines.potholes': 'Snap the pothole or road damage — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
+      'moderation.guidelines.potholes': 'Snap the pothole — avoid faces and documents.',
 
-      'moderation.guidelines.streetlight': 'Snap the broken streetlight — photos appear on the community map. Avoid faces and documents. EXIF location is stripped on-device.',
+      'moderation.guidelines.streetlight': 'Snap the broken streetlight — avoid faces and documents.',
 
       'moderation.scanning': 'Checking photo…',
 
@@ -3020,7 +3046,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.defaultArea': 'my area',
 
-      'share.meTooMsg': '👋 Me too — I see {hazard} in {ward} too. {n} neighbour(s) backed on CivicRadar:\n{link}\n{hashtags}',
+      'share.meTooMsg': 'Me too — {hazard} in {ward}. {n} neighbour(s) backed on CivicRadar:\n{link}\n{hashtags}',
 
       'share.meTooBtn': 'Share on WhatsApp',
 
@@ -3213,7 +3239,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pulse.open': 'open',
 
-      'pulse.fixedWeek': 'fixed this week',
+      'pulse.fixedWeek': 'fixed',
 
       'pulse.metoo': 'Me too',
 
@@ -3818,9 +3844,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'Me too',
 
-      'confirm.dupeInline': '{n} neighbours already pinned this within 10 m.',
+      'confirm.dupeInline': '{n} nearby · 10 m',
 
-      'confirm.dupeInlineOne': '1 neighbour already pinned this within 10 m.',
+      'confirm.dupeInlineOne': '1 nearby · 10 m',
 
       'confirm.ownDupe': 'You already pinned this spot. Track it in Profile.',
 
@@ -3942,9 +3968,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.communityResolved': 'Community verified fixed — thanks for reporting!',
 
-      'sync.cloud': 'Syncing',
+      'sync.cloud': 'Live',
 
-      'sync.local': 'Local only',
+      'sync.local': 'Local',
 
       'sync.cloudTitle': 'Reports sync across devices',
 
@@ -4316,6 +4342,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'mute.unmute': 'Show again',
 
+      'popup.more': 'More',
+
       'popup.pending': 'Pending',
 
       'popup.resolved': 'Resolved',
@@ -4364,7 +4392,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'Please read and accept before using CivicRadar.',
 
-      'tos.summary': 'CivicRadar is a free community hazard map (not a government service). You must be 18+, upload only onsite hazard photos, and file official complaints yourself with BMC/PMC/TMC.',
+      'tos.summary': 'CivicRadar is a free community hazard map. You must be 18+ and accept the Terms to continue.',
 
       'tos.readFull': 'Read full terms',
 
@@ -4422,7 +4450,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.syncConnected': 'Connected — reports sync across devices.',
 
-      'toast.welcome': 'Welcome, {name}! You\'re ready to report.',
+      'toast.welcome': 'Welcome, {name}! Ready to report.',
 
       'toast.syncLocal': 'Saved on this device — cloud sync will retry.',
 
@@ -5179,6 +5207,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'CivicRadar सटीक स्थान से खतरे को सामुदायिक नक्शे पर पिन करता है (पड़ोसियों को दिखता है)। चालू करें दबाएँ — या रिपोर्ट करते समय मैन्युअल पिन लगाएँ।',
 
+      'location.bannerCompact': 'खतरे पिन करने के लिए स्थान चालू करें — या रिपोर्ट करते समय पिन लगाएँ।',
+
       'location.bannerNearby': 'खतरे पिन करने और आस-पास की समस्याएँ देखने के लिए स्थान चालू करें। स्थान सिर्फ रिपोर्ट पिन के रूप में साझा होता है — बेचा नहीं जाता।',
 
       'location.unavailable': 'इस ब्राउज़र में स्थान उपलब्ध नहीं है।',
@@ -5233,7 +5263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.citizen.idle': 'आस-पास कोई खतरा दिखा? 30 सेकंड में रिपोर्ट करें — आपके पड़ोसी आपको धन्यवाद देंगे।',
 
-      'persona.wardImpact': '{ward}: अब तक आपके पड़ोसियों की {n} रिपोर्ट। आप भी जोड़ें।',
+      'persona.wardImpact': '{ward}: {n} पड़ोसी रिपोर्ट। अपनी जोड़ें।',
 
       'persona.unfiled': '{n} स्पॉट आपके वार्ड नक्शे पर खुले हैं — पड़ोसियों से शेयर करें, या Resources से आधिकारिक तौर पर दर्ज करें।',
 
@@ -5293,9 +5323,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardError': 'सूची से वार्ड चुनें, या लोकेशन चालू करें।',
 
-      'onboard.society': 'सोसाइटी या पड़ोस (वैकल्पिक)',
+      'onboard.society': 'पड़ोस या सोसाइटी (वैकल्पिक)',
 
-      'onboard.societyPh': 'आपकी सोसाइटी या RWA का नाम, अगर सूची में नहीं है',
+      'onboard.societyContext': '{ward} में पड़ोस',
+
+      'onboard.societyPh': 'सोसाइटी या RWA नाम',
 
       'onboard.societyHintNoWard': 'पास की सोसाइटी देखने के लिए पहले अपना वार्ड चुनें।',
 
@@ -5379,13 +5411,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'खतरे का प्रकार चुनें',
 
-      'report.photoNext': '{hazard} चुना — तैयार हो तो Submit दबाएँ',
+      'report.photoNext': '{hazard} चुना',
 
-      'report.photoNextPin': '{hazard} चुना — तैयार हों तो Submit (पिन केवल ज़रूरत पर खींचें)',
+      'report.photoNextPin': '{hazard} चुना — ज़रूरत हो तो पिन खींचें',
 
       'report.photoEvidence': 'फ़ोटो प्रमाण',
 
       'report.capture': 'फ़ोटो लें',
+
+      'report.captureExifHint': 'EXIF स्थान डिवाइस पर हटाया जाता है। फ़ोटो केवल सामुदायिक नक्शे पर रहती हैं।',
 
       'report.notes': 'Landmark (वैकल्पिक)',
 
@@ -5401,15 +5435,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'फिर से लें',
 
-      'moderation.guidelines': 'कैमरा सिर्फ खतरे के प्रमाण के लिए — फ़ोटो सामुदायिक नक्शे पर दिखती हैं। तैयार होने पर फ़ोटो लें दबाएँ। चेहरे और दस्तावेज़ न लें। EXIF स्थान डिवाइस पर हटाया जाता है।',
+      'moderation.guidelines': 'खतरे की फ़ोटो लें — चेहरे और दस्तावेज़ न लें।',
 
-      'moderation.guidelines.stagnant-water': 'रुके हुए पानी की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
+      'moderation.guidelines.stagnant-water': 'रुके पानी की फ़ोटो — चेहरे/दस्तावेज़ न लें।',
 
-      'moderation.guidelines.garbage': 'कचरे के ढेर की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
+      'moderation.guidelines.garbage': 'कचरे की फ़ोटो — चेहरे/दस्तावेज़ न लें।',
 
-      'moderation.guidelines.potholes': 'गड्ढे की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
+      'moderation.guidelines.potholes': 'गड्ढे की फ़ोटो — चेहरे/दस्तावेज़ न लें।',
 
-      'moderation.guidelines.streetlight': 'खराब स्ट्रीटलाइट की फ़ोटो लें — सामुदायिक नक्शे पर दिखेगी। चेहरे और दस्तावेज़ न लें। EXIF स्थान हटाया जाता है।',
+      'moderation.guidelines.streetlight': 'स्ट्रीटलाइट की फ़ोटो — चेहरे/दस्तावेज़ न लें।',
 
       'moderation.scanning': 'फ़ोटो सुरक्षा जाँच हो रही है…',
 
@@ -5465,7 +5499,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.defaultArea': 'मेरे इलाके',
 
-      'share.meTooMsg': '👋 मुझे भी — {ward} में {hazard}। {n} पड़ोसी CivicRadar पर:\n{link}\n{hashtags}',
+      'share.meTooMsg': 'मुझे भी — {ward} में {hazard}। {n} पड़ोसी CivicRadar पर:\n{link}\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp पर साझा करें',
 
@@ -5654,7 +5688,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pulse.open': 'खुले',
 
-      'pulse.fixedWeek': 'इस सप्ताह ठीक',
+      'pulse.fixedWeek': 'ठीक',
 
       'pulse.metoo': 'Me too',
 
@@ -6265,9 +6299,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'मुझे भी',
 
-      'confirm.dupeInline': '{n} पड़ोसियों ने 10 मी. के भीतर पहले ही पिन किया है।',
+      'confirm.dupeInline': '{n} पास · 10 मी.',
 
-      'confirm.dupeInlineOne': '1 पड़ोसी ने 10 मी. के भीतर पहले ही पिन किया है।',
+      'confirm.dupeInlineOne': '1 पास · 10 मी.',
 
       'confirm.ownDupe': 'आपने यहाँ पहले ही पिन किया है। प्रोफ़ाइल में देखें।',
 
@@ -6389,9 +6423,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.communityResolved': 'समुदाय-सत्यापित ठीक — रिपोर्ट के लिए धन्यवाद!',
 
-      'sync.cloud': 'सिंक हो रहा है',
+      'sync.cloud': 'लाइव',
 
-      'sync.local': 'केवल स्थानीय',
+      'sync.local': 'स्थानीय',
 
       'sync.cloudTitle': 'रिपोर्ट सभी उपकरणों पर सिंक होती हैं',
 
@@ -6763,6 +6797,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'mute.unmute': 'फिर दिखाएँ',
 
+      'popup.more': 'और',
+
       'popup.pending': 'लंबित',
 
       'popup.resolved': 'हल',
@@ -6811,7 +6847,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar उपयोग से पहले पढ़ें और स्वीकार करें।',
 
-      'tos.summary': 'CivicRadar मुफ़्त सामुदायिक खतरा मानचित्र है (सरकारी सेवा नहीं)। 18+ होना ज़रूरी; केवल ऑन-साइट खतरे की फ़ोटो; आधिकारिक शिकायत BMC/PMC/TMC पर स्वयं दर्ज करें।',
+      'tos.summary': 'CivicRadar मुफ़्त सामुदायिक खतरा मानचित्र है। जारी रखने के लिए 18+ हों और नियम स्वीकार करें।',
 
       'tos.readFull': 'पूरी शर्तें पढ़ें',
 
@@ -6870,6 +6906,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.syncConnected': 'कनेक्ट — रिपोर्ट सभी डिवाइस पर सिंक।',
 
       'toast.welcome': 'स्वागत, {name}! रिपोर्ट के लिए तैयार।',
+
 
       'toast.syncLocal': 'इस डिवाइस पर सहेजा — क्लाउड सिंक रिट्राई करेगा।',
 
@@ -7625,6 +7662,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'CivicRadar अचूक स्थानाने धोके सामुदायिक नकाशावर पिन करते (शेजाऱ्यांना दिसते). चालू करा दाबा — किंवा तक्रार करताना मॅन्युअल पिन लावा.',
 
+      'location.bannerCompact': 'धोके पिन करण्यासाठी स्थान चालू करा — किंवा तक्रार करताना पिन लावा.',
+
       'location.bannerNearby': 'धोके पिन करण्यासाठी आणि जवळपासच्या समस्या पाहण्यासाठी स्थान चालू करा. स्थान फक्त तक्रार पिन म्हणून शेअर होते — विकले जात नाही.',
 
       'location.unavailable': 'या ब्राउझरमध्ये स्थान उपलब्ध नाही.',
@@ -7679,7 +7718,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.citizen.idle': 'जवळपास एखादा धोका दिसला? 30 सेकंदात नोंदवा — तुमचे शेजारी तुमचे आभार मानतील.',
 
-      'persona.wardImpact': '{ward}: आतापर्यंत तुमच्या शेजाऱ्यांच्या {n} तक्रारी. तुमचीही जोडा.',
+      'persona.wardImpact': '{ward}: {n} शेजारी तक्रारी. तुमची जोडा.',
 
       'persona.unfiled': '{n} स्पॉट तुमच्या वॉर्ड नकाशावर उघडे आहेत — शेजाऱ्यांसोबत शेअर करा, किंवा Resources मधून अधिकृतपणे नोंदवा.',
 
@@ -7739,9 +7778,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardError': 'यादीतून वॉर्ड निवडा, किंवा लोकेशन सुरू करा.',
 
-      'onboard.society': 'सोसायटी किंवा परिसर (पर्यायी)',
+      'onboard.society': 'परिसर किंवा सोसायटी (पर्यायी)',
 
-      'onboard.societyPh': 'तुमच्या सोसायटी किंवा RWA चे नाव, यादीत नसेल तर',
+      'onboard.societyContext': '{ward} मधील परिसर',
+
+      'onboard.societyPh': 'सोसायटी किंवा RWA नाव',
 
       'onboard.societyHintNoWard': 'जवळच्या सोसायटी पाहण्यासाठी आधी तुमचा वॉर्ड निवडा.',
 
@@ -7825,13 +7866,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'धोक्याचा प्रकार निवडा',
 
-      'report.photoNext': '{hazard} निवडले — तयार असल्यास Submit दाबा',
+      'report.photoNext': '{hazard} निवडले',
 
-      'report.photoNextPin': '{hazard} निवडले — तयार असल्यास Submit (गरज असल्यास पिन ओढा)',
+      'report.photoNextPin': '{hazard} निवडले — गरज असल्यास पिन ओढा',
 
       'report.photoEvidence': 'फोटो पुरावा',
 
       'report.capture': 'फोटो काढा',
+
+      'report.captureExifHint': 'EXIF स्थान डिव्हाइसवर काढले जाते. फोटो फक्त सामुदायिक नकाशावर राहतात.',
 
       'report.notes': 'Landmark (ऐच्छिक)',
 
@@ -7847,15 +7890,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'पुन्हा काढा',
 
-      'moderation.guidelines': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी — फोटो सामुदायिक नकाशावर दिसतात. तयार असल्यास फोटो काढा दाबा. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान डिव्हाइसवर काढले जाते.',
+      'moderation.guidelines': 'धोक्याचा फोटो काढा — चेहरे आणि कागदपत्रे टाळा.',
 
-      'moderation.guidelines.stagnant-water': 'साचलेल्या पाण्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
+      'moderation.guidelines.stagnant-water': 'साचलेल्या पाण्याचा फोटो — चेहरे/कागदपत्रे टाळा.',
 
-      'moderation.guidelines.garbage': 'कचऱ्याच्या ढिगाचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
+      'moderation.guidelines.garbage': 'कचऱ्याचा फोटो — चेहरे/कागदपत्रे टाळा.',
 
-      'moderation.guidelines.potholes': 'खड्ड्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
+      'moderation.guidelines.potholes': 'खड्ड्याचा फोटो — चेहरे/कागदपत्रे टाळा.',
 
-      'moderation.guidelines.streetlight': 'बंद पथदिव्याचा फोटो काढा — सामुदायिक नकाशावर दिसेल. चेहरे आणि कागदपत्रे टाळा. EXIF स्थान काढले जाते.',
+      'moderation.guidelines.streetlight': 'पथदिव्याचा फोटो — चेहरे/कागदपत्रे टाळा.',
 
       'moderation.scanning': 'फोटो सुरक्षा तपासणी…',
 
@@ -7911,7 +7954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.defaultArea': 'माझ्या भागात',
 
-      'share.meTooMsg': '👋 मला पण — {ward} मध्ये {hazard}. {n} शेजारी CivicRadar वर:\n{link}\n{hashtags}',
+      'share.meTooMsg': 'मला पण — {ward} मध्ये {hazard}. {n} शेजारी CivicRadar वर:\n{link}\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp वर शेअर करा',
 
@@ -8100,7 +8143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pulse.open': 'उघडे',
 
-      'pulse.fixedWeek': 'या आठवड्यात सोडवले',
+      'pulse.fixedWeek': 'सोडवले',
 
       'pulse.metoo': 'Me too',
 
@@ -8711,9 +8754,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'मला पण',
 
-      'confirm.dupeInline': '{n} शेजाऱ्यांनी 10 मी.च्या आत आधीच पिन केले आहे.',
+      'confirm.dupeInline': '{n} जवळ · 10 मी.',
 
-      'confirm.dupeInlineOne': '1 शेजाऱ्याने 10 मी.च्या आत आधीच पिन केले आहे.',
+      'confirm.dupeInlineOne': '1 जवळ · 10 मी.',
 
       'confirm.ownDupe': 'तुम्ही येथे आधीच पिन केले आहे. प्रोफाइलमध्ये पहा.',
 
@@ -8835,9 +8878,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.communityResolved': 'समुदाय-सत्यापित ठीक — तक्रारीसाठी धन्यवाद!',
 
-      'sync.cloud': 'सिंक',
+      'sync.cloud': 'लाइव्ह',
 
-      'sync.local': 'फक्त स्थानिक',
+      'sync.local': 'स्थानिक',
 
       'sync.cloudTitle': 'तक्रारी सर्व उपकरणांवर सिंक',
 
@@ -9209,6 +9252,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'mute.unmute': 'पुन्हा दाखवा',
 
+      'popup.more': 'आणखी',
+
       'popup.pending': 'प्रलंबित',
 
       'popup.resolved': 'सोडवले',
@@ -9257,7 +9302,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar वापरण्यापूर्वी वाचा आणि स्वीकारा.',
 
-      'tos.summary': 'CivicRadar मोफत समुदाय धोका नकाशा आहे (सरकारी सेवा नाही). 18+ आवश्यक; फक्त ऑन-साइट धोक्याचे फोटो; अधिकृत तक्रार BMC/PMC/TMC कडे स्वतः दाखल करा.',
+      'tos.summary': 'CivicRadar मोफत समुदाय धोका नकाशा आहे. पुढे जाण्यासाठी 18+ व्हा आणि अटी स्वीकारा.',
 
       'tos.readFull': 'पूर्ण अटी वाचा',
 
@@ -10071,6 +10116,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'CivicRadar ચોક્કસ સ્થાનથી જોખમો સમુદાય નકશા પર પિન કરે છે (પડોશીઓને દેખાય). ચાલુ કરો દબાવો — અથવા ફરિયાદ કરતી વખતે મેન્યુઅલ પિન મૂકો.',
 
+      'location.bannerCompact': 'જોખમ પિન કરવા સ્થાન ચાલુ કરો — અથવા ફરિયાદ વખતે પિન મૂકો.',
+
       'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો. સ્થાન ફક્ત રિપોર્ટ પિન તરીકે શેર થાય છે — વેચાતું નથી.',
 
       'location.unavailable': 'આ બ્રાઉઝરમાં સ્થાન ઉપલબ્ધ નથી.',
@@ -10125,7 +10172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.citizen.idle': 'આસપાસ કોઈ જોખમ દેખાયું? 30 સેકંડમાં નોંધો — તમારા પડોશીઓ તમારો આભાર માનશે.',
 
-      'persona.wardImpact': '{ward}: અત્યાર સુધી તમારા પડોશીઓની {n} ફરિયાદ. તમારી પણ ઉમેરો.',
+      'persona.wardImpact': '{ward}: {n} પડોશી ફરિયાદ. તમારી ઉમેરો.',
 
       'persona.unfiled': '{n} સ્પોટ તમારા વોર્ડ નકશા પર ખુલ્લા છે — પડોશીઓ સાથે શેર કરો, અથવા Resources માંથી અધિકૃત રીતે નોંધાવો.',
 
@@ -10185,9 +10232,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardError': 'યાદીમાંથી વોર્ડ પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
-      'onboard.society': 'સોસાયટી અથવા પડોશ (વૈકલ્પિક)',
+      'onboard.society': 'પડોશ અથવા સોસાયટી (વૈકલ્પિક)',
 
-      'onboard.societyPh': 'તમારી સોસાયટી અથવા RWA નું નામ, જો યાદીમાં ન હોય',
+      'onboard.societyContext': '{ward}માં પડોશ',
+
+      'onboard.societyPh': 'સોસાયટી અથવા RWA નામ',
 
       'onboard.societyHintNoWard': 'નજીકની સોસાયટી જોવા માટે પહેલા તમારો વોર્ડ પસંદ કરો.',
 
@@ -10271,13 +10320,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.hazardHint': 'જોખમનો પ્રકાર પસંદ કરો',
 
-      'report.photoNext': '{hazard} પસંદ — તૈયાર હો તો Submit દબાવો',
+      'report.photoNext': '{hazard} પસંદ',
 
-      'report.photoNextPin': '{hazard} પસંદ — તૈયાર હો તો Submit (જરૂર હોય તો પિન ખેંચો)',
+      'report.photoNextPin': '{hazard} પસંદ — જરૂર હોય તો પિન ખેંચો',
 
       'report.photoEvidence': 'ફોટો પુરાવો',
 
       'report.capture': 'ફોટો લો',
+
+      'report.captureExifHint': 'EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ફોટો ફક્ત સમુદાય નકશા પર રહે છે.',
 
       'report.notes': 'Landmark (વૈકલ્પિક)',
 
@@ -10293,15 +10344,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'ફરી લો',
 
-      'moderation.guidelines': 'કૅમેરા ફક્ત જોખમના પુરાવા માટે — ફોટો સમુદાય નકશા પર દેખાય છે. તૈયાર હો તો ફોટો લો દબાવો. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે.',
+      'moderation.guidelines': 'જોખમનો ફોટો લો — ચહેરા અને દસ્તાવેજો ટાળો.',
 
-      'moderation.guidelines.stagnant-water': 'ભરાયેલા પાણીનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
+      'moderation.guidelines.stagnant-water': 'ભરાયેલા પાણીનો ફોટો — ચહેરા/દસ્તાવેજો ટાળો.',
 
-      'moderation.guidelines.garbage': 'કચરાના ઢગળાનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
+      'moderation.guidelines.garbage': 'કચરાનો ફોટો — ચહેરા/દસ્તાવેજો ટાળો.',
 
-      'moderation.guidelines.potholes': 'ખાડાનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
+      'moderation.guidelines.potholes': 'ખાડાનો ફોટો — ચહેરા/દસ્તાવેજો ટાળો.',
 
-      'moderation.guidelines.streetlight': 'બંધ સ્ટ્રીટલાઇટનો ફોટો લો — સમુદાય નકશા પર દેખાશે. ચહેરા અને દસ્તાવેજો ટાળો. EXIF સ્થાન દૂર થાય છે.',
+      'moderation.guidelines.streetlight': 'સ્ટ્રીટલાઇટનો ફોટો — ચહેરા/દસ્તાવેજો ટાળો.',
 
       'moderation.scanning': 'ફોટો સલામતી તપાસ…',
 
@@ -10357,7 +10408,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.defaultArea': 'મારા વિસ્તારમાં',
 
-      'share.meTooMsg': '👋 મને પણ — {ward} માં {hazard}. {n} પડોશી CivicRadar પર:\n{link}\n{hashtags}',
+      'share.meTooMsg': 'મને પણ — {ward} માં {hazard}. {n} પડોશી CivicRadar પર:\n{link}\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp પર શેર કરો',
 
@@ -10546,7 +10597,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pulse.open': 'ખુલ્લા',
 
-      'pulse.fixedWeek': 'આ અઠવાડિયે ઠીક',
+      'pulse.fixedWeek': 'ઠીક',
 
       'pulse.metoo': 'Me too',
 
@@ -11157,9 +11208,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeAction': 'મને પણ',
 
-      'confirm.dupeInline': '{n} પડોશીઓએ 10 મી.ની અંદર પહેલેથી પિન કર્યું છે.',
+      'confirm.dupeInline': '{n} નજીક · 10 મી.',
 
-      'confirm.dupeInlineOne': '1 પડોશીએ 10 મી.ની અંદર પહેલેથી પિન કર્યું છે.',
+      'confirm.dupeInlineOne': '1 નજીક · 10 મી.',
 
       'confirm.ownDupe': 'તમે અહીં પહેલેથી પિન કર્યું છે. પ્રોફાઇલમાં જુઓ.',
 
@@ -11281,9 +11332,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.communityResolved': 'સમુદાય-સત્યાપિત ઠીક — ફરિયાદ માટે આભાર!',
 
-      'sync.cloud': 'સિંક',
+      'sync.cloud': 'લાઇવ',
 
-      'sync.local': 'ફક્ત સ્થાનિક',
+      'sync.local': 'સ્થાનિક',
 
       'sync.cloudTitle': 'ફરિયાદો બધા ઉપકરણો પર સિંક',
 
@@ -11655,6 +11706,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'mute.unmute': 'ફરી દર્શાવો',
 
+      'popup.more': 'વધુ',
+
       'popup.pending': 'બાકી',
 
       'popup.resolved': 'ઉકેલાયું',
@@ -11703,7 +11756,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'CivicRadar વાપરતા પહેલાં વાંચો અને સ્વીકારો.',
 
-      'tos.summary': 'CivicRadar મફત સમુદાય જોખમ નકશો છે (સરકારી સેવા નથી). 18+ જરૂરી; ફક્ત ઑન-સાઇટ જોખમના ફોટો; અધિકૃત ફરિયાદ BMC/PMC/TMC પર પોતે ફાઇલ કરો.',
+      'tos.summary': 'CivicRadar મફત સમુદાય જોખમ નકશો છે. આગળ વધવા 18+ હો અને નિયમો સ્વીકારો.',
 
       'tos.readFull': 'સંપૂર્ણ શરતો વાંચો',
 
@@ -19019,7 +19072,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let pendingLocationBannerMessage = null;
 
+  let pendingWelcomeToast = null;
 
+  function isLocationBannerVisible() {
+    const el = $('#locationBanner');
+    return !!(el && !el.classList.contains('hidden'));
+  }
+
+  function syncLocationBannerChrome() {
+    document.body.classList.toggle('location-banner-visible', isLocationBannerVisible());
+  }
+
+  function queueWelcomeToast(name) {
+    const msg = t('toast.welcome').replace('{name}', name || 'neighbour');
+    pendingWelcomeToast = { msg, duration: 2500 };
+  }
+
+  function flushPendingWelcomeToast() {
+    if (!pendingWelcomeToast) return;
+    if (isPrimaryOverlayBlocking() || isLocationBannerVisible()) return;
+    const payload = pendingWelcomeToast;
+    pendingWelcomeToast = null;
+    showToast(payload.msg, 'success', payload.duration);
+  }
 
   // Park visible location/PWA nudges into the pending queue (classList, not CSS-only)
   // so coach/tour/modal checks and post-close flush stay consistent.
@@ -19033,7 +19108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
 
-      hideLocationBanner();
+      hideLocationBanner({ skipWelcomeFlush: true });
 
     }
 
@@ -19058,6 +19133,9 @@ document.addEventListener('DOMContentLoaded', function () {
     flushPendingPwaNudge();
 
     flushPendingLocationBanner();
+
+    // Welcome toast waits until location banner is gone (map owns first viewport).
+    if (!isLocationBannerVisible()) flushPendingWelcomeToast();
 
   }
 
@@ -19500,9 +19578,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     launchConfetti({ intensity: 'mini' });
 
-    showToast(t('confirm.meTooThanks'), 'success', 3200, {
+    showToast(t('confirm.meTooThanks'), 'success', 5200, {
 
       label: t('share.meTooBtn'),
+
+      variant: 'whatsapp',
 
       onClick: () => shareMeTooWhatsApp(reportId),
 
@@ -21560,15 +21640,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Single action → bold text link on the right (Material-style snackbar).
     // Multiple actions stay in the secondary row below the message.
+    const paintToastAction = (btn, act, primary) => {
+      const isWa = act.variant === 'whatsapp';
+      btn.className = 'toast__action'
+        + (isWa ? ' toast__action--whatsapp' : (primary ? ' toast__action--primary' : ''));
+      if (isWa) {
+        btn.innerHTML = `<i class="ph ph-whatsapp-logo" aria-hidden="true"></i><span>${escapeHtml(act.label)}</span>`;
+      } else {
+        btn.textContent = act.label;
+      }
+    };
+
     if (actionList.length === 1) {
 
       const btn = document.createElement('button');
 
       btn.type = 'button';
 
-      btn.className = 'toast__action toast__action--primary';
-
-      btn.textContent = actionList[0].label;
+      paintToastAction(btn, actionList[0], true);
 
       bindActionClick(btn, actionList[0]);
 
@@ -21588,9 +21677,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         btn.type = 'button';
 
-        btn.className = 'toast__action' + (i === 0 ? ' toast__action--primary' : '');
-
-        btn.textContent = act.label;
+        paintToastAction(btn, act, i === 0);
 
         bindActionClick(btn, act);
 
@@ -22239,6 +22326,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     refreshSocietyForOnboarding();
 
+    syncOnboardingJoinCta();
+
   }
 
 
@@ -22264,6 +22353,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const input = $('#wardInput');
 
     if (input && !input.value.trim()) input.focus();
+
+    syncOnboardingJoinCta();
 
   }
 
@@ -22297,6 +22388,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return onboardingDetectedWard || '';
 
+  }
+
+  // Detect stays primary; Join is secondary until city+ward are valid (one glow).
+  // Stay enabled so empty/invalid taps still run validation (E2E C06b/C07).
+  function syncOnboardingJoinCta() {
+    const btn = $('#btnOnboardingContinue');
+    if (!btn) return;
+    const ward = getOnboardingWard().trim();
+    const city = getOnboardingCity();
+    const ready = !!(ward && isValidWard(ward, city));
+    btn.disabled = false;
+    btn.classList.toggle('btn--primary', ready);
+    btn.classList.toggle('btn--secondary', !ready);
   }
 
 
@@ -22662,6 +22766,8 @@ document.addEventListener('DOMContentLoaded', function () {
         showOnboardingWardDetectPrompt();
 
       }
+
+      syncOnboardingJoinCta();
 
     }
 
@@ -26383,9 +26489,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    $('#locationBannerText').textContent = message;
+    const banner = $('#locationBanner');
 
-    $('#locationBanner').classList.remove('hidden');
+    const textEl = $('#locationBannerText');
+
+    if (!banner || !textEl) return;
+
+    const fullConsent = t('location.banner');
+
+    const compact = t('location.bannerCompact');
+
+    // Consent prompts use compact chip copy; keep full DPDP text in title.
+    const isConsent = !message || message === fullConsent || message === compact;
+
+    textEl.textContent = isConsent ? compact : message;
+
+    textEl.title = isConsent ? fullConsent : '';
+
+    banner.classList.toggle('location-banner--compact', isConsent);
+
+    banner.classList.remove('hidden');
+
+    syncLocationBannerChrome();
 
   }
 
@@ -26407,9 +26532,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function hideLocationBanner() {
+  function hideLocationBanner(opts) {
 
     $('#locationBanner').classList.add('hidden');
+
+    syncLocationBannerChrome();
+
+    // Skip welcome flush when parking for a primary overlay (suppress path).
+    if (opts && opts.skipWelcomeFlush) return;
+
+    flushPendingWelcomeToast();
 
   }
 
@@ -26422,6 +26554,8 @@ document.addEventListener('DOMContentLoaded', function () {
     clearLocBannerSnooze();
 
     hideLocatePill();
+
+    hideLocationBanner();
 
     user.gpsConsent = true;
 
@@ -26517,13 +26651,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!ownsReport(report)) {
 
-      safety = `<button type="button" class="popup__hide" data-hide="${escapeHtml(String(report.id))}">${escapeHtml(t('safety.hide'))}</button>`;
+      const hideBtns = `<button type="button" class="popup__hide" data-hide="${escapeHtml(String(report.id))}">${escapeHtml(t('safety.hide'))}</button>`
 
-      if (report.reporterId) {
+        + (report.reporterId
 
-        safety += `<button type="button" class="popup__hide" data-mute-reporter="${escapeHtml(String(report.reporterId))}">${escapeHtml(t('mute.hideReporter'))}</button>`;
+          ? `<button type="button" class="popup__hide" data-mute-reporter="${escapeHtml(String(report.reporterId))}">${escapeHtml(t('mute.hideReporter'))}</button>`
 
-      }
+          : '');
+
+      // Collapsed "More" keeps data-hide / data-mute for event delegation + E2E.
+      safety = `<details class="popup__more"><summary>${escapeHtml(t('popup.more'))}</summary><div class="popup__more-body">${hideBtns}</div></details>`;
 
     }
 
@@ -26555,7 +26692,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-          action += `<button type="button" class="popup__btn popup__btn--fix" data-fix-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-check-circle"></i> ${escapeHtml(t('fix.looksFixed'))}</button>
+          // Ghost secondary — WhatsApp on Me-too toast owns the primary share CTA.
+          action += `<button type="button" class="popup__btn popup__btn--fix popup__btn--ghost" data-fix-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-check-circle"></i> ${escapeHtml(t('fix.looksFixed'))}</button>
 
           <p class="popup__fix-hint">${escapeHtml(t('fix.hint'))}</p>`;
 
@@ -26764,6 +26902,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     marker.on('popupopen', () => {
 
+      document.body.classList.add('map-popup-open');
+
       const el = marker.getPopup() && marker.getPopup().getElement();
 
       if (el) bindBeforeAfterSliders(el);
@@ -26775,6 +26915,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     marker.on('popupclose', () => {
+
+      document.body.classList.remove('map-popup-open');
 
       const pathEl = marker.getElement && marker.getElement();
 
@@ -27157,6 +27299,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      // Park welcome before close so flushSecondaryNudgesAfterOverlay can sequence it
+      // after the location banner (map owns first viewport — no toast+banner pile-up).
+      queueWelcomeToast(name);
+
       closeModal('onboarding');
 
       // Land on Map (default tab). Guard + settle absorb sticky-footer → nav ghost taps
@@ -27193,7 +27339,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderLeaderboard('citizens');
 
-      showToast(t('toast.welcome').replace('{name}', name), 'success', 4500);
+      // If location banner stayed deferred/hidden, flush welcome now.
+      flushPendingWelcomeToast();
 
       if (!shouldShowHomeHero()) setTimeout(showCoachMark, 500);
 
@@ -27201,7 +27348,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#wardInput').addEventListener('input', () => {
+    const onOnboardWardEdited = () => {
 
       $('#wardError').classList.add('hidden');
 
@@ -27209,7 +27356,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       refreshSocietyForOnboarding();
 
-    });
+      syncOnboardingJoinCta();
+
+    };
+
+    $('#wardInput').addEventListener('input', onOnboardWardEdited);
+
+    $('#wardInput').addEventListener('change', onOnboardWardEdited);
+
+    syncOnboardingJoinCta();
 
 
 
@@ -27239,6 +27394,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Re-show GPS opt-in — never auto-prompt the OS location dialog on city change.
         showOnboardingWardDetectPrompt();
+
+        syncOnboardingJoinCta();
 
       });
 

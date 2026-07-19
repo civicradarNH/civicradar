@@ -205,10 +205,10 @@
   </div>
 
   <!-- Map overlays -->
-  <div id="locationBanner" class="location-banner hidden" role="status">
+  <div id="locationBanner" class="location-banner location-banner--compact hidden" role="status">
     <div class="location-banner__msg">
       <i class="ph ph-map-pin"></i>
-      <span id="locationBannerText" data-i18n="location.banner">CivicRadar uses precise location to pin hazards on the community map (visible to neighbours). Tap Turn on to allow — or place a pin manually when reporting.</span>
+      <span id="locationBannerText" data-i18n="location.bannerCompact">Turn on location to pin hazards — or place a pin when reporting.</span>
     </div>
     <div class="location-banner__actions">
       <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
@@ -331,7 +331,7 @@
     <div class="modal" id="tosModal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
       <div class="modal__handle"></div>
       <h2 id="tosTitle" tabindex="-1" data-i18n="tos.title">Terms of Service</h2>
-      <p class="tos-summary" data-i18n="tos.summary">CivicRadar is a free community hazard map (not a government service). You must be 18+, upload only onsite hazard photos, and file official complaints yourself with BMC/PMC/TMC.</p>
+      <p class="tos-summary" data-i18n="tos.summary">CivicRadar is a free community hazard map. You must be 18+ and accept the Terms to continue.</p>
       <details class="tos-details">
         <summary data-i18n="tos.readFull">Read full terms</summary>
         <ol class="tos-clauses">
@@ -411,8 +411,9 @@
         <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
       </div>
       <div class="form-group">
-        <label for="onboardSociety" data-i18n="onboard.society">Society / neighbourhood (optional)</label>
-        <input type="text" id="onboardSociety" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyHint">
+        <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
+        <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
+        <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
         <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
       </div>
       <div class="form-group">
@@ -420,7 +421,7 @@
         <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
       </div>
       <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--primary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join Community</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join Community</button>
       </div>
     </div>
   </div>
@@ -473,17 +474,17 @@
         <span class="flow-step is-active" role="listitem" data-step="capture" data-i18n="report.step.capture">Capture</span>
         <span class="flow-step" role="listitem" data-step="confirm" data-i18n="report.step.confirm">Confirm</span>
       </div>
-      <div class="flow-progress" aria-hidden="true"><div class="flow-progress__fill" id="reportFlowFill"></div></div>
       <input type="hidden" id="hazardType" value="stagnant-water">
 
       <!-- Screen A: camera capture (minimal chrome) -->
       <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
         <div class="form-group report-photo-section" id="reportPhotoSection">
-          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Camera is used only for hazard evidence — photos appear on the community map. Tap Take photo when ready. Avoid faces and documents. EXIF location is stripped on-device.</p>
+          <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap the hazard — avoid faces and documents.</p>
           <div class="camera-area camera-area--capture">
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
+            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">EXIF location is stripped on-device. Photos stay on the community map only.</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
             <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
               <div class="skeleton skeleton--line"></div>
