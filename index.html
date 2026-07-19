@@ -193,15 +193,20 @@
     <button type="button" class="ios-install-hint__dismiss" id="btnIosInstallDismiss" data-i18n-aria="iosInstall.dismiss" aria-label="Dismiss">&times;</button>
   </div>
 
-  <div id="mapEmptyCta" class="map-empty-cta hidden" role="status">
-    <div class="map-empty-cta__icon-wrap" aria-hidden="true">
-      <i class="ph ph-map-pin"></i>
+  <div id="mapEmptyCta" class="map-empty-cta hidden" role="status" aria-labelledby="mapEmptyText">
+    <div class="map-empty-cta__sheet">
+      <div class="map-empty-cta__handle" aria-hidden="true"></div>
+      <div class="map-empty-cta__icon-wrap" aria-hidden="true">
+        <i class="ph ph-map-pin"></i>
+      </div>
+      <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</h2>
+      <p class="map-empty-cta__hint" data-i18n="map.emptyHint">It takes about 30 seconds.</p>
+      <button type="button" class="btn btn--primary btn--full" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first one</button>
+      <button type="button" class="map-empty-cta__share hidden" id="btnMapEmptyShare">
+        <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+        <span data-i18n="map.emptyShare">Invite neighbours on WhatsApp</span>
+      </button>
     </div>
-    <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</h2>
-    <button type="button" class="btn btn--primary btn--sm" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first one</button>
-    <button type="button" class="btn btn--whatsapp btn--sm map-empty-cta__share hidden" id="btnMapEmptyShare">
-      <i class="ph ph-whatsapp-logo"></i> <span data-i18n="map.emptyShare">Invite neighbours on WhatsApp</span>
-    </button>
   </div>
 
   <!-- Map overlays -->
@@ -261,12 +266,13 @@
     <span class="fab-label" data-i18n="fab.report">Report</span>
   </button>
 
-  <!-- First-run coach mark (Citizen persona) -->
+  <!-- First-run coach mark (Citizen persona) — bottom sheet -->
   <div id="coachMark" class="coach-mark hidden" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
-    <div class="coach-mark__card">
-      <span class="coach-mark__step" data-i18n="coach.step">#MonsoonGuardian · 30 sec</span>
-      <h3 id="coachTitle" data-i18n="coach.title">Map it · Snap it · Report it</h3>
-      <p data-i18n="coach.body">Three taps — your ward, a photo, neighbours alerted.</p>
+    <div class="coach-mark__card" tabindex="-1">
+      <div class="coach-mark__handle" aria-hidden="true"></div>
+      <span class="coach-mark__step" data-i18n="coach.step">Quick start · 30 seconds</span>
+      <h3 id="coachTitle" data-i18n="coach.title">Welcome to your ward map</h3>
+      <p data-i18n="coach.body">Open spots show on this map — tap Report when you see a hazard in your lane.</p>
       <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="coach.got">Got it</button>
     </div>
   </div>

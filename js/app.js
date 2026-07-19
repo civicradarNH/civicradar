@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v282';
+  const CIVIC_APP_VERSION = 'v283';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -19393,9 +19393,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const heroUp = shouldShowHomeHero();
 
-    el.classList.toggle('hidden', !show || heroUp);
+    const visible = !!(show && !heroUp);
 
-    if (shareBtn) shareBtn.classList.toggle('hidden', !show || !canShowMapEmptyShare());
+    el.classList.toggle('hidden', !visible);
+
+    document.body.classList.toggle('map-empty-visible', visible);
+
+    if (shareBtn) shareBtn.classList.toggle('hidden', !visible || !canShowMapEmptyShare());
 
     if (textEl && show && user.ward) {
 
@@ -21608,6 +21612,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const toast = document.createElement('div');
 
     toast.className = `toast toast--${type}`;
+
+    if (action && action.toastClass) toast.classList.add(action.toastClass);
 
     toast.setAttribute('role', 'status');
 
@@ -26200,6 +26206,8 @@ document.addEventListener('DOMContentLoaded', function () {
       label: t('report.placePinOnMap'),
 
       onClick: () => startManualPinMode(),
+
+      toastClass: 'toast--gps',
 
       secondary: {
 

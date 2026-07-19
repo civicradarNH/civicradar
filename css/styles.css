@@ -674,57 +674,95 @@ body.app-booting {
   transform: translateX(-50%) translateY(12px);
 }
 
-/* Coach mark */
+/* Coach mark — Uber/Maps-style bottom sheet (soft scrim, drag handle) */
 .coach-mark {
   position: fixed;
   inset: 0;
   z-index: 1500;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: calc(
-    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
-    + var(--attr-clearance) + 72px
-  );
+  padding: 0;
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
 }
 
 .coach-mark__card {
-  width: min(340px, calc(100vw - 32px));
+  width: 100%;
+  max-width: 480px;
   background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  box-shadow: var(--shadow-2);
-  text-align: center;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
+  box-shadow: var(--shadow-lg);
+  text-align: left;
   outline: none;
+  animation: sheet-rise-in 0.32s var(--ease-sheet) both;
+}
+
+.coach-mark__handle {
+  width: 40px;
+  height: 4px;
+  margin: 4px auto 16px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
 }
 
 .coach-mark__card:focus-visible {
-  box-shadow: var(--shadow), 0 0 0 3px rgba(99, 102, 241, 0.35);
+  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(99, 102, 241, 0.35);
 }
 
 .coach-mark__step {
   display: inline-block;
   font-size: var(--fs-xs);
-  font-weight: 700;
-  color: var(--primary);
+  font-weight: 600;
+  color: var(--ink-400);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   margin-bottom: 8px;
 }
 
 .coach-mark__card h3 {
-  font-size: var(--fs-lg);
-  margin-bottom: 8px;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.25;
+  margin: 0 0 8px;
 }
 
 .coach-mark__card p {
   font-size: var(--fs-base);
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-bottom: 16px;
+  color: var(--ink-600);
+  line-height: 1.45;
+  margin: 0 0 20px;
+}
+
+.coach-mark__card .btn--primary {
+  min-height: var(--touch-min);
+  border-radius: var(--radius-md);
+}
+
+@keyframes sheet-rise-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-mark__card { animation: none; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .coach-mark {
+    background: rgba(0, 0, 0, 0.55);
+  }
+  .coach-mark__card {
+    border-color: rgba(148, 163, 184, 0.22);
+  }
+  .coach-mark__step {
+    color: var(--ink-400);
+  }
 }
 
 /* Interactive guided tour (coach-mark spotlight) */
@@ -1563,6 +1601,56 @@ body.manual-pin-mode #map .leaflet-container {
   margin-top: 16px;
 }
 
+/* Camera / geo disclosure sheets — calm sheet polish (no rainbow headers) */
+#reportCameraModal,
+#reportGeoModal {
+  text-align: left;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+#reportCameraModal h2,
+#reportGeoModal h2 {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+#reportCameraModal .modal__subtitle,
+#reportGeoModal .modal__subtitle {
+  color: var(--ink-600);
+  margin-bottom: 16px;
+}
+
+#reportCameraModal .report-geo__icon,
+#reportGeoModal .report-geo__icon {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+#reportCameraModal .report-geo__actions .btn--primary,
+#reportGeoModal .report-geo__actions .btn--primary {
+  min-height: var(--touch-min);
+  border-radius: var(--radius-md);
+}
+
+#reportCameraModal .report-geo__actions .btn--ghost,
+#reportGeoModal .report-geo__actions .btn--ghost {
+  margin-top: 0;
+  min-height: var(--touch-min);
+  color: var(--ink-600);
+}
+
+.disclosure-list li {
+  color: var(--ink-600);
+  font-size: var(--fs-sm);
+}
+
+.disclosure-list li i {
+  color: var(--primary);
+}
+
 /* Icon-driven disclosure list (v256) — replaces a single dense paragraph in
    the camera/GPS in-context disclosure sheets with scannable one-line items.
    All original disclosure points stay present, just restructured. */
@@ -1841,57 +1929,155 @@ body.manual-pin-mode #map .leaflet-container {
 .map-error i { font-size: var(--fs-2xl); color: #94a3b8; }
 .map-error p { max-width: 260px; font-size: var(--fs-base); }
 
+/* Empty-ward first-pin — Maps-style bottom sheet (map stays visible above) */
 .map-empty-cta {
   position: fixed;
-  left: 50%;
-  top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + (100dvh - var(--header-height) - var(--persona-bar-height) - var(--ward-pulse-height) - var(--nav-height) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 2);
-  transform: translate(-50%, -50%);
-  z-index: 450;
-  max-width: min(300px, calc(100vw - 32px));
-  padding: 18px 16px 16px;
-  text-align: center;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-    border: 1px solid rgba(99, 102, 241, 0.14);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  z-index: 1003;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0;
+  background: transparent;
+  border: none;
+  transform: none;
+  max-width: none;
+  text-align: left;
+}
+
+.map-empty-cta.hidden { display: none; }
+
+.map-empty-cta__sheet {
   pointer-events: auto;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 8px 20px calc(16px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-lg);
+  animation: sheet-rise-in 0.32s var(--ease-sheet) both;
+}
+
+.map-empty-cta__handle {
+  width: 40px;
+  height: 4px;
+  margin: 4px auto 14px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
 }
 
 .map-empty-cta__icon-wrap {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 76px;
-  height: 76px;
-  margin-bottom: 14px;
+  width: 48px;
+  height: 48px;
+  margin: 0 0 12px;
   border-radius: 50%;
-  background: var(--grad-brand-cyan);
-  box-shadow: var(--shadow-md);
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary);
+  box-shadow: none;
 }
 
 .map-empty-cta__icon-wrap i {
-  font-size: 34px;
-  color: #fff;
+  font-size: var(--fs-xl);
+  color: var(--primary);
 }
 
 .map-empty-cta__title {
   font-size: var(--fs-xl);
-  font-weight: 800;
-  color: var(--text-dark);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin: 0 0 6px;
+  line-height: 1.25;
+}
+
+.map-empty-cta__hint {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--ink-600);
+  line-height: 1.45;
   margin: 0 0 16px;
-  line-height: 1.3;
 }
 
-.map-empty-cta .btn { width: 100%; }
+.map-empty-cta .btn--primary {
+  width: 100%;
+  min-height: var(--touch-min);
+  border-radius: var(--radius-md);
+  margin: 0;
+}
 
+/* Secondary WhatsApp invite — text row, not a competing bordered box */
 .map-empty-cta__share {
-  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--touch-min);
+  margin-top: 4px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-600);
+  font-family: var(--font);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
 }
 
-.map-empty-cta__share i { font-size: var(--fs-md); }
+.map-empty-cta__share i {
+  font-size: var(--fs-md);
+  color: var(--whatsapp, #25D366);
+}
+
+.map-empty-cta__share:hover {
+  background: rgba(var(--primary-rgb), 0.06);
+  color: var(--ink-900);
+}
+
+.map-empty-cta__share:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.map-empty-cta__share.hidden { display: none; }
+
+/* One primary CTA: hide FAB while empty-ward sheet is up */
+body.map-empty-visible #btnCamera {
+  visibility: hidden;
+  pointer-events: none;
+}
 
 body.persona-admin .map-empty-cta,
 body.persona-lead .map-empty-cta {
   display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-empty-cta__sheet { animation: none; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-empty-cta__sheet {
+    border-color: rgba(148, 163, 184, 0.22);
+    background: var(--surface);
+  }
+  .map-empty-cta__icon-wrap {
+    background: rgba(var(--primary-rgb), 0.2);
+  }
+  .map-empty-cta__share:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
 }
 
 /* Home hero — landing card above Report FAB */
@@ -3058,28 +3244,36 @@ body.pwa-nudge-visible #btnCamera {
   background: rgba(239, 68, 68, 0.08);
 }
 
-/* Alert / confirm pattern (v280) — delete + genericConfirm only.
+/* Alert / confirm pattern (v280→v283) — delete + genericConfirm only.
    Calm civic sheet: circular icon, title, muted body, stacked actions.
    No colored header bands; no WhatsApp-green success skin; no global pill CTAs. */
 .modal--alert,
 .delete-confirm-modal {
   text-align: center;
-  border-radius: var(--radius-xl);
-  padding: 20px 20px 16px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  box-shadow: var(--shadow-lg);
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .modal--alert h2,
 .delete-confirm-modal h2 {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-xl);
   font-weight: 700;
+  color: var(--ink-900);
   margin: 0 0 6px;
+  position: static;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .modal--alert .modal__subtitle,
 .delete-confirm-modal .modal__subtitle {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
   color: var(--ink-600, var(--text-muted));
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   line-height: 1.45;
 }
 
@@ -3151,7 +3345,33 @@ body.pwa-nudge-visible #btnCamera {
 @media (min-width: 768px) {
   .modal--alert,
   .delete-confirm-modal {
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
     padding: 24px 24px 20px;
+  }
+}
+
+/* Success sheet — one primary (WhatsApp), Done stays ghost */
+#successModal {
+  border: 1px solid var(--border);
+  border-bottom: none;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+#successModal h2 {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+#successModal .success-tagline {
+  color: var(--ink-600);
+}
+
+@media (min-width: 768px) {
+  #successModal {
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
   }
 }
 
@@ -8918,6 +9138,86 @@ html[lang="gu"] body {
   background: var(--toast-success-bg);
 }
 
+/* GPS accuracy — compact top chip (Maps-style), not a chunky card */
+.toast.toast--gps {
+  width: min(420px, calc(100vw - 24px));
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.toast.toast--gps .toast__row {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.toast.toast--gps .toast__row > span {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1.35;
+  color: #f8fafc;
+}
+
+.toast.toast--gps .toast__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 8px;
+  padding-left: 0;
+}
+
+.toast.toast--gps .toast__action--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: #fff !important;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none !important;
+  opacity: 1;
+}
+
+.toast.toast--gps .toast__action--primary:hover {
+  background: var(--primary-dark);
+  text-decoration: none !important;
+  opacity: 1;
+}
+
+.toast.toast--gps .toast__action:not(.toast__action--primary):not(.toast__action--whatsapp) {
+  min-height: 40px;
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+  color: rgba(248, 250, 252, 0.82);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  text-decoration: none !important;
+  opacity: 1;
+}
+
+.toast.toast--gps .toast__action:not(.toast__action--primary):not(.toast__action--whatsapp):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  text-decoration: none !important;
+}
+
+.toast.toast--gps.toast--error .toast__action--primary {
+  background: #fff;
+  color: #991b1b !important;
+}
+
+.toast.toast--gps.toast--error .toast__action--primary:hover {
+  background: #fef2f2;
+}
+
 @keyframes snackbar-in {
   from {
     opacity: 0;
@@ -8982,11 +9282,19 @@ html.modal-open #pwaInstallNudge {
 
 body:has(#coachMark:not(.hidden)) #locationBanner,
 body:has(#coachMark:not(.hidden)) #pwaInstallNudge,
+body:has(#coachMark:not(.hidden)) #mapEmptyCta,
 body:has(#tourOverlay:not(.hidden)) #locationBanner,
-body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge {
+body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge,
+body:has(#tourOverlay:not(.hidden)) #mapEmptyCta {
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
+}
+
+/* Coach owns the sheet slot — keep FAB visible for the tour target */
+body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* ---- Micro-interactions: snappy press (preserve FAB centering) ---- */
