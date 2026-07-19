@@ -8966,11 +8966,20 @@ body.pwa-nudge-visible .toast-container {
 }
 
 /* Suppress background shouts while a sheet / coach / tour is open (keep snackbar).
-   Coach + tour do not set body.modal-open; :has() covers those without a new overlay manager. */
+   Coach + tour do not set body.modal-open; :has() covers those without a new
+   overlay manager. The :has() selectors MUST stay in their own rule: merged
+   into this list, one unsupported selector invalidates the whole group on
+   browsers without :has() (older Android WebViews, Firefox ESR), silently
+   breaking the long-standing modal-open suppression too. */
 body.modal-open #locationBanner,
 body.modal-open #pwaInstallNudge,
 html.modal-open #locationBanner,
-html.modal-open #pwaInstallNudge,
+html.modal-open #pwaInstallNudge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 body:has(#coachMark:not(.hidden)) #locationBanner,
 body:has(#coachMark:not(.hidden)) #pwaInstallNudge,
 body:has(#tourOverlay:not(.hidden)) #locationBanner,
@@ -9420,7 +9429,10 @@ body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge {
 }
 
 .modal__sticky-footer {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--glass-sheet) 32%);
+  /* Reach full glass by 12% (was 32%): the wide transparent band let content
+     scrolling under the footer stay crisply readable and mash with footer
+     pills on phones (nested backdrop-filters often no-op the blur). */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--glass-sheet) 12%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }

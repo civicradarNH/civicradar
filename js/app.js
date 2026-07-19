@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v280';
+  const CIVIC_APP_VERSION = 'v281';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -12617,7 +12617,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return n === 1 ? t('confirm.backingOne') : t('confirm.backingMany').replace('{n}', String(n));
   }
 
-  function findSubmitDuplicate(lat, lng) {
+  function findSubmitDuplicate(lat, lng, hazard) {
     if (lat == null || lng == null) return null;
     const reports = loadReports();
     const now = Date.now();
@@ -12627,6 +12627,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const r = reports[i];
       if (r.lat == null || r.lng == null) continue;
       if (r.status === 'resolved') continue;
+      // Same-hazard only: a garbage pile 8 m away must not block filing a
+      // streetlight report — "Me too" would corroborate the wrong issue.
+      if (hazard && r.hazard && r.hazard !== hazard) continue;
       const age = now - new Date(r.timestamp).getTime();
       if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
       const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
@@ -12664,6 +12667,9 @@ document.addEventListener('DOMContentLoaded', function () {
       submitBtn.classList.remove('hidden');
       submitBtn.hidden = false;
     }
+    // Restore the hazard cue the dupe pill displaced (no-op when no hazard).
+    const hazardEl = $('#hazardType');
+    if (hazardEl && hazardEl.value) updateHazardSelectedCue(hazardEl.value);
   }
 
   function showReportDuplicateUi(report) {
@@ -12693,6 +12699,12 @@ document.addEventListener('DOMContentLoaded', function () {
       meTooBtn.hidden = false;
       meTooBtn.disabled = false;
     }
+    // The hazard cue ("X selected — drag pin if needed") repeats this pill's
+    // guidance and scrolls under the sticky footer's translucent band, where
+    // the two near-identical indigo pills visually mash into one garbled line
+    // on phones. One message at a time: the dupe pill wins while visible.
+    const cue = $('#hazardSelectedCue');
+    if (cue) cue.classList.add('hidden');
   }
 
   function refreshReportDuplicateUi() {
@@ -12702,7 +12714,7 @@ document.addEventListener('DOMContentLoaded', function () {
       clearReportDuplicateUi();
       return;
     }
-    const hit = findSubmitDuplicate(lat, lng);
+    const hit = findSubmitDuplicate(lat, lng, $('#hazardType') && $('#hazardType').value);
     if (!hit) {
       clearReportDuplicateUi();
       return;
@@ -20417,6 +20429,11 @@ document.addEventListener('DOMContentLoaded', function () {
     updateHazardSelectedCue(key);
 
     updatePhotoGuidelines(key);
+
+    // Dupe match is same-hazard-scoped, so switching hazard on the confirm
+    // step must re-evaluate — e.g. a garbage dupe pill clears (Submit returns)
+    // when the user switches to streetlight at the same spot.
+    refreshReportDuplicateUi();
 
     if (!hasReportPhotoPreview()) highlightPhotoSection();
 
@@ -31090,7 +31107,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     currentLng = lng;
 
-    const dupeHit = findSubmitDuplicate(lat, lng);
+    const dupeHit = findSubmitDuplicate(lat, lng, $('#hazardType') && $('#hazardType').value);
 
     if (dupeHit) {
 
