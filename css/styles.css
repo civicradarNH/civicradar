@@ -8493,11 +8493,16 @@ body.pwa-nudge-visible .toast-container {
   }
 }
 
-/* Suppress background shouts while a content sheet is open (keep snackbar) */
+/* Suppress background shouts while a sheet / coach / tour is open (keep snackbar).
+   Coach + tour do not set body.modal-open; :has() covers those without a new overlay manager. */
 body.modal-open #locationBanner,
 body.modal-open #pwaInstallNudge,
 html.modal-open #locationBanner,
-html.modal-open #pwaInstallNudge {
+html.modal-open #pwaInstallNudge,
+body:has(#coachMark:not(.hidden)) #locationBanner,
+body:has(#coachMark:not(.hidden)) #pwaInstallNudge,
+body:has(#tourOverlay:not(.hidden)) #locationBanner,
+body:has(#tourOverlay:not(.hidden)) #pwaInstallNudge {
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
