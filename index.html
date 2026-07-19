@@ -172,7 +172,7 @@
       <span data-i18n="home.hero.badge">#MonsoonGuardian</span>
     </div>
     <h2 class="home-hero__title" id="homeHeroTitle" data-i18n="home.hero.headline">Map it · Snap it · Report it</h2>
-    <p class="home-hero__sub" data-i18n="home.hero.subline">Three taps — your ward, a photo, neighbours alerted.</p>
+    <p class="home-hero__sub" data-i18n="home.hero.subline">Report a hazard in 30 seconds — neighbours see it too.</p>
     <ul class="home-hero__benefits">
       <li><i class="ph ph-map-trifold" aria-hidden="true"></i><span data-i18n="home.hero.benefit1">Map it</span></li>
       <li><i class="ph ph-camera" aria-hidden="true"></i><span data-i18n="home.hero.benefit2">Snap it</span></li>
@@ -272,7 +272,7 @@
       <div class="coach-mark__handle" aria-hidden="true"></div>
       <span class="coach-mark__step" data-i18n="coach.step">Quick start · 30 seconds</span>
       <h3 id="coachTitle" data-i18n="coach.title">Welcome to your ward map</h3>
-      <p data-i18n="coach.body">Open spots show on this map — tap Report when you see a hazard in your lane.</p>
+      <p data-i18n="coach.body">Open hazards show here — tap Report when you spot one.</p>
       <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="coach.got">Got it</button>
     </div>
   </div>
@@ -291,11 +291,14 @@
     </div>
   </div>
 
-  <!-- PWA install nudge (shown once after first report or 2nd visit) -->
-  <div id="pwaInstallNudge" class="pwa-nudge hidden" role="region" aria-labelledby="pwaNudgeText">
-    <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">Monsoon season 🌧️ Add CivicRadar to Home Screen — one-tap reporting.</p>
+  <!-- PWA install nudge — glass chip (v288; matches GPS tip quality bar) -->
+  <div id="pwaInstallNudge" class="pwa-nudge hidden" role="region" aria-labelledby="pwaNudgeTitle">
+    <div class="pwa-nudge__copy">
+      <p class="pwa-nudge__title" id="pwaNudgeTitle" data-i18n="pwa.nudgeTitle">Add to Home Screen</p>
+      <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">One-tap reporting from your home screen.</p>
+    </div>
     <div class="pwa-nudge__actions">
-      <button type="button" class="pwa-nudge__btn pwa-nudge__btn--primary" id="btnPwaNudgeInstall" data-i18n="pwa.nudgeAction">Add to Home Screen</button>
+      <button type="button" class="pwa-nudge__btn pwa-nudge__btn--primary" id="btnPwaNudgeInstall" data-i18n="pwa.nudgeAction">Add</button>
       <button type="button" class="pwa-nudge__btn pwa-nudge__btn--ghost" id="btnPwaNudgeDismiss" data-i18n="pwa.nudgeDismiss">Not now</button>
     </div>
   </div>
@@ -375,7 +378,7 @@
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
       <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-      <p class="modal__subtitle" data-i18n="onboard.subtitle">Three taps — your ward, a photo, neighbours alerted.</p>
+      <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot a problem, snap it — neighbours see it on the map.</p>
       <div class="form-group" id="wardDetectGroup">
         <div id="wardDetectPrompt" class="ward-detect-prompt">
           <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
@@ -595,7 +598,6 @@
             <i class="ph ph-caret-down" aria-hidden="true"></i>
           </button>
           <div class="official-channels-block__body hidden" id="successOfficialBody">
-            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Free with {corp} — starts the official complaint clock.</p>
             <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
             <p class="field-hint" data-i18n="official.subtitle">Gov apps — CivicRadar does not file for you.</p>
             <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
@@ -1035,8 +1037,6 @@
         </button>
         <div class="cr-section__body hidden" id="profileActivityBody">
           <div class="profile-resource-link" id="profileCommunityLinkBlock">
-            <h3 class="section-title"><i class="ph ph-hand-heart" aria-hidden="true"></i><span data-i18n="resources.actionTitle">Help in your ward</span></h3>
-            <p class="field-hint" data-i18n="profile.communityHint">Volunteer sign-up and supply pledges — open from the Resources tab.</p>
             <button type="button" class="btn btn--secondary btn--full" id="btnProfileCommunityHelp">
               <i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="profile.communityLink">Volunteer &amp; pledges</span>
             </button>

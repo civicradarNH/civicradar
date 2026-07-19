@@ -10,7 +10,7 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v283';
+const CACHE = 'civicradar-v292';
 const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',
@@ -79,7 +79,9 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const data = (event.notification && event.notification.data) || {};
   const reportId = data.reportId || '';
-  const target = data.url || './';
+  // Same-origin relative paths only — never open absolute/external URLs from notification data.
+  let target = typeof data.url === 'string' ? data.url : './';
+  if (!target || /^[a-z]+:/i.test(target) || target.startsWith('//')) target = './';
   event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
     for (const client of clientList) {
       if ('focus' in client) { client.postMessage({ type: 'nbh-alert-focus', reportId }); return client.focus(); }

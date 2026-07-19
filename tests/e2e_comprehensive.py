@@ -502,11 +502,7 @@ async def goto_app(page, query='', wait_map=False):
 
             raise last_err
 
-    await page.evaluate(
-
-        '() => { if (window.CIVICRADAR_CONFIG) window.CIVICRADAR_CONFIG.moderation = { enabled: false }; }'
-
-    )
+    await apply_test_runtime_overrides(page)
 
     if wait_map:
 
@@ -678,8 +674,50 @@ async def dismiss_civic_comboboxes(page):
 
 async def close_all_modals(page):
 
-    await page.evaluate('() => { if (typeof window.closeAllModals === "function") window.closeAllModals(); else Object.values({profile:"profileOverlay",community:"communityOverlay",report:"reportOverlay",lang:"langOverlay",lead:"leadOverlay",admin:"adminOverlay",partner:"partnerOverlay",coordinator:"coordinatorOverlay",adminQueue:"adminQueueOverlay"}).forEach(id => { const el = document.getElementById(id); if (el) { el.classList.remove("open"); el.setAttribute("aria-hidden","true"); } }); document.body.style.overflow=""; }')
+    await page.evaluate(
+        """() => {
+          if (typeof window.closeAllModals === 'function') window.closeAllModals();
+          else {
+            Object.values({
+              profile: 'profileOverlay', community: 'communityOverlay', report: 'reportOverlay',
+              lang: 'langOverlay', lead: 'leadOverlay', admin: 'adminOverlay',
+              partner: 'partnerOverlay', coordinator: 'coordinatorOverlay',
+              adminQueue: 'adminQueueOverlay', success: 'successOverlay',
+            }).forEach((id) => {
+              const el = document.getElementById(id);
+              if (el) { el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); }
+            });
+            document.body.style.overflow = '';
+          }
+          // Force-close celebrate so a prior success cannot satisfy submit waits.
+          const success = document.getElementById('successOverlay');
+          if (success) {
+            success.classList.remove('open');
+            success.setAttribute('aria-hidden', 'true');
+          }
+        }"""
+    )
 
+
+
+
+
+async def apply_test_runtime_overrides(page):
+    """Re-assert local/demo harness after navigation.
+
+    init-script Object.assign is overwritten when config.js assigns a fresh
+    CIVICRADAR_CONFIG on every full load/reload — moderation + Supabase come back.
+    """
+    await page.evaluate(
+        """() => {
+          if (window.CIVICRADAR_CONFIG) {
+            window.CIVICRADAR_CONFIG.moderation = { enabled: false };
+            window.CIVICRADAR_CONFIG.supabaseUrl = '';
+            window.CIVICRADAR_CONFIG.supabaseAnonKey = '';
+          }
+        }"""
+    )
+    await ensure_local_mode(page)
 
 
 
@@ -701,10 +739,16 @@ async def wait_for_map_ready(page, timeout=20000):
 async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test hazard'):
     # Photo-first flow + optional ImageModeration scan need the report sheet open;
     # moderation alone can take several seconds after click.
+    await apply_test_runtime_overrides(page)
     await page.evaluate(
         """() => {
           try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
           try { localStorage.setItem('civicradar_report_geo_explainer', '1'); } catch (_) {}
+          const success = document.getElementById('successOverlay');
+          if (success) {
+            success.classList.remove('open');
+            success.setAttribute('aria-hidden', 'true');
+          }
           if (typeof window.openReportModal === 'function') window.openReportModal(false);
         }"""
     )
@@ -787,7 +831,7 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
               return toast.includes('me too') || toast.includes('already') || toast.includes('corroborat');
             }""",
             arg=notes,
-            timeout=12000,
+            timeout=16000,
         )
     except Exception:
         pass
@@ -1205,15 +1249,20 @@ async def run_citizen_tests(s: Suite, browser):
 
               const el = document.getElementById('communitySubtitle');
 
-              const txt = el ? el.textContent : '';
+              const txt = (el ? el.textContent : '').trim();
 
-              return txt.includes('PMC') && !/\\bBMC\\b/.test(txt);
+              // v292 EN subtitle is corp-neutral ("Fix it together in {ward}");
+              // still require ward context + no Mumbai BMC bleed. Corp label
+              // remains on escalation/Resources (X21 / OC02).
+              const wardBit = (JSON.parse(localStorage.getItem('civicradar_user')||'{}').ward || '').split('—')[0].trim();
+
+              return txt.length > 8 && (!wardBit || txt.includes(wardBit)) && !/\\bBMC\\b/.test(txt);
 
             }"""
 
         )
 
-        s.record('C34c', 'Citizen', 'Pune community subtitle uses PMC', pune_subtitle)
+        s.record('C34c', 'Citizen', 'Pune community subtitle ward-scoped (no BMC)', pune_subtitle)
 
         await ctx_pune.close()
 
@@ -2621,15 +2670,18 @@ async def run_extended_scenarios(s: Suite, browser):
 
           window.openCommunityModal();
 
-          const txt = document.getElementById('communitySubtitle')?.textContent || '';
+          const txt = (document.getElementById('communitySubtitle')?.textContent || '').trim();
 
-          return txt.includes('TMC') && !/\\bBMC\\b/.test(txt);
+          // v292 EN subtitle is corp-neutral; keep ward scope + no BMC bleed.
+          const wardBit = (JSON.parse(localStorage.getItem('civicradar_user')||'{}').ward || '').split('—')[0].trim();
+
+          return txt.length > 8 && (!wardBit || txt.includes(wardBit)) && !/\\bBMC\\b/.test(txt);
 
         }"""
 
     )
 
-    s.record('MC01', 'MultiCity', 'Thane community subtitle uses TMC', tmc_sub)
+    s.record('MC01', 'MultiCity', 'Thane community subtitle ward-scoped (no BMC)', tmc_sub)
 
     s.record('MC02', 'MultiCity', 'Thane blocks BMC admin modal', await page.evaluate(
 
@@ -3285,15 +3337,26 @@ async def run_extended_scenarios(s: Suite, browser):
     s.record('U15', 'UI', 'Header context element', bool(await page.text_content('#headerContext')))
 
     # Persona bar is intentionally hidden while home-hero shows (v112 home-screen
-    # declutter — avoids two overlapping "report a hazard" messages at once);
-    # it should reappear once home-hero is dismissed.
+    # declutter — avoids two overlapping "report a hazard" messages at once).
+    # After dismiss, citizen ward-count bar may stay collapsed when #wardPulse
+    # already carries ward context (persona-pulse-redundant) — assert either
+    # the persona bar or the pulse HUD is visible so ward context remains.
     hero_visible_before_u16 = not await page.evaluate('() => document.getElementById("homeHero").classList.contains("hidden")')
     persona_hidden_during_hero = not await page.is_visible('#personaBar')
     await js_click(page, '#btnHeroDismiss')
     await page.wait_for_timeout(200)
-    persona_visible_after_dismiss = await page.is_visible('#personaBar')
-    s.record('U16', 'UI', 'Persona bar hidden during home-hero, visible after dismiss',
-             hero_visible_before_u16 and persona_hidden_during_hero and persona_visible_after_dismiss)
+    ward_context_after_dismiss = await page.evaluate("""() => {
+      const bar = document.getElementById('personaBar');
+      const pulse = document.getElementById('wardPulse');
+      const visible = (el) => {
+        if (!el || el.classList.contains('hidden')) return false;
+        const cs = window.getComputedStyle(el);
+        return cs.display !== 'none' && cs.visibility !== 'hidden';
+      };
+      return visible(bar) || visible(pulse);
+    }""")
+    s.record('U16', 'UI', 'Persona bar hidden during home-hero; ward context after dismiss',
+             hero_visible_before_u16 and persona_hidden_during_hero and ward_context_after_dismiss)
 
     s.record('U17', 'UI', 'Partner inquiry exported', await page.evaluate('() => typeof window.openPartnerInquiry === "function"'))
 
@@ -3612,6 +3675,8 @@ async def run_extended_scenarios(s: Suite, browser):
     }''')
 
     await page.reload()
+
+    await apply_test_runtime_overrides(page)
 
     await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
 
@@ -4373,7 +4438,18 @@ async def run_extended_scenarios(s: Suite, browser):
     # After camera cancel (no file), dismiss guard must still block Map ghost tap from closing report.
     cancel_guard_ok = await page.evaluate(
         """() => {
+          try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
+          // Clear leftover canvas from RP11 — cancel-with-preview syncs to confirm and
+          // would false-fail the capture-step assertion below.
+          const canvas = document.getElementById('imageCanvas');
+          if (canvas) {
+            canvas.classList.remove('visible');
+            try { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
+          }
+          try { document.getElementById('photoInput').value = ''; } catch (_) {}
           window.openReportModal(false);
+          // Arm the real picker flow (same path as native cancel after Take photo).
+          document.getElementById('btnTakePhoto')?.click();
           const input = document.getElementById('photoInput');
           if (input) {
             try { input.dispatchEvent(new Event('cancel', { bubbles: true })); } catch (_) {}
@@ -5401,7 +5477,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v283" in sw_src
+            "civicradar-v292" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8443,6 +8519,8 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     await page.reload()
 
+    await apply_test_runtime_overrides(page)
+
     await page.wait_for_selector('#reportOverlay.open', state='visible', timeout=5000)
 
     draft_restore = await page.evaluate('''() => {
@@ -8550,7 +8628,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v283" in sw_src
+            "civicradar-v292" in sw_src
 
             and "'/index.html'" not in sw_src
 

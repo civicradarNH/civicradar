@@ -22,7 +22,8 @@
     requireOnlineNsfw: false,
   };
 
-  const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  // image/jpg + image/pjpeg: some Android camera/gallery stacks use these aliases.
+  const ALLOWED_MIME = new Set(['image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png', 'image/webp']);
   const BLOCKED_EXT = /\.(gif|svg|bmp|heic|heif|tiff?)$/i;
 
   let nsfwModelPromise = null;
