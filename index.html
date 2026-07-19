@@ -452,7 +452,12 @@
       <button type="button" class="modal__close" data-close="reportCamera" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-camera"></i></div>
       <h2 id="reportCameraTitle" data-i18n="report.cameraDisclosureTitle">Photo for your hazard report</h2>
-      <p class="modal__subtitle" id="reportCameraBody" data-i18n="report.cameraDisclosureBody">CivicRadar uses the camera only to capture hazard evidence for your report. Photos appear on the community map. EXIF location is stripped on-device. Photos are not sold or used for marketing. Avoid faces and documents.</p>
+      <ul class="disclosure-list" id="reportCameraBody">
+        <li><i class="ph ph-camera" aria-hidden="true"></i><span id="reportCameraBodyVerify" data-i18n="report.cameraDisclosure.verify">Used only to verify this hazard</span></li>
+        <li><i class="ph ph-users" aria-hidden="true"></i><span id="reportCameraBodyVisible" data-i18n="report.cameraDisclosure.visible">Visible to neighbours on the community map</span></li>
+        <li><i class="ph ph-map-pin" aria-hidden="true"></i><span id="reportCameraBodyLocation" data-i18n="report.cameraDisclosure.location">Exact location is stripped automatically</span></li>
+        <li><i class="ph ph-shield-check" aria-hidden="true"></i><span id="reportCameraBodyNoSell" data-i18n="report.cameraDisclosure.noSell">Never sold or used for marketing</span></li>
+      </ul>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportCameraContinue" data-i18n="report.cameraDisclosureContinue">Continue to camera</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnReportCameraCancel" data-i18n="common.cancel">Cancel</button>

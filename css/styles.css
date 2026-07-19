@@ -1337,6 +1337,34 @@ body.manual-pin-mode #map .leaflet-container {
   margin-top: 16px;
 }
 
+/* Icon-driven disclosure list (v256) — replaces a single dense paragraph in
+   the camera/GPS in-context disclosure sheets with scannable one-line items.
+   All original disclosure points stay present, just restructured. */
+.disclosure-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disclosure-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: var(--fs-base);
+  line-height: 1.4;
+  color: var(--text-dark);
+}
+
+.disclosure-list li i {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: var(--fs-md);
+  color: var(--primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .manual-pin-preview {
     animation: none;
@@ -3928,6 +3956,7 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .popup__hide {
+  display: inline-block;
   margin-top: 6px;
   font-size: var(--fs-xs);
   color: var(--text-muted);
@@ -3936,6 +3965,14 @@ body.persona-lead .app-open-banner { display: none; }
   padding: 0;
   cursor: pointer;
   text-decoration: underline;
+}
+
+/* When both the "Flag / hide" and "Hide reports from this reporter" buttons
+   render together, they're two adjacent zero-padding text buttons with no
+   markup whitespace between them — ran together as one unbroken string
+   without this gap. */
+.popup__hide + .popup__hide {
+  margin-left: 12px;
 }
 
 .popup__hide:hover {
@@ -4256,14 +4293,34 @@ body.persona-lead .app-open-banner { display: none; }
   text-align: center;
 }
 
-.popup__fix-confirms {
+/* Pin-popup metric pills (v256) — "N Me too" / "N Fixed" used to be two
+   separate stacked full-width lines; now a single row of compact pills. */
+.popup__pills {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.popup__pill {
+  display: inline-flex;
   align-items: center;
   gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
   font-size: var(--fs-xs);
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.popup__pill--confirms {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent);
+}
+
+.popup__pill--fixed {
+  background: rgba(16, 185, 129, 0.12);
   color: var(--success, #10b981);
-  margin-top: 6px;
 }
 
 .popup__btn--fix {
@@ -6065,11 +6122,6 @@ body.persona-lead .app-open-banner { display: none; }
 .map-popup { min-width: 150px; }
 .popup__title { font-size: var(--fs-base); font-weight: 700; }
 .popup__meta { font-size: var(--fs-xs); color: var(--text-muted, #64748b); margin-top: 2px; }
-.popup__confirms {
-  display: flex; align-items: center; gap: 5px;
-  font-size: var(--fs-xs); font-weight: 600; color: var(--accent);
-  margin-top: 6px;
-}
 .popup__btn {
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: 8px; min-height: var(--touch-min); padding: 10px 14px;

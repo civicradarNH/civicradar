@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v256';
+  const CIVIC_APP_VERSION = 'v257';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2892,6 +2892,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureBody': 'CivicRadar uses the camera only to capture hazard evidence for your report. Photos appear on the community map. EXIF location is stripped on-device. Photos are not sold or used for marketing. Avoid faces and documents.',
 
+      'report.cameraDisclosure.verify': 'Used only to verify this hazard',
+
+      'report.cameraDisclosure.visible': 'Visible to neighbours on the community map',
+
+      'report.cameraDisclosure.location': 'Exact location is stripped automatically',
+
+      'report.cameraDisclosure.noSell': 'Never sold or used for marketing',
+
       'report.cameraDisclosureContinue': 'Continue to camera',
 
       'report.manualPinBanner': 'Tap the map where the hazard is',
@@ -5322,6 +5330,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.cameraDisclosureTitle': 'खतरा रिपोर्ट के लिए फ़ोटो',
 
       'report.cameraDisclosureBody': 'CivicRadar कैमरा सिर्फ खतरे का प्रमाण लेने के लिए उपयोग करता है। फ़ोटो सामुदायिक नक्शे पर दिखती हैं। EXIF स्थान डिवाइस पर हटाया जाता है। फ़ोटो नहीं बेची जातीं और मार्केटिंग के लिए उपयोग नहीं होतीं। चेहरे और दस्तावेज़ न लें।',
+
+      'report.cameraDisclosure.verify': 'केवल इस खतरे की पुष्टि के लिए उपयोग होता है',
+
+      'report.cameraDisclosure.visible': 'सामुदायिक मानचित्र पर पड़ोसियों को दिखता है',
+
+      'report.cameraDisclosure.location': 'सटीक स्थान अपने आप हटा दिया जाता है',
+
+      'report.cameraDisclosure.noSell': 'कभी बेचा या मार्केटिंग में उपयोग नहीं होता',
 
       'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
@@ -7755,6 +7771,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureBody': 'CivicRadar कॅमेरा फक्त धोक्याचा पुरावा घेण्यासाठी वापरतो. फोटो सामुदायिक नकाशावर दिसतात. EXIF स्थान डिव्हाइसवर काढले जाते. फोटो विकले जात नाहीत आणि मार्केटिंगसाठी वापरले जात नाहीत. चेहरे आणि कागदपत्रे टाळा.',
 
+      'report.cameraDisclosure.verify': 'फक्त या धोक्याची खात्री करण्यासाठी वापरले जाते',
+
+      'report.cameraDisclosure.visible': 'सामुदायिक नकाशावर शेजाऱ्यांना दिसते',
+
+      'report.cameraDisclosure.location': 'अचूक स्थान आपोआप काढले जाते',
+
+      'report.cameraDisclosure.noSell': 'कधीही विकले किंवा मार्केटिंगसाठी वापरले जात नाही',
+
       'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
       'report.manualPinBanner': 'धोका जिथे आहे तिथे नकाशावर टॅप करा',
@@ -10186,6 +10210,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.cameraDisclosureTitle': 'જોખમ ફરિયાદ માટે ફોટો',
 
       'report.cameraDisclosureBody': 'CivicRadar કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે વાપરે છે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ફોટો વેચાતા નથી અને માર્કેટિંગ માટે વપરાતા નથી. ચહેરા અને દસ્તાવેજો ટાળો.',
+
+      'report.cameraDisclosure.verify': 'ફક્ત આ જોખમની ખાતરી કરવા માટે વપરાય છે',
+
+      'report.cameraDisclosure.visible': 'સામુદાયિક નકશા પર પડોશીઓને દેખાય છે',
+
+      'report.cameraDisclosure.location': 'ચોક્કસ સ્થાન આપમેળે દૂર કરવામાં આવે છે',
+
+      'report.cameraDisclosure.noSell': 'ક્યારેય વેચાતું નથી કે માર્કેટિંગ માટે વપરાતું નથી',
 
       'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
@@ -26112,7 +26144,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const countLine = count > 0
 
-      ? `<div class="popup__confirms"><i class="ph ph-users"></i> ${count} ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</div>`
+      ? `<span class="popup__pill popup__pill--confirms"><i class="ph ph-users"></i> ${count} ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</span>`
 
       : '';
 
@@ -26120,9 +26152,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const fixCountLine = fixCount > 0
 
-      ? `<div class="popup__fix-confirms"><i class="ph ph-check-circle"></i> ${fixCount === 1 ? escapeHtml(t('fix.countOne')) : escapeHtml(t('fix.countMany')).replace('{n}', String(fixCount))}</div>`
+      ? `<span class="popup__pill popup__pill--fixed"><i class="ph ph-check-circle"></i> ${fixCount === 1 ? escapeHtml(t('fix.countOne')) : escapeHtml(t('fix.countMany')).replace('{n}', String(fixCount))}</span>`
 
       : '';
+
+    const pillsLine = (countLine || fixCountLine) ? `<div class="popup__pills">${countLine}${fixCountLine}</div>` : '';
 
     let safety = '';
 
@@ -26247,9 +26281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ${clearedLine}
 
-        ${countLine}
-
-        ${fixCountLine}
+        ${pillsLine}
 
         ${action}
 
@@ -29044,11 +29076,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const title = $('#reportCameraTitle');
 
-      const body = $('#reportCameraBody');
-
       if (title) title.textContent = t('report.cameraDisclosureTitle');
 
-      if (body) body.textContent = t('report.cameraDisclosureBody');
+      const bodyVerify = $('#reportCameraBodyVerify');
+
+      const bodyVisible = $('#reportCameraBodyVisible');
+
+      const bodyLocation = $('#reportCameraBodyLocation');
+
+      const bodyNoSell = $('#reportCameraBodyNoSell');
+
+      if (bodyVerify) bodyVerify.textContent = t('report.cameraDisclosure.verify');
+
+      if (bodyVisible) bodyVisible.textContent = t('report.cameraDisclosure.visible');
+
+      if (bodyLocation) bodyLocation.textContent = t('report.cameraDisclosure.location');
+
+      if (bodyNoSell) bodyNoSell.textContent = t('report.cameraDisclosure.noSell');
 
       if (btnContinue) btnContinue.textContent = t('report.cameraDisclosureContinue');
 
