@@ -2790,6 +2790,37 @@ body.pwa-nudge-visible #btnCamera {
   color: var(--primary);
 }
 
+/* ToS consent cards (v260) — the two DPDPA consent checkboxes render as
+   large tappable cards instead of bare checkbox rows. Same label>input
+   structure and ids (tosAccept / tosAnalytics); the whole card is the
+   touch target since the label wraps the input. */
+#tosModal .checkbox-row {
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-weight: 500;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+#tosModal .checkbox-row:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+#tosModal .checkbox-row input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  margin-top: 0;
+}
+
+#tosModal .checkbox-row:active {
+  background: var(--bg-main, #f1f5f9);
+}
+
 .btn--danger-text {
   color: var(--danger) !important;
 }
