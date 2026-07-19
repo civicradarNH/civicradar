@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v257';
+  const CIVIC_APP_VERSION = 'v258';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3445,13 +3445,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'Support Volunteers',
 
-      'community.supportBody': 'Pledge supplies for cleanup crews tackling stagnant water in your ward.',
+      'community.supportBody': 'Pledge supplies for active cleanup crews in your ward.',
 
       'community.pledge': 'Pledge',
 
       'community.volunteerTitle': 'Volunteer in my ward',
 
-      'community.volunteerBody': 'Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Filing with {corp} is separate.',
+      'community.volunteerBody': 'Join local cleanup crews and spread awareness — separate from filing with {corp}.',
 
       'community.volunteerCta': 'Sign up',
 
@@ -5886,13 +5886,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
-      'community.supportBody': 'रुके पानी से लड़ रहे स्थानीय सफ़ाई दल की मदद के लिए सामग्री दान करें।',
+      'community.supportBody': 'अपने वार्ड के सक्रिय सफ़ाई दल के लिए सामग्री दान करें।',
 
       'community.pledge': 'दान करें',
 
       'community.volunteerTitle': 'मेरे वार्ड में स्वयंसेवा',
 
-      'community.volunteerBody': 'साथ मिलकर ठीक करें — {corp} में दर्ज करना अलग है।',
+      'community.volunteerBody': 'स्थानीय सफ़ाई दल से जुड़ें और जागरूकता फैलाएँ — {corp} में दर्ज करना अलग है।',
 
       'community.volunteerCta': 'साइन अप',
 
@@ -8326,13 +8326,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
-      'community.supportBody': 'साचलेल्या पाण्याशी लढणाऱ्या स्थानिक स्वच्छता पथकांना मदतीसाठी साहित्य द्या.',
+      'community.supportBody': 'तुमच्या वॉर्डातील सक्रिय स्वच्छता पथकांसाठी साहित्य द्या.',
 
       'community.pledge': 'देणगी',
 
       'community.volunteerTitle': 'माझ्या वार्डात स्वयंसेवा',
 
-      'community.volunteerBody': 'एकत्र ठीक करा — {corp} कडे नोंदवणे वेगळे.',
+      'community.volunteerBody': 'स्थानिक स्वच्छता पथकात सामील व्हा आणि जागरूकता पसरवा — {corp} कडे नोंदवणे वेगळे आहे.',
 
       'community.volunteerCta': 'नोंदणी',
 
@@ -10766,13 +10766,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
-      'community.supportBody': 'ભરાયેલા પાણી સામે લડતા સ્થાનિક સફાઈ દળોને મદદ માટે સામગ્રી દાન કરો.',
+      'community.supportBody': 'તમારા વોર્ડના સક્રિય સફાઈ દળો માટે સામગ્રી દાન કરો.',
 
       'community.pledge': 'દાન',
 
       'community.volunteerTitle': 'મારા વોર્ડમાં સ્વયંસેવા',
 
-      'community.volunteerBody': 'સાથે મળીને ઠીક કરો — {corp} પર નોંધ અલગ છે.',
+      'community.volunteerBody': 'સ્થાનિક સફાઈ દળમાં જોડાઓ અને જાગૃતિ ફેલાવો — {corp} પર નોંધ અલગ છે.',
 
       'community.volunteerCta': 'સાઇન અપ',
 

@@ -477,6 +477,22 @@ body.app-booting {
   line-height: 1.4;
 }
 
+.disclaimer-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 14px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.disclaimer-banner i {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--warning, #f59e0b);
+}
+
 .field-hint--compact {
   margin: 0 0 14px;
 }
@@ -5234,28 +5250,31 @@ body.persona-lead .app-open-banner { display: none; }
   border-top: none;
 }
 
-/* ---- Resources modal: section panels + corp-colored channels ---- */
+/* ---- Resources modal: flat sections, no box-in-box nesting (v257) ----
+   Sections used to be bordered/backed panels containing their own bordered
+   channel cards — two visual layers stacked on top of each other. Sections
+   are now just whitespace + a bold heading; the channel rows below carry
+   their own (single) row-divider styling instead of a card border each. */
 #resourcesModal .resources-section {
-  margin-top: 1.25rem;
-  padding: 14px 14px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  margin-top: 1.5rem;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
 }
 
 #resourcesModal .resources-section--official {
   margin-top: 0;
-  background: var(--surface);
-  border-color: var(--corp-bmc-border);
+}
+
+#resourcesModal .resources-section__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
 }
 
 #resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
 
 #resourcesModal .resources-section--official .official-sources-link { color: var(--corp-bmc); }
-
-#resourcesModal .resources-section--community {
-  background: var(--surface);
-  border-color: rgba(16, 185, 129, 0.2);
-}
 
 #resourcesModal .resources-section--community .resources-section__title i { color: var(--success); }
 
@@ -5424,6 +5443,73 @@ body.persona-lead .app-open-banner { display: none; }
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* Native list view for Resources' official channels (v257) — grid of bordered
+   cards -> single-column, edge-to-edge rows (iOS Settings pattern). Scoped to
+   #resourcesModal only; the escalation ladder keeps its card grid untouched.
+   Uses CSS Grid to re-lay-out the existing icon/label/small children (no HTML
+   change) into icon-left / title-over-subtitle-middle / chevron-right. */
+#resourcesModal .official-channels.esc-channels {
+  display: block;
+}
+
+#resourcesModal .official-channels .esc-channel-wrap {
+  border-bottom: 1px solid var(--border);
+}
+
+#resourcesModal .official-channels .esc-channel-wrap:last-child {
+  border-bottom: none;
+}
+
+#resourcesModal .official-channels .esc-channel {
+  display: grid;
+  grid-template-columns: 40px 1fr 20px;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  min-height: 56px;
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+#resourcesModal .official-channels .esc-channel i {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(99, 102, 241, 0.1);
+  font-size: var(--fs-md);
+}
+
+#resourcesModal .official-channels .esc-channel span {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#resourcesModal .official-channels .esc-channel small {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#resourcesModal .official-channels .esc-channel::after {
+  content: '\276F';
+  grid-column: 3;
+  grid-row: 1 / 3;
+  justify-self: end;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+#resourcesModal .official-channels .esc-channel:active {
+  background: var(--bg-main, #f1f5f9);
 }
 
 .esc-channel-source {
