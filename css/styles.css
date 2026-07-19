@@ -1793,33 +1793,50 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast--interactive { pointer-events: auto; }
 
-/* Compact snackbar (Me too + WhatsApp) — not a blocking dialog */
+/* Compact snackbar (Me too / share + WhatsApp) — CTA stacks under copy (v293) */
 .toast--snackbar {
-  padding: 8px 10px;
+  padding: 10px 12px;
   font-size: var(--fs-sm);
   line-height: 1.35;
   border-radius: var(--radius-lg);
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
+  width: min(400px, calc(100vw - 24px));
   max-width: min(400px, calc(100vw - 24px));
 }
 
 .toast--snackbar .toast__row {
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   width: 100%;
 }
 
 .toast--snackbar .toast__row > span {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--fs-sm);
   font-weight: 600;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.toast--snackbar .toast__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 0;
+  padding-left: 0;
+  width: 100%;
 }
 
 .toast--snackbar .toast__action--whatsapp {
-  min-height: 32px;
-  padding: 4px 10px;
-  font-size: var(--fs-xs);
-  border-radius: var(--radius-pill);
+  width: 100%;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-md);
 }
 
 .toast--snackbar .toast__close {
@@ -9273,6 +9290,7 @@ html[lang="gu"] body {
   --gps-chip-ghost-hover: rgba(15, 23, 42, 0.06);
   --gps-chip-close: #64748b;
 
+  flex-direction: column;
   width: min(360px, calc(100vw - 24px));
   max-width: min(360px, calc(100vw - 24px));
   padding: 10px 10px 10px 14px;

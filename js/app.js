@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v292';
+  const CIVIC_APP_VERSION = 'v293';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -684,6 +684,12 @@ document.addEventListener('DOMContentLoaded', function () {
   let lastGeoRequest = 0;
 
   let locationRefineWatchId = null;
+
+  // Weak/poor GPS chip: once per session until accuracy improves, dismiss, or pin.
+  let gpsAccuracyNudge = {
+    shownThisSession: false,
+    suppressedUntilGood: false,
+  };
 
   let locationRefineUntil = 0;
 
@@ -2990,7 +2996,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsEnableTip': 'Enable tip',
 
-      'report.geoEnableHelp': 'Settings → Site permissions → Location → Allow. Then tap Submit again.',
+      'report.geoEnableHelp': 'Site settings → Location → Allow, then Submit again.',
 
       'report.hazardType': 'Hazard Type',
 
@@ -3192,7 +3198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.weekBonus': '+{n} — your first report this week',
 
-      'success.celebrateFirst': 'Your first report — your lane just got a little safer.',
+      'success.celebrateFirst': 'First report logged — your lane just got a little safer.',
 
       'success.celebrateMilestone': '{n} reports in — your neighbours are lucky to have you.',
 
@@ -5461,7 +5467,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsEnableTip': 'सहायता',
 
-      'report.geoEnableHelp': 'सेटिंग → साइट अनुमति → लोकेशन → अनुमति। फिर Submit दबाएँ।',
+      'report.geoEnableHelp': 'साइट सेटिंग → लोकेशन → अनुमति, फिर Submit।',
 
       'report.hazardType': 'खतरे का प्रकार',
 
@@ -5665,7 +5671,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.weekBonus': '+{n} — इस सप्ताह आपकी पहली रिपोर्ट',
 
-      'success.celebrateFirst': 'आपकी पहली रिपोर्ट — आपकी गली अभी थोड़ी सुरक्षित हुई।',
+      'success.celebrateFirst': 'पहली रिपोर्ट दर्ज — आपकी गली अभी थोड़ी सुरक्षित हुई।',
 
       'success.celebrateMilestone': '{n} रिपोर्ट हो गईं — आपके पड़ोसी खुशकिस्मत हैं कि आप हैं।',
 
@@ -7932,7 +7938,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsEnableTip': 'मदत',
 
-      'report.geoEnableHelp': 'सेटिंग्ज → साइट परवानग्या → लोकेशन → Allow. मग Submit पुन्हा दाबा.',
+      'report.geoEnableHelp': 'साइट सेटिंग → Location → Allow, मग Submit.',
 
       'report.hazardType': 'धोक्याचा प्रकार',
 
@@ -8136,7 +8142,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.weekBonus': '+{n} — या आठवड्यातील तुमची पहिली तक्रार',
 
-      'success.celebrateFirst': 'तुमची पहिली तक्रार — तुमची गल्ली आत्ताच थोडी सुरक्षित झाली.',
+      'success.celebrateFirst': 'पहिली रिपोर्ट नोंदली — तुमची गल्ली आत्ताच थोडी सुरक्षित झाली.',
 
       'success.celebrateMilestone': '{n} तक्रारी झाल्या — तुमचे शेजारी भाग्यवान आहेत की तुम्ही आहात.',
 
@@ -10402,7 +10408,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsEnableTip': 'મદદ',
 
-      'report.geoEnableHelp': 'બ્રાઉઝર સેટિંગ → સાઇટ પરવાનગી → Location → Allow. પછી Submit દબાવો.',
+      'report.geoEnableHelp': 'સાઇટ સેટિંગ → Location → Allow, પછી Submit.',
 
       'report.hazardType': 'જોખમનો પ્રકાર',
 
@@ -10606,7 +10612,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.weekBonus': '+{n} — આ અઠવાડિયે તમારી પહેલી ફરિયાદ',
 
-      'success.celebrateFirst': 'તમારી પહેલી ફરિયાદ — તમારી શેરી હમણાં જ થોડી સુરક્ષિત થઈ.',
+      'success.celebrateFirst': 'પહેલો રિપોર્ટ નોંધાયો — તમારી શેરી હમણાં જ થોડી સુરક્ષિત થઈ.',
 
       'success.celebrateMilestone': '{n} ફરિયાદો થઈ — તમારા પડોશીઓ નસીબદાર છે કે તમે છો.',
 
@@ -19189,9 +19195,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Soft map tips (GPS chip, enable-location help) — block over ToS/onboarding/success
+  // and first-run chrome, but NOT the report sheet (submit recovery must still show).
+  function isSoftNudgeOverlayBlocking() {
+
+    const hero = $('#homeHero');
+
+    if (hero && !hero.classList.contains('hidden')) return true;
+
+    const coach = $('#coachMark');
+
+    if (coach && !coach.classList.contains('hidden')) return true;
+
+    const tour = $('#tourOverlay');
+
+    if (tour && !tour.classList.contains('hidden')) return true;
+
+    if (overlays.tos && overlays.tos.classList.contains('open')) return true;
+
+    if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return true;
+
+    if (overlays.success && overlays.success.classList.contains('open')) return true;
+
+    return false;
+
+  }
+
+
+
   let pendingLocationBannerMessage = null;
 
   let pendingWelcomeToast = null;
+
+  let pendingGeoEnableHelp = false;
 
   function isLocationBannerVisible() {
     const el = $('#locationBanner');
@@ -19241,6 +19277,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Clear soft toasts so they cannot sit on ToS / coach / success.
+    if (typeof _activeToastDismiss === 'function') {
+      try { _activeToastDismiss(true); } catch (_) { /* ignore */ }
+    }
+
   }
 
 
@@ -19255,6 +19296,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Welcome toast waits until location banner is gone (map owns first viewport).
     if (!isLocationBannerVisible()) flushPendingWelcomeToast();
+
+    flushPendingGeoEnableHelp();
 
   }
 
@@ -21681,13 +21724,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!container) return;
 
-    // De-dupe: an identical non-interactive toast already showing keeps its own
-    // countdown instead of being torn down and rebuilt — otherwise a repeating
-    // condition (e.g. a persistent poor-GPS-fix retry) re-vibrates the device
-    // and restarts the timer on every retry tick.
-    if (!action) {
-      const key = `${type}::${message}`;
-      const existing = Array.from(container.children).find((el) => el.dataset && el.dataset.civicToastKey === key);
+    // Success sheet owns celebration — never stack a success toast on top of it.
+    if (type === 'success' && overlays.success && overlays.success.classList.contains('open')) {
+      return;
+    }
+
+    const toastKey = (action && action.dedupeKey)
+      ? `${type}::${action.dedupeKey}`
+      : `${type}::${message}`;
+
+    // De-dupe: identical key already showing keeps its own countdown / chip
+    // (range labels in Weak GPS would otherwise rebuild every locate tick).
+    if (!action || action.dedupeKey) {
+      const existing = Array.from(container.children).find((el) => el.dataset && el.dataset.civicToastKey === toastKey);
       if (existing) return;
     }
 
@@ -21729,13 +21778,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const useGlassChip = !isWaSnackbar && actionList.length > 0
       && (!action.toastClass || action.toastClass === 'toast--gps');
 
+    // Stack CTAs under copy (glass chip + WA snackbar) so long messages never clip.
+    const stackActions = (useGlassChip || isWaSnackbar) && actionList.length > 0;
+
     if (action && action.toastClass) toast.classList.add(action.toastClass);
 
     if (useGlassChip) toast.classList.add('toast--gps');
 
     toast.setAttribute('role', 'status');
 
-    toast.dataset.civicToastKey = `${type}::${message}`;
+    toast.dataset.civicToastKey = toastKey;
 
     let hideTimer = null;
 
@@ -21758,6 +21810,11 @@ document.addEventListener('DOMContentLoaded', function () {
       clearToastTimers();
 
       if (_activeToastDismiss === dismissToast) _activeToastDismiss = null;
+
+      // User dismiss (×) only — not instant replace when another toast takes the slot.
+      if (!instant && action && typeof action.onDismiss === 'function') {
+        try { action.onDismiss(); } catch (_) { /* ignore */ }
+      }
 
       if (!toast.isConnected) return;
 
@@ -21810,7 +21867,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Glass chip: primary fill + ghost secondary below title.
-    // Me too WhatsApp: compact inline snackbar. Plain toasts: no actions.
+    // WA snackbar: CTA stacked under message (v293 — no clip/overlap).
     const paintToastAction = (btn, act, primary) => {
       const isWa = act.variant === 'whatsapp';
       btn.className = 'toast__action'
@@ -21828,7 +21885,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (useGlassChip && actionList.length > 0) {
+    if (stackActions) {
 
       const wrap = document.createElement('div');
 
@@ -21850,9 +21907,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       toast.appendChild(wrap);
 
-      toast.classList.add('toast--interactive');
-
-      if (actionList.length > 1) toast.classList.add('toast--multi');
+      toast.classList.add('toast--interactive', 'toast--multi');
 
     } else if (actionList.length === 1) {
 
@@ -26376,31 +26431,61 @@ document.addEventListener('DOMContentLoaded', function () {
     return `~${m} m`;
   }
 
+  function markGpsAccuracyNudgeConsumed() {
+
+    gpsAccuracyNudge.shownThisSession = true;
+
+    gpsAccuracyNudge.suppressedUntilGood = true;
+
+  }
+
+
+
   function showGpsRecoveryActions(message, type, duration, opts) {
 
     if (!isMapSurfaceActive()) return;
 
+    if (isSoftNudgeOverlayBlocking()) return;
+
     const resolvedType = type || 'error';
 
-    if (isToastShowing(resolvedType, message)) return;
-
     const options = opts || {};
+
+    const dedupeKey = options.dedupeKey || message;
+
+    if (isToastShowing(resolvedType, dedupeKey)) return;
 
     showToast(message, resolvedType, duration || 9000, {
 
       label: t('toast.gpsPlacePin'),
 
-      onClick: () => startManualPinMode(),
+      onClick: () => {
+
+        markGpsAccuracyNudgeConsumed();
+
+        startManualPinMode();
+
+      },
 
       toastClass: 'toast--gps',
 
       hint: options.hint || '',
 
+      dedupeKey,
+
+      onDismiss: markGpsAccuracyNudgeConsumed,
+
       secondary: {
 
         label: t('toast.gpsEnableTip'),
 
-        onClick: () => showGeoEnableHelp(),
+        onClick: () => {
+
+          markGpsAccuracyNudgeConsumed();
+
+          showGeoEnableHelp();
+
+        },
 
       },
 
@@ -26418,19 +26503,41 @@ document.addEventListener('DOMContentLoaded', function () {
     // snackbar while the report sheet is open, or when Map is not the active surface.
     const reportOpen = !!(overlays.report && overlays.report.classList.contains('open'));
 
-    if (reportOpen || !isMapSurfaceActive()) return;
+    if (reportOpen || !isMapSurfaceActive() || isSoftNudgeOverlayBlocking()) return;
+
+    // Accuracy improved — allow one more nudge later if GPS degrades again.
+    if (accuracyM <= GEO_ACCURACY_POOR_M) {
+
+      if (gpsAccuracyNudge.suppressedUntilGood) {
+
+        gpsAccuracyNudge.suppressedUntilGood = false;
+
+      }
+
+      return;
+
+    }
+
+    // Once per session (or until dismiss / pin / accuracy improves). No tick spam.
+    if (gpsAccuracyNudge.shownThisSession || gpsAccuracyNudge.suppressedUntilGood) return;
 
     if (accuracyM > GEO_ACCURACY_MAX_M) {
+
+      gpsAccuracyNudge.shownThisSession = true;
 
       showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000, {
 
         hint: t('toast.gpsPoorHint'),
+
+        dedupeKey: 'gps-accuracy-poor',
 
       });
 
     } else if (accuracyM > GEO_ACCURACY_POOR_M) {
 
       const range = formatGpsRangeLabel(accuracyM);
+
+      gpsAccuracyNudge.shownThisSession = true;
 
       showGpsRecoveryActions(
 
@@ -26440,7 +26547,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         9000,
 
-        { hint: t('toast.gpsLowHint') }
+        { hint: t('toast.gpsLowHint'), dedupeKey: 'gps-accuracy-weak' }
 
       );
 
@@ -26616,11 +26723,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
 
-      showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000, {
+      if (!gpsAccuracyNudge.shownThisSession && !gpsAccuracyNudge.suppressedUntilGood) {
 
-        hint: t('toast.gpsPoorHint'),
+        gpsAccuracyNudge.shownThisSession = true;
 
-      });
+        showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000, {
+
+          hint: t('toast.gpsPoorHint'),
+
+          dedupeKey: 'gps-accuracy-poor',
+
+        });
+
+      }
 
       return false;
 
@@ -31252,6 +31367,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function startManualPinMode() {
 
+    markGpsAccuracyNudgeConsumed();
+
     const submitBtn = $('#btnSubmitReport');
 
     setButtonLoading(submitBtn, false);
@@ -31290,7 +31407,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showGeoEnableHelp() {
 
-    showToast(t('report.geoEnableHelp'), 'info', 9000);
+    if (isSoftNudgeOverlayBlocking()) {
+
+      pendingGeoEnableHelp = true;
+
+      return;
+
+    }
+
+    pendingGeoEnableHelp = false;
+
+    const title = t('report.geoEnableHint');
+
+    if (isToastShowing('info', 'geo-enable-help')) return;
+
+    showToast(title, 'info', 9000, {
+
+      toastClass: 'toast--gps',
+
+      hint: t('report.geoEnableHelp'),
+
+      dedupeKey: 'geo-enable-help',
+
+      label: t('reminder.gotIt'),
+
+      onClick: () => {},
+
+    });
+
+  }
+
+
+
+  function flushPendingGeoEnableHelp() {
+
+    if (!pendingGeoEnableHelp) return;
+
+    if (isSoftNudgeOverlayBlocking()) return;
+
+    pendingGeoEnableHelp = false;
+
+    showGeoEnableHelp();
 
   }
 
@@ -32153,6 +32310,8 @@ document.addEventListener('DOMContentLoaded', function () {
         showToast(t('success.shareNudge'), 'info', 5500, {
 
           label: t('success.shareWhatsapp'),
+
+          variant: 'whatsapp',
 
           onClick: () => shareReportWhatsApp(reportId),
 
@@ -33267,26 +33426,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(reportCount);
 
     // Haptics.success already fired in showSuccessModal — skip duplicate pulse.
+    // First/milestone copy lives in #successCelebrate — no overlapping toast (v293).
 
     launchConfetti({ intensity: isFirst || isMilestone ? 'celebrate' : 'mini' });
 
     if (isFirst || isMilestone) playCelebrationChime();
-
-    if (isFirst) {
-
-      setTimeout(() => showToast(t('toast.badgeMonsoon'), 'success', 4500), 700);
-
-    } else if (isMilestone && reportCount > 1) {
-
-      setTimeout(
-
-        () => showToast(t('toast.reportMilestone').replace('{n}', String(reportCount)), 'success', 4000),
-
-        600
-
-      );
-
-    }
 
   }
 
