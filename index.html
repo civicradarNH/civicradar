@@ -331,11 +331,6 @@
     <div class="modal" id="tosModal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
       <div class="modal__handle"></div>
       <h2 id="tosTitle" tabindex="-1" data-i18n="tos.title">Terms of Service</h2>
-      <div class="flow-steps flow-steps--compact" aria-label="Setup progress">
-        <span class="flow-step is-active" data-i18n="flow.legal">Legal</span>
-        <span class="flow-step" data-i18n="flow.ward">Ward</span>
-        <span class="flow-step" data-i18n="flow.ready">Ready</span>
-      </div>
       <p class="tos-summary" data-i18n="tos.summary">CivicRadar is a free community hazard map (not a government service). You must be 18+, upload only onsite hazard photos, and file official complaints yourself with BMC/PMC/TMC.</p>
       <details class="tos-details">
         <summary data-i18n="tos.readFull">Read full terms</summary>
@@ -374,41 +369,43 @@
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
       <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-      <div class="flow-steps flow-steps--compact" aria-label="Setup progress">
-        <span class="flow-step is-done" data-i18n="flow.legal">Legal</span>
-        <span class="flow-step is-active" data-i18n="flow.city">City</span>
-        <span class="flow-step" data-i18n="flow.ward">Ward</span>
-        <span class="flow-step" data-i18n="flow.ready">Ready</span>
-      </div>
       <p class="modal__subtitle" data-i18n="onboard.subtitle">Three taps — your ward, a photo, neighbours alerted.</p>
-      <div class="form-group" id="onboardCityGroup">
-        <label for="onboardCity" data-i18n="onboard.city">Your city</label>
-        <select id="onboardCity" aria-describedby="onboardCityHint">
-          <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-          <option value="pune" data-i18n-option="city.pune">Pune</option>
-          <option value="thane" data-i18n-option="city.thane">Thane</option>
-        </select>
-        <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
-      </div>
       <div class="form-group" id="wardDetectGroup">
-        <label for="wardInput" data-i18n="onboard.ward">Your Ward</label>
         <div id="wardDetectPrompt" class="ward-detect-prompt">
           <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
-          <button type="button" class="btn btn--primary btn--full" id="btnWardDetectGps" data-i18n="onboard.wardDetectCta">Detect ward with GPS</button>
-        </div>
-        <div id="wardManualGroup">
-          <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-          <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
+            <i class="ph ph-crosshair" aria-hidden="true"></i>
+            <span data-i18n="onboard.wardDetectCta">Auto-detect my ward</span>
+          </button>
         </div>
         <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
-          <i class="ph ph-crosshair"></i>
+          <i class="ph ph-crosshair" aria-hidden="true"></i>
           <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
         </div>
         <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
-          <i class="ph ph-map-pin"></i>
+          <i class="ph ph-map-pin" aria-hidden="true"></i>
           <span id="wardDetectedName"></span>
         </div>
         <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
+        <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
+          <span data-i18n="onboard.or">or</span>
+        </div>
+        <div id="onboardManualSearch" class="onboard-manual-search">
+          <div class="form-group" id="onboardCityGroup">
+            <label for="onboardCity" data-i18n="onboard.city">Your city</label>
+            <select id="onboardCity" aria-describedby="onboardCityHint">
+              <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+              <option value="pune" data-i18n-option="city.pune">Pune</option>
+              <option value="thane" data-i18n-option="city.thane">Thane</option>
+            </select>
+            <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
+          </div>
+          <div id="wardManualGroup" class="form-group">
+            <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
+            <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
+            <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          </div>
+        </div>
         <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
         <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
         <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>

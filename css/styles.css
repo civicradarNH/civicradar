@@ -505,11 +505,57 @@ body.app-booting {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .ward-detect-prompt.hidden {
   display: none;
+}
+
+/* Onboarding: Detect-first → or → city/ward search (v267) */
+#onboardingModal .btn--detect {
+  min-height: 52px;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  gap: 10px;
+}
+
+#onboardingModal .btn--detect .ph {
+  font-size: 1.35rem;
+}
+
+.onboard-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+  color: var(--ink-400);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.onboard-or::before,
+.onboard-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.onboard-or span {
+  flex-shrink: 0;
+}
+
+.onboard-manual-search {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.onboard-manual-search > .form-group {
+  margin-bottom: 12px;
 }
 
 .ward-detect-status {

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v266';
+  const CIVIC_APP_VERSION = 'v267';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2822,7 +2822,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.',
 
-      'onboard.wardDetectCta': 'Detect ward with GPS',
+      'onboard.wardDetectCta': 'Auto-detect my ward',
+
+      'onboard.or': 'or',
 
       'onboard.name': 'Display name',
 
@@ -5265,7 +5267,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'वैकल्पिक: CivicRadar एक बार आपके सटीक स्थान से वार्ड सुझा सकता है। रिपोर्ट दर्ज करने तक स्थान नक्शे पर साझा नहीं होता। आप सूची से भी वार्ड चुन सकते हैं।',
 
-      'onboard.wardDetectCta': 'GPS से वार्ड पता लगाएँ',
+      'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
+
+      'onboard.or': 'या',
 
       'onboard.name': 'प्रदर्शित नाम',
 
@@ -7709,7 +7713,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'ऐच्छिक: CivicRadar एकदा तुमच्या अचूक स्थानाने वॉर्ड सुचवू शकते. तक्रार दाखल करेपर्यंत स्थान नकाशावर शेअर होत नाही. यादीतूनही वॉर्ड निवडता येईल.',
 
-      'onboard.wardDetectCta': 'GPS ने वॉर्ड शोधा',
+      'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
+
+      'onboard.or': 'किंवा',
 
       'onboard.name': 'प्रदर्शित नाव',
 
@@ -10153,7 +10159,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
 
-      'onboard.wardDetectCta': 'GPS થી વોર્ડ શોધો',
+      'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
+
+      'onboard.or': 'અથવા',
 
       'onboard.name': 'પ્રદર્શિત નામ',
 
@@ -18957,7 +18965,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function isBlockingFirstRunOverlay() {
+  // Primary overlays that must win over secondary shouts (location banner / PWA nudge).
+  // CSS (:has / modal-open) also hides those; this JS gate prevents show races before paint.
+  function isPrimaryOverlayBlocking() {
 
     const hero = $('#homeHero');
 
@@ -18975,7 +18985,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return true;
 
+    if (overlays.report && overlays.report.classList.contains('open')) return true;
+
     return false;
+
+  }
+
+
+
+  let pendingLocationBannerMessage = null;
+
+
+
+  function flushSecondaryNudgesAfterOverlay() {
+
+    if (isPrimaryOverlayBlocking()) return;
+
+    flushPendingPwaNudge();
+
+    flushPendingLocationBanner();
 
   }
 
@@ -19155,7 +19183,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    setTimeout(maybeStartTour, 350);
+    setTimeout(() => {
+
+      maybeStartTour();
+
+      flushSecondaryNudgesAfterOverlay();
+
+    }, 350);
 
   }
 
@@ -20921,6 +20955,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Clear secondary shouts so coach wins, and so maybeStartTour isn't blocked by
+    // a still-mounted location banner (it checks classList, not CSS visibility).
+    const locBanner = $('#locationBanner');
+
+    if (locBanner && !locBanner.classList.contains('hidden')) {
+
+      const txt = $('#locationBannerText');
+
+      pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
+
+    }
+
+    hideLocationBanner();
+
+    if (pwaNudgeVisible) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = pendingPwaNudgeTrigger || 'visit';
+
+      hidePwaInstallNudge();
+
+    }
+
     $('#coachMark').classList.remove('hidden');
 
   }
@@ -20933,7 +20991,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#coachMark').classList.add('hidden');
 
-    setTimeout(maybeStartTour, 350);
+    setTimeout(() => {
+
+      maybeStartTour();
+
+      flushSecondaryNudgesAfterOverlay();
+
+    }, 350);
 
   }
 
@@ -21166,6 +21230,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (window.CivicAnalytics) CivicAnalytics.track(completed ? 'tour_complete' : 'tour_skip');
+
+    flushSecondaryNudgesAfterOverlay();
 
   }
 
@@ -23419,6 +23485,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       window.scrollTo(0, modalScrollY);
 
+      // Report→success is a two-step close/open; do not flush on report close
+      // (PWA already flushes when success closes). ToS/onboarding are terminal.
+      if (name === 'tos' || name === 'onboarding') {
+
+        setTimeout(flushSecondaryNudgesAfterOverlay, 0);
+
+      }
+
     }
 
     if (!anyOpen) {
@@ -24330,6 +24404,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (pwaNudgeVisible) return;
 
+    if (isPrimaryOverlayBlocking()) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = pendingPwaNudgeTrigger || 'visit';
+
+      scheduleDeferredPwaNudgeFlush();
+
+      return;
+
+    }
+
     const el = $('#pwaInstallNudge');
 
     if (!el) return;
@@ -24742,6 +24828,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    if (isPrimaryOverlayBlocking()) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = trigger;
+
+      scheduleDeferredPwaNudgeFlush();
+
+      return;
+
+    }
+
     // Visit-path only: defer while boot/reminder toasts are on screen (~1800/2400 vs nudge ~2500).
     // Report-path must not defer — first-report + share-nudge toasts stay up for seconds and would
     // re-schedule forever, so the install bar never appears after Done on the success modal.
@@ -24783,7 +24881,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!pendingPwaNudge) return;
 
-      if (hasActiveToast()) {
+      if (hasActiveToast() || isPrimaryOverlayBlocking()) {
 
         scheduleDeferredPwaNudgeFlush();
 
@@ -26205,6 +26303,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (shouldDeferFirstRunNudges()) return;
 
+    if (isPrimaryOverlayBlocking()) {
+
+      pendingLocationBannerMessage = message || t('location.banner');
+
+      return;
+
+    }
+
+    pendingLocationBannerMessage = null;
+
     if (isLocBannerSnoozed()) {
 
       showLocatePill();
@@ -26216,6 +26324,22 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#locationBannerText').textContent = message;
 
     $('#locationBanner').classList.remove('hidden');
+
+  }
+
+
+
+  function flushPendingLocationBanner() {
+
+    if (!pendingLocationBannerMessage) return;
+
+    if (isPrimaryOverlayBlocking() || shouldDeferFirstRunNudges()) return;
+
+    const msg = pendingLocationBannerMessage;
+
+    pendingLocationBannerMessage = null;
+
+    showLocationBanner(msg);
 
   }
 
