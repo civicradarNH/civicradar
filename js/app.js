@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v271';
+  const CIVIC_APP_VERSION = 'v274';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -18987,6 +18987,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Primary overlays that must win over secondary shouts (location banner / PWA nudge).
   // CSS (:has / modal-open) also hides those; this JS gate prevents show races before paint.
+  // No OverlayManager class — thin helpers + pending flush are enough (v267+).
   function isPrimaryOverlayBlocking() {
 
     const hero = $('#homeHero');
@@ -19007,6 +19008,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (overlays.report && overlays.report.classList.contains('open')) return true;
 
+    // Success follows report; keep nudges parked across the report→success handoff.
+    if (overlays.success && overlays.success.classList.contains('open')) return true;
+
     return false;
 
   }
@@ -19014,6 +19018,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   let pendingLocationBannerMessage = null;
+
+
+
+  // Park visible location/PWA nudges into the pending queue (classList, not CSS-only)
+  // so coach/tour/modal checks and post-close flush stay consistent.
+  function suppressSecondaryNudgesForPrimaryOverlay() {
+
+    const locBanner = $('#locationBanner');
+
+    if (locBanner && !locBanner.classList.contains('hidden')) {
+
+      const txt = $('#locationBannerText');
+
+      pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
+
+      hideLocationBanner();
+
+    }
+
+    if (pwaNudgeVisible) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = pendingPwaNudgeTrigger || 'visit';
+
+      hidePwaInstallNudge();
+
+    }
+
+  }
 
 
 
@@ -20984,27 +21018,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Clear secondary shouts so coach wins, and so maybeStartTour isn't blocked by
     // a still-mounted location banner (it checks classList, not CSS visibility).
-    const locBanner = $('#locationBanner');
-
-    if (locBanner && !locBanner.classList.contains('hidden')) {
-
-      const txt = $('#locationBannerText');
-
-      pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
-
-    }
-
-    hideLocationBanner();
-
-    if (pwaNudgeVisible) {
-
-      pendingPwaNudge = true;
-
-      pendingPwaNudgeTrigger = pendingPwaNudgeTrigger || 'visit';
-
-      hidePwaInstallNudge();
-
-    }
+    suppressSecondaryNudgesForPrimaryOverlay();
 
     $('#coachMark').classList.remove('hidden');
 
@@ -21477,11 +21491,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      toast.style.opacity = '0';
+      // Slide out with --ease-sheet (CSS .toast--out); reduced-motion skips animation.
+      toast.classList.add('toast--out');
 
-      toast.style.transition = 'opacity 0.25s';
+      const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      fadeTimer = setTimeout(() => toast.remove(), 250);
+      fadeTimer = setTimeout(() => toast.remove(), reduced ? 0 : 220);
 
     };
 
@@ -22549,6 +22564,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.style.overflow = 'hidden';
 
+    // Immediately park location/PWA (not CSS-only) when a primary sheet opens.
+    if (name === 'tos' || name === 'onboarding' || name === 'report' || name === 'success') {
+
+      suppressSecondaryNudgesForPrimaryOverlay();
+
+    }
+
     try {
       const modalEl = el.querySelector('.modal');
       if (modalEl) {
@@ -23512,13 +23534,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       window.scrollTo(0, modalScrollY);
 
-      // Report→success is a two-step close/open; do not flush on report close
-      // (PWA already flushes when success closes). ToS/onboarding are terminal.
-      if (name === 'tos' || name === 'onboarding') {
-
-        setTimeout(flushSecondaryNudgesAfterOverlay, 0);
-
-      }
+      // Drain parked location/PWA when the stack clears. Report→success is safe:
+      // success is primary-blocking, so a flush scheduled on report close no-ops
+      // until success itself closes (cancel-report still drains).
+      setTimeout(flushSecondaryNudgesAfterOverlay, 0);
 
     }
 
@@ -24026,7 +24045,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeModal('success');
 
-    flushPendingPwaNudge();
+    flushSecondaryNudgesAfterOverlay();
 
   };
 
@@ -28075,7 +28094,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         resetReportForm();
 
-        flushPendingPwaNudge();
+        flushSecondaryNudgesAfterOverlay();
 
         openEscalationModal(lastReportId);
 
@@ -31513,7 +31532,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setNavTab('map');
 
-    flushPendingPwaNudge();
+    flushSecondaryNudgesAfterOverlay();
 
     let shareNudgeShown = false;
 
