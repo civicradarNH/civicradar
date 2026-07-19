@@ -823,16 +823,16 @@
           <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
           <div class="pledge-card__body">
             <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-            <p data-i18n="community.volunteerBody">Fix it together — clean stagnant water, spread awareness, or deliver pledged supplies. Official filing is separate.</p>
+            <p data-i18n="community.volunteerBody">Join local cleanup crews — filing with BMC stays separate.</p>
           </div>
-          <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
+          <button type="button" class="btn btn--primary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
         </div>
 
         <div class="pledge-card pledge-card--pledge">
           <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
           <div class="pledge-card__body">
             <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-            <p data-i18n="community.supportBody">Pledge supplies for cleanup crews tackling stagnant water in your ward.</p>
+            <p data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</p>
           </div>
           <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
         </div>
@@ -994,7 +994,7 @@
           </select>
           <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
           <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick a ward, or detect with GPS.</p>
           <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
           <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
         </div>
@@ -1002,7 +1002,7 @@
         <div class="profile-society form-group">
           <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
           <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
-          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Showing societies in your ward — type to add yours.</p>
+          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Societies in your ward — type to add yours.</p>
           <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
         </div>
       </div>
@@ -1149,9 +1149,9 @@
 
   <!-- Delete data confirmation (replaces native browser confirm) -->
   <div class="modal-overlay" id="deleteConfirmOverlay" aria-hidden="true">
-    <div class="modal modal--sm delete-confirm-modal" id="deleteConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
+    <div class="modal modal--sm modal--alert delete-confirm-modal" id="deleteConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
       <div class="modal__handle"></div>
-      <div class="delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></div>
+      <div class="modal__header-icon delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></div>
       <h2 id="deleteConfirmTitle" data-i18n="profile.deleteConfirmTitle">Delete your data?</h2>
       <p class="modal__subtitle" id="deleteConfirmDesc" data-i18n="profile.deleteConfirmBody">This permanently removes your CivicRadar data from this device and our servers. This cannot be undone.</p>
       <ul class="delete-confirm__list">
@@ -1160,7 +1160,7 @@
         <li data-i18n="profile.deleteConfirmItem3">Profile, rewards, and preferences</li>
         <li data-i18n="profile.deleteConfirmItem4">Cloud backup linked to your account</li>
       </ul>
-      <div class="delete-confirm__actions">
+      <div class="modal__actions delete-confirm__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnDeleteConfirmCancel" data-i18n="profile.deleteConfirmCancel">Keep my data</button>
         <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteConfirmProceed" data-i18n="profile.deleteConfirmProceed">Yes, delete everything</button>
       </div>
@@ -1169,12 +1169,12 @@
 
   <!-- Generic confirm dialog (replaces native browser confirm() calls app-wide) -->
   <div class="modal-overlay" id="genericConfirmOverlay" aria-hidden="true">
-    <div class="modal modal--sm delete-confirm-modal" id="genericConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="genericConfirmTitle" aria-describedby="genericConfirmBody">
+    <div class="modal modal--sm modal--alert delete-confirm-modal" id="genericConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="genericConfirmTitle" aria-describedby="genericConfirmBody">
       <div class="modal__handle"></div>
-      <div class="delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle" id="genericConfirmIcon"></i></div>
+      <div class="modal__header-icon delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle" id="genericConfirmIcon"></i></div>
       <h2 id="genericConfirmTitle" class="hidden"></h2>
       <p class="modal__subtitle" id="genericConfirmBody"></p>
-      <div class="delete-confirm__actions">
+      <div class="modal__actions delete-confirm__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnGenericConfirmCancel"></button>
         <button type="button" class="btn btn--ghost btn--full" id="btnGenericConfirmProceed"></button>
       </div>

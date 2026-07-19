@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v278';
+  const CIVIC_APP_VERSION = 'v280';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1226,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           label: t('official.bmcPortal.label'),
 
-          small: 'www.mcgm.gov.in',
+          small: t('official.bmcPortal.small'),
 
           url: BMC.portalUrl,
 
@@ -1528,6 +1528,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     container.classList.remove('hidden');
 
+    const hideSourceLinks = !!(opts && opts.hideSourceLinks);
+
+    const ctx = (opts && opts.context) || '';
+
     container.innerHTML = channels.map((ch) => {
 
       const recCls = ch.recommended ? ' esc-channel--recommended' : '';
@@ -1538,15 +1542,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      return `<div class="esc-channel-wrap">
+      const badge = ch.recommended
+
+        ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
+
+        : '';
+
+      // Resources: single row affordance (no duplicate URL under the button).
+      // Elsewhere: skip source link when it repeats the subtitle host.
+      const smallHost = String(ch.small || '').replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase();
+
+      const sourceHost = String(ch.sourceLabel || ch.sourceUrl || '')
+
+        .replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase();
+
+      const sourceDupesSmall = !!(smallHost && sourceHost && (sourceHost === smallHost || sourceHost.includes(smallHost) || smallHost.includes(sourceHost)));
+
+      const showSource = !hideSourceLinks && !!ch.sourceUrl && !sourceDupesSmall
+
+        && ctx !== 'resources';
+
+      return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
 
         <button type="button" class="esc-channel${recCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
-        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>
+        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}
 
       </button>
 
-      ${ch.sourceUrl ? `<p class="esc-channel-source"><a href="${escapeHtml(ch.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ch.sourceLabel || ch.sourceUrl)}</a></p>` : ''}
+      ${showSource ? `<p class="esc-channel-source"><a href="${escapeHtml(ch.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ch.sourceLabel || ch.sourceUrl)}</a></p>` : ''}
 
       </div>`;
 
@@ -1568,7 +1592,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderOfficialChannelButtons($('#successOfficialChannels'), city, hazard, report, { context: 'success' });
 
-    renderOfficialChannelButtons($('#resourcesOfficialChannels'), city, hazard, null, { context: 'resources' });
+    renderOfficialChannelButtons($('#resourcesOfficialChannels'), city, hazard, null, {
+
+      context: 'resources',
+
+      hideSourceLinks: true,
+
+    });
 
     const hintEl = $('#escOfficialCategoryHint');
 
@@ -2844,7 +2874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'Show all options',
 
-      'onboard.wardHint': 'Pick from {city}\'s wards, or detect with GPS.',
+      'onboard.wardHint': 'Pick a {city} ward, or detect with GPS.',
 
       'onboard.wardDetecting': 'Finding your ward from your location…',
 
@@ -3191,7 +3221,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'First report logged — welcome aboard! 🌧️',
 
-      'confirm.meTooThanks': 'Me too counted — neighbours see the pressure building.',
+      'confirm.meTooThanks': 'Me too counted.',
 
       'toast.reportMilestone': '{n} reports — keep the momentum going!',
 
@@ -3489,13 +3519,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'Support Volunteers',
 
-      'community.supportBody': 'Pledge supplies for active cleanup crews in your ward.',
+      'community.supportBody': 'Pledge supplies for cleanup crews in your ward.',
 
       'community.pledge': 'Pledge',
 
       'community.volunteerTitle': 'Volunteer in my ward',
 
-      'community.volunteerBody': 'Join local cleanup crews and spread awareness — separate from filing with {corp}.',
+      'community.volunteerBody': 'Join local cleanup crews — filing with {corp} stays separate.',
 
       'community.volunteerCta': 'Sign up',
 
@@ -4188,7 +4218,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.subtitle': 'CivicRadar does not file for you — open a verified .gov app or portal below.',
 
-      'official.viewAllSources': 'View all official sources',
+      'official.recommended': 'Recommended',
+
+      'official.viewAllSources': 'All official sources',
 
       'official.alsoFile': 'Also file officially (optional)',
 
@@ -4226,7 +4258,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC online portal',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'Web portal',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
 
@@ -4308,7 +4340,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.societyPh': 'Type your society / RWA name if not listed',
 
-      'profile.societyHintWard': 'Showing {n} societies in {ward} — type to add yours.',
+      'profile.societyHintWard': '{n} in {ward} — type to add yours.',
 
       'profile.societyHintNoWard': 'Set your ward for local society suggestions.',
 
@@ -4544,7 +4576,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsLocating': 'Finding your location…',
 
-      'toast.gpsLowAccuracy': 'Location is approximate (~{m} m). Move outdoors or near a window for better GPS.',
+      'toast.gpsLowAccuracy': 'Approximate location (~{m} m). Move outdoors for a better fix.',
 
       'toast.gpsPoorFix': 'Could not get a precise location. Try again outdoors with GPS enabled.',
 
@@ -5297,7 +5329,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सभी विकल्प दिखाएँ',
 
-      'onboard.wardHint': '{city} के वार्डों में से चुनें, या GPS से पता लगाएँ।',
+      'onboard.wardHint': '{city} वार्ड चुनें, या GPS से पता लगाएँ।',
 
       'onboard.wardDetecting': 'आपके स्थान से आपका वार्ड ढूंढ रहे हैं…',
 
@@ -5646,7 +5678,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है! 🌧️',
 
-      'confirm.meTooThanks': 'Me too दर्ज — पड़ोसी दबाव देख रहे हैं।',
+      'confirm.meTooThanks': 'Me too दर्ज।',
 
       'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
 
@@ -5944,13 +5976,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
-      'community.supportBody': 'अपने वार्ड के सक्रिय सफ़ाई दल के लिए सामग्री दान करें।',
+      'community.supportBody': 'वार्ड के सफ़ाई दल के लिए सामग्री दें।',
 
       'community.pledge': 'दान करें',
 
       'community.volunteerTitle': 'मेरे वार्ड में स्वयंसेवा',
 
-      'community.volunteerBody': 'स्थानीय सफ़ाई दल से जुड़ें और जागरूकता फैलाएँ — {corp} में दर्ज करना अलग है।',
+      'community.volunteerBody': 'स्थानीय सफ़ाई दल से जुड़ें — {corp} में दर्ज करना अलग है।',
 
       'community.volunteerCta': 'साइन अप',
 
@@ -6643,7 +6675,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.subtitle': 'CivicRadar आपकी ओर से दर्ज नहीं करता — नीचे सत्यापित .gov ऐप खोलें।',
 
-      'official.viewAllSources': 'सभी आधिकारिक स्रोत देखें',
+      'official.recommended': 'अनुशंसित',
+
+      'official.viewAllSources': 'सभी आधिकारिक स्रोत',
 
       'official.alsoFile': 'आधिकारिक रूप से भी दर्ज करें (वैकल्पिक)',
 
@@ -6658,6 +6692,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.marg.label': 'MyBMC MARG',
 
       'official.marg.small': '114 श्रेणियाँ · जियो फोटो · ट्रैकिंग',
+
+      'official.bmcPortal.small': 'वेब पोर्टल',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
@@ -6680,8 +6716,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.bmcWa.small': 'त्वरित चैट शिकायत',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
-
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक स्वास्थ्य → कीट नियंत्रण → रुका हुआ पानी / मच्छर प्रजनन',
 
@@ -6763,7 +6797,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.societyPh': 'जैसे Phoenix Mills CHS, Worli',
 
-      'profile.societyHintWard': '{ward} में {n} सोसाइटी — नहीं मिली तो टाइप करें।',
+      'profile.societyHintWard': '{ward} में {n} — अपनी जोड़ने के लिए टाइप करें।',
 
       'profile.societyHintNoWard': 'सोसाइटी सुझाव के लिए पहले वार्ड चुनें।',
 
@@ -7000,7 +7034,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsLocating': 'आपका स्थान खोज रहे हैं…',
 
-      'toast.gpsLowAccuracy': 'स्थान अनुमानित है (~{m} मी)। बेहतर GPS के लिए बाहर या खिड़की के पास जाएँ।',
+      'toast.gpsLowAccuracy': 'अनुमानित स्थान (~{m} मी)। बेहतर GPS के लिए बाहर जाएँ।',
 
       'toast.gpsPoorFix': 'सटीक स्थान नहीं मिला। GPS चालू करके बाहर फिर कोशिश करें।',
 
@@ -7752,7 +7786,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सर्व पर्याय दाखवा',
 
-      'onboard.wardHint': '{city} च्या वॉर्डांमधून निवडा, किंवा GPS ने शोधा.',
+      'onboard.wardHint': '{city} वॉर्ड निवडा, किंवा GPS ने शोधा.',
 
       'onboard.wardDetecting': 'तुमच्या स्थानावरून तुमचा वॉर्ड शोधत आहोत…',
 
@@ -8101,7 +8135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'पहिली तक्रार नोंदवली — स्वागत आहे! 🌧️',
 
-      'confirm.meTooThanks': 'Me too नोंद — शेजाऱ्यांना दबाव दिसतो.',
+      'confirm.meTooThanks': 'Me too नोंद.',
 
       'toast.reportMilestone': '{n} तक्रारी — चालू ठेवा!',
 
@@ -8399,13 +8433,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
-      'community.supportBody': 'तुमच्या वॉर्डातील सक्रिय स्वच्छता पथकांसाठी साहित्य द्या.',
+      'community.supportBody': 'वॉर्ड स्वच्छता पथकांसाठी साहित्य द्या.',
 
       'community.pledge': 'देणगी',
 
       'community.volunteerTitle': 'माझ्या वार्डात स्वयंसेवा',
 
-      'community.volunteerBody': 'स्थानिक स्वच्छता पथकात सामील व्हा आणि जागरूकता पसरवा — {corp} कडे नोंदवणे वेगळे आहे.',
+      'community.volunteerBody': 'स्थानिक स्वच्छता पथकात सामील व्हा — {corp} नोंद वेगळी आहे.',
 
       'community.volunteerCta': 'नोंदणी',
 
@@ -9096,9 +9130,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'CivicRadar तुमच्या वतीने नोंदवत नाही — खाली सत्यापित .gov अ॑प उघडा.',
+      'official.subtitle': 'CivicRadar तुमच्या वतीने नोंदवत नाही — खाली सत्यापित .gov अॅप उघडा.',
 
-      'official.viewAllSources': 'सर्व अधिकृत स्रोत पहा',
+      'official.recommended': 'शिफारस',
+
+      'official.viewAllSources': 'सर्व अधिकृत स्रोत',
 
       'official.alsoFile': 'अधिकृतपणेही नोंदवा (पर्यायी)',
 
@@ -9136,7 +9172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'वेब पोर्टल',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
 
@@ -9218,7 +9254,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.societyPh': 'उदा. Phoenix Mills CHS, Worli',
 
-      'profile.societyHintWard': '{ward} मध्ये {n} सोसायटी — नसेल तर टाइप करा.',
+      'profile.societyHintWard': '{ward} मध्ये {n} — जोडण्यासाठी टाइप करा.',
 
       'profile.societyHintNoWard': 'सोसायटी सूचना साठी प्रथम वॉर्ड निवडा.',
 
@@ -9454,7 +9490,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsLocating': 'तुमचे स्थान शोधत आहोत…',
 
-      'toast.gpsLowAccuracy': 'स्थान अंदाजे आहे (~{m} मी). चांगल्या GPS साठी बाहेर किंवा खिडकीजवळ जा.',
+      'toast.gpsLowAccuracy': 'अंदाजे स्थान (~{m} मी). चांगल्या GPS साठी बाहेर जा.',
 
       'toast.gpsPoorFix': 'अचूक स्थान मिळाले नाही. GPS चालू करून बाहेर पुन्हा प्रयत्न करा.',
 
@@ -10206,7 +10242,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'બધા વિકલ્પો બતાવો',
 
-      'onboard.wardHint': '{city}ના વોર્ડમાંથી પસંદ કરો, અથવા GPS થી શોધો.',
+      'onboard.wardHint': '{city} વોર્ડ પસંદ કરો, અથવા GPS થી શોધો.',
 
       'onboard.wardDetecting': 'તમારા સ્થાનથી તમારો વોર્ડ શોધી રહ્યા છીએ…',
 
@@ -10555,7 +10591,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત છે! 🌧️',
 
-      'confirm.meTooThanks': 'Me too નોંધાયું — પડોશીઓ દબાણ જોઈ રહ્યા છે.',
+      'confirm.meTooThanks': 'Me too નોંધાયું.',
 
       'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
 
@@ -10853,13 +10889,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
-      'community.supportBody': 'તમારા વોર્ડના સક્રિય સફાઈ દળો માટે સામગ્રી દાન કરો.',
+      'community.supportBody': 'વોર્ડ સફાઈ દળો માટે સામગ્રી આપો.',
 
       'community.pledge': 'દાન',
 
       'community.volunteerTitle': 'મારા વોર્ડમાં સ્વયંસેવા',
 
-      'community.volunteerBody': 'સ્થાનિક સફાઈ દળમાં જોડાઓ અને જાગૃતિ ફેલાવો — {corp} પર નોંધ અલગ છે.',
+      'community.volunteerBody': 'સ્થાનિક સફાઈ દળમાં જોડાઓ — {corp} નોંધ અલગ છે.',
 
       'community.volunteerCta': 'સાઇન અપ',
 
@@ -11552,7 +11588,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.subtitle': 'CivicRadar તમારી તરફથી નોંધાવતું નથી — નીચે ચકાસેલ .gov એપ ખોલો.',
 
-      'official.viewAllSources': 'બધા અધિકૃત સ્રોતો જુઓ',
+      'official.recommended': 'ભલામણ',
+
+      'official.viewAllSources': 'બધા અધિકૃત સ્રોત',
 
       'official.alsoFile': 'અધિકૃત રીતે પણ નોંધાવો (વૈકલ્પિક)',
 
@@ -11590,7 +11628,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
 
-      'official.bmcPortal.small': 'www.mcgm.gov.in',
+      'official.bmcPortal.small': 'વેબ પોર્ટલ',
 
       'official.hint.marg.stagnant-water': 'જાહેર આરોગ્ય → કીટ નિયંત્રણ → stagnant water / મચ્છર પ્રજનન',
 
@@ -11672,7 +11710,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.societyPh': 'દા.ત. Phoenix Mills CHS, Worli',
 
-      'profile.societyHintWard': '{ward} માં {n} સોસાયટી — ન મળે તો ટાઇપ કરો.',
+      'profile.societyHintWard': '{ward} માં {n} — ઉમેરવા ટાઇપ કરો.',
 
       'profile.societyHintNoWard': 'સોસાયટી સૂચનાઓ માટે પહેલા વોર્ડ પસંદ કરો.',
 
@@ -11908,7 +11946,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
 
-      'toast.gpsLowAccuracy': 'સ્થાન અંદાજે છે (~{m} મી). ચોક્કસ GPS માટે બહાર કે બારી પાસે જાઓ.',
+      'toast.gpsLowAccuracy': 'અંદાજે સ્થાન (~{m} મી). વધુ સારા GPS માટે બહાર જાઓ.',
 
       'toast.gpsPoorFix': 'ચોક્કસ સ્થાન મળ્યું નહીં. GPS ચાલુ કરી બહાર ફરી પ્રયાસ કરો.',
 
@@ -21651,6 +21689,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     };
 
+    if (actionList.some((a) => a.variant === 'whatsapp')) {
+
+      toast.classList.add('toast--snackbar');
+
+    }
+
     if (actionList.length === 1) {
 
       const btn = document.createElement('button');
@@ -22688,6 +22732,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (name === 'tos' || name === 'onboarding' || name === 'report' || name === 'success') {
 
       suppressSecondaryNudgesForPrimaryOverlay();
+
+    }
+
+    // GPS accuracy recovery must not sit over Profile/Resources/Community content.
+    if (name === 'profile' || name === 'resources' || name === 'community') {
+
+      if (typeof _activeToastDismiss === 'function') {
+
+        try { _activeToastDismiss(true); } catch { /* ignore */ }
+
+      }
 
     }
 
@@ -26092,7 +26147,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // GPS recovery belongs on the Map surface — never over Profile/Resources/Community.
+  function isMapSurfaceActive() {
+
+    const block = ['profile', 'resources', 'community', 'volunteer', 'pledge', 'about', 'feedback'];
+
+    for (let i = 0; i < block.length; i++) {
+
+      const el = overlays[block[i]];
+
+      if (el && el.classList.contains('open')) return false;
+
+    }
+
+    const activeTab = document.querySelector('#bottomNav .nav-tab.active');
+
+    if (activeTab && activeTab.dataset.tab && activeTab.dataset.tab !== 'map') return false;
+
+    return true;
+
+  }
+
+
+
   function showGpsRecoveryActions(message, type, duration) {
+
+    if (!isMapSurfaceActive()) return;
 
     const resolvedType = type || 'error';
 
@@ -26123,18 +26203,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!Number.isFinite(accuracyM)) return;
 
     // Confirm step already shows inline `.report-pin-accuracy` — skip the floating
-    // "Location is approximate" snackbar while the report sheet is open.
+    // snackbar while the report sheet is open, or when Map is not the active surface.
     const reportOpen = !!(overlays.report && overlays.report.classList.contains('open'));
 
-    if (accuracyM > GEO_ACCURACY_MAX_M) {
+    if (reportOpen || !isMapSurfaceActive()) return;
 
-      if (reportOpen) return;
+    if (accuracyM > GEO_ACCURACY_MAX_M) {
 
       showGpsRecoveryActions(t('toast.gpsPoorFix'), 'error', 9000);
 
     } else if (accuracyM > GEO_ACCURACY_POOR_M) {
-
-      if (reportOpen) return;
 
       showGpsRecoveryActions(
 
@@ -29802,11 +29880,22 @@ document.addEventListener('DOMContentLoaded', function () {
         titleEl.classList.toggle('hidden', !options.title);
       }
       if (bodyEl) bodyEl.textContent = options.body || '';
-      if (iconEl) iconEl.className = options.danger === false ? 'ph ph-question' : 'ph ph-warning-circle';
+      const isDanger = options.danger !== false;
+      const isSuccess = !!options.success;
+      if (iconEl) {
+        iconEl.className = isSuccess
+          ? 'ph ph-check-circle'
+          : (isDanger ? 'ph ph-warning-circle' : 'ph ph-question');
+        const wrap = iconEl.closest('.modal__header-icon');
+        if (wrap) {
+          wrap.classList.toggle('modal__header-icon--info', !isDanger && !isSuccess);
+          wrap.classList.toggle('modal__header-icon--success', isSuccess);
+        }
+      }
       if (btnCancel) btnCancel.textContent = options.cancelLabel || t('common.cancel');
       if (btnProceed) {
         btnProceed.textContent = options.confirmLabel || t('common.confirm');
-        btnProceed.classList.toggle('btn--danger-text', options.danger !== false);
+        btnProceed.classList.toggle('btn--danger-text', isDanger && !isSuccess);
       }
 
       genericConfirmResolve = resolve;

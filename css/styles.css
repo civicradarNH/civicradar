@@ -1683,6 +1683,43 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast--interactive { pointer-events: auto; }
 
+/* Compact snackbar (Me too + WhatsApp) — not a blocking dialog */
+.toast--snackbar {
+  padding: 8px 10px;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  border-radius: var(--radius-lg);
+  align-items: center;
+  gap: 8px;
+  max-width: min(400px, calc(100vw - 24px));
+}
+
+.toast--snackbar .toast__row {
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.toast--snackbar .toast__row > span {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.toast--snackbar .toast__action--whatsapp {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: var(--fs-xs);
+  border-radius: var(--radius-pill);
+}
+
+.toast--snackbar .toast__close {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  margin: -4px -6px -4px 0;
+}
+
 .toast--multi {
   flex-direction: column;
   align-items: stretch;
@@ -3021,23 +3058,64 @@ body.pwa-nudge-visible #btnCamera {
   background: rgba(239, 68, 68, 0.08);
 }
 
+/* Alert / confirm pattern (v280) — delete + genericConfirm only.
+   Calm civic sheet: circular icon, title, muted body, stacked actions.
+   No colored header bands; no WhatsApp-green success skin; no global pill CTAs. */
+.modal--alert,
 .delete-confirm-modal {
   text-align: center;
+  border-radius: var(--radius-xl);
+  padding: 20px 20px 16px;
 }
 
+.modal--alert h2,
+.delete-confirm-modal h2 {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.modal--alert .modal__subtitle,
+.delete-confirm-modal .modal__subtitle {
+  font-size: var(--fs-sm);
+  color: var(--ink-600, var(--text-muted));
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+
+.modal__header-icon,
 .delete-confirm__icon {
-  font-size: var(--fs-2xl);
-  line-height: 1;
+  width: 52px;
+  height: 52px;
+  margin: 4px auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
   color: var(--danger);
-  margin-bottom: 8px;
+  font-size: var(--fs-xl);
+  line-height: 1;
+}
+
+.modal__header-icon--info,
+.delete-confirm-modal--info .delete-confirm__icon {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary);
+}
+
+.modal__header-icon--success,
+.delete-confirm-modal--success .delete-confirm__icon {
+  background: rgba(5, 150, 105, 0.12);
+  color: var(--success);
 }
 
 .delete-confirm__list {
   text-align: left;
-  margin: 12px 0 16px;
+  margin: 4px 0 16px;
   padding-left: 1.25rem;
-  color: var(--text-muted);
-  font-size: var(--fs-base);
+  color: var(--ink-600, var(--text-muted));
+  font-size: var(--fs-sm);
   line-height: 1.5;
 }
 
@@ -3045,10 +3123,36 @@ body.pwa-nudge-visible #btnCamera {
   margin-top: 4px;
 }
 
+.modal__actions,
 .delete-confirm__actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 4px;
+}
+
+.modal__actions .btn,
+.delete-confirm__actions .btn {
+  border-radius: var(--radius-md);
+  min-height: var(--touch-min);
+}
+
+.modal__actions .btn--ghost,
+.delete-confirm__actions .btn--ghost {
+  border: none;
+  box-shadow: none;
+}
+
+.modal--alert .modal__handle,
+.delete-confirm-modal .modal__handle {
+  margin-bottom: 4px;
+}
+
+@media (min-width: 768px) {
+  .modal--alert,
+  .delete-confirm-modal {
+    padding: 24px 24px 20px;
+  }
 }
 
 /* ============================================
@@ -5531,8 +5635,22 @@ body.persona-lead .app-open-banner { display: none; }
 .esc-channel--wide { width: 100%; margin-bottom: 12px; }
 
 .esc-channel--recommended {
-  border-color: rgba(37, 211, 102, 0.45);
-  background: rgba(37, 211, 102, 0.06);
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.esc-channel__badge {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .esc-channels--primary {
@@ -5724,7 +5842,58 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] i { color: var(--corp-aaple); }
 
 #resourcesModal .esc-channel--recommended {
-  box-shadow: inset 0 0 0 1px rgba(37, 211, 102, 0.35);
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+#resourcesModal .esc-channel-wrap--recommended {
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: var(--radius-md);
+}
+
+#resourcesModal .official-channels .esc-channel__badge {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: start;
+  margin-top: 2px;
+}
+
+#resourcesModal .official-channels .esc-channel-source {
+  display: none; /* row is the only affordance; catalogue via All official sources */
+}
+
+#resourcesModal .official-sources-all {
+  margin: 4px 0 0;
+  padding: 10px 4px 4px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+#resourcesModal .resources-section--community .pledge-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px 12px;
+  align-items: start;
+  padding: 14px;
+}
+
+#resourcesModal .resources-section--community .pledge-card__icon {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#resourcesModal .resources-section--community .pledge-card__body {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#resourcesModal .resources-section--community .pledge-card .btn {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  justify-content: center;
 }
 
 #resourcesModal .esc-channel:hover,
@@ -5828,7 +5997,7 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .official-channels .esc-channel {
   display: grid;
   grid-template-columns: 40px 1fr 20px;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   column-gap: 12px;
   align-items: center;
   min-height: 56px;
@@ -5841,15 +6010,22 @@ body.persona-lead .app-open-banner { display: none; }
 
 #resourcesModal .official-channels .esc-channel i {
   grid-column: 1;
-  grid-row: 1 / 3;
+  grid-row: 1 / -1;
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: rgba(99, 102, 241, 0.1);
   font-size: var(--fs-md);
+}
+
+/* List rows stay hairline — corp tints stay on the leading icon only */
+#resourcesModal .official-channels .esc-channel[data-official-channel] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 #resourcesModal .official-channels .esc-channel span {
@@ -5865,14 +6041,23 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .official-channels .esc-channel::after {
   content: '\276F';
   grid-column: 3;
-  grid-row: 1 / 3;
+  grid-row: 1 / -1;
   justify-self: end;
-  color: var(--text-muted);
+  align-self: center;
+  color: var(--ink-400, var(--text-muted));
   font-size: var(--fs-sm);
 }
 
 #resourcesModal .official-channels .esc-channel:active {
-  background: var(--bg-main, #f1f5f9);
+  background: var(--bg-main, #f1f5f9) !important;
+}
+
+/* Keep list rows calm — corp hover fills from card grid must not bleed in */
+#resourcesModal .official-channels .esc-channel[data-official-channel]:hover,
+#resourcesModal .official-channels .esc-channel[data-official-channel]:focus-visible {
+  background: rgba(99, 102, 241, 0.04) !important;
+  border: none !important;
+  filter: none;
 }
 
 .esc-channel-source {
