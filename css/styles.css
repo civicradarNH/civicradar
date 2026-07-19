@@ -10152,3 +10152,94 @@ body.sheet-depth-blocking .map-hud {
     }
   }
 }
+
+/* ============================================================
+   Delight micro-animations (v282) — CSS-only, all disabled under
+   prefers-reduced-motion. Fill the flat spots in the existing motion
+   system; nothing here is load-bearing for layout or logic.
+   ============================================================ */
+
+/* 1. Hazard tile check: springy overshoot instead of a flat fade —
+      the most tactile moment of the core reporting flow. */
+.hazard-tile--active .hazard-tile__check {
+  animation: tile-check-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tile-check-pop {
+  0% { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* 2. ToS consent cards: satisfying settle when checked. */
+#tosModal .checkbox-row:has(input:checked) {
+  animation: consent-settle 0.3s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+@keyframes consent-settle {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+/* 3. Camera/GPS disclosure lists: items cascade in (replays per open). */
+.modal-overlay.open .disclosure-list li {
+  animation: disclosure-cascade 0.32s ease both;
+}
+
+.modal-overlay.open .disclosure-list li:nth-child(1) { animation-delay: 0.05s; }
+.modal-overlay.open .disclosure-list li:nth-child(2) { animation-delay: 0.11s; }
+.modal-overlay.open .disclosure-list li:nth-child(3) { animation-delay: 0.17s; }
+.modal-overlay.open .disclosure-list li:nth-child(4) { animation-delay: 0.23s; }
+
+@keyframes disclosure-cascade {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. Header brand: slow radar ping behind the CivicRadar icon — the
+      one continuous animation, kept tiny, faint, and transform-only. */
+.header__brand i {
+  position: relative;
+}
+
+.header__brand i::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary);
+  opacity: 0;
+  pointer-events: none;
+  animation: brand-radar-ping 4s ease-out infinite;
+}
+
+@keyframes brand-radar-ping {
+  0%, 72% { opacity: 0; transform: scale(0.6); }
+  76% { opacity: 0.45; }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+/* 5. Map empty-state pin: gentle bob inviting the first report. */
+.map-empty-cta:not(.hidden) .map-empty-cta__icon-wrap {
+  animation: empty-pin-bob 2.6s ease-in-out infinite;
+}
+
+@keyframes empty-pin-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hazard-tile--active .hazard-tile__check,
+  #tosModal .checkbox-row:has(input:checked),
+  .modal-overlay.open .disclosure-list li,
+  .header__brand i::after,
+  .map-empty-cta:not(.hidden) .map-empty-cta__icon-wrap {
+    animation: none;
+  }
+
+  .modal-overlay.open .disclosure-list li {
+    opacity: 1;
+    transform: none;
+  }
+}
