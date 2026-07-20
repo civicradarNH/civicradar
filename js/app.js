@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v302';
+  const CIVIC_APP_VERSION = 'v304';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -27130,6 +27130,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function mapPinAssetUrl(relPath) {
+
+    const root = (location.origin + location.pathname.replace(/[^/]*$/, '')).replace(/\/?$/, '/');
+
+    return root + relPath + '?v=' + encodeURIComponent(CIVIC_APP_VERSION);
+
+  }
+
+
+
   function mapPinIconKey(status, hazard) {
 
     if (status === 'resolved') return 'fixed';
@@ -27148,7 +27158,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (MAP_PIN_ICON_CACHE[key]) return MAP_PIN_ICON_CACHE[key];
 
-    const url = MAP_PIN_URLS[key] || MAP_PIN_URLS['open:default'];
+    const url = mapPinAssetUrl(MAP_PIN_URLS[key] || MAP_PIN_URLS['open:default']);
 
     MAP_PIN_ICON_CACHE[key] = L.icon({
 
@@ -27156,11 +27166,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       iconRetinaUrl: url,
 
-      iconSize: [28, 36],
+      iconSize: [32, 42],
 
-      iconAnchor: [14, 36],
+      iconAnchor: [16, 42],
 
-      popupAnchor: [0, -30],
+      popupAnchor: [0, -34],
 
       className: 'map-pin-icon' + (key === 'fixed' ? ' map-pin-icon--fixed' : ' map-pin-icon--open'),
 
@@ -27176,6 +27186,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (userLocationMapIcon) return userLocationMapIcon;
 
+    const userPinUrl = mapPinAssetUrl('assets/map-pins/user-location.svg');
+
     userLocationMapIcon = L.divIcon({
 
       className: 'user-loc-marker-wrap',
@@ -27186,7 +27198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           '<span class="user-loc-marker__pulse"></span>' +
 
-          '<img class="user-loc-marker__img" src="assets/map-pins/user-location.svg" width="40" height="40" alt="" decoding="async" draggable="false"/>' +
+          '<img class="user-loc-marker__img" src="' + userPinUrl + '" width="40" height="40" alt="" decoding="async" draggable="false"/>' +
 
         '</span>',
 
@@ -27265,10 +27277,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } else {
 
-        action = `<button type="button" class="popup__btn" data-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-hand-pointing"></i> ${escapeHtml(t('confirm.metoo'))}</button>
+        action = `<button type="button" class="popup__btn popup__btn--primary" data-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-hand-pointing"></i> ${escapeHtml(t('confirm.metoo'))}</button>
 
         <p class="popup__follow-hint">${escapeHtml(t('confirm.followHint'))}</p>`;
-
       }
 
       if (!ownsReport(report)) {
@@ -27279,8 +27290,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-          // Ghost secondary — WhatsApp on Me-too toast owns the primary share CTA.
-          action += `<button type="button" class="popup__btn popup__btn--fix popup__btn--ghost" data-fix-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-check-circle"></i> ${escapeHtml(t('fix.looksFixed'))}</button>
+          // Outline when Me too is still available; filled success primary after Me too.
+          const fixPrimary = hasConfirmed(report.id);
+          action += `<button type="button" class="popup__btn popup__btn--fix${fixPrimary ? ' popup__btn--fix-primary' : ''}" data-fix-confirm="${escapeHtml(String(report.id))}"><i class="ph ph-check-circle"></i> ${escapeHtml(t('fix.looksFixed'))}</button>
 
           <p class="popup__fix-hint">${escapeHtml(t('fix.hint'))}</p>`;
 

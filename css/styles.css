@@ -65,7 +65,10 @@
   --toast-glass-bg: rgba(15, 23, 42, 0.9);
   --toast-glass-border: rgba(255, 255, 255, 0.14);
   --toast-fg: #f8fafc;
-  --toast-success-bg: rgba(6, 95, 70, 0.92);
+  /* Calm success tint — not solid emerald fighting WhatsApp #25D366 */
+  --toast-success-bg: rgba(236, 253, 245, 0.94);
+  --toast-success-border: rgba(4, 120, 87, 0.28);
+  --toast-success-fg: #065f46;
   --toast-error-bg: rgba(153, 27, 27, 0.92);
   --toast-info-bg: rgba(15, 23, 42, 0.9);
 
@@ -1250,9 +1253,14 @@ body::after {
   letter-spacing: -0.02em;
 }
 
+/* Per-metric impact colors (v155 / v304) — numbers + label tint; ward name stays neutral */
 .ward-pulse__stat--open strong { color: var(--danger); }
 .ward-pulse__stat--fixed strong { color: var(--success); }
-.ward-pulse__stat--metoo strong { color: #0891b2; }
+.ward-pulse__stat--metoo strong { color: var(--brand-600, var(--primary)); }
+
+.ward-pulse__stat--open > span:not(strong) { color: var(--danger); opacity: 0.85; }
+.ward-pulse__stat--fixed > span:not(strong) { color: var(--success); opacity: 0.85; }
+.ward-pulse__stat--metoo > span:not(strong) { color: var(--brand-600, var(--primary)); opacity: 0.85; }
 
 body.home-hero-visible,
 body.persona-admin,
@@ -1770,7 +1778,11 @@ body.manual-pin-mode #map .leaflet-container {
   pointer-events: auto;
 }
 
-.toast--success { background: var(--toast-success-bg); }
+.toast--success {
+  background: var(--toast-success-bg);
+  border-color: var(--toast-success-border, var(--toast-glass-border));
+  color: var(--toast-success-fg, var(--toast-fg));
+}
 .toast--error { background: var(--toast-error-bg); }
 .toast--info { background: var(--toast-info-bg); }
 
@@ -1801,17 +1813,31 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast--interactive { pointer-events: auto; }
 
-/* Compact snackbar (Me too / share + WhatsApp) — CTA stacks under copy (v293) */
+/* Compact snackbar (Me too / share + WhatsApp) — glass sheet family (v303) */
 .toast--snackbar {
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: var(--fs-sm);
   line-height: 1.35;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   flex-direction: column;
   align-items: stretch;
   gap: 8px;
-  width: min(400px, calc(100vw - 24px));
-  max-width: min(400px, calc(100vw - 24px));
+  width: min(360px, calc(100vw - 24px));
+  max-width: min(360px, calc(100vw - 24px));
+  box-shadow: var(--shadow-md), 0 8px 28px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.toast--snackbar.toast--success {
+  background: var(--toast-success-bg);
+  border: 1px solid var(--toast-success-border);
+  color: var(--toast-success-fg);
+}
+
+.toast--snackbar.toast--success .toast__row > span,
+.toast--snackbar.toast--success .toast__row > i {
+  color: var(--toast-success-fg);
 }
 
 .toast--snackbar .toast__row {
@@ -4679,11 +4705,11 @@ body.persona-lead .app-open-banner { display: none; }
   50% { filter: drop-shadow(0 0 8px var(--primary)); transform: scale(1.15); }
 }
 
-/* Custom map pins (v300) — L.icon / L.divIcon; no neon stacks */
+/* Custom map pins (v303) — solid hazard fills; soft lift on OSM tiles */
 .leaflet-marker-icon.map-pin-icon {
   background: transparent !important;
   border: none !important;
-  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.28));
+  filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.35));
 }
 
 .leaflet-marker-icon.map-pin-icon.marker-active,
@@ -5229,18 +5255,43 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--success, #10b981);
 }
 
+/* Looks fixed — outline secondary (no underline); filled only after Me too */
 .popup__btn--fix,
 .popup__btn--ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: var(--touch-min);
+  margin-top: 8px;
+  padding: 10px 14px;
   background: transparent;
-  color: var(--ink-600, #475569);
-  border: none;
-  font-weight: 500;
+  color: var(--success, #047857);
+  border: 1.5px solid rgba(4, 120, 87, 0.42);
+  border-radius: var(--radius-md);
+  font-weight: 600;
   box-shadow: none;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  min-height: auto;
-  padding: 6px 0;
-  margin-top: 6px;
+  text-decoration: none !important;
+}
+
+.popup__btn--fix:hover,
+.popup__btn--ghost:hover {
+  background: rgba(4, 120, 87, 0.08);
+  text-decoration: none !important;
+}
+
+.popup__btn--fix-primary {
+  background: var(--success, #047857);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.popup__btn--fix-primary:hover {
+  background: #065f46;
+  color: #fff;
 }
 
 .popup__more {
@@ -7304,17 +7355,50 @@ body.persona-lead .app-open-banner { display: none; }
 .soon-count { text-align: center; font-size: var(--fs-xs); color: var(--text-muted, #64748b); margin-top: 10px; }
 
 /* ---------- Map popup + corroboration ---------- */
-.map-popup { min-width: 150px; }
-.popup__title { font-size: var(--fs-base); font-weight: 700; }
+.map-popup { min-width: 180px; }
+.popup__title {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--ink-900, #0f172a);
+}
 .popup__meta { font-size: var(--fs-xs); color: var(--text-muted, #64748b); margin-top: 2px; }
 .popup__btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 8px; min-height: var(--touch-min); padding: 10px 14px;
-  border: none; border-radius: var(--radius-sm);
-  background: var(--accent); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%;
+  margin-top: 10px; min-height: var(--touch-min); padding: 10px 14px;
+  border: none; border-radius: var(--radius-md);
+  background: var(--primary-fill); color: var(--on-primary, #fff);
   font-family: var(--font); font-size: var(--fs-sm); font-weight: 700;
   cursor: pointer;
-  transition: transform 0.08s ease, opacity 0.15s ease;
+  text-decoration: none !important;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s ease, opacity 0.15s ease, background 0.2s ease;
+}
+.popup__btn--primary {
+  background: var(--primary-fill);
+  color: var(--on-primary, #fff);
+}
+.popup__btn--primary:hover {
+  background: var(--primary-dark);
+}
+/* Win over .popup__btn fill — outline secondary until Me too is done */
+.popup__btn.popup__btn--fix:not(.popup__btn--fix-primary) {
+  background: transparent;
+  color: var(--success, #047857);
+  border: 1.5px solid rgba(4, 120, 87, 0.42);
+  box-shadow: none;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+.popup__btn.popup__btn--fix-primary {
+  background: var(--success, #047857);
+  color: #fff;
+  border: none;
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  text-decoration: none !important;
 }
 .popup__btn:active { transform: scale(0.97); }
 .popup__btn:disabled,
@@ -7651,20 +7735,32 @@ html[lang="hi"] .leaflet-container,
 html[lang="mr"] .leaflet-container,
 html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 
-/* ---- Leaflet popups: match the modal/card surface system ---- */
+/* ---- Leaflet popups: same glass sheet language as GPS chip (v303) ---- */
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-3);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink-900, #0f172a);
+  box-shadow: var(--shadow-md), 0 8px 28px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 2px 0;
 }
-.leaflet-popup-content { margin: 12px 14px; line-height: 1.4; }
-.leaflet-popup-tip { }
+.leaflet-popup-content { margin: 14px 16px 16px; line-height: 1.4; }
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.94);
+  border: none;
+  box-shadow: none;
+}
 .leaflet-popup-close-button {
-  width: 30px !important;
-  height: 30px !important;
+  width: 40px !important;
+  height: 40px !important;
   font-size: var(--fs-xl) !important;
-  color: var(--text-muted) !important;
+  color: #64748b !important;
+  top: 6px !important;
+  right: 6px !important;
 }
-.leaflet-popup-close-button:hover { color: var(--text-dark) !important; }
+.leaflet-popup-close-button:hover { color: var(--ink-900, #0f172a) !important; }
 
 /* ---- Leaflet zoom controls: cohesive radius + brand focus ring ---- */
 .leaflet-bar {
@@ -9458,6 +9554,12 @@ html[lang="gu"] body {
 
 .toast--success {
   background: var(--toast-success-bg);
+  border-color: var(--toast-success-border, var(--toast-glass-border));
+  color: var(--toast-success-fg, var(--toast-fg));
+}
+
+.toast--success .toast__close {
+  color: var(--toast-success-fg, var(--toast-fg));
 }
 
 /* GPS accuracy — Maps/Uber-style top chip (not a navy dialog card) */
@@ -9681,8 +9783,48 @@ body.pwa-nudge-visible .toast-container {
     --toast-glass-bg: rgba(30, 41, 59, 0.94);
     --toast-glass-border: rgba(255, 255, 255, 0.18);
     --toast-info-bg: rgba(30, 41, 59, 0.94);
-    --toast-success-bg: rgba(6, 95, 70, 0.94);
+    /* Calm glass success — same family as GPS chip; WA CTA keeps #25D366 */
+    --toast-success-bg: rgba(30, 41, 59, 0.94);
+    --toast-success-border: rgba(52, 211, 153, 0.32);
+    --toast-success-fg: #ecfdf5;
     --toast-error-bg: rgba(153, 27, 27, 0.94);
+  }
+
+  .toast--snackbar.toast--success .toast__row > span,
+  .toast--snackbar.toast--success .toast__row > i {
+    color: var(--toast-success-fg);
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: rgba(30, 41, 59, 0.94);
+    border-color: rgba(248, 250, 252, 0.14);
+    color: #f8fafc;
+  }
+
+  .leaflet-popup-tip {
+    background: rgba(30, 41, 59, 0.94);
+  }
+
+  .leaflet-popup-close-button {
+    color: #94a3b8 !important;
+  }
+
+  .leaflet-popup-close-button:hover {
+    color: #f8fafc !important;
+  }
+
+  .map-popup .popup__title {
+    color: #f8fafc;
+  }
+
+  .map-popup .popup__meta,
+  .map-popup .popup__follow-hint,
+  .map-popup .popup__fix-hint {
+    color: #cbd5e1;
+  }
+
+  .map-popup .popup__note--done {
+    color: #6ee7b7;
   }
 }
 
@@ -10088,10 +10230,15 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--primary) !important;
   }
 
-  .leaflet-popup-content-wrapper,
+  .leaflet-popup-content-wrapper {
+    background: rgba(30, 41, 59, 0.94);
+    border-color: rgba(248, 250, 252, 0.14);
+    color: #f8fafc;
+  }
+
   .leaflet-popup-tip {
-    background: var(--surface);
-    color: var(--text-primary);
+    background: rgba(30, 41, 59, 0.94);
+    color: #f8fafc;
   }
 
   /* Report Capture/Confirm segmented control */
@@ -11166,12 +11313,17 @@ body::after {
 
 .ward-pulse__stat strong {
   font-size: var(--text-sm);
+  /* Neutral fallback only — per-metric rules below win on open/fixed/metoo */
   color: var(--ink-900);
 }
 
-.ward-pulse__stat--metoo strong {
-  color: var(--hazard-water);
-}
+.ward-pulse__stat--open strong { color: var(--danger); }
+.ward-pulse__stat--fixed strong { color: var(--success); }
+.ward-pulse__stat--metoo strong { color: var(--brand-600, var(--primary)); }
+
+.ward-pulse__stat--open > span:not(strong) { color: var(--danger); opacity: 0.85; }
+.ward-pulse__stat--fixed > span:not(strong) { color: var(--success); opacity: 0.85; }
+.ward-pulse__stat--metoo > span:not(strong) { color: var(--brand-600, var(--primary)); opacity: 0.85; }
 
 .ward-pulse__meter {
   height: 3px;
@@ -11372,13 +11524,46 @@ body::after {
   }
 
   .map-hud > .ward-pulse .ward-pulse__ward,
-  .ward-pulse__ward,
-  .ward-pulse__stat strong {
+  .ward-pulse__ward {
     color: #f8fafc;
   }
 
+  /* Do NOT force metric strongs white — keep open/fixed/Me too scannable on dark glass */
   .ward-pulse__stats {
     color: var(--ink-400);
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--open strong,
+  .ward-pulse__stat--open strong {
+    color: #f87171; /* --danger dark token; AA on glass-hud */
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--fixed strong,
+  .ward-pulse__stat--fixed strong {
+    color: #34d399; /* --success dark token */
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--metoo strong,
+  .ward-pulse__stat--metoo strong {
+    color: #a5b4fc; /* brand indigo, distinct from open/fixed */
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--open > span:not(strong),
+  .ward-pulse__stat--open > span:not(strong) {
+    color: #fca5a5;
+    opacity: 1;
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--fixed > span:not(strong),
+  .ward-pulse__stat--fixed > span:not(strong) {
+    color: #6ee7b7;
+    opacity: 1;
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__stat--metoo > span:not(strong),
+  .ward-pulse__stat--metoo > span:not(strong) {
+    color: #c7d2fe;
+    opacity: 1;
   }
 
   .ward-pulse__meter {
