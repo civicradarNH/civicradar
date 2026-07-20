@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none">
+  <!-- Quick chat filing (WhatsApp-style channels) — generic bubble, no brand mark -->
+  <path d="M14 4.5c-5.8 0-10.5 4.1-10.5 9.2 0 2.9 1.5 5.4 3.9 7.1l-1 4.7 4.9-2.4c0.9 0.2 1.8 0.3 2.7 0.3 5.8 0 10.5-4.1 10.5-9.2S19.8 4.5 14 4.5z" fill="#22C55E" fill-opacity="0.14"/>
+  <path d="M14 4.5c-5.8 0-10.5 4.1-10.5 9.2 0 2.9 1.5 5.4 3.9 7.1l-1 4.7 4.9-2.4c0.9 0.2 1.8 0.3 2.7 0.3 5.8 0 10.5-4.1 10.5-9.2S19.8 4.5 14 4.5z" stroke="#22C55E" stroke-width="1.8" stroke-linejoin="round"/>
+  <circle cx="9.6" cy="13.7" r="1.25" fill="#22C55E"/>
+  <circle cx="14" cy="13.7" r="1.25" fill="#22C55E"/>
+  <circle cx="18.4" cy="13.7" r="1.25" fill="#22C55E"/>
+</svg>

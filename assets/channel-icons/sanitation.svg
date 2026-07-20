@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none">
+  <!-- Sanitation / Swachhata-MoHUA: broom + sparkle -->
+  <path d="M20.8 3.6l-7.1 8.9" stroke="#14B8A6" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M13.4 12.2l-5.6 2.9c-1.7 0.9-2.9 2.5-3.2 4.4l-0.5 3.2 3.3-0.2c1.9-0.1 3.7-1.1 4.8-2.7l3.6-5.2-2.4-2.4z" fill="#14B8A6" fill-opacity="0.15"/>
+  <path d="M13.4 12.2l-5.6 2.9c-1.7 0.9-2.9 2.5-3.2 4.4l-0.5 3.2 3.3-0.2c1.9-0.1 3.7-1.1 4.8-2.7l3.6-5.2-2.4-2.4z" stroke="#14B8A6" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M8.4 17.4l2.4 2.4" stroke="#14B8A6" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M22.4 12.6v4.4M20.2 14.8h4.4" stroke="#14B8A6" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M23.9 6.9v2.4M22.7 8.1h2.4" stroke="#14B8A6" stroke-width="1.3" stroke-linecap="round" stroke-opacity="0.6"/>
+</svg>

@@ -6002,11 +6002,14 @@ body.persona-lead .app-open-banner { display: none; }
 .esc-channel__badge {
   display: inline-block;
   margin-top: 2px;
-  padding: 1px 6px;
+  padding: 2px 8px;
   border-radius: var(--radius-pill);
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--primary);
-  font-size: 10px;
+  background: rgba(238, 242, 255, 0.88);
+  color: var(--primary-fill);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: var(--fs-xs);
   font-weight: 700;
   font-style: normal;
   letter-spacing: 0.02em;
@@ -6242,6 +6245,22 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .resources-section--community .pledge-card__icon {
   grid-column: 1;
   grid-row: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: rgba(99, 102, 241, 0.12);
+  font-size: var(--fs-md);
+}
+
+#resourcesModal .resources-section--community .pledge-card--volunteer .pledge-card__icon {
+  background: rgba(4, 120, 87, 0.12);
+}
+
+#resourcesModal .resources-section--community .pledge-card--pledge .pledge-card__icon {
+  background: rgba(236, 72, 153, 0.12);
 }
 
 #resourcesModal .resources-section--community .pledge-card__body {
@@ -6371,14 +6390,43 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .official-channels .esc-channel i {
   grid-column: 1;
   grid-row: 1 / -1;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.12);
   font-size: var(--fs-md);
+}
+
+/* Soft per-channel icon tiles (calm 0.12–0.14 alpha — not full-row fills) */
+#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] i {
+  background: rgba(29, 78, 216, 0.14);
+}
+
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] i {
+  background: rgba(37, 211, 102, 0.14);
+}
+
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] i {
+  background: rgba(234, 88, 12, 0.14);
+}
+
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] i {
+  background: rgba(21, 128, 61, 0.14);
+}
+
+#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] i {
+  background: rgba(8, 145, 178, 0.14);
+}
+
+#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] i {
+  background: rgba(124, 58, 237, 0.14);
 }
 
 /* List rows stay hairline — corp tints stay on the leading icon only */
@@ -10812,5 +10860,450 @@ body.sheet-depth-blocking .map-hud {
   .modal-overlay.open .disclosure-list li {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ============================================================
+   Map landing premium polish (v295)
+   Visual-only cohesion for first paint after ToS/onboarding.
+   Calm glass · Outfit tokens · indigo brand · no logic changes.
+   ============================================================ */
+
+:root {
+  --glass-hud-bg: rgba(255, 255, 255, 0.88);
+  --glass-hud-border: rgba(255, 255, 255, 0.64);
+  --glass-hud-inset: rgba(255, 255, 255, 0.52);
+  --glass-hud-blur: 18px;
+  /* Calmer rest elevation for floating map chrome (FAB keeps --shadow-pop) */
+  --shadow-hud:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 6px 16px rgba(15, 23, 42, 0.1);
+  --hud-gap: 6px;
+}
+
+/* Soft legibility scrims — quieter so glass pills stay the hero */
+body::before {
+  height: 120px;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0));
+}
+
+body::after {
+  height: 84px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0));
+}
+
+/* ---- Header: ink brand + accent icon ---- */
+.header {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  box-shadow:
+    var(--shadow-hud),
+    inset 0 0 0 1px var(--glass-hud-inset);
+  padding: 0 12px 0 14px;
+}
+
+.header__brand {
+  color: var(--ink-900);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header__brand i {
+  color: var(--primary);
+  font-size: var(--text-xl);
+}
+
+.header__titles > span:first-child {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header__sync {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+}
+
+.header__actions {
+  gap: 2px;
+}
+
+.header__btn {
+  color: var(--ink-600);
+  border-radius: var(--radius-pill);
+}
+
+.header__btn:hover {
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary);
+}
+
+.header__btn--lang {
+  color: var(--primary);
+  font-size: var(--text-sm);
+}
+
+/* ---- Persona strip: same glass family, quieter tint ---- */
+.persona-bar {
+  border: 1px solid var(--glass-hud-border);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  padding: 6px 12px;
+}
+
+.persona-bar--citizen {
+  background: rgba(238, 242, 255, 0.9);
+  color: var(--ink-600);
+  border-color: rgba(199, 210, 254, 0.55);
+}
+
+.persona-bar--admin {
+  border-color: rgba(254, 202, 202, 0.55);
+}
+
+.persona-bar--lead {
+  border-color: rgba(251, 207, 232, 0.55);
+}
+
+.persona-bar__action {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Ward pulse HUD: Maps-quality glass capsule ---- */
+.ward-pulse {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  border-bottom: none;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    var(--shadow-hud),
+    inset 0 0 0 1px var(--glass-hud-inset);
+  padding: 8px 12px;
+  gap: 6px;
+}
+
+.map-hud > .ward-pulse,
+.map-hud > .map-legend {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  border-bottom: none;
+  border-radius: var(--radius-pill);
+  box-shadow:
+    var(--shadow-hud),
+    inset 0 0 0 1px var(--glass-hud-inset);
+  padding: 7px 12px;
+}
+
+.map-hud > .ward-pulse {
+  max-width: min(320px, 82vw);
+  gap: 4px;
+}
+
+.map-hud > .ward-pulse .ward-pulse__ward {
+  max-width: 52%;
+  color: var(--ink-900);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ward-pulse__ward {
+  max-width: 50%;
+  color: var(--ink-900);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.ward-pulse__stats {
+  gap: 10px;
+  color: var(--ink-400);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.ward-pulse__stat strong {
+  font-size: var(--text-sm);
+  color: var(--ink-900);
+}
+
+.ward-pulse__stat--metoo strong {
+  color: var(--hazard-water);
+}
+
+.ward-pulse__meter {
+  height: 3px;
+  background: rgba(226, 232, 240, 0.85);
+}
+
+/* ---- Map side controls: shared glass disc ---- */
+.map-locate-pill,
+.map-recenter {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  border-radius: var(--radius-pill);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 0 0 1px var(--glass-hud-inset);
+  color: var(--primary);
+}
+
+.map-locate-pill:focus-visible,
+.map-recenter:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Leaflet zoom — match locate/recenter family */
+.leaflet-bar {
+  border: 1px solid var(--glass-hud-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background: var(--glass-hud-bg) !important;
+  color: var(--ink-600) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.85) !important;
+}
+
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+  background: rgba(238, 242, 255, 0.95) !important;
+  color: var(--primary) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Location chip CTA: AA fill ---- */
+.location-banner__btn {
+  background: var(--primary-fill);
+  color: var(--on-primary);
+  border-color: var(--warning, #d97706);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+}
+
+.location-banner--compact {
+  box-shadow: var(--shadow-md);
+}
+
+/* ---- Report FAB: fill + on-primary; pop shadow only here ---- */
+#btnCamera {
+  background: var(--grad-brand);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-pop);
+  gap: 7px;
+  padding: 0 20px;
+  letter-spacing: -0.01em;
+}
+
+.fab-label {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: inherit;
+}
+
+/* ---- Bottom dock: glass without brand-glow noise ---- */
+#bottomNav,
+.bottom-nav {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  box-shadow:
+    var(--shadow-hud),
+    inset 0 0 0 1px var(--glass-hud-inset);
+}
+
+.nav-tab {
+  color: var(--ink-400);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.nav-tab.active {
+  color: var(--primary);
+}
+
+.nav-tab.active::before {
+  background: var(--primary);
+  width: 28px;
+  height: 3px;
+  top: 5px;
+  border-radius: var(--radius-pill);
+}
+
+.nav-tab.active span:last-child {
+  font-weight: 700;
+}
+
+/* ---- Empty-ward / coach sheets: quieter chrome when visible ---- */
+.map-empty-cta__sheet,
+.coach-mark__card {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border);
+}
+
+.map-empty-cta__handle,
+.coach-mark__handle {
+  background: var(--ink-400);
+  opacity: 0.45;
+  width: 36px;
+  height: 4px;
+}
+
+.map-empty-cta__title,
+.coach-mark__card h3 {
+  letter-spacing: -0.02em;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-hud-bg: rgba(17, 24, 39, 0.88);
+    --glass-hud-border: rgba(148, 163, 184, 0.28);
+    --glass-hud-inset: rgba(255, 255, 255, 0.08);
+    --shadow-hud:
+      0 1px 2px rgba(0, 0, 0, 0.28),
+      0 8px 20px rgba(0, 0, 0, 0.36);
+  }
+
+  body::before {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0));
+  }
+
+  body::after {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0));
+  }
+
+  .header {
+    background: var(--glass-hud-bg);
+    border-color: var(--glass-hud-border);
+    box-shadow:
+      var(--shadow-hud),
+      inset 0 0 0 1px var(--glass-hud-inset);
+  }
+
+  .header__brand {
+    color: #f8fafc;
+  }
+
+  .header__brand i {
+    color: #a5b4fc;
+  }
+
+  .header__btn {
+    color: var(--ink-400);
+  }
+
+  .header__btn:hover,
+  .header__btn--lang {
+    color: #a5b4fc;
+  }
+
+  .persona-bar {
+    border-color: var(--glass-hud-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .persona-bar--citizen {
+    background: rgba(49, 46, 129, 0.72);
+    color: #c7d2fe;
+    border-color: rgba(165, 180, 252, 0.28);
+  }
+
+  .ward-pulse,
+  .map-hud > .ward-pulse,
+  .map-hud > .map-legend,
+  .map-locate-pill,
+  .map-recenter {
+    background: var(--glass-hud-bg);
+    border-color: var(--glass-hud-border);
+    color: #e2e8f0;
+  }
+
+  .map-hud > .ward-pulse .ward-pulse__ward,
+  .ward-pulse__ward,
+  .ward-pulse__stat strong {
+    color: #f8fafc;
+  }
+
+  .ward-pulse__stats {
+    color: var(--ink-400);
+  }
+
+  .ward-pulse__meter {
+    background: rgba(51, 65, 85, 0.9);
+  }
+
+  .leaflet-bar {
+    border-color: var(--glass-hud-border) !important;
+  }
+
+  .leaflet-bar a {
+    background: var(--glass-hud-bg) !important;
+    color: #e2e8f0 !important;
+    border-bottom-color: rgba(51, 65, 85, 0.9) !important;
+  }
+
+  .leaflet-bar a:hover,
+  .leaflet-bar a:focus {
+    background: rgba(49, 46, 129, 0.55) !important;
+    color: #c7d2fe !important;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(17, 24, 39, 0.78) !important;
+    border-color: rgba(148, 163, 184, 0.22);
+    color: var(--ink-400) !important;
+  }
+
+  #bottomNav,
+  .bottom-nav {
+    background: var(--glass-hud-bg);
+    border-color: var(--glass-hud-border);
+    box-shadow:
+      var(--shadow-hud),
+      inset 0 0 0 1px var(--glass-hud-inset);
+  }
+
+  .nav-tab {
+    color: var(--ink-400);
+  }
+
+  .nav-tab.active {
+    color: #a5b4fc;
+  }
+
+  .nav-tab.active::before {
+    background: #a5b4fc;
+  }
+
+  #btnCamera,
+  .fab {
+    color: var(--on-primary) !important;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .location-banner__btn {
+    background: var(--primary-fill);
+    color: var(--on-primary) !important;
   }
 }
