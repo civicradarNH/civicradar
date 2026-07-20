@@ -2502,7 +2502,8 @@ body.persona-lead .ios-install-hint {
   display: block;
 }
 .nav-tab:not(.active) .nav-tab__glyph {
-  filter: grayscale(1) opacity(0.55);
+  /* v313: readable on map tiles; still quieter than active brand color */
+  filter: grayscale(1) opacity(0.72);
 }
 
 .nav-tab__icon-wrap {
@@ -7988,20 +7989,20 @@ html[lang="hi"] .leaflet-container,
 html[lang="mr"] .leaflet-container,
 html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 
-/* ---- Leaflet popups: same glass sheet language as GPS chip (v303) ---- */
+/* ---- Leaflet popups: same glass sheet language as GPS chip (v303; tokens v313) ---- */
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius-xl);
   border: 1px solid rgba(15, 23, 42, 0.1);
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--glass-hud-bg, rgba(255, 255, 255, 0.92));
   color: var(--ink-900, #0f172a);
   box-shadow: var(--shadow-md), 0 8px 28px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(var(--glass-hud-blur, 22px));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
   padding: 2px 0;
 }
 .leaflet-popup-content { margin: 14px 16px 16px; line-height: 1.4; }
 .leaflet-popup-tip {
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--glass-hud-bg, rgba(255, 255, 255, 0.92));
   border: none;
   box-shadow: none;
 }
@@ -9248,7 +9249,7 @@ a,
 .segment-control__btn:active,
 .cr-section__toggle:active,
 .lang-option:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
   transition: transform 0.08s ease;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -9733,7 +9734,7 @@ html[lang="gu"] body {
 }
 
 .nav-tab:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 /* ---- Toast → top snackbar (v248; glass pill polish v262; GPS chip v286) ---- */
@@ -10036,13 +10037,13 @@ body.pwa-nudge-visible .toast-container {
   }
 
   .leaflet-popup-content-wrapper {
-    background: rgba(30, 41, 59, 0.94);
+    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.9));
     border-color: rgba(248, 250, 252, 0.14);
     color: #f8fafc;
   }
 
   .leaflet-popup-tip {
-    background: rgba(30, 41, 59, 0.94);
+    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.9));
   }
 
   .leaflet-popup-close-button {
@@ -10487,13 +10488,13 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   }
 
   .leaflet-popup-content-wrapper {
-    background: rgba(30, 41, 59, 0.94);
+    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.9));
     border-color: rgba(248, 250, 252, 0.14);
     color: #f8fafc;
   }
 
   .leaflet-popup-tip {
-    background: rgba(30, 41, 59, 0.94);
+    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.9));
     color: #f8fafc;
   }
 
@@ -12063,3 +12064,12 @@ body::after {
     transition: none;
   }
 }
+
+/* ============================================================
+   Gemini Clean SaaS overhaul — filtered restraint (v313)
+   SKIP: FAB breathe/glow · indigo-gradient active nav pill ·
+         neon LIVE radar waves · glowing Me too / Fixed pills ·
+         gold-amber trophy gradient (v311 soft amber stays)
+   SHIP: popup glass tokens · inactive nav glyph contrast ·
+         press scale(0.96) aligned with FAB
+   ============================================================ */
