@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v314';
+  const CIVIC_APP_VERSION = 'v317';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3700,7 +3700,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.section.activity': 'Activity',
 
-      'profile.section.account': 'Account & support',
+      'profile.section.account': 'App, roles & legal',
+
+      'profile.section.appTour': 'App & Tour',
+
+      'profile.section.communityRoles': 'Community Roles',
+
+      'profile.section.accountLegal': 'Account & Legal',
 
       'profile.title': 'Your Profile',
 
@@ -6218,7 +6224,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.section.activity': 'गतिविधि',
 
-      'profile.section.account': 'खाता और सहायता',
+      'profile.section.account': 'ऐप, भूमिकाएँ और कानूनी',
+
+      'profile.section.appTour': 'ऐप और टूर',
+
+      'profile.section.communityRoles': 'सामुदायिक भूमिकाएँ',
+
+      'profile.section.accountLegal': 'खाता और कानूनी',
 
       'profile.title': 'आपकी प्रोफ़ाइल',
 
@@ -8734,7 +8746,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.section.activity': 'कृती',
 
-      'profile.section.account': 'खाते आणि मदत',
+      'profile.section.account': 'ऐप, भूमिका आणि कायदेशीर',
+
+      'profile.section.appTour': 'ऐप आणि टूर',
+
+      'profile.section.communityRoles': 'सामुदायिक भूमिका',
+
+      'profile.section.accountLegal': 'खाते आणि कायदेशीर',
 
       'profile.title': 'तुमची प्रोफाइल',
 
@@ -11249,7 +11267,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.section.activity': 'પ્રવૃત્તિ',
 
-      'profile.section.account': 'એકાઉન્ટ અને સહાય',
+      'profile.section.account': 'એપ, ભૂમિકાઓ અને કાનૂની',
+
+      'profile.section.appTour': 'એપ અને ટૂર',
+
+      'profile.section.communityRoles': 'સામુદાયિક ભૂમિકાઓ',
+
+      'profile.section.accountLegal': 'એકાઉન્ટ અને કાનૂની',
 
       'profile.title': 'તમારી પ્રોફાઇલ',
 
@@ -18905,6 +18929,7 @@ document.addEventListener('DOMContentLoaded', function () {
     closeAllModals();
     if (r.lat != null && r.lng != null && map) {
       map.setView([r.lat, r.lng], 16);
+      if (areMapPinsLockedForFirstRun()) return;
       const marker = reportMarkerMap.get(String(reportId));
       if (marker) marker.openPopup();
     }
@@ -19371,21 +19396,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Primary overlays that must win over secondary shouts (location banner / PWA nudge).
-  // CSS (:has / modal-open) also hides those; this JS gate prevents show races before paint.
-  // No OverlayManager class — thin helpers + pending flush are enough (v267+).
+  // CSS (:has / modal-open / map-popup-open) also hides those; this JS gate prevents
+  // show races before paint. No OverlayManager class — thin helpers + pending flush (v267+).
+  function isMapPopupOpen() {
+    return document.body.classList.contains('map-popup-open');
+  }
+
+  function isFirstRunOverlayVisible() {
+    const coach = $('#coachMark');
+    if (coach && !coach.classList.contains('hidden')) return true;
+    const tour = $('#tourOverlay');
+    if (tour && !tour.classList.contains('hidden')) return true;
+    return false;
+  }
+
+  // Close Leaflet pin card before purpose / FAB tip — never stack under first-run chrome.
+  function closeMapPinPopup() {
+    if (map && typeof map.closePopup === 'function') {
+      try { map.closePopup(); } catch (_) { /* ignore */ }
+    }
+    document.body.classList.remove('map-popup-open');
+  }
+
+  // Pin taps stay quiet while purpose/FAB tip is up, and until both first-run flags
+  // are set (covers the dismiss→spotlight gap). Demo/ref/admin never lock.
+  function areMapPinsLockedForFirstRun() {
+    if (isFirstRunOverlayVisible()) return true;
+    try {
+      if (isAdmin || isLead) return false;
+      const params = new URLSearchParams(location.search);
+      if (params.get('demo') || params.get('ref')) return false;
+      if (!user.tosAccepted || !user.ward) return false;
+      if (!localStorage.getItem(COACH_KEY) || !localStorage.getItem(FAB_SPOT_KEY)) return true;
+    } catch (_) { /* ignore */ }
+    return false;
+  }
+
   function isPrimaryOverlayBlocking() {
 
     const hero = $('#homeHero');
 
     if (hero && !hero.classList.contains('hidden')) return true;
 
-    const coach = $('#coachMark');
-
-    if (coach && !coach.classList.contains('hidden')) return true;
-
-    const tour = $('#tourOverlay');
-
-    if (tour && !tour.classList.contains('hidden')) return true;
+    if (isFirstRunOverlayVisible()) return true;
 
     if (overlays.tos && overlays.tos.classList.contains('open')) return true;
 
@@ -19396,33 +19449,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // Success follows report; keep nudges parked across the report→success handoff.
     if (overlays.success && overlays.success.classList.contains('open')) return true;
 
+    // Pin card owns map attention — park GPS chip / PWA while Leaflet popup is open.
+    if (isMapPopupOpen()) return true;
+
     return false;
 
   }
 
 
 
-  // Soft map tips (GPS chip, enable-location help) — block over ToS/onboarding/success
-  // and first-run chrome, but NOT the report sheet (submit recovery must still show).
+  // Soft map tips (GPS chip, enable-location help) — block over ToS/onboarding/success,
+  // pin popup, and active snackbar; NOT the report sheet (submit recovery must still show).
   function isSoftNudgeOverlayBlocking() {
 
     const hero = $('#homeHero');
 
     if (hero && !hero.classList.contains('hidden')) return true;
 
-    const coach = $('#coachMark');
-
-    if (coach && !coach.classList.contains('hidden')) return true;
-
-    const tour = $('#tourOverlay');
-
-    if (tour && !tour.classList.contains('hidden')) return true;
+    if (isFirstRunOverlayVisible()) return true;
 
     if (overlays.tos && overlays.tos.classList.contains('open')) return true;
 
     if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return true;
 
     if (overlays.success && overlays.success.classList.contains('open')) return true;
+
+    if (isMapPopupOpen()) return true;
+
+    if (typeof hasActiveToast === 'function' && hasActiveToast()) return true;
 
     return false;
 
@@ -19431,8 +19485,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   let pendingLocationBannerMessage = null;
-
-  let pendingWelcomeToast = null;
 
   let pendingGeoEnableHelp = false;
 
@@ -19445,34 +19497,25 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.toggle('location-banner-visible', isLocationBannerVisible());
   }
 
-  function queueWelcomeToast(name) {
-    const msg = t('toast.welcome').replace('{name}', name || 'neighbour');
-    pendingWelcomeToast = { msg, duration: 2500 };
+  // Park GPS chip only (keep Me-too / success snackbar). Used by pin popup + toast show.
+  function parkLocationBannerForAttention() {
+    const locBanner = $('#locationBanner');
+    if (!locBanner || locBanner.classList.contains('hidden')) return;
+    const txt = $('#locationBannerText');
+    pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
+    hideLocationBanner({ skipWelcomeFlush: true });
   }
 
-  function flushPendingWelcomeToast() {
-    if (!pendingWelcomeToast) return;
-    if (isPrimaryOverlayBlocking() || isLocationBannerVisible()) return;
-    const payload = pendingWelcomeToast;
-    pendingWelcomeToast = null;
-    showToast(payload.msg, 'success', payload.duration);
-  }
+  // v317: drop post-onboarding "Welcome, {name}" toast — purpose sheet owns first-run.
+  function queueWelcomeToast() { /* no-op */ }
+
+  function flushPendingWelcomeToast() { /* no-op */ }
 
   // Park visible location/PWA nudges into the pending queue (classList, not CSS-only)
   // so coach/tour/modal checks and post-close flush stay consistent.
   function suppressSecondaryNudgesForPrimaryOverlay() {
 
-    const locBanner = $('#locationBanner');
-
-    if (locBanner && !locBanner.classList.contains('hidden')) {
-
-      const txt = $('#locationBannerText');
-
-      pendingLocationBannerMessage = (txt && txt.textContent) || t('location.banner');
-
-      hideLocationBanner({ skipWelcomeFlush: true });
-
-    }
+    parkLocationBannerForAttention();
 
     if (pwaNudgeVisible) {
 
@@ -19504,9 +19547,6 @@ document.addEventListener('DOMContentLoaded', function () {
     flushPendingPwaNudge();
 
     flushPendingLocationBanner();
-
-    // Welcome toast waits until location banner is gone (map owns first viewport).
-    if (!isLocationBannerVisible()) flushPendingWelcomeToast();
 
     flushPendingGeoEnableHelp();
 
@@ -21497,7 +21537,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Clear secondary shouts so purpose sheet wins the first-map moment.
+    // Purpose sheet owns the viewport — close pin card + park GPS/PWA/toasts.
+    closeMapPinPopup();
+
     suppressSecondaryNudgesForPrimaryOverlay();
 
     $('#coachMark').classList.remove('hidden');
@@ -21608,6 +21650,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeAllModals();
 
+    closeMapPinPopup();
+
     setNavTab('map');
 
     const steps = getTourSteps().filter((step) => {
@@ -21661,6 +21705,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     closeAllModals();
+
+    // Never stack FAB tip over an open pin card.
+    closeMapPinPopup();
 
     setNavTab('map');
 
@@ -21978,11 +22025,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } catch { /* ignore */ }
 
-    if (demo || ref) return;
+    // Mark seen when FAB tip is intentionally skipped so pin lock can clear.
+    if (demo || ref || isAdmin || isLead || shouldShowHomeHero()) {
 
-    if (isAdmin || isLead) return;
+      safeLocalSet(FAB_SPOT_KEY, '1');
 
-    if (shouldShowHomeHero()) return;
+      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+
+      return;
+
+    }
 
     const coach = $('#coachMark');
 
@@ -22278,8 +22330,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!toast.isConnected) return;
 
+      const afterRemove = () => {
+        // Snackbar gone — may restore parked GPS chip (still gated by pin popup / modals).
+        flushPendingLocationBanner();
+      };
+
       if (instant) {
         toast.remove();
+        afterRemove();
         return;
       }
 
@@ -22288,7 +22346,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      fadeTimer = setTimeout(() => toast.remove(), reduced ? 0 : 220);
+      fadeTimer = setTimeout(() => {
+        toast.remove();
+        afterRemove();
+      }, reduced ? 0 : 220);
 
     };
 
@@ -22321,6 +22382,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typeof act.onClick === 'function') act.onClick();
 
         toast.remove();
+
+        flushPendingLocationBanner();
 
       });
 
@@ -22444,6 +22507,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     container.appendChild(toast);
+
+    // Snackbar / toast owns attention — park GPS chip so it cannot stack under Me too.
+    parkLocationBannerForAttention();
 
     // Action / duration-0 toasts stay until the user taps an action or ×.
     if (!sticky) {
@@ -25241,11 +25307,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!report || report.lat == null || !map) return;
 
+    if (areMapPinsLockedForFirstRun()) return;
+
     refreshReportMarkers();
 
     map.setView([report.lat, report.lng], 16);
 
     setTimeout(() => {
+
+      if (areMapPinsLockedForFirstRun()) return;
 
       const marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(String(reportId));
 
@@ -27408,7 +27478,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (shouldDeferFirstRunNudges()) return;
 
-    if (isPrimaryOverlayBlocking()) {
+    // Yield to pin popup / snackbar — avoid chip + card + toast pile (v316).
+    if (isPrimaryOverlayBlocking() || isSoftNudgeOverlayBlocking()) {
 
       pendingLocationBannerMessage = message || t('location.banner');
 
@@ -27457,7 +27528,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!pendingLocationBannerMessage) return;
 
-    if (isPrimaryOverlayBlocking() || shouldDeferFirstRunNudges()) return;
+    if (isPrimaryOverlayBlocking() || isSoftNudgeOverlayBlocking() || shouldDeferFirstRunNudges()) return;
 
     const msg = pendingLocationBannerMessage;
 
@@ -27475,10 +27546,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     syncLocationBannerChrome();
 
-    // Skip welcome flush when parking for a primary overlay (suppress path).
+    // When parking for a primary overlay, skip FAB/nudge resume (caller flushes later).
     if (opts && opts.skipWelcomeFlush) return;
-
-    flushPendingWelcomeToast();
 
     // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
     if (typeof maybeShowFabSpotlight === 'function') {
@@ -27972,7 +28041,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     marker.on('popupopen', () => {
 
+      // First-run chrome wins — refuse pin cards under purpose / FAB tip.
+      if (areMapPinsLockedForFirstRun()) {
+        setTimeout(() => {
+          try { marker.closePopup(); } catch (_) { /* ignore */ }
+        }, 0);
+        return;
+      }
+
       document.body.classList.add('map-popup-open');
+
+      // Park GPS chip — keep Me-too snackbar if present (toast owns share CTA).
+      parkLocationBannerForAttention();
 
       const el = marker.getPopup() && marker.getPopup().getElement();
 
@@ -27992,6 +28072,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (pathEl) pathEl.classList.remove('marker-active');
 
+      // Restore parked location chip only when toast/modal are also clear.
+      setTimeout(flushSecondaryNudgesAfterOverlay, 0);
+
     });
 
 
@@ -27999,6 +28082,8 @@ document.addEventListener('DOMContentLoaded', function () {
     marker.on('click', (e) => {
 
       L.DomEvent.stopPropagation(e);
+
+      if (areMapPinsLockedForFirstRun()) return;
 
       if (isAdmin && report.status === 'pending') {
 
@@ -28161,7 +28246,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Fallback: reopen if the open pin was briefly removed (viewport cull) then returned.
-    if (reopenId != null) {
+    if (reopenId != null && !areMapPinsLockedForFirstRun()) {
 
       const marker = reportMarkerMap.get(reopenId);
 
@@ -28359,10 +28444,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      // Park welcome before close so flushSecondaryNudgesAfterOverlay can sequence it
-      // after the location banner (map owns first viewport — no toast+banner pile-up).
-      queueWelcomeToast(name);
-
+      // v317: no welcome toast after onboarding — purpose sheet owns first-run copy.
       closeModal('onboarding');
 
       // Land on Map (default tab). Guard + settle absorb sticky-footer → nav ghost taps

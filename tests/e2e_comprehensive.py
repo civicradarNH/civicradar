@@ -5511,7 +5511,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v314" in sw_src
+            "civicradar-v317" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6512,6 +6512,50 @@ async def run_tour_scenarios(s: Suite, browser):
 
     await ctx.close()
 
+    # TR10 — purpose sheet locks pin popups (no pin card under first-run chrome).
+    ctx = await new_ctx(browser, storage={
+        'civicradar_user': default_user(id='tour10'),
+        'mosquiTrackReports': json.dumps([{
+            'id': 'tr10-pin',
+            'reporterId': 'other-tr10',
+            'hazard': 'stagnant-water',
+            'notes': 'tr10 first-run pin lock',
+            'image': '',
+            'ward': WARD,
+            'city': 'mumbai',
+            'lat': 19.0765,
+            'lng': 72.8782,
+            'status': 'pending',
+            'confirmations': 0,
+            'timestamp': '2026-01-01T00:00:00.000Z',
+        }]),
+    })
+    page = await ctx.new_page()
+    await goto_app(page, wait_map=True)
+    try:
+        await page.wait_for_function(
+            '() => !document.getElementById("coachMark").classList.contains("hidden")',
+            timeout=5000,
+        )
+    except Exception:
+        pass
+    coach_up = not await page.evaluate(
+        '() => document.getElementById("coachMark").classList.contains("hidden")'
+    )
+    if coach_up:
+        await page.evaluate('() => window.openReportPopupById && window.openReportPopupById("tr10-pin")')
+        await page.wait_for_timeout(600)
+    still_locked = await page.evaluate(
+        '() => !document.body.classList.contains("map-popup-open")'
+    )
+    s.record(
+        'TR10',
+        'Tour',
+        'Purpose sheet blocks pin popup open',
+        bool(coach_up and still_locked),
+    )
+    await ctx.close()
+
 
 
 
@@ -7158,21 +7202,17 @@ async def run_feedback_scenarios(s: Suite, browser):
 
 
 
-    # FB01: entry points exist (Profile footer + About modal).
-
-    has_profile_entry = await page.evaluate('() => !!document.getElementById("btnProfileFeedback")')
+    # FB01: feedback lives in About (Profile no longer duplicates the entry).
 
     has_about_entry = await page.evaluate('() => !!document.getElementById("btnAboutFeedback")')
 
-    s.record('FB01', 'Feedback', 'Feedback entry points present (Profile + About)',
-
-             has_profile_entry and has_about_entry)
+    s.record('FB01', 'Feedback', 'Feedback entry point present (About)', has_about_entry)
 
 
 
-    # FB02: tapping the Profile entry opens the feedback modal.
+    # FB02: tapping the About entry opens the feedback modal.
 
-    await js_click(page, '#btnProfileFeedback')
+    await js_click(page, '#btnAboutFeedback')
 
     await page.wait_for_timeout(300)
 
@@ -7272,7 +7312,7 @@ async def run_feedback_scenarios(s: Suite, browser):
 
     # FB07: i18n renders (no raw key leakage) — reopen and read the rendered title/submit.
 
-    await js_click(page, '#btnProfileFeedback')
+    await js_click(page, '#btnAboutFeedback')
 
     await page.wait_for_timeout(250)
 
@@ -8162,6 +8202,68 @@ async def run_location_banner_scenarios(s: Suite, browser):
 
     await ctx.close()
 
+    # LB07: pin popup parks location banner (no chip + card + toast pile).
+    ctx = await new_ctx(browser, storage={
+        'civicradar_user': default_user(id='lb07', gpsConsent=False),
+        'civicradar_coach_seen': '1',
+        'civicradar_tour_seen': '1',
+        'civicradar_fab_spot_seen': '1',
+        'civicradar_first_report_done': '1',
+        'civicradar_visit_count': '2',
+        'mosquiTrackReports': json.dumps([{
+            'id': 'lb07-pin',
+            'reporterId': 'other-lb07',
+            'hazard': 'garbage',
+            'notes': 'lb07 park banner',
+            'image': '',
+            'ward': WARD,
+            'city': 'mumbai',
+            'lat': 19.0765,
+            'lng': 72.8782,
+            'status': 'pending',
+            'confirmations': 0,
+            'timestamp': '2026-01-01T00:00:00.000Z',
+        }]),
+    })
+    page = await ctx.new_page()
+    await goto_app(page, wait_map=True)
+    try:
+        await page.wait_for_function(banner_visible(), timeout=8000)
+    except Exception:
+        pass
+    banner_before = await page.evaluate(banner_visible())
+    try:
+        await page.wait_for_function(
+            '() => typeof window.openReportPopupById === "function"',
+            timeout=10000,
+        )
+        await page.evaluate('() => window.refreshReportMarkers && window.refreshReportMarkers()')
+        await page.wait_for_timeout(300)
+        await page.evaluate('() => window.openReportPopupById("lb07-pin")')
+        # openReportPopupById opens after ~450ms setTimeout
+        await page.wait_for_function(
+            '() => document.body.classList.contains("map-popup-open")',
+            timeout=4000,
+        )
+        await page.wait_for_timeout(100)
+    except Exception:
+        pass
+    parked = await page.evaluate("""() => {
+      const banner = document.getElementById('locationBanner');
+      const popupOpen = document.body.classList.contains('map-popup-open');
+      const hidden = !banner || banner.classList.contains('hidden')
+        || getComputedStyle(banner).visibility === 'hidden'
+        || Number(getComputedStyle(banner).opacity || '1') === 0;
+      return { popupOpen, hidden };
+    }""")
+    s.record(
+        'LB07',
+        'LocationBanner',
+        'Pin popup parks / hides location banner',
+        bool(banner_before and parked and parked.get('popupOpen') and parked.get('hidden')),
+    )
+    await ctx.close()
+
 
 
 
@@ -8689,7 +8791,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v314" in sw_src
+            "civicradar-v317" in sw_src
 
             and "'/index.html'" not in sw_src
 

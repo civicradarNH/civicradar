@@ -1110,7 +1110,7 @@
         <button type="button" class="cr-section__toggle" id="btnProfileAccountToggle" aria-expanded="false" aria-controls="profileAccountBody">
           <span class="profile-nav-label">
             <span class="profile-nav-icon profile-nav-icon--support" aria-hidden="true"><i class="ph ph-lifebuoy"></i></span>
-            <span data-i18n="profile.section.account">Account &amp; support</span>
+            <span data-i18n="profile.section.account">App, roles &amp; legal</span>
           </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
@@ -1119,38 +1119,57 @@
         <button type="button" class="btn btn--secondary btn--full hidden" id="btnInstall">
           <i class="ph ph-download-simple"></i> <span data-i18n="profile.install">Install CivicRadar app</span>
         </button>
-        <div class="profile-list-group" role="group" aria-label="App and support">
+        <p class="profile-list-label" id="profileAppTourLabel" data-i18n="profile.section.appTour">App &amp; Tour</p>
+        <div class="profile-list-group" role="group" aria-labelledby="profileAppTourLabel">
           <button type="button" class="btn btn--ghost btn--full" id="btnAbout">
-            <i class="ph ph-info"></i> <span data-i18n="profile.about">About CivicRadar</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-info"></i></span>
+            <span data-i18n="profile.about">About CivicRadar</span>
           </button>
           <button type="button" class="btn btn--ghost btn--full" id="btnReplayTour">
-            <i class="ph ph-compass"></i> <span data-i18n="tour.replay">Replay app tour</span>
-          </button>
-          <button type="button" class="btn btn--ghost btn--full" id="btnProfileFeedback">
-            <i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.menu">Send feedback</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-compass"></i></span>
+            <span data-i18n="tour.replay">Replay app tour</span>
           </button>
         </div>
-        <div class="profile-list-group" role="group" aria-label="Get involved">
+        <p class="profile-list-label" id="profileRolesLabel" data-i18n="profile.section.communityRoles">Community Roles</p>
+        <div class="profile-list-group" role="group" aria-labelledby="profileRolesLabel">
           <button type="button" class="partner-link" id="btnPartnerAccess">
-            <i class="ph ph-buildings"></i> <span data-i18n="profile.partner">Volunteer / NGO login</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-buildings"></i></span>
+            <span data-i18n="profile.partner">Volunteer / NGO login</span>
           </button>
           <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
-            <i class="ph ph-hand-heart"></i> <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-hand-heart"></i></span>
+            <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
           </button>
           <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
-            <i class="ph ph-handshake"></i> <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-handshake"></i></span>
+            <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
           </button>
           <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
-            <i class="ph ph-identification-card"></i> <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
+            <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
           </button>
         </div>
-        <div class="profile-list-group" role="group" aria-label="Legal and account">
-          <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
-          <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
-          <a id="btnPrivacyContact" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance" data-i18n="profile.privacyContact">Privacy / grievance contact</a>
-          <a href="delete-account.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.deleteAccount">Delete account</a>
+        <p class="profile-list-label" id="profileLegalLabel" data-i18n="profile.section.accountLegal">Account &amp; Legal</p>
+        <div class="profile-list-group" role="group" aria-labelledby="profileLegalLabel">
+          <a href="terms.html" target="_blank" rel="noopener noreferrer">
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-file-text"></i></span>
+            <span data-i18n="legal.terms">Terms of Service</span>
+          </a>
+          <a href="privacy.html" target="_blank" rel="noopener noreferrer">
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-shield"></i></span>
+            <span data-i18n="legal.privacy">Privacy Policy</span>
+          </a>
+          <a id="btnPrivacyContact" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance">
+            <span class="profile-row-icon" aria-hidden="true"><i class="ph ph-envelope-simple"></i></span>
+            <span data-i18n="profile.privacyContact">Privacy / grievance contact</span>
+          </a>
+          <a href="delete-account.html" target="_blank" rel="noopener noreferrer">
+            <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-user-minus"></i></span>
+            <span data-i18n="legal.deleteAccount">Delete account</span>
+          </a>
           <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
-            <i class="ph ph-trash"></i> <span data-i18n="profile.deleteData">Delete my data</span>
+            <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-trash"></i></span>
+            <span data-i18n="profile.deleteData">Delete my data</span>
           </button>
         </div>
           </div>
@@ -1689,25 +1708,16 @@
         <a href="official-sources.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.officialSources">Official government sources</a>
       </p>
 
-      <button type="button" class="btn btn--secondary btn--full" id="btnBecomeCoordinator">
-        <i class="ph ph-users-three"></i> <span data-i18n="about.becomeCoord">Become a ward or neighbourhood coordinator</span>
-      </button>
       <button type="button" class="btn btn--secondary btn--full" id="btnContactFounder">
         <i class="ph ph-envelope"></i> <span data-i18n="about.contact">Contact us</span>
       </button>
       <button type="button" class="btn btn--secondary btn--full" id="btnAboutFeedback">
         <i class="ph ph-chat-teardrop-text"></i> <span data-i18n="feedback.menu">Send feedback</span>
       </button>
+      <button type="button" class="btn btn--secondary btn--full" id="btnBecomeCoordinator">
+        <i class="ph ph-users-three"></i> <span data-i18n="about.becomeCoord">Become a ward or neighbourhood coordinator</span>
+      </button>
       <p class="about-map-credits" data-i18n="about.mapCredits">Map data © OpenStreetMap contributors (ODbL). Map powered by Leaflet.</p>
-      <div class="about-legal">
-        <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
-        <span aria-hidden="true">·</span>
-        <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.terms">Terms of Service</a>
-        <span aria-hidden="true">·</span>
-        <a href="official-sources.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.officialSources">Official sources</a>
-        <span aria-hidden="true">·</span>
-        <a href="delete-account.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.deleteAccount">Delete account</a>
-      </div>
       <p class="about-version" id="aboutVersion" aria-live="polite"></p>
       <button type="button" class="btn btn--ghost btn--full" id="btnAboutClose" data-i18n="about.close">Close</button>
     </div>
