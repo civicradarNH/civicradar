@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v313';
+  const CIVIC_APP_VERSION = 'v314';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -362,6 +362,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const COACH_KEY = 'civicradar_coach_seen';
 
   const TOUR_KEY = 'civicradar_tour_seen';
+
+  const FAB_SPOT_KEY = 'civicradar_fab_spot_seen';
 
   const HERO_DISMISSED_KEY = 'civicradar_hero_dismissed';
 
@@ -2845,13 +2847,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'Report it',
 
-      'coach.step': 'Quick start · 30 seconds',
+      'coach.step': 'Your ward map',
 
-      'coach.title': 'Welcome to your ward map',
+      'coach.title': 'See hazards. Snap. Alert neighbours.',
 
-      'coach.body': 'Open hazards show here — tap Report when you spot one.',
+      'coach.body': 'Pins are hazards neighbours reported — tap Report when you spot one.',
 
       'coach.got': 'Got it',
+
+      'purpose.kicker': 'Your ward map',
+
+      'purpose.title': 'See hazards. Snap. Alert neighbours.',
+
+      'purpose.body': 'Pins are hazards neighbours reported — tap Report when you spot one.',
+
+      'purpose.got': 'Got it',
+
+      'purpose.report': 'Report a hazard',
+
+      'purpose.stepMap': 'Map',
+
+      'purpose.stepSnap': 'Snap',
+
+      'purpose.stepNeighbours': 'Neighbours',
+
+      'fabSpot.step': 'Tip',
+
+      'fabSpot.title': 'Report a hazard',
+
+      'fabSpot.body': 'Tap Report when you see a hazard — stagnant water, garbage, a pothole, or a dark streetlight.',
 
       'tour.skip': 'Skip',
 
@@ -3268,13 +3292,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} reports — keep going!',
 
-      'map.empty': 'No pins in {ward} yet — be the first.',
+      'map.empty': 'Be the first pin in {ward}.',
 
-      'map.emptyHint': 'It takes about 30 seconds.',
+      'map.emptyHint': 'Spot a hazard, snap a photo — neighbours see it in about 30 seconds.',
 
-      'map.emptyAction': 'Report the first one',
+      'map.emptyAction': 'Report the first hazard',
 
-      'map.emptyShare': 'Invite your neighbours on WhatsApp',
+      'map.emptyShare': 'Invite neighbours on WhatsApp',
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open. Report one, or rally your street.',
 
@@ -5339,13 +5363,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'रिपोर्ट',
 
-      'coach.step': 'शुरुआत · 30 सेकंड',
+      'coach.step': 'आपका वार्ड नक्शा',
 
-      'coach.title': 'आपके वार्ड के नक्शे में आपका स्वागत है',
+      'coach.title': 'खतरा देखें। फोटो लें। पड़ोसियों को बताएँ।',
 
-      'coach.body': 'खुले खतरे यहाँ दिखते हैं — देखें तो Report दबाएँ।',
+      'coach.body': 'पिन = पड़ोसियों द्वारा बताए खतरे — दिखे तो Report दबाएँ।',
 
-      'coach.got': 'चलो शुरू करें',
+      'coach.got': 'समझ गया',
+
+      'purpose.kicker': 'आपका वार्ड नक्शा',
+
+      'purpose.title': 'खतरा देखें। फोटो लें। पड़ोसियों को बताएँ।',
+
+      'purpose.body': 'पिन = पड़ोसियों द्वारा बताए खतरे — दिखे तो Report दबाएँ।',
+
+      'purpose.got': 'समझ गया',
+
+      'purpose.report': 'खतरा रिपोर्ट करें',
+
+      'purpose.stepMap': 'नक्शा',
+
+      'purpose.stepSnap': 'फोटो',
+
+      'purpose.stepNeighbours': 'पड़ोसी',
+
+      'fabSpot.step': 'टिप',
+
+      'fabSpot.title': 'खतरा रिपोर्ट करें',
+
+      'fabSpot.body': 'खतरा दिखे तो Report दबाएँ — रुका पानी, कचरा, गड्ढा, या अँधेरी स्ट्रीटलाइट।',
 
       'tour.skip': 'छोड़ें',
 
@@ -5764,13 +5810,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
 
-      'map.empty': '{ward} में अभी कोई पिन नहीं — पहले आप बनें।',
+      'map.empty': '{ward} में पहले पिन आप लगाएँ।',
 
-      'map.emptyHint': 'इसमें करीब 30 सेकंड लगते हैं।',
+      'map.emptyHint': 'खतरा देखें, फोटो लें — करीब 30 सेकंड में पड़ोसी देखेंगे।',
 
-      'map.emptyAction': 'पहली रिपोर्ट करें',
+      'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
 
-      'map.emptyShare': 'WhatsApp पर अपने पड़ोसियों को बुलाएँ',
+      'map.emptyShare': 'WhatsApp पर पड़ोसियों को बुलाएँ',
 
       'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले। एक रिपोर्ट करें, या गली जुटाएँ।',
 
@@ -7833,13 +7879,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'नोंदवा',
 
-      'coach.step': 'सुरुवात · 30 सेकंद',
+      'coach.step': 'तुमचा वॉर्ड नकाशा',
 
-      'coach.title': 'तुमच्या वॉर्ड नकाशात स्वागत आहे',
+      'coach.title': 'धोका पहा. फोटो काढा. शेजाऱ्यांना कळवा.',
 
-      'coach.body': 'उघडे धोके इथे दिसतात — दिसले तर Report दाबा.',
+      'coach.body': 'पिन = शेजाऱ्यांनी नोंदवलेले धोके — दिसले तर Report दाबा.',
 
-      'coach.got': 'चला सुरू करू',
+      'coach.got': 'समजले',
+
+      'purpose.kicker': 'तुमचा वॉर्ड नकाशा',
+
+      'purpose.title': 'धोका पहा. फोटो काढा. शेजाऱ्यांना कळवा.',
+
+      'purpose.body': 'पिन = शेजाऱ्यांनी नोंदवलेले धोके — दिसले तर Report दाबा.',
+
+      'purpose.got': 'समजले',
+
+      'purpose.report': 'धोका नोंदवा',
+
+      'purpose.stepMap': 'नकाशा',
+
+      'purpose.stepSnap': 'फोटो',
+
+      'purpose.stepNeighbours': 'शेजारी',
+
+      'fabSpot.step': 'टीप',
+
+      'fabSpot.title': 'धोका नोंदवा',
+
+      'fabSpot.body': 'धोका दिसला तर Report दाबा — साचलेले पाणी, कचरा, खड्डा किंवा अंधारी स्ट्रीटलाइट.',
 
       'tour.skip': 'वगळा',
 
@@ -8258,13 +8326,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} रिपोर्ट — सुरू ठेवा!',
 
-      'map.empty': '{ward} मध्ये अजून pin नाही — पहिले तुम्ही व्हा.',
+      'map.empty': '{ward} मध्ये पहिला पिन तुम्ही लावा.',
 
-      'map.emptyHint': 'यासाठी सुमारे 30 सेकंद लागतात.',
+      'map.emptyHint': 'धोका पहा, फोटो काढा — सुमारे 30 सेकंदांत शेजारी पाहतील.',
 
-      'map.emptyAction': 'पहिली नोंद करा',
+      'map.emptyAction': 'पहिला धोका नोंदवा',
 
-      'map.emptyShare': 'WhatsApp वर तुमच्या शेजाऱ्यांना बोलवा',
+      'map.emptyShare': 'WhatsApp वर शेजाऱ्यांना बोलावा',
 
       'map.emptyRival': '{ward} विरुद्ध {rival} — {pending} उघडे. एक रिपोर्ट करा, किंवा गल्ली गोळा करा.',
 
@@ -10326,13 +10394,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'રિપોર્ટ',
 
-      'coach.step': 'શરૂઆત · 30 સેકંડ',
+      'coach.step': 'તમારો વોર્ડ નકશો',
 
-      'coach.title': 'તમારા વોર્ડના નકશામાં આપનું સ્વાગત છે',
+      'coach.title': 'જોખમ જુઓ. ફોટો લો. પડોશીઓને કહો.',
 
-      'coach.body': 'ખુલ્લા જોખમો અહીં દેખાય છે — જુઓ તો Report દબાવો.',
+      'coach.body': 'પિન = પડોશીઓએ નોંધેલ જોખમો — જુઓ તો Report દબાવો.',
 
-      'coach.got': 'ચાલો શરૂ કરીએ',
+      'coach.got': 'સમજાઈ ગયું',
+
+      'purpose.kicker': 'તમારો વોર્ડ નકશો',
+
+      'purpose.title': 'જોખમ જુઓ. ફોટો લો. પડોશીઓને કહો.',
+
+      'purpose.body': 'પિન = પડોશીઓએ નોંધેલ જોખમો — જુઓ તો Report દબાવો.',
+
+      'purpose.got': 'સમજાઈ ગયું',
+
+      'purpose.report': 'જોખમ રિપોર્ટ કરો',
+
+      'purpose.stepMap': 'નકશો',
+
+      'purpose.stepSnap': 'ફોટો',
+
+      'purpose.stepNeighbours': 'પડોશી',
+
+      'fabSpot.step': 'ટિપ',
+
+      'fabSpot.title': 'જોખમ રિપોર્ટ કરો',
+
+      'fabSpot.body': 'જોખમ દેખાય તો Report દબાવો — ભરાયેલું પાણી, કચરો, ખાડો કે અંધારી સ્ટ્રીટલાઇટ.',
 
       'tour.skip': 'છોડો',
 
@@ -10751,13 +10841,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
 
-      'map.empty': '{ward} માં હજુ કોઈ પિન નથી — પહેલા તમે બનો.',
+      'map.empty': '{ward} માં પહેલી પિન તમે મૂકો.',
 
-      'map.emptyHint': 'તેમાં લગભગ 30 સેકંડ લાગે છે.',
+      'map.emptyHint': 'જોખમ જુઓ, ફોટો લો — લગભગ 30 સેકંડમાં પડોશીઓ જોશે.',
 
-      'map.emptyAction': 'પહેલી ફરિયાદ નોંધો',
+      'map.emptyAction': 'પહેલું જોખમ રિપોર્ટ કરો',
 
-      'map.emptyShare': 'WhatsApp પર તમારા પડોશીઓને બોલાવો',
+      'map.emptyShare': 'WhatsApp પર પડોશીઓને બોલાવો',
 
       'map.emptyRival': '{ward} વિરુદ્ધ {rival} — {pending} ખુલ્લા સ્પોટ. એક નોંધો, અથવા તમારી શેરીને સાથે લાવો.',
 
@@ -14910,7 +15000,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       SUCCESS_STORIES_SEEN_KEY,
 
-      HIDDEN_REPORTS_KEY, MUTED_REPORTERS_KEY, WEEK_BONUS_KEY, INTEREST_KEY, COACH_KEY, TOUR_KEY,
+      HIDDEN_REPORTS_KEY, MUTED_REPORTERS_KEY, WEEK_BONUS_KEY, INTEREST_KEY, COACH_KEY, TOUR_KEY, FAB_SPOT_KEY,
 
       PLEDGE_STATUS_SNAPSHOT_KEY, PLEDGE_POINTS_CREDITED_KEY,
 
@@ -19462,6 +19552,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (localStorage.getItem(HERO_DISMISSED_KEY)) return false;
 
+      // v314: purpose sheet owns first-run explainer before the floating hero card.
+      if (!localStorage.getItem(COACH_KEY)) return false;
+
     } catch { return false; }
 
     const demo = new URLSearchParams(location.search).get('demo');
@@ -19600,7 +19693,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setTimeout(() => {
 
-      maybeStartTour();
+      maybeShowFabSpotlight();
 
       flushSecondaryNudgesAfterOverlay();
 
@@ -19630,7 +19723,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const coachUp = !!(coachEl && !coachEl.classList.contains('hidden'));
 
-    const visible = !!(show && !heroUp && !coachUp);
+    const tourEl = $('#tourOverlay');
+
+    const tourUp = !!(tourEl && !tourEl.classList.contains('hidden'));
+
+    const visible = !!(show && !heroUp && !coachUp && !tourUp);
 
     el.classList.toggle('hidden', !visible);
 
@@ -21400,32 +21497,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Clear secondary shouts so coach wins, and so maybeStartTour isn't blocked by
-    // a still-mounted location banner (it checks classList, not CSS visibility).
+    // Clear secondary shouts so purpose sheet wins the first-map moment.
     suppressSecondaryNudgesForPrimaryOverlay();
 
     $('#coachMark').classList.remove('hidden');
 
-    // Empty-ward sheet says the same "report first" job — coach wins until dismissed.
+    // Empty-ward waits until purpose (+ FAB spotlight) finish.
     if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
 
   }
 
 
 
-  function dismissCoachMark() {
+  function dismissCoachMark(opts) {
+
+    opts = opts || {};
 
     safeLocalSet(COACH_KEY, '1');
 
+    try { safeLocalSet(HERO_DISMISSED_KEY, '1'); } catch {}
+
     $('#coachMark').classList.add('hidden');
+
+    if (typeof updateHomeHero === 'function') updateHomeHero();
+
+    // Report CTA: skip FAB spotlight — user is already entering the report flow.
+    if (opts.openReport) {
+
+      safeLocalSet(FAB_SPOT_KEY, '1');
+
+      setTimeout(() => {
+
+        flushSecondaryNudgesAfterOverlay();
+
+        if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+
+        if (typeof window.openReportModal === 'function') window.openReportModal(true);
+
+      }, 200);
+
+      return;
+
+    }
 
     setTimeout(() => {
 
-      maybeStartTour();
+      maybeShowFabSpotlight();
 
       flushSecondaryNudgesAfterOverlay();
 
-      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+      if (localStorage.getItem(FAB_SPOT_KEY) && typeof updateMapEmptyCta === 'function') {
+
+        updateMapEmptyCta();
+
+      }
 
     }, 350);
 
@@ -21495,11 +21620,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!steps.length) return;
 
-    tourState = { steps, index: 0, lastFocus: document.activeElement };
+    tourState = { steps, index: 0, lastFocus: document.activeElement, fabSpot: false };
 
     const overlay = $('#tourOverlay');
 
     overlay.classList.remove('hidden');
+
+    overlay.classList.remove('tour--fab-spot');
 
     document.addEventListener('keydown', onTourKeydown, true);
 
@@ -21515,6 +21642,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function startFabSpotlight() {
+
+    if (tourState) return;
+
+    if (localStorage.getItem(FAB_SPOT_KEY)) return;
+
+    const fab = $('#btnCamera');
+
+    if (!isTourElementVisible(fab)) {
+
+      safeLocalSet(FAB_SPOT_KEY, '1');
+
+      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+
+      return;
+
+    }
+
+    closeAllModals();
+
+    setNavTab('map');
+
+    suppressSecondaryNudgesForPrimaryOverlay();
+
+    tourState = {
+
+      steps: [{ target: '#btnCamera', titleKey: 'fabSpot.title', bodyKey: 'fabSpot.body' }],
+
+      index: 0,
+
+      lastFocus: document.activeElement,
+
+      fabSpot: true,
+
+    };
+
+    const overlay = $('#tourOverlay');
+
+    overlay.classList.remove('hidden');
+
+    overlay.classList.add('tour--fab-spot');
+
+    document.addEventListener('keydown', onTourKeydown, true);
+
+    window.addEventListener('resize', positionTour);
+
+    window.addEventListener('scroll', positionTour, true);
+
+    renderTourStep();
+
+    if (window.CivicAnalytics) CivicAnalytics.track('fab_spot_start', {});
+
+  }
+
+
+
   function renderTourStep() {
 
     if (!tourState) return;
@@ -21525,13 +21708,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const last = index === steps.length - 1;
 
-    $('#tourStep').textContent = `${index + 1} / ${steps.length}`;
+    if (tourState.fabSpot) {
+
+      $('#tourStep').textContent = t('fabSpot.step');
+
+      $('#btnTourNext').textContent = t('purpose.got');
+
+      const skip = $('#btnTourSkip');
+
+      if (skip) skip.textContent = t('tour.skip');
+
+    } else {
+
+      $('#tourStep').textContent = `${index + 1} / ${steps.length}`;
+
+      $('#btnTourNext').textContent = last ? t('tour.done') : t('tour.next');
+
+    }
 
     $('#tourTitle').textContent = t(step.titleKey);
 
     $('#tourBody').textContent = corpCopy(step.bodyKey);
-
-    $('#btnTourNext').textContent = last ? t('tour.done') : t('tour.next');
 
     positionTour();
 
@@ -21635,13 +21832,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!tourState) return;
 
-    safeLocalSet(TOUR_KEY, '1');
+    const wasFabSpot = !!tourState.fabSpot;
+
+    if (wasFabSpot) {
+
+      safeLocalSet(FAB_SPOT_KEY, '1');
+
+    } else {
+
+      safeLocalSet(TOUR_KEY, '1');
+
+    }
 
     const overlay = $('#tourOverlay');
 
     overlay.classList.add('hidden');
 
     overlay.classList.remove('tour--centered');
+
+    overlay.classList.remove('tour--fab-spot');
 
     document.removeEventListener('keydown', onTourKeydown, true);
 
@@ -21659,9 +21868,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (window.CivicAnalytics) CivicAnalytics.track(completed ? 'tour_complete' : 'tour_skip');
+    if (window.CivicAnalytics) {
+
+      if (wasFabSpot) CivicAnalytics.track(completed ? 'fab_spot_complete' : 'fab_spot_skip');
+
+      else CivicAnalytics.track(completed ? 'tour_complete' : 'tour_skip');
+
+    }
 
     flushSecondaryNudgesAfterOverlay();
+
+    if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
 
   }
 
@@ -21723,11 +21940,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Auto-show path: once only, never for demo/referral entries or coordinators.
+  // Full interactive tour is opt-in (Profile replay / home hero tour). First-run
+  // auto path is purpose sheet → FAB spotlight (v314), not the 3-step tour.
 
   function maybeStartTour() {
 
-    if (localStorage.getItem(TOUR_KEY)) return;
+    maybeShowFabSpotlight();
+
+  }
+
+
+
+  function maybeShowFabSpotlight() {
+
+    if (localStorage.getItem(FAB_SPOT_KEY)) {
+
+      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+
+      return;
+
+    }
+
+    // Purpose sheet must finish first (COACH_KEY).
+    if (!localStorage.getItem(COACH_KEY)) return;
 
     let demo = null;
 
@@ -21749,15 +21984,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (shouldShowHomeHero()) return;
 
-    // Don't stack the interactive tour over the location-permission banner —
-    // it isn't part of isAnyBannerVisible's coordinated set (that only covers
-    // the dismissible top-of-map banners), so without this the tour's own
-    // "Welcome to your ward map" card visually collided with it on first run.
+    const coach = $('#coachMark');
+
+    if (coach && !coach.classList.contains('hidden')) return;
+
     const locBanner = $('#locationBanner');
 
     if (locBanner && !locBanner.classList.contains('hidden')) return;
 
-    startTour();
+    if (overlays.tos && overlays.tos.classList.contains('open')) return;
+
+    if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return;
+
+    if (overlays.report && overlays.report.classList.contains('open')) return;
+
+    startFabSpotlight();
 
   }
 
@@ -25975,6 +26216,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       safeLocalSet(COACH_KEY, '1');
 
+      safeLocalSet(FAB_SPOT_KEY, '1');
+
       if (!user.tosAccepted) user.tosAccepted = true;
 
       if (!user.analyticsConsent) user.analyticsConsent = true;
@@ -26025,7 +26268,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const restoredReportDraft = restoreReportDraftIfNeeded();
 
-      if (!restoredReportDraft && !shouldShowHomeHero()) setTimeout(showCoachMark, 600);
+      if (!restoredReportDraft && !shouldShowHomeHero()) {
+
+        setTimeout(() => {
+
+          if (!localStorage.getItem(COACH_KEY)) showCoachMark();
+
+          else maybeShowFabSpotlight();
+
+        }, 600);
+
+      }
 
       if (!restoredReportDraft && !shouldDeferFirstRunNudges()) {
 
@@ -27227,6 +27480,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     flushPendingWelcomeToast();
 
+    // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
+    if (typeof maybeShowFabSpotlight === 'function') {
+
+      setTimeout(maybeShowFabSpotlight, 200);
+
+    }
+
   }
 
 
@@ -28143,7 +28403,17 @@ document.addEventListener('DOMContentLoaded', function () {
       // schedules flushSecondaryNudgesAfterOverlay (banner-aware). Do not flush
       // toast here — that stacked welcome + location banner on first map view.
 
-      if (!shouldShowHomeHero()) setTimeout(showCoachMark, 500);
+      if (!shouldShowHomeHero()) {
+
+        setTimeout(() => {
+
+          if (!localStorage.getItem(COACH_KEY)) showCoachMark();
+
+          else maybeShowFabSpotlight();
+
+        }, 500);
+
+      }
 
     });
 
@@ -28268,7 +28538,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#btnDismissCoach').addEventListener('click', dismissCoachMark);
+    $('#btnDismissCoach').addEventListener('click', () => dismissCoachMark());
+
+    const btnPurposeReport = $('#btnPurposeReport');
+
+    if (btnPurposeReport) {
+
+      btnPurposeReport.addEventListener('click', () => dismissCoachMark({ openReport: true }));
+
+    }
 
     const coachMark = $('#coachMark');
 
@@ -28891,6 +29169,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     $('#btnCamera').addEventListener('click', () => {
+      if (tourState && tourState.fabSpot) endTour(true);
       Haptics.tap();
       window.openReportModal(true);
     });

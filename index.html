@@ -199,9 +199,9 @@
       <div class="map-empty-cta__icon-wrap" aria-hidden="true">
         <img src="assets/brand/empty-pin.svg" alt="" width="84" height="84">
       </div>
-      <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</h2>
-      <p class="map-empty-cta__hint" data-i18n="map.emptyHint">It takes about 30 seconds.</p>
-      <button type="button" class="btn btn--primary btn--full" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first one</button>
+      <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">Be the first pin in your ward.</h2>
+      <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Spot a hazard, snap a photo — neighbours see it in about 30 seconds.</p>
+      <button type="button" class="btn btn--primary btn--full" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first hazard</button>
       <button type="button" class="map-empty-cta__share hidden" id="btnMapEmptyShare">
         <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
         <span data-i18n="map.emptyShare">Invite neighbours on WhatsApp</span>
@@ -266,14 +266,31 @@
     <span class="fab-label" data-i18n="fab.report">Report</span>
   </button>
 
-  <!-- First-run coach mark (Citizen persona) — bottom sheet -->
-  <div id="coachMark" class="coach-mark hidden" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
+  <!-- First-run purpose sheet (Citizen) — one-shot after onboarding → Map -->
+  <div id="coachMark" class="coach-mark hidden" role="dialog" aria-modal="true" aria-labelledby="coachTitle" aria-describedby="purposeBody">
     <div class="coach-mark__card" tabindex="-1">
       <div class="coach-mark__handle" aria-hidden="true"></div>
-      <span class="coach-mark__step" data-i18n="coach.step">Quick start · 30 seconds</span>
-      <h3 id="coachTitle" data-i18n="coach.title">Welcome to your ward map</h3>
-      <p data-i18n="coach.body">Open hazards show here — tap Report when you spot one.</p>
-      <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="coach.got">Got it</button>
+      <span class="coach-mark__step" data-i18n="purpose.kicker">Your ward map</span>
+      <h3 id="coachTitle" data-i18n="purpose.title">See hazards. Snap. Alert neighbours.</h3>
+      <p id="purposeBody" data-i18n="purpose.body">Pins are hazards neighbours reported — tap Report when you spot one.</p>
+      <ul class="purpose-steps" aria-hidden="true">
+        <li>
+          <span class="purpose-steps__icon"><i class="ph ph-map-trifold" aria-hidden="true"></i></span>
+          <span data-i18n="purpose.stepMap">Map</span>
+        </li>
+        <li>
+          <span class="purpose-steps__icon"><i class="ph ph-camera" aria-hidden="true"></i></span>
+          <span data-i18n="purpose.stepSnap">Snap</span>
+        </li>
+        <li>
+          <span class="purpose-steps__icon"><i class="ph ph-users-three" aria-hidden="true"></i></span>
+          <span data-i18n="purpose.stepNeighbours">Neighbours</span>
+        </li>
+      </ul>
+      <div class="coach-mark__actions">
+        <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="purpose.got">Got it</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnPurposeReport" data-i18n="purpose.report">Report a hazard</button>
+      </div>
     </div>
   </div>
 

@@ -2099,6 +2099,8 @@ async def run_edge_tests(s: Suite, browser):
 
         'civicradar_tour_seen': '1',
 
+        'civicradar_fab_spot_seen': '1',
+
     })
 
     page = await ctx.new_page()
@@ -5151,6 +5153,8 @@ async def run_extended_scenarios(s: Suite, browser):
 
         'civicradar_tour_seen': '1',
 
+        'civicradar_fab_spot_seen': '1',
+
         'mosquiTrackReports': '[]',
 
     })
@@ -5507,7 +5511,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v313" in sw_src
+            "civicradar-v314" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6269,6 +6273,8 @@ async def run_tour_scenarios(s: Suite, browser):
 
         'civicradar_tour_seen': '1',
 
+        'civicradar_fab_spot_seen': '1',
+
     })
 
     page = await ctx.new_page()
@@ -6289,7 +6295,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
 
 
-    # TR03/TR04/TR06 — first-run: coach -> tour, complete sets flag, no re-show on reload.
+    # TR03/TR04/TR06 — first-run: purpose sheet -> FAB spotlight, complete sets flag, no re-show on reload.
 
     # NB: coach gates on a *truthy* flag, so '0' would suppress it — omit the key entirely.
 
@@ -6327,9 +6333,11 @@ async def run_tour_scenarios(s: Suite, browser):
 
     step_txt = await page.evaluate('() => document.getElementById("tourStep").textContent || ""')
 
-    s.record('TR03', 'Tour', 'Tour auto-shows after coach explainer on first run',
+    fab_title = await page.evaluate('() => document.getElementById("tourTitle").textContent || ""')
 
-             tour_open and step_txt.strip().startswith('1 /'))
+    s.record('TR03', 'Tour', 'FAB spotlight auto-shows after purpose sheet on first run',
+
+             tour_open and ('Report' in fab_title or 'hazard' in fab_title.lower() or step_txt.strip() in ('Tip', '1 / 1') or step_txt.strip().startswith('1 /')))
 
 
 
@@ -6355,11 +6363,11 @@ async def run_tour_scenarios(s: Suite, browser):
 
         '() => document.getElementById("tourOverlay").classList.contains("hidden") '
 
-        '&& localStorage.getItem("civicradar_tour_seen") === "1"'
+        '&& localStorage.getItem("civicradar_fab_spot_seen") === "1"'
 
     )
 
-    s.record('TR04', 'Tour', 'Completing tour hides overlay + sets seen flag', completed)
+    s.record('TR04', 'Tour', 'Completing FAB spotlight hides overlay + sets fab_spot flag', completed)
 
 
 
@@ -6410,11 +6418,11 @@ async def run_tour_scenarios(s: Suite, browser):
 
             '() => document.getElementById("tourOverlay").classList.contains("hidden") '
 
-            '&& localStorage.getItem("civicradar_tour_seen") === "1"'
+            '&& localStorage.getItem("civicradar_fab_spot_seen") === "1"'
 
         )
 
-    s.record('TR05', 'Tour', 'Skip hides tour + sets seen flag', skipped)
+    s.record('TR05', 'Tour', 'Skip hides FAB spotlight + sets fab_spot flag', skipped)
 
     await ctx.close()
 
@@ -6429,6 +6437,8 @@ async def run_tour_scenarios(s: Suite, browser):
         'civicradar_coach_seen': '1',
 
         'civicradar_tour_seen': '1',
+
+        'civicradar_fab_spot_seen': '1',
 
     })
 
@@ -8010,6 +8020,8 @@ async def run_location_banner_scenarios(s: Suite, browser):
 
         'civicradar_tour_seen': '1',
 
+        'civicradar_fab_spot_seen': '1',
+
         'civicradar_first_report_done': '1',
 
         'civicradar_visit_count': '2',
@@ -8108,6 +8120,8 @@ async def run_location_banner_scenarios(s: Suite, browser):
 
         'civicradar_tour_seen': '1',
 
+        'civicradar_fab_spot_seen': '1',
+
     })
 
     page = await ctx.new_page()
@@ -8175,6 +8189,8 @@ async def run_official_channels_scenarios(s: Suite, browser):
             'civicradar_coach_seen': '1',
 
             'civicradar_tour_seen': '1',
+
+        'civicradar_fab_spot_seen': '1',
 
         })
 
@@ -8247,6 +8263,8 @@ async def run_official_channels_scenarios(s: Suite, browser):
         'civicradar_coach_seen': '1',
 
         'civicradar_tour_seen': '1',
+
+        'civicradar_fab_spot_seen': '1',
 
         'mosquiTrackReports': json.dumps([{
 
@@ -8337,6 +8355,8 @@ async def run_home_hero_scenarios(s: Suite, browser):
         'civicradar_coach_seen': '1',
 
         'civicradar_tour_seen': '1',
+
+        'civicradar_fab_spot_seen': '1',
 
     })
 
@@ -8453,7 +8473,12 @@ async def run_smoke_extended_tests(s: Suite, browser):
     IDs: RP01-RP08, RP21, RP26, UX04-UX05, SW06, IOS01-IOS04 (see SMOKE_TEST_IDS).
     """
 
-    ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='rp-smoke'), 'civicradar_coach_seen': '1'})
+    ctx = await new_ctx(browser, storage={
+        'civicradar_user': default_user(id='rp-smoke'),
+        'civicradar_coach_seen': '1',
+        'civicradar_fab_spot_seen': '1',
+        'civicradar_tour_seen': '1',
+    })
 
     page = await ctx.new_page()
 
@@ -8664,7 +8689,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v313" in sw_src
+            "civicradar-v314" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8898,7 +8923,7 @@ async def main():
 
         '`sw.js` + `tests/e2e_comprehensive.py`: v79 cache bump; SW06 → v79',
 
-        '`index.html` + `js/app.js` + `css/styles.css`: first-run interactive coach-mark tour (v80) — skippable spotlight guided tour (Map → Report FAB → Me too → Profile) sequenced right after the v79 coachSpotTip explainer; shown once (`civicradar_tour_seen`), re-watchable via a "Replay app tour" entry in Profile; spotlight + bubble positioned from bounding rects, keyboard operable (Tab/Enter/Esc), focus-managed, backdrop/ESC dismiss, prefers-reduced-motion respected; suppressed for demo/referral/returning users; localized en/hi/mr/gu (TR01–TR09)',
+        '`index.html` + `js/app.js` + `css/styles.css`: first-run purpose sheet + FAB spotlight (v314); full tour still replayable — skippable spotlight guided tour (Map → Report FAB → Me too → Profile) sequenced right after the v79 coachSpotTip explainer; shown once (`civicradar_tour_seen`), re-watchable via a "Replay app tour" entry in Profile; spotlight + bubble positioned from bounding rects, keyboard operable (Tab/Enter/Esc), focus-managed, backdrop/ESC dismiss, prefers-reduced-motion respected; suppressed for demo/referral/returning users; localized en/hi/mr/gu (TR01–TR09)',
 
         '`sw.js` + `tests/e2e_comprehensive.py`: v80 cache bump; SW06 → v80',
 

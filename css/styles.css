@@ -760,12 +760,76 @@ body.app-booting {
   font-size: var(--fs-base);
   color: var(--ink-600);
   line-height: 1.45;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
 
-.coach-mark__card .btn--primary {
+.purpose-steps {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 12px 8px;
+  background: var(--canvas, #F8FAFC);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.purpose-steps li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-600);
+  line-height: 1.25;
+}
+
+.purpose-steps__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.purpose-steps__icon i {
+  font-size: var(--fs-lg);
+  line-height: 1;
+}
+
+.coach-mark__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coach-mark__card .btn--primary,
+.coach-mark__card .btn--ghost {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
+  margin: 0;
+}
+
+.coach-mark__card .btn--ghost {
+  color: var(--ink-600);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.coach-mark__card .btn--ghost:hover {
+  color: var(--ink-900);
+  background: var(--canvas, #F8FAFC);
 }
 
 @keyframes sheet-rise-in {
@@ -775,6 +839,17 @@ body.app-booting {
 
 @media (prefers-reduced-motion: reduce) {
   .coach-mark__card { animation: none; }
+}
+
+/* FAB spotlight (one-shot) — softer hole; no neon glow */
+.tour--fab-spot .tour__spotlight {
+  border-radius: var(--radius-lg);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.45), 0 0 0 3px rgba(99, 102, 241, 0.28);
+}
+
+.tour--fab-spot .tour__step {
+  color: var(--ink-400);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2052,11 +2127,17 @@ body.manual-pin-mode #map .leaflet-container {
   justify-content: center;
   width: auto;
   height: auto;
-  margin: 0 0 12px;
+  margin: 0 auto 14px;
   border-radius: 50%;
   background: none;
   color: var(--primary);
   box-shadow: none;
+}
+
+.map-empty-cta__icon-wrap img {
+  display: block;
+  width: 88px;
+  height: 88px;
 }
 
 .map-empty-cta__icon-wrap i {
@@ -2068,8 +2149,10 @@ body.manual-pin-mode #map .leaflet-container {
   font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--ink-900);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-align: center;
 }
 
 .map-empty-cta__hint {
@@ -2077,7 +2160,11 @@ body.manual-pin-mode #map .leaflet-container {
   font-weight: 400;
   color: var(--ink-600);
   line-height: 1.45;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
+  text-align: center;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .map-empty-cta .btn--primary {
