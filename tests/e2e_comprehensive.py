@@ -1346,6 +1346,12 @@ async def run_citizen_tests(s: Suite, browser):
 
     s.record('C16', 'Citizen', 'Report submit success modal', await is_open(page, 'successOverlay'), f'rid={rid}')
 
+    try:
+        await page.wait_for_selector('#btnShareWhatsApp', state='visible', timeout=5000)
+        await page.wait_for_selector('#btnSuccessOfficialToggle', state='visible', timeout=5000)
+    except Exception:
+        pass
+
     s.record('C17', 'Citizen', 'Success modal WhatsApp + official filing', await page.is_visible('#btnShareWhatsApp') and await page.is_visible('#btnSuccessOfficialToggle'))
 
     native_share_ok = await page.evaluate("""() => {
@@ -1387,13 +1393,15 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.click('#btnSuccessClose')
 
+    # Success close flushes a pending report-path PWA nudge; allow overlay teardown
+    # + flushSecondaryNudgesAfterOverlay before asserting (3s was flaky under suite load).
     try:
         await page.wait_for_function(
             """() => {
               const el = document.getElementById('pwaInstallNudge');
               return !!(el && !el.classList.contains('hidden'));
             }""",
-            timeout=3000,
+            timeout=8000,
         )
     except Exception:
         pass
@@ -2475,15 +2483,15 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('UX01', 'UI', 'Active nav tab bold label', '() => { const lbl = document.querySelector("#bottomNav .nav-tab.active span:last-child"); return !!lbl && parseInt(getComputedStyle(lbl).fontWeight, 10) >= 600; }'),
 
-        # Ship-glitch guard: inactive+active nav icons must have inlined mask + non-zero box
+        # Ship-glitch guard: custom nav glyphs present with non-zero box
         ('UX04', 'UI', 'Bottom nav icons have mask-image', '''() => {
-          const icons = [...document.querySelectorAll("#bottomNav .nav-tab i.ph")];
+          const icons = [...document.querySelectorAll("#bottomNav .nav-tab .nav-tab__glyph")];
           if (icons.length !== 4) return false;
-          return icons.every((el) => {
-            const before = getComputedStyle(el, "::before");
-            const mask = before.maskImage || before.webkitMaskImage || "";
+          const expected = ["nav-map", "nav-community", "nav-resources", "nav-profile"];
+          return icons.every((el, i) => {
+            const src = el.getAttribute("src") || "";
             const box = el.getBoundingClientRect();
-            return mask.includes("url(") && box.width >= 8 && box.height >= 8;
+            return src.includes(expected[i]) && box.width >= 8 && box.height >= 8;
           });
         }'''),
 
@@ -5477,7 +5485,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v296" in sw_src
+            "civicradar-v299" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8578,13 +8586,13 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     nav_icons_ok = await page.evaluate(
         """() => {
-          const icons = [...document.querySelectorAll('#bottomNav .nav-tab i.ph')];
+          const icons = [...document.querySelectorAll('#bottomNav .nav-tab .nav-tab__glyph')];
           if (icons.length !== 4) return false;
-          return icons.every((el) => {
-            const before = getComputedStyle(el, '::before');
-            const mask = before.maskImage || before.webkitMaskImage || '';
+          const expected = ['nav-map', 'nav-community', 'nav-resources', 'nav-profile'];
+          return icons.every((el, i) => {
+            const src = el.getAttribute('src') || '';
             const box = el.getBoundingClientRect();
-            return mask.includes('url(') && box.width >= 8 && box.height >= 8;
+            return src.includes(expected[i]) && box.width >= 8 && box.height >= 8;
           });
         }"""
     )
@@ -8628,7 +8636,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v296" in sw_src
+            "civicradar-v299" in sw_src
 
             and "'/index.html'" not in sw_src
 

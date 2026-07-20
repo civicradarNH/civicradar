@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-19 14:48:50
+**Run:** 2026-07-20 06:59:46
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 420 | **Pass:** 420 | **Fail:** 0
@@ -159,7 +159,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Civic Spotter · Dadar, Shiva # |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Mate · Dadar, Shiva #B |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle ward-scoped (no BMC) | PASS |  |
@@ -169,7 +169,7 @@ _None_
 | C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=1d4e4381-908c-446f-91ff-e5e377a832bf |
+| C16 | Citizen | Report submit success modal | PASS | rid=916ce790-b9f7-4d6c-8f38-cb2e33c4aae3 |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
@@ -227,8 +227,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 5ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.08s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 14ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -373,8 +373,8 @@ _None_
 | RP24 | Report | Confirm step shows pin map + accuracy + landmark notes | PASS | {'mapOk': True, 'accOk': True, 'hintOk': True, 'notesOpen': True, 'landmarkPh': True} |
 | RP25 | Report | Confirm pin coords used on submit | PASS | seeded=True {'ok': True, 'lat': 19.0801, 'lng': 72.8812} |
 | RP27 | Report | Photo→confirm pin map Leaflet sized + sync keeps confirm | PASS | {'ok': True, 'sized': True, 'confirmOk': True, 'w': 348, 'h': 160} |
-| RP28 | Report | Share nudge suppressed while report modal open | PASS | {'ok': True, 'overlayOpen': True, 'hasNudge': False, 'texts': ['first report logged — welcome!']} |
-| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="Your first report — your lane " progress="Badge unlocked! 2 more to your" |
+| RP28 | Report | Share nudge suppressed while report modal open | PASS | {'ok': True, 'overlayOpen': True, 'hasNudge': False, 'texts': []} |
+| RP13 | Report | First report shows celebrate + progress | PASS | celebrate="First report logged — your lan" progress="Badge unlocked! 2 more to your" |
 | RP14 | Report | Non-milestone report shows rotating kudos | PASS | celebrate="Logged! Thanks for looking out for your " |
 | RP15 | Report | Non-milestone report shows progress-to-badge nudge | PASS | progress="Just 1 more report to your next badge." |
 | RW01 | Rewards | Second report shows week streak callout | PASS |  |

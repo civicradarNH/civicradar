@@ -307,9 +307,17 @@ body.app-booting {
   text-overflow: ellipsis;
 }
 
-.header__brand i {
+.header__brand .brand-mark {
   font-size: var(--fs-xl);
   flex-shrink: 0;
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+}
+.header__brand .brand-mark img {
+  width: 26px;
+  height: 26px;
+  display: block;
 }
 
 /* Persona context bar */
@@ -2016,11 +2024,11 @@ body.manual-pin-mode #map .leaflet-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: auto;
+  height: auto;
   margin: 0 0 12px;
   border-radius: 50%;
-  background: rgba(var(--primary-rgb), 0.12);
+  background: none;
   color: var(--primary);
   box-shadow: none;
 }
@@ -2459,6 +2467,16 @@ body.persona-lead .ios-install-hint {
   font-size: var(--fs-xl);
   flex-shrink: 0;
   line-height: 1;
+}
+.nav-tab__glyph {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+  display: block;
+}
+.nav-tab:not(.active) .nav-tab__glyph {
+  filter: grayscale(1) opacity(0.55);
 }
 
 .nav-tab__icon-wrap {
@@ -6125,7 +6143,6 @@ body.persona-lead .app-open-banner { display: none; }
 
 #resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
 
-#resourcesModal .resources-section--official .official-sources-link { color: var(--corp-bmc); }
 
 #resourcesModal .resources-section--community .resources-section__title i { color: var(--success); }
 
@@ -6234,9 +6251,9 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 #resourcesModal .official-sources-all {
-  margin: 4px 0 0;
-  padding: 10px 4px 4px;
-  border-top: 1px solid var(--border);
+  margin: 8px 0 0;
+  padding: 0;
+  border-top: none;
   text-align: left;
 }
 
@@ -6509,17 +6526,32 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .official-sources-link {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  min-height: var(--touch-min);
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--primary);
-  text-decoration: underline;
+  font-weight: 500;
+  color: var(--text-dark, var(--ink-900));
+  text-decoration: none;
+}
+
+.official-sources-link i {
+  font-size: 1.25rem;
+  color: var(--ink-400, #94a3b8);
+  flex-shrink: 0;
 }
 
 .official-sources-link:hover {
-  color: var(--accent, var(--primary));
+  border-color: var(--primary);
+  color: var(--text-dark, var(--ink-900));
 }
 
 /* ---- Community modal: section hierarchy (headers + collapsible groups) ---- */
@@ -7100,6 +7132,7 @@ body.persona-lead .app-open-banner { display: none; }
   outline-offset: 2px;
 }
 .hazard-tile i { font-size: 32px; }
+.hazard-tile__glyph { width: 32px; height: 32px; }
 .hazard-tile[data-hazard="stagnant-water"] i { color: var(--hazard-water); }
 .hazard-tile[data-hazard="garbage"] i { color: var(--hazard-garbage); }
 .hazard-tile[data-hazard="potholes"] i { color: var(--hazard-pothole); }
@@ -10840,11 +10873,11 @@ body.sheet-depth-blocking .map-hud {
 
 /* 4. Header brand: slow radar ping behind the CivicRadar icon — the
       one continuous animation, kept tiny, faint, and transform-only. */
-.header__brand i {
+.header__brand .brand-mark {
   position: relative;
 }
 
-.header__brand i::after {
+.header__brand .brand-mark::after {
   content: '';
   position: absolute;
   inset: -2px;
@@ -10875,7 +10908,7 @@ body.sheet-depth-blocking .map-hud {
   .hazard-tile--active .hazard-tile__check,
   #tosModal .checkbox-row:has(input:checked),
   .modal-overlay.open .disclosure-list li,
-  .header__brand i::after,
+  .header__brand .brand-mark::after,
   .map-empty-cta:not(.hidden) .map-empty-cta__icon-wrap {
     animation: none;
   }
@@ -10934,7 +10967,7 @@ body::after {
   letter-spacing: -0.02em;
 }
 
-.header__brand i {
+.header__brand .brand-mark {
   color: var(--primary);
   font-size: var(--text-xl);
 }
@@ -11228,7 +11261,7 @@ body::after {
     color: #f8fafc;
   }
 
-  .header__brand i {
+  .header__brand .brand-mark {
     color: #a5b4fc;
   }
 

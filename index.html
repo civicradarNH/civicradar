@@ -115,7 +115,7 @@
   <!-- Header -->
   <header class="header">
     <div class="header__brand">
-      <i class="ph ph-radar"></i>
+      <span class="brand-mark"><img src="assets/brand/radar-mark.svg" alt="" width="26" height="26"></span>
       <div class="header__titles">
         <span>CivicRadar</span>
         <span class="header__context" id="headerContext" data-i18n="header.context">Ward hazard map for Mumbai</span>
@@ -197,7 +197,7 @@
     <div class="map-empty-cta__sheet">
       <div class="map-empty-cta__handle" aria-hidden="true"></div>
       <div class="map-empty-cta__icon-wrap" aria-hidden="true">
-        <i class="ph ph-map-pin"></i>
+        <img src="assets/brand/empty-pin.svg" alt="" width="84" height="84">
       </div>
       <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">No pins in your ward yet.</h2>
       <p class="map-empty-cta__hint" data-i18n="map.emptyHint">It takes about 30 seconds.</p>
@@ -262,7 +262,7 @@
 
   <!-- Camera FAB -->
   <button type="button" id="btnCamera" data-i18n-aria="aria.report" aria-label="Report hazard">
-    <i class="ph ph-camera"></i>
+    <img src="assets/brand/fab-camera.svg" alt="" width="26" height="26">
     <span class="fab-label" data-i18n="fab.report">Report</span>
   </button>
 
@@ -307,22 +307,22 @@
   <!-- Bottom Navigation -->
   <nav id="bottomNav" class="bottom-nav">
     <button type="button" class="nav-tab active" data-tab="map">
-      <i class="ph ph-map-trifold"></i>
+      <img class="nav-tab__glyph" src="assets/nav-icons/nav-map.svg" alt="" width="24" height="24">
       <span data-i18n="nav.map">Map</span>
     </button>
     <button type="button" class="nav-tab" data-tab="community">
       <span class="nav-tab__icon-wrap">
-        <i class="ph ph-users-three"></i>
+        <img class="nav-tab__glyph" src="assets/nav-icons/nav-community.svg" alt="" width="24" height="24">
         <span class="nav-tab__badge hidden" id="communityNavBadge" aria-hidden="true"></span>
       </span>
       <span data-i18n="nav.community">Community</span>
     </button>
     <button type="button" class="nav-tab" data-tab="resources">
-      <i class="ph ph-megaphone"></i>
+      <img class="nav-tab__glyph" src="assets/nav-icons/nav-resources.svg" alt="" width="24" height="24">
       <span data-i18n="nav.resources">Resources</span>
     </button>
     <button type="button" class="nav-tab" data-tab="profile">
-      <i class="ph ph-user"></i>
+      <img class="nav-tab__glyph" src="assets/nav-icons/nav-profile.svg" alt="" width="24" height="24">
       <span data-i18n="nav.profile">Profile</span>
     </button>
   </nav>
@@ -601,9 +601,12 @@
             <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
             <p class="field-hint" data-i18n="official.subtitle">Gov apps — CivicRadar does not file for you.</p>
             <div class="esc-channels official-channels" id="successOfficialChannels" data-official-context="success"></div>
-            <p class="official-sources-all">
-              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
-            </p>
+            <div class="official-sources-all">
+              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
+                <i class="ph ph-books" aria-hidden="true"></i>
+                <span data-i18n="official.viewAllSources">All official sources</span>
+              </a>
+            </div>
             <div class="share-buttons">
               <button type="button" class="btn btn--secondary btn--full" id="btnShareTwitter">
                 <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
@@ -813,15 +816,17 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
-      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official filing links and ways to help in your ward.</p>
 
       <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
         <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="official.title">Official grievance channels</span></h3>
         <p class="disclaimer-banner"><i class="ph ph-warning-circle" aria-hidden="true"></i> <span data-i18n="official.subtitle">Verified government apps and portals — CivicRadar does not file on your behalf.</span></p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
-        <p class="official-sources-all">
-          <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">View all official sources</a>
-        </p>
+        <div class="official-sources-all">
+          <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
+            <i class="ph ph-books" aria-hidden="true"></i>
+            <span data-i18n="official.viewAllSources">All official sources</span>
+          </a>
+        </div>
       </div>
 
       <div class="resources-section resources-section--community">
@@ -1060,7 +1065,6 @@
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileNotificationsBody">
-          <p class="field-hint profile-settings-hint" data-i18n="settings.notifications.sub">Everything CivicRadar can nudge you about, and your consent choices, in one place.</p>
           <div class="profile-settings">
             <label class="toggle-row" for="nbhNewAlertToggle">
               <span class="toggle-row__text">

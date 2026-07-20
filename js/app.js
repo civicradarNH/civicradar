@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v296';
+  const CIVIC_APP_VERSION = 'v299';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1565,9 +1565,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
+      // Differentiate dual high-score rows: corp app = Recommended, WhatsApp = Fastest.
+      const isWaFast = ch.id === 'bmc_whatsapp' || ch.id === 'pmc_wa';
+
       const badge = ch.recommended
 
-        ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
+        ? `<em class="esc-channel__badge">${escapeHtml(t(isWaFast ? 'official.fastest' : 'official.recommended'))}</em>`
 
         : '';
 
@@ -3094,7 +3097,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'Back to map',
 
-      'success.sharePrompt': 'Share on WhatsApp — more eyes, faster fixes.',
+      'success.sharePrompt': 'More eyes on the ward map — faster fixes.',
 
       'success.shareWhatsapp': 'Share on WhatsApp',
 
@@ -3239,7 +3242,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.milestoneMax': '10+ reports — your ward thanks you!',
 
-      'profile.nextStreakBadge': '{n} more week(s) for {badge}',
+      'profile.nextStreakBadgeOne': '1 more week for {badge}',
+
+      'profile.nextStreakBadgeMany': '{n} more weeks for {badge}',
 
       'success.progressOne': 'Just 1 more report to your next badge.',
 
@@ -3546,8 +3551,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'Resources',
 
       'resources.title': 'Resources',
-
-      'resources.subtitle': 'Official filing links and ways to help in your ward.',
 
       'resources.actionTitle': 'Help in your ward',
 
@@ -3974,7 +3977,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'Notifications are blocked — we\'ll show a gentle in-app reminder instead.',
 
-      'settings.notifications.sub': 'Everything CivicRadar can nudge you about, and your consent choices, in one place.',
 
       'settings.nbh.new.label': 'New reports nearby',
 
@@ -4257,6 +4259,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.subtitle': 'We don\'t file for you — open a verified .gov app or portal below.',
 
       'official.recommended': 'Recommended',
+
+      'official.fastest': 'Fastest',
 
       'official.viewAllSources': 'All official sources',
 
@@ -5565,7 +5569,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'नक्शे पर वापस',
 
-      'success.sharePrompt': 'WhatsApp पर शेयर करें — ज़्यादा नज़र, तेज़ सुधार।',
+      'success.sharePrompt': 'वार्ड मैप पर ज़्यादा नज़र — तेज़ सुधार।',
 
       'success.shareWhatsapp': 'WhatsApp पर साझा करें',
 
@@ -5712,7 +5716,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.milestoneMax': '10+ रिपोर्ट — आपके वार्ड का धन्यवाद!',
 
-      'profile.nextStreakBadge': '{badge} के लिए {n} हफ़्ते और',
+      'profile.nextStreakBadgeOne': '{badge} के लिए 1 हफ़्ता और',
+
+      'profile.nextStreakBadgeMany': '{badge} के लिए {n} हफ़्ते और',
 
       'success.progressOne': 'अगले बैज के लिए बस 1 और रिपोर्ट।',
 
@@ -6019,8 +6025,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'संसाधन',
 
       'resources.title': 'संसाधन',
-
-      'resources.subtitle': 'आधिकारिक दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
 
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
@@ -6445,7 +6449,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'सूचनाएँ ब्लॉक हैं — हम इसके बजाय ऐप में हल्की याद दिखाएँगे।',
 
-      'settings.notifications.sub': 'CivicRadar आपको जिन बातों की सूचना दे सकता है और आपकी सहमति के विकल्प, सब एक जगह।',
 
       'settings.nbh.new.label': 'पास में नई रिपोर्ट',
 
@@ -6728,6 +6731,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.subtitle': 'हम आपकी ओर से दर्ज नहीं करते — नीचे सत्यापित .gov ऐप या पोर्टल खोलें।',
 
       'official.recommended': 'अनुशंसित',
+
+      'official.fastest': 'सबसे तेज़',
 
       'official.viewAllSources': 'सभी आधिकारिक स्रोत',
 
@@ -8036,7 +8041,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'नकाशावर परत',
 
-      'success.sharePrompt': 'WhatsApp वर शेअर करा — जास्त डोळे, जलद दुरुस्ती.',
+      'success.sharePrompt': 'वॉर्ड नकाशावर जास्त डोळे — जलद दुरुस्ती.',
 
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
 
@@ -8183,7 +8188,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.milestoneMax': '10+ तक्रारी — तुमच्या वॉर्डकडून धन्यवाद!',
 
-      'profile.nextStreakBadge': '{badge} साठी {n} आठवडे',
+      'profile.nextStreakBadgeOne': '{badge} साठी 1 आठवडा',
+
+      'profile.nextStreakBadgeMany': '{badge} साठी {n} आठवडे',
 
       'success.progressOne': 'पुढच्या बॅजसाठी फक्त 1 आणखी तक्रार.',
 
@@ -8490,8 +8497,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'संसाधने',
 
       'resources.title': 'संसाधने',
-
-      'resources.subtitle': 'अधिकृत दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
 
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
@@ -8916,7 +8921,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'सूचना ब्लॉक आहेत — त्याऐवजी आम्ही अॅपमध्ये सौम्य आठवण दाखवू.',
 
-      'settings.notifications.sub': 'CivicRadar तुम्हाला जे सूचित करू शकते आणि तुमचे संमती पर्याय, सर्व एकाच ठिकाणी.',
 
       'settings.nbh.new.label': 'जवळच्या नवीन तक्रारी',
 
@@ -9199,6 +9203,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.subtitle': 'आम्ही तुमच्यावतीने दाखल करत नाही — खाली सत्यापित .gov अॅप किंवा पोर्टल उघडा.',
 
       'official.recommended': 'शिफारस',
+
+      'official.fastest': 'सर्वात जलद',
 
       'official.viewAllSources': 'सर्व अधिकृत स्रोत',
 
@@ -10506,7 +10512,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'Map પર પાછા',
 
-      'success.sharePrompt': 'WhatsApp પર શેર કરો — જેટલી વધુ નજર, એટલી ઝડપી ફિક્સ.',
+      'success.sharePrompt': 'વોર્ડ નકશા પર વધુ નજર — ઝડપી ફિક્સ.',
 
       'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
 
@@ -10653,7 +10659,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.milestoneMax': '10+ રિપોર્ટ — તમારા વોર્ડ તરફથી આભાર!',
 
-      'profile.nextStreakBadge': '{badge} માટે {n} અઠવાડિયા',
+      'profile.nextStreakBadgeOne': '{badge} માટે 1 અઠવાડિયું',
+
+      'profile.nextStreakBadgeMany': '{badge} માટે {n} અઠવાડિયા',
 
       'success.progressOne': 'આગલા બેજ માટે ફક્ત 1 વધુ ફરિયાદ.',
 
@@ -10960,8 +10968,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'સંસાધનો',
 
       'resources.title': 'સંસાધનો',
-
-      'resources.subtitle': 'અધિકૃત દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
 
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
@@ -11386,7 +11392,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'settings.reminder.denied': 'સૂચનાઓ બ્લોક છે — તેના બદલે અમે એપમાં હળવી યાદ બતાવીશું.',
 
-      'settings.notifications.sub': 'CivicRadar તમને જે જણાવી શકે અને તમારી સંમતિના વિકલ્પો, બધું એક જ જગ્યાએ.',
 
       'settings.nbh.new.label': 'નજીકની નવી ફરિયાદો',
 
@@ -11669,6 +11674,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.subtitle': 'CivicRadar તમારી તરફથી નોંધાવતું નથી — નીચે ચકાસેલ .gov એપ ખોલો.',
 
       'official.recommended': 'ભલામણ',
+
+      'official.fastest': 'સૌથી ઝડપી',
 
       'official.viewAllSources': 'બધા અધિકૃત સ્રોત',
 
@@ -20210,13 +20217,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const HAZARD_CATEGORIES = [
 
-    { key: 'stagnant-water', icon: 'ph-drop', live: true },
+    { key: 'stagnant-water', icon: 'ph-drop', iconSrc: 'assets/hazard-icons/hazard-water.svg', live: true },
 
-    { key: 'garbage', icon: 'ph-trash', live: true },
+    { key: 'garbage', icon: 'ph-trash', iconSrc: 'assets/hazard-icons/hazard-garbage.svg', live: true },
 
-    { key: 'potholes', icon: 'ph-road-horizon', live: true },
+    { key: 'potholes', icon: 'ph-road-horizon', iconSrc: 'assets/hazard-icons/hazard-potholes.svg', live: true },
 
-    { key: 'streetlight', icon: 'ph-lightbulb-filament', live: true },
+    { key: 'streetlight', icon: 'ph-lightbulb-filament', iconSrc: 'assets/hazard-icons/hazard-streetlight.svg', live: true },
 
   ];
 
@@ -20308,7 +20315,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <span class="hazard-tile__check" aria-hidden="true"><i class="ph ph-check-circle-fill"></i></span>
 
-            <i class="ph ${c.icon}"></i>
+            ${c.iconSrc
+              ? `<img class="hazard-tile__glyph" src="${c.iconSrc}" alt="" width="32" height="32">`
+              : `<i class="ph ${c.icon}"></i>`}
 
             <span class="hazard-tile__label">${escapeHtml(hazardLabel(c.key))}</span>
 
@@ -39379,23 +39388,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      if (nextBadgeHintEl) {
+      if (nextBadgeHintEl || xpHintEl) {
 
-        // Report-count badge hint only here; current streak stays on profileStreakLine.
-        // Append weeks-to-next-streak-badge (unique progress, not a repeat of streak count).
-        let hint = t(milestone.hintKey).replace('{n}', String(milestone.remaining));
+        // One progress line: XP + report milestone + weeks-to-next-streak-badge.
+        // Current streak stays on profileStreakLine (not repeated here).
+        const parts = [];
 
-        if (streakInfo.nextKey && streakInfo.weeksToNext > 0) {
+        if (xpInfo.next) {
 
-          hint += ` — ${t('profile.nextStreakBadge')
+          parts.push(t('profile.xpToNext')
 
-            .replace('{n}', String(streakInfo.weeksToNext))
+            .replace('{n}', String(xpInfo.remaining))
 
-            .replace('{badge}', t(streakInfo.nextKey))}`;
+            .replace('{level}', civicLevelName(xpInfo.next.id)));
+
+        } else {
+
+          parts.push(t('profile.xpMax'));
 
         }
 
-        nextBadgeHintEl.textContent = hint;
+        parts.push(t(milestone.hintKey).replace('{n}', String(milestone.remaining)));
+
+        if (streakInfo.nextKey && streakInfo.weeksToNext > 0) {
+
+          const weekKey = streakInfo.weeksToNext === 1
+
+            ? 'profile.nextStreakBadgeOne'
+
+            : 'profile.nextStreakBadgeMany';
+
+          parts.push(t(weekKey)
+
+            .replace('{n}', String(streakInfo.weeksToNext))
+
+            .replace('{badge}', t(streakInfo.nextKey)));
+
+        }
+
+        const merged = parts.join(' · ');
+
+        if (xpHintEl) xpHintEl.textContent = merged;
+
+        if (nextBadgeHintEl) {
+
+          nextBadgeHintEl.textContent = '';
+
+          nextBadgeHintEl.classList.add('hidden');
+
+        }
 
       }
 
