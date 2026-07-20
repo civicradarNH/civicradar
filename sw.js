@@ -10,7 +10,7 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v295';
+const CACHE = 'civicradar-v296';
 const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',
@@ -28,6 +28,10 @@ const SECONDARY_ASSETS = [
   'js/image-moderation.js', 'js/wards/mumbai.js', 'js/wards/pune.js', 'js/wards/thane.js',
   'js/ward-detect.js', 'js/society-suggestions-data.js', 'js/searchable-select.js',
   'js/demo-cloud-v2.js', 'robots.txt', 'assets/og-civicradar.svg',
+  'assets/channel-icons/app-civic.svg', 'assets/channel-icons/chat-filing.svg',
+  'assets/channel-icons/web-portal.svg', 'assets/channel-icons/helpline.svg',
+  'assets/channel-icons/sanitation.svg', 'assets/channel-icons/govt-emblem.svg',
+  'assets/channel-icons/verified-gov.svg',
 ];
 const ASSETS = SHELL_ASSETS.concat(SECONDARY_ASSETS);
 function cacheUrls(cache, urls) {

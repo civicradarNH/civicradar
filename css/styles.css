@@ -5990,6 +5990,13 @@ body.persona-lead .app-open-banner { display: none; }
 
 .esc-channel:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
 .esc-channel i { font-size: var(--fs-xl); color: var(--primary); }
+.esc-channel__glyph {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  align-self: center;
+  display: block;
+}
 .esc-channel span { font-weight: 600; font-size: var(--fs-base); }
 .esc-channel small { color: var(--text-muted, #64748b); font-size: var(--fs-xs); }
 .esc-channel--wide { width: 100%; margin-bottom: 12px; }
@@ -6387,7 +6394,8 @@ body.persona-lead .app-open-banner { display: none; }
   background: transparent;
 }
 
-#resourcesModal .official-channels .esc-channel i {
+#resourcesModal .official-channels .esc-channel i,
+#resourcesModal .official-channels .esc-channel .esc-channel__glyph {
   grid-column: 1;
   grid-row: 1 / -1;
   width: 40px;
@@ -6399,33 +6407,48 @@ body.persona-lead .app-open-banner { display: none; }
   background: rgba(99, 102, 241, 0.12);
   font-size: var(--fs-md);
 }
+#resourcesModal .official-channels .esc-channel .esc-channel__glyph {
+  box-sizing: border-box;
+  padding: 6px;
+  object-fit: contain;
+}
 
 /* Soft per-channel icon tiles (calm 0.12–0.14 alpha — not full-row fills) */
 #resourcesModal .official-channels .esc-channel[data-official-channel="marg"] i,
 #resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] .esc-channel__glyph,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] .esc-channel__glyph,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] .esc-channel__glyph {
   background: rgba(29, 78, 216, 0.14);
 }
 
 #resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] .esc-channel__glyph,
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] .esc-channel__glyph {
   background: rgba(37, 211, 102, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] .esc-channel__glyph {
   background: rgba(234, 88, 12, 0.14);
 }
 
 #resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] .esc-channel__glyph,
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] .esc-channel__glyph {
   background: rgba(21, 128, 61, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] .esc-channel__glyph {
   background: rgba(8, 145, 178, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] i {
+#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] .esc-channel__glyph {
   background: rgba(124, 58, 237, 0.14);
 }
 

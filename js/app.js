@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v295';
+  const CIVIC_APP_VERSION = 'v296';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1542,6 +1542,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ctx = (opts && opts.context) || '';
 
+    // Resources rows: custom duotone channel glyphs. Escalation/success keep Phosphor.
+    const CHANNEL_GLYPHS = {
+      marg: 'assets/channel-icons/app-civic.svg',
+      pmc_care: 'assets/channel-icons/app-civic.svg',
+      bmc_whatsapp: 'assets/channel-icons/chat-filing.svg',
+      pmc_wa: 'assets/channel-icons/chat-filing.svg',
+      bmc_portal: 'assets/channel-icons/web-portal.svg',
+      tmc_portal: 'assets/channel-icons/web-portal.svg',
+      tmc_call: 'assets/channel-icons/helpline.svg',
+      swachhata: 'assets/channel-icons/sanitation.svg',
+      aaple_sarkar: 'assets/channel-icons/govt-emblem.svg',
+    };
+
     container.innerHTML = channels.map((ch) => {
 
       const recCls = ch.recommended ? ' esc-channel--recommended' : '';
@@ -1572,11 +1585,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         && ctx !== 'resources';
 
+      const glyphSrc = ctx === 'resources' ? CHANNEL_GLYPHS[ch.id] : null;
+      const iconHtml = glyphSrc
+        ? `<img class="esc-channel__glyph" src="${glyphSrc}" alt="" width="28" height="28" loading="lazy">`
+        : `<i class="ph ph-${ch.icon}"></i>`;
+
       return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
 
         <button type="button" class="esc-channel${recCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
-        <i class="ph ph-${ch.icon}"></i><span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}
+        ${iconHtml}<span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}
 
       </button>
 
