@@ -975,6 +975,7 @@
                 <div class="profile-xp__fill" id="profileXpProgress"></div>
               </div>
               <p class="profile-xp__hint" id="profileXpHint"></p>
+              <p class="profile-rewards__hint hidden" id="profileNextBadgeHint" aria-hidden="true"></p>
             </div>
             <div class="profile-rewards__streak" id="profileStreakLine"></div>
             <div class="streak-tracker hidden" id="profileStreakTracker" aria-hidden="true">
@@ -987,7 +988,6 @@
             <div class="profile-rewards__track hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-hidden="true" id="profileBadgeTrack">
               <div class="profile-rewards__fill" id="profileBadgeProgress"></div>
             </div>
-            <p class="profile-rewards__hint hidden" id="profileNextBadgeHint" aria-hidden="true"></p>
           </div>
         </div>
         <div class="profile-card__stats">
@@ -1032,7 +1032,10 @@
 
       <div class="cr-section" id="profileDetailsSection">
         <button type="button" class="cr-section__toggle" id="btnProfileDetailsToggle" aria-expanded="true" aria-controls="profileDetailsBody">
-          <span><i class="ph ph-user-circle" aria-hidden="true"></i> <span data-i18n="profile.section.details">Your details</span></span>
+          <span class="profile-nav-label">
+            <span class="profile-nav-icon profile-nav-icon--details" aria-hidden="true"><i class="ph ph-user-circle"></i></span>
+            <span data-i18n="profile.section.details">Your details</span>
+          </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body" id="profileDetailsBody">
@@ -1047,7 +1050,10 @@
 
       <div class="cr-section cr-section--collapsed" id="profileActivitySection">
         <button type="button" class="cr-section__toggle" id="btnProfileActivityToggle" aria-expanded="false" aria-controls="profileActivityBody">
-          <span><i class="ph ph-list-checks" aria-hidden="true"></i> <span data-i18n="profile.section.activity">Activity</span></span>
+          <span class="profile-nav-label">
+            <span class="profile-nav-icon profile-nav-icon--activity" aria-hidden="true"><i class="ph ph-list-checks"></i></span>
+            <span data-i18n="profile.section.activity">Activity</span>
+          </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileActivityBody">
@@ -1071,7 +1077,10 @@
 
       <div class="cr-section cr-section--collapsed" id="profileNotificationsSection">
         <button type="button" class="cr-section__toggle" id="btnProfileNotificationsToggle" aria-expanded="false" aria-controls="profileNotificationsBody">
-          <span><i class="ph ph-bell" aria-hidden="true"></i> <span data-i18n="settings.notifications.title">Notifications &amp; Privacy</span></span>
+          <span class="profile-nav-label">
+            <span class="profile-nav-icon profile-nav-icon--privacy" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
+            <span data-i18n="settings.notifications.title">Notifications &amp; Privacy</span>
+          </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileNotificationsBody">
@@ -1120,7 +1129,10 @@
 
       <div class="cr-section cr-section--collapsed" id="profileAccountSection">
         <button type="button" class="cr-section__toggle" id="btnProfileAccountToggle" aria-expanded="false" aria-controls="profileAccountBody">
-          <span><i class="ph ph-gear-six" aria-hidden="true"></i> <span data-i18n="profile.section.account">Account &amp; support</span></span>
+          <span class="profile-nav-label">
+            <span class="profile-nav-icon profile-nav-icon--support" aria-hidden="true"><i class="ph ph-lifebuoy"></i></span>
+            <span data-i18n="profile.section.account">Account &amp; support</span>
+          </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
         <div class="cr-section__body hidden" id="profileAccountBody">

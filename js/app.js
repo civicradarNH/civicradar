@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v305';
+  const CIVIC_APP_VERSION = 'v306';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -39429,8 +39429,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const milestone = getReportMilestoneProgress(reports.length);
 
-      const streakInfo = getNextStreakBadgeInfo(streak);
-
       if (streakLineEl) {
 
         streakLineEl.textContent = streak >= 1
@@ -39484,47 +39482,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (nextBadgeHintEl || xpHintEl) {
 
-        // One progress line: XP + report milestone + weeks-to-next-streak-badge.
-        // Current streak stays on profileStreakLine (not repeated here).
-        const parts = [];
+        // v306: two scannable lines (not one dense multi-clause). XP bar stays sole tracker.
+        // Streak weeks stay on profileStreakLine / tracker — not repeated here.
+        const xpLine = xpInfo.next
 
-        if (xpInfo.next) {
-
-          parts.push(t('profile.xpToNext')
+          ? t('profile.xpToNext')
 
             .replace('{n}', String(xpInfo.remaining))
 
-            .replace('{level}', civicLevelName(xpInfo.next.id)));
+            .replace('{level}', civicLevelName(xpInfo.next.id))
 
-        } else {
+          : t('profile.xpMax');
 
-          parts.push(t('profile.xpMax'));
-
-        }
-
-        parts.push(t(milestone.hintKey).replace('{n}', String(milestone.remaining)));
-
-        if (streakInfo.nextKey && streakInfo.weeksToNext > 0) {
-
-          const weekKey = streakInfo.weeksToNext === 1
-
-            ? 'profile.nextStreakBadgeOne'
-
-            : 'profile.nextStreakBadgeMany';
-
-          parts.push(t(weekKey)
-
-            .replace('{n}', String(streakInfo.weeksToNext))
-
-            .replace('{badge}', t(streakInfo.nextKey)));
-
-        }
-
-        const merged = parts.join(' · ');
+        const milestoneLine = t(milestone.hintKey).replace('{n}', String(milestone.remaining));
 
         if (xpHintEl) {
 
-          xpHintEl.textContent = merged;
+          xpHintEl.textContent = xpLine;
 
           xpHintEl.classList.remove('hidden');
 
@@ -39532,11 +39506,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (nextBadgeHintEl) {
 
-          nextBadgeHintEl.textContent = '';
+          nextBadgeHintEl.textContent = milestoneLine;
 
-          nextBadgeHintEl.classList.add('hidden');
+          nextBadgeHintEl.classList.remove('hidden');
 
-          nextBadgeHintEl.setAttribute('aria-hidden', 'true');
+          nextBadgeHintEl.setAttribute('aria-hidden', 'false');
 
         }
 
