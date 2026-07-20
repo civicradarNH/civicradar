@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v299';
+  const CIVIC_APP_VERSION = 'v301';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3047,7 +3047,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.retake': 'Retake photo',
 
-      'moderation.guidelines': 'Snap the hazard — avoid faces and documents.',
+      'moderation.guidelines': 'Snap a hazard — avoid faces and documents.',
 
       'moderation.guidelines.stagnant-water': 'Snap the stagnant water — avoid faces and documents.',
 
@@ -20237,25 +20237,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Fresh report open always starts on stagnant-water (not time-of-day / last-submit). */
   function getContextualDefaultHazard() {
 
-    try {
-
-      const last = localStorage.getItem(LAST_HAZARD_KEY);
-
-      if (last && isLiveHazardKey(last)) return last;
-
-    } catch { /* ignore */ }
-
-    if (getSeasonalHook()) return 'stagnant-water';
-
-    const now = new Date();
-
-    const mins = now.getHours() * 60 + now.getMinutes();
-
-    if (mins >= 18 * 60 + 30) return 'streetlight';
-
-    return 'potholes';
+    return 'stagnant-water';
 
   }
 
@@ -23845,7 +23830,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ensureReportModalOpen();
 
-    selectHazard(getContextualDefaultHazard());
+    // Preserve the user's category pick from before the camera — do not reset to default.
+    const current = $('#hazardType')?.value;
+    const key = (current && isLiveHazardKey(current)) ? current : getContextualDefaultHazard();
+    if (current !== key) selectHazard(key);
+    else {
+      updateHazardSelectedCue(key);
+      updatePhotoGuidelines(key);
+    }
 
     renderHazardPicker();
 
@@ -26592,17 +26584,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (userAccuracyCircle) map.removeLayer(userAccuracyCircle);
 
-    userMarker = L.circleMarker([lat, lng], {
+    userMarker = L.marker([lat, lng], {
 
-      radius: 8,
+      icon: getUserLocationMapIcon(),
 
-      fillColor: '#6366f1',
+      interactive: true,
 
-      color: '#fff',
+      keyboard: false,
 
-      weight: 2,
-
-      fillOpacity: 0.9,
+      zIndexOffset: 600,
 
     }).addTo(map).bindPopup(t('map.youAreHere'));
 
@@ -27063,9 +27053,111 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Map pin icons — tiny local SVGs, one L.icon instance per status+hazard key.
+
+  const MAP_PIN_ICON_CACHE = Object.create(null);
+
+  let userLocationMapIcon = null;
+
+
+
+  const MAP_PIN_URLS = {
+
+    'open:stagnant-water': 'assets/map-pins/pin-open-water.svg',
+
+    'open:garbage': 'assets/map-pins/pin-open-garbage.svg',
+
+    'open:potholes': 'assets/map-pins/pin-open-potholes.svg',
+
+    'open:streetlight': 'assets/map-pins/pin-open-streetlight.svg',
+
+    'open:default': 'assets/map-pins/pin-open-default.svg',
+
+    fixed: 'assets/map-pins/pin-fixed.svg',
+
+  };
+
+
+
+  function mapPinIconKey(status, hazard) {
+
+    if (status === 'resolved') return 'fixed';
+
+    const h = isLiveHazardKey(hazard) ? hazard : 'default';
+
+    return 'open:' + h;
+
+  }
+
+
+
+  function getReportMapIcon(status, hazard) {
+
+    const key = mapPinIconKey(status, hazard);
+
+    if (MAP_PIN_ICON_CACHE[key]) return MAP_PIN_ICON_CACHE[key];
+
+    const url = MAP_PIN_URLS[key] || MAP_PIN_URLS['open:default'];
+
+    MAP_PIN_ICON_CACHE[key] = L.icon({
+
+      iconUrl: url,
+
+      iconRetinaUrl: url,
+
+      iconSize: [28, 36],
+
+      iconAnchor: [14, 36],
+
+      popupAnchor: [0, -30],
+
+      className: 'map-pin-icon' + (key === 'fixed' ? ' map-pin-icon--fixed' : ' map-pin-icon--open'),
+
+    });
+
+    return MAP_PIN_ICON_CACHE[key];
+
+  }
+
+
+
+  function getUserLocationMapIcon() {
+
+    if (userLocationMapIcon) return userLocationMapIcon;
+
+    userLocationMapIcon = L.divIcon({
+
+      className: 'user-loc-marker-wrap',
+
+      html:
+
+        '<span class="user-loc-marker" aria-hidden="true">' +
+
+          '<span class="user-loc-marker__pulse"></span>' +
+
+          '<img class="user-loc-marker__img" src="assets/map-pins/user-location.svg" width="40" height="40" alt="" decoding="async" draggable="false"/>' +
+
+        '</span>',
+
+      iconSize: [40, 40],
+
+      iconAnchor: [20, 20],
+
+      popupAnchor: [0, -14],
+
+    });
+
+    return userLocationMapIcon;
+
+  }
+
+
+
   function getMarkerColor(status) {
 
-    return status === 'resolved' ? '#10b981' : '#ef4444';
+    // Kept for any legacy callers; map markers use getReportMapIcon.
+
+    return status === 'resolved' ? '#047857' : '#dc2626';
 
   }
 
@@ -27326,19 +27418,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    const marker = L.circleMarker([report.lat, report.lng], {
+    const pinKey = mapPinIconKey(report.status, report.hazard);
 
-      radius: 10,
+    const marker = L.marker([report.lat, report.lng], {
 
-      fillColor: getMarkerColor(report.status),
+      icon: getReportMapIcon(report.status, report.hazard),
 
-      color: '#ffffff',
+      keyboard: true,
 
-      weight: 2,
-
-      fillOpacity: 0.92,
+      riseOnHover: true,
 
     });
+
+    marker._civicPinKey = pinKey;
 
 
 
@@ -27394,21 +27486,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportMarkerLayer.addLayer(marker);
 
-    if (opts && opts.drop) {
-
-      if (typeof marker.setRadius === 'function' && !prefersReducedMotion()) {
-
-        const base = marker.getRadius ? marker.getRadius() : 10;
-
-        marker.setRadius(0.1);
-
-        [0.5, 1.35, 0.9, 1.1, 1].forEach((f, i) =>
-
-          setTimeout(() => { try { marker.setRadius(base * f); } catch { /* marker removed */ } }, 60 + i * 70)
-
-        );
-
-      }
+    if (opts && opts.drop && !prefersReducedMotion()) {
 
       requestAnimationFrame(() => {
 
@@ -27507,9 +27585,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (typeof existing.setLatLng === 'function') existing.setLatLng([r.lat, r.lng]);
 
-        if (typeof existing.setStyle === 'function') {
+        const nextPinKey = mapPinIconKey(r.status, r.hazard);
 
-          existing.setStyle({ fillColor: getMarkerColor(r.status) });
+        if (existing._civicPinKey !== nextPinKey && typeof existing.setIcon === 'function') {
+
+          existing.setIcon(getReportMapIcon(r.status, r.hazard));
+
+          existing._civicPinKey = nextPinKey;
 
         }
 
@@ -31913,7 +31995,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // Sheet may have closed during moderation await — do not file a ghost report.
-    if (!isReportSubmitStillActive()) return;
+    if (!isReportSubmitStillActive()) {
+      setButtonLoading(submitBtn, false);
+      return;
+    }
 
 
     // Reuse capture-time JPEG when present — canvas.toDataURL is expensive on large photos.
@@ -32011,7 +32096,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!isReportSubmitStillActive()) return;
+    if (!isReportSubmitStillActive()) {
+      setButtonLoading(submitBtn, false);
+      return;
+    }
 
     markReportGeoExplainerSeen();
 
@@ -32058,7 +32146,10 @@ document.addEventListener('DOMContentLoaded', function () {
       .then((pos) => {
 
         // Late GPS after closeModal/reset must not reopen a filing path.
-        if (!isReportSubmitStillActive()) return;
+        if (!isReportSubmitStillActive()) {
+          setButtonLoading(submitBtn, false);
+          return;
+        }
 
 
         const lat = pos.coords.latitude;
@@ -32105,7 +32196,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .catch(() => {
 
-        if (!isReportSubmitStillActive()) return;
+        if (!isReportSubmitStillActive()) {
+          setButtonLoading(submitBtn, false);
+          return;
+        }
 
         markSubmit('gps_fallback_fail');
 

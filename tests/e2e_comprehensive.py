@@ -3452,13 +3452,19 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP02', 'Report', 'No coming-soon locks on launch hazards', soon_count == 0, f'soon={soon_count}')
 
-    s.record('RP03', 'Report', 'Contextual hazard preselected', await page.evaluate(
+    s.record('RP03', 'Report', 'Default hazard is stagnant-water', await page.evaluate(
 
         """() => {
           localStorage.removeItem('civicradar_last_hazard');
           window.openReportModal(false);
           const expected = window.getContextualDefaultHazard();
-          return document.getElementById('hazardType').value === expected;
+          const val = document.getElementById('hazardType').value;
+          const hint = document.getElementById('photoGuidelines')?.textContent || '';
+          const tile = document.querySelector('#hazardGrid [data-hazard="stagnant-water"]');
+          return expected === 'stagnant-water'
+            && val === 'stagnant-water'
+            && tile && tile.classList.contains('hazard-tile--active')
+            && !/pothole|गड्ढे|खड्ड|ખાડા/i.test(hint);
         }"""
 
     ))
@@ -5485,7 +5491,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v299" in sw_src
+            "civicradar-v301" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8457,13 +8463,19 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     s.record('RP02', 'Report', 'No coming-soon locks on launch hazards', soon_count == 0, f'soon={soon_count}')
 
-    s.record('RP03', 'Report', 'Contextual hazard preselected', await page.evaluate(
+    s.record('RP03', 'Report', 'Default hazard is stagnant-water', await page.evaluate(
 
         """() => {
           localStorage.removeItem('civicradar_last_hazard');
           window.openReportModal(false);
           const expected = window.getContextualDefaultHazard();
-          return document.getElementById('hazardType').value === expected;
+          const val = document.getElementById('hazardType').value;
+          const hint = document.getElementById('photoGuidelines')?.textContent || '';
+          const tile = document.querySelector('#hazardGrid [data-hazard="stagnant-water"]');
+          return expected === 'stagnant-water'
+            && val === 'stagnant-water'
+            && tile && tile.classList.contains('hazard-tile--active')
+            && !/pothole|गड्ढे|खड्ड|ખાડા/i.test(hint);
         }"""
 
     ))
@@ -8636,7 +8648,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v299" in sw_src
+            "civicradar-v301" in sw_src
 
             and "'/index.html'" not in sw_src
 

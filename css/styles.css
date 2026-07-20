@@ -4679,6 +4679,82 @@ body.persona-lead .app-open-banner { display: none; }
   50% { filter: drop-shadow(0 0 8px var(--primary)); transform: scale(1.15); }
 }
 
+/* Custom map pins (v300) — L.icon / L.divIcon; no neon stacks */
+.leaflet-marker-icon.map-pin-icon {
+  background: transparent !important;
+  border: none !important;
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.28));
+}
+
+.leaflet-marker-icon.map-pin-icon.marker-active,
+.leaflet-marker-icon.map-pin-icon.marker-flash {
+  z-index: 650 !important;
+}
+
+.leaflet-marker-icon.map-pin-icon.marker-pin-drop {
+  transform-origin: center bottom;
+}
+
+/* User location — indigo brand; subtle pulse only (not every hazard pin) */
+.user-loc-marker-wrap {
+  background: transparent !important;
+  border: none !important;
+}
+
+.user-loc-marker {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.user-loc-marker__img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.user-loc-marker__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.28);
+  z-index: 0;
+  pointer-events: none;
+  animation: user-loc-pulse 2.4s ease-out infinite;
+}
+
+@keyframes user-loc-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-loc-marker__pulse {
+    animation: none;
+    opacity: 0.35;
+    transform: scale(1.35);
+  }
+}
+
 /* ============================================
    Segment Control
    ============================================ */

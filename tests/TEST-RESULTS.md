@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-20 06:59:46
+**Run:** 2026-07-20 07:35:58
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 420 | **Pass:** 420 | **Fail:** 0
+**Total:** 420 | **Pass:** 419 | **Fail:** 1
 
 ## Fixes applied this run
 
@@ -105,7 +105,7 @@
 - **Neighbourhood:** 10 pass / 0 fail
 - **OfficialChannels:** 8 pass / 0 fail
 - **Onboarding:** 4 pass / 0 fail
-- **PWA:** 8 pass / 0 fail
+- **PWA:** 7 pass / 1 fail
 - **Partner:** 1 pass / 0 fail
 - **Persona:** 1 pass / 0 fail
 - **Pledge:** 1 pass / 0 fail
@@ -133,7 +133,7 @@
 
 ## Failures
 
-_None_
+- `SW06` **SW precache uses scope-relative paths (subpath-safe)** — failed
 
 ## Limitations
 
@@ -159,7 +159,7 @@ _None_
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | PASS |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Monsoon Mate · Dadar, Shiva #B |
+| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Neighbour Ninja 8CC8 |
 | C34 | Citizen | Pune hides BMC partner card | PASS |  |
 | C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
 | C34c | Citizen | Pune community subtitle ward-scoped (no BMC) | PASS |  |
@@ -169,7 +169,7 @@ _None_
 | C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=916ce790-b9f7-4d6c-8f38-cb2e33c4aae3 |
+| C16 | Citizen | Report submit success modal | PASS | rid=7bf48738-ca1e-4b0e-93f5-e0a383a2b5ae |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
@@ -227,8 +227,8 @@ _None_
 | E15b | Edge | Map empty share hidden first visit | PASS |  |
 | E16 | Edge | Invalid ward cleared on load | PASS |  |
 | L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.08s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 14ms |
+| L02 | Load | 200 reports refresh under 3s | PASS | 0.01s |
+| L03 | Load | 50x loadReports parse under 500ms | PASS | 6ms |
 | L04 | Load | Rapid corroboration increments | PASS | n=5 |
 | L05 | Load | Analytics batch enqueue | PASS |  |
 | M01 | Map | Leaflet map container | PASS |  |
@@ -454,7 +454,7 @@ _None_
 | SW03 | PWA | Manifest href valid | PASS |  |
 | SW04 | PWA | Theme color meta | PASS |  |
 | SW05 | PWA | App icons linked | PASS |  |
-| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | **FAIL** |  |
 | ST01 | Store | assetlinks.json served for TWA | PASS |  |
 | IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
 | IOS02 | iOS | viewport-fit=cover | PASS |  |
