@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v306';
+  const CIVIC_APP_VERSION = 'v307';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -19702,13 +19702,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!el || !el.parentNode) return;
 
+    const parent = el.parentNode;
+
     const note = document.createElement('span');
 
-    note.className = 'popup__note popup__note--done';
+    note.className = 'popup__note popup__note--following';
 
-    note.innerHTML = `<i class="ph ph-check-circle"></i> ${escapeHtml(t('confirm.done'))}`;
+    note.textContent = t('confirm.done');
 
     el.replaceWith(note);
+
+    const hint = parent.querySelector && parent.querySelector('.popup__follow-hint');
+
+    if (hint) hint.remove();
 
   }
 
@@ -27248,7 +27254,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const countLine = count > 0
 
-      ? `<span class="popup__pill popup__pill--confirms"><i class="ph ph-users"></i> ${count} ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</span>`
+      ? `<span class="popup__pill popup__pill--confirms"><i class="ph ph-hand-pointing" aria-hidden="true"></i> ${count} ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</span>`
 
       : '';
 
@@ -27256,11 +27262,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const fixCountLine = fixCount > 0
 
-      ? `<span class="popup__pill popup__pill--fixed"><i class="ph ph-check-circle"></i> ${fixCount === 1 ? escapeHtml(t('fix.countOne')) : escapeHtml(t('fix.countMany')).replace('{n}', String(fixCount))}</span>`
+      ? `<span class="popup__pill popup__pill--fixed"><i class="ph ph-shield-check" aria-hidden="true"></i> ${fixCount === 1 ? escapeHtml(t('fix.countOne')) : escapeHtml(t('fix.countMany')).replace('{n}', String(fixCount))}</span>`
 
       : '';
 
-    const pillsLine = (countLine || fixCountLine) ? `<div class="popup__pills">${countLine}${fixCountLine}</div>` : '';
+    const pillsLine = (countLine || fixCountLine) ? `<div class="popup__pills${countLine && fixCountLine ? ' popup__pills--pair' : ''}">${countLine}${fixCountLine}</div>` : '';
 
     let safety = '';
 
@@ -27289,7 +27295,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } else if (hasConfirmed(report.id)) {
 
-        action = `<span class="popup__note popup__note--done"><i class="ph ph-check-circle"></i> ${escapeHtml(t('confirm.done'))}</span>`;
+        action = `<span class="popup__note popup__note--following">${escapeHtml(t('confirm.done'))}</span>`;
 
       } else {
 
@@ -27302,7 +27308,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (hasFixConfirmed(report.id)) {
 
-          action += `<span class="popup__note popup__note--done"><i class="ph ph-check-circle"></i> ${escapeHtml(t('fix.done'))}</span>`;
+          action += `<span class="popup__status-pill popup__status-pill--voted"><i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(t('fix.done'))}</span>`;
 
         } else {
 
@@ -27373,27 +27379,39 @@ document.addEventListener('DOMContentLoaded', function () {
       : '';
 
 
+    const wardLabel = (report.ward || getCityLabel(getReportCity(report))).split('—')[0].trim();
+
     return `
 
       <div class="map-popup">
 
-        <div class="popup__title">${escapeHtml(hazardLabel(report.hazard))}</div>
+        <div class="popup__header">
 
-        <div class="popup__meta">${escapeHtml(status)} — ${escapeHtml((report.ward || getCityLabel(getReportCity(report))).split('—')[0].trim())}</div>
+          <div class="popup__title">${escapeHtml(hazardLabel(report.hazard))}</div>
 
-        ${societyLine}
+          <div class="popup__location">${escapeHtml(wardLabel)}</div>
 
-        ${notesLine}
+          ${societyLine}
 
-        ${proofSlider}
+        </div>
 
-        ${clearedLine}
+        <div class="popup__body">
 
-        ${pillsLine}
+          <div class="popup__meta">${escapeHtml(status)}</div>
 
-        ${action}
+          ${notesLine}
 
-        ${safety}
+          ${proofSlider}
+
+          ${clearedLine}
+
+          ${pillsLine}
+
+          ${action}
+
+          ${safety}
+
+        </div>
 
       </div>`;
 
