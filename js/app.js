@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v304';
+  const CIVIC_APP_VERSION = 'v305';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4374,6 +4374,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.greetingDefault': 'Hello, Citizen',
 
+      'profile.editName': 'Edit',
+
       'profile.referralCount': '{n} neighbour(s) joined via your invite — thank you!',
 
       'profile.selectWard': 'Select your ward',
@@ -4889,6 +4891,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.leaderboard': 'Community leaderboard and pledges',
 
       'aria.profile': 'Profile',
+
+      'aria.editDisplayName': 'Edit display name',
 
       'aria.report': 'Report hazard',
 
@@ -6852,6 +6856,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.greetingDefault': 'नमस्ते, नागरिक',
 
+      'profile.editName': 'बदलें',
+
       'profile.referralCount': 'आपके आमंत्रण से {n} पड़ोसी जुड़े — धन्यवाद!',
 
       'profile.selectWard': 'वार्ड चुनें',
@@ -7368,6 +7374,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.leaderboard': 'समुदाय लीडरबोर्ड और दान',
 
       'aria.profile': 'प्रोफ़ाइल',
+
+      'aria.editDisplayName': 'डिस्प्ले नाम बदलें',
 
       'aria.report': 'खतरा रिपोर्ट',
 
@@ -9330,6 +9338,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.greetingDefault': 'नमस्कार, नागरिक',
 
+      'profile.editName': 'बदला',
+
       'profile.referralCount': 'तुमच्या आमंत्रणातून {n} शेजारी जोडले — धन्यवाद!',
 
       'profile.selectWard': 'वॉर्ड निवडा',
@@ -9845,6 +9855,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.leaderboard': 'समुदाय लीडरबोर्ड आणि देणगी',
 
       'aria.profile': 'प्रोफाइल',
+
+      'aria.editDisplayName': 'डिस्प्ले नाव बदला',
 
       'aria.report': 'धोका तक्रार',
 
@@ -11807,6 +11819,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.greetingDefault': 'નમસ્તે, નાગરિક',
 
+      'profile.editName': 'બદલો',
+
       'profile.referralCount': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — આભાર!',
 
       'profile.selectWard': 'વોર્ડ પસંદ કરો',
@@ -12322,6 +12336,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.leaderboard': 'સમુદાય લીડરબોર્ડ અને દાન',
 
       'aria.profile': 'પ્રોફાઇલ',
+
+      'aria.editDisplayName': 'ડિસ્પ્લે નામ બદલો',
 
       'aria.report': 'જોખમ ફરિયાદ',
 
@@ -29460,6 +29476,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    const btnProfileEditName = $('#btnProfileEditName');
+
+    if (btnProfileEditName) {
+
+      btnProfileEditName.addEventListener('click', () => {
+
+        setCollapsibleSectionOpen('profileDetailsSection', 'profileDetailsBody', 'btnProfileDetailsToggle', true);
+
+        const nameInput = $('#profileDisplayNameInput');
+
+        if (nameInput) {
+
+          nameInput.focus({ preventScroll: true });
+
+          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        }
+
+      });
+
+    }
+
 
 
     const profileCity = $('#profileCity');
@@ -39427,6 +39465,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      // v305: one visible tracker (XP bar). Badge track stays in DOM for writes but hidden.
+      if (badgeTrackEl) {
+
+        badgeTrackEl.classList.add('hidden');
+
+        badgeTrackEl.setAttribute('aria-hidden', 'true');
+
+      }
+
       if (badgeProgressEl && badgeTrackEl) {
 
         badgeProgressEl.style.width = `${milestone.pct}%`;
@@ -39475,13 +39522,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const merged = parts.join(' · ');
 
-        if (xpHintEl) xpHintEl.textContent = merged;
+        if (xpHintEl) {
+
+          xpHintEl.textContent = merged;
+
+          xpHintEl.classList.remove('hidden');
+
+        }
 
         if (nextBadgeHintEl) {
 
           nextBadgeHintEl.textContent = '';
 
           nextBadgeHintEl.classList.add('hidden');
+
+          nextBadgeHintEl.setAttribute('aria-hidden', 'true');
 
         }
 

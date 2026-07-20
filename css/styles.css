@@ -3764,16 +3764,16 @@ body.pwa-nudge-visible #btnCamera {
 }
 
 .profile-rewards {
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .profile-rewards__streak {
   font-size: var(--fs-xs);
   font-weight: 600;
-  opacity: 0.92;
-  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 10px 0 0;
 }
 
 .profile-rewards__track {
@@ -3794,15 +3794,15 @@ body.pwa-nudge-visible #btnCamera {
 
 .profile-rewards__hint {
   font-size: var(--fs-xs);
-  opacity: 0.88;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.35;
   margin: 0;
 }
 
 .profile-xp {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .profile-xp__header {
@@ -3810,13 +3810,14 @@ body.pwa-nudge-visible #btnCamera {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .profile-xp__badge {
   font-size: var(--fs-sm);
   font-weight: 700;
   letter-spacing: 0.02em;
+  color: #fff;
 }
 
 .profile-xp__total {
@@ -3824,25 +3825,27 @@ body.pwa-nudge-visible #btnCamera {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .profile-xp__track {
-  height: 8px;
+  height: 10px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(15, 23, 42, 0.28);
   overflow: hidden;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .profile-xp__fill {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background-color: var(--surface);
+  background-color: #fff;
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.35) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   background-size: 200% 100%;
@@ -3852,8 +3855,8 @@ body.pwa-nudge-visible #btnCamera {
 
 .profile-xp__hint {
   font-size: var(--fs-xs);
-  opacity: 0.88;
-  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
   margin: 0;
 }
 
@@ -5605,11 +5608,15 @@ body.persona-lead .app-open-banner { display: none; }
 .profile-card {
   position: relative;
   overflow: hidden;
-  background: var(--grad-brand-cyan);
+  /* Darker brand plane so white identity type clears WCAG AA on the card */
+  background: linear-gradient(145deg, #3730a3 0%, #4338ca 48%, #0e7490 100%);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px;
   color: #fff;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* Aurora ambient glow (Fuselab-inspired, subtle primary tint) */
@@ -5621,8 +5628,8 @@ body.persona-lead .app-open-banner { display: none; }
   pointer-events: none;
   background: radial-gradient(
     ellipse 55% 45% at 35% 30%,
-    rgba(var(--primary-rgb), 0.2) 0%,
-    rgba(var(--primary-rgb), 0.08) 42%,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 42%,
     transparent 68%
   );
   animation: aurora-spin 20s linear infinite;
@@ -5651,7 +5658,7 @@ body.persona-lead .app-open-banner { display: none; }
   background: var(--surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-    padding: 18px 16px 6px;
+  padding: 18px 16px 6px;
   margin-bottom: 20px;
 }
 .profile-details-card .form-group:last-child { margin-bottom: 6px; }
@@ -5663,10 +5670,67 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--text);
 }
 
+/* v305 — chunked identity / progress / stats */
+.profile-card__identity {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.profile-card__identity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .profile-card__greeting {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.profile-card__edit-name {
+  flex-shrink: 0;
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-family: inherit;
   font-size: var(--fs-sm);
-  opacity: 0.9;
-  margin-bottom: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-card__edit-name:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.profile-card__edit-name:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.profile-card__progress {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.profile-card__progress:empty,
+.profile-card__progress:has(.profile-rewards.hidden) {
+  display: none;
 }
 
 .profile-card__ward {
@@ -5753,17 +5817,17 @@ body.persona-lead .app-open-banner { display: none; }
 .profile-badge i { font-size: var(--fs-base); }
 
 .profile-card__ward-impact {
-  font-size: var(--fs-xs);
-  opacity: 0.88;
-  margin-bottom: 12px;
-  line-height: 1.35;
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0 0 4px;
+  line-height: 1.4;
 }
 
 .profile-card__referral {
   font-size: var(--fs-xs);
   font-weight: 600;
-  opacity: 0.95;
-  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
   line-height: 1.35;
 }
 
@@ -5771,6 +5835,14 @@ body.persona-lead .app-open-banner { display: none; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.profile-card__stats .stat__value {
+  color: #fff;
+}
+
+.profile-card__stats .stat__label {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .profile-card__hint {
@@ -6750,16 +6822,39 @@ body.persona-lead .app-open-banner { display: none; }
 #profileModal .cr-section:first-of-type { margin-top: 16px; }
 #profileModal .profile-details-card { margin-bottom: 0; }
 
-/* Flatten the location block's box-in-a-box (v259) — the section heading and
-   grouped inputs carry the structure; the outer card border added a second
-   visual layer inside an already-carded modal. */
+/* v305 — location block is a real surface again; inputs get lighter fills so
+   they don't ghost into the dark modal canvas. */
 #profileModal #profileLocationBlock {
-  border: none;
-  background: transparent;
-  border-radius: 0;
-  padding-left: 0;
-  padding-right: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px 10px;
 }
+
+#profileModal #profileLocationBlock .form-group input:not([type="checkbox"]):not([type="radio"]),
+#profileModal #profileLocationBlock .form-group select,
+#profileModal #profileDetailsSection .form-group input:not([type="checkbox"]):not([type="radio"]) {
+  background: var(--surface-light);
+  border: 1.5px solid var(--border);
+  color: var(--text-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+#profileModal #profileLocationBlock .form-group input:focus,
+#profileModal #profileLocationBlock .form-group select:focus,
+#profileModal #profileDetailsSection .form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.28);
+}
+
+#profileModal #profileLocationBlock .form-group input:focus-visible,
+#profileModal #profileLocationBlock .form-group select:focus-visible,
+#profileModal #profileDetailsSection .form-group input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+}
+
 #profileModal .profile-footer { margin-top: 8px; }
 
 .esc-step__official {
@@ -10922,7 +11017,7 @@ body.sheet-depth-blocking .map-hud {
   .report-card,
   .pledge-card,
   .dashboard-stat,
-  .profile-details-card,
+  .profile-details-card:not(#profileLocationBlock),
   .esc-step,
   .impact-stat {
     border: none !important;
@@ -10931,6 +11026,37 @@ body.sheet-depth-blocking .map-hud {
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.08),
       0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Profile location + details fields: visible resting surface (v305) */
+  #profileModal #profileLocationBlock {
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    background: var(--surface-light);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  #profileModal #profileLocationBlock .form-group input:not([type="checkbox"]):not([type="radio"]),
+  #profileModal #profileLocationBlock .form-group select,
+  #profileModal #profileDetailsSection .form-group input:not([type="checkbox"]):not([type="radio"]) {
+    background: #1e293b;
+    border-color: rgba(148, 163, 184, 0.35);
+    color: var(--text-primary, #f9fafb);
+  }
+
+  #profileModal #profileLocationBlock .form-group input:focus,
+  #profileModal #profileLocationBlock .form-group select:focus,
+  #profileModal #profileDetailsSection .form-group input:focus,
+  #profileModal #profileLocationBlock .form-group input:focus-visible,
+  #profileModal #profileLocationBlock .form-group select:focus-visible,
+  #profileModal #profileDetailsSection .form-group input:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.35);
+  }
+
+  .profile-card {
+    background: linear-gradient(145deg, #312e81 0%, #3730a3 45%, #155e75 100%);
   }
 
   .esc-step--active {

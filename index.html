@@ -953,32 +953,42 @@
       <p class="persona-tag persona-tag--citizen" id="profilePersonaTag" data-i18n="profile.persona">Citizen</p>
 
       <div class="profile-card">
-        <div class="profile-card__greeting" id="profileGreeting">Hello, Citizen</div>
-        <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
-        <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
-        <p class="profile-card__referral hidden" id="profileReferralLine" aria-live="polite"></p>
-        <div class="profile-rewards hidden" id="profileRewards" aria-label="Rewards progress">
-          <div class="profile-xp" id="profileXp" aria-label="Civic Points level">
-            <div class="profile-xp__header">
-              <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
-              <span class="profile-xp__total" id="profileXpTotal">0 Civic Points</span>
+        <div class="profile-card__identity">
+          <div class="profile-card__identity-row">
+            <div class="profile-card__greeting" id="profileGreeting">Hello, Citizen</div>
+            <button type="button" class="profile-card__edit-name" id="btnProfileEditName" data-i18n-aria="aria.editDisplayName" aria-label="Edit display name">
+              <span data-i18n="profile.editName">Edit</span>
+            </button>
+          </div>
+          <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
+          <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
+          <p class="profile-card__referral hidden" id="profileReferralLine" aria-live="polite"></p>
+        </div>
+        <div class="profile-card__progress">
+          <div class="profile-rewards hidden" id="profileRewards" aria-label="Rewards progress">
+            <div class="profile-xp" id="profileXp" aria-label="Civic Points level">
+              <div class="profile-xp__header">
+                <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
+                <span class="profile-xp__total" id="profileXpTotal">0 Civic Points</span>
+              </div>
+              <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
+                <div class="profile-xp__fill" id="profileXpProgress"></div>
+              </div>
+              <p class="profile-xp__hint" id="profileXpHint"></p>
             </div>
-            <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
-              <div class="profile-xp__fill" id="profileXpProgress"></div>
+            <div class="profile-rewards__streak" id="profileStreakLine"></div>
+            <div class="streak-tracker hidden" id="profileStreakTracker" aria-hidden="true">
+              <span class="streak-tracker__step" data-week="1"></span>
+              <span class="streak-tracker__step" data-week="2"></span>
+              <span class="streak-tracker__step" data-week="3"></span>
+              <span class="streak-tracker__step" data-week="4"></span>
             </div>
-            <p class="profile-xp__hint" id="profileXpHint"></p>
+            <!-- Kept for JS progress writes; visually merged into profileXpTrack (v305) -->
+            <div class="profile-rewards__track hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-hidden="true" id="profileBadgeTrack">
+              <div class="profile-rewards__fill" id="profileBadgeProgress"></div>
+            </div>
+            <p class="profile-rewards__hint hidden" id="profileNextBadgeHint" aria-hidden="true"></p>
           </div>
-          <div class="profile-rewards__streak" id="profileStreakLine"></div>
-          <div class="streak-tracker hidden" id="profileStreakTracker" aria-hidden="true">
-            <span class="streak-tracker__step" data-week="1"></span>
-            <span class="streak-tracker__step" data-week="2"></span>
-            <span class="streak-tracker__step" data-week="3"></span>
-            <span class="streak-tracker__step" data-week="4"></span>
-          </div>
-          <div class="profile-rewards__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileBadgeTrack">
-            <div class="profile-rewards__fill" id="profileBadgeProgress"></div>
-          </div>
-          <p class="profile-rewards__hint" id="profileNextBadgeHint"></p>
         </div>
         <div class="profile-card__stats">
           <div class="stat stat--points">
