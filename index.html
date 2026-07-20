@@ -956,9 +956,13 @@
         <div class="profile-card__identity">
           <div class="profile-card__identity-row">
             <div class="profile-card__greeting" id="profileGreeting">Hello, Citizen</div>
-            <button type="button" class="profile-card__edit-name" id="btnProfileEditName" data-i18n-aria="aria.editDisplayName" aria-label="Edit display name">
+            <button type="button" class="profile-card__edit-name" id="btnProfileEditName" data-i18n-aria="aria.editProfile" aria-label="Edit profile" aria-haspopup="dialog" aria-controls="profileEditModal">
               <span data-i18n="profile.editName">Edit</span>
             </button>
+          </div>
+          <div class="profile-card__identity-summary" id="profileIdentitySummary">
+            <span class="profile-card__ward-pill" id="profileWardPill"></span>
+            <span class="profile-card__society-line hidden" id="profileSocietyLine"></span>
           </div>
           <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
           <p class="profile-card__ward-impact hidden" id="profileWardImpact"></p>
@@ -1002,48 +1006,6 @@
           <div class="stat">
             <span class="stat__value" id="profilePending">0</span>
             <span class="stat__label" data-i18n="profile.pending">Open</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="profile-location profile-details-card" id="profileLocationBlock">
-        <h3 class="profile-location__title" data-i18n="profile.section.location">City, ward &amp; neighbourhood</h3>
-        <div class="profile-ward form-group">
-          <label for="profileCity" data-i18n="onboard.city">Your city</label>
-          <select id="profileCity" aria-describedby="profileWardHint">
-            <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-            <option value="pune" data-i18n-option="city.pune">Pune</option>
-            <option value="thane" data-i18n-option="city.thane">Thane</option>
-          </select>
-          <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
-          <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick a ward, or detect with GPS.</p>
-          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
-          <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
-        </div>
-
-        <div class="profile-society form-group">
-          <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
-          <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
-          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Societies in your ward — type to add yours.</p>
-          <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
-        </div>
-      </div>
-
-      <div class="cr-section" id="profileDetailsSection">
-        <button type="button" class="cr-section__toggle" id="btnProfileDetailsToggle" aria-expanded="true" aria-controls="profileDetailsBody">
-          <span class="profile-nav-label">
-            <span class="profile-nav-icon profile-nav-icon--details" aria-hidden="true"><i class="ph ph-user-circle"></i></span>
-            <span data-i18n="profile.section.details">Your details</span>
-          </span>
-          <i class="ph ph-caret-down" aria-hidden="true"></i>
-        </button>
-        <div class="cr-section__body" id="profileDetailsBody">
-          <div class="profile-details-card">
-            <div class="profile-name form-group">
-              <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
-              <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
-            </div>
           </div>
         </div>
       </div>
@@ -1176,6 +1138,52 @@
         </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile identity edit sheet (name / city / ward / society) -->
+  <div class="modal-overlay" id="profileEditOverlay" aria-hidden="true">
+    <div class="modal modal--tall" id="profileEditModal" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="profileEdit" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
+      <h2 id="profileEditTitle" data-i18n="profile.editTitle">Edit profile</h2>
+      <p class="modal__subtitle" data-i18n="profile.editSubtitle">Name, city, ward &amp; neighbourhood</p>
+
+      <div class="profile-edit-sheet" id="profileLocationBlock">
+        <div class="profile-name form-group">
+          <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
+          <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+        </div>
+
+        <div class="profile-ward form-group">
+          <label for="profileCity" data-i18n="onboard.city">Your city</label>
+          <select id="profileCity" aria-describedby="profileWardHint">
+            <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+            <option value="pune" data-i18n-option="city.pune">Pune</option>
+            <option value="thane" data-i18n-option="city.thane">Thane</option>
+          </select>
+          <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
+          <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
+          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick a ward, or detect with GPS.</p>
+          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+          <button type="button" class="btn btn--secondary btn--full profile-edit-sheet__detect" id="btnProfileDetectWard">
+            <i class="ph ph-crosshair" aria-hidden="true"></i>
+            <span data-i18n="profile.detectWard">Detect with GPS</span>
+          </button>
+          <span id="profileWard" class="profile-ward-admin-tap" aria-hidden="true" tabindex="-1"></span>
+        </div>
+
+        <div class="profile-society form-group">
+          <label for="profileSocietyInput" data-i18n="profile.society">Society / neighbourhood (optional)</label>
+          <input type="text" id="profileSocietyInput" maxlength="120" placeholder="Type your society / RWA name if not listed" data-i18n-ph="profile.societyPh" autocomplete="off" aria-describedby="profileSocietyHint">
+          <p class="field-hint" id="profileSocietyHint" data-i18n="profile.societyHintWard">Societies in your ward — type to add yours.</p>
+          <a id="linkCoopRegistry" href="https://cooperatives.gov.in/" target="_blank" rel="noopener noreferrer" class="profile-society__link" data-i18n="profile.societyRegistry">Find your registered cooperative society</a>
+        </div>
+      </div>
+
+      <div class="modal__sticky-footer">
+        <button type="button" class="btn btn--primary btn--full" id="btnProfileEditDone" data-i18n="profile.editDone">Done</button>
       </div>
     </div>
   </div>

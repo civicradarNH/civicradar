@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v307';
+  const CIVIC_APP_VERSION = 'v312';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -919,6 +919,8 @@ document.addEventListener('DOMContentLoaded', function () {
     volunteer: $('#volunteerOverlay'),
 
     profile: $('#profileOverlay'),
+
+    profileEdit: $('#profileEditOverlay'),
 
     deleteConfirm: $('#deleteConfirmOverlay'),
 
@@ -2256,6 +2258,8 @@ document.addEventListener('DOMContentLoaded', function () {
       wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
 
     }
+
+    syncProfileIdentitySummary();
 
   }
 
@@ -4376,6 +4380,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.editName': 'Edit',
 
+      'profile.editTitle': 'Edit profile',
+
+      'profile.editSubtitle': 'Name, city, ward & neighbourhood',
+
+      'profile.editDone': 'Done',
+
+      'profile.detectWard': 'Detect with GPS',
+
+      'profile.change': 'Change',
+
       'profile.referralCount': '{n} neighbour(s) joined via your invite — thank you!',
 
       'profile.selectWard': 'Select your ward',
@@ -4893,6 +4907,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.profile': 'Profile',
 
       'aria.editDisplayName': 'Edit display name',
+
+      'aria.editProfile': 'Edit profile',
 
       'aria.report': 'Report hazard',
 
@@ -6858,6 +6874,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.editName': 'बदलें',
 
+      'profile.editTitle': 'प्रोफ़ाइल बदलें',
+
+      'profile.editSubtitle': 'नाम, शहर, वार्ड और पड़ोस',
+
+      'profile.editDone': 'हो गया',
+
+      'profile.detectWard': 'GPS से पता करें',
+
+      'profile.change': 'बदलें',
+
       'profile.referralCount': 'आपके आमंत्रण से {n} पड़ोसी जुड़े — धन्यवाद!',
 
       'profile.selectWard': 'वार्ड चुनें',
@@ -7376,6 +7402,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.profile': 'प्रोफ़ाइल',
 
       'aria.editDisplayName': 'डिस्प्ले नाम बदलें',
+
+      'aria.editProfile': 'प्रोफ़ाइल बदलें',
 
       'aria.report': 'खतरा रिपोर्ट',
 
@@ -9340,6 +9368,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.editName': 'बदला',
 
+      'profile.editTitle': 'प्रोफाइल बदला',
+
+      'profile.editSubtitle': 'नाव, शहर, वॉर्ड आणि परिसर',
+
+      'profile.editDone': 'झाले',
+
+      'profile.detectWard': 'GPS ने शोधा',
+
+      'profile.change': 'बदला',
+
       'profile.referralCount': 'तुमच्या आमंत्रणातून {n} शेजारी जोडले — धन्यवाद!',
 
       'profile.selectWard': 'वॉर्ड निवडा',
@@ -9857,6 +9895,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.profile': 'प्रोफाइल',
 
       'aria.editDisplayName': 'डिस्प्ले नाव बदला',
+
+      'aria.editProfile': 'प्रोफाइल बदला',
 
       'aria.report': 'धोका तक्रार',
 
@@ -11821,6 +11861,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.editName': 'બદલો',
 
+      'profile.editTitle': 'પ્રોફાઇલ બદલો',
+
+      'profile.editSubtitle': 'નામ, શહેર, વોર્ડ અને પડોશ',
+
+      'profile.editDone': 'થઈ ગયું',
+
+      'profile.detectWard': 'GPSથી શોધો',
+
+      'profile.change': 'બદલો',
+
       'profile.referralCount': '🎉 તમારા આમંત્રણથી {n} પડોશીઓ જોડાયા — આભાર!',
 
       'profile.selectWard': 'વોર્ડ પસંદ કરો',
@@ -12338,6 +12388,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'aria.profile': 'પ્રોફાઇલ',
 
       'aria.editDisplayName': 'ડિસ્પ્લે નામ બદલો',
+
+      'aria.editProfile': 'પ્રોફાઇલ બદલો',
 
       'aria.report': 'જોખમ ફરિયાદ',
 
@@ -19340,6 +19392,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       hidePwaInstallNudge();
 
+      // Ensure a parked report-path chip is retried — some openers (coach/tour)
+      // do not go through closeModal's flushSecondaryNudges path.
+      scheduleDeferredPwaNudgeFlush(pendingPwaNudgeTrigger === 'report' ? 320 : 2800);
+
     }
 
     // Clear soft toasts so they cannot sit on ToS / coach / success.
@@ -21765,11 +21821,116 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function resetProfileSectionsOnOpen() {
-    setCollapsibleSectionOpen('profileDetailsSection', 'profileDetailsBody', 'btnProfileDetailsToggle', true);
     setCollapsibleSectionOpen('profileActivitySection', 'profileActivityBody', 'btnProfileActivityToggle', false);
     setCollapsibleSectionOpen('profileNotificationsSection', 'profileNotificationsBody', 'btnProfileNotificationsToggle', false);
     setCollapsibleSectionOpen('profileAccountSection', 'profileAccountBody', 'btnProfileAccountToggle', false);
   }
+
+  function formatWardPillLabel(ward) {
+    const raw = String(ward || '').trim();
+    if (!raw) return '';
+    const parts = raw.split(/\s*[—–-]\s*/);
+    if (parts.length >= 2 && parts[0].trim().length && parts[0].trim().length <= 28) {
+      return parts[0].trim();
+    }
+    if (raw.length > 32) return raw.slice(0, 30) + '…';
+    return raw;
+  }
+
+  function syncProfileIdentitySummary() {
+    const pill = $('#profileWardPill');
+    if (pill) {
+      const ward = (user.ward || '').trim();
+      if (ward) {
+        pill.textContent = formatWardPillLabel(ward);
+        pill.title = ward;
+        pill.classList.remove('profile-card__ward-pill--empty');
+      } else {
+        pill.textContent = t('profile.selectWard');
+        pill.removeAttribute('title');
+        pill.classList.add('profile-card__ward-pill--empty');
+      }
+    }
+    const societyLine = $('#profileSocietyLine');
+    if (societyLine) {
+      const society = (user.society || '').trim();
+      societyLine.textContent = society;
+      societyLine.classList.toggle('hidden', !society);
+      if (society) societyLine.title = society;
+      else societyLine.removeAttribute('title');
+    }
+  }
+
+  function finishProfileEditSheet() {
+    saveProfileDisplayName();
+    saveProfileSociety();
+    saveProfileWard();
+    syncProfileIdentitySummary();
+    updateProfileUI();
+    closeModal('profileEdit');
+  }
+
+  async function startProfileWardDetect() {
+    try { await wardDetectReady; } catch { /* ignore */ }
+    const btn = $('#btnProfileDetectWard');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    }
+    const city = getProfileCity();
+    if (!navigator.geolocation) {
+      showToast(t('toast.gpsUnavailable') || t('onboard.wardError'), 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+      }
+      return;
+    }
+    getPrecisePosition({ fresh: true, watchMaxMs: 5000, timeoutMs: 5000 })
+      .then((pos) => {
+        user.gpsConsent = true;
+        saveUser();
+        hideLocationBanner();
+        currentLat = pos.coords.latitude;
+        currentLng = pos.coords.longitude;
+        const ward = detectWardFromCoords(currentLat, currentLng, city);
+        const input = $('#profileWardInput');
+        if (ward && input) {
+          input.value = ward;
+          refreshSocietyDatalist(city, ward);
+          saveProfileWard();
+          syncProfileIdentitySummary();
+          showToast(t('onboard.wardDetectedHint') || ward, 'success', 2800);
+        } else {
+          showToast(t('toast.wardDetectFailed') || t('onboard.wardError'), 'error');
+        }
+      })
+      .catch(() => {
+        showToast(t('toast.gpsDenied') || t('onboard.wardError'), 'error');
+      })
+      .finally(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+        }
+      });
+  }
+
+  window.openProfileEditSheet = function () {
+    if (!overlays.profile || !overlays.profile.classList.contains('open')) {
+      window.openProfileModal();
+    }
+    updateProfileUI();
+    openModal('profileEdit');
+    requestAnimationFrame(() => {
+      const nameInput = $('#profileDisplayNameInput');
+      if (nameInput) {
+        try { nameInput.focus({ preventScroll: true }); } catch { /* ignore */ }
+      }
+    });
+  };
+
+  window.closeProfileEditSheet = function () { closeModal('profileEdit'); };
 
   // One snackbar at a time — new toast instantly replaces previous (timers + DOM).
   let _activeToastDismiss = null;
@@ -23923,6 +24084,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('MODAL', 'closeModal', { name });
 
+    if (name === 'profile' && overlays.profileEdit && overlays.profileEdit.classList.contains('open')) {
+
+      closeModal('profileEdit');
+
+    }
+
     const el = overlays[name];
 
     if (!el || !el.classList) {
@@ -24692,7 +24859,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   };
 
-  window.closeProfileModal = function () { closeModal('profile'); };
+  window.closeProfileModal = function () {
+    closeModal('profileEdit');
+    closeModal('profile');
+  };
 
   window.openAdminModal = function () {
 
@@ -24962,7 +25132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       pendingPwaNudgeTrigger = pendingPwaNudgeTrigger || 'visit';
 
-      scheduleDeferredPwaNudgeFlush();
+      scheduleDeferredPwaNudgeFlush(pendingPwaNudgeTrigger === 'report' ? 320 : 2800);
 
       return;
 
@@ -25386,7 +25556,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       pendingPwaNudgeTrigger = trigger;
 
-      scheduleDeferredPwaNudgeFlush();
+      // Report→success handoff is usually one frame; use a short retry so we are
+      // not stuck behind the 2.8s visit-path timer once Done clears the sheet.
+      scheduleDeferredPwaNudgeFlush(trigger === 'report' ? 320 : 2800);
 
       return;
 
@@ -25401,7 +25573,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       pendingPwaNudgeTrigger = trigger;
 
-      scheduleDeferredPwaNudgeFlush();
+      scheduleDeferredPwaNudgeFlush(2800);
 
       return;
 
@@ -25423,9 +25595,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function scheduleDeferredPwaNudgeFlush() {
+  function scheduleDeferredPwaNudgeFlush(delayMs) {
 
     if (pwaNudgeDeferTimer) return;
+
+    const wait = typeof delayMs === 'number' ? delayMs : 2800;
 
     pwaNudgeDeferTimer = setTimeout(() => {
 
@@ -25433,9 +25607,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!pendingPwaNudge) return;
 
-      if (hasActiveToast() || isPrimaryOverlayBlocking()) {
+      const trig = pendingPwaNudgeTrigger || 'report';
 
-        scheduleDeferredPwaNudgeFlush();
+      // Match maybeShowPwaNudge: report-path must not wait out share/reminder toasts.
+      if (isPrimaryOverlayBlocking() || (trig !== 'report' && hasActiveToast())) {
+
+        scheduleDeferredPwaNudgeFlush(trig === 'report' ? 320 : 2800);
 
         return;
 
@@ -25443,7 +25620,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       flushPendingPwaNudge();
 
-    }, 2800);
+    }, wait);
 
   }
 
@@ -28853,9 +29030,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wireCollapsibleSection('btnGetInvolvedToggle', 'getInvolvedBody', 'getInvolvedSection');
 
-
-    wireCollapsibleSection('btnProfileDetailsToggle', 'profileDetailsBody', 'profileDetailsSection');
-
     wireCollapsibleSection('btnProfileActivityToggle', 'profileActivityBody', 'profileActivitySection');
 
     wireCollapsibleSection('btnProfileNotificationsToggle', 'profileNotificationsBody', 'profileNotificationsSection');
@@ -29447,7 +29621,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('pageshow', (e) => {
 
-      if (isReportPhotoPickerActive() || hasReportPhotoPreview()) {
+      // Do not use isReportPhotoPickerActive() here — it is true for
+      // PHOTO_RETURN_GUARD_MS after any syncReportPhotoReturn (including the
+      // E2E/canvas inject path), which reopened the report sheet after Success
+      // Done and ate the PWA install nudge (C19b).
+      const livePhotoReturn = reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto();
+
+      const previewOnOpenSheet = hasReportPhotoPreview() && overlays.report?.classList.contains('open');
+
+      if (livePhotoReturn || previewOnOpenSheet) {
 
         debugLog('PHOTO', 'pageshow during report', { persisted: !!e.persisted, pickerActive: isReportPhotoPickerActive(), hasPreview: hasReportPhotoPreview() });
 
@@ -29459,6 +29641,12 @@ document.addEventListener('DOMContentLoaded', function () {
         scheduleMapResize();
 
         return;
+
+      }
+
+      if (hasReportPhotoPreview() && !overlays.report?.classList.contains('open')) {
+
+        clearReportPhotoPreviewOnly();
 
       }
 
@@ -29500,17 +29688,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btnProfileEditName.addEventListener('click', () => {
 
-        setCollapsibleSectionOpen('profileDetailsSection', 'profileDetailsBody', 'btnProfileDetailsToggle', true);
+        window.openProfileEditSheet();
 
-        const nameInput = $('#profileDisplayNameInput');
+      });
 
-        if (nameInput) {
+    }
 
-          nameInput.focus({ preventScroll: true });
+    const btnProfileEditDone = $('#btnProfileEditDone');
 
-          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (btnProfileEditDone) {
 
-        }
+      btnProfileEditDone.addEventListener('click', () => {
+
+        finishProfileEditSheet();
+
+      });
+
+    }
+
+    const btnProfileDetectWard = $('#btnProfileDetectWard');
+
+    if (btnProfileDetectWard) {
+
+      btnProfileDetectWard.addEventListener('click', () => {
+
+        startProfileWardDetect();
 
       });
 
@@ -29527,6 +29729,8 @@ document.addEventListener('DOMContentLoaded', function () {
         syncProfileCityUi(getProfileCity());
 
         saveProfileWard();
+
+        syncProfileIdentitySummary();
 
       });
 
@@ -29550,9 +29754,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       });
 
-      profileWardInput.addEventListener('change', saveProfileWard);
+      profileWardInput.addEventListener('change', () => {
 
-      profileWardInput.addEventListener('blur', saveProfileWard);
+        saveProfileWard();
+
+        syncProfileIdentitySummary();
+
+      });
+
+      profileWardInput.addEventListener('blur', () => {
+
+        saveProfileWard();
+
+        syncProfileIdentitySummary();
+
+      });
 
     }
 
@@ -31857,6 +32073,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       clearReportDraft();
 
+      // Drop camera-return guards so a pageshow/popstate during/after success
+      // cannot misread the just-finished submit as a native camera return and
+      // reopen the report sheet (which suppresses the PWA install nudge).
+      reportPhotoDismissGuard = 0;
+
+      reportPhotoHistoryPending = false;
+
+      finishReportPhotoFlow('submitSuccess');
+
       showSuccessModal(weekBonus, savedPhoto);
 
       maybeShowPwaNudge('report');
@@ -32421,6 +32646,21 @@ document.addEventListener('DOMContentLoaded', function () {
     setNavTab('map');
 
     flushSecondaryNudgesAfterOverlay();
+
+    // Hard guarantee after Done: if a suppress race ate the flush, show now.
+    if (!pwaNudgeVisible && canShowPwaNudge() && !isAppleMobile() && !isPrimaryOverlayBlocking()) {
+
+      showPwaInstallNudge();
+
+    } else if (!pwaNudgeVisible && canShowPwaNudge() && !isAppleMobile()) {
+
+      pendingPwaNudge = true;
+
+      pendingPwaNudgeTrigger = 'report';
+
+      scheduleDeferredPwaNudgeFlush(320);
+
+    }
 
     let shareNudgeShown = false;
 
@@ -39213,6 +39453,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cacheSocietyIfCustom(user.city || DEFAULT_CITY, user.ward, val);
 
+    syncProfileIdentitySummary();
+
   }
 
 
@@ -39240,6 +39482,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (document.activeElement !== input) input.value = user.displayName;
+
+    syncProfileIdentitySummary();
 
   }
 
@@ -39324,6 +39568,8 @@ document.addEventListener('DOMContentLoaded', function () {
       societyInput.value = user.society || '';
 
     }
+
+    syncProfileIdentitySummary();
 
 
 

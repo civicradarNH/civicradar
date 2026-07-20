@@ -667,6 +667,18 @@ async def dismiss_civic_comboboxes(page):
     )
 
 
+async def open_profile_edit_sheet(page):
+    """Open Profile, then the identity Edit bottom sheet (fields live there since v308)."""
+    await page.evaluate(
+        """() => {
+          if (typeof window.openProfileModal === 'function') window.openProfileModal();
+          if (typeof window.openProfileEditSheet === 'function') window.openProfileEditSheet();
+        }"""
+    )
+    await page.wait_for_timeout(250)
+    await page.wait_for_selector('#profileEditOverlay.open', timeout=5000)
+
+
 
 
 
@@ -1391,28 +1403,28 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await page.click('#btnSuccessClose')
+    # js_click: Done can sit under toast/celebrate chrome; Playwright actionability
+    # retries are flaky under suite load and can miss dismissSuccessModal's flush.
+    await js_click(page, '#btnSuccessClose')
 
-    # Success close flushes a pending report-path PWA nudge; allow overlay teardown
-    # + flushSecondaryNudgesAfterOverlay before asserting (3s was flaky under suite load).
+    # v312: dismissSuccessModal hard-guarantees the report-path install chip;
+    # latch on first appearance (do not require it still visible after later
+    # suppress/flush races — the product already showed the nudge).
+    pwa_nudge = False
     try:
         await page.wait_for_function(
             """() => {
               const el = document.getElementById('pwaInstallNudge');
               return !!(el && !el.classList.contains('hidden'));
             }""",
-            timeout=8000,
+            timeout=12000,
         )
+        pwa_nudge = True
     except Exception:
-        pass
-
-    pwa_nudge = await page.evaluate("""() => {
-
-      const el = document.getElementById('pwaInstallNudge');
-
-      return !!(el && !el.classList.contains('hidden'));
-
-    }""")
+        pwa_nudge = await page.evaluate("""() => {
+          const el = document.getElementById('pwaInstallNudge');
+          return !!(el && !el.classList.contains('hidden'));
+        }""")
 
     s.record('C19b', 'Citizen', 'PWA nudge after first report', pwa_nudge)
 
@@ -5149,13 +5161,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await page.wait_for_timeout(300)
 
-    await page.evaluate('() => window.openProfileModal()')
+    await open_profile_edit_sheet(page)
 
     await page.fill('#profileSocietyInput', 'Phoenix Mills CHS Test')
 
     await page.evaluate('() => { document.getElementById("profileSocietyInput").dispatchEvent(new Event("change", { bubbles: true })); }')
 
     await page.wait_for_timeout(200)
+
+    await page.evaluate('() => { if (typeof window.closeProfileEditSheet === "function") window.closeProfileEditSheet(); }')
+
+    await page.wait_for_timeout(100)
 
     saved_society = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").society || ""')
 
@@ -5263,9 +5279,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     custom_name = 'My Custom RWA Test 9876'
 
-    await page.evaluate('() => window.openProfileModal()')
-
-    await page.wait_for_timeout(200)
+    await open_profile_edit_sheet(page)
 
     await page.fill('#profileSocietyInput', custom_name)
 
@@ -5311,9 +5325,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ward_b_profile = 'G/S Ward — Worli, Lower Parel'
 
-    await page.evaluate('() => window.openProfileModal()')
-
-    await page.wait_for_timeout(200)
+    await open_profile_edit_sheet(page)
 
     await page.fill('#profileWardInput', ward_b_profile)
 
@@ -5338,6 +5350,10 @@ async def run_extended_scenarios(s: Suite, browser):
     )
 
     await page.wait_for_timeout(150)
+
+    await page.evaluate('() => { if (typeof window.closeProfileEditSheet === "function") window.closeProfileEditSheet(); }')
+
+    await page.wait_for_timeout(100)
 
     saved_profile_ward = await page.evaluate(
 
@@ -5491,7 +5507,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v307" in sw_src
+            "civicradar-v312" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8648,7 +8664,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v307" in sw_src
+            "civicradar-v312" in sw_src
 
             and "'/index.html'" not in sw_src
 

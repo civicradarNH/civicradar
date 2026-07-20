@@ -2452,9 +2452,9 @@ body.persona-lead .ios-install-hint {
   -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
   border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: var(--radius-pill);
+  /* No brand-glow halo — glass + hud shadow only (restraint v295/v310/v311) */
   box-shadow:
     var(--shadow-hud, 0 4px 20px rgba(15, 23, 42, 0.1)),
-    0 8px 28px rgba(var(--primary-rgb), 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   padding: 0 4px;
 }
@@ -5719,8 +5719,8 @@ body.persona-lead .app-open-banner { display: none; }
   min-width: var(--touch-min);
   padding: 8px 12px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.22);
   color: #fff;
   font-family: inherit;
   font-size: var(--fs-sm);
@@ -5730,13 +5730,93 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .profile-card__edit-name:hover {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
 .profile-card__edit-name:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
+}
+
+/* v308 — compact identity summary (ward pill + optional society) */
+.profile-card__identity-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-height: 0;
+}
+
+.profile-card__ward-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: var(--font-devanagari), var(--font-ui), inherit;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-card__ward-pill--empty {
+  font-weight: 500;
+  opacity: 0.88;
+  border-style: dashed;
+}
+
+.profile-card__society-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#profileEditOverlay {
+  z-index: 2250;
+}
+
+.profile-edit-sheet .form-group {
+  margin-bottom: 16px;
+}
+
+.profile-edit-sheet__detect {
+  margin-top: 12px;
+}
+
+.profile-edit-sheet .form-group input:not([type="checkbox"]):not([type="radio"]),
+.profile-edit-sheet .form-group select {
+  background: var(--surface-light, var(--canvas));
+  border: 1.5px solid var(--border);
+  color: var(--text-dark, var(--ink-900));
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-edit-sheet .form-group input:focus,
+.profile-edit-sheet .form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.28);
+}
+
+.profile-edit-sheet .form-group input:focus-visible,
+.profile-edit-sheet .form-group select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
 }
 
 .profile-card__progress {
@@ -6889,40 +6969,6 @@ body.persona-lead .app-open-banner { display: none; }
 .community-summary .impact-stats { margin-bottom: 0; }
 
 #profileModal .cr-section:first-of-type { margin-top: 16px; }
-#profileModal .profile-details-card { margin-bottom: 0; }
-
-/* v305 — location block is a real surface again; inputs get lighter fills so
-   they don't ghost into the dark modal canvas. */
-#profileModal #profileLocationBlock {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 18px 16px 10px;
-}
-
-#profileModal #profileLocationBlock .form-group input:not([type="checkbox"]):not([type="radio"]),
-#profileModal #profileLocationBlock .form-group select,
-#profileModal #profileDetailsSection .form-group input:not([type="checkbox"]):not([type="radio"]) {
-  background: var(--surface-light);
-  border: 1.5px solid var(--border);
-  color: var(--text-dark);
-  box-shadow: var(--shadow-sm);
-}
-
-#profileModal #profileLocationBlock .form-group input:focus,
-#profileModal #profileLocationBlock .form-group select:focus,
-#profileModal #profileDetailsSection .form-group input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.28);
-}
-
-#profileModal #profileLocationBlock .form-group input:focus-visible,
-#profileModal #profileLocationBlock .form-group select:focus-visible,
-#profileModal #profileDetailsSection .form-group input:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 0;
-}
 
 #profileModal .profile-footer { margin-top: 8px; }
 
@@ -9569,37 +9615,22 @@ html[lang="gu"] body {
   }
 }
 
-/* ---- FAB: brand fill + soft colored shadow + optional pulse ---- */
+/* ---- FAB: brand fill + pop shadow only (no infinite glow) ---- */
 #btnCamera {
   background: var(--grad-brand);
   box-shadow: var(--shadow-pop);
   min-height: var(--touch-min);
-  animation: fab-breathe 2.8s ease-in-out infinite;
+  animation: none;
 }
 
 #btnCamera:hover {
   transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.5);
+  box-shadow: var(--shadow-pop);
 }
 
 #btnCamera:active {
   transform: translateX(-50%) scale(0.96);
   animation: none;
-}
-
-@keyframes fab-breathe {
-  0%, 100% {
-    box-shadow: var(--shadow-pop);
-  }
-  50% {
-    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.52), 0 0 0 10px rgba(99, 102, 241, 0.1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #btnCamera {
-    animation: none;
-  }
 }
 
 /* Keep OSM attribution + zoom clear of floating dock + FAB */
@@ -11147,7 +11178,7 @@ body.sheet-depth-blocking .map-hud {
   .report-card,
   .pledge-card,
   .dashboard-stat,
-  .profile-details-card:not(#profileLocationBlock),
+  .profile-details-card,
   .esc-step,
   .impact-stat {
     border: none !important;
@@ -11158,29 +11189,18 @@ body.sheet-depth-blocking .map-hud {
       0 4px 6px rgba(0, 0, 0, 0.2);
   }
 
-  /* Profile location + details fields: visible resting surface (v305) */
-  #profileModal #profileLocationBlock {
-    border: 1px solid rgba(148, 163, 184, 0.28) !important;
-    background: var(--surface-light);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-      0 4px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  #profileModal #profileLocationBlock .form-group input:not([type="checkbox"]):not([type="radio"]),
-  #profileModal #profileLocationBlock .form-group select,
-  #profileModal #profileDetailsSection .form-group input:not([type="checkbox"]):not([type="radio"]) {
+  /* Profile edit sheet fields (v308) */
+  .profile-edit-sheet .form-group input:not([type="checkbox"]):not([type="radio"]),
+  .profile-edit-sheet .form-group select {
     background: #1e293b;
     border-color: rgba(148, 163, 184, 0.35);
     color: var(--text-primary, #f9fafb);
   }
 
-  #profileModal #profileLocationBlock .form-group input:focus,
-  #profileModal #profileLocationBlock .form-group select:focus,
-  #profileModal #profileDetailsSection .form-group input:focus,
-  #profileModal #profileLocationBlock .form-group input:focus-visible,
-  #profileModal #profileLocationBlock .form-group select:focus-visible,
-  #profileModal #profileDetailsSection .form-group input:focus-visible {
+  .profile-edit-sheet .form-group input:focus,
+  .profile-edit-sheet .form-group select:focus,
+  .profile-edit-sheet .form-group input:focus-visible,
+  .profile-edit-sheet .form-group select:focus-visible {
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.35);
   }
@@ -11408,7 +11428,8 @@ body.sheet-depth-blocking .map-hud {
   --glass-hud-bg: rgba(255, 255, 255, 0.88);
   --glass-hud-border: rgba(255, 255, 255, 0.64);
   --glass-hud-inset: rgba(255, 255, 255, 0.52);
-  --glass-hud-blur: 18px;
+  /* v311: slightly stronger frost; dark mode keeps its own border tokens */
+  --glass-hud-blur: 22px;
   /* Calmer rest elevation for floating map chrome (FAB keeps --shadow-pop) */
   --shadow-hud:
     0 1px 2px rgba(15, 23, 42, 0.05),
@@ -11878,5 +11899,167 @@ body::after {
   .location-banner__btn {
     background: var(--primary-fill);
     color: var(--on-primary) !important;
+  }
+}
+
+/* ============================================================
+   Map landing restraint polish (v310)
+   Gemini asks filtered: keep glass tokens · subtle Live pulse ·
+   no FAB neon · touch mins only where needed · no new SVGs.
+   ============================================================ */
+
+/* Live sync status: tiny opacity pulse on the cloud/Live dot only —
+   brand-mark already has radar ping; do not add a second wave layer. */
+.header__sync--cloud::before {
+  animation: sync-live-dot 2.6s ease-in-out infinite;
+}
+
+@keyframes sync-live-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__sync--cloud::before {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Map side controls: lock --touch-min (already 44px; tokenized for audit) */
+.map-locate-pill,
+.map-recenter {
+  width: var(--touch-min);
+  height: var(--touch-min);
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+/* Leaflet zoom already uses --touch-min; keep active press without layout shift
+   (transform-only — existing .nav-tab / map control :active scale left as-is). */
+.leaflet-control-zoom a {
+  min-width: var(--touch-min) !important;
+  min-height: var(--touch-min) !important;
+  line-height: var(--touch-min) !important;
+}
+
+/* FAB: rest shadow only — kill any leftover breathe/glow from earlier layers */
+#btnCamera,
+.fab {
+  animation: none !important;
+  box-shadow: var(--shadow-pop);
+}
+
+/* ============================================================
+   Header + bottom-nav polish (v311)
+   Gemini asks filtered for Clean SaaS + v295 quieter nav + v310 no glow:
+   · SKIP glowing indigo gradient active pill / inner-border aura
+   · SKIP forced white rgba(255,255,255,0.08) border on light glass
+   · SKIP heavy profile ambient shadow
+   · SHIP stronger --glass-hud-* · util cluster · soft trophy · 1px ring
+   · SHIP calm brand-tint active fill (no aura) · --ink-400 inactive
+   Custom nav SVGs + grayscale inactive unchanged. Header-only rings —
+   does not touch Profile Edit sheet or map pins.
+   ============================================================ */
+
+:root {
+  --glass-hud-bg: rgba(255, 255, 255, 0.92);
+  --glass-hud-blur: 22px;
+}
+
+/* EN / Trophy / Profile — light grouping via glass tokens */
+.header__actions {
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--surface-rgb), 0.45);
+  border: 1px solid var(--glass-hud-border);
+  box-shadow: inset 0 0 0 1px var(--glass-hud-inset);
+}
+
+.header__btn {
+  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Soft amber trophy — tint only, not casino gold gradient */
+#btnLeaderboard {
+  color: var(--warning-fg, #b45309);
+}
+
+#btnLeaderboard:hover {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+/* Subtle 1px brand ring — no ambient drop shadow */
+#btnProfile {
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb), 0.3);
+}
+
+#btnProfile:hover {
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb), 0.48);
+}
+
+/* Calm selected fill; keep thin ::before from v295; no glow pill */
+.nav-tab {
+  color: var(--ink-400);
+  min-height: max(var(--nav-height), var(--touch-min));
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.nav-tab.active {
+  color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+.nav-tab.active::after {
+  content: none; /* never reintroduce glow/gradient active pill */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-hud-bg: rgba(17, 24, 39, 0.9);
+    /* Dark keeps muted slate border + existing 0.08 inset — not light-mode white */
+  }
+
+  .header__actions {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: var(--glass-hud-border);
+  }
+
+  #btnLeaderboard {
+    color: #fbbf24;
+  }
+
+  #btnLeaderboard:hover {
+    color: #fcd34d;
+    background: rgba(251, 191, 36, 0.12);
+  }
+
+  #btnProfile {
+    box-shadow: inset 0 0 0 1px rgba(165, 180, 252, 0.4);
+  }
+
+  #btnProfile:hover {
+    box-shadow: inset 0 0 0 1px rgba(165, 180, 252, 0.55);
+  }
+
+  .nav-tab {
+    color: var(--ink-400);
+  }
+
+  .nav-tab.active {
+    color: #a5b4fc;
+    background: rgba(129, 140, 248, 0.14);
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-tab,
+  .header__btn {
+    transition: none;
   }
 }

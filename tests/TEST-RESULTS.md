@@ -1,6 +1,6 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-20 08:06:02
+**Run:** 2026-07-20 13:40:19
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
 **Total:** 40 | **Pass:** 40 | **Fail:** 0
@@ -113,7 +113,7 @@ _None_
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=e157c05c-f0fe-4541-ba18-60fba20582c0 |
+| C16 | Citizen | Report submit success modal | PASS | rid=e3be4795-a679-45ae-af95-2639ba5eb04f |
 | C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
