@@ -10,8 +10,13 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v301';
-const NETWORK_FIRST = ['/js/config.js', 'js/config.js'];
+const CACHE = 'civicradar-v302';
+const NETWORK_FIRST = [
+  '/js/config.js', 'js/config.js',
+  // Leaflet must not stick on a stale/broken cache entry (map empty state).
+  'vendor/leaflet/leaflet.js', '/vendor/leaflet/leaflet.js',
+  'vendor/leaflet/leaflet.css', '/vendor/leaflet/leaflet.css',
+];
 const SHELL_ASSETS = [
   'index.html', './', 'css/styles.css', 'css/phosphor-lite.css',
   'vendor/leaflet/leaflet.css', 'vendor/leaflet/leaflet.js',
@@ -63,6 +68,10 @@ function isNetworkFirst(url) {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+  // Same-origin only — never wrap OSM tiles / CDN (TF.js, Turnstile) in SW.
+  // Intercepting cross-origin under memory pressure returned Response.error()
+  // and made online devices look "offline".
+  if (url.origin !== self.location.origin) return;
   if (isNetworkFirst(url)) {
     e.respondWith(fetch(e.request).then((res) => {
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, copy)); }

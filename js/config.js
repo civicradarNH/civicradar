@@ -336,11 +336,12 @@
   /* ----- Photo moderation (protect citizens & community) ----- */
   moderation: {
     enabled: true,
-    maxUploadBytes: 8388608,       // 8 MB
     minWidth: 120,
     minHeight: 120,
     nsfwEnabled: true,             // lazy-loads NSFW model when online
+    nsfwOnAndroid: false,          // TF.js is too heavy before/after camera on many phones
     requireOnlineNsfw: false,      // true = block uploads when safety scan cannot run
+    maxUploadBytes: 5242880,       // 5 MB — keep camera files smaller on-device
     nsfwThresholds: { Porn: 0.55, Hentai: 0.55, Sexy: 0.88 },
   },
   };

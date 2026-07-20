@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v301';
+  const CIVIC_APP_VERSION = 'v302';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3061,7 +3061,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.fileType': 'Only JPEG, PNG, or WebP hazard photos are allowed.',
 
-      'moderation.blocked.fileSize': 'Photo is too large. Use a smaller image (max 8 MB).',
+      'moderation.blocked.fileSize': 'Photo is too large. Use a smaller image (max 5 MB).',
 
       'moderation.blocked.lowQuality': 'Photo is too small or unclear. Move closer to the hazard.',
 
@@ -3292,7 +3292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.tour': 'Take the quick tour',
 
-      'home.hero.trust': 'Free · works offline · 3 cities · 4 languages',
+      'home.hero.trust': 'Free · 3 cities · 4 languages',
 
       'home.hero.dismiss': 'Dismiss welcome card',
 
@@ -4600,6 +4600,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.photoFailed': 'Couldn\'t use that photo — try again.',
 
+      'map.error.title': 'Map could not load.',
+
+      'map.error.body': 'Something went wrong loading the map. Tap Retry — you can still report a hazard.',
+
+      'map.error.retry': 'Retry',
+
       'toast.gpsRequired': 'GPS is required to pin the hazard.',
 
       'toast.gpsOutsideCity': 'Location is outside your selected city. Move the pin inside city limits or update your city in Profile.',
@@ -5533,7 +5539,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.fileType': 'केवल JPEG, PNG या WebP hazard फ़ोटो स्वीकार हैं।',
 
-      'moderation.blocked.fileSize': 'फ़ोटो बहुत बड़ी है। छोटी छवि का उपयोग करें (अधिकतम 8 MB)।',
+      'moderation.blocked.fileSize': 'फ़ोटो बहुत बड़ी है। छोटी छवि का उपयोग करें (अधिकतम 5 MB)।',
 
       'moderation.blocked.lowQuality': 'फ़ोटो बहुत छोटी या अस्पष्ट है। खतरे के पास जाएँ।',
 
@@ -5766,7 +5772,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.tour': 'छोटा टूर देखें',
 
-      'home.hero.trust': 'मुफ़्त · ऑफ़लाइन काम करे · 3 शहर · 4 भाषाएँ',
+      'home.hero.trust': 'मुफ़्त · 3 शहर · 4 भाषाएँ',
 
       'home.hero.dismiss': 'स्वागत कार्ड बंद करें',
 
@@ -7073,6 +7079,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.photoFailed': 'वह फ़ोटो इस्तेमाल नहीं हो सकी — फिर कोशिश करें।',
 
+      'map.error.title': 'मानचित्र लोड नहीं हो सका।',
+
+      'map.error.body': 'मानचित्र लोड करते समय समस्या हुई। Retry दबाएँ — आप फिर भी खतरा रिपोर्ट कर सकते हैं।',
+
+      'map.error.retry': 'फिर कोशिश करें',
+
       'toast.gpsRequired': 'खतरा पिन के लिए GPS ज़रूरी।',
 
       'toast.gpsOutsideCity': 'स्थान आपके चुने शहर के बाहर है। पिन शहर की सीमा में लगाएँ या प्रोफ़ाइल में शहर बदलें।',
@@ -8005,7 +8017,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.fileType': 'फक्त JPEG, PNG किंवा WebP hazard फोटो स्वीकारले जातात.',
 
-      'moderation.blocked.fileSize': 'फोटो खूप मोठा आहे. लहान प्रतिमा वापरा (कमाल 8 MB).',
+      'moderation.blocked.fileSize': 'फोटो खूप मोठा आहे. लहान प्रतिमा वापरा (कमाल 5 MB).',
 
       'moderation.blocked.lowQuality': 'फोटो खूप लहान किंवा अस्पष्ट आहे. धोक्याजवळ जा.',
 
@@ -8238,7 +8250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.tour': 'छोटा टूर पाहा',
 
-      'home.hero.trust': 'मोफत · ऑफलाइन काम करते · 3 शहरे · 4 भाषा',
+      'home.hero.trust': 'मोफत · 3 शहरे · 4 भाषा',
 
       'home.hero.dismiss': 'स्वागत कार्ड बंद करा',
 
@@ -9544,6 +9556,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.photoFailed': 'तो फोटो वापरता आला नाही — पुन्हा प्रयत्न करा.',
 
+      'map.error.title': 'नकाशा लोड होऊ शकला नाही.',
+
+      'map.error.body': 'नकाशा लोड करताना समस्या आली. Retry दाबा — तुम्ही तरीही धोका रिपोर्ट करू शकता.',
+
+      'map.error.retry': 'पुन्हा प्रयत्न',
+
       'toast.gpsRequired': 'धोका पिनसाठी GPS आवश्यक.',
 
       'toast.gpsOutsideCity': 'स्थान तुमच्या निवडलेल्या शहराच्या बाहेर आहे. पिन शहराच्या मर्यादेत ठेवा किंवा प्रोफाइलमध्ये शहर बदला.',
@@ -10476,7 +10494,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.fileType': 'ફક્ત JPEG, PNG અથવા WebP hazard ફોટો સ્વીકાર્ય છે.',
 
-      'moderation.blocked.fileSize': 'ફોટો ખૂબ મોટો છે. નાની છબી વાપરો (મહત્તમ 8 MB).',
+      'moderation.blocked.fileSize': 'ફોટો ખૂબ મોટો છે. નાની છબી વાપરો (મહત્તમ 5 MB).',
 
       'moderation.blocked.lowQuality': 'ફોટો ખૂબ નાનો અથવા અસ્પષ્ટ છે. ખતરાની નજીક જાઓ.',
 
@@ -10709,7 +10727,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'home.hero.tour': 'ટૂંકો ટૂર જુઓ',
 
-      'home.hero.trust': 'મફત · ઑફલાઇન કામ કરે · 3 શહેર · 4 ભાષા',
+      'home.hero.trust': 'મફત · 3 શહેર · 4 ભાષા',
 
       'home.hero.dismiss': 'સ્વાગત કાર્ડ બંધ કરો',
 
@@ -12014,6 +12032,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.photoRequired': 'મોકલતા પહેલાં ફોટો ઉમેરો.',
 
       'toast.photoFailed': 'તે ફોટો વાપરી શકાયો નહીં — ફરી પ્રયાસ કરો.',
+
+      'map.error.title': 'નકશો લોડ થઈ શક્યો નહીં.',
+
+      'map.error.body': 'નકશો લોડ કરતી વખતે સમસ્યા આવી. Retry દબાવો — તમે હજુ પણ જોખમ રિપોર્ટ કરી શકો છો.',
+
+      'map.error.retry': 'ફરી પ્રયાસ',
 
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
@@ -23756,6 +23780,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** Push history + open the system camera/gallery. Must stay sync in a user gesture. */
   function launchReportPhotoInput() {
+    // Free decoded map tile bitmaps before the Android camera Activity — OS toast
+    // "Unable to complete previous operation due to low memory" often means
+    // the browser was OOM-killed while handing off to the camera.
+    try {
+      if (map && map.getPane) {
+        const pane = map.getPane('tilePane');
+        if (pane) {
+          pane.querySelectorAll('img').forEach((img) => {
+            try { img.removeAttribute('src'); } catch { /* ignore */ }
+          });
+        }
+      }
+    } catch { /* ignore */ }
 
     pushReportPhotoHistory();
 
@@ -23764,6 +23801,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (input) input.click();
 
   }
+
 
 
 
@@ -25812,135 +25850,148 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Map ---------- */
 
+  function loadLeafletIfNeeded() {
+    if (typeof L !== 'undefined') return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const bust = 'vendor/leaflet/leaflet.js?v=' + encodeURIComponent(CIVIC_APP_VERSION);
+      const existing = document.querySelector('script[data-civic-leaflet-retry]');
+      if (existing) {
+        const finish = () => resolve(typeof L !== 'undefined');
+        existing.addEventListener('load', finish, { once: true });
+        existing.addEventListener('error', () => resolve(false), { once: true });
+        setTimeout(finish, 4000);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = bust;
+      s.async = true;
+      s.setAttribute('data-civic-leaflet-retry', '1');
+      s.onload = () => resolve(typeof L !== 'undefined');
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+  }
+
   function initMap() {
-
     if (typeof L === 'undefined') {
-
-      showMapError();
-
-      hideAppLaunch();
-
+      loadLeafletIfNeeded().then((ok) => {
+        if (ok) {
+          initMap();
+          return;
+        }
+        showMapError('leaflet');
+        hideAppLaunch();
+      });
       return;
-
     }
+    if (map) {
+      try { map.invalidateSize({ pan: false }); } catch { /* ignore */ }
+      hideAppLaunch();
+      return;
+    }
+    const host = document.getElementById('map');
+    if (!host) {
+      showMapError('container');
+      hideAppLaunch();
+      return;
+    }
+    // Clear prior error UI so L.map can mount cleanly on Retry.
+    if (host.querySelector('.map-error')) host.innerHTML = '';
 
     if (window.CivicAnalytics) CivicAnalytics.perfStart('map_init_duration');
-
     try {
-
-      map = L.map('map', {
-
+      map = L.map(host, {
         zoomControl: false,
-
         attributionControl: false,
-
         tap: false,
-
       }).setView(getCityCenter(), 12);
-
-
 
       L.control.attribution({ prefix: false, position: 'bottomleft' }).addTo(map);
 
-
-
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-
         maxZoom: 19,
-
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-
       }).addTo(map);
-
-
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-
-
       reportMarkerLayer = L.layerGroup().addTo(map);
-
-      refreshReportMarkers();
-
-
+      try {
+        refreshReportMarkers();
+      } catch (markerErr) {
+        console.warn('Map markers deferred:', markerErr);
+      }
 
       map.on('moveend zoomend', scheduleRefreshReportMarkers);
 
-
-
       // GPS is requested only after explicit consent (DPDP). See maybeRequestLocation().
-
-      maybeRequestLocation(true);
-
+      try { maybeRequestLocation(true); } catch { /* ignore */ }
       if (window.visualViewport) {
-
         window.visualViewport.addEventListener('resize', scheduleMapResize);
-
         window.visualViewport.addEventListener('scroll', scheduleMapResize);
-
       }
-
       window.addEventListener('orientationchange', () => setTimeout(scheduleMapResize, 300));
-
       if (window.CivicAnalytics) CivicAnalytics.perfEnd('map_init_duration');
-
       hideAppLaunch();
-
+      requestAnimationFrame(scheduleMapResize);
     } catch (err) {
-
       console.error('Map failed to initialise:', err);
-
       if (window.CivicAnalytics) {
-
         CivicAnalytics.trackError(err.message || 'Map init failed', { stack: err.stack, context: 'initMap' });
-
         CivicAnalytics.perfEnd('map_init_duration', { failed: true });
-
       }
-
-      showMapError();
-
+      try { if (map) { map.remove(); } } catch { /* ignore */ }
+      map = null;
+      reportMarkerLayer = null;
+      showMapError('init');
       hideAppLaunch();
-
     }
-
   }
-
-
 
   function scheduleMapResize() {
-
     if (!map) return;
-
     requestAnimationFrame(() => {
-
       try { map.invalidateSize({ pan: false }); } catch { /* ignore */ }
-
     });
-
   }
 
+  function retryMapLoad() {
+    const el = document.getElementById('map');
+    if (el) el.innerHTML = '';
+    map = null;
+    reportMarkerLayer = null;
+    loadLeafletIfNeeded().then(() => {
+      initMap();
+      if (!map) {
+        try {
+          if (!sessionStorage.getItem('civic_map_retry_reload')) {
+            sessionStorage.setItem('civic_map_retry_reload', '1');
+            location.reload();
+          }
+        } catch { location.reload(); }
+      }
+    });
+  }
 
+  window.retryMapLoad = retryMapLoad;
 
-  function showMapError() {
-
+  function showMapError(reason) {
     const el = $('#map');
-
-    if (el) {
-
-      el.innerHTML =
-
-        '<div class="map-error"><i class="ph ph-wifi-slash"></i>' +
-
-        '<p>Map could not load. Check your connection and reload.</p>' +
-
-        '<button type="button" class="btn btn--primary btn--sm" onclick="location.reload()">Reload</button></div>';
-
+    if (!el) return;
+    const title = t('map.error.title');
+    const body = t('map.error.body');
+    const retry = t('map.error.retry');
+    const icon = reason === 'leaflet' ? 'ph-map-trifold' : 'ph-wifi-slash';
+    el.innerHTML =
+      '<div class="map-error"><i class="ph ' + icon + '" aria-hidden="true"></i>' +
+      '<p><strong>' + escapeHtml(title) + '</strong> ' + escapeHtml(body) + '</p>' +
+      '<button type="button" class="btn btn--primary btn--sm" id="btnMapRetry">' + escapeHtml(retry) + '</button></div>';
+    const btn = el.querySelector('#btnMapRetry');
+    if (btn) btn.addEventListener('click', () => retryMapLoad());
+    if (window.CivicAnalytics) {
+      CivicAnalytics.trackError('map_error_ui', { context: 'showMapError', reason: reason || 'unknown' });
     }
-
   }
-
-
 
   // Requests GPS only if the user accepted ToS and granted GPS consent.
 
@@ -29839,231 +29890,121 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const stillCurrent = () => captureGen === reportPhotoCaptureGen;
 
-
-
-    const reader = new FileReader();
-
-    reader.onerror = () => {
-
-      if (!stillCurrent()) {
-
-        debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'reader.onerror', captureGen });
-
-        return;
-
-      }
-
-      failReportPhotoCapture();
-
-    };
-
-    reader.onload = (ev) => {
-
-      if (!stillCurrent()) {
-
-        debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'reader.onload', captureGen });
-
-        return;
-
-      }
-
-      const img = new Image();
-
-      img.onload = async () => {
-
-        if (!stillCurrent()) {
-
-          debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'img.onload', captureGen });
-
-          return;
-
+    // Low-memory decode path: object URL + optional createImageBitmap resize.
+    // Avoids FileReader base64 (full-res × ~1.37) which spikes RAM on Android
+    // right after the camera Intent returns.
+    (async () => {
+      let objectUrl = null;
+      let bitmap = null;
+      try {
+        objectUrl = URL.createObjectURL(file);
+        const maxW = CANVAS_MAX_WIDTH;
+        if (typeof createImageBitmap === 'function') {
+          try {
+            bitmap = await createImageBitmap(file, {
+              resizeWidth: maxW,
+              resizeQuality: 'high',
+            });
+          } catch {
+            bitmap = await createImageBitmap(file);
+          }
         }
+        if (!stillCurrent()) return;
 
-        try {
+        const canvas = $('#imageCanvas');
+        if (!canvas) {
+          failReportPhotoCapture();
+          return;
+        }
+        const ctx = canvas.getContext('2d');
+        let w;
+        let h;
+        let drawSrc;
+        if (bitmap) {
+          w = bitmap.width;
+          h = bitmap.height;
+          drawSrc = bitmap;
+        } else {
+          const img = await new Promise((resolve, reject) => {
+            const el = new Image();
+            el.onload = () => resolve(el);
+            el.onerror = () => reject(new Error('img decode failed'));
+            el.src = objectUrl;
+          });
+          w = img.width;
+          h = img.height;
+          drawSrc = img;
+        }
+        if (!w || !h) {
+          failReportPhotoCapture();
+          return;
+        }
+        if (w > maxW) {
+          h = (h * maxW) / w;
+          w = maxW;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
+        ctx.drawImage(drawSrc, 0, 0, w, h);
+        if (bitmap && typeof bitmap.close === 'function') {
+          try { bitmap.close(); } catch { /* ignore */ }
+          bitmap = null;
+        }
+        drawSrc = null;
 
-          const canvas = $('#imageCanvas');
-
-          if (!canvas) {
-
-            failReportPhotoCapture();
-
-            return;
-
+        if (window.ImageModeration && getModCfg().enabled) {
+          setPhotoScanning(true);
+          let scan;
+          try {
+            scan = await Promise.race([
+              ImageModeration.scanCanvas(canvas, getModCfg()),
+              new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
+            ]);
+          } catch {
+            scan = { ok: true, errored: true };
           }
-
-          const ctx = canvas.getContext('2d');
-
-          let w = img.width;
-
-          let h = img.height;
-
-          if (!w || !h) {
-
-            failReportPhotoCapture();
-
-            return;
-
-          }
-
-          if (w > CANVAS_MAX_WIDTH) {
-
-            h = (h * CANVAS_MAX_WIDTH) / w;
-
-            w = CANVAS_MAX_WIDTH;
-
-          }
-
-          canvas.width = w;
-
-          canvas.height = h;
-
-          // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
-
-          ctx.drawImage(img, 0, 0, w, h);
-
-
-
-          if (window.ImageModeration && getModCfg().enabled) {
-
-            setPhotoScanning(true);
-
-            // Bounded + exception-safe — hung NSFW model load must not outlive the
-            // processing watchdog or leave scanning UI on after cancel/close.
-            let scan;
-
-            try {
-
-              scan = await Promise.race([
-
-                ImageModeration.scanCanvas(canvas, getModCfg()),
-
-                new Promise((resolve) => setTimeout(() => resolve({ ok: true, timedOut: true }), 8000)),
-
-              ]);
-
-            } catch {
-
-              scan = { ok: true, errored: true };
-
-            }
-
-            if (!stillCurrent()) {
-
-              setPhotoScanning(false);
-
-              debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'afterModeration', captureGen });
-
-              return;
-
-            }
-
-            setPhotoScanning(false);
-
-            if (!scan.ok) {
-
-              rejectPhoto(scan);
-
-              return;
-
-            }
-
-            reportPhotoModerationPassed = true;
-
-          } else {
-
-            reportPhotoModerationPassed = true;
-
-          }
-
-
-
           if (!stillCurrent()) {
-
-            debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'beforeConfirm', captureGen });
-
+            setPhotoScanning(false);
             return;
-
           }
-
-          canvas.classList.add('visible');
-
-          lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-
-          finishReportPhotoFlow('handlePhotoCapture');
-
-          reportPhotoDismissGuard = Date.now();
-
-          touchReportDraft({ step: 'confirm', awaitingPhoto: false });
-
-          advanceReportPhotoReady();
-
-          debugLog('PHOTO', 'handlePhotoCapture success', {
-
-            w,
-
-            h,
-
-            moderationPassed: reportPhotoModerationPassed,
-
-            captureGen,
-
-          });
-
-        } catch (err) {
-
-          debugLog('PHOTO', 'handlePhotoCapture exception', {
-
-            msg: err && err.message ? String(err.message).slice(0, 120) : 'error',
-
-            captureGen,
-
-          });
-
-          if (stillCurrent()) failReportPhotoCapture();
-
-          else setPhotoScanning(false);
-
+          setPhotoScanning(false);
+          if (!scan.ok) {
+            rejectPhoto(scan);
+            return;
+          }
+          reportPhotoModerationPassed = true;
+        } else {
+          reportPhotoModerationPassed = true;
         }
 
-      };
-
-      img.onerror = () => {
-
-        if (!stillCurrent()) {
-
-          debugLog('PHOTO', 'handlePhotoCapture stale', { where: 'img.onerror', captureGen });
-
-          return;
-
+        if (!stillCurrent()) return;
+        canvas.classList.add('visible');
+        lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+        finishReportPhotoFlow('handlePhotoCapture');
+        reportPhotoDismissGuard = Date.now();
+        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+        advanceReportPhotoReady();
+        debugLog('PHOTO', 'handlePhotoCapture success', {
+          w, h, moderationPassed: reportPhotoModerationPassed, captureGen,
+        });
+      } catch (err) {
+        debugLog('PHOTO', 'handlePhotoCapture exception', {
+          msg: err && err.message ? String(err.message).slice(0, 120) : 'error',
+          captureGen,
+        });
+        if (stillCurrent()) failReportPhotoCapture();
+        else setPhotoScanning(false);
+      } finally {
+        if (objectUrl) {
+          try { URL.revokeObjectURL(objectUrl); } catch { /* ignore */ }
         }
-
-        failReportPhotoCapture();
-
-      };
-
-      img.src = ev.target.result;
-
-    };
-
-    try {
-
-      reader.readAsDataURL(file);
-
-    } catch (err) {
-
-      debugLog('PHOTO', 'handlePhotoCapture readAsDataURL throw', {
-
-        msg: err && err.message ? String(err.message).slice(0, 120) : 'error',
-
-      });
-
-      failReportPhotoCapture();
-
-    }
-
+        if (bitmap && typeof bitmap.close === 'function') {
+          try { bitmap.close(); } catch { /* ignore */ }
+        }
+      }
+    })();
   }
-
-
 
   function resetSubmitReportButton() {
 
@@ -38218,56 +38159,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   async function compressImageFromFile(file) {
-
-    return new Promise((resolve, reject) => {
-
-      const reader = new FileReader();
-
-      reader.onload = (ev) => {
-
-        const img = new Image();
-
-        img.onload = () => {
-
-          const canvas = document.createElement('canvas');
-
-          const ctx = canvas.getContext('2d');
-
-          let w = img.width;
-
-          let h = img.height;
-
-          if (w > CANVAS_MAX_WIDTH) {
-
-            h = (h * CANVAS_MAX_WIDTH) / w;
-
-            w = CANVAS_MAX_WIDTH;
-
-          }
-
-          canvas.width = w;
-
-          canvas.height = h;
-
-          ctx.drawImage(img, 0, 0, w, h);
-
-          resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
-
-        };
-
-        img.onerror = () => reject(new Error('image load failed'));
-
-        img.src = ev.target.result;
-
-      };
-
-      reader.onerror = () => reject(new Error('read failed'));
-
-      reader.readAsDataURL(file);
-
-    });
-
+    let objectUrl = null;
+    let bitmap = null;
+    try {
+      const maxW = CANVAS_MAX_WIDTH;
+      let w;
+      let h;
+      let drawSrc;
+      if (typeof createImageBitmap === 'function') {
+        try {
+          bitmap = await createImageBitmap(file, { resizeWidth: maxW, resizeQuality: 'high' });
+        } catch {
+          bitmap = await createImageBitmap(file);
+        }
+        w = bitmap.width;
+        h = bitmap.height;
+        drawSrc = bitmap;
+      } else {
+        objectUrl = URL.createObjectURL(file);
+        const img = await new Promise((resolve, reject) => {
+          const el = new Image();
+          el.onload = () => resolve(el);
+          el.onerror = () => reject(new Error('image load failed'));
+          el.src = objectUrl;
+        });
+        w = img.width;
+        h = img.height;
+        drawSrc = img;
+      }
+      if (w > maxW) {
+        h = (h * maxW) / w;
+        w = maxW;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(drawSrc, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      canvas.width = 0;
+      canvas.height = 0;
+      return dataUrl;
+    } finally {
+      if (bitmap && typeof bitmap.close === 'function') {
+        try { bitmap.close(); } catch { /* ignore */ }
+      }
+      if (objectUrl) {
+        try { URL.revokeObjectURL(objectUrl); } catch { /* ignore */ }
+      }
+    }
   }
+
 
 
 

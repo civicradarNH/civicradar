@@ -8,7 +8,7 @@
 
   const DEFAULTS = {
     enabled: true,
-    maxUploadBytes: 8 * 1024 * 1024,
+    maxUploadBytes: 5 * 1024 * 1024,
     minWidth: 120,
     minHeight: 120,
     minColorVariance: 7,
@@ -194,8 +194,25 @@
     return pass({ lumStd, skinRatio, outdoorRatio, documentScore, uniqueColors });
   }
 
+  function shouldSkipHeavyNsfw(cfg) {
+    if (!cfg.nsfwEnabled) return true;
+    // TF.js + nsfwjs is a large peak-RAM hit; Android camera launch already
+    // competes for memory (system toast: "Unable to complete… low memory").
+    try {
+      if (cfg.nsfwForce === true) return false;
+      if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory > 0 && navigator.deviceMemory <= 2) {
+        return true;
+      }
+      if (/Android/i.test(navigator.userAgent || '') && cfg.nsfwOnAndroid !== true) {
+        return true;
+      }
+    } catch { /* ignore */ }
+    return false;
+  }
+
   async function classifyNsfw(source, cfg) {
     if (!cfg.nsfwEnabled) return pass({ nsfwSkipped: true });
+    if (shouldSkipHeavyNsfw(cfg)) return pass({ nsfwSkipped: true, lowMemory: true });
 
     if (!navigator.onLine) {
       if (cfg.requireOnlineNsfw) {
