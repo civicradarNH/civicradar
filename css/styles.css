@@ -64,16 +64,27 @@
   --warning-dark: #92400e;
   --warning-fg: #b45309;
 
-  /* Toasts — OS-style glass (readable on light canvas; dark-mode override below) */
-  --toast-glass-bg: rgba(15, 23, 42, 0.9);
+  /* Toasts — deep slate glass cards (Clean SaaS; dark-mode-safe on light canvas).
+     Soft emerald / indigo border accents only — never solid WA-green fills. */
+  --toast-glass-bg: rgba(15, 23, 42, 0.92);
   --toast-glass-border: rgba(255, 255, 255, 0.14);
+  --toast-glass-inset: rgba(255, 255, 255, 0.08);
   --toast-fg: #f8fafc;
-  /* Calm success tint — not solid emerald fighting WhatsApp #25D366 */
-  --toast-success-bg: rgba(236, 253, 245, 0.94);
-  --toast-success-border: rgba(4, 120, 87, 0.28);
-  --toast-success-fg: #065f46;
+  --toast-success-bg: rgba(15, 23, 42, 0.92);
+  --toast-success-border: rgba(52, 211, 153, 0.38); /* soft emerald accent */
+  --toast-success-fg: #f8fafc;
+  --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
   --toast-error-bg: rgba(153, 27, 27, 0.92);
-  --toast-info-bg: rgba(15, 23, 42, 0.9);
+  --toast-info-bg: rgba(15, 23, 42, 0.92);
+  /* Float above pin cards — stronger than generic --shadow-overlay alone */
+  --toast-shadow:
+    0 12px 40px -8px rgba(15, 23, 42, 0.38),
+    0 4px 14px rgba(15, 23, 42, 0.2),
+    inset 0 0 0 1px var(--toast-glass-inset);
+  /* WA CTA inside toast — dark glass + brand-green icon (not #25D366 fill block) */
+  --toast-wa-btn-bg: rgba(30, 41, 59, 0.88);
+  --toast-wa-btn-border: rgba(255, 255, 255, 0.16);
+  --toast-wa-btn-inset: rgba(255, 255, 255, 0.06);
 
   /* Leaderboard podium */
   --rank-gold-bg: #fef3c7;
@@ -111,8 +122,8 @@
   --dock-float: 16px; /* Living Map HUD: command strip float from bottom */
   --attr-clearance: 28px;
 
-  /* Z-index scale (v317) — map chrome → pin popup (Leaflet pane) → tab sheets →
-     nav → toasts → blocking modals → first-run (purpose / FAB tip). Toast sits
+  /* Z-index scale (v321) — map chrome → pin popup (Leaflet pane) → tab sheets →
+     nav → toasts → blocking modals → first-run (purpose / replay tour). Toast sits
      ABOVE nav/map chrome but BELOW blocking sheets; first-run isolates above all. */
   --z-map-chrome: 1000;
   --z-map-chrome-mid: 1002;   /* location banner, locate pill, ward pulse floats */
@@ -122,9 +133,9 @@
   --z-toast: 2150;            /* snackbars; below --z-modal */
   --z-modal: 2200;            /* blocking sheets (ToS, onboarding, report, success) */
   --z-modal-nested: 2350;     /* camera / geo / confirm above report */
-  --z-first-run: 2450;        /* purpose sheet + FAB spotlight — highest chrome */
+  --z-first-run: 2500;        /* purpose sheet + replay tour — above leaflet popup pane */
   --z-coach: var(--z-first-run); /* alias */
-  --first-run-scrim: rgba(15, 23, 42, 0.85);
+  --first-run-scrim: rgba(15, 23, 42, 0.94);
 
   /* Radii */
   --radius-sm: 8px;
@@ -716,20 +727,31 @@ body.app-booting {
   transform: translateX(-50%) translateY(12px);
 }
 
-/* Coach mark — purpose sheet; strong scrim isolates map until dismissed (v317) */
+/* Coach mark — purpose sheet; strong scrim isolates map until dismissed (v321) */
 .coach-mark {
   position: fixed;
   inset: 0;
-  z-index: var(--z-first-run, 2450);
-  background: var(--first-run-scrim, rgba(15, 23, 42, 0.85));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  z-index: var(--z-first-run, 2500);
+  background: var(--first-run-scrim, rgba(15, 23, 42, 0.94));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 0;
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* First-run lock: hide any stale Leaflet pin card under purpose / tour scrim */
+body.first-run-active .leaflet-popup,
+body.first-run-active .leaflet-popup-pane {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+body.first-run-active .leaflet-marker-pane .marker-active {
+  pointer-events: none;
 }
 
 .coach-mark__card {
@@ -739,7 +761,7 @@ body.app-booting {
   border: 1px solid var(--border);
   border-bottom: none;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
+  padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
   box-shadow: var(--shadow-lg);
   text-align: left;
   outline: none;
@@ -747,15 +769,16 @@ body.app-booting {
 }
 
 .coach-mark__handle {
-  width: 40px;
-  height: 4px;
-  margin: 4px auto 16px;
+  width: 44px;
+  height: 5px;
+  margin: 2px auto 18px;
   border-radius: var(--radius-pill);
-  background: var(--border);
+  background: var(--ink-400);
+  opacity: 0.55;
 }
 
 .coach-mark__card:focus-visible {
-  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(99, 102, 241, 0.35);
+  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(var(--primary-rgb), 0.35);
 }
 
 .coach-mark__step {
@@ -780,17 +803,17 @@ body.app-booting {
   font-size: var(--fs-base);
   color: var(--ink-600);
   line-height: 1.45;
-  margin: 0 0 16px;
+  margin: 0 0 20px;
 }
 
 .purpose-steps {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   list-style: none;
-  margin: 0 0 20px;
-  padding: 12px 8px;
+  margin: 0 0 24px;
+  padding: 16px 12px;
   background: var(--canvas, #F8FAFC);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -801,7 +824,7 @@ body.app-booting {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   text-align: center;
   font-size: var(--fs-xs);
@@ -817,10 +840,10 @@ body.app-booting {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(var(--primary-rgb), 0.15);
+  border: none;
   color: var(--primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .purpose-steps__icon i {
@@ -831,25 +854,30 @@ body.app-booting {
 .coach-mark__actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
-.coach-mark__card .btn--primary,
-.coach-mark__card .btn--ghost {
+/* Solid indigo CTA — no --grad-brand / glow (design tokens only) */
+.coach-mark__card .btn--primary {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
   margin: 0;
+  background: var(--primary-fill);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-sm);
+  border: none;
 }
 
-.coach-mark__card .btn--ghost {
-  color: var(--ink-600);
-  border: 1px solid var(--border);
-  background: var(--surface);
+.coach-mark__card .btn--primary:hover:not(:disabled):not(.is-loading) {
+  background: var(--primary-dark);
+  filter: brightness(0.96);
+  box-shadow: var(--shadow-sm);
+  transform: none;
 }
 
-.coach-mark__card .btn--ghost:hover {
-  color: var(--ink-900);
-  background: var(--canvas, #F8FAFC);
+.coach-mark__card .btn--primary:active:not(:disabled) {
+  transform: scale(0.985);
+  box-shadow: var(--shadow-sm);
 }
 
 @keyframes sheet-rise-in {
@@ -866,11 +894,11 @@ body.app-booting {
   }
 }
 
-/* FAB spotlight (one-shot) — strong hole; no neon glow */
+/* FAB spotlight (replay-only) — strong hole; no neon glow */
 .tour--fab-spot .tour__spotlight {
   border-radius: var(--radius-lg);
   border-color: var(--primary);
-  box-shadow: 0 0 0 9999px var(--first-run-scrim, rgba(15, 23, 42, 0.85)), 0 0 0 3px rgba(99, 102, 241, 0.28);
+  box-shadow: 0 0 0 9999px var(--first-run-scrim, rgba(15, 23, 42, 0.94)), 0 0 0 3px rgba(99, 102, 241, 0.28);
 }
 
 .tour--fab-spot .tour__step {
@@ -879,7 +907,7 @@ body.app-booting {
 
 @media (prefers-color-scheme: dark) {
   .coach-mark {
-    background: rgba(0, 0, 0, 0.88);
+    background: rgba(0, 0, 0, 0.94);
   }
   .coach-mark__card {
     border-color: rgba(148, 163, 184, 0.22);
@@ -889,18 +917,18 @@ body.app-booting {
   }
 }
 
-/* Interactive guided tour / FAB tip — above blocking modals (v317) */
+/* Interactive guided tour — above blocking modals (v321) */
 .tour {
   position: fixed;
   inset: 0;
-  z-index: var(--z-first-run, 2450);
+  z-index: var(--z-first-run, 2500);
 }
 .tour.hidden { display: none; }
 /* Steps with no on-screen target: dim the whole screen and centre the bubble. */
 .tour--centered {
-  background: var(--first-run-scrim, rgba(15, 23, 42, 0.85));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: var(--first-run-scrim, rgba(15, 23, 42, 0.94));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -910,7 +938,7 @@ body.app-booting {
   border-radius: var(--radius-md);
   border: 2px solid var(--primary);
   /* The giant spread acts as the dimming backdrop with a clear "hole". */
-  box-shadow: 0 0 0 9999px var(--first-run-scrim, rgba(15, 23, 42, 0.85)), 0 0 0 4px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 0 9999px var(--first-run-scrim, rgba(15, 23, 42, 0.94)), 0 0 0 4px rgba(99, 102, 241, 0.35);
   pointer-events: none;
   transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
 }
@@ -1955,8 +1983,9 @@ body.manual-pin-mode #map .leaflet-container {
   border-radius: var(--radius-lg);
   font-size: var(--fs-base);
   line-height: 1.4;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
+  box-shadow: var(--toast-shadow, var(--shadow-overlay));
   animation: toast-in 0.3s ease;
   pointer-events: auto;
 }
@@ -1967,7 +1996,10 @@ body.manual-pin-mode #map .leaflet-container {
   color: var(--toast-success-fg, var(--toast-fg));
 }
 .toast--error { background: var(--toast-error-bg); }
-.toast--info { background: var(--toast-info-bg); }
+.toast--info {
+  background: var(--toast-info-bg);
+  border-color: var(--toast-action-border, var(--toast-glass-border));
+}
 
 .toast i { font-size: var(--fs-lg); margin-top: 1px; flex-shrink: 0; }
 
@@ -1996,7 +2028,8 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast--interactive { pointer-events: auto; }
 
-/* Compact snackbar (Me too / share + WhatsApp) — glass sheet family (v303) */
+/* Compact snackbar (Me too / share + WhatsApp) — deep slate glass (v318+)
+   Layout preserved from v293: message row + full-width CTA stack. */
 .toast--snackbar {
   padding: 12px 14px;
   font-size: var(--fs-sm);
@@ -2007,9 +2040,9 @@ body.manual-pin-mode #map .leaflet-container {
   gap: 8px;
   width: min(360px, calc(100vw - 24px));
   max-width: min(360px, calc(100vw - 24px));
-  box-shadow: var(--shadow-md), 0 8px 28px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--toast-shadow, var(--shadow-overlay));
+  backdrop-filter: blur(var(--glass-hud-blur, 22px));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
 }
 
 .toast--snackbar.toast--success {
@@ -2126,9 +2159,9 @@ body.manual-pin-mode #map .leaflet-container {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--whatsapp, #25D366);
+  background: var(--toast-wa-btn-bg);
   color: #fff !important;
-  border: none;
+  border: 1px solid var(--toast-wa-btn-border);
   border-radius: var(--radius-md);
   padding: 8px 12px;
   min-height: 36px;
@@ -2136,18 +2169,20 @@ body.manual-pin-mode #map .leaflet-container {
   letter-spacing: 0.01em;
   opacity: 1;
   text-decoration: none !important;
+  box-shadow: inset 0 0 0 1px var(--toast-wa-btn-inset);
 }
 
 .toast__action--whatsapp:hover {
-  background: #20bd5a;
+  background: rgba(51, 65, 85, 0.95);
+  border-color: rgba(255, 255, 255, 0.22);
   opacity: 1;
   text-decoration: none !important;
-  filter: brightness(1.04);
+  filter: none;
 }
 
 .toast__action--whatsapp .ph {
   font-size: 1.1em;
-  color: #fff;
+  color: var(--whatsapp, #25D366);
 }
 
 @keyframes toast-in {
@@ -8053,7 +8088,7 @@ a:focus-visible {
   box-shadow: var(--shadow-3);
 }
 .toast {
-  box-shadow: var(--shadow-overlay);
+  box-shadow: var(--toast-shadow, var(--shadow-overlay));
 }
 .profile-card,
 .founder-card,
@@ -10215,14 +10250,19 @@ body.pwa-nudge-visible .toast-container {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --toast-glass-bg: rgba(30, 41, 59, 0.94);
-    --toast-glass-border: rgba(255, 255, 255, 0.18);
-    --toast-info-bg: rgba(30, 41, 59, 0.94);
-    /* Calm glass success — token family, not WA #25D366 */
-    --toast-success-bg: rgba(30, 41, 59, 0.94);
-    --toast-success-border: rgba(5, 150, 105, 0.4);
-    --toast-success-fg: #ecfdf5;
+    --toast-glass-bg: rgba(15, 23, 42, 0.94);
+    --toast-glass-border: rgba(255, 255, 255, 0.16);
+    --toast-glass-inset: rgba(255, 255, 255, 0.1);
+    --toast-info-bg: rgba(15, 23, 42, 0.94);
+    /* Same deep slate family — emerald / indigo accents only */
+    --toast-success-bg: rgba(15, 23, 42, 0.94);
+    --toast-success-border: rgba(52, 211, 153, 0.42);
+    --toast-success-fg: #f8fafc;
+    --toast-action-border: rgba(129, 140, 248, 0.45);
     --toast-error-bg: rgba(153, 27, 27, 0.94);
+    --toast-wa-btn-bg: rgba(30, 41, 59, 0.92);
+    --toast-wa-btn-border: rgba(255, 255, 255, 0.18);
+    --toast-wa-btn-inset: rgba(255, 255, 255, 0.08);
   }
 
   .toast--snackbar.toast--success .toast__row > span,
@@ -11941,12 +11981,18 @@ body::after {
   border-color: var(--border);
 }
 
-.map-empty-cta__handle,
-.coach-mark__handle {
+.map-empty-cta__handle {
   background: var(--ink-400);
   opacity: 0.45;
   width: 36px;
   height: 4px;
+}
+
+.coach-mark__handle {
+  background: var(--ink-400);
+  opacity: 0.55;
+  width: 44px;
+  height: 5px;
 }
 
 .map-empty-cta__title,

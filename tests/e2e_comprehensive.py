@@ -5511,7 +5511,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v317" in sw_src
+            "civicradar-v322" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6295,7 +6295,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
 
 
-    # TR03/TR04/TR06 — first-run: purpose sheet -> FAB spotlight, complete sets flag, no re-show on reload.
+    # TR03/TR04/TR06 — first-run: purpose sheet only (v321); Got it sets both flags; no FAB tip auto-stack.
 
     # NB: coach gates on a *truthy* flag, so '0' would suppress it — omit the key entirely.
 
@@ -6316,68 +6316,55 @@ async def run_tour_scenarios(s: Suite, browser):
     )
     if hero_shown:
         await js_click(page, '#btnHeroDismiss')
-        await page.wait_for_timeout(1200)
-    else:
-        coach_shown = not await page.evaluate(
-            '() => document.getElementById("coachMark").classList.contains("hidden")'
+        await page.wait_for_timeout(500)
+    try:
+        await page.wait_for_function(
+            '() => !document.getElementById("coachMark").classList.contains("hidden")',
+            timeout=4000,
         )
-        if coach_shown:
-            await page.click('#btnDismissCoach')
-        await page.wait_for_timeout(1200)
+    except Exception:
+        pass
 
-    tour_open = not await page.evaluate(
-
-        '() => document.getElementById("tourOverlay").classList.contains("hidden")'
-
+    coach_up = not await page.evaluate(
+        '() => document.getElementById("coachMark").classList.contains("hidden")'
+    )
+    first_run_css = await page.evaluate(
+        '() => document.body.classList.contains("first-run-active")'
+    )
+    s.record(
+        'TR03',
+        'Tour',
+        'Purpose sheet shows on first run (no FAB tip stack)',
+        bool(coach_up and first_run_css),
     )
 
-    step_txt = await page.evaluate('() => document.getElementById("tourStep").textContent || ""')
-
-    fab_title = await page.evaluate('() => document.getElementById("tourTitle").textContent || ""')
-
-    s.record('TR03', 'Tour', 'FAB spotlight auto-shows after purpose sheet on first run',
-
-             tour_open and ('Report' in fab_title or 'hazard' in fab_title.lower() or step_txt.strip() in ('Tip', '1 / 1') or step_txt.strip().startswith('1 /')))
-
-
-
-    # Progress through every step; final "Got it" completes the tour.
-
-    for _ in range(6):
-
-        hidden = await page.evaluate(
-
-            '() => document.getElementById("tourOverlay").classList.contains("hidden")'
-
-        )
-
-        if hidden:
-
-            break
-
-        await page.click('#btnTourNext')
-
-        await page.wait_for_timeout(180)
+    if coach_up:
+        await page.click('#btnDismissCoach')
+        await page.wait_for_timeout(400)
 
     completed = await page.evaluate(
-
-        '() => document.getElementById("tourOverlay").classList.contains("hidden") '
-
-        '&& localStorage.getItem("civicradar_fab_spot_seen") === "1"'
-
+        '() => document.getElementById("coachMark").classList.contains("hidden") '
+        '&& document.getElementById("tourOverlay").classList.contains("hidden") '
+        '&& localStorage.getItem("civicradar_coach_seen") === "1" '
+        '&& localStorage.getItem("civicradar_fab_spot_seen") === "1" '
+        '&& !document.body.classList.contains("first-run-active")'
     )
-
-    s.record('TR04', 'Tour', 'Completing FAB spotlight hides overlay + sets fab_spot flag', completed)
-
-
+    s.record(
+        'TR04',
+        'Tour',
+        'Got it sets coach+fab flags and clears first-run lock',
+        completed,
+    )
 
     await page.reload(wait_until='domcontentloaded')
 
     await page.wait_for_timeout(1200)
 
-    s.record('TR06', 'Tour', 'Tour does not reappear on reload once seen', await page.evaluate(
+    s.record('TR06', 'Tour', 'Purpose/tour do not reappear on reload once seen', await page.evaluate(
 
-        '() => document.getElementById("tourOverlay").classList.contains("hidden")'
+        '() => document.getElementById("coachMark").classList.contains("hidden") '
+
+        '&& document.getElementById("tourOverlay").classList.contains("hidden")'
 
     ))
 
@@ -6385,7 +6372,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
 
 
-    # TR05 — Skip sets the seen flag and hides the tour.
+    # TR05 — Purpose dismiss alone is enough (FAB tip no longer auto-shows).
 
     ctx = await new_ctx(browser, storage={
 
@@ -6402,27 +6389,25 @@ async def run_tour_scenarios(s: Suite, browser):
     hero_up = await page.evaluate('() => !document.getElementById("homeHero").classList.contains("hidden")')
     if hero_up:
         await js_click(page, '#btnHeroDismiss')
-    elif not await page.evaluate('() => document.getElementById("coachMark").classList.contains("hidden")'):
-        await page.click('#btnDismissCoach')
-    await page.wait_for_timeout(1200)
-
-    skipped = False
-
-    if not await page.evaluate('() => document.getElementById("tourOverlay").classList.contains("hidden")'):
-
-        await page.click('#btnTourSkip')
-
-        await page.wait_for_timeout(250)
-
-        skipped = await page.evaluate(
-
-            '() => document.getElementById("tourOverlay").classList.contains("hidden") '
-
-            '&& localStorage.getItem("civicradar_fab_spot_seen") === "1"'
-
+        await page.wait_for_timeout(400)
+    try:
+        await page.wait_for_function(
+            '() => !document.getElementById("coachMark").classList.contains("hidden")',
+            timeout=4000,
         )
+    except Exception:
+        pass
+    if not await page.evaluate('() => document.getElementById("coachMark").classList.contains("hidden")'):
+        await page.click('#btnDismissCoach')
+        await page.wait_for_timeout(500)
 
-    s.record('TR05', 'Tour', 'Skip hides FAB spotlight + sets fab_spot flag', skipped)
+    skipped = await page.evaluate(
+        '() => document.getElementById("tourOverlay").classList.contains("hidden") '
+        '&& localStorage.getItem("civicradar_fab_spot_seen") === "1" '
+        '&& localStorage.getItem("civicradar_coach_seen") === "1"'
+    )
+
+    s.record('TR05', 'Tour', 'Purpose Got it sets fab_spot without FAB tip overlay', skipped)
 
     await ctx.close()
 
@@ -6542,17 +6527,30 @@ async def run_tour_scenarios(s: Suite, browser):
     coach_up = not await page.evaluate(
         '() => document.getElementById("coachMark").classList.contains("hidden")'
     )
+    first_run_css = await page.evaluate(
+        '() => document.body.classList.contains("first-run-active")'
+    )
     if coach_up:
         await page.evaluate('() => window.openReportPopupById && window.openReportPopupById("tr10-pin")')
-        await page.wait_for_timeout(600)
+        await page.wait_for_timeout(400)
     still_locked = await page.evaluate(
-        '() => !document.body.classList.contains("map-popup-open")'
+        """() => {
+          const noBody = !document.body.classList.contains('map-popup-open');
+          const noDom = !document.querySelector('.leaflet-popup');
+          const hiddenCss = (() => {
+            const el = document.querySelector('.leaflet-popup');
+            if (!el) return true;
+            const cs = getComputedStyle(el);
+            return cs.visibility === 'hidden' || cs.opacity === '0' || cs.pointerEvents === 'none';
+          })();
+          return noBody && (noDom || hiddenCss);
+        }"""
     )
     s.record(
         'TR10',
         'Tour',
         'Purpose sheet blocks pin popup open',
-        bool(coach_up and still_locked),
+        bool(coach_up and first_run_css and still_locked),
     )
     await ctx.close()
 
@@ -8791,7 +8789,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v317" in sw_src
+            "civicradar-v322" in sw_src
 
             and "'/index.html'" not in sw_src
 

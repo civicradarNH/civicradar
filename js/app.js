@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v317';
+  const CIVIC_APP_VERSION = 'v322';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -19410,16 +19410,33 @@ document.addEventListener('DOMContentLoaded', function () {
     return false;
   }
 
-  // Close Leaflet pin card before purpose / FAB tip — never stack under first-run chrome.
+  // Close Leaflet pin card before purpose / coach — never stack under first-run chrome.
+  // map.closePopup alone can miss marker-owned popups; close every report marker too.
   function closeMapPinPopup() {
-    if (map && typeof map.closePopup === 'function') {
-      try { map.closePopup(); } catch (_) { /* ignore */ }
+    if (map) {
+      try {
+        if (typeof map.closePopup === 'function') map.closePopup();
+        const container = map.getContainer && map.getContainer();
+        if (container) container.classList.remove('leaflet-popup-open');
+      } catch (_) { /* ignore */ }
     }
+    try {
+      reportMarkerMap.forEach((marker) => {
+        try {
+          if (marker && typeof marker.closePopup === 'function') marker.closePopup();
+        } catch (_) { /* ignore */ }
+      });
+    } catch (_) { /* ignore */ }
     document.body.classList.remove('map-popup-open');
   }
 
-  // Pin taps stay quiet while purpose/FAB tip is up, and until both first-run flags
-  // are set (covers the dismiss→spotlight gap). Demo/ref/admin never lock.
+  // body.first-run-active: CSS-hides .leaflet-popup even if a stale card races open.
+  function syncFirstRunActiveClass() {
+    document.body.classList.toggle('first-run-active', areMapPinsLockedForFirstRun());
+  }
+
+  // Pin taps stay quiet while purpose/coach is up, and until both first-run flags
+  // are set. Demo/ref/admin never lock.
   function areMapPinsLockedForFirstRun() {
     if (isFirstRunOverlayVisible()) return true;
     try {
@@ -19731,9 +19748,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    setTimeout(() => {
+    safeLocalSet(FAB_SPOT_KEY, '1');
 
-      maybeShowFabSpotlight();
+    syncFirstRunActiveClass();
+
+    setTimeout(() => {
 
       flushSecondaryNudgesAfterOverlay();
 
@@ -21544,57 +21563,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#coachMark').classList.remove('hidden');
 
-    // Empty-ward waits until purpose (+ FAB spotlight) finish.
+    syncFirstRunActiveClass();
+
+    // Empty-ward waits until purpose dismiss (both first-run flags).
     if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
 
   }
 
 
 
-  function dismissCoachMark(opts) {
+  function dismissCoachMark() {
 
-    opts = opts || {};
-
+    // Single sheet: Got it marks both coach + fab_spot so FAB tip never auto-stacks.
     safeLocalSet(COACH_KEY, '1');
+
+    safeLocalSet(FAB_SPOT_KEY, '1');
 
     try { safeLocalSet(HERO_DISMISSED_KEY, '1'); } catch {}
 
     $('#coachMark').classList.add('hidden');
 
+    syncFirstRunActiveClass();
+
     if (typeof updateHomeHero === 'function') updateHomeHero();
 
-    // Report CTA: skip FAB spotlight — user is already entering the report flow.
-    if (opts.openReport) {
-
-      safeLocalSet(FAB_SPOT_KEY, '1');
-
-      setTimeout(() => {
-
-        flushSecondaryNudgesAfterOverlay();
-
-        if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
-
-        if (typeof window.openReportModal === 'function') window.openReportModal(true);
-
-      }, 200);
-
-      return;
-
-    }
+    if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
 
     setTimeout(() => {
 
-      maybeShowFabSpotlight();
-
       flushSecondaryNudgesAfterOverlay();
 
-      if (localStorage.getItem(FAB_SPOT_KEY) && typeof updateMapEmptyCta === 'function') {
-
-        updateMapEmptyCta();
-
-      }
-
-    }, 350);
+    }, 200);
 
   }
 
@@ -21672,6 +21671,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     overlay.classList.remove('tour--fab-spot');
 
+    syncFirstRunActiveClass();
+
     document.addEventListener('keydown', onTourKeydown, true);
 
     window.addEventListener('resize', positionTour);
@@ -21730,6 +21731,8 @@ document.addEventListener('DOMContentLoaded', function () {
     overlay.classList.remove('hidden');
 
     overlay.classList.add('tour--fab-spot');
+
+    syncFirstRunActiveClass();
 
     document.addEventListener('keydown', onTourKeydown, true);
 
@@ -21909,6 +21912,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     tourState = null;
 
+    syncFirstRunActiveClass();
+
     if (lastFocus && typeof lastFocus.focus === 'function') {
 
       try { lastFocus.focus(); } catch { /* ignore */ }
@@ -21987,8 +21992,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Full interactive tour is opt-in (Profile replay / home hero tour). First-run
-  // auto path is purpose sheet → FAB spotlight (v314), not the 3-step tour.
+  // Full interactive tour is opt-in (Profile replay). First-run is purpose sheet only
+  // (v318) — FAB tip no longer auto-shows after Got it.
 
   function maybeStartTour() {
 
@@ -21998,59 +22003,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // v318: never auto-open FAB tip. Migrate partial flags (coach without fab_spot)
+  // so pin lock clears; Profile "Replay tour" still uses startTour().
   function maybeShowFabSpotlight() {
 
-    if (localStorage.getItem(FAB_SPOT_KEY)) {
+    if (!localStorage.getItem(FAB_SPOT_KEY)) {
 
-      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+      if (localStorage.getItem(COACH_KEY) || isAdmin || isLead) {
 
-      return;
+        safeLocalSet(FAB_SPOT_KEY, '1');
 
-    }
+      } else {
 
-    // Purpose sheet must finish first (COACH_KEY).
-    if (!localStorage.getItem(COACH_KEY)) return;
+        try {
 
-    let demo = null;
+          const params = new URLSearchParams(location.search);
 
-    let ref = null;
+          if (params.get('demo') || params.get('ref')) safeLocalSet(FAB_SPOT_KEY, '1');
 
-    try {
+        } catch { /* ignore */ }
 
-      const params = new URLSearchParams(location.search);
-
-      demo = params.get('demo');
-
-      ref = params.get('ref');
-
-    } catch { /* ignore */ }
-
-    // Mark seen when FAB tip is intentionally skipped so pin lock can clear.
-    if (demo || ref || isAdmin || isLead || shouldShowHomeHero()) {
-
-      safeLocalSet(FAB_SPOT_KEY, '1');
-
-      if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
-
-      return;
+      }
 
     }
 
-    const coach = $('#coachMark');
+    syncFirstRunActiveClass();
 
-    if (coach && !coach.classList.contains('hidden')) return;
-
-    const locBanner = $('#locationBanner');
-
-    if (locBanner && !locBanner.classList.contains('hidden')) return;
-
-    if (overlays.tos && overlays.tos.classList.contains('open')) return;
-
-    if (overlays.onboarding && overlays.onboarding.classList.contains('open')) return;
-
-    if (overlays.report && overlays.report.classList.contains('open')) return;
-
-    startFabSpotlight();
+    if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
 
   }
 
@@ -23640,11 +23619,135 @@ document.addEventListener('DOMContentLoaded', function () {
 
       awaitingPhoto: prev.awaitingPhoto || false,
 
+      // Keep prior JPEG so rapid hide/pageshow cannot drop a just-captured photo.
+      photoDataUrl: prev.photoDataUrl || null,
+
       ...domDraft,
 
       ...updates,
 
     });
+
+  }
+
+
+
+  /** True while camera intent / file decode is in flight (not dismiss-guard alone). */
+  function isReportPhotoNavLocked() {
+
+    return !!(reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto());
+
+  }
+
+
+
+  function isIncompleteReportDraft(draft) {
+
+    if (!draft || !draft.ts) return false;
+
+    if (Date.now() - draft.ts > REPORT_DRAFT_TTL_MS) return false;
+
+    if (draft.photoDataUrl || draft.awaitingPhoto) return true;
+
+    if (draft.step === 'confirm') return true;
+
+    return !!(typeof draft.notes === 'string' && draft.notes.trim());
+
+  }
+
+
+
+  /** Restore draft JPEG onto #imageCanvas (async). Calls done(ok). */
+  function restoreReportPhotoFromDataUrl(dataUrl, done) {
+
+    const finish = (ok) => {
+
+      if (typeof done === 'function') done(!!ok);
+
+    };
+
+    if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.indexOf('data:image') !== 0) {
+
+      finish(false);
+
+      return;
+
+    }
+
+    if (hasReportPhotoPreview() && lastReportDataUrl === dataUrl) {
+
+      finish(true);
+
+      return;
+
+    }
+
+    const canvas = $('#imageCanvas');
+
+    if (!canvas) {
+
+      finish(false);
+
+      return;
+
+    }
+
+    const img = new Image();
+
+    img.onload = () => {
+
+      try {
+
+        const maxW = CANVAS_MAX_WIDTH;
+
+        let w = img.width;
+
+        let h = img.height;
+
+        if (!w || !h) {
+
+          finish(false);
+
+          return;
+
+        }
+
+        if (w > maxW) {
+
+          h = (h * maxW) / w;
+
+          w = maxW;
+
+        }
+
+        canvas.width = w;
+
+        canvas.height = h;
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(img, 0, 0, w, h);
+
+        canvas.classList.add('visible');
+
+        lastReportDataUrl = dataUrl;
+
+        // Draft JPEG was already moderation-scanned at capture time.
+        reportPhotoModerationPassed = true;
+
+        finish(true);
+
+      } catch {
+
+        finish(false);
+
+      }
+
+    };
+
+    img.onerror = () => finish(false);
+
+    img.src = dataUrl;
 
   }
 
@@ -23662,7 +23765,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const draft = readReportDraft();
 
-      if (draft) writeReportDraft(draft);
+      if (draft) {
+
+        if (lastReportDataUrl && !draft.photoDataUrl) {
+
+          writeReportDraft({ ...draft, photoDataUrl: lastReportDataUrl, ts: Date.now() });
+
+        } else {
+
+          writeReportDraft(draft);
+
+        }
+
+      }
 
       return;
 
@@ -23671,6 +23786,8 @@ document.addEventListener('DOMContentLoaded', function () {
     touchReportDraft({
 
       awaitingPhoto: reportPhotoFlowActive || reportPhotoProcessing || isReportDraftAwaitingPhoto(),
+
+      photoDataUrl: lastReportDataUrl || readReportDraft()?.photoDataUrl || null,
 
     });
 
@@ -23684,21 +23801,131 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const draft = readReportDraft();
 
-    if (!draft) return false;
+    if (!draft) {
 
-    if (!user.tosAccepted || !user.ward) return false;
-
-    if (draft.ts && Date.now() - draft.ts > REPORT_DRAFT_TTL_MS) {
-
-      clearReportDraft();
+      if (typeof opts.onReady === 'function') opts.onReady(false);
 
       return false;
 
     }
 
+    if (!user.tosAccepted || !user.ward) {
+
+      if (typeof opts.onReady === 'function') opts.onReady(false);
+
+      return false;
+
+    }
+
+    if (draft.ts && Date.now() - draft.ts > REPORT_DRAFT_TTL_MS) {
+
+      clearReportDraft();
+
+      if (typeof opts.onReady === 'function') opts.onReady(false);
+
+      return false;
+
+    }
+
+    const runReady = () => {
+
+      if (typeof opts.onReady === 'function') opts.onReady(true);
+
+    };
+
+    const applyPhotoThen = (after) => {
+
+      if (hasReportPhotoPreview()) {
+
+        after(true);
+
+        return;
+
+      }
+
+      if (!draft.photoDataUrl) {
+
+        after(false);
+
+        return;
+
+      }
+
+      restoreReportPhotoFromDataUrl(draft.photoDataUrl, (ok) => after(ok));
+
+    };
+
+    const finishUi = (photoOk) => {
+
+      // Caller will run syncReportPhotoReturn — avoid duplicate showPhotoConfirm / pin resize.
+      if (opts.skipPhotoUi) {
+
+        if (draft.awaitingPhoto && !photoOk) {
+
+          reportPhotoFlowActive = true;
+
+          reportPhotoDismissGuard = Date.now();
+
+        }
+
+        runReady();
+
+        return;
+
+      }
+
+      if (hasReportPhotoPreview() || photoOk) {
+
+        requestAnimationFrame(() => {
+
+          showPhotoConfirm();
+
+          touchReportDraft({ step: 'confirm', awaitingPhoto: false, photoDataUrl: lastReportDataUrl || draft.photoDataUrl || null });
+
+          scheduleReportPinMapResize();
+
+          runReady();
+
+        });
+
+        return;
+
+      }
+
+      resetPhotoConfirm();
+
+      // confirm step without a recoverable JPEG (quota fail / legacy draft).
+      if (draft.step === 'confirm') {
+
+        showToast(t('report.photoLostRetake'), 'info', 4500);
+
+      }
+
+      updateReportFlowSteps(normalizeReportStep(draft.step || 'capture'));
+
+      if (draft.awaitingPhoto) {
+
+        reportPhotoFlowActive = true;
+
+        reportPhotoDismissGuard = Date.now();
+
+      }
+
+      runReady();
+
+    };
+
     // Resume while report sheet already open: skip openModal / focus churn.
     // Photo confirm + pin resize belong to syncReportPhotoReturn on photo-return paths.
     if (overlays.report?.classList.contains('open')) {
+
+      if (draft.notes && $('#reportNotes') && !$('#reportNotes').value) {
+
+        $('#reportNotes').value = draft.notes;
+
+      }
+
+      applyPhotoThen(finishUi);
 
       return true;
 
@@ -23717,58 +23944,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Open first so the confirm pin map has a non-zero container when Leaflet inits.
     openModal('report');
 
-    // Caller will run syncReportPhotoReturn — avoid duplicate showPhotoConfirm / pin resize.
-    if (opts.skipPhotoUi) {
-
-      if (draft.awaitingPhoto) {
-
-        reportPhotoFlowActive = true;
-
-        reportPhotoDismissGuard = Date.now();
-
-      }
-
-      return true;
-
-    }
-
-    if (hasReportPhotoPreview()) {
-
-      requestAnimationFrame(() => {
-
-        showPhotoConfirm();
-
-        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
-
-        scheduleReportPinMapResize();
-
-      });
-
-    } else {
-
-      resetPhotoConfirm();
-
-      // draft.step === 'confirm' means a photo was captured before this session
-      // was torn down (SW reload or the OS discarding the backgrounded tab while
-      // the native camera app had focus) — the canvas pixel data itself can't
-      // survive that, only the text fields in this sessionStorage draft can.
-      if (draft.step === 'confirm') {
-
-        showToast(t('report.photoLostRetake'), 'info', 4500);
-
-      }
-
-      updateReportFlowSteps(normalizeReportStep(draft.step || 'capture'));
-
-      if (draft.awaitingPhoto) {
-
-        reportPhotoFlowActive = true;
-
-        reportPhotoDismissGuard = Date.now();
-
-      }
-
-    }
+    applyPhotoThen(finishUi);
 
     return true;
 
@@ -23918,7 +24094,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       finishReportPhotoFlow('syncReportPhotoReturn');
 
-      touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+      touchReportDraft({
+
+        step: 'confirm',
+
+        awaitingPhoto: false,
+
+        photoDataUrl: lastReportDataUrl || readReportDraft()?.photoDataUrl || null,
+
+      });
 
       scheduleReportPinMapResize();
 
@@ -24089,7 +24273,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     finishReportPhotoFlow('failReportPhotoCapture');
 
-    touchReportDraft({ step: 'capture', awaitingPhoto: false });
+    touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
     try { $('#photoInput').value = ''; } catch { /* ignore */ }
 
@@ -24143,7 +24327,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Preview exists but flow never advanced — land on confirm.
         showPhotoConfirm();
 
-        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
+        touchReportDraft({
+
+          step: 'confirm',
+
+          awaitingPhoto: false,
+
+          photoDataUrl: lastReportDataUrl || readReportDraft()?.photoDataUrl || null,
+
+        });
 
         scheduleReportPinMapResize();
 
@@ -24589,7 +24781,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (name === 'tos' || name === 'onboarding') return;
 
-      if (name === 'report' && isReportPhotoPickerActive()) return;
+      if (name === 'report' && (isReportPhotoPickerActive() || isReportPhotoNavLocked())) return;
 
       closeModal(name);
 
@@ -24939,9 +25131,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Mid camera / decode: do not wipe state — re-surface the parked sheet.
+    if (isReportPhotoNavLocked()) {
+
+      ensureReportModalOpen();
+
+      syncReportPhotoReturn();
+
+      return;
+
+    }
+
     cancelPendingShareNudge();
 
     if (tourState) endTour(false);
+
+    // Resume incomplete draft (notes + JPEG) instead of starting a blank sheet.
+    const existingDraft = readReportDraft();
+
+    if (isIncompleteReportDraft(existingDraft)) {
+
+      restoreReportDraftIfNeeded();
+
+      return;
+
+    }
 
     const canvas = $('#imageCanvas');
 
@@ -24994,6 +25208,8 @@ document.addEventListener('DOMContentLoaded', function () {
       step: hasPhoto ? 'confirm' : 'capture',
 
       awaitingPhoto: false,
+
+      photoDataUrl: hasPhoto ? (lastReportDataUrl || null) : null,
 
     });
 
@@ -26132,11 +26348,26 @@ document.addEventListener('DOMContentLoaded', function () {
       if (photoReturn) {
 
         // Single photo-UI path via syncReportPhotoReturn (skip restore's rAF confirm).
-        if (!skipReportDraftRestoreOnce) restoreReportDraftIfNeeded({ skipPhotoUi: true });
+        // Wait for draft JPEG restore before sync so confirm is not empty.
+        if (!skipReportDraftRestoreOnce) {
 
-        else skipReportDraftRestoreOnce = false;
+          const restored = restoreReportDraftIfNeeded({
 
-        syncReportPhotoReturn();
+            skipPhotoUi: true,
+
+            onReady: () => { syncReportPhotoReturn(); },
+
+          });
+
+          if (!restored) syncReportPhotoReturn();
+
+        } else {
+
+          skipReportDraftRestoreOnce = false;
+
+          syncReportPhotoReturn();
+
+        }
 
       } else if (!skipReportDraftRestoreOnce) {
 
@@ -26335,6 +26566,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // let home hero win by default before referral/app-open ever got a turn.
       // The later updateHomeHero() call picks up all state set above.
       updateMapEmptyCta();
+
+      syncFirstRunActiveClass();
 
       const restoredReportDraft = restoreReportDraftIfNeeded();
 
@@ -28041,11 +28274,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     marker.on('popupopen', () => {
 
-      // First-run chrome wins — refuse pin cards under purpose / FAB tip.
+      // First-run chrome wins — close synchronously (no paint frame under scrim).
       if (areMapPinsLockedForFirstRun()) {
-        setTimeout(() => {
-          try { marker.closePopup(); } catch (_) { /* ignore */ }
-        }, 0);
+        try { marker.closePopup(); } catch (_) { /* ignore */ }
+        try { if (map && map.closePopup) map.closePopup(); } catch (_) { /* ignore */ }
+        document.body.classList.remove('map-popup-open');
         return;
       }
 
@@ -28485,6 +28718,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // schedules flushSecondaryNudgesAfterOverlay (banner-aware). Do not flush
       // toast here — that stacked welcome + location banner on first map view.
 
+      syncFirstRunActiveClass();
+
       if (!shouldShowHomeHero()) {
 
         setTimeout(() => {
@@ -28621,14 +28856,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     $('#btnDismissCoach').addEventListener('click', () => dismissCoachMark());
-
-    const btnPurposeReport = $('#btnPurposeReport');
-
-    if (btnPurposeReport) {
-
-      btnPurposeReport.addEventListener('click', () => dismissCoachMark({ openReport: true }));
-
-    }
 
     const coachMark = $('#coachMark');
 
@@ -29253,6 +29480,12 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#btnCamera').addEventListener('click', () => {
       if (tourState && tourState.fabSpot) endTour(true);
       Haptics.tap();
+      // Lock FAB while camera intent / decode is pending — re-surface sheet instead of wiping.
+      if (isReportPhotoNavLocked()) {
+        ensureReportModalOpen();
+        syncReportPhotoReturn();
+        return;
+      }
       window.openReportModal(true);
     });
 
@@ -29357,6 +29590,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         reportPhotoModerationPassed = false;
 
+        touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
+
         updateReportFlowSteps('capture');
 
         openReportPhotoPicker();
@@ -29414,6 +29649,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     $('#reportNotes').addEventListener('input', () => {
+
+      touchReportDraft({ notes: ($('#reportNotes')?.value ?? '') });
 
       if ($('#imageCanvas').classList.contains('visible')) {
 
@@ -29738,7 +29975,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       tab.addEventListener('click', () => {
 
-        if (isReportPhotoPickerActive()) return;
+        // Block nav while camera intent or file decode is pending (same as picker-active).
+        if (isReportPhotoNavLocked() || isReportPhotoPickerActive()) return;
 
         // Post-onboarding Join CTA can ghost-click a nav tab under the sticky footer.
         if (isNavTabGhostGuarded()) {
@@ -29995,11 +30233,28 @@ document.addEventListener('DOMContentLoaded', function () {
         debugLog('PHOTO', 'pageshow during report', { persisted: !!e.persisted, pickerActive: isReportPhotoPickerActive(), hasPreview: hasReportPhotoPreview() });
 
         // Reopen draft if needed, but let sync own confirm / pin resize once.
-        restoreReportDraftIfNeeded({ skipPhotoUi: true });
+        // Restore draft JPEG before sync so a process-kill mid-confirm recovers the photo.
+        const restored = restoreReportDraftIfNeeded({
 
-        syncReportPhotoReturn();
+          skipPhotoUi: true,
 
-        scheduleMapResize();
+          onReady: () => {
+
+            syncReportPhotoReturn();
+
+            scheduleMapResize();
+
+          },
+
+        });
+
+        if (!restored) {
+
+          syncReportPhotoReturn();
+
+          scheduleMapResize();
+
+        }
 
         return;
 
@@ -30437,7 +30692,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportFlowSteps('capture');
 
-    touchReportDraft({ step: 'capture', awaitingPhoto: false });
+    touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
     const msg = scanResult.i18nKey ? t(scanResult.i18nKey) : (scanResult.message || t('moderation.blocked.irrelevant'));
 
@@ -30503,6 +30758,8 @@ document.addEventListener('DOMContentLoaded', function () {
     reportPhotoFileAccepted = true;
 
     reportPhotoProcessing = true;
+
+    touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
     armReportPhotoWatchdog(REPORT_PHOTO_PROCESSING_TIMEOUT_MS);
 
@@ -30626,9 +30883,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!stillCurrent()) return;
         canvas.classList.add('visible');
         lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+        // Persist JPEG ASAP so hide/pageshow/nav cannot lose the capture.
+        touchReportDraft({
+          step: 'confirm',
+          awaitingPhoto: false,
+          photoDataUrl: lastReportDataUrl,
+        });
         finishReportPhotoFlow('handlePhotoCapture');
         reportPhotoDismissGuard = Date.now();
-        touchReportDraft({ step: 'confirm', awaitingPhoto: false });
         advanceReportPhotoReady();
         debugLog('PHOTO', 'handlePhotoCapture success', {
           w, h, moderationPassed: reportPhotoModerationPassed, captureGen,
