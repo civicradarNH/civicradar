@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none">
+  <!-- Section header: verified .gov shield -->
+  <path d="M14 2.8l8.8 3.2v6.4c0 5.6-3.7 10.1-8.8 12.8-5.1-2.7-8.8-7.2-8.8-12.8V6l8.8-3.2z" fill="#6366F1" fill-opacity="0.14"/>
+  <path d="M14 2.8l8.8 3.2v6.4c0 5.6-3.7 10.1-8.8 12.8-5.1-2.7-8.8-7.2-8.8-12.8V6l8.8-3.2z" stroke="#6366F1" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M10.2 13.6l2.6 2.6 5-5" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
