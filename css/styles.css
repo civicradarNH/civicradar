@@ -8440,6 +8440,24 @@ body.persona-lead .app-open-banner { display: none; }
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+/* Me too success — stay full opacity with success tint (not the busy spinner). */
+.popup__btn--backed,
+.popup__btn--backed:disabled,
+.btn.popup__btn--backed,
+.btn.popup__btn--backed:disabled,
+#btnReportDupeMeToo.popup__btn--backed,
+#btnReportDupeMeToo.popup__btn--backed:disabled {
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(5, 150, 105, 0.35);
+  color: var(--success, #059669);
+}
+.popup__btn--backed .ph,
+#btnReportDupeMeToo.popup__btn--backed .ph {
+  color: var(--success, #059669);
+}
 @media (prefers-reduced-motion: reduce) {
   .popup__btn:active { transform: none; }
   .popup__btn--busy::after { animation: none; }

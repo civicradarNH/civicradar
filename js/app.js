@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v352';
+  const CIVIC_APP_VERSION = 'v353';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3308,7 +3308,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'First report logged — welcome!',
 
-      'confirm.meTooThanks': 'Me too counted.',
+      'confirm.meTooThanks': 'Share so more neighbours see it.',
+
+      'confirm.backed': 'Backed!',
 
       'confirm.backedChip': 'Backed! +{n} Civic Points',
 
@@ -5844,7 +5846,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है!',
 
-      'confirm.meTooThanks': 'Me too दर्ज।',
+      'confirm.meTooThanks': 'शेयर करें — और पड़ोसी देखें।',
+
+      'confirm.backed': 'समर्थित!',
 
       'confirm.backedChip': 'समर्थित! +{n} सिविक पॉइंट्स',
 
@@ -8378,7 +8382,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'पहिली रिपोर्ट नोंदली — स्वागत!',
 
-      'confirm.meTooThanks': 'Me too नोंद.',
+      'confirm.meTooThanks': 'शेअर करा — अधिक शेजारी पाहतील.',
+
+      'confirm.backed': 'पाठिंबा!',
 
       'confirm.backedChip': 'पाठिंबा! +{n} सिव्हिक पॉइंट्स',
 
@@ -10911,7 +10917,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત!',
 
-      'confirm.meTooThanks': 'Me too નોંધાયું.',
+      'confirm.meTooThanks': 'શેર કરો — વધુ પડોશીઓ જુએ.',
+
+      'confirm.backed': 'સમર્થન!',
 
       'confirm.backedChip': 'સમર્થન! +{n} સિવિક પૉઇન્ટ્સ',
 
@@ -20089,6 +20097,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  /** Disabled Me too control → check + "Backed!" (pin popup or dupe sheet). */
+  function markMeTooButtonBacked(el) {
+    if (!el) return;
+    const backed = t('confirm.backed');
+    el.disabled = true;
+    el.setAttribute('aria-disabled', 'true');
+    el.setAttribute('aria-label', backed);
+    el.classList.remove('popup__btn--busy');
+    el.classList.add('popup__btn--backed');
+    const label = el.querySelector('.btn__label');
+    const icon = el.querySelector('i.ph');
+    if (icon) {
+      icon.className = 'ph ph-check-circle';
+      icon.setAttribute('aria-hidden', 'true');
+    }
+    if (label) {
+      label.textContent = backed;
+      label.removeAttribute('data-i18n');
+    } else if (icon) {
+      // Map popup buttons put label as a text node after the icon.
+      let node = icon.nextSibling;
+      while (node) {
+        const next = node.nextSibling;
+        node.remove();
+        node = next;
+      }
+      icon.after(document.createTextNode(' ' + backed));
+    } else {
+      el.textContent = backed;
+    }
+  }
+
 
 
   function showMeTooDoneInPopup(el) {
@@ -20197,11 +20237,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ownsReport(report)) { showToast(t('confirm.you'), 'info', 2200); return false; }
 
     if (hasConfirmed(id)) {
-
-      showToast(t('confirm.done'), 'info', 2200);
-
+      // Prefer inline "Following" on the open pin/sheet — no bland top banner.
+      if (sourceEl) showMeTooDoneInPopup(sourceEl);
       return false;
-
     }
 
 
@@ -20248,11 +20286,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Micro-feedback on the button first (chip + count), then close pin + WA share toast.
+    // Inline success (button + chip + count), then close pin + WA amplify snackbar.
     // v323: pin must close before WA snackbar so refresh cannot reopen under it.
+    // v353: no bland "Me too counted" top toast — confirm.meTooThanks is amplify copy only.
     const nextCount = Number(report.confirmations) || 0;
     const prevCount = Math.max(0, nextCount - 1);
     Haptics.success();
+    markMeTooButtonBacked(sourceEl);
     triggerBtnPop(sourceEl);
     showMeTooBackedChip(sourceEl);
     bumpPopupConfirmCount(prevCount, nextCount);
@@ -20268,10 +20308,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (reportMarkerLayer) refreshReportMarkers();
       updateProfileUI();
       if (isAdmin) renderAdminQueue();
-      // Keep WhatsApp glass CTA — chip replaced the bland "backed" confirmation toast.
+      // Kept: WhatsApp glass snackbar (viral amplify). Not a legacy "counted" banner.
       showToast(t('confirm.meTooThanks'), 'success', 5200, {
         label: t('share.meTooBtn'),
         variant: 'whatsapp',
+        dedupeKey: 'me-too-wa-amplify',
         onClick: () => shareMeTooWhatsApp(reportId),
       });
     };
@@ -30610,7 +30651,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         disableMeTooControl(cb);
 
-        // confirmReport: chip + count → close pin → WhatsApp glass toast
+        // confirmReport: Backed! + chip + count → close pin → WA amplify snackbar
 
         if (!confirmReport(rid, cb) && !hasConfirmed(rid)) {
 
