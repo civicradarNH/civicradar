@@ -10,7 +10,7 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v322';
+const CACHE = 'civicradar-v324';
 const NETWORK_FIRST = [
   '/js/config.js', 'js/config.js',
   // Leaflet must not stick on a stale/broken cache entry (map empty state).

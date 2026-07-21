@@ -997,10 +997,11 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   .tour__spotlight { transition: none; }
 }
 
-/* Partner access */
+/* App / roles / legal — direct Profile sections (v324; was accordion body) */
 .profile-footer {
   margin-top: 20px;
   padding-top: 16px;
+  padding-bottom: 8px;
   border-top: 1px solid var(--border);
   text-align: center;
 }
@@ -1072,15 +1073,15 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   transform: scale(0.98);
 }
 
-/* Soft indigo 34×34 Phosphor tiles (v315); delete uses crimson tint */
+/* Soft 36×36 glass Phosphor tiles (v324); per-row tints, AA in dark mode */
 .profile-row-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  min-height: 34px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: var(--radius-sm);
   background: rgba(99, 102, 241, 0.12);
   color: var(--primary);
@@ -1091,6 +1092,36 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   font-size: 1.05rem;
   line-height: 1;
   color: inherit;
+}
+
+.profile-row-icon--indigo {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.profile-row-icon--teal {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+}
+
+.profile-row-icon--green {
+  background: rgba(21, 128, 61, 0.12);
+  color: #15803d;
+}
+
+.profile-row-icon--amber {
+  background: rgba(217, 119, 6, 0.14);
+  color: #b45309;
+}
+
+.profile-row-icon--blue {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.profile-row-icon--slate {
+  background: rgba(71, 85, 105, 0.12);
+  color: #475569;
 }
 
 .profile-row-icon--danger {
@@ -1144,6 +1175,30 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   }
   .profile-row-icon {
     background: rgba(99, 102, 241, 0.22);
+  }
+  .profile-row-icon--indigo {
+    background: rgba(129, 140, 248, 0.2);
+    color: #a5b4fc;
+  }
+  .profile-row-icon--teal {
+    background: rgba(45, 212, 191, 0.16);
+    color: #5eead4;
+  }
+  .profile-row-icon--green {
+    background: rgba(74, 222, 128, 0.14);
+    color: #86efac;
+  }
+  .profile-row-icon--amber {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fbbf24;
+  }
+  .profile-row-icon--blue {
+    background: rgba(96, 165, 250, 0.16);
+    color: #93c5fd;
+  }
+  .profile-row-icon--slate {
+    background: rgba(148, 163, 184, 0.16);
+    color: #cbd5e1;
   }
   .profile-row-icon--danger {
     background: rgba(248, 113, 113, 0.18);
@@ -2993,6 +3048,13 @@ body.pwa-nudge-visible #btnCamera {
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
   padding-bottom: calc(
     36px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+  );
+}
+
+/* Profile: extra clearance so last legal rows clear the floating dock (v324) */
+#profileModal {
+  padding-bottom: calc(
+    100px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
   );
 }
 

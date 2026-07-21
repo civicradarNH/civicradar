@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v322';
+  const CIVIC_APP_VERSION = 'v324';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -13040,11 +13040,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const finish = () => {
         clearReportDuplicateUi();
         closeModal('report');
-        if (r && map) {
-          map.setView([r.lat, r.lng], 16);
-          const marker = reportMarkerMap.get(dupeId);
-          if (marker) marker.openPopup();
-        }
+        // Fly to pin only — Me-too WA toast already owns the surface (no card under it).
+        if (r && map) map.setView([r.lat, r.lng], 16);
       };
       // Let btn-pop finish before tearing down the sheet button.
       if (meTooBtn && !prefersReducedMotion()) setTimeout(finish, 320);
@@ -17833,11 +17830,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (confirmReport(report.id) && map) {
 
+          // Fly to pin only — success path shows WA toast without reopening the card.
           map.setView([report.lat, report.lng], 16);
-
-          const marker = reportMarkerMap.get(report.id);
-
-          if (marker) marker.openPopup();
 
         }
 
@@ -20022,6 +20016,10 @@ document.addEventListener('DOMContentLoaded', function () {
     Haptics.success();
     triggerBtnPop(sourceEl);
 
+    // Toast + WhatsApp own attention — close pin card before refresh/toast so
+    // refreshReportMarkers cannot keep/reopen it under the snackbar.
+    closeMapPinPopup();
+
     const paintAfterPop = () => {
       if (reportMarkerLayer) refreshReportMarkers();
       updateProfileUI();
@@ -22099,7 +22097,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function resetProfileSectionsOnOpen() {
     setCollapsibleSectionOpen('profileActivitySection', 'profileActivityBody', 'btnProfileActivityToggle', false);
     setCollapsibleSectionOpen('profileNotificationsSection', 'profileNotificationsBody', 'btnProfileNotificationsToggle', false);
-    setCollapsibleSectionOpen('profileAccountSection', 'profileAccountBody', 'btnProfileAccountToggle', false);
   }
 
   function formatWardPillLabel(ward) {
@@ -29689,8 +29686,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wireCollapsibleSection('btnProfileNotificationsToggle', 'profileNotificationsBody', 'profileNotificationsSection');
 
-    wireCollapsibleSection('btnProfileAccountToggle', 'profileAccountBody', 'profileAccountSection');
-
     const btnNotesToggle = $('#btnReportNotesToggle');
 
     if (btnNotesToggle) {
@@ -29872,7 +29867,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         disableMeTooControl(cb);
 
-        // confirmReport → refreshReportMarkers reopens popup with Me-too done state
+        // confirmReport closes pin popup then shows Me-too + WhatsApp toast
 
         if (!confirmReport(rid, cb) && !hasConfirmed(rid)) {
 
