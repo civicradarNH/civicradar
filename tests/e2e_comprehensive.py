@@ -5511,7 +5511,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v324" in sw_src
+            "civicradar-v325" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8436,6 +8436,28 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
+    # Preferred Resources chrome (restored v325): subtitle + Recommended badges (not Fastest).
+    resources_ux_ok = await page.evaluate(
+        """() => {
+          if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
+          const sub = document.getElementById('resourcesSubtitle');
+          const subOk = !!sub && /filing links|ways to help/i.test((sub.textContent || '').trim());
+          const el = document.getElementById('resourcesOfficialChannels');
+          if (!el) return false;
+          const badges = Array.from(el.querySelectorAll('.esc-channel__badge')).map(
+            (b) => (b.textContent || '').trim().toLowerCase()
+          );
+          const hasRecommended = badges.some((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
+          const hasFastest = badges.some((b) => b.includes('fastest') || b.includes('तेज़') || b.includes('जलद') || b.includes('ઝડપી'));
+          const help = document.querySelector('#resourcesModal .resources-section--community');
+          const helpOk = !!help
+            && !!help.querySelector('#btnOpenVolunteer')
+            && !!help.querySelector('#btnOpenPledge');
+          return subOk && hasRecommended && !hasFastest && helpOk;
+        }"""
+    )
+    s.record('OC06', 'OfficialChannels', 'Resources subtitle + Recommended badges + Help cards', resources_ux_ok)
+
     await ctx.close()
 
 
@@ -8789,7 +8811,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v324" in sw_src
+            "civicradar-v325" in sw_src
 
             and "'/index.html'" not in sw_src
 

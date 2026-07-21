@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v324';
+  const CIVIC_APP_VERSION = 'v325';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1573,12 +1573,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      // Differentiate dual high-score rows: corp app = Recommended, WhatsApp = Fastest.
-      const isWaFast = ch.id === 'bmc_whatsapp' || ch.id === 'pmc_wa';
-
       const badge = ch.recommended
 
-        ? `<em class="esc-channel__badge">${escapeHtml(t(isWaFast ? 'official.fastest' : 'official.recommended'))}</em>`
+        ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
 
         : '';
 
@@ -3583,6 +3580,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'Resources',
 
       'resources.title': 'Resources',
+
+      'resources.subtitle': 'Official filing links and ways to help in your ward.',
 
       'resources.actionTitle': 'Help in your ward',
 
@@ -6108,6 +6107,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधन',
 
+      'resources.subtitle': 'आधिकारिक दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
+
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
@@ -8630,6 +8631,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधने',
 
+      'resources.subtitle': 'अधिकृत दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
+
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
@@ -11150,6 +11153,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'community.resourcesTitle': 'સંસાધનો',
 
       'resources.title': 'સંસાધનો',
+
+      'resources.subtitle': 'અધિકૃત દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
 
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 

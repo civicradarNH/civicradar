@@ -6860,18 +6860,38 @@ body.persona-lead .app-open-banner { display: none; }
   text-align: left;
 }
 
+/* Resources: plain underlined catalogue link (preferred pre-v299 look) */
+#resourcesModal .official-sources-link {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: var(--touch-min);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+#resourcesModal .official-sources-link:hover {
+  border: none;
+  color: var(--accent, var(--primary));
+}
+
+/* Horizontal Volunteer / Pledge rows (icon | copy | CTA) — not stacked full-width buttons */
 #resourcesModal .resources-section--community .pledge-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  gap: 8px 12px;
-  align-items: start;
-  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
 }
 
 #resourcesModal .resources-section--community .pledge-card__icon {
-  grid-column: 1;
-  grid-row: 1;
+  flex-shrink: 0;
   width: 40px;
   height: 40px;
   display: flex;
@@ -6891,15 +6911,14 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 #resourcesModal .resources-section--community .pledge-card__body {
-  grid-column: 2;
-  grid-row: 1;
+  flex: 1;
+  min-width: 0;
 }
 
 #resourcesModal .resources-section--community .pledge-card .btn {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  width: 100%;
-  justify-content: center;
+  flex-shrink: 0;
+  width: auto;
+  min-width: 72px;
 }
 
 #resourcesModal .esc-channel:hover,
