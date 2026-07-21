@@ -812,6 +812,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let skipReportDraftRestoreOnce = false;
 
+  // Bumped when a draft is cleared or a newer restore starts — cancels in-flight
+  // Image.onload restore so a late JPEG cannot re-paint after × / empty-file recovery.
+  let reportDraftRestoreGen = 0;
+
   let shareNudgeTimer = null;
 
   let pendingSwReload = false;
@@ -23577,6 +23581,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function clearReportDraft() {
 
+    reportDraftRestoreGen += 1;
+
     try { sessionStorage.removeItem(REPORT_DRAFT_KEY); } catch { /* ignore */ }
 
   }
@@ -23660,6 +23666,8 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Restore draft JPEG onto #imageCanvas (async). Calls done(ok). */
   function restoreReportPhotoFromDataUrl(dataUrl, done) {
 
+    const gen = reportDraftRestoreGen;
+
     const finish = (ok) => {
 
       if (typeof done === 'function') done(!!ok);
@@ -23695,6 +23703,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const img = new Image();
 
     img.onload = () => {
+
+      // Draft cleared / newer restore started — do not re-paint after dismiss.
+      if (gen !== reportDraftRestoreGen) {
+
+        finish(false);
+
+        return;
+
+      }
 
       try {
 
@@ -23799,6 +23816,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     opts = opts || {};
 
+    // Cancel any in-flight JPEG restore from a prior open/pageshow.
+    reportDraftRestoreGen += 1;
+
+    const restoreGen = reportDraftRestoreGen;
+
     const draft = readReportDraft();
 
     if (!draft) {
@@ -23827,13 +23849,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const runReady = () => {
+    const stillCurrent = () => restoreGen === reportDraftRestoreGen;
 
-      if (typeof opts.onReady === 'function') opts.onReady(true);
+    const runReady = (ok) => {
+
+      if (typeof opts.onReady === 'function') opts.onReady(ok !== false);
 
     };
 
     const applyPhotoThen = (after) => {
+
+      if (!stillCurrent()) {
+
+        after(false);
+
+        return;
+
+      }
 
       if (hasReportPhotoPreview()) {
 
@@ -23857,6 +23889,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const finishUi = (photoOk) => {
 
+      if (!stillCurrent()) {
+
+        runReady(false);
+
+        return;
+
+      }
+
       // Caller will run syncReportPhotoReturn — avoid duplicate showPhotoConfirm / pin resize.
       if (opts.skipPhotoUi) {
 
@@ -23868,7 +23908,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        runReady();
+        runReady(true);
 
         return;
 
@@ -23878,13 +23918,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         requestAnimationFrame(() => {
 
+          if (!stillCurrent()) {
+
+            runReady(false);
+
+            return;
+
+          }
+
           showPhotoConfirm();
 
           touchReportDraft({ step: 'confirm', awaitingPhoto: false, photoDataUrl: lastReportDataUrl || draft.photoDataUrl || null });
 
           scheduleReportPinMapResize();
 
-          runReady();
+          runReady(true);
 
         });
 
@@ -23911,7 +23959,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      runReady();
+      runReady(true);
 
     };
 
@@ -24255,7 +24303,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('PHOTO', 'dismissGuard armed', { where: src, guardMs: PHOTO_RETURN_GUARD_MS });
 
-    touchReportDraft({ step: 'capture', awaitingPhoto: false });
+    // Cancel in-flight draft JPEG restore and drop stale photo — empty/cancel
+    // must not lose to a late Image.onload from a prior incomplete draft.
+    reportDraftRestoreGen += 1;
+
+    touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
     ensureReportModalOpen();
 
@@ -24272,6 +24324,8 @@ document.addEventListener('DOMContentLoaded', function () {
     debugLog('PHOTO', 'handlePhotoCapture fail', { where: 'failReportPhotoCapture' });
 
     finishReportPhotoFlow('failReportPhotoCapture');
+
+    reportDraftRestoreGen += 1;
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
@@ -24996,6 +25050,8 @@ document.addEventListener('DOMContentLoaded', function () {
   /** E2E helper: simulate stuck processing/scanning/parked UI without a photo. */
   window.__civicTestStickReportPhotoProcessing = function () {
 
+    reportDraftRestoreGen += 1;
+
     reportPhotoProcessing = true;
 
     reportPhotoFlowActive = true;
@@ -25004,9 +25060,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     parkReportOverlayForPicker();
 
+    clearReportPhotoPreviewOnly();
+
     updateReportFlowSteps('confirm');
 
-    touchReportDraft({ step: 'confirm', awaitingPhoto: true });
+    // Stuck-without-photo fixture — never keep a prior draft JPEG around.
+    touchReportDraft({ step: 'confirm', awaitingPhoto: true, photoDataUrl: null });
 
     return window.__civicTestReportPhotoFlags();
 
@@ -30691,6 +30750,8 @@ document.addEventListener('DOMContentLoaded', function () {
     resetPhotoConfirm();
 
     updateReportFlowSteps('capture');
+
+    reportDraftRestoreGen += 1;
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
