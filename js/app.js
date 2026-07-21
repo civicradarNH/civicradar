@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v328';
+  const CIVIC_APP_VERSION = 'v329';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -753,6 +753,13 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportCameraTimer = null;
 
   let reportPhotoWatchdogTimer = null;
+
+  // Android WebView often fires cancel / empty `change` before the real File lands
+  // after the user taps OK in the camera app. Defer abandoning the picker so a
+  // late file can still attach; never clear a held JPEG during that window.
+  let reportPhotoEmptyExitTimer = null;
+
+  const REPORT_PHOTO_EMPTY_EXIT_GRACE_MS = 700;
 
   let reportPhotoDismissGuard = 0;
 
@@ -3067,6 +3074,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.notesPh': 'Near which shop/building? e.g. opposite Sai Medical',
 
       'report.photoLostRetake': 'Photo lost after refresh — please retake. Your notes are still here.',
+
+      'report.photoMissingRetry': 'Couldn\'t get that photo — please try again.',
 
       'report.closeBusy': 'Still processing your photo — try closing again shortly.',
 
@@ -5592,6 +5601,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoLostRetake': 'रिफ्रेश के बाद फोटो खो गई — फिर लें। नोट्स सुरक्षित हैं।',
 
+      'report.photoMissingRetry': 'फोटो नहीं मिली — कृपया फिर कोशिश करें।',
+
       'report.closeBusy': 'फोटो अभी प्रोसेस हो रही है — थोड़ी देर बाद बंद करें।',
 
       'report.submit': 'रिपोर्ट भेजें',
@@ -8116,6 +8127,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.photoLostRetake': 'रिफ्रेशनंतर फोटो गेली — पुन्हा काढा. नोट्स सुरक्षित आहेत.',
 
+      'report.photoMissingRetry': 'फोटो मिळाली नाही — कृपया पुन्हा प्रयत्न करा.',
+
       'report.closeBusy': 'फोटो अजून प्रोसेस होत आहे — थोड्या वेळाने पुन्हा बंद करा.',
 
       'report.submit': 'तक्रार पाठवा',
@@ -10638,6 +10651,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.notesPh': 'કઈ દુકાન/ઇમારત પાસે? જેમ કે "સાઈ મેડિકલ સામે"',
 
       'report.photoLostRetake': 'રિફ્રેશ પછી તમારો ફોટો ટકી શક્યો નથી — કૃપા કરી ફરી લો. તમારી નોંધ હજુ પણ અહીં છે.',
+
+      'report.photoMissingRetry': 'ફોટો મળ્યો નહીં — કૃપા કરી ફરી પ્રયાસ કરો.',
 
       'report.closeBusy': 'હજુ પણ તમારા ફોટો પર કામ ચાલુ છે — થોડી વાર પછી ફરી બંધ કરવાનો પ્રયાસ કરો.',
 
@@ -24172,6 +24187,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+    } else if (getHeldReportPhotoDataUrl()) {
+
+      // pageshow/visibility raced ahead of canvas paint — restore held JPEG first.
+      debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'recoverHeld' });
+
+      recoverHeldReportPhoto((ok) => {
+
+        if (ok) {
+
+          syncReportPhotoReturn();
+
+          return;
+
+        }
+
+        if (document.visibilityState === 'visible') unparkReportOverlayForPicker();
+
+        resetPhotoConfirm();
+
+        updateReportFlowSteps('capture');
+
+        if (!reportPhotoFlowActive) reportPhotoFlowActive = true;
+
+        touchReportDraft({ step: 'capture', awaitingPhoto: true });
+
+        showToast(t('report.photoMissingRetry'), 'error', 4500);
+
+      });
+
     } else if (fromCameraFlow || reportPhotoFlowActive || isReportDraftAwaitingPhoto()) {
 
       // App is foreground again without a file yet (cancel pending, or change not fired).
@@ -24206,6 +24250,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const wasActive = reportPhotoFlowActive || reportPhotoProcessing;
 
     const hadWatchdog = !!reportPhotoWatchdogTimer;
+
+    clearReportPhotoEmptyExitTimer();
 
     // Always clear scanning chrome — even on an "already idle" path — so a late
     // moderation await cannot leave Take photo disabled with "Checking photo…".
@@ -24267,18 +24313,217 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clearReportPhotoEmptyExitTimer() {
+
+    if (reportPhotoEmptyExitTimer) {
+
+      clearTimeout(reportPhotoEmptyExitTimer);
+
+      reportPhotoEmptyExitTimer = null;
+
+    }
+
+  }
+
+
+
+  /** In-memory or draft JPEG that must survive empty change / pageshow races. */
+  function getHeldReportPhotoDataUrl() {
+
+    if (lastReportDataUrl && typeof lastReportDataUrl === 'string' && lastReportDataUrl.indexOf('data:image') === 0) {
+
+      return lastReportDataUrl;
+
+    }
+
+    try {
+
+      const d = readReportDraft();
+
+      if (d && d.photoDataUrl && typeof d.photoDataUrl === 'string' && d.photoDataUrl.indexOf('data:image') === 0) {
+
+        return d.photoDataUrl;
+
+      }
+
+    } catch { /* ignore */ }
+
+    return null;
+
+  }
+
+
+
+  /**
+   * Restore canvas preview from held JPEG. Returns true if sync path can treat
+   * photo as present (or restore was started). Calls done(ok) when async ends.
+   */
+  function recoverHeldReportPhoto(done) {
+
+    if (hasReportPhotoPreview() && lastReportDataUrl) {
+
+      if (typeof done === 'function') done(true);
+
+      return true;
+
+    }
+
+    const held = getHeldReportPhotoDataUrl();
+
+    if (!held) {
+
+      if (typeof done === 'function') done(false);
+
+      return false;
+
+    }
+
+    restoreReportPhotoFromDataUrl(held, (ok) => {
+
+      if (ok) {
+
+        touchReportDraft({
+
+          step: 'confirm',
+
+          awaitingPhoto: false,
+
+          photoDataUrl: lastReportDataUrl || held,
+
+        });
+
+      }
+
+      if (typeof done === 'function') done(!!ok);
+
+    });
+
+    return true;
+
+  }
+
+
+
+  /**
+   * Defer picker abandon after cancel/empty FileList so a late Android File can
+   * still attach. Keeps flow/awaiting flags armed during the grace window.
+   */
+  function scheduleReportPhotoEmptyExit(where, opts) {
+
+    opts = opts || {};
+
+    const showMissingToast = opts.toast !== false;
+
+    clearReportPhotoEmptyExitTimer();
+
+    // Keep awaiting so nav/FAB stay locked and pageshow restore stays photo-aware.
+    reportPhotoFlowActive = true;
+
+    touchReportDraft({ step: 'capture', awaitingPhoto: true });
+
+    debugLog('PHOTO', 'empty exit deferred', {
+
+      where: where || 'scheduleReportPhotoEmptyExit',
+
+      graceMs: REPORT_PHOTO_EMPTY_EXIT_GRACE_MS,
+
+      toast: showMissingToast,
+
+    });
+
+    reportPhotoEmptyExitTimer = setTimeout(() => {
+
+      reportPhotoEmptyExitTimer = null;
+
+      if (reportPhotoFileAccepted || reportPhotoProcessing || hasReportPhotoPreview()) {
+
+        debugLog('PHOTO', 'empty exit aborted — capture progressed', {
+
+          where: where || 'scheduleReportPhotoEmptyExit',
+
+          fileAccepted: reportPhotoFileAccepted,
+
+          processing: reportPhotoProcessing,
+
+          hasPreview: hasReportPhotoPreview(),
+
+        });
+
+        return;
+
+      }
+
+      if (getHeldReportPhotoDataUrl()) {
+
+        recoverHeldReportPhoto((ok) => {
+
+          if (ok) syncReportPhotoReturn();
+
+          else exitReportPhotoPickerWithoutCapture(where || 'emptyExitGrace', { toast: showMissingToast });
+
+        });
+
+        return;
+
+      }
+
+      exitReportPhotoPickerWithoutCapture(where || 'emptyExitGrace', { toast: showMissingToast });
+
+    }, REPORT_PHOTO_EMPTY_EXIT_GRACE_MS);
+
+  }
+
+
+
   /** Camera cancel / empty file: clear picker + processing flags but arm dismiss guard so Map ghost taps cannot close the sheet. */
-  function exitReportPhotoPickerWithoutCapture(where) {
+  function exitReportPhotoPickerWithoutCapture(where, opts) {
 
     const src = where || 'exitReportPhotoPickerWithoutCapture';
 
+    opts = opts || {};
+
+    clearReportPhotoEmptyExitTimer();
+
     // Late cancel/empty-change after a successful capture must not kick the user
     // off confirm (preview still on canvas, step would otherwise flip to capture).
-    if (hasReportPhotoPreview()) {
+    if (hasReportPhotoPreview() || getHeldReportPhotoDataUrl()) {
 
-      debugLog('PHOTO', 'exit without capture skipped — preview ready', { where: src });
+      debugLog('PHOTO', 'exit without capture skipped — held photo', {
 
-      syncReportPhotoReturn();
+        where: src,
+
+        hasPreview: hasReportPhotoPreview(),
+
+        held: !!getHeldReportPhotoDataUrl(),
+
+      });
+
+      recoverHeldReportPhoto((ok) => {
+
+        if (ok) syncReportPhotoReturn();
+
+        else {
+
+          // Held URL was corrupt — fall through to capture with toast.
+          finishReportPhotoFlow(src);
+
+          reportPhotoDismissGuard = Date.now();
+
+          reportDraftRestoreGen += 1;
+
+          touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
+
+          ensureReportModalOpen();
+
+          resetPhotoConfirm();
+
+          updateReportFlowSteps('capture');
+
+          if (opts.toast !== false) showToast(t('report.photoMissingRetry'), 'error', 4500);
+
+        }
+
+      });
 
       return;
 
@@ -24317,6 +24562,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportFlowSteps('capture');
 
+    if (opts.toast) showToast(t('report.photoMissingRetry'), 'error', 4500);
+
   }
 
 
@@ -24324,6 +24571,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function failReportPhotoCapture() {
 
     debugLog('PHOTO', 'handlePhotoCapture fail', { where: 'failReportPhotoCapture' });
+
+    clearReportPhotoEmptyExitTimer();
 
     finishReportPhotoFlow('failReportPhotoCapture');
 
@@ -24550,6 +24799,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const input = $('#photoInput');
 
     if (!input || reportPhotoProcessing) return;
+
+    clearReportPhotoEmptyExitTimer();
 
     // Cancel any pending auto-launch timer (openReportModal) so a manual tap on
     // "Take photo" during that window can't fire the camera intent twice.
@@ -29593,11 +29844,17 @@ document.addEventListener('DOMContentLoaded', function () {
       // an in-flight decode or kick a finished preview back to capture.
       // Only ignore when a non-empty file was accepted (not a stuck-processing flag
       // alone — RP12f / cancel-after-stuck must still force-clear).
-      if (hasReportPhotoPreview()) {
+      if (hasReportPhotoPreview() || getHeldReportPhotoDataUrl()) {
 
-        debugLog('PHOTO', 'cancel ignored — preview ready');
+        debugLog('PHOTO', 'cancel ignored — held photo ready');
 
-        syncReportPhotoReturn();
+        clearReportPhotoEmptyExitTimer();
+
+        recoverHeldReportPhoto((ok) => {
+
+          if (ok) syncReportPhotoReturn();
+
+        });
 
         return;
 
@@ -29611,7 +29868,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      exitReportPhotoPickerWithoutCapture('photoInputCancel');
+      // Stuck processing without a file (RP12f): force-clear immediately.
+      if (reportPhotoProcessing) {
+
+        exitReportPhotoPickerWithoutCapture('photoInputCancelStuck', { toast: false });
+
+        return;
+
+      }
+
+      // Genuine cancel often races a late File after OK — wait briefly before abandon.
+      scheduleReportPhotoEmptyExit('photoInputCancel', { toast: false });
 
     });
 
@@ -30770,11 +31037,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!file || !file.size) {
 
       // Spurious empty change after a real accept must not abort decode / confirm.
-      if (hasReportPhotoPreview()) {
+      if (hasReportPhotoPreview() || getHeldReportPhotoDataUrl()) {
 
-        debugLog('PHOTO', 'empty change ignored — preview ready');
+        debugLog('PHOTO', 'empty change ignored — held photo ready', {
 
-        syncReportPhotoReturn();
+          hasPreview: hasReportPhotoPreview(),
+
+          held: !!getHeldReportPhotoDataUrl(),
+
+        });
+
+        clearReportPhotoEmptyExitTimer();
+
+        recoverHeldReportPhoto((ok) => {
+
+          if (ok) syncReportPhotoReturn();
+
+          else exitReportPhotoPickerWithoutCapture('handlePhotoCaptureHeldCorrupt', { toast: true });
+
+        });
 
         return;
 
@@ -30788,11 +31069,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      exitReportPhotoPickerWithoutCapture(file ? 'handlePhotoCaptureEmptyFile' : 'handlePhotoCaptureNoFile');
+      // Zero-byte File is a real (corrupt) pick — fail immediately with toast (RP12e).
+      if (file && !file.size) {
+
+        failReportPhotoCapture();
+
+        return;
+
+      }
+
+      // Empty FileList: Android often fires this before the real File after OK.
+      // Defer abandon so a late change can still attach; toast if nothing arrives.
+      scheduleReportPhotoEmptyExit('handlePhotoCaptureNoFile', { toast: true });
 
       return;
 
     }
+
+    clearReportPhotoEmptyExitTimer();
 
     const captureGen = ++reportPhotoCaptureGen;
 
@@ -30869,10 +31163,31 @@ document.addEventListener('DOMContentLoaded', function () {
               resizeQuality: 'high',
             });
           } catch {
-            bitmap = await createImageBitmap(file);
+            bitmap = null;
+          }
+          // Some Android WebViews return a 0×0 bitmap for resizeWidth-only opts.
+          if (bitmap && (!bitmap.width || !bitmap.height)) {
+            try { if (typeof bitmap.close === 'function') bitmap.close(); } catch { /* ignore */ }
+            bitmap = null;
+          }
+          if (!bitmap) {
+            try {
+              bitmap = await createImageBitmap(file);
+            } catch {
+              bitmap = null;
+            }
           }
         }
-        if (!stillCurrent()) return;
+        if (!stillCurrent()) {
+          // Superseded by a newer capture — quiet drop only if that capture owns the flow.
+          if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
+            && !reportPhotoFileAccepted && !reportPhotoProcessing) {
+            failReportPhotoCapture();
+          } else {
+            setPhotoScanning(false);
+          }
+          return;
+        }
 
         const canvas = $('#imageCanvas');
         if (!canvas) {
@@ -30929,6 +31244,10 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           if (!stillCurrent()) {
             setPhotoScanning(false);
+            if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
+              && !reportPhotoFileAccepted && !reportPhotoProcessing) {
+              failReportPhotoCapture();
+            }
             return;
           }
           setPhotoScanning(false);
@@ -30941,9 +31260,28 @@ document.addEventListener('DOMContentLoaded', function () {
           reportPhotoModerationPassed = true;
         }
 
-        if (!stillCurrent()) return;
+        if (!stillCurrent()) {
+          if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
+            && !reportPhotoFileAccepted && !reportPhotoProcessing) {
+            failReportPhotoCapture();
+          } else {
+            setPhotoScanning(false);
+          }
+          return;
+        }
         canvas.classList.add('visible');
-        lastReportDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+        let dataUrl;
+        try {
+          dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+        } catch {
+          failReportPhotoCapture();
+          return;
+        }
+        if (!dataUrl || dataUrl.length < 32 || dataUrl.indexOf('data:image') !== 0) {
+          failReportPhotoCapture();
+          return;
+        }
+        lastReportDataUrl = dataUrl;
         // Persist JPEG ASAP so hide/pageshow/nav cannot lose the capture.
         touchReportDraft({
           step: 'confirm',
@@ -30962,7 +31300,12 @@ document.addEventListener('DOMContentLoaded', function () {
           captureGen,
         });
         if (stillCurrent()) failReportPhotoCapture();
-        else setPhotoScanning(false);
+        else if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
+          && !reportPhotoFileAccepted && !reportPhotoProcessing) {
+          failReportPhotoCapture();
+        } else {
+          setPhotoScanning(false);
+        }
       } finally {
         if (objectUrl) {
           try { URL.revokeObjectURL(objectUrl); } catch { /* ignore */ }
