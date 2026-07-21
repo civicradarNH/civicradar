@@ -64,8 +64,9 @@
   --warning-dark: #92400e;
   --warning-fg: #b45309;
 
-  /* Toasts — deep slate glass cards (Clean SaaS; dark-mode-safe on light canvas).
-     Soft emerald / indigo border accents only — never solid WA-green fills. */
+  /* Toasts — deep slate glass cards (Clean SaaS; AA on light canvas via light fg).
+     Soft emerald / indigo border accents only — never solid WA-green fills.
+     Teal ambient in shadow is whisper-quiet (no neon glow). */
   --toast-glass-bg: rgba(15, 23, 42, 0.92);
   --toast-glass-border: rgba(255, 255, 255, 0.14);
   --toast-glass-inset: rgba(255, 255, 255, 0.08);
@@ -76,10 +77,11 @@
   --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
   --toast-error-bg: rgba(153, 27, 27, 0.92);
   --toast-info-bg: rgba(15, 23, 42, 0.92);
-  /* Float above pin cards — stronger than generic --shadow-overlay alone */
+  /* Float above pin cards — soft drop + subtle teal ambient */
   --toast-shadow:
     0 12px 40px -8px rgba(15, 23, 42, 0.38),
     0 4px 14px rgba(15, 23, 42, 0.2),
+    0 0 28px rgba(15, 118, 110, 0.1),
     inset 0 0 0 1px var(--toast-glass-inset);
   /* WA CTA inside toast — dark glass + brand-green icon (not #25D366 fill block) */
   --toast-wa-btn-bg: rgba(30, 41, 59, 0.88);
@@ -631,6 +633,37 @@ body.app-booting {
   margin-bottom: 12px;
 }
 
+/* GPS outside Mumbai/Pune/Thane — nudge manual city pick (temporary highlight) */
+#onboardCityGroup.onboard-city--highlight {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.18);
+}
+
+#onboardCityGroup.onboard-city--highlight #onboardCity {
+  border-color: var(--brand-600, var(--primary));
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.22);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #onboardCityGroup.onboard-city--highlight {
+    animation: onboard-city-highlight-in 180ms ease-out;
+  }
+}
+
+@keyframes onboard-city-highlight-in {
+  from { opacity: 0.72; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #onboardCityGroup.onboard-city--highlight {
+    animation: none;
+  }
+}
+
 .ward-detect-status {
   display: flex;
   align-items: center;
@@ -697,6 +730,17 @@ body.app-booting {
   border-radius: var(--radius-sm);
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Capture-step photo moderation / validation — inline under guidelines */
+#reportPhotoError {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #b91c1c;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 
 .next-steps {
@@ -2177,13 +2221,13 @@ body.manual-pin-mode #map .leaflet-container {
   background: var(--toast-glass-bg);
   color: var(--toast-fg);
   border: 1px solid var(--toast-glass-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-pill);
   font-size: var(--fs-base);
   line-height: 1.4;
   backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   -webkit-backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  animation: toast-in 0.3s ease;
+  animation: toast-in 0.3s var(--ease-spring, ease);
   pointer-events: auto;
 }
 
@@ -3193,8 +3237,9 @@ body.pwa-nudge-visible #btnCamera {
   );
 }
 
-/* Profile: extra clearance so last legal rows clear the floating dock (v324) */
-#profileModal {
+/* Profile + Resources: extra clearance so last cards clear the floating dock */
+#profileModal,
+#resourcesModal {
   padding-bottom: calc(
     100px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
   );
@@ -6121,13 +6166,112 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--text);
 }
 
-/* v305 — chunked identity / progress / stats */
+/* v305 — chunked identity / progress / stats
+   v343 — compact greeting header (reclaim vertical chrome) */
 .profile-card__identity {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 
+.profile-header-compact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.profile-header-compact__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Reset .modal h2 sticky chrome — greeting lives inside the hero card */
+.modal h2.profile-header-compact__title,
+.profile-header-compact__title {
+  position: static;
+  top: auto;
+  z-index: auto;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 0;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fff;
+  letter-spacing: -0.02em;
+  transition: none;
+}
+
+.modal:has(.modal__close) h2.profile-header-compact__title {
+  padding-right: 0;
+}
+
+.profile-header-compact__badge {
+  display: block;
+  max-width: 100%;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-ghost-sm,
+.profile-header-compact__edit {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: inherit;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-ghost-sm:hover,
+.profile-header-compact__edit:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.72);
+}
+
+.btn-ghost-sm:focus-visible,
+.profile-header-compact__edit:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.btn-ghost-sm i,
+.profile-header-compact__edit i {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* Legacy hooks (kept for any residual markup) */
 .profile-card__identity-row {
   display: flex;
   align-items: center;
@@ -6173,14 +6317,20 @@ body.persona-lead .app-open-banner { display: none; }
   outline-offset: 2px;
 }
 
-/* v308 — compact identity summary (ward pill + optional society) */
+/* v308 — compact identity summary (optional society under badge) */
 .profile-card__identity-summary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   min-height: 0;
+}
+
+/* Society-only summary — collapse when the optional line is hidden */
+.profile-card__identity-summary:not(:has(.profile-card__society-line:not(.hidden))) {
+  display: none;
+  margin-bottom: 0;
 }
 
 .profile-card__ward-pill {
@@ -6254,8 +6404,8 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .profile-card__progress {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 
@@ -6369,8 +6519,10 @@ body.persona-lead .app-open-banner { display: none; }
   gap: 10px;
 }
 
-/* v306 — frosted-glass stat pills on hero gradient (AA white on indigo/cyan) */
-.profile-card__stats .stat {
+/* v306 — frosted-glass stat pills on hero gradient (AA white on indigo/cyan).
+   v342 — distinct semantic glass tints (points / fixed / open). */
+.profile-card__stats .stat,
+.profile-card__stats .profile-stat-card {
   align-items: center;
   text-align: center;
   padding: 12px 8px;
@@ -6380,6 +6532,7 @@ body.persona-lead .app-open-banner { display: none; }
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .profile-card__stats .stat__value {
@@ -6389,6 +6542,144 @@ body.persona-lead .app-open-banner { display: none; }
 .profile-card__stats .stat__label {
   color: rgba(255, 255, 255, 0.95);
   opacity: 1;
+}
+
+/* Semantic glass — on dark profile-card gradient: soft tint + white type (AA).
+   Points uses indigo brand (not emerald #34d399) so Fixed teal stays distinct;
+   matches Community / ward-pulse Me-too points language. */
+.profile-card__stats .profile-stat-card--points,
+.profile-card__stats #profileXpCard {
+  --profile-stat-accent: var(--primary, #6366f1);
+  --profile-stat-glow: rgba(var(--primary-rgb, 99, 102, 241), 0.42);
+  background: rgba(99, 102, 241, 0.34);
+  border-color: rgba(165, 180, 252, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 0 0 transparent;
+}
+
+.profile-card__stats .profile-stat-card--fixed {
+  --profile-stat-accent: #2dd4bf;
+  --profile-stat-glow: rgba(45, 212, 191, 0.4);
+  background: rgba(45, 212, 191, 0.28);
+  border-color: rgba(94, 234, 212, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 0 transparent;
+}
+
+.profile-card__stats .profile-stat-card--open {
+  --profile-stat-accent: #fbbf24;
+  --profile-stat-glow: rgba(251, 191, 36, 0.38);
+  background: rgba(251, 191, 36, 0.26);
+  border-color: rgba(252, 211, 77, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 0 transparent;
+}
+
+.profile-card__stats .profile-stat-card--points .stat__label,
+.profile-card__stats #profileXpCard .stat__label {
+  color: #e0e7ff;
+}
+
+.profile-card__stats .profile-stat-card--fixed .stat__label {
+  color: #ccfbf1;
+}
+
+.profile-card__stats .profile-stat-card--open .stat__label {
+  color: #fef3c7;
+}
+
+.profile-card__stats .profile-stat-card:hover,
+.profile-card__stats .profile-stat-card:focus-within {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 18px var(--profile-stat-glow, rgba(255, 255, 255, 0.2));
+}
+
+.profile-card__stats .profile-stat-card--points:hover,
+.profile-card__stats .profile-stat-card--points:focus-within,
+.profile-card__stats #profileXpCard:hover,
+.profile-card__stats #profileXpCard:focus-within {
+  border-color: rgba(199, 210, 254, 0.75);
+}
+
+.profile-card__stats .profile-stat-card--fixed:hover,
+.profile-card__stats .profile-stat-card--fixed:focus-within {
+  border-color: rgba(153, 246, 228, 0.75);
+}
+
+.profile-card__stats .profile-stat-card--open:hover,
+.profile-card__stats .profile-stat-card--open:focus-within {
+  border-color: rgba(253, 230, 138, 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-card__stats .stat,
+  .profile-card__stats .profile-stat-card {
+    transition: none;
+  }
+
+  .profile-card__stats .profile-stat-card:hover,
+  .profile-card__stats .profile-stat-card:focus-within {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+}
+
+/* Light-surface variant (opt-in): dark ink on soft tint for AA ≥4.5:1.
+   Hero gradient keeps white type above; add .profile-card__stats--light or
+   .profile-stat-card--on-light if tiles move onto a light canvas. */
+.profile-card__stats--light .profile-stat-card--points,
+.profile-stat-card--points.profile-stat-card--on-light {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.28);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-card__stats--light .profile-stat-card--points .stat__value,
+.profile-stat-card--points.profile-stat-card--on-light .stat__value {
+  color: var(--primary-dark, #4f46e5);
+}
+
+.profile-card__stats--light .profile-stat-card--points .stat__label,
+.profile-stat-card--points.profile-stat-card--on-light .stat__label {
+  color: var(--primary, #6366f1);
+}
+
+.profile-card__stats--light .profile-stat-card--fixed,
+.profile-stat-card--fixed.profile-stat-card--on-light {
+  background: rgba(4, 120, 87, 0.1);
+  border-color: rgba(4, 120, 87, 0.28);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-card__stats--light .profile-stat-card--fixed .stat__value,
+.profile-stat-card--fixed.profile-stat-card--on-light .stat__value {
+  color: var(--success, #047857);
+}
+
+.profile-card__stats--light .profile-stat-card--fixed .stat__label,
+.profile-stat-card--fixed.profile-stat-card--on-light .stat__label {
+  color: var(--success, #047857);
+  opacity: 0.9;
+}
+
+.profile-card__stats--light .profile-stat-card--open,
+.profile-stat-card--open.profile-stat-card--on-light {
+  background: rgba(180, 83, 9, 0.1);
+  border-color: rgba(180, 83, 9, 0.28);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-card__stats--light .profile-stat-card--open .stat__value,
+.profile-stat-card--open.profile-stat-card--on-light .stat__value {
+  color: var(--warning-dark, #92400e);
+}
+
+.profile-card__stats--light .profile-stat-card--open .stat__label,
+.profile-stat-card--open.profile-stat-card--on-light .stat__label {
+  color: var(--warning-fg, #b45309);
 }
 
 .profile-card__hint {
@@ -6882,8 +7173,9 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 #resourcesModal .resources-section__title {
-  font-size: var(--fs-lg);
-  font-weight: 700;
+  font-size: var(--text-base, var(--fs-md, 1rem));
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 #resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
@@ -6914,7 +7206,7 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 #resourcesModal .resources-section__title {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .resources-action-title {
@@ -6930,13 +7222,13 @@ body.persona-lead .app-open-banner { display: none; }
   border-color: var(--corp-bmc-border);
 }
 
-#resourcesModal .esc-channel[data-official-channel="marg"] i,
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"] i,
-#resourcesModal .esc-channel[data-official-channel="bmc_call"] i {
+#resourcesModal .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
+#resourcesModal .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
+#resourcesModal .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external) {
   color: var(--corp-bmc);
 }
 
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] i { color: var(--whatsapp); }
+#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
 
 #resourcesModal .esc-channel[data-official-channel="pmc_care"],
 #resourcesModal .esc-channel[data-official-channel="pmc_wa"] {
@@ -6944,9 +7236,9 @@ body.persona-lead .app-open-banner { display: none; }
   border-color: var(--corp-pmc-border);
 }
 
-#resourcesModal .esc-channel[data-official-channel="pmc_care"] i { color: var(--corp-pmc); }
+#resourcesModal .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external) { color: var(--corp-pmc); }
 
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"] i { color: var(--whatsapp); }
+#resourcesModal .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
 
 #resourcesModal .esc-channel[data-official-channel="tmc_portal"],
 #resourcesModal .esc-channel[data-official-channel="tmc_call"] {
@@ -6954,8 +7246,8 @@ body.persona-lead .app-open-banner { display: none; }
   border-color: var(--corp-tmc-border);
 }
 
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"] i,
-#resourcesModal .esc-channel[data-official-channel="tmc_call"] i {
+#resourcesModal .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
+#resourcesModal .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external) {
   color: var(--corp-tmc);
 }
 
@@ -6964,14 +7256,14 @@ body.persona-lead .app-open-banner { display: none; }
   border-color: var(--corp-swachhata-border);
 }
 
-#resourcesModal .esc-channel[data-official-channel="swachhata"] i { color: var(--corp-swachhata); }
+#resourcesModal .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external) { color: var(--corp-swachhata); }
 
 #resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] {
   background: var(--corp-aaple-bg);
   border-color: var(--corp-aaple-border);
 }
 
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] i { color: var(--corp-aaple); }
+#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external) { color: var(--corp-aaple); }
 
 #resourcesModal .esc-channel--recommended {
   box-shadow: none;
@@ -6995,33 +7287,29 @@ body.persona-lead .app-open-banner { display: none; }
   display: none; /* row is the only affordance; catalogue via All official sources */
 }
 
-#resourcesModal .official-sources-all {
-  margin: 8px 0 0;
+/* Single catalogue footer — muted, centered (replaces mid-block official-sources link) */
+#resourcesModal .resources-footer {
+  margin: 1.25rem 0 0;
   padding: 0;
-  border-top: none;
-  text-align: left;
+  text-align: center;
 }
 
-/* Resources: plain underlined catalogue link (preferred pre-v299 look) */
-#resourcesModal .official-sources-link {
+#resourcesModal .resources-footer-link {
   display: inline-flex;
   align-items: center;
-  width: auto;
+  justify-content: center;
   min-height: var(--touch-min);
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--primary);
+  padding: 0 4px;
+  font-size: var(--text-sm, var(--fs-sm, 0.875rem));
+  font-weight: 500;
+  color: var(--ink-400, var(--text-muted));
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-#resourcesModal .official-sources-link:hover {
-  border: none;
-  color: var(--accent, var(--primary));
+#resourcesModal .resources-footer-link:hover,
+#resourcesModal .resources-footer-link:focus-visible {
+  color: var(--ink-600, var(--text-muted));
 }
 
 /* Horizontal Volunteer / Pledge rows (icon | copy | CTA) — not stacked full-width buttons */
@@ -7175,7 +7463,12 @@ body.persona-lead .app-open-banner { display: none; }
   background: transparent;
 }
 
-#resourcesModal .official-channels .esc-channel i,
+#resourcesModal .official-channels .esc-channel.esc-channel--has-external {
+  grid-template-columns: 40px 1fr auto 16px;
+  column-gap: 8px;
+}
+
+#resourcesModal .official-channels .esc-channel > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel .esc-channel__glyph {
   grid-column: 1;
   grid-row: 1 / -1;
@@ -7188,6 +7481,36 @@ body.persona-lead .app-open-banner { display: none; }
   background: rgba(99, 102, 241, 0.12);
   font-size: var(--fs-md);
 }
+
+/* Trailing external-portal mark (next to chevron) — not a leading channel tile */
+.esc-channel__external {
+  flex-shrink: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-400, var(--text-muted));
+  line-height: 1;
+}
+
+#resourcesModal .official-channels .esc-channel .esc-channel__external {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  align-self: center;
+  justify-self: end;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--ink-400, var(--text-muted));
+  font-size: var(--fs-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#resourcesModal .official-channels .esc-channel.esc-channel--has-external::after {
+  grid-column: 4;
+}
 #resourcesModal .official-channels .esc-channel .esc-channel__glyph {
   box-sizing: border-box;
   padding: 6px;
@@ -7195,40 +7518,40 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 /* Soft per-channel icon tiles (calm 0.12–0.14 alpha — not full-row fills) */
-#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="marg"] .esc-channel__glyph,
 #resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] .esc-channel__glyph,
 #resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] .esc-channel__glyph {
   background: rgba(29, 78, 216, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] .esc-channel__glyph,
 #resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] .esc-channel__glyph {
   background: rgba(37, 211, 102, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] .esc-channel__glyph {
   background: rgba(234, 88, 12, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] i,
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] .esc-channel__glyph,
 #resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] .esc-channel__glyph {
   background: rgba(21, 128, 61, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] .esc-channel__glyph {
   background: rgba(8, 145, 178, 0.14);
 }
 
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] i,
+#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external),
 #resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] .esc-channel__glyph {
   background: rgba(124, 58, 237, 0.14);
 }
@@ -8423,7 +8746,8 @@ a:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton::after { animation: none; }
+  .skeleton::after,
+  .glass-skeleton::after { animation: none; }
   .btn--primary:hover:not(:disabled):not(.is-loading) { transform: none; }
 }
 
@@ -10209,7 +10533,7 @@ html[lang="gu"] body {
   padding: 8px 14px 8px 16px;
   border-radius: var(--radius-pill);
   font-size: var(--fs-sm);
-  box-shadow: var(--shadow-overlay);
+  box-shadow: var(--toast-shadow, var(--shadow-overlay));
   animation: snackbar-in 0.28s var(--ease-sheet) both;
   align-items: center;
 }
@@ -10852,6 +11176,12 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     border-color: rgba(248, 113, 113, 0.35);
   }
 
+  #reportPhotoError {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+  }
+
   html {
     color-scheme: dark;
   }
@@ -11140,21 +11470,66 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   transform: scale(0.92);
 }
 
-/* Success pop after Me too / Mark Resolved — one-shot, after :active releases */
-@keyframes haptic-pop {
+/* Success pop after Me too / Mark Resolved — one-shot spring (triggerBtnPop).
+   No continuous breathe / shimmer; reduced-motion disables below. */
+@keyframes springPop {
   0% { transform: scale(0.92); }
   45% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 
 .btn-pop-active {
-  animation: haptic-pop 0.3s cubic-bezier(0.34, 1.45, 0.64, 1);
+  animation: springPop 0.3s var(--ease-spring);
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .btn-pop-active {
     animation: none !important;
+  }
+}
+
+/* Me too inline micro-badge — mint glow restraint (not neon casino) */
+.me-too-backed-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--success, #059669);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  animation: me-too-chip-in 0.28s var(--ease-spring, ease) both;
+}
+
+.me-too-backed-chip .ph {
+  font-size: 1.1em;
+  flex-shrink: 0;
+  color: var(--success, #059669);
+}
+
+@keyframes me-too-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .me-too-backed-chip {
+    animation: none;
   }
 }
 
@@ -11221,6 +11596,32 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
 }
 
 /* ---- Skeleton shimmer system ---- */
+/* .glass-skeleton — optional glass-tinted alias for loading gaps (map/resources).
+   Prefer existing .skeleton stacks; do not wrap the whole app. */
+.glass-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--glass-sheet, rgba(255, 255, 255, 0.72)) 70%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--glass-sheet-border, rgba(255, 255, 255, 0.45)) 55%, var(--border));
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.glass-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translate3d(-100%, 0, 0);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1.25s var(--ease-out-soft) infinite;
+  pointer-events: none;
+}
+
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -11352,6 +11753,7 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     transform: none !important;
   }
   .skeleton::after,
+  .glass-skeleton::after,
   .report-pin-map--loading::after {
     animation: none !important;
   }
@@ -12558,3 +12960,138 @@ body::after {
    SHIP: popup glass tokens · inactive nav glyph contrast ·
          press scale(0.96) aligned with FAB
    ============================================================ */
+
+/* ============================================================
+   Home-map “dark slate glass” ask — filtered adapt (v348)
+   TAKE:
+     · Safe-area header + clearer gap before ward-pulse / map-hud
+     · Light (+ dark AA) glass chrome via --glass-hud-* tokens
+     · Indigo FAB rim (soft elevate) — NOT teal gradient / multi-glow
+     · OSM attribution clears floating dock + report FAB
+     · Quiet floating #bottomNav (no glowing active pills)
+   SKIP / REJECT:
+     · Teal FAB (#0d9488→#14b8a6) + strong glow — brand is indigo;
+       teal trial reverted (primary≈success monochrome on Community)
+     · Mass pin recolor to teal/emerald — kills hazard category meaning;
+       keep assets/map-pins/* (danger/hazard open · success fixed)
+     · Global CartoDB Dark Matter basemap — dark-mode-first fights
+       Clean SaaS light chrome; keep OSM standard tiles (JS unchanged).
+       Dark chrome already adapts via prefers-color-scheme glass tokens.
+   Basemap decision: OSM standard (tile.openstreetmap.org). SW stays
+   same-origin-only (tiles never intercepted; v302 Leaflet network-first).
+   ============================================================ */
+
+:root {
+  /* Header → pulse/HUD separation (was tight 6px stack) */
+  --map-chrome-stack-gap: 12px;
+  /* Band between dock top and FAB bottom for OSM credit */
+  --attr-clearance: 36px;
+}
+
+/* Safer top stack: header already uses safe-area; widen gap to HUD */
+.map-hud {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
+  );
+}
+
+.ward-pulse {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
+  );
+}
+
+.map-legend {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
+    + var(--ward-pulse-height) + 10px
+  );
+}
+
+body.home-hero-visible .map-legend,
+body.persona-admin .map-legend,
+body.persona-lead .map-legend {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
+  );
+}
+
+/* Keep location chip below the taller HUD stack */
+body.location-banner-visible .location-banner {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--map-chrome-stack-gap) + var(--map-hud-height)
+    + var(--hud-gap)
+  );
+}
+
+/* Report FAB (#btnCamera; Gemini called it #fabReport) — indigo brand only */
+#btnCamera {
+  background: var(--grad-brand);
+  color: var(--on-primary);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: var(--shadow-pop);
+  animation: none !important;
+}
+
+#btnCamera:hover,
+#btnCamera:active {
+  box-shadow: var(--shadow-pop);
+}
+
+/* OSM attribution: clear dock + FAB column; stay readable (ODbL) */
+.leaflet-bottom {
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+    + var(--attr-clearance) + 8px
+  ) !important;
+}
+
+.leaflet-control-attribution {
+  margin: 0 0 2px 4px !important;
+  max-width: min(48vw, 200px) !important;
+  padding: 3px 8px !important;
+  line-height: 1.3 !important;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-sm);
+  z-index: 1;
+}
+
+/* Floating dock — same quiet glass language; no second visual system */
+#bottomNav,
+.bottom-nav {
+  background: var(--glass-hud-bg);
+  backdrop-filter: blur(var(--glass-hud-blur));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur));
+  border: 1px solid var(--glass-hud-border);
+  box-shadow:
+    var(--shadow-hud),
+    inset 0 0 0 1px var(--glass-hud-inset);
+}
+
+@media (prefers-color-scheme: dark) {
+  .leaflet-control-attribution {
+    background: rgba(17, 24, 39, 0.84) !important;
+    border-color: rgba(148, 163, 184, 0.28);
+    color: var(--ink-400) !important;
+  }
+
+  #btnCamera {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #btnCamera,
+  #btnCamera:hover,
+  #btnCamera:active {
+    animation: none !important;
+    transition: none;
+  }
+}

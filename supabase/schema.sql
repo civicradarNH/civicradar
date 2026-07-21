@@ -1878,6 +1878,40 @@ begin
     );
 
   delete from public.volunteer_signups where user_id = uid;
+
+  -- Denormalized counters on OTHER users' reports must drop before we delete
+  -- this user's corroboration / fix / flag rows — otherwise get_tracking_dashboard
+  -- sum(confirmations) / ward Me-too metrics stay inflated after erasure.
+  update public.reports r
+    set confirmations = greatest(0, coalesce(r.confirmations, 0) - sub.cnt)
+    from (
+      select report_id, count(*)::int as cnt
+      from public.report_confirmations
+      where user_id = uid
+      group by report_id
+    ) sub
+    where r.id = sub.report_id;
+
+  update public.reports r
+    set fix_confirmations = greatest(0, coalesce(r.fix_confirmations, 0) - sub.cnt)
+    from (
+      select report_id, count(*)::int as cnt
+      from public.report_fix_confirmations
+      where user_id = uid
+      group by report_id
+    ) sub
+    where r.id = sub.report_id;
+
+  update public.reports r
+    set flag_count = greatest(0, coalesce(r.flag_count, 0) - sub.cnt)
+    from (
+      select report_id, count(*)::int as cnt
+      from public.report_flags
+      where user_id = uid
+      group by report_id
+    ) sub
+    where r.id = sub.report_id;
+
   delete from public.report_fix_confirmations where user_id = uid;
   delete from public.report_confirmations where user_id = uid;
   delete from public.report_flags where user_id = uid;

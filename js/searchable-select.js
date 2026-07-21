@@ -72,12 +72,13 @@
       return Array.isArray(opts) ? opts : [];
     }
 
+    /** Case-insensitive substring match against getOptions() (includes). */
     function filterOptions(query) {
-      const q = query.trim().toLowerCase();
+      const q = String(query == null ? '' : query).trim().toLowerCase();
       const opts = allOptions();
       if (!q) return opts;
       return opts.filter(function (o) {
-        return String(o).toLowerCase().indexOf(q) !== -1;
+        return String(o).toLowerCase().includes(q);
       });
     }
 
@@ -133,6 +134,18 @@
       wrap.classList.remove('is-open');
       activeIndex = -1;
       input.removeAttribute('aria-activedescendant');
+    }
+
+    /**
+     * Live-filter path: always reopen + re-render from getOptions().
+     * Critical when the list was closed externally (E2E dismiss_civic_comboboxes
+     * only adds .hidden / aria-expanded=false and leaves our isOpen flag true) —
+     * the old "if (!isOpen) open else render" path re-rendered into a still-hidden
+     * list, so filtering looked broken.
+     */
+    function filterFromInput() {
+      activeIndex = -1;
+      openList(false);
     }
 
     // Find the next focusable form control after `input` in DOM order, so we
@@ -210,8 +223,7 @@
 
     input.addEventListener('input', function () {
       if (suppressInput) return;   // ignore our own programmatic value-set
-      if (!isOpen) openList(false);
-      else renderList(filterOptions(input.value));
+      filterFromInput();
     });
 
     input.addEventListener('keydown', function (e) {
@@ -225,10 +237,12 @@
         closeList();
         e.preventDefault();
       } else if (e.key === 'ArrowDown') {
+        if (!filteredOptions.length) return;
         activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1);
         highlightActive();
         e.preventDefault();
       } else if (e.key === 'ArrowUp') {
+        if (!filteredOptions.length) return;
         activeIndex = Math.max(activeIndex - 1, 0);
         highlightActive();
         e.preventDefault();
@@ -245,7 +259,7 @@
     });
 
     toggleBtn.addEventListener('click', function () {
-      if (isOpen) {
+      if (isOpen && !listbox.classList.contains('hidden')) {
         closeList();
         input.focus();
       } else {
@@ -271,7 +285,11 @@
 
     const api = {
       refresh: function () {
-        if (isOpen) renderList(filterOptions(input.value));
+        // City/source changes call this while the list may be open — re-filter
+        // from fresh getOptions(). Also recover visual/state desync.
+        if (isOpen || !listbox.classList.contains('hidden')) {
+          openList(false);
+        }
       },
       open: function () { openList(true); },
       close: closeList,

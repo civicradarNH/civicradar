@@ -5531,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v331" in sw_src
+            "civicradar-v352" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8456,7 +8456,8 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
-    # Preferred Resources chrome (restored v325): subtitle + Recommended badges (not Fastest).
+    # Preferred Resources chrome (v325+): subtitle + Recommended (not Fastest) + Help cards;
+    # v344+: single footer catalogue link (no mid-block "All official sources" duplicate).
     resources_ux_ok = await page.evaluate(
         """() => {
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
@@ -8473,10 +8474,17 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const helpOk = !!help
             && !!help.querySelector('#btnOpenVolunteer')
             && !!help.querySelector('#btnOpenPledge');
-          return subOk && hasRecommended && !hasFastest && helpOk;
+          const footer = document.querySelector('#resourcesModal .resources-footer-link');
+          const footerOk = !!footer
+            && (footer.getAttribute('href') || '').includes('official-sources')
+            && !document.querySelector('#resourcesOfficialBlock .official-sources-link');
+          const fileTitle = document.querySelector('#resourcesOfficialBlock .resources-section__title');
+          const fileTitleOk = !!fileTitle
+            && !/official grievance/i.test((fileTitle.textContent || '').trim());
+          return subOk && hasRecommended && !hasFastest && helpOk && footerOk && fileTitleOk;
         }"""
     )
-    s.record('OC06', 'OfficialChannels', 'Resources subtitle + Recommended badges + Help cards', resources_ux_ok)
+    s.record('OC06', 'OfficialChannels', 'Resources grouping + Recommended + footer sources link', resources_ux_ok)
 
     await ctx.close()
 
@@ -8831,7 +8839,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v331" in sw_src
+            "civicradar-v352" in sw_src
 
             and "'/index.html'" not in sw_src
 

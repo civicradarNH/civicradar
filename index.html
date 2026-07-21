@@ -148,8 +148,8 @@
       <div class="ward-pulse__row">
         <span class="ward-pulse__ward" id="wardPulseName">Your ward</span>
         <div class="ward-pulse__stats">
-          <span class="ward-pulse__stat ward-pulse__stat--open"><strong id="wardPulseOpen">0</strong> <span data-i18n="pulse.open">open</span></span>
-          <span class="ward-pulse__stat ward-pulse__stat--fixed"><strong id="wardPulseFixed">0</strong> <span data-i18n="pulse.fixedWeek">fixed this week</span></span>
+          <span class="ward-pulse__stat ward-pulse__stat--open"><strong id="wardPulseOpen">0</strong> <span data-i18n="pulse.open">Open</span></span>
+          <span class="ward-pulse__stat ward-pulse__stat--fixed"><strong id="wardPulseFixed">0</strong> <span data-i18n="pulse.fixedWeek">Fixed</span></span>
           <span class="ward-pulse__stat ward-pulse__stat--metoo"><strong id="wardPulseMeToo">0</strong> <span data-i18n="pulse.metoo">Me too</span></span>
         </div>
       </div>
@@ -506,10 +506,11 @@
         <div class="form-group report-photo-section" id="reportPhotoSection">
           <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a hazard — avoid faces and documents.</p>
           <div class="camera-area camera-area--capture">
+            <div id="reportPhotoError" class="field-error hidden" role="alert" aria-live="assertive"></div>
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
-            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">EXIF location is stripped on-device. Photos stay on the community map only.</p>
+            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">EXIF stripped on-device</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
             <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
               <div class="skeleton skeleton--line"></div>
@@ -601,7 +602,7 @@
       <div class="success-share-block success-share-block--primary">
         <p class="success-share-prompt" data-i18n="success.sharePrompt">Tell neighbours — visibility on the ward map gets hazards fixed faster.</p>
         <button type="button" class="btn btn--whatsapp btn--full" id="btnShareWhatsApp">
-          <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Share on WhatsApp</span>
+          <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Amplify on WhatsApp</span>
         </button>
         <button type="button" class="btn btn--ghost btn--full hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
           <i class="ph ph-share-network"></i> <span data-i18n="share.nativeShare">Share</span>
@@ -832,19 +833,16 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
-      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official filing links and ways to help in your ward.</p>
+      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Filing links and ways to help in your ward.</p>
 
       <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
-        <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="official.title">Official grievance channels</span></h3>
+        <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
         <p class="disclaimer-banner"><i class="ph ph-warning-circle" aria-hidden="true"></i> <span data-i18n="official.subtitle">We don't file for you — open a verified .gov app or portal below.</span></p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
-        <div class="official-sources-all">
-          <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">All official sources</a>
-        </div>
       </div>
 
       <div class="resources-section resources-section--community">
-        <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in your ward</span></h3>
+        <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in Your Ward</span></h3>
 
         <div class="pledge-card pledge-card--volunteer">
           <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
@@ -864,6 +862,10 @@
           <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
         </div>
       </div>
+
+      <p class="resources-footer">
+        <a href="official-sources.html" class="resources-footer-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">All official sources</a>
+      </p>
 
       <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
       <div class="resources-section resources-section--sponsors" id="resourcesSponsorsSection">
@@ -963,19 +965,23 @@
     <div class="modal modal--tall" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="profile" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <h2 id="profileTitle" data-i18n="profile.title">Your Profile</h2>
-      <p class="persona-tag persona-tag--citizen" id="profilePersonaTag" data-i18n="profile.persona">Citizen</p>
+      <h2 id="profileTitle" class="visually-hidden" data-i18n="profile.title">Your Profile</h2>
+      <p class="persona-tag persona-tag--citizen visually-hidden" id="profilePersonaTag" data-i18n="profile.persona">Citizen</p>
 
       <div class="profile-card">
         <div class="profile-card__identity">
-          <div class="profile-card__identity-row">
-            <div class="profile-card__greeting" id="profileGreeting">Hello, Citizen</div>
-            <button type="button" class="profile-card__edit-name" id="btnProfileEditName" data-i18n-aria="aria.editProfile" aria-label="Edit profile" aria-haspopup="dialog" aria-controls="profileEditModal">
+          <div class="profile-header-compact">
+            <div class="profile-header-compact__main">
+              <h2 id="profileGreeting" class="profile-header-compact__title">Hello, Citizen</h2>
+              <span id="profileSubBadge" class="profile-header-compact__badge">Citizen · Mumbai</span>
+            </div>
+            <button type="button" id="btnEditProfile" class="btn-ghost-sm profile-header-compact__edit" data-i18n-aria="aria.editProfile" aria-label="Edit profile" aria-haspopup="dialog" aria-controls="profileEditModal">
+              <i class="ph ph-pencil-simple" aria-hidden="true"></i>
               <span data-i18n="profile.editName">Edit</span>
             </button>
           </div>
           <div class="profile-card__identity-summary" id="profileIdentitySummary">
-            <span class="profile-card__ward-pill" id="profileWardPill"></span>
+            <span class="profile-card__ward-pill visually-hidden" id="profileWardPill" aria-hidden="true"></span>
             <span class="profile-card__society-line hidden" id="profileSocietyLine"></span>
           </div>
           <div class="profile-card__badges hidden" id="profileBadges" aria-label="Reporter badges"></div>
@@ -1009,15 +1015,15 @@
           </div>
         </div>
         <div class="profile-card__stats">
-          <div class="stat stat--points">
+          <div class="stat stat--points profile-stat-card profile-stat-card--points" id="profileXpCard">
             <span class="stat__value" id="profilePoints">0</span>
             <span class="stat__label" data-i18n="profile.points">Civic Points</span>
           </div>
-          <div class="stat">
+          <div class="stat profile-stat-card profile-stat-card--fixed">
             <span class="stat__value" id="profileFixed">0</span>
             <span class="stat__label" data-i18n="profile.fixed">Fixed</span>
           </div>
-          <div class="stat">
+          <div class="stat profile-stat-card profile-stat-card--open">
             <span class="stat__value" id="profilePending">0</span>
             <span class="stat__label" data-i18n="profile.pending">Open</span>
           </div>

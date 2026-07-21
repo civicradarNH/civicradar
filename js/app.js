@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v331';
+  const CIVIC_APP_VERSION = 'v352';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1603,13 +1603,19 @@ document.addEventListener('DOMContentLoaded', function () {
       const glyphSrc = ctx === 'resources' ? CHANNEL_GLYPHS[ch.id] : null;
       const iconHtml = glyphSrc
         ? `<img class="esc-channel__glyph" src="${glyphSrc}" alt="" width="28" height="28" loading="lazy">`
-        : `<i class="ph ph-${ch.icon}"></i>`;
+        : `<i class="ph ph-${ch.icon}" aria-hidden="true"></i>`;
+      // External portal / store links only — tel & WhatsApp are not browser portals.
+      const showExternal = ch.urlKind !== 'tel' && ch.urlKind !== 'whatsapp';
+      const extCls = showExternal ? ' esc-channel--has-external' : '';
+      const externalHtml = showExternal
+        ? '<i class="ph ph-arrow-square-out esc-channel__external" aria-hidden="true"></i>'
+        : '';
 
       return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
 
-        <button type="button" class="esc-channel${recCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
+        <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
-        ${iconHtml}<span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}
+        ${iconHtml}<span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}${externalHtml}
 
       </button>
 
@@ -2955,6 +2961,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'Couldn\'t find your ward. Pick it, or turn on location.',
 
+      'onboard.outOfBounds': 'CivicRadar currently serves Mumbai, Pune, and Thane only. Please select one of these cities manually to explore.',
+
       'onboard.gpsDisclosure': 'Optional: use precise location once to suggest your ward. Nothing is shared on the map until you report. Or pick a ward from the list.',
 
       'onboard.wardDetectCta': 'Auto-detect my ward',
@@ -3069,7 +3077,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'Take photo',
 
-      'report.captureExifHint': 'EXIF location stripped on-device. Photos stay on the map only.',
+      'report.captureExifHint': 'EXIF stripped on-device',
 
       'report.notes': 'Landmark (optional)',
 
@@ -3139,7 +3147,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.sharePrompt': 'More eyes on the ward map — faster fixes.',
 
-      'success.shareWhatsapp': 'Share on WhatsApp',
+      'success.shareWhatsapp': 'Amplify on WhatsApp',
 
       'share.nativeShare': 'Share',
 
@@ -3302,6 +3310,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.meTooThanks': 'Me too counted.',
 
+      'confirm.backedChip': 'Backed! +{n} Civic Points',
+
       'toast.reportMilestone': '{n} reports — keep going!',
 
       'map.empty': 'Be the first pin in {ward}.',
@@ -3346,9 +3356,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pulse.aria': 'Ward pulse: open hazards, fixed this week, and Me too',
 
-      'pulse.open': 'open',
+      'pulse.open': 'Open',
 
-      'pulse.fixedWeek': 'fixed',
+      'pulse.fixedWeek': 'Fixed',
 
       'pulse.metoo': 'Me too',
 
@@ -3592,9 +3602,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'Resources',
 
-      'resources.subtitle': 'Official filing links and ways to help in your ward.',
+      'resources.subtitle': 'Filing links and ways to help in your ward.',
 
-      'resources.actionTitle': 'Help in your ward',
+      'resources.fileTitle': 'File with Corporation',
+
+      'resources.actionTitle': 'Help in Your Ward',
 
       'community.supportTitle': 'Support Volunteers',
 
@@ -3730,7 +3742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{n} Civic Points to {level}',
+      'profile.xpToNext': '{n} pts to {level} (+{pts}/report)',
 
       'profile.xpMax': 'Max level — Community Leader!',
 
@@ -5483,6 +5495,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'वार्ड नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
 
+      'onboard.outOfBounds': 'CivicRadar अभी केवल मुंबई, पुणे और ठाणे में उपलब्ध है। कृपया इनमें से कोई शहर खुद चुनकर देखें।',
+
       'onboard.gpsDisclosure': 'वैकल्पिक: वार्ड सुझाने के लिए एक बार सटीक लोकेशन। रिपोर्ट तक मानचित्र पर कुछ साझा नहीं। या सूची से वार्ड चुनें।',
 
       'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
@@ -5597,7 +5611,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फ़ोटो लें',
 
-      'report.captureExifHint': 'EXIF लोकेशन डिवाइस पर हटती है। फोटो केवल मानचित्र पर रहते हैं।',
+      'report.captureExifHint': 'EXIF डिवाइस पर हटाई जाती है',
 
       'report.notes': 'Landmark (वैकल्पिक)',
 
@@ -5667,7 +5681,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.sharePrompt': 'वार्ड मैप पर ज़्यादा नज़र — तेज़ सुधार।',
 
-      'success.shareWhatsapp': 'WhatsApp पर साझा करें',
+      'success.shareWhatsapp': 'WhatsApp पर फैलाएँ',
 
       'share.nativeShare': 'साझा करें',
 
@@ -5831,6 +5845,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है!',
 
       'confirm.meTooThanks': 'Me too दर्ज।',
+
+      'confirm.backedChip': 'समर्थित! +{n} सिविक पॉइंट्स',
 
       'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
 
@@ -6122,7 +6138,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधन',
 
-      'resources.subtitle': 'आधिकारिक दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
+      'resources.subtitle': 'दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
+
+      'resources.fileTitle': 'निगम में दर्ज करें',
 
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
@@ -6260,7 +6278,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} तक {n} Civic Points',
+      'profile.xpToNext': '{level} तक {n} pts (+{pts}/रिपोर्ट)',
 
       'profile.xpMax': 'अधिकतम स्तर — Community Leader!',
 
@@ -8011,6 +8029,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'वॉर्ड सापडला नाही. स्वतः निवडा, किंवा लोकेशन चालू करा.',
 
+      'onboard.outOfBounds': 'CivicRadar सध्या फक्त मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. कृपया यातील एक शहर स्वतः निवडून पाहा.',
+
       'onboard.gpsDisclosure': 'पर्यायी: वॉर्ड सुचवण्यासाठी एकदा अचूक लोकेशन. रिपोर्ट करेपर्यंत नकाशावर काही शेअर होत नाही. किंवा यादीतून वॉर्ड निवडा.',
 
       'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
@@ -8125,7 +8145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फोटो काढा',
 
-      'report.captureExifHint': 'EXIF लोकेशन डिव्हाइसवर काढली जाते. फोटो फक्त नकाशावर राहतात.',
+      'report.captureExifHint': 'EXIF डिव्हाइसवर काढली जाते',
 
       'report.notes': 'Landmark (ऐच्छिक)',
 
@@ -8195,7 +8215,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.sharePrompt': 'वॉर्ड नकाशावर जास्त डोळे — जलद दुरुस्ती.',
 
-      'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
+      'success.shareWhatsapp': 'WhatsApp वर पसरा',
 
       'share.nativeShare': 'शेअर करा',
 
@@ -8359,6 +8379,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.badgeMonsoon': 'पहिली रिपोर्ट नोंदली — स्वागत!',
 
       'confirm.meTooThanks': 'Me too नोंद.',
+
+      'confirm.backedChip': 'पाठिंबा! +{n} सिव्हिक पॉइंट्स',
 
       'toast.reportMilestone': '{n} रिपोर्ट — सुरू ठेवा!',
 
@@ -8650,7 +8672,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधने',
 
-      'resources.subtitle': 'अधिकृत दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
+      'resources.subtitle': 'दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
+
+      'resources.fileTitle': 'महापालिकेकडे नोंदवा',
 
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
@@ -8788,7 +8812,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} पर्यंत {n} Civic Points',
+      'profile.xpToNext': '{level} पर्यंत {n} pts (+{pts}/तक्रार)',
 
       'profile.xpMax': 'कमाल स्तर — Community Leader!',
 
@@ -10538,6 +10562,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'તમારો વોર્ડ મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
+      'onboard.outOfBounds': 'CivicRadar હાલમાં ફક્ત મુંબઈ, પુણે અને ઠાણેમાં જ ઉપલબ્ધ છે. કૃપા કરીને આમાંથી એક શહેર જાતે પસંદ કરીને જુઓ.',
+
       'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
 
       'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
@@ -10652,7 +10678,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'ફોટો લો',
 
-      'report.captureExifHint': 'EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ફોટો ફક્ત સમુદાય નકશા પર રહે છે.',
+      'report.captureExifHint': 'EXIF ડિવાઇસ પર દૂર થાય છે',
 
       'report.notes': 'Landmark (વૈકલ્પિક)',
 
@@ -10722,7 +10748,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.sharePrompt': 'વોર્ડ નકશા પર વધુ નજર — ઝડપી ફિક્સ.',
 
-      'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
+      'success.shareWhatsapp': 'WhatsApp પર ફેલાવો',
 
       'share.nativeShare': 'શેર કરો',
 
@@ -10886,6 +10912,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત!',
 
       'confirm.meTooThanks': 'Me too નોંધાયું.',
+
+      'confirm.backedChip': 'સમર્થન! +{n} સિવિક પૉઇન્ટ્સ',
 
       'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
 
@@ -11177,7 +11205,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'સંસાધનો',
 
-      'resources.subtitle': 'અધિકૃત દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
+      'resources.subtitle': 'દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
+
+      'resources.fileTitle': 'નગરપાલિકામાં નોંધાવો',
 
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
@@ -11315,7 +11345,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpTotalLabel': '{n} Civic Points',
 
-      'profile.xpToNext': '{level} સુધી {n} Civic Points',
+      'profile.xpToNext': '{level} સુધી {n} pts (+{pts}/ફરિયાદ)',
 
       'profile.xpMax': 'મહત્તમ સ્તર — Community Leader!',
 
@@ -12948,8 +12978,51 @@ document.addEventListener('DOMContentLoaded', function () {
     return n === 1 ? t('confirm.backingOne') : t('confirm.backingMany').replace('{n}', String(n));
   }
 
+  /**
+   * Pin/GPS must be inside Mumbai/Pune/Thane service area AND the selected city
+   * before any nearby-hazard / Me too match (same product rule as onboard.outOfBounds).
+   * Callers must run this BEFORE findSubmitDuplicate / setting reportDupeTargetId.
+   */
+  function isDupeMatchLocationInBounds(lat, lng) {
+    if (lat == null || lng == null) return false;
+    if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+    if (typeof isValidGpsCoords === 'function' && !isValidGpsCoords(lat, lng)) return false;
+    // Outside all supported cities (Mumbai / Pune / Thane).
+    if (isGpsOutsideSupportedCities(lat, lng)) return false;
+    // Outside the user's selected city — same gate as submit / toast.gpsOutsideCity.
+    if (isGpsOutsideCity(lat, lng, getUserCity())) return false;
+    return true;
+  }
+
+  /** Lat/lng the submit-dupe Haversine uses (confirm pin, else full-map manual pin). */
+  function getReportDupeCheckCoords() {
+    const lat = confirmPinLat != null ? confirmPinLat : manualPinLat;
+    const lng = confirmPinLng != null ? confirmPinLng : manualPinLng;
+    if (lat == null || lng == null) return null;
+    return { lat, lng };
+  }
+
+  /**
+   * True when live GPS is OOB and the pin is still an unadjusted seed (not a
+   * user/manual placement). Blocks city-centre seed from Me-too'ing home-ward
+   * reports while the reporter is outside service bounds.
+   */
+  function isUnadjustedPinWithOutOfBoundsGps() {
+    if (confirmPinUserAdjusted) return false;
+    if (manualPinLat != null && manualPinLng != null) return false;
+    if (currentLat == null || currentLng == null) return false;
+    if (typeof isValidGpsCoords === 'function' && !isValidGpsCoords(currentLat, currentLng)) {
+      return false;
+    }
+    return isGpsOutsideSupportedCities(currentLat, currentLng)
+      || isGpsOutsideCity(currentLat, currentLng, getUserCity());
+  }
+
   function findSubmitDuplicate(lat, lng, hazard) {
     if (lat == null || lng == null) return null;
+    // Bounds first — never scan home-ward reports when pin is outside service.
+    if (!isDupeMatchLocationInBounds(lat, lng)) return null;
     const reports = loadReports();
     const now = Date.now();
     let best = null;
@@ -12963,6 +13036,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (hazard && r.hazard && r.hazard !== hazard) continue;
       const age = now - new Date(r.timestamp).getTime();
       if (Number.isFinite(age) && age > DUPLICATE_WINDOW_MS) continue;
+      // Location-first: Haversine on actual pin vs report coords (no ward fallback).
       const dist = getDistanceInMeters(lat, lng, r.lat, r.lng);
       if (dist < bestDist) {
         bestDist = dist;
@@ -12978,58 +13052,97 @@ document.addEventListener('DOMContentLoaded', function () {
     return t('confirm.dupeInline').replace('{n}', String(n));
   }
 
+  /** Sync primary report CTA label + aria (Submit vs Me too). Two-button swap. */
+  function syncReportPrimaryActionLabel(mode) {
+    const submitBtn = $('#btnSubmitReport');
+    const meTooBtn = $('#btnReportDupeMeToo');
+    const submitLabel = t('report.submit');
+    const dupeLabel = t('confirm.dupeAction');
+    if (mode === 'dupe') {
+      if (submitBtn) {
+        submitBtn.classList.add('hidden');
+        submitBtn.hidden = true;
+        setButtonLoading(submitBtn, false);
+      }
+      if (meTooBtn) {
+        const label = meTooBtn.querySelector('.btn__label');
+        if (label) label.textContent = dupeLabel;
+        meTooBtn.setAttribute('aria-label', dupeLabel);
+        meTooBtn.classList.remove('hidden');
+        meTooBtn.hidden = false;
+        meTooBtn.disabled = false;
+      }
+      return;
+    }
+    // Fresh / no-dupe path: always force Submit report (never leave stale Me too).
+    if (meTooBtn) {
+      meTooBtn.classList.add('hidden');
+      meTooBtn.hidden = true;
+      meTooBtn.disabled = false;
+      const meTooLabel = meTooBtn.querySelector('.btn__label');
+      if (meTooLabel) meTooLabel.textContent = dupeLabel;
+      meTooBtn.setAttribute('aria-label', dupeLabel);
+    }
+    if (submitBtn) {
+      delete submitBtn.dataset.originalLabel;
+      submitBtn.classList.remove('hidden', 'is-loading', 'is-success');
+      submitBtn.hidden = false;
+      submitBtn.disabled = false;
+      const label = submitBtn.querySelector('.btn__label');
+      if (label) label.textContent = submitLabel;
+      submitBtn.setAttribute('aria-label', submitLabel);
+    }
+  }
+
+  function isActiveSubmitDuplicateMatch(report) {
+    if (!report || !report.id || report.lat == null || report.lng == null) return false;
+    if (report.status === 'resolved') return false;
+    const coords = getReportDupeCheckCoords();
+    if (!coords) return false;
+    const { lat, lng } = coords;
+    // Same bounds gate as refresh — refuse stale Me too when pin/GPS went OOB.
+    if (!isDupeMatchLocationInBounds(lat, lng)) return false;
+    if (isUnadjustedPinWithOutOfBoundsGps()) return false;
+    const hazard = $('#hazardType') && $('#hazardType').value;
+    if (hazard && report.hazard && report.hazard !== hazard) return false;
+    const dist = getDistanceInMeters(lat, lng, report.lat, report.lng);
+    return dist < DUPLICATE_RADIUS_M;
+  }
+
   function clearReportDuplicateUi() {
     reportDupeTargetId = null;
     const warn = $('#inlineDuplicateWarning');
     const textEl = $('#inlineDuplicateWarningText');
-    const meTooBtn = $('#btnReportDupeMeToo');
-    const submitBtn = $('#btnSubmitReport');
     if (warn) {
       warn.classList.add('hidden');
       warn.hidden = true;
     }
     if (textEl) textEl.textContent = '';
-    if (meTooBtn) {
-      meTooBtn.classList.add('hidden');
-      meTooBtn.hidden = true;
-      meTooBtn.disabled = false;
-    }
-    if (submitBtn) {
-      submitBtn.classList.remove('hidden');
-      submitBtn.hidden = false;
-    }
+    syncReportPrimaryActionLabel('submit');
     // Restore the hazard cue the dupe pill displaced (no-op when no hazard).
     const hazardEl = $('#hazardType');
     if (hazardEl && hazardEl.value) updateHazardSelectedCue(hazardEl.value);
   }
 
   function showReportDuplicateUi(report) {
-    if (!report || !report.id) {
+    // Guard: only swap to Me too when an active nearby duplicate is still matched.
+    if (!isActiveSubmitDuplicateMatch(report)) {
+      clearReportDuplicateUi();
+      return;
+    }
+    if (ownsReport(report) || hasConfirmed(report.id)) {
       clearReportDuplicateUi();
       return;
     }
     reportDupeTargetId = String(report.id);
     const warn = $('#inlineDuplicateWarning');
     const textEl = $('#inlineDuplicateWarningText');
-    const meTooBtn = $('#btnReportDupeMeToo');
-    const submitBtn = $('#btnSubmitReport');
     if (textEl) textEl.textContent = dupeInlineMessage(report);
     if (warn) {
       warn.classList.remove('hidden');
       warn.hidden = false;
     }
-    if (submitBtn) {
-      submitBtn.classList.add('hidden');
-      submitBtn.hidden = true;
-      setButtonLoading(submitBtn, false);
-    }
-    if (meTooBtn) {
-      const label = meTooBtn.querySelector('.btn__label');
-      if (label) label.textContent = t('confirm.dupeAction');
-      meTooBtn.classList.remove('hidden');
-      meTooBtn.hidden = false;
-      meTooBtn.disabled = false;
-    }
+    syncReportPrimaryActionLabel('dupe');
     // The hazard cue ("X selected — drag pin if needed") repeats this pill's
     // guidance and scrolls under the sticky footer's translucent band, where
     // the two near-identical indigo pills visually mash into one garbled line
@@ -13039,9 +13152,20 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshReportDuplicateUi() {
-    const lat = confirmPinLat != null ? confirmPinLat : manualPinLat;
-    const lng = confirmPinLng != null ? confirmPinLng : manualPinLng;
-    if (lat == null || lng == null) {
+    const coords = getReportDupeCheckCoords();
+    if (!coords) {
+      clearReportDuplicateUi();
+      return;
+    }
+    const { lat, lng } = coords;
+    // Provisional city-centre seed: keep Submit report until a real pin exists.
+    if (confirmPinProvisional && !confirmPinUserAdjusted
+      && (manualPinLat == null || manualPinLng == null)) {
+      clearReportDuplicateUi();
+      return;
+    }
+    // GPS/service bounds BEFORE nearby query or Me too CTA (v346 submit-label stays Submit).
+    if (!isDupeMatchLocationInBounds(lat, lng) || isUnadjustedPinWithOutOfBoundsGps()) {
       clearReportDuplicateUi();
       return;
     }
@@ -13071,8 +13195,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Fly to pin only — Me-too WA toast already owns the surface (no card under it).
         if (r && map) map.setView([r.lat, r.lng], 16);
       };
-      // Let btn-pop finish before tearing down the sheet button.
-      if (meTooBtn && !prefersReducedMotion()) setTimeout(finish, 320);
+      // Match confirmReport micro-chip window before tearing down the sheet button.
+      if (meTooBtn && !prefersReducedMotion()) setTimeout(finish, 420);
       else finish();
     }
   }
@@ -13103,11 +13227,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     updateHazardSelectedCue($('#hazardType')?.value || '');
     updateMapEmptyCta();
-    if (reportDupeTargetId) {
-      const r = loadReports().find((x) => String(x.id) === String(reportDupeTargetId));
-      if (r) showReportDuplicateUi(r);
-      else clearReportDuplicateUi();
-    }
+    // Re-evaluate distance/hazard — never re-apply Me too from a stale target id alone.
+    refreshReportDuplicateUi();
   }
 
   function applyTranslations() {
@@ -14787,15 +14908,22 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!this.enabled || !this.client) return;
       const sessionId = window.CivicAnalytics ? CivicAnalytics.getSessionId() : null;
       try {
-        await this.client.rpc('delete_user_data', { p_session_id: sessionId });
+        // supabase-js returns { error } — it does not throw on RPC failure.
+        const { error } = await this.client.rpc('delete_user_data', { p_session_id: sessionId });
+        if (error) throw error;
       } catch (e) {
         console.warn('delete_user_data RPC failed — falling back to row deletes:', e && e.message);
         try {
           const uid = user.id;
           if (/^[0-9a-f-]{36}$/i.test(String(uid))) {
-            await this.client.from('reports').delete().eq('reporter_id', uid);
-            await this.client.from('pledges').delete().eq('citizen_id', uid);
-            await this.client.from('volunteer_signups').delete().eq('user_id', uid);
+            const del = async (table, col) => {
+              const { error } = await this.client.from(table).delete().eq(col, uid);
+              if (error) throw error;
+            };
+            // Confirmations/flags have no client DELETE RLS — only delete_user_data RPC.
+            await del('reports', 'reporter_id');
+            await del('pledges', 'citizen_id');
+            await del('volunteer_signups', 'user_id');
           }
         } catch (e2) {
           // Re-throw so the caller (executeDeleteMyData) knows this failed and can
@@ -15035,8 +15163,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const uid = user.id;
 
-    const reports = loadReports().filter((r) => r.reporterId !== uid);
+    // Snapshot corroboration claims before keys are cleared so remaining reports
+    // (neighbours' pins) do not keep inflated Me-too / looks-fixed counters.
+    const confirmedIds = (typeof loadConfirmedSet === 'function') ? loadConfirmedSet() : new Set();
+    const fixConfirmedIds = (typeof loadFixConfirmedSet === 'function') ? loadFixConfirmedSet() : new Set();
 
+    let reports = loadReports().filter((r) => r.reporterId !== uid);
+    if (confirmedIds.size || fixConfirmedIds.size) {
+      reports = reports.map((r) => {
+        const id = String(r.id);
+        let next = r;
+        if (confirmedIds.has(id)) {
+          next = { ...next, confirmations: Math.max(0, (Number(next.confirmations) || 0) - 1) };
+        }
+        if (fixConfirmedIds.has(id)) {
+          next = { ...next, fixConfirmations: Math.max(0, (Number(next.fixConfirmations) || 0) - 1) };
+        }
+        return next;
+      });
+    }
     saveReports(reports);
 
     const pledges = loadPledges().filter((p) => p.mock || p.citizenId !== uid);
@@ -15149,6 +15294,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       wipeLocalUserData();
 
+      // Clear data → refresh Community + ward pulse + map before ToS gate so HUD
+      // never briefly shows stale counts (refreshReportMarkers alone early-returns
+      // when the marker layer is not ready, which would skip pulse).
+      if (typeof renderCommunityImpactStats === 'function') renderCommunityImpactStats();
+      if (typeof renderWardPulse === 'function') renderWardPulse();
+      if (typeof updateCommunitySubtitle === 'function') updateCommunitySubtitle();
       refreshReportMarkers();
 
       updateProfileUI();
@@ -15166,6 +15317,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // ordinary modals, but that means a toast fired right before this reopens
       // the full-screen ToS/onboarding gate visually collides with it — and the
       // gate reappearing is itself the confirmation that data was wiped.
+      // profile.deleteDone remains for offline/tests that surface it elsewhere.
       openModal('tos');
 
     } catch (e) {
@@ -17838,6 +17990,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (sessionStorage.getItem('civicradar_nearby_prompt')) return;
 
+    // Bounds before nearby scan — never Me-too-prompt outside Mumbai/Pune/Thane.
+    if (!isDupeMatchLocationInBounds(lat, lng)) return;
+
     const hit = findNearbyCorroboration(lat, lng);
 
     if (!hit) return;
@@ -19956,6 +20111,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  /** Inline mint chip near Me too — replaces bland success toast for the backed confirm. */
+  function showMeTooBackedChip(anchorEl) {
+    if (!anchorEl || !anchorEl.parentNode) return null;
+    const parent = anchorEl.parentNode;
+    const prev = parent.querySelector('.me-too-backed-chip');
+    if (prev) prev.remove();
+    const chip = document.createElement('div');
+    chip.className = 'me-too-backed-chip';
+    chip.setAttribute('role', 'status');
+    chip.innerHTML =
+      `<i class="ph ph-check-circle" aria-hidden="true"></i>`
+      + `<span>${escapeHtml(t('confirm.backedChip').replace('{n}', String(POINTS_ME_TOO)))}</span>`;
+    parent.insertBefore(chip, anchorEl);
+    return chip;
+  }
+
+  /** Spring the pin's neighbour-backing count while the popup is still open. */
+  function bumpPopupConfirmCount(prevCount, nextCount) {
+    const popup = document.querySelector('.leaflet-popup-content');
+    if (!popup) return;
+    const from = Math.max(0, Number(prevCount) || 0);
+    const to = Math.max(from, Number(nextCount) || 0);
+    let countEl = popup.querySelector('.js-confirm-count');
+    if (countEl) {
+      animateValue(countEl, from, to, 650);
+      return;
+    }
+    let pill = popup.querySelector('.popup__pill--confirms');
+    if (!pill) {
+      let pills = popup.querySelector('.popup__pills');
+      if (!pills) {
+        pills = document.createElement('div');
+        pills.className = 'popup__pills';
+        const body = popup.querySelector('.popup__body');
+        const meta = body && body.querySelector('.popup__meta');
+        const meTooBtn = popup.querySelector('[data-confirm]');
+        if (meta && meta.parentNode) meta.parentNode.insertBefore(pills, meta.nextSibling);
+        else if (meTooBtn && meTooBtn.parentNode) meTooBtn.parentNode.insertBefore(pills, meTooBtn);
+        else if (body) body.insertBefore(pills, body.firstChild);
+        else popup.insertBefore(pills, popup.firstChild);
+      }
+      pill = document.createElement('span');
+      pill.className = 'popup__pill popup__pill--confirms';
+      pills.insertBefore(pill, pills.firstChild);
+    }
+    const label = to === 1 ? t('profile.neighbourOne') : t('profile.neighbourMany');
+    pill.innerHTML =
+      `<i class="ph ph-hand-pointing" aria-hidden="true"></i> `
+      + `<span class="js-confirm-count">${from}</span> ${escapeHtml(label)}`;
+    countEl = pill.querySelector('.js-confirm-count');
+    if (countEl) animateValue(countEl, from, to, 650);
+  }
+
 
 
   function ownsReport(report) {
@@ -20040,36 +20248,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Pop before marker refresh (popup buttons are rebuilt) — keep existing success haptic only.
+    // Micro-feedback on the button first (chip + count), then close pin + WA share toast.
+    // v323: pin must close before WA snackbar so refresh cannot reopen under it.
+    const nextCount = Number(report.confirmations) || 0;
+    const prevCount = Math.max(0, nextCount - 1);
     Haptics.success();
     triggerBtnPop(sourceEl);
+    showMeTooBackedChip(sourceEl);
+    bumpPopupConfirmCount(prevCount, nextCount);
+    const pulseEl = $('#wardPulseMeToo');
+    if (pulseEl) {
+      const pulseFrom = parseInt(pulseEl.textContent, 10) || 0;
+      animateValue(pulseEl, pulseFrom, pulseFrom + 1, 650);
+    }
+    launchConfetti({ intensity: 'mini' });
 
-    // Toast + WhatsApp own attention — close pin card before refresh/toast so
-    // refreshReportMarkers cannot keep/reopen it under the snackbar.
-    closeMapPinPopup();
-
-    const paintAfterPop = () => {
+    const finishMeToo = () => {
+      closeMapPinPopup();
       if (reportMarkerLayer) refreshReportMarkers();
       updateProfileUI();
       if (isAdmin) renderAdminQueue();
+      // Keep WhatsApp glass CTA — chip replaced the bland "backed" confirmation toast.
+      showToast(t('confirm.meTooThanks'), 'success', 5200, {
+        label: t('share.meTooBtn'),
+        variant: 'whatsapp',
+        onClick: () => shareMeTooWhatsApp(reportId),
+      });
     };
     if (sourceEl && !prefersReducedMotion()) {
-      setTimeout(paintAfterPop, 320);
+      setTimeout(finishMeToo, 420);
     } else {
-      paintAfterPop();
+      finishMeToo();
     }
-
-    launchConfetti({ intensity: 'mini' });
-
-    showToast(t('confirm.meTooThanks'), 'success', 5200, {
-
-      label: t('share.meTooBtn'),
-
-      variant: 'whatsapp',
-
-      onClick: () => shareMeTooWhatsApp(reportId),
-
-    });
 
     return true;
   }
@@ -20332,6 +20542,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+
+    // Button pop when still on-pin; toast kept — popup closes so no lasting inline surface.
+    Haptics.success();
+    triggerBtnPop(opts.sourceEl);
 
     if (reportMarkerLayer) refreshReportMarkers();
 
@@ -21192,9 +21406,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setFabHidden(fab, true);
 
-      $('#profilePersonaTag').textContent = t('profile.persona.admin');
-
-      $('#profilePersonaTag').className = 'persona-tag persona-tag--admin';
+      const adminTag = $('#profilePersonaTag');
+      if (adminTag) {
+        adminTag.textContent = t('profile.persona.admin');
+        adminTag.className = 'persona-tag persona-tag--admin visually-hidden';
+      }
 
     } else if (persona === 'lead') {
 
@@ -21244,9 +21460,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setFabHidden(fab, true);
 
-      $('#profilePersonaTag').textContent = t('profile.persona.ngo');
-
-      $('#profilePersonaTag').className = 'persona-tag persona-tag--lead';
+      const leadTag = $('#profilePersonaTag');
+      if (leadTag) {
+        leadTag.textContent = t('profile.persona.ngo');
+        leadTag.className = 'persona-tag persona-tag--lead visually-hidden';
+      }
 
     } else {
 
@@ -21296,11 +21514,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setFabHidden(fab, false);
 
-      $('#profilePersonaTag').textContent = t('profile.persona');
-
-      $('#profilePersonaTag').className = 'persona-tag persona-tag--citizen';
+      const citizenTag = $('#profilePersonaTag');
+      if (citizenTag) {
+        citizenTag.textContent = t('profile.persona');
+        citizenTag.className = 'persona-tag persona-tag--citizen visually-hidden';
+      }
 
     }
+
+    syncProfileIdentitySummary();
 
     updatePartnerPortalUi();
 
@@ -22138,10 +22360,17 @@ document.addEventListener('DOMContentLoaded', function () {
     return raw;
   }
 
+  function getProfileRoleLabel() {
+    const persona = getActivePersona();
+    if (persona === 'admin') return t('profile.persona.admin');
+    if (persona === 'lead') return t('profile.persona.ngo');
+    return t('profile.persona');
+  }
+
   function syncProfileIdentitySummary() {
     const pill = $('#profileWardPill');
+    const ward = (user.ward || '').trim();
     if (pill) {
-      const ward = (user.ward || '').trim();
       if (ward) {
         pill.textContent = formatWardPillLabel(ward);
         pill.title = ward;
@@ -22151,6 +22380,14 @@ document.addEventListener('DOMContentLoaded', function () {
         pill.removeAttribute('title');
         pill.classList.add('profile-card__ward-pill--empty');
       }
+    }
+    const badge = $('#profileSubBadge');
+    if (badge) {
+      const place = ward
+        ? formatWardPillLabel(ward)
+        : getCityLabel(user.city || DEFAULT_CITY);
+      badge.textContent = getProfileRoleLabel() + ' · ' + place;
+      badge.title = ward || place;
     }
     const societyLine = $('#profileSocietyLine');
     if (societyLine) {
@@ -23073,6 +23310,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     onboardingDetectedWard = '';
 
+    clearOnboardingCityHighlight();
+
     $('#wardDetectPrompt')?.classList.remove('hidden');
 
     $('#wardDetectStatus')?.classList.add('hidden');
@@ -23080,6 +23319,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#wardDetected')?.classList.add('hidden');
 
     $('#wardDetectedHint')?.classList.add('hidden');
+
+    $('#onboardCityGroup')?.classList.remove('hidden');
 
     $('#wardManualGroup')?.classList.remove('hidden');
 
@@ -23126,6 +23367,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     onboardingDetectedWard = ward;
 
+    clearOnboardingCityHighlight();
+
+    resetOnboardingWardErrorDefault();
+
     $('#wardDetectPrompt')?.classList.add('hidden');
 
     const input = $('#wardInput');
@@ -23156,7 +23401,99 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clearOnboardingCityHighlight() {
+
+    $('#onboardCityGroup')?.classList.remove('onboard-city--highlight');
+
+  }
+
+
+
+  function resetOnboardingWardErrorDefault() {
+
+    const err = $('#wardError');
+
+    if (!err) return;
+
+    err.setAttribute('data-i18n', 'onboard.wardError');
+
+    err.textContent = t('onboard.wardError');
+
+    err.classList.add('hidden');
+
+  }
+
+
+
+  /** True when GPS is outside Mumbai, Pune, and Thane service bounds. */
+
+  function isGpsOutsideSupportedCities(lat, lng) {
+
+    if (lat == null || lng == null) return false;
+
+    if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+
+    if (window.CivicWardDetect) {
+
+      if (typeof CivicWardDetect.detectCity === 'function') {
+
+        return !CivicWardDetect.detectCity(lat, lng);
+
+      }
+
+      if (typeof CivicWardDetect.inServiceArea === 'function') {
+
+        return !CivicWardDetect.inServiceArea(lat, lng);
+
+      }
+
+    }
+
+    return CITY_IDS.every((id) => isGpsOutsideCity(lat, lng, id));
+
+  }
+
+
+
   function showOnboardingWardDetectFailed() {
+
+    onboardingDetectedWard = '';
+
+    clearOnboardingCityHighlight();
+
+    resetOnboardingWardErrorDefault();
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
+
+    $('#wardDetectStatus')?.classList.add('hidden');
+
+    $('#wardDetected')?.classList.add('hidden');
+
+    $('#wardDetectedHint')?.classList.add('hidden');
+
+    $('#onboardCityGroup')?.classList.remove('hidden');
+
+    $('#wardManualGroup')?.classList.remove('hidden');
+
+    $('#btnWardManual')?.classList.add('hidden');
+
+    $('#btnWardRetry')?.classList.remove('hidden');
+
+    const input = $('#wardInput');
+
+    if (input && !input.value.trim()) input.focus();
+
+    syncOnboardingJoinCta();
+
+  }
+
+
+
+  /** GPS resolved but outside Mumbai / Pune / Thane — nudge manual city pick. */
+
+  function showOnboardingWardOutOfBounds() {
 
     onboardingDetectedWard = '';
 
@@ -23168,15 +23505,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#wardDetectedHint')?.classList.add('hidden');
 
+    $('#onboardCityGroup')?.classList.remove('hidden');
+
     $('#wardManualGroup')?.classList.remove('hidden');
+
+    $('#onboardManualSearch')?.classList.remove('hidden');
 
     $('#btnWardManual')?.classList.add('hidden');
 
     $('#btnWardRetry')?.classList.remove('hidden');
 
-    const input = $('#wardInput');
+    const cityGroup = $('#onboardCityGroup');
 
-    if (input && !input.value.trim()) input.focus();
+    if (cityGroup) {
+
+      cityGroup.classList.add('onboard-city--highlight');
+
+      requestAnimationFrame(() => {
+
+        cityGroup.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+      });
+
+    }
+
+    const err = $('#wardError');
+
+    if (err) {
+
+      err.setAttribute('data-i18n', 'onboard.outOfBounds');
+
+      err.textContent = t('onboard.outOfBounds');
+
+      revealFieldError(err);
+
+    }
+
+    const citySel = $('#onboardCity');
+
+    if (citySel) {
+
+      try { citySel.focus(); } catch { /* ignore */ }
+
+    }
 
     syncOnboardingJoinCta();
 
@@ -23271,6 +23642,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // City-change clears the field before calling this; retry/open keep typed value.
     syncOnboardingCityUi(getOnboardingCity());
 
+    clearOnboardingCityHighlight();
+
     showOnboardingWardDetecting();
 
     if (!navigator.geolocation) {
@@ -23296,6 +23669,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         currentLng = pos.coords.longitude;
 
+        // If GPS is in another supported city, sync the city control first.
+        let detectedCity = null;
+
+        if (window.CivicWardDetect && typeof CivicWardDetect.detectCity === 'function') {
+
+          detectedCity = CivicWardDetect.detectCity(currentLat, currentLng);
+
+        }
+
+        if (detectedCity && detectedCity !== getOnboardingCity()) {
+
+          const citySel = $('#onboardCity');
+
+          if (citySel) citySel.value = detectedCity;
+
+          syncOnboardingCityUi(detectedCity);
+
+        }
+
+        if (!detectedCity && isGpsOutsideSupportedCities(currentLat, currentLng)) {
+
+          showOnboardingWardOutOfBounds();
+
+          return;
+
+        }
+
         const ward = applyWardFromCoords(currentLat, currentLng);
 
         if (ward) {
@@ -23304,6 +23704,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else if (!(input && input.value.trim())) {
 
+          // Inside a city bbox but no ward match — keep generic fail (not OOB copy).
           showOnboardingWardDetectFailed();
 
         } else {
@@ -24844,6 +25245,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!input || reportPhotoProcessing) return;
 
+    clearReportPhotoError();
+
     clearReportPhotoEmptyExitTimer();
 
     // Cancel any pending auto-launch timer (openReportModal) so a manual tap on
@@ -24898,6 +25301,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function advanceReportPhotoReady() {
+
+    clearReportPhotoError();
 
     ensureReportModalOpen();
 
@@ -28361,7 +28766,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const countLine = count > 0
 
-      ? `<span class="popup__pill popup__pill--confirms"><i class="ph ph-hand-pointing" aria-hidden="true"></i> ${count} ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</span>`
+      ? `<span class="popup__pill popup__pill--confirms"><i class="ph ph-hand-pointing" aria-hidden="true"></i> <span class="js-confirm-count">${count}</span> ${count === 1 ? escapeHtml(t('profile.neighbourOne')) : escapeHtml(t('profile.neighbourMany'))}</span>`
 
       : '';
 
@@ -28907,9 +29312,16 @@ document.addEventListener('DOMContentLoaded', function () {
       : t('pulse.yourWard');
     if (nameEl) nameEl.textContent = wardLabel;
     const stats = getUserWardPulseStats();
-    if (openEl) openEl.textContent = String(stats.open);
-    if (fixedEl) fixedEl.textContent = String(stats.fixedWeek);
-    if (meTooEl) meTooEl.textContent = String(stats.meToo);
+    // Roll count changes only (Me too bump path already animates; this covers Open/Fixed + full refresh).
+    const rollPulse = (el, next) => {
+      if (!el) return;
+      const prev = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
+      const from = Number.isFinite(prev) ? prev : next;
+      animateValue(el, from, next, 650);
+    };
+    rollPulse(openEl, stats.open || 0);
+    rollPulse(fixedEl, stats.fixedWeek || 0);
+    rollPulse(meTooEl, stats.meToo || 0);
     const meterOpen = $('#wardPulseMeterOpen');
     const meterFixed = $('#wardPulseMeterFixed');
     const total = Math.max(1, (stats.open || 0) + (stats.fixedWeek || 0));
@@ -29145,6 +29557,10 @@ document.addEventListener('DOMContentLoaded', function () {
         onboardingDetectedWard = '';
 
         if ($('#wardInput')) $('#wardInput').value = '';
+
+        clearOnboardingCityHighlight();
+
+        resetOnboardingWardErrorDefault();
 
         syncOnboardingCityUi(getOnboardingCity());
 
@@ -30185,9 +30601,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (hasConfirmed(rid)) {
 
+          // Inline "Following" note — skip redundant top toast when the pin is open.
           showMeTooDoneInPopup(cb);
-
-          showToast(t('confirm.done'), 'info', 2200);
 
           return;
 
@@ -30195,7 +30610,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         disableMeTooControl(cb);
 
-        // confirmReport closes pin popup then shows Me-too + WhatsApp toast
+        // confirmReport: chip + count → close pin → WhatsApp glass toast
 
         if (!confirmReport(rid, cb) && !hasConfirmed(rid)) {
 
@@ -30217,7 +30632,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         e.preventDefault();
 
-        if (confirmFix(fixBtn.dataset.fixConfirm) && map) map.closePopup();
+        if (confirmFix(fixBtn.dataset.fixConfirm, { sourceEl: fixBtn }) && map) map.closePopup();
 
         return;
 
@@ -30680,11 +31095,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    const btnProfileEditName = $('#btnProfileEditName');
+    const btnEditProfile = $('#btnEditProfile') || $('#btnProfileEditName');
 
-    if (btnProfileEditName) {
+    if (btnEditProfile) {
 
-      btnProfileEditName.addEventListener('click', () => {
+      btnEditProfile.addEventListener('click', () => {
 
         window.openProfileEditSheet();
 
@@ -31048,6 +31463,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clearReportPhotoError() {
+
+    const el = $('#reportPhotoError');
+
+    if (!el) return;
+
+    el.textContent = '';
+
+    el.classList.add('hidden');
+
+  }
+
+
+
+  function showReportPhotoError(scanResult) {
+
+    const el = $('#reportPhotoError');
+
+    const msg = scanResult && scanResult.i18nKey
+
+      ? t(scanResult.i18nKey)
+
+      : ((scanResult && scanResult.message) || t('moderation.blocked.irrelevant'));
+
+    if (!el) {
+
+      // Capture chrome missing — fall back so the block is never silent.
+
+      showToast(msg, 'error', 5500);
+
+      return;
+
+    }
+
+    el.textContent = msg;
+
+    el.classList.remove('hidden');
+
+  }
+
+
+
   function rejectPhoto(scanResult) {
 
     finishReportPhotoFlow('rejectPhoto');
@@ -31078,9 +31535,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
-    const msg = scanResult.i18nKey ? t(scanResult.i18nKey) : (scanResult.message || t('moderation.blocked.irrelevant'));
-
-    showToast(msg, 'error', 5500);
+    showReportPhotoError(scanResult);
 
   }
 
@@ -31143,6 +31598,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     clearReportPhotoEmptyExitTimer();
+
+    clearReportPhotoError();
 
     const captureGen = ++reportPhotoCaptureGen;
 
@@ -31375,25 +31832,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function resetSubmitReportButton() {
 
-    const submitBtn = $('#btnSubmitReport');
-
-    if (!submitBtn) return;
-
-    submitBtn.classList.remove('is-loading', 'is-success');
-
-    submitBtn.disabled = false;
-
-    delete submitBtn.dataset.originalLabel;
-
-    const label = submitBtn.querySelector('.btn__label');
-
-    if (label) label.textContent = t('report.submit');
+    // Clear dupe target + force primary CTA back to Submit report (label + aria).
+    reportDupeTargetId = null;
 
     submitReport.__inFlight = false;
 
     finishReportSubmitWithCoords._busy = false;
-
-    // Keep submit visible after reset; clear any prior near-dupe Me too swap.
 
     clearReportDuplicateUi();
 
@@ -31457,9 +31901,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
       label.textContent = loadingLabel;
 
+      if (btn.id === 'btnSubmitReport' || btn.id === 'btnReportDupeMeToo') {
+
+        btn.setAttribute('aria-label', loadingLabel);
+
+      }
+
     } else if (!loading) {
 
-      label.textContent = btn.dataset.originalLabel || t('report.submit');
+      const restored = btn.dataset.originalLabel
+        || (btn.id === 'btnReportDupeMeToo' ? t('confirm.dupeAction') : t('report.submit'));
+
+      label.textContent = restored;
+
+      if (btn.id === 'btnSubmitReport' || btn.id === 'btnReportDupeMeToo') {
+
+        btn.setAttribute('aria-label', restored);
+
+      }
 
       delete btn.dataset.originalLabel;
 
@@ -32945,11 +33404,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Capture OOB live-GPS before pin overwrites currentLat/currentLng.
+    const liveGpsBlocksDupe = isUnadjustedPinWithOutOfBoundsGps();
+
     currentLat = lat;
 
     currentLng = lng;
 
-    const dupeHit = findSubmitDuplicate(lat, lng, $('#hazardType') && $('#hazardType').value);
+    // Bounds / OOB GPS before nearby match — keep Submit path (no Me too CTA).
+    let dupeHit = null;
+    if (!liveGpsBlocksDupe && isDupeMatchLocationInBounds(lat, lng)) {
+      dupeHit = findSubmitDuplicate(lat, lng, $('#hazardType') && $('#hazardType').value);
+    } else {
+      clearReportDuplicateUi();
+    }
 
     if (dupeHit) {
 
@@ -33918,6 +34386,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPhotoModerationPassed = false;
 
+    clearReportPhotoError();
+
     resetPhotoConfirm();
 
     resetSubmitReportButton();
@@ -34377,7 +34847,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function initSheetDragDismiss() {
 
-    const DISMISS_PX = 100;
+    const DISMISS_PX = 120;
 
     const DISMISS_VELOCITY = 0.55;
 
@@ -40754,6 +41224,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
           .replace('{level}', civicLevelName(xpInfo.next.id))
 
+          .replace('{pts}', String(POINTS_PER_REPORT))
+
         : t('profile.xpMax');
 
     }
@@ -40838,6 +41310,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace('{n}', String(xpInfo.remaining))
 
             .replace('{level}', civicLevelName(xpInfo.next.id))
+
+            .replace('{pts}', String(POINTS_PER_REPORT))
 
           : t('profile.xpMax');
 
