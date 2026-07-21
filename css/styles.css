@@ -754,7 +754,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   pointer-events: none;
 }
 
-/* Purpose sheet — glass HUD + spring slide-up (v326). No continuous pulse. */
+/* Purpose sheet — glass HUD + spring slide-up (v327). No continuous pulse. */
 .coach-mark:not(.hidden) .coach-mark__card {
   animation: coach-sheet-rise 0.48s var(--ease-spring) both;
 }
@@ -765,13 +765,14 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   background: var(--glass-hud-bg, var(--glass-sheet));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-hud-border, var(--glass-sheet-border));
+  /* Clearer indigo rim — restrained, not neon stack */
+  border: 1px solid rgba(129, 140, 248, 0.4);
   border-bottom: none;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
   box-shadow:
-    0 -12px 36px rgba(15, 23, 42, 0.16),
-    0 0 20px rgba(99, 102, 241, 0.08),
+    0 -18px 40px rgba(15, 23, 42, 0.18),
+    0 -6px 28px rgba(99, 102, 241, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.4));
   text-align: left;
@@ -791,8 +792,8 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 
 .coach-mark__card:focus-visible {
   box-shadow:
-    0 -12px 36px rgba(15, 23, 42, 0.16),
-    0 0 20px rgba(99, 102, 241, 0.08),
+    0 -18px 40px rgba(15, 23, 42, 0.18),
+    0 -6px 28px rgba(99, 102, 241, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     0 0 0 3px rgba(var(--primary-rgb), 0.35);
 }
@@ -801,7 +802,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   display: inline-block;
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--ink-400);
+  color: var(--brand-600);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 8px;
@@ -830,10 +831,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   list-style: none;
   margin: 0 0 24px;
   padding: 16px 12px;
-  background: rgba(148, 163, 184, 0.1);
+  background: rgba(148, 163, 184, 0.08);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(129, 140, 248, 0.22);
   border-radius: var(--radius-md);
 }
 
@@ -863,20 +864,34 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
-  background:
-    radial-gradient(circle at 32% 28%, rgba(165, 180, 252, 0.38), transparent 62%),
-    rgba(var(--primary-rgb), 0.12);
-  border: 1px solid rgba(165, 180, 252, 0.28);
-  color: var(--primary);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .purpose-steps__icon i {
   font-size: var(--fs-lg);
   line-height: 1;
+}
+
+/* Distinct soft gradient tiles — indigo / teal-emerald / violet */
+.purpose-steps__icon--map {
+  background: linear-gradient(145deg, rgba(199, 210, 254, 0.95) 0%, rgba(165, 180, 252, 0.55) 55%, rgba(99, 102, 241, 0.18) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  color: var(--brand-700);
+}
+
+.purpose-steps__icon--snap {
+  background: linear-gradient(145deg, rgba(167, 243, 208, 0.95) 0%, rgba(94, 234, 212, 0.5) 55%, rgba(13, 148, 136, 0.16) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.42);
+  color: #0f766e;
+}
+
+.purpose-steps__icon--neighbours {
+  background: linear-gradient(145deg, rgba(221, 214, 254, 0.95) 0%, rgba(196, 181, 253, 0.55) 55%, rgba(124, 58, 237, 0.16) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  color: #6d28d9;
 }
 
 .coach-mark__actions {
@@ -885,21 +900,25 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   gap: 0;
 }
 
-/* Solid indigo CTA — no --grad-brand / glow (design tokens only) */
+/* Got it — brand → blue gradient + soft elevate (no breathe loop) */
 .coach-mark__card .btn--primary {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
   margin: 0;
-  background: var(--primary-fill);
+  background: linear-gradient(135deg, var(--brand-700) 0%, #2563eb 100%);
   color: var(--on-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    var(--shadow-md),
+    0 4px 16px rgba(79, 70, 229, 0.28);
   border: none;
 }
 
 .coach-mark__card .btn--primary:hover:not(:disabled):not(.is-loading) {
-  background: var(--primary-dark);
-  filter: brightness(0.96);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #1d4ed8 100%);
+  filter: brightness(1.02);
+  box-shadow:
+    var(--shadow-md),
+    0 6px 18px rgba(79, 70, 229, 0.32);
   transform: none;
 }
 
@@ -972,22 +991,22 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   }
   .coach-mark__card {
     background: rgba(17, 24, 39, 0.82);
-    border-color: rgba(148, 163, 184, 0.28);
+    border-color: rgba(129, 140, 248, 0.42);
     box-shadow:
-      0 -16px 48px rgba(0, 0, 0, 0.5),
-      0 0 24px rgba(99, 102, 241, 0.12),
+      0 -20px 48px rgba(0, 0, 0, 0.52),
+      0 -8px 32px rgba(99, 102, 241, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.14),
       inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
   .coach-mark__card:focus-visible {
     box-shadow:
-      0 -16px 48px rgba(0, 0, 0, 0.5),
-      0 0 24px rgba(99, 102, 241, 0.12),
+      0 -20px 48px rgba(0, 0, 0, 0.52),
+      0 -8px 32px rgba(99, 102, 241, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.14),
       0 0 0 3px rgba(165, 180, 252, 0.4);
   }
   .coach-mark__step {
-    color: #94a3b8;
+    color: #a5b4fc;
   }
   .coach-mark__card h3 {
     color: #f8fafc;
@@ -996,19 +1015,42 @@ body.first-run-active .leaflet-marker-pane .marker-active {
     color: #cbd5e1;
   }
   .purpose-steps {
-    background: rgba(15, 23, 42, 0.5);
-    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(15, 23, 42, 0.45);
+    border-color: rgba(129, 140, 248, 0.28);
   }
   .purpose-steps li {
     color: #e2e8f0;
   }
   .purpose-steps__icon {
-    background:
-      radial-gradient(circle at 32% 28%, rgba(165, 180, 252, 0.3), transparent 65%),
-      rgba(30, 27, 75, 0.55);
-    border-color: rgba(165, 180, 252, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .purpose-steps__icon--map {
+    background: linear-gradient(145deg, rgba(99, 102, 241, 0.42) 0%, rgba(67, 56, 202, 0.28) 100%);
+    border-color: rgba(165, 180, 252, 0.42);
     color: #c7d2fe;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .purpose-steps__icon--snap {
+    background: linear-gradient(145deg, rgba(20, 184, 166, 0.4) 0%, rgba(4, 120, 87, 0.28) 100%);
+    border-color: rgba(94, 234, 212, 0.38);
+    color: #5eead4;
+  }
+  .purpose-steps__icon--neighbours {
+    background: linear-gradient(145deg, rgba(139, 92, 246, 0.42) 0%, rgba(109, 40, 217, 0.28) 100%);
+    border-color: rgba(196, 181, 253, 0.42);
+    color: #ddd6fe;
+  }
+  .coach-mark__card .btn--primary {
+    background: linear-gradient(135deg, #818cf8 0%, #3b82f6 100%);
+    color: #0f172a;
+    box-shadow:
+      var(--shadow-md),
+      0 4px 18px rgba(129, 140, 248, 0.32);
+  }
+  .coach-mark__card .btn--primary:hover:not(:disabled):not(.is-loading) {
+    background: linear-gradient(135deg, #a5b4fc 0%, #60a5fa 100%);
+    box-shadow:
+      var(--shadow-md),
+      0 6px 20px rgba(129, 140, 248, 0.36);
   }
   .coach-mark__handle {
     background: #94a3b8;
