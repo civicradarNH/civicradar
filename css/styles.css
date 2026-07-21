@@ -754,18 +754,30 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   pointer-events: none;
 }
 
+/* Purpose sheet — glass HUD + spring slide-up (v326). No continuous pulse. */
+.coach-mark:not(.hidden) .coach-mark__card {
+  animation: coach-sheet-rise 0.48s var(--ease-spring) both;
+}
+
 .coach-mark__card {
   width: 100%;
   max-width: 480px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--glass-hud-bg, var(--glass-sheet));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-hud-border, var(--glass-sheet-border));
   border-bottom: none;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height));
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 -12px 36px rgba(15, 23, 42, 0.16),
+    0 0 20px rgba(99, 102, 241, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.4));
   text-align: left;
   outline: none;
-  animation: sheet-rise-in 0.32s var(--ease-sheet) both;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 .coach-mark__handle {
@@ -778,7 +790,11 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 }
 
 .coach-mark__card:focus-visible {
-  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(var(--primary-rgb), 0.35);
+  box-shadow:
+    0 -12px 36px rgba(15, 23, 42, 0.16),
+    0 0 20px rgba(99, 102, 241, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 0 3px rgba(var(--primary-rgb), 0.35);
 }
 
 .coach-mark__step {
@@ -814,8 +830,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   list-style: none;
   margin: 0 0 24px;
   padding: 16px 12px;
-  background: var(--canvas, #F8FAFC);
-  border: 1px solid var(--border);
+  background: rgba(148, 163, 184, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: var(--radius-md);
 }
 
@@ -833,6 +851,14 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   line-height: 1.25;
 }
 
+/* One-shot stagger on open — no breathe/pulse loop */
+.coach-mark:not(.hidden) .purpose-steps li {
+  animation: purpose-tile-in 0.36s var(--ease-out-soft) both;
+}
+.coach-mark:not(.hidden) .purpose-steps li:nth-child(1) { animation-delay: 0.1s; }
+.coach-mark:not(.hidden) .purpose-steps li:nth-child(2) { animation-delay: 0.18s; }
+.coach-mark:not(.hidden) .purpose-steps li:nth-child(3) { animation-delay: 0.26s; }
+
 .purpose-steps__icon {
   display: inline-flex;
   align-items: center;
@@ -840,10 +866,12 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: rgba(var(--primary-rgb), 0.15);
-  border: none;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(165, 180, 252, 0.38), transparent 62%),
+    rgba(var(--primary-rgb), 0.12);
+  border: 1px solid rgba(165, 180, 252, 0.28);
   color: var(--primary);
-  box-shadow: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .purpose-steps__icon i {
@@ -885,8 +913,41 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes coach-sheet-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 36px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes purpose-tile-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes coach-sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .coach-mark__card { animation: none; }
+  .coach-mark:not(.hidden) .coach-mark__card {
+    animation: coach-sheet-fade 0.2s ease both;
+    will-change: auto;
+  }
+  .coach-mark:not(.hidden) .purpose-steps li {
+    animation: none;
+  }
   .coach-mark,
   .tour--centered {
     backdrop-filter: none;
@@ -910,10 +971,48 @@ body.first-run-active .leaflet-marker-pane .marker-active {
     background: rgba(0, 0, 0, 0.94);
   }
   .coach-mark__card {
-    border-color: rgba(148, 163, 184, 0.22);
+    background: rgba(17, 24, 39, 0.82);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow:
+      0 -16px 48px rgba(0, 0, 0, 0.5),
+      0 0 24px rgba(99, 102, 241, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .coach-mark__card:focus-visible {
+    box-shadow:
+      0 -16px 48px rgba(0, 0, 0, 0.5),
+      0 0 24px rgba(99, 102, 241, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 0 0 3px rgba(165, 180, 252, 0.4);
   }
   .coach-mark__step {
-    color: var(--ink-400);
+    color: #94a3b8;
+  }
+  .coach-mark__card h3 {
+    color: #f8fafc;
+  }
+  .coach-mark__card p {
+    color: #cbd5e1;
+  }
+  .purpose-steps {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: rgba(148, 163, 184, 0.24);
+  }
+  .purpose-steps li {
+    color: #e2e8f0;
+  }
+  .purpose-steps__icon {
+    background:
+      radial-gradient(circle at 32% 28%, rgba(165, 180, 252, 0.3), transparent 65%),
+      rgba(30, 27, 75, 0.55);
+    border-color: rgba(165, 180, 252, 0.22);
+    color: #c7d2fe;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .coach-mark__handle {
+    background: #94a3b8;
+    opacity: 0.5;
   }
 }
 
@@ -12055,9 +12154,8 @@ body::after {
   font-weight: 700;
 }
 
-/* ---- Empty-ward / coach sheets: quieter chrome when visible ---- */
-.map-empty-cta__sheet,
-.coach-mark__card {
+/* ---- Empty-ward sheet: quieter chrome (coach glass lives above) ---- */
+.map-empty-cta__sheet {
   box-shadow: var(--shadow-lg);
   border-color: var(--border);
 }
