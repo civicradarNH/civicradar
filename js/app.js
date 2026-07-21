@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v329';
+  const CIVIC_APP_VERSION = 'v331';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2855,19 +2855,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'Report it',
 
-      'coach.step': 'Your ward map',
+      'coach.step': 'From alert to fix',
 
-      'coach.title': 'See hazards. Snap. Alert neighbours.',
+      'coach.title': 'See it. Snap it. Sort it out.',
 
-      'coach.body': 'Pins are hazards neighbours reported — tap Report when you spot one.',
+      'coach.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
       'coach.got': 'Got it',
 
-      'purpose.kicker': 'Your ward map',
+      'purpose.kicker': 'From alert to fix',
 
-      'purpose.title': 'See hazards. Snap. Alert neighbours.',
+      'purpose.title': 'See it. Snap it. Sort it out.',
 
-      'purpose.body': 'Pins are hazards neighbours reported — tap Report when you spot one.',
+      'purpose.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
       'purpose.got': 'Got it',
 
@@ -2877,7 +2877,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepSnap': 'Snap',
 
-      'purpose.stepNeighbours': 'Neighbours',
+      'purpose.stepResolve': 'Resolve',
+
+      'purpose.stepNeighbours': 'Resolve',
 
       'fabSpot.step': 'Tip',
 
@@ -2927,7 +2929,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'Welcome to CivicRadar',
 
-      'onboard.subtitle': 'Spot a problem, snap it — neighbours see it on the map.',
+      'onboard.subtitle': 'Spot a problem, snap it — then sort it out with official channels or neighbourhood volunteers.',
 
       'onboard.city': 'Your city',
 
@@ -5381,19 +5383,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'रिपोर्ट',
 
-      'coach.step': 'आपका वार्ड नक्शा',
+      'coach.step': 'अलर्ट से समाधान तक',
 
-      'coach.title': 'खतरा देखें। फोटो लें। पड़ोसियों को बताएँ।',
+      'coach.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'coach.body': 'पिन = पड़ोसियों द्वारा बताए खतरे — दिखे तो Report दबाएँ।',
+      'coach.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
       'coach.got': 'समझ गया',
 
-      'purpose.kicker': 'आपका वार्ड नक्शा',
+      'purpose.kicker': 'अलर्ट से समाधान तक',
 
-      'purpose.title': 'खतरा देखें। फोटो लें। पड़ोसियों को बताएँ।',
+      'purpose.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'purpose.body': 'पिन = पड़ोसियों द्वारा बताए खतरे — दिखे तो Report दबाएँ।',
+      'purpose.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
       'purpose.got': 'समझ गया',
 
@@ -5403,7 +5405,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepSnap': 'फोटो',
 
-      'purpose.stepNeighbours': 'पड़ोसी',
+      'purpose.stepResolve': 'सुलझाएँ',
+
+      'purpose.stepNeighbours': 'सुलझाएँ',
 
       'fabSpot.step': 'टिप',
 
@@ -5453,7 +5457,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar में आपका स्वागत है',
 
-      'onboard.subtitle': 'समस्या देखें, फोटो लें — पड़ोसी मानचित्र पर देखेंगे।',
+      'onboard.subtitle': 'समस्या देखें, फोटो लें — आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
 
       'onboard.city': 'आपका शहर',
 
@@ -7907,19 +7911,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'नोंदवा',
 
-      'coach.step': 'तुमचा वॉर्ड नकाशा',
+      'coach.step': 'सतर्केपासून सोडवणुकीपर्यंत',
 
-      'coach.title': 'धोका पहा. फोटो काढा. शेजाऱ्यांना कळवा.',
+      'coach.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'coach.body': 'पिन = शेजाऱ्यांनी नोंदवलेले धोके — दिसले तर Report दाबा.',
+      'coach.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
       'coach.got': 'समजले',
 
-      'purpose.kicker': 'तुमचा वॉर्ड नकाशा',
+      'purpose.kicker': 'सतर्केपासून सोडवणुकीपर्यंत',
 
-      'purpose.title': 'धोका पहा. फोटो काढा. शेजाऱ्यांना कळवा.',
+      'purpose.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'purpose.body': 'पिन = शेजाऱ्यांनी नोंदवलेले धोके — दिसले तर Report दाबा.',
+      'purpose.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
       'purpose.got': 'समजले',
 
@@ -7929,7 +7933,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepSnap': 'फोटो',
 
-      'purpose.stepNeighbours': 'शेजारी',
+      'purpose.stepResolve': 'सोडवा',
+
+      'purpose.stepNeighbours': 'सोडवा',
 
       'fabSpot.step': 'टीप',
 
@@ -7979,7 +7985,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
 
-      'onboard.subtitle': 'समस्या बघा, फोटो काढा — शेजारी नकाशावर पाहतील.',
+      'onboard.subtitle': 'समस्या बघा, फोटो काढा — अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
 
       'onboard.city': 'तुमचे शहर',
 
@@ -10432,19 +10438,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tagline.beatReport': 'રિપોર્ટ',
 
-      'coach.step': 'તમારો વોર્ડ નકશો',
+      'coach.step': 'જાણથી ઉકેલ સુધી',
 
-      'coach.title': 'જોખમ જુઓ. ફોટો લો. પડોશીઓને કહો.',
+      'coach.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'coach.body': 'પિન = પડોશીઓએ નોંધેલ જોખમો — જુઓ તો Report દબાવો.',
+      'coach.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
       'coach.got': 'સમજાઈ ગયું',
 
-      'purpose.kicker': 'તમારો વોર્ડ નકશો',
+      'purpose.kicker': 'જાણથી ઉકેલ સુધી',
 
-      'purpose.title': 'જોખમ જુઓ. ફોટો લો. પડોશીઓને કહો.',
+      'purpose.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'purpose.body': 'પિન = પડોશીઓએ નોંધેલ જોખમો — જુઓ તો Report દબાવો.',
+      'purpose.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
       'purpose.got': 'સમજાઈ ગયું',
 
@@ -10454,7 +10460,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepSnap': 'ફોટો',
 
-      'purpose.stepNeighbours': 'પડોશી',
+      'purpose.stepResolve': 'ઉકેલો',
+
+      'purpose.stepNeighbours': 'ઉકેલો',
 
       'fabSpot.step': 'ટિપ',
 
@@ -10504,7 +10512,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
 
-      'onboard.subtitle': 'તમારી શેરી, એક નકશા પર. સમસ્યા દેખાય તો ફોટો લો — તમારા પડોશીઓ પણ તે જોશે.',
+      'onboard.subtitle': 'સમસ્યા જુઓ, ફોટો લો — સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
 
       'onboard.city': 'તમારું શહેર',
 
@@ -22172,7 +22180,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const city = getProfileCity();
     if (!navigator.geolocation) {
-      showToast(t('toast.gpsUnavailable') || t('onboard.wardError'), 'error');
+      // t() returns the key when missing — never use `t('missing') || fallback`.
+      showToast(t('toast.gpsFailAction'), 'error');
       if (btn) {
         btn.disabled = false;
         btn.removeAttribute('aria-busy');
@@ -22193,13 +22202,13 @@ document.addEventListener('DOMContentLoaded', function () {
           refreshSocietyDatalist(city, ward);
           saveProfileWard();
           syncProfileIdentitySummary();
-          showToast(t('onboard.wardDetectedHint') || ward, 'success', 2800);
+          showToast(t('onboard.wardDetectedHint'), 'success', 2800);
         } else {
-          showToast(t('toast.wardDetectFailed') || t('onboard.wardError'), 'error');
+          showToast(t('onboard.wardDetectFailed'), 'error');
         }
       })
       .catch(() => {
-        showToast(t('toast.gpsDenied') || t('onboard.wardError'), 'error');
+        showToast(t('toast.gpsFail'), 'error');
       })
       .finally(() => {
         if (btn) {
@@ -22545,6 +22554,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Lead/BMC login must not leave the citizen purpose sheet blocking hub clicks.
+  function dismissFirstRunChromeForElevatedRole() {
+    try {
+      safeLocalSet(COACH_KEY, '1');
+      safeLocalSet(FAB_SPOT_KEY, '1');
+      safeLocalSet(HERO_DISMISSED_KEY, '1');
+    } catch (_) { /* ignore */ }
+    const coach = $('#coachMark');
+    if (coach) coach.classList.add('hidden');
+    const tour = $('#tourOverlay');
+    if (tour && !tour.classList.contains('hidden')) {
+      tour.classList.add('hidden');
+      tour.classList.remove('tour--fab-spot');
+      try {
+        if (tourState) {
+          tourState = null;
+          document.removeEventListener('keydown', onTourKeydown, true);
+          window.removeEventListener('resize', positionTour);
+          window.removeEventListener('scroll', positionTour, true);
+        }
+      } catch (_) { /* ignore */ }
+    }
+    syncFirstRunActiveClass();
+    if (typeof updateHomeHero === 'function') updateHomeHero();
+    if (typeof updateMapEmptyCta === 'function') updateMapEmptyCta();
+  }
+
   function setAdminMode(enabled) {
 
     isAdmin = enabled;
@@ -22552,6 +22588,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.isAdmin = enabled;
 
     if (enabled) setLeadMode(false);
+
+    if (enabled) dismissFirstRunChromeForElevatedRole();
 
     $('#badgeAdmin').classList.toggle('hidden', !enabled);
 
@@ -22570,6 +22608,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.isLead = enabled;
 
     if (enabled) setAdminMode(false);
+
+    if (enabled) dismissFirstRunChromeForElevatedRole();
 
     $('#badgeLead').classList.toggle('hidden', !enabled);
 
@@ -24419,6 +24459,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Keep awaiting so nav/FAB stay locked and pageshow restore stays photo-aware.
     reportPhotoFlowActive = true;
 
+    // Arm dismiss guard immediately — Map ghost taps during the grace window must
+    // not close the sheet before exitReportPhotoPickerWithoutCapture runs.
+    reportPhotoDismissGuard = Date.now();
+
     touchReportDraft({ step: 'capture', awaitingPhoto: true });
 
     debugLog('PHOTO', 'empty exit deferred', {
@@ -25322,6 +25366,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return window.__civicTestReportPhotoFlags();
 
+  };
+
+  /** E2E helper: drop held JPEG + draft so cancel/empty-change tests start clean. */
+  window.__civicTestClearReportPhoto = function () {
+    clearReportPhotoEmptyExitTimer();
+    finishReportPhotoFlow('__civicTestClearReportPhoto');
+    clearReportPhotoPreviewOnly();
+    reportDraftRestoreGen += 1;
+    touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
+    resetPhotoConfirm();
+    updateReportFlowSteps('capture');
+    return true;
   };
 
   window.civicSessionResumeResetMs = SESSION_RESUME_RESET_MS;

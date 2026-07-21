@@ -850,6 +850,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   font-weight: 600;
   color: var(--ink-600);
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 /* One-shot stagger on open — no breathe/pulse loop */
@@ -888,7 +889,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: #0f766e;
 }
 
-.purpose-steps__icon--neighbours {
+.purpose-steps__icon--resolve {
   background: linear-gradient(145deg, rgba(221, 214, 254, 0.95) 0%, rgba(196, 181, 253, 0.55) 55%, rgba(124, 58, 237, 0.16) 100%);
   border: 1px solid rgba(167, 139, 250, 0.45);
   color: #6d28d9;
@@ -1034,7 +1035,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
     border-color: rgba(94, 234, 212, 0.38);
     color: #5eead4;
   }
-  .purpose-steps__icon--neighbours {
+  .purpose-steps__icon--resolve {
     background: linear-gradient(145deg, rgba(139, 92, 246, 0.42) 0%, rgba(109, 40, 217, 0.28) 100%);
     border-color: rgba(196, 181, 253, 0.42);
     color: #ddd6fe;

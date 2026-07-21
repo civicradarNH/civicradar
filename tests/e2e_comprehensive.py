@@ -1642,6 +1642,10 @@ async def run_ngo_admin_tests(s: Suite, browser):
 
         'civicradar_user': default_user(id='ngo-admin'),
 
+        'civicradar_coach_seen': '1',
+
+        'civicradar_fab_spot_seen': '1',
+
         'mosquiTrackReports': json.dumps([{
 
             'id': 'admin-test-report', 'reporterId': 'other-user', 'hazard': 'stagnant-water',
@@ -3358,16 +3362,24 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('U15', 'UI', 'Header context element', bool(await page.text_content('#headerContext')))
 
-    # Persona bar is intentionally hidden while home-hero shows (v112 home-screen
-    # declutter — avoids two overlapping "report a hazard" messages at once).
-    # After dismiss, citizen ward-count bar may stay collapsed when #wardPulse
-    # already carries ward context (persona-pulse-redundant) — assert either
-    # the persona bar or the pulse HUD is visible so ward context remains.
-    hero_visible_before_u16 = not await page.evaluate('() => document.getElementById("homeHero").classList.contains("hidden")')
-    persona_hidden_during_hero = not await page.is_visible('#personaBar')
-    await js_click(page, '#btnHeroDismiss')
+    # Purpose sheet owns first-run (v321+). Ensure it is up, dismiss it, then
+    # ward context remains via persona bar and/or ward pulse.
+    purpose_visible_before_u16 = await page.evaluate("""() => {
+      try {
+        localStorage.removeItem('civicradar_coach_seen');
+        localStorage.removeItem('civicradar_fab_spot_seen');
+      } catch (_) {}
+      const coach = document.getElementById('coachMark');
+      if (!coach) return false;
+      coach.classList.remove('hidden');
+      document.body.classList.add('first-run-active');
+      return !coach.classList.contains('hidden');
+    }""")
+    await js_click(page, '#btnDismissCoach')
     await page.wait_for_timeout(200)
     ward_context_after_dismiss = await page.evaluate("""() => {
+      const coach = document.getElementById('coachMark');
+      if (coach && !coach.classList.contains('hidden')) return false;
       const bar = document.getElementById('personaBar');
       const pulse = document.getElementById('wardPulse');
       const visible = (el) => {
@@ -3377,8 +3389,8 @@ async def run_extended_scenarios(s: Suite, browser):
       };
       return visible(bar) || visible(pulse);
     }""")
-    s.record('U16', 'UI', 'Persona bar hidden during home-hero; ward context after dismiss',
-             hero_visible_before_u16 and persona_hidden_during_hero and ward_context_after_dismiss)
+    s.record('U16', 'UI', 'Purpose sheet dismiss leaves ward context',
+             purpose_visible_before_u16 and ward_context_after_dismiss)
 
     s.record('U17', 'UI', 'Partner inquiry exported', await page.evaluate('() => typeof window.openPartnerInquiry === "function"'))
 
@@ -4467,14 +4479,18 @@ async def run_extended_scenarios(s: Suite, browser):
     cancel_guard_ok = await page.evaluate(
         """() => {
           try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
-          // Clear leftover canvas from RP11 — cancel-with-preview syncs to confirm and
+          // Clear leftover held JPEG from RP11 — cancel-with-held syncs to confirm and
           // would false-fail the capture-step assertion below.
-          const canvas = document.getElementById('imageCanvas');
-          if (canvas) {
-            canvas.classList.remove('visible');
-            try { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
+          if (typeof window.__civicTestClearReportPhoto === 'function') {
+            window.__civicTestClearReportPhoto();
+          } else {
+            const canvas = document.getElementById('imageCanvas');
+            if (canvas) {
+              canvas.classList.remove('visible');
+              try { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
+            }
+            try { document.getElementById('photoInput').value = ''; } catch (_) {}
           }
-          try { document.getElementById('photoInput').value = ''; } catch (_) {}
           window.openReportModal(false);
           // Arm the real picker flow (same path as native cancel after Take photo).
           document.getElementById('btnTakePhoto')?.click();
@@ -4618,7 +4634,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
     # --- Volunteer (VOL) ---
 
-    ctx = await new_ctx(browser, storage={'civicradar_user': default_user(id='vol')})
+    ctx = await new_ctx(browser, storage={
+        'civicradar_user': default_user(id='vol'),
+        'civicradar_coach_seen': '1',
+        'civicradar_fab_spot_seen': '1',
+    })
 
     page = await ctx.new_page()
 
@@ -5511,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v329" in sw_src
+            "civicradar-v331" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8811,7 +8831,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v329" in sw_src
+            "civicradar-v331" in sw_src
 
             and "'/index.html'" not in sw_src
 
