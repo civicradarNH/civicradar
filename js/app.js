@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v353';
+  const CIVIC_APP_VERSION = 'v355';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -544,6 +544,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const CANVAS_MAX_WIDTH = SCALE_CFG.imageMaxWidth;
 
   const JPEG_QUALITY = SCALE_CFG.jpegQuality;
+
+  // Raw FileReader / unscaled fallback only when the file is already small
+  // enough that base64 expansion will not OOM (never keep 12MP as success).
+  const PHOTO_SMALL_FALLBACK_BYTES = 400 * 1024;
 
   const DUPLICATE_RADIUS_M = 10;
 
@@ -3107,6 +3111,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.scanning': 'Checking photo…',
 
+      'report.photoPreparing': 'Preparing photo…',
+
       'moderation.blocked.fileType': 'Only JPEG, PNG, or WebP hazard photos are allowed.',
 
       'moderation.blocked.fileSize': 'Photo is too large. Use a smaller image (max 5 MB).',
@@ -5642,6 +5648,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'moderation.guidelines.streetlight': 'स्ट्रीटलाइट की फ़ोटो — चेहरे/दस्तावेज़ न लें।',
 
       'moderation.scanning': 'फ़ोटो सुरक्षा जाँच हो रही है…',
+
+      'report.photoPreparing': 'फ़ोटो तैयार हो रही है…',
 
       'moderation.blocked.fileType': 'केवल JPEG, PNG या WebP hazard फ़ोटो स्वीकार हैं।',
 
@@ -8179,6 +8187,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.scanning': 'फोटो सुरक्षा तपासणी…',
 
+      'report.photoPreparing': 'फोटो तयार होत आहे…',
+
       'moderation.blocked.fileType': 'फक्त JPEG, PNG किंवा WebP hazard फोटो स्वीकारले जातात.',
 
       'moderation.blocked.fileSize': 'फोटो खूप मोठा आहे. लहान प्रतिमा वापरा (कमाल 5 MB).',
@@ -10714,6 +10724,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.scanning': 'ફોટો સલામતી તપાસ…',
 
+      'report.photoPreparing': 'ફોટો તૈયાર થઈ રહ્યો છે…',
+
       'moderation.blocked.fileType': 'ફક્ત JPEG, PNG અથવા WebP hazard ફોટો સ્વીકાર્ય છે.',
 
       'moderation.blocked.fileSize': 'ફોટો ખૂબ મોટો છે. નાની છબી વાપરો (મહત્તમ 5 MB).',
@@ -13191,6 +13203,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function corroborateReportDupeFromSheet() {
+    if (reportPhotoProcessing) return;
     const dupeId = reportDupeTargetId;
     if (!dupeId) return;
     const reports = loadReports();
@@ -24214,25 +24227,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       try {
 
-        const maxW = CANVAS_MAX_WIDTH;
+        const fitted = fitPhotoMaxDimension(img.width, img.height, CANVAS_MAX_WIDTH);
 
-        let w = img.width;
+        const w = fitted.w;
 
-        let h = img.height;
+        const h = fitted.h;
 
         if (!w || !h) {
 
           finish(false);
 
           return;
-
-        }
-
-        if (w > maxW) {
-
-          h = (h * maxW) / w;
-
-          w = maxW;
 
         }
 
@@ -24736,8 +24741,10 @@ document.addEventListener('DOMContentLoaded', function () {
     clearReportPhotoEmptyExitTimer();
 
     // Always clear scanning chrome — even on an "already idle" path — so a late
-    // moderation await cannot leave Take photo disabled with "Checking photo…".
+    // moderation await cannot leave Take photo disabled with "Preparing photo…".
     setPhotoScanning(false);
+
+    setReportPhotoSubmitLocked(false);
 
     // Drop draft awaitingPhoto so isReportPhotoPickerActive cannot stay true after
     // a force-reset (dismiss/watchdog/cancel) and keep blocking later UI.
@@ -25062,6 +25069,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     finishReportPhotoFlow('failReportPhotoCapture');
 
+    setReportPhotoSubmitLocked(false);
+
     reportDraftRestoreGen += 1;
 
     touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
@@ -25076,7 +25085,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateReportFlowSteps('capture');
 
-    showToast(t('toast.photoFailed'), 'error');
+    // Inline when capture chrome is visible (v332); toast fallback inside helper.
+    showReportPhotoError({ i18nKey: 'toast.photoFailed' });
 
   }
 
@@ -31438,13 +31448,79 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (status) status.classList.toggle('hidden', !on);
+    if (status) {
+
+      status.classList.toggle('hidden', !on);
+
+      status.textContent = on ? t('report.photoPreparing') : t('moderation.scanning');
+
+    }
 
     if (skel) {
 
       skel.classList.toggle('hidden', !on);
 
       skel.setAttribute('aria-hidden', on ? 'false' : 'true');
+
+    }
+
+    // Keep submit / Me too inert while decode+encode runs (confirm may already be open on retake).
+    setReportPhotoSubmitLocked(on || !!reportPhotoProcessing);
+
+  }
+
+
+
+  /** Disable #btnSubmitReport / Me too during photo encode without clearing dupe label mode. */
+  function setReportPhotoSubmitLocked(locked) {
+
+    const submitBtn = $('#btnSubmitReport');
+
+    const meTooBtn = $('#btnReportDupeMeToo');
+
+    if (locked) {
+
+      if (submitBtn) {
+
+        submitBtn.disabled = true;
+
+        submitBtn.setAttribute('aria-busy', 'true');
+
+      }
+
+      if (meTooBtn) {
+
+        meTooBtn.disabled = true;
+
+        meTooBtn.setAttribute('aria-busy', 'true');
+
+      }
+
+      return;
+
+    }
+
+    if (submitBtn) {
+
+      submitBtn.removeAttribute('aria-busy');
+
+      if (!submitReport.__inFlight
+
+        && !submitBtn.classList.contains('is-loading')
+
+        && !submitBtn.classList.contains('is-success')) {
+
+        submitBtn.disabled = false;
+
+      }
+
+    }
+
+    if (meTooBtn) {
+
+      meTooBtn.removeAttribute('aria-busy');
+
+      if (!meTooBtn.classList.contains('hidden') && !meTooBtn.hidden) meTooBtn.disabled = false;
 
     }
 
@@ -31582,6 +31658,154 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+  /** Android / ≤2GB: prefer decode-time resize; never full-res fallback (OOM). */
+  function isLowMemoryPhotoDevice() {
+    try {
+      if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory > 0 && navigator.deviceMemory <= 2) {
+        return true;
+      }
+      if (/Android/i.test(navigator.userAgent || '')) return true;
+    } catch { /* ignore */ }
+    return false;
+  }
+
+
+
+  function isPhotoSmallEnoughForRawFallback(file) {
+    return !!(file && typeof file.size === 'number' && file.size > 0 && file.size <= PHOTO_SMALL_FALLBACK_BYTES);
+  }
+
+
+
+  function closeImageBitmapSafe(bitmap) {
+    if (bitmap && typeof bitmap.close === 'function') {
+      try { bitmap.close(); } catch { /* ignore */ }
+    }
+  }
+
+
+
+  function fitPhotoMaxDimension(w, h, maxDim) {
+    w = Number(w) || 0;
+    h = Number(h) || 0;
+    if (!w || !h) return { w: 0, h: 0 };
+    if (w <= maxDim && h <= maxDim) return { w: Math.round(w), h: Math.round(h) };
+    if (w >= h) {
+      return { w: maxDim, h: Math.max(1, Math.round((h * maxDim) / w)) };
+    }
+    return { w: Math.max(1, Math.round((w * maxDim) / h)), h: maxDim };
+  }
+
+
+
+  /**
+   * Last-resort tiny-file → data URL (FileReader). Never use for multi-MB camera
+   * JPEGs — base64 ≈ 1.37× spikes RAM. Callers must gate with isPhotoSmallEnoughForRawFallback.
+   */
+  function readSmallFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      if (!isPhotoSmallEnoughForRawFallback(file)) {
+        reject(new Error('file_too_large_for_raw_fallback'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const r = reader.result;
+        if (typeof r === 'string' && r.indexOf('data:image') === 0 && r.length >= 32) resolve(r);
+        else reject(new Error('bad_data_url'));
+      };
+      reader.onerror = () => reject(new Error('read_failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+
+
+  /**
+   * Memory-safe decode for report/proof photos.
+   * Prefers createImageBitmap resize during decode (lower peak RAM than full
+   * decode then scale). Canvas redraw strips EXIF. Caller must close bitmap /
+   * revoke objectUrl via releaseDecodedReportImage().
+   * Heavy fallbacks (full bitmap / Image) only when not low-mem, or file is already tiny.
+   */
+  async function decodeImageFileForReport(file, maxDim) {
+    maxDim = maxDim || CANVAS_MAX_WIDTH;
+    const lowMem = isLowMemoryPhotoDevice();
+    const smallFile = isPhotoSmallEnoughForRawFallback(file);
+    let objectUrl = null;
+    let bitmap = null;
+
+    async function tryBitmap(opts) {
+      if (typeof createImageBitmap !== 'function') return null;
+      try {
+        const bm = opts ? await createImageBitmap(file, opts) : await createImageBitmap(file);
+        if (!bm || !bm.width || !bm.height) {
+          closeImageBitmapSafe(bm);
+          return null;
+        }
+        return bm;
+      } catch {
+        return null;
+      }
+    }
+
+    // Decode-time downscale: width-first, then height-first (some Android
+    // WebViews return 0×0 for resizeWidth-only — v329+ guard).
+    bitmap = await tryBitmap({ resizeWidth: maxDim, resizeQuality: 'high' });
+    if (!bitmap) {
+      bitmap = await tryBitmap({ resizeHeight: maxDim, resizeQuality: 'high' });
+    }
+
+    if (bitmap) {
+      const fitted = fitPhotoMaxDimension(bitmap.width, bitmap.height, maxDim);
+      return { bitmap, objectUrl: null, drawSrc: bitmap, w: fitted.w, h: fitted.h };
+    }
+
+    // Full-res decode is the main OOM path on Android after camera return.
+    // Allow only on capable devices, or when the file is already tiny.
+    if (lowMem && !smallFile) {
+      throw new Error('photo_decode_resize_unavailable');
+    }
+
+    if (!lowMem) {
+      bitmap = await tryBitmap(null);
+      if (bitmap) {
+        const fitted = fitPhotoMaxDimension(bitmap.width, bitmap.height, maxDim);
+        return { bitmap, objectUrl: null, drawSrc: bitmap, w: fitted.w, h: fitted.h };
+      }
+    }
+
+    // ObjectURL + Image (not FileReader base64) — still a full decode; size-gated above.
+    objectUrl = URL.createObjectURL(file);
+    const img = await new Promise((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('img decode failed'));
+      el.src = objectUrl;
+    });
+    if (!img.width || !img.height) {
+      throw new Error('img zero size');
+    }
+    const fitted = fitPhotoMaxDimension(img.width, img.height, maxDim);
+    return { bitmap: null, objectUrl, drawSrc: img, w: fitted.w, h: fitted.h };
+  }
+
+
+
+  function releaseDecodedReportImage(decoded) {
+    if (!decoded) return;
+    closeImageBitmapSafe(decoded.bitmap);
+    decoded.bitmap = null;
+    decoded.drawSrc = null;
+    if (decoded.objectUrl) {
+      try { URL.revokeObjectURL(decoded.objectUrl); } catch { /* ignore */ }
+      decoded.objectUrl = null;
+    }
+  }
+
+
+
   function handlePhotoCapture(e) {
 
     const file = e.target.files && e.target.files[0];
@@ -31701,37 +31925,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const stillCurrent = () => captureGen === reportPhotoCaptureGen;
 
-    // Low-memory decode path: object URL + optional createImageBitmap resize.
-    // Avoids FileReader base64 (full-res × ~1.37) which spikes RAM on Android
-    // right after the camera Intent returns.
+    // Low-memory decode: createImageBitmap resize during decode (not full-res
+    // then scale). Avoids FileReader base64 as primary. Preview stays on
+    // #imageCanvas; durable JPEG data URL → lastReportDataUrl + sessionStorage
+    // (ObjectURL alone cannot survive pageshow restore).
     (async () => {
-      let objectUrl = null;
-      let bitmap = null;
+      let decoded = null;
       try {
-        objectUrl = URL.createObjectURL(file);
-        const maxW = CANVAS_MAX_WIDTH;
-        if (typeof createImageBitmap === 'function') {
-          try {
-            bitmap = await createImageBitmap(file, {
-              resizeWidth: maxW,
-              resizeQuality: 'high',
-            });
-          } catch {
-            bitmap = null;
-          }
-          // Some Android WebViews return a 0×0 bitmap for resizeWidth-only opts.
-          if (bitmap && (!bitmap.width || !bitmap.height)) {
-            try { if (typeof bitmap.close === 'function') bitmap.close(); } catch { /* ignore */ }
-            bitmap = null;
-          }
-          if (!bitmap) {
-            try {
-              bitmap = await createImageBitmap(file);
-            } catch {
-              bitmap = null;
-            }
-          }
-        }
+        setPhotoScanning(true);
+        setReportPhotoSubmitLocked(true);
+        const maxDim = CANVAS_MAX_WIDTH;
+        decoded = await decodeImageFileForReport(file, maxDim);
         if (!stillCurrent()) {
           // Superseded by a newer capture — quiet drop only if that capture owns the flow.
           if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
@@ -31739,6 +31943,7 @@ document.addEventListener('DOMContentLoaded', function () {
             failReportPhotoCapture();
           } else {
             setPhotoScanning(false);
+            setReportPhotoSubmitLocked(false);
           }
           return;
         }
@@ -31748,45 +31953,74 @@ document.addEventListener('DOMContentLoaded', function () {
           failReportPhotoCapture();
           return;
         }
-        const ctx = canvas.getContext('2d');
-        let w;
-        let h;
-        let drawSrc;
-        if (bitmap) {
-          w = bitmap.width;
-          h = bitmap.height;
-          drawSrc = bitmap;
-        } else {
-          const img = await new Promise((resolve, reject) => {
-            const el = new Image();
-            el.onload = () => resolve(el);
-            el.onerror = () => reject(new Error('img decode failed'));
-            el.src = objectUrl;
-          });
-          w = img.width;
-          h = img.height;
-          drawSrc = img;
-        }
+        const w = decoded.w;
+        const h = decoded.h;
         if (!w || !h) {
           failReportPhotoCapture();
           return;
         }
-        if (w > maxW) {
-          h = (h * maxW) / w;
-          w = maxW;
+        let canvasOk = false;
+        try {
+          const ctx = canvas.getContext('2d', { alpha: false });
+          if (!ctx) throw new Error('no_ctx');
+          canvas.width = w;
+          canvas.height = h;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'medium';
+          // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
+          ctx.drawImage(decoded.drawSrc, 0, 0, w, h);
+          canvasOk = true;
+        } catch (drawErr) {
+          debugLog('PHOTO', 'canvas draw failed', {
+            msg: drawErr && drawErr.message ? String(drawErr.message).slice(0, 80) : 'error',
+          });
+          canvasOk = false;
         }
-        canvas.width = w;
-        canvas.height = h;
-        // Re-encoding through canvas strips EXIF/GPS and other embedded metadata.
-        ctx.drawImage(drawSrc, 0, 0, w, h);
-        if (bitmap && typeof bitmap.close === 'function') {
-          try { bitmap.close(); } catch { /* ignore */ }
-          bitmap = null;
+        // Free decode buffers before moderation / JPEG encode (canvas keeps pixels).
+        releaseDecodedReportImage(decoded);
+        decoded = null;
+
+        if (!canvasOk) {
+          // Canvas OOM: accept raw file only when already small — never 12MP "success".
+          if (!isPhotoSmallEnoughForRawFallback(file)) {
+            failReportPhotoCapture();
+            return;
+          }
+          let rawUrl;
+          try {
+            rawUrl = await readSmallFileAsDataUrl(file);
+          } catch {
+            failReportPhotoCapture();
+            return;
+          }
+          if (!stillCurrent()) {
+            failReportPhotoCapture();
+            return;
+          }
+          lastReportDataUrl = rawUrl;
+          touchReportDraft({
+            step: 'confirm',
+            awaitingPhoto: false,
+            photoDataUrl: lastReportDataUrl,
+          });
+          // Paint preview from the small data URL (already tiny).
+          await new Promise((resolve) => {
+            restoreReportPhotoFromDataUrl(rawUrl, () => resolve());
+          });
+          if (!stillCurrent() || !hasReportPhotoPreview()) {
+            failReportPhotoCapture();
+            return;
+          }
+          reportPhotoModerationPassed = true;
+          finishReportPhotoFlow('handlePhotoCaptureRawFallback');
+          reportPhotoDismissGuard = Date.now();
+          advanceReportPhotoReady();
+          debugLog('PHOTO', 'handlePhotoCapture raw-small fallback', { size: file.size, captureGen });
+          return;
         }
-        drawSrc = null;
 
         if (window.ImageModeration && getModCfg().enabled) {
-          setPhotoScanning(true);
+          // Keep scanning chrome; status copy already set by setPhotoScanning.
           let scan;
           try {
             scan = await Promise.race([
@@ -31801,10 +32035,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
               && !reportPhotoFileAccepted && !reportPhotoProcessing) {
               failReportPhotoCapture();
+            } else {
+              setReportPhotoSubmitLocked(false);
             }
             return;
           }
-          setPhotoScanning(false);
           if (!scan.ok) {
             rejectPhoto(scan);
             return;
@@ -31820,6 +32055,7 @@ document.addEventListener('DOMContentLoaded', function () {
             failReportPhotoCapture();
           } else {
             setPhotoScanning(false);
+            setReportPhotoSubmitLocked(false);
           }
           return;
         }
@@ -31828,8 +32064,17 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
         } catch {
-          failReportPhotoCapture();
-          return;
+          if (isPhotoSmallEnoughForRawFallback(file)) {
+            try {
+              dataUrl = await readSmallFileAsDataUrl(file);
+            } catch {
+              failReportPhotoCapture();
+              return;
+            }
+          } else {
+            failReportPhotoCapture();
+            return;
+          }
         }
         if (!dataUrl || dataUrl.length < 32 || dataUrl.indexOf('data:image') !== 0) {
           failReportPhotoCapture();
@@ -31859,14 +32104,10 @@ document.addEventListener('DOMContentLoaded', function () {
           failReportPhotoCapture();
         } else {
           setPhotoScanning(false);
+          setReportPhotoSubmitLocked(false);
         }
       } finally {
-        if (objectUrl) {
-          try { URL.revokeObjectURL(objectUrl); } catch { /* ignore */ }
-        }
-        if (bitmap && typeof bitmap.close === 'function') {
-          try { bitmap.close(); } catch { /* ignore */ }
-        }
+        releaseDecodedReportImage(decoded);
       }
     })();
   }
@@ -33727,6 +33968,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Re-entrancy lock: rapid double-tap must not double-file during async GPS/moderation.
     if (submitReport.__inFlight) return;
+
+    // Photo still decoding/encoding — never ghost-submit a half-ready canvas.
+    // Submit is also disabled via setReportPhotoSubmitLocked; this is belt-and-suspenders.
+    if (reportPhotoProcessing) return;
 
     if (overlays.report?.classList.contains('open') && hasReportPhotoPreview()) {
 
@@ -40061,53 +40306,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   async function compressImageFromFile(file) {
-    let objectUrl = null;
-    let bitmap = null;
+    let decoded = null;
+    const canvas = document.createElement('canvas');
     try {
-      const maxW = CANVAS_MAX_WIDTH;
-      let w;
-      let h;
-      let drawSrc;
-      if (typeof createImageBitmap === 'function') {
-        try {
-          bitmap = await createImageBitmap(file, { resizeWidth: maxW, resizeQuality: 'high' });
-        } catch {
-          bitmap = await createImageBitmap(file);
-        }
-        w = bitmap.width;
-        h = bitmap.height;
-        drawSrc = bitmap;
-      } else {
-        objectUrl = URL.createObjectURL(file);
-        const img = await new Promise((resolve, reject) => {
-          const el = new Image();
-          el.onload = () => resolve(el);
-          el.onerror = () => reject(new Error('image load failed'));
-          el.src = objectUrl;
-        });
-        w = img.width;
-        h = img.height;
-        drawSrc = img;
-      }
-      if (w > maxW) {
-        h = (h * maxW) / w;
-        w = maxW;
-      }
-      const canvas = document.createElement('canvas');
+      decoded = await decodeImageFileForReport(file, CANVAS_MAX_WIDTH);
+      const w = decoded.w;
+      const h = decoded.h;
+      if (!w || !h) throw new Error('compress zero size');
       canvas.width = w;
       canvas.height = h;
-      canvas.getContext('2d').drawImage(drawSrc, 0, 0, w, h);
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) throw new Error('compress no ctx');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'medium';
+      ctx.drawImage(decoded.drawSrc, 0, 0, w, h);
+      releaseDecodedReportImage(decoded);
+      decoded = null;
       const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
       canvas.width = 0;
       canvas.height = 0;
       return dataUrl;
     } finally {
-      if (bitmap && typeof bitmap.close === 'function') {
-        try { bitmap.close(); } catch { /* ignore */ }
-      }
-      if (objectUrl) {
-        try { URL.revokeObjectURL(objectUrl); } catch { /* ignore */ }
-      }
+      releaseDecodedReportImage(decoded);
+      canvas.width = 0;
+      canvas.height = 0;
     }
   }
 
