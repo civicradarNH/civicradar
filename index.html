@@ -2,7 +2,7 @@
 <html lang="en" class="app-booting" style="background-color:#6366f1">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <!-- Critical splash — FIRST paint must be brand indigo (TWA/Play WSOD).
        Inline style on <html> + this block before any external CSS/fonts. -->
   <style id="critical-splash">
@@ -399,64 +399,68 @@
     </div>
   </div>
 
-  <!-- Onboarding Modal -->
+  <!-- Onboarding Modal — flex column: locked header + scroll body + sticky Join footer -->
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
-    <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <div class="modal modal--sheet-flex" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
-      <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-      <p class="modal__subtitle" data-i18n="onboard.subtitle">Select your ward or housing society to filter local alerts.</p>
-      <div class="form-group" id="wardDetectGroup">
-        <div id="wardDetectPrompt" class="ward-detect-prompt">
-          <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
+      <div class="modal__sheet-header">
+        <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
+        <p class="modal__subtitle" data-i18n="onboard.subtitle">Select your ward or housing society to filter local alerts.</p>
+      </div>
+      <div class="modal__sheet-body">
+        <div class="form-group" id="wardDetectGroup">
+          <div id="wardDetectPrompt" class="ward-detect-prompt">
+            <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
+              <i class="ph ph-crosshair" aria-hidden="true"></i>
+              <span data-i18n="onboard.wardDetectCta">Detect my Ward (GPS)</span>
+            </button>
+            <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
+          </div>
+          <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
-            <span data-i18n="onboard.wardDetectCta">Detect my Ward (GPS)</span>
-          </button>
-          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
-        </div>
-        <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
-          <i class="ph ph-crosshair" aria-hidden="true"></i>
-          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
-        </div>
-        <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
-          <i class="ph ph-map-pin" aria-hidden="true"></i>
-          <span id="wardDetectedName"></span>
-        </div>
-        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
-        <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
-          <span data-i18n="onboard.or">or</span>
-        </div>
-        <div id="onboardManualSearch" class="onboard-manual-search">
-          <div class="form-group" id="onboardCityGroup">
-            <label for="onboardCity" data-i18n="onboard.city">Your city</label>
-            <select id="onboardCity" aria-describedby="onboardCityHint">
-              <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-              <option value="pune" data-i18n-option="city.pune">Pune</option>
-              <option value="thane" data-i18n-option="city.thane">Thane</option>
-            </select>
-            <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
+            <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
           </div>
-          <div id="wardManualGroup" class="form-group">
-            <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
-            <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-            <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
+            <i class="ph ph-map-pin" aria-hidden="true"></i>
+            <span id="wardDetectedName"></span>
           </div>
+          <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
+          <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
+            <span data-i18n="onboard.or">or</span>
+          </div>
+          <div id="onboardManualSearch" class="onboard-manual-search">
+            <div class="form-group" id="onboardCityGroup">
+              <label for="onboardCity" data-i18n="onboard.city">Your city</label>
+              <select id="onboardCity" aria-describedby="onboardCityHint">
+                <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+                <option value="pune" data-i18n-option="city.pune">Pune</option>
+                <option value="thane" data-i18n-option="city.thane">Thane</option>
+              </select>
+              <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
+            </div>
+            <div id="wardManualGroup" class="form-group">
+              <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
+              <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
+              <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+            </div>
+          </div>
+          <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
+          <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
+          <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
         </div>
-        <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
-        <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
-        <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
+        <div class="form-group">
+          <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
+          <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
+          <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
+          <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
+        </div>
+        <div class="form-group">
+          <label for="displayName" data-i18n="onboard.name">Display Name</label>
+          <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
+        </div>
       </div>
-      <div class="form-group">
-        <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
-        <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
-        <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
-        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
-      </div>
-      <div class="form-group">
-        <label for="displayName" data-i18n="onboard.name">Display Name</label>
-        <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
-      </div>
-      <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join Community</button>
+      <div class="modal__sticky-footer modal__sheet-footer">
+        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join your ward</button>
       </div>
     </div>
   </div>

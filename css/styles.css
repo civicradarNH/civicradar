@@ -3361,17 +3361,68 @@ body.pwa-nudge-visible #btnCamera {
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-/* Sticky CTA sheets: last inputs must clear the sticky footer (v241) */
-.modal:has(> .modal__sticky-footer),
-#onboardingModal,
+/* Sticky CTA sheets: last inputs must clear the sticky footer (v241).
+   Flex sheet-flex modals use a locked footer instead — skip margin hack. */
+.modal:has(> .modal__sticky-footer):not(.modal--sheet-flex),
 #reportStepConfirm.report-step--active {
   scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
 }
 
-.modal > *:has(+ .modal__sticky-footer),
-#onboardingModal > *:has(+ .modal__sticky-footer),
+.modal:not(.modal--sheet-flex) > *:has(+ .modal__sticky-footer),
 #reportStepConfirm > *:has(+ .modal__sticky-footer) {
   margin-bottom: calc(96px + var(--kb-inset, 0px));
+}
+
+/* Welcome / onboarding: flex column so keyboard shrinks body, not the whole sheet */
+.modal.modal--sheet-flex {
+  display: flex;
+  flex-direction: column;
+  max-height: min(85vh, 100dvh);
+  overflow: hidden;
+  padding-bottom: 0;
+  scroll-padding-bottom: 0;
+}
+
+.modal.modal--sheet-flex .modal__sheet-header {
+  flex: none;
+  padding-bottom: 12px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal.modal--sheet-flex .modal__sheet-header .modal__subtitle {
+  margin-bottom: 0;
+}
+
+.modal.modal--sheet-flex .modal__sheet-body {
+  flex: 1 1 auto;
+  min-height: 0; /* critical — allows flex child to shrink + scroll */
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-top: 16px;
+  padding-bottom: 8px;
+  scroll-padding-bottom: 16px;
+}
+
+.modal.modal--sheet-flex .modal__sheet-footer,
+.modal.modal--sheet-flex > .modal__sticky-footer {
+  flex: none;
+  position: relative;
+  z-index: 2;
+  margin: 0 -24px 0;
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@media (min-width: 768px) {
+  .modal.modal--sheet-flex {
+    max-height: min(90vh, 900px);
+  }
 }
 
 .modal--tall {
@@ -12567,11 +12618,16 @@ body.sheet-depth-blocking .map-hud {
   }
 }
 
-/* Sticky-footer sheets: scroll focus + last-field clearance (margin above) */
-#onboardingOverlay #onboardingModal,
+/* Sticky-footer sheets: scroll focus + last-field clearance (margin above).
+   Onboarding uses flex sheet-body — do not pad the outer modal for sticky. */
 #tosOverlay .modal:has(> .modal__sticky-footer) {
   scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
   padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + var(--kb-inset, 0px));
+}
+
+#onboardingOverlay #onboardingModal.modal--sheet-flex {
+  scroll-padding-bottom: 0;
+  padding-bottom: 0;
 }
 
 /* Combobox list needs room above keyboard when open inside sheets */
@@ -12635,6 +12691,25 @@ body.sheet-depth-blocking .map-hud {
   /* Stay anchored inside the vv-pinned overlay — no translate off-screen */
   transform: translate3d(0, 0, 0) !important;
   margin-bottom: 0;
+}
+
+/* Flex onboarding: outer sheet does not scroll — body does */
+#onboardingOverlay.sheet-kb-active #onboardingModal.modal--sheet-flex,
+#onboardingModal.modal--sheet-flex.sheet--kb-expanded {
+  display: flex;
+  flex-direction: column;
+  height: min(85vh, var(--vv-height, 100dvh));
+  max-height: min(85vh, var(--vv-height, 100dvh));
+  overflow: hidden;
+  scroll-padding-bottom: 0;
+}
+
+#onboardingOverlay.sheet-kb-active #onboardingModal.modal--sheet-flex .modal__sheet-body,
+#onboardingModal.modal--sheet-flex.sheet--kb-expanded .modal__sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 #onboardingOverlay.sheet-kb-active #onboardingModal {

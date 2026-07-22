@@ -156,13 +156,15 @@
     }
 
     /**
-     * Scroll only inside the sheet. Native scrollIntoView can scroll the
-     * document / visualViewport and shove a fixed overlay off-screen.
+     * Scroll only inside the sheet (or its .modal__sheet-body flex scroller).
+     * Native scrollIntoView can scroll the document / visualViewport and shove
+     * a fixed overlay off-screen.
      */
     function scrollFieldInsideSheet(sheet, target) {
       if (!sheet || !target || !sheet.contains(target)) return;
+      const scroller = sheet.querySelector('.modal__sheet-body') || sheet;
       try {
-        const sheetRect = sheet.getBoundingClientRect();
+        const sheetRect = scroller.getBoundingClientRect();
         const targetRect = target.getBoundingClientRect();
         const pad = 12;
         const visibleBottom = sheetRect.bottom - pad;
@@ -173,7 +175,7 @@
         } else if (targetRect.top < visibleTop) {
           delta = targetRect.top - visibleTop;
         }
-        if (delta) sheet.scrollTop += delta;
+        if (delta) scroller.scrollTop += delta;
       } catch (e) { /* ignore */ }
     }
 
@@ -421,10 +423,14 @@
       if (!wrap.contains(e.target)) closeList();
     }, { passive: true });
 
-    // Close on sheet scroll (onboarding + Profile Edit + other modals).
+    // Close on sheet / sheet-body scroll (onboarding flex body + Profile Edit).
     const sheetEl = input.closest('.modal');
     if (sheetEl) {
-      sheetEl.addEventListener('scroll', onSheetScrollClose, { passive: true });
+      const scrollEl = sheetEl.querySelector('.modal__sheet-body') || sheetEl;
+      scrollEl.addEventListener('scroll', onSheetScrollClose, { passive: true });
+      if (scrollEl !== sheetEl) {
+        sheetEl.addEventListener('scroll', onSheetScrollClose, { passive: true });
+      }
     }
 
     const api = {

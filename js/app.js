@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v370';
+  const CIVIC_APP_VERSION = 'v371';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -23771,9 +23771,22 @@ document.addEventListener('DOMContentLoaded', function () {
       cityGroup.classList.add('onboard-city--highlight');
 
       requestAnimationFrame(() => {
-
-        cityGroup.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-
+        const modal = $('#onboardingModal');
+        const scroller = modal?.querySelector('.modal__sheet-body') || modal;
+        if (scroller && cityGroup) {
+          try {
+            const sheetRect = scroller.getBoundingClientRect();
+            const wrapRect = cityGroup.getBoundingClientRect();
+            const pad = 12;
+            let delta = 0;
+            if (wrapRect.bottom > sheetRect.bottom - pad) {
+              delta = wrapRect.bottom - (sheetRect.bottom - pad);
+            } else if (wrapRect.top < sheetRect.top + pad) {
+              delta = wrapRect.top - (sheetRect.top + pad);
+            }
+            if (delta) scroller.scrollTop += delta;
+          } catch { /* ignore */ }
+        }
       });
 
     }
@@ -30054,9 +30067,10 @@ document.addEventListener('DOMContentLoaded', function () {
         scheduleKbInset();
         requestAnimationFrame(() => {
           const wrap = el.closest('.civic-combobox') || el.closest('.form-group') || el;
-          // Scroll only inside the sheet — document scrollIntoView pushes the modal off-screen.
+          const scroller = modal.querySelector('.modal__sheet-body') || modal;
+          // Scroll only inside the sheet body — never document scrollIntoView.
           try {
-            const sheetRect = modal.getBoundingClientRect();
+            const sheetRect = scroller.getBoundingClientRect();
             const wrapRect = wrap.getBoundingClientRect();
             const pad = 12;
             let delta = 0;
@@ -30065,7 +30079,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (wrapRect.top < sheetRect.top + pad) {
               delta = wrapRect.top - (sheetRect.top + pad);
             }
-            if (delta) modal.scrollTop += delta;
+            if (delta) scroller.scrollTop += delta;
           } catch { /* ignore */ }
         });
       }
