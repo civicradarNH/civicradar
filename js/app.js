@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v355';
+  const CIVIC_APP_VERSION = 'v361';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3129,11 +3129,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.title': 'Reported — nice one',
 
-      'success.tagline': 'Pinned on your ward map.',
+      'success.tagline': 'Pinned on ward map',
 
       'success.taglineNeighbours': '{n} neighbour(s) already backing nearby spots — yours is up too.',
 
-      'success.subtitle': 'Free with {corp} — starts the official complaint clock.',
+      'success.subtitle': 'Open a {corp} app below — starts the complaint clock. We don\'t file for you.',
 
       'success.step1': 'Share on WhatsApp so neighbours can back it',
 
@@ -3147,25 +3147,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': 'Tag @mybmc',
 
-      'success.alert': 'Tell your neighbours',
+      'success.alert': 'Help keep your neighbours safe',
 
-      'success.done': 'Back to map',
+      'success.done': 'Done',
 
-      'success.sharePrompt': 'More eyes on the ward map — faster fixes.',
+      'success.shareTitle': 'Help keep your neighbours safe',
 
-      'success.shareWhatsapp': 'Amplify on WhatsApp',
+      'success.sharePrompt': 'Share real-time updates with your local WhatsApp groups.',
+
+      'success.shareWhatsapp': 'Share on WhatsApp',
 
       'share.nativeShare': 'Share',
 
       'success.shareNudge': 'Your neighbours may not know yet — share on WhatsApp.',
 
-      'success.shareMsg': '{hazard} in {ward} — pinned on our CivicRadar ward map.\nTap Me too, or report a spot in your lane:\n{link}\n{hashtags}',
+      'success.shareMsg': '⚠️ *{hazard} spotted in {location}*\nPinned on the CivicRadar community map.\n\nBack this spot with \'Me too\' so local officials take action faster:\n👉 {link}\n\n{hashtags}',
 
       'share.appMsg': '{city} ward hazard map — pin garbage, potholes, streetlights & stagnant water. Me too, beat rival wards!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'my area',
 
-      'share.meTooMsg': 'Me too — {hazard} in {ward}. {n} neighbour(s) backed on CivicRadar:\n{link}\n{hashtags}',
+      'share.meTooMsg': '⚠️ Me too — *{hazard} in {location}*\n{n} neighbour(s) already backing this spot on CivicRadar.\n\nJoin in so local officials take action faster:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'Share on WhatsApp',
 
@@ -3300,25 +3302,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.nextStreakBadgeMany': '{n} more weeks for {badge}',
 
-      'success.progressOne': 'Just 1 more report to your next badge.',
+      'success.progressOne': '1 more report to next badge',
 
-      'success.progressMany': '{n} more reports to your next badge.',
+      'success.progressMany': '{n} more reports to next badge',
 
-      'success.progressMilestone': 'Badge unlocked! {n} more to your next one.',
+      'success.progressMilestone': 'Badge unlocked — {n} more to next',
 
-      'success.progressGuardian': '{n} reports and counting — a true Monsoon Guardian.',
+      'success.progressGuardian': '{n} reports — Monsoon Guardian',
 
-      'success.shareBrag': 'You just helped your ward — tell neighbours on WhatsApp!',
+      'success.shareBrag': 'Help your neighbours avoid this area — Share on WhatsApp.',
 
-      'success.shareBragFirst': 'First pin on the map! Share now — momentum spreads fast.',
+      'success.shareBragFirst': 'Help your neighbours avoid this area — Share on WhatsApp.',
 
       'toast.badgeMonsoon': 'First report logged — welcome!',
 
-      'confirm.meTooThanks': 'Share so more neighbours see it.',
+      'confirm.meTooThanks': 'Help your neighbours avoid this area.',
 
       'confirm.backed': 'Backed!',
 
       'confirm.backedChip': 'Backed! +{n} Civic Points',
+
+      'confirm.alreadyPinned': 'Already Pinned',
+
+      'confirm.trackProfile': 'Track in Profile →',
 
       'toast.reportMilestone': '{n} reports — keep going!',
 
@@ -3328,7 +3334,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'Report the first hazard',
 
-      'map.emptyShare': 'Invite neighbours on WhatsApp',
+      'map.emptyShare': 'Share on WhatsApp',
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open. Report one, or rally your street.',
 
@@ -3985,7 +3991,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeInlineOne': '1 nearby · 10 m',
 
-      'confirm.ownDupe': 'You already pinned this spot. Track it in Profile.',
+      'confirm.ownDupe': 'You already pinned this spot.',
 
       'profile.unfiledBanner': '{n} open — not filed with {corp} yet. Share helps; each spot needs its own complaint if you file.',
 
@@ -4324,15 +4330,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'We don\'t file for you — open a verified .gov app or portal below.',
+      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you.',
 
       'official.recommended': 'Recommended',
 
       'official.fastest': 'Fastest',
 
-      'official.viewAllSources': 'All official sources',
+      'official.viewAllSources': 'More filing links',
 
-      'official.alsoFile': 'Also file officially (optional)',
+      'official.alsoFile': 'File with corporation (optional)',
 
       'official.copyDone': 'Official filing summary copied — paste in the app or portal',
 
@@ -4386,9 +4392,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'Water dept or Health dept (mosquito breeding)',
 
-      'success.alsoOfficial': 'Official filing (optional)',
+      'success.alsoOfficial': 'File with {corp}',
 
-      'success.filingGuide': 'Filing guide & complaint copy',
+      'success.filingGuide': 'How to file & copy text',
 
       'esc.close': 'Close',
 
@@ -5667,11 +5673,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.title': 'रिपोर्ट हो गई — शाबाश',
 
-      'success.tagline': 'आपके वार्ड मानचित्र पर पिन हो गया।',
+      'success.tagline': 'वार्ड मानचित्र पर पिन',
 
       'success.taglineNeighbours': '{n} पड़ोसी पहले से पास के स्पॉट का समर्थन कर रहे हैं — आपका भी जुड़ गया।',
 
-      'success.subtitle': '{corp} पर मुफ़्त — आधिकारिक शिकायत घड़ी शुरू होती है।',
+      'success.subtitle': 'नीचे {corp} ऐप खोलें — शिकायत घड़ी शुरू होती है। हम आपकी ओर से दर्ज नहीं करते।',
 
       'success.step1': 'WhatsApp पर शेयर करें ताकि पड़ोसी समर्थन करें',
 
@@ -5685,25 +5691,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc को टैग करें',
 
-      'success.alert': 'अपने पड़ोसियों को बताएँ',
+      'success.alert': 'अपने पड़ोसियों को सुरक्षित रखें',
 
-      'success.done': 'नक्शे पर वापस',
+      'success.done': 'हो गया',
 
-      'success.sharePrompt': 'वार्ड मैप पर ज़्यादा नज़र — तेज़ सुधार।',
+      'success.shareTitle': 'अपने पड़ोसियों को सुरक्षित रखें',
 
-      'success.shareWhatsapp': 'WhatsApp पर फैलाएँ',
+      'success.sharePrompt': 'अपने स्थानीय WhatsApp ग्रुप में रीयल-टाइम अपडेट साझा करें।',
+
+      'success.shareWhatsapp': 'WhatsApp पर साझा करें',
 
       'share.nativeShare': 'साझा करें',
 
       'success.shareNudge': 'पड़ोसियों को अभी ख़बर न हो — WhatsApp पर शेयर करें।',
 
-      'success.shareMsg': '{ward} में {hazard} — CivicRadar वार्ड मानचित्र पर पिन।\nMe too दबाएँ, या अपनी गली रिपोर्ट करें:\n{link}\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} में {hazard}*\nCivicRadar सामुदायिक मानचित्र पर पिन।\n\n\'Me too\' से इस स्पॉट का समर्थन करें — स्थानीय अधिकारी तेज़ी से कार्रवाई करें:\n👉 {link}\n\n{hashtags}',
 
       'share.appMsg': '{city} वार्ड खतरा मानचित्र — कचरा, गड्ढे, स्ट्रीटलाइट, जमा पानी पिन करें। Me too, वार्डों से आगे!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'मेरे इलाके',
 
-      'share.meTooMsg': 'मुझे भी — {ward} में {hazard}। {n} पड़ोसी CivicRadar पर:\n{link}\n{hashtags}',
+      'share.meTooMsg': '⚠️ मुझे भी — *{location} में {hazard}*\n{n} पड़ोसी पहले से CivicRadar पर इस स्पॉट का समर्थन कर रहे हैं।\n\nऔर आवाज़ जोड़ें — स्थानीय अधिकारी तेज़ी से कार्रवाई करें:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp पर साझा करें',
 
@@ -5840,25 +5848,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.nextStreakBadgeMany': '{badge} के लिए {n} हफ़्ते और',
 
-      'success.progressOne': 'अगले बैज के लिए बस 1 और रिपोर्ट।',
+      'success.progressOne': 'अगले बैज के लिए 1 और रिपोर्ट',
 
-      'success.progressMany': 'अगले बैज के लिए {n} और रिपोर्ट।',
+      'success.progressMany': 'अगले बैज के लिए {n} और रिपोर्ट',
 
-      'success.progressMilestone': 'बैज मिला! अगले के लिए {n} और।',
+      'success.progressMilestone': 'बैज मिला — अगले के लिए {n} और',
 
-      'success.progressGuardian': '{n} रिपोर्ट और गिनती — सच्चे मानसून रक्षक।',
+      'success.progressGuardian': '{n} रिपोर्ट — मानसून रक्षक',
 
-      'success.shareBrag': 'आपने वार्ड की मदद की — WhatsApp पर बताएँ!',
+      'success.shareBrag': 'पड़ोसियों को इस इलाके से बचने में मदद करें — WhatsApp पर साझा करें।',
 
-      'success.shareBragFirst': 'मानचित्र पर पहला पिन! अभी शेयर करें — गति तेज़ी से फैलती है।',
+      'success.shareBragFirst': 'पड़ोसियों को इस इलाके से बचने में मदद करें — WhatsApp पर साझा करें।',
 
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है!',
 
-      'confirm.meTooThanks': 'शेयर करें — और पड़ोसी देखें।',
+      'confirm.meTooThanks': 'पड़ोसियों को इस इलाके से बचने में मदद करें।',
 
       'confirm.backed': 'समर्थित!',
 
       'confirm.backedChip': 'समर्थित! +{n} सिविक पॉइंट्स',
+
+      'confirm.alreadyPinned': 'पहले से पिन',
+
+      'confirm.trackProfile': 'प्रोफ़ाइल में देखें →',
 
       'toast.reportMilestone': '{n} रिपोर्ट — जारी रखें!',
 
@@ -5868,7 +5880,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
 
-      'map.emptyShare': 'WhatsApp पर पड़ोसियों को बुलाएँ',
+      'map.emptyShare': 'WhatsApp पर साझा करें',
 
       'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले। एक रिपोर्ट करें, या गली जुटाएँ।',
 
@@ -6523,7 +6535,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeInlineOne': '1 पास · 10 मी.',
 
-      'confirm.ownDupe': 'आपने यहाँ पहले ही पिन किया है। प्रोफ़ाइल में देखें।',
+      'confirm.ownDupe': 'आपने यहाँ पहले ही पिन किया है।',
 
       'profile.unfiledBanner': '{n} खुले — अभी {corp} में दर्ज नहीं। शेयर मदद करता है; दर्ज करें तो हर स्पॉट की अलग शिकायत।',
 
@@ -6862,15 +6874,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'हम आपकी ओर से दर्ज नहीं करते — नीचे सत्यापित .gov ऐप या पोर्टल खोलें।',
+      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता।',
 
       'official.recommended': 'अनुशंसित',
 
       'official.fastest': 'सबसे तेज़',
 
-      'official.viewAllSources': 'सभी आधिकारिक स्रोत',
+      'official.viewAllSources': 'और दर्ज करने के लिंक',
 
-      'official.alsoFile': 'आधिकारिक रूप से भी दर्ज करें (वैकल्पिक)',
+      'official.alsoFile': 'निगम में दर्ज करें (वैकल्पिक)',
 
       'official.copyDone': 'आधिकारिक शिकायत सारांश कॉपी — ऐप/पोर्टल में चिपकाएँ',
 
@@ -6924,9 +6936,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'जल / स्वास्थ्य विभाग (मच्छर प्रजनन)',
 
-      'success.alsoOfficial': 'आधिकारिक शिकायत (वैकल्पिक)',
+      'success.alsoOfficial': '{corp} में दर्ज करें',
 
-      'success.filingGuide': 'दर्ज करने की गाइड और शिकायत कॉपी',
+      'success.filingGuide': 'कैसे दर्ज करें और टेक्स्ट कॉपी करें',
 
       'esc.close': 'बंद',
 
@@ -8205,11 +8217,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.title': 'नोंदवले — छान काम',
 
-      'success.tagline': 'तुमच्या वॉर्ड नकाशावर पिन झाले.',
+      'success.tagline': 'वॉर्ड नकाशावर पिन',
 
       'success.taglineNeighbours': '{n} शेजारी आधीच जवळच्या स्पॉटला पाठिंबा देत आहेत — तुमचाही लागला.',
 
-      'success.subtitle': '{corp} कडे मोफत — अधिकृत तक्रार घड्याळ सुरू होते.',
+      'success.subtitle': 'खाली {corp} अॅप उघडा — तक्रार घड्याळ सुरू होते. आम्ही तुमच्यावतीने दाखल करत नाही.',
 
       'success.step1': 'WhatsApp वर शेअर करा जेणेकरून शेजारी पाठिंबा देतील',
 
@@ -8223,25 +8235,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc ला टॅग करा',
 
-      'success.alert': 'तुमच्या शेजाऱ्यांना सांगा',
+      'success.alert': 'तुमच्या शेजाऱ्यांना सुरक्षित ठेवा',
 
-      'success.done': 'नकाशावर परत',
+      'success.done': 'झाले',
 
-      'success.sharePrompt': 'वॉर्ड नकाशावर जास्त डोळे — जलद दुरुस्ती.',
+      'success.shareTitle': 'तुमच्या शेजाऱ्यांना सुरक्षित ठेवा',
 
-      'success.shareWhatsapp': 'WhatsApp वर पसरा',
+      'success.sharePrompt': 'तुमच्या स्थानिक WhatsApp गटांमध्ये रिअल-टाइम अपडेट शेअर करा.',
+
+      'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
 
       'share.nativeShare': 'शेअर करा',
 
       'success.shareNudge': 'शेजाऱ्यांना अजून माहीत नसेल — WhatsApp वर शेअर करा.',
 
-      'success.shareMsg': '{ward} मध्ये {hazard} — CivicRadar वॉर्ड नकाशावर पिन.\nMe too दाबा, किंवा तुमची गल्ली रिपोर्ट करा:\n{link}\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} मध्ये {hazard}*\nCivicRadar सामुदायिक नकाशावर पिन.\n\n\'Me too\' ने या ठिकाणाला पाठिंबा द्या — स्थानिक अधिकारी जलद कारवाई करतील:\n👉 {link}\n\n{hashtags}',
 
       'share.appMsg': '{city} वॉर्ड धोका नकाशा — कचरा, खड्डे, स्ट्रीटलाइट, साचलेले पाणी पिन करा. Me too, वॉर्ड जिंका!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'माझ्या भागात',
 
-      'share.meTooMsg': 'मला पण — {ward} मध्ये {hazard}. {n} शेजारी CivicRadar वर:\n{link}\n{hashtags}',
+      'share.meTooMsg': '⚠️ मला पण — *{location} मध्ये {hazard}*\n{n} शेजारी आधीच CivicRadar वर या ठिकाणाला पाठिंबा देत आहेत.\n\nआवाज वाढवा — स्थानिक अधिकारी जलद कारवाई करतील:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp वर शेअर करा',
 
@@ -8378,25 +8392,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.nextStreakBadgeMany': '{badge} साठी {n} आठवडे',
 
-      'success.progressOne': 'पुढच्या बॅजसाठी फक्त 1 आणखी तक्रार.',
+      'success.progressOne': 'पुढच्या बॅजसाठी 1 आणखी तक्रार',
 
-      'success.progressMany': 'पुढच्या बॅजसाठी {n} आणखी तक्रारी.',
+      'success.progressMany': 'पुढच्या बॅजसाठी {n} आणखी तक्रारी',
 
-      'success.progressMilestone': 'बॅज मिळाला! पुढच्यासाठी {n} आणखी.',
+      'success.progressMilestone': 'बॅज मिळाला — पुढच्यासाठी {n} आणखी',
 
-      'success.progressGuardian': '{n} तक्रारी — तुम्ही खरे पावसाळी रक्षक!',
+      'success.progressGuardian': '{n} तक्रारी — पावसाळी रक्षक',
 
-      'success.shareBrag': 'तुम्ही वॉर्डला मदत केली — WhatsApp वर शेजाऱ्यांना सांगा!',
+      'success.shareBrag': 'शेजाऱ्यांना या भागापासून सावध राहण्यास मदत करा — WhatsApp वर शेअर करा.',
 
-      'success.shareBragFirst': 'नकाशावर पहिला पिन! आत्ता शेअर करा — गती जलद पसरते.',
+      'success.shareBragFirst': 'शेजाऱ्यांना या भागापासून सावध राहण्यास मदत करा — WhatsApp वर शेअर करा.',
 
       'toast.badgeMonsoon': 'पहिली रिपोर्ट नोंदली — स्वागत!',
 
-      'confirm.meTooThanks': 'शेअर करा — अधिक शेजारी पाहतील.',
+      'confirm.meTooThanks': 'शेजाऱ्यांना या भागापासून सावध राहण्यास मदत करा.',
 
       'confirm.backed': 'पाठिंबा!',
 
       'confirm.backedChip': 'पाठिंबा! +{n} सिव्हिक पॉइंट्स',
+
+      'confirm.alreadyPinned': 'आधीच पिन',
+
+      'confirm.trackProfile': 'प्रोफाइलमध्ये पहा →',
 
       'toast.reportMilestone': '{n} रिपोर्ट — सुरू ठेवा!',
 
@@ -8406,7 +8424,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'पहिला धोका नोंदवा',
 
-      'map.emptyShare': 'WhatsApp वर शेजाऱ्यांना बोलावा',
+      'map.emptyShare': 'WhatsApp वर शेअर करा',
 
       'map.emptyRival': '{ward} विरुद्ध {rival} — {pending} उघडे. एक रिपोर्ट करा, किंवा गल्ली गोळा करा.',
 
@@ -9061,7 +9079,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeInlineOne': '1 जवळ · 10 मी.',
 
-      'confirm.ownDupe': 'तुम्ही येथे आधीच पिन केले आहे. प्रोफाइलमध्ये पहा.',
+      'confirm.ownDupe': 'तुम्ही येथे आधीच पिन केले आहे.',
 
       'profile.unfiledBanner': '{n} उघडे — अजून {corp} मध्ये दाखल नाही. शेअर मदत करते; दाखल केल्यास प्रत्येक स्पॉटची वेगळी तक्रार.',
 
@@ -9400,15 +9418,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'आम्ही तुमच्यावतीने दाखल करत नाही — खाली सत्यापित .gov अॅप किंवा पोर्टल उघडा.',
+      'official.subtitle': 'सत्यापित .gov अॅप्स आणि पोर्टल्स — CivicRadar तुमच्यावतीने दाखल करत नाही.',
 
       'official.recommended': 'शिफारस',
 
       'official.fastest': 'सर्वात जलद',
 
-      'official.viewAllSources': 'सर्व अधिकृत स्रोत',
+      'official.viewAllSources': 'अधिक दाखल दुवे',
 
-      'official.alsoFile': 'अधिकृतपणेही नोंदवा (पर्यायी)',
+      'official.alsoFile': 'महापालिकेकडे नोंदवा (पर्यायी)',
 
       'official.copyDone': 'अधिकृत तक्रार सारांश कॉपी — अॅप/पोर्टलमध्ये पेस्ट करा',
 
@@ -9462,9 +9480,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'पाणी / आरोग्य विभाग (डास उत्पत्ती)',
 
-      'success.alsoOfficial': 'अधिकृत तक्रार (पर्यायी)',
+      'success.alsoOfficial': '{corp} कडे नोंदवा',
 
-      'success.filingGuide': 'नोंदणी मार्गदर्शक आणि तक्रार मजकूर',
+      'success.filingGuide': 'कसे नोंदवा व मजकूर कॉपी करा',
 
       'esc.close': 'बंद',
 
@@ -10742,11 +10760,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.title': 'નોંધાઈ ગઈ — સરસ',
 
-      'success.tagline': 'તમારી જગ્યા વોર્ડ નકશા પર પિન થઈ ગઈ છે.',
+      'success.tagline': 'વોર્ડ નકશા પર પિન',
 
       'success.taglineNeighbours': '{n} પડોશીઓ પહેલેથી નજીકના સ્પોટને ટેકો આપી રહ્યા છે — હવે તમારી ફરિયાદ પણ ત્યાં છે.',
 
-      'success.subtitle': '{corp} પર મફત — અધિકૃત ફરિયાદ ઘડિયાળ શરૂ થાય.',
+      'success.subtitle': 'નીચે {corp} એપ ખોલો — ફરિયાદ ઘડિયાળ શરૂ થાય. અમે તમારી તરફથી નોંધાવતા નથી.',
 
       'success.step1': 'WhatsApp પર શેર કરો જેથી પડોશીઓ તેને ટેકો આપી શકે',
 
@@ -10760,25 +10778,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.tag': '@mybmc ને ટૅગ કરો',
 
-      'success.alert': 'તમારા પડોશીઓને કહો',
+      'success.alert': 'તમારા પડોશીઓને સુરક્ષિત રાખો',
 
-      'success.done': 'Map પર પાછા',
+      'success.done': 'થઈ ગયું',
 
-      'success.sharePrompt': 'વોર્ડ નકશા પર વધુ નજર — ઝડપી ફિક્સ.',
+      'success.shareTitle': 'તમારા પડોશીઓને સુરક્ષિત રાખો',
 
-      'success.shareWhatsapp': 'WhatsApp પર ફેલાવો',
+      'success.sharePrompt': 'તમારા સ્થાનિક WhatsApp ગ્રુપમાં રીયલ-ટાઇમ અપડેટ શેર કરો.',
+
+      'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
 
       'share.nativeShare': 'શેર કરો',
 
       'success.shareNudge': 'પાડોશીઓને હજુ ખબર ન હોય — WhatsApp પર શેર કરો.',
 
-      'success.shareMsg': '📍 {ward} માં {hazard} — મેં હમણાં જ તેને અમારા CivicRadar વોર્ડ નકશા પર પિન કરી.\nMe too ટૅપ કરો, અથવા તમારી શેરીમાં સ્પોટ નોંધો:\n{link}\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} માં {hazard}*\nCivicRadar સામુદાયિક નકશા પર પિન.\n\n\'Me too\' થી આ સ્પોટને ટેકો આપો — સ્થાનિક અધિકારીઓ ઝડપથી કાર્યવાહી કરે:\n👉 {link}\n\n{hashtags}',
 
       'share.appMsg': '🗺️ {city} વોર્ડ જોખમ નકશો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો!\n{link}\n{hashtags}',
 
       'share.defaultArea': 'મારા વિસ્તારમાં',
 
-      'share.meTooMsg': 'મને પણ — {ward} માં {hazard}. {n} પડોશી CivicRadar પર:\n{link}\n{hashtags}',
+      'share.meTooMsg': '⚠️ મને પણ — *{location} માં {hazard}*\n{n} પડોશી પહેલેથી CivicRadar પર આ સ્પોટને ટેકો આપે છે.\n\nઅવાજ ઉમેરો — સ્થાનિક અધિકારીઓ ઝડપથી કાર્યવાહી કરે:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp પર શેર કરો',
 
@@ -10915,25 +10935,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.nextStreakBadgeMany': '{badge} માટે {n} અઠવાડિયા',
 
-      'success.progressOne': 'આગલા બેજ માટે ફક્ત 1 વધુ ફરિયાદ.',
+      'success.progressOne': 'આગલા બેજ માટે 1 વધુ ફરિયાદ',
 
-      'success.progressMany': 'આગલા બેજ માટે {n} વધુ ફરિયાદો.',
+      'success.progressMany': 'આગલા બેજ માટે {n} વધુ ફરિયાદો',
 
-      'success.progressMilestone': 'બેજ મળ્યો! આગલા માટે {n} વધુ.',
+      'success.progressMilestone': 'બેજ મળ્યો — આગલા માટે {n} વધુ',
 
-      'success.progressGuardian': '{n} ફરિયાદો — તમે ખરા ચોમાસુ રક્ષક!',
+      'success.progressGuardian': '{n} ફરિયાદો — ચોમાસુ રક્ષક',
 
-      'success.shareBrag': 'વોર્ડને મદદ મળી — WhatsApp પર જણાવો!',
+      'success.shareBrag': 'પડોશીઓને આ વિસ્તારથી બચવામાં મદદ કરો — WhatsApp પર શેર કરો.',
 
-      'success.shareBragFirst': 'નકશા પર તમારો પહેલો પિન! શેર કરો — ઝડપથી ફેલાવો.',
+      'success.shareBragFirst': 'પડોશીઓને આ વિસ્તારથી બચવામાં મદદ કરો — WhatsApp પર શેર કરો.',
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત!',
 
-      'confirm.meTooThanks': 'શેર કરો — વધુ પડોશીઓ જુએ.',
+      'confirm.meTooThanks': 'પડોશીઓને આ વિસ્તારથી બચવામાં મદદ કરો.',
 
       'confirm.backed': 'સમર્થન!',
 
       'confirm.backedChip': 'સમર્થન! +{n} સિવિક પૉઇન્ટ્સ',
+
+      'confirm.alreadyPinned': 'પહેલેથી પિન',
+
+      'confirm.trackProfile': 'પ્રોફાઇલમાં જુઓ →',
 
       'toast.reportMilestone': '{n} ફરિયાદો — ચાલુ રાખો!',
 
@@ -10943,7 +10967,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'પહેલું જોખમ રિપોર્ટ કરો',
 
-      'map.emptyShare': 'WhatsApp પર પડોશીઓને બોલાવો',
+      'map.emptyShare': 'WhatsApp પર શેર કરો',
 
       'map.emptyRival': '{ward} વિરુદ્ધ {rival} — {pending} ખુલ્લા સ્પોટ. એક નોંધો, અથવા તમારી શેરીને સાથે લાવો.',
 
@@ -11598,7 +11622,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.dupeInlineOne': '1 નજીક · 10 મી.',
 
-      'confirm.ownDupe': 'તમે અહીં પહેલેથી પિન કર્યું છે. પ્રોફાઇલમાં જુઓ.',
+      'confirm.ownDupe': 'તમે અહીં પહેલેથી પિન કર્યું છે.',
 
       'profile.unfiledBanner': '{n} ખુલ્લા — {corp} પર હજુ નોંધાયા નથી. શેર કરવું પણ મદદ કરે; અધિકૃત નોંધાવો તો દરેક સ્થળ માટે અલગ ફરિયાદ.',
 
@@ -11937,15 +11961,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'CivicRadar તમારી તરફથી નોંધાવતું નથી — નીચે ચકાસેલ .gov એપ ખોલો.',
+      'official.subtitle': 'ચકાસેલ .gov એપ્સ અને પોર્ટલ્સ — CivicRadar તમારી તરફથી નોંધાવતું નથી.',
 
       'official.recommended': 'ભલામણ',
 
       'official.fastest': 'સૌથી ઝડપી',
 
-      'official.viewAllSources': 'બધા અધિકૃત સ્રોત',
+      'official.viewAllSources': 'વધુ નોંધણી લિંક્સ',
 
-      'official.alsoFile': 'અધિકૃત રીતે પણ નોંધાવો (વૈકલ્પિક)',
+      'official.alsoFile': 'નગરપાલિકામાં નોંધાવો (વૈકલ્પિક)',
 
       'official.copyDone': 'અધિકૃત ફરિયાદ સારાંશ કૉપી — એપ/પોર્ટલમાં પેસ્ટ કરો',
 
@@ -11999,9 +12023,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.hint.tmc.stagnant-water': 'પાણી / આરોગ્ય વિભાગ (મચ્છર ઉત્પત્તિ)',
 
-      'success.alsoOfficial': 'અધિકૃત ફરિયાદ (વૈકલ્પિક)',
+      'success.alsoOfficial': '{corp} પર નોંધાવો',
 
-      'success.filingGuide': 'નોંધણી માર્ગદર્શિકા અને ફરિયાદ કૉપી',
+      'success.filingGuide': 'કેવી રીતે નોંધાવો અને ટેક્સ્ટ કૉપી કરો',
 
       'esc.close': 'બંધ',
 
@@ -13129,6 +13153,26 @@ document.addEventListener('DOMContentLoaded', function () {
     return dist < DUPLICATE_RADIUS_M;
   }
 
+  function resetReportDupeMeTooChrome() {
+    const meTooBtn = $('#btnReportDupeMeToo');
+    if (!meTooBtn) return;
+    meTooBtn.classList.remove('popup__btn--backed', 'popup__btn--busy');
+    meTooBtn.disabled = false;
+    meTooBtn.removeAttribute('aria-disabled');
+    const icon = meTooBtn.querySelector('i.ph');
+    if (icon) {
+      icon.className = 'ph ph-hand-pointing';
+      icon.setAttribute('aria-hidden', 'true');
+    }
+    const label = meTooBtn.querySelector('.btn__label');
+    const dupeLabel = t('confirm.dupeAction');
+    if (label) {
+      label.textContent = dupeLabel;
+      label.setAttribute('data-i18n', 'confirm.dupeAction');
+    }
+    meTooBtn.setAttribute('aria-label', dupeLabel);
+  }
+
   function clearReportDuplicateUi() {
     reportDupeTargetId = null;
     const warn = $('#inlineDuplicateWarning');
@@ -13138,10 +13182,48 @@ document.addEventListener('DOMContentLoaded', function () {
       warn.hidden = true;
     }
     if (textEl) textEl.textContent = '';
+    const footer = $('#btnReportDupeMeToo') && $('#btnReportDupeMeToo').parentNode;
+    if (footer) {
+      footer.querySelectorAll('[data-goto-profile]').forEach((el) => el.remove());
+    }
+    resetReportDupeMeTooChrome();
     syncReportPrimaryActionLabel('submit');
     // Restore the hazard cue the dupe pill displaced (no-op when no hazard).
     const hazardEl = $('#hazardType');
     if (hazardEl && hazardEl.value) updateHazardSelectedCue(hazardEl.value);
+  }
+
+  /** Own / already Me-too'd near-dupe: Already Pinned CTA + Profile link (no top toast). */
+  function showReportAlreadyPinnedUi(report) {
+    if (!isActiveSubmitDuplicateMatch(report)) {
+      clearReportDuplicateUi();
+      return;
+    }
+    reportDupeTargetId = String(report.id);
+    const warn = $('#inlineDuplicateWarning');
+    const textEl = $('#inlineDuplicateWarningText');
+    if (textEl) {
+      textEl.textContent = ownsReport(report) ? t('confirm.ownDupe') : t('confirm.alreadyPinned');
+    }
+    if (warn) {
+      warn.classList.remove('hidden');
+      warn.hidden = false;
+    }
+    const submitBtn = $('#btnSubmitReport');
+    const meTooBtn = $('#btnReportDupeMeToo');
+    if (submitBtn) {
+      submitBtn.classList.add('hidden');
+      submitBtn.hidden = true;
+      setButtonLoading(submitBtn, false);
+    }
+    if (meTooBtn) {
+      meTooBtn.classList.remove('hidden');
+      meTooBtn.hidden = false;
+      markMeTooButtonBacked(meTooBtn, 'confirm.alreadyPinned');
+      ensureTrackInProfileLink(meTooBtn.parentNode, meTooBtn);
+    }
+    const cue = $('#hazardSelectedCue');
+    if (cue) cue.classList.add('hidden');
   }
 
   function showReportDuplicateUi(report) {
@@ -13151,7 +13233,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     if (ownsReport(report) || hasConfirmed(report.id)) {
-      clearReportDuplicateUi();
+      showReportAlreadyPinnedUi(report);
       return;
     }
     reportDupeTargetId = String(report.id);
@@ -13162,6 +13244,11 @@ document.addEventListener('DOMContentLoaded', function () {
       warn.classList.remove('hidden');
       warn.hidden = false;
     }
+    const footer = $('#btnReportDupeMeToo') && $('#btnReportDupeMeToo').parentNode;
+    if (footer) {
+      footer.querySelectorAll('[data-goto-profile]').forEach((el) => el.remove());
+    }
+    resetReportDupeMeTooChrome();
     syncReportPrimaryActionLabel('dupe');
     // The hazard cue ("X selected — drag pin if needed") repeats this pill's
     // guidance and scrolls under the sticky footer's translucent band, where
@@ -13194,9 +13281,9 @@ document.addEventListener('DOMContentLoaded', function () {
       clearReportDuplicateUi();
       return;
     }
-    // Own / already-backed: keep Submit; submit path still toasts + closes.
+    // Own / already-backed: inline Already Pinned + Profile (no toast).
     if (ownsReport(hit) || hasConfirmed(hit.id)) {
-      clearReportDuplicateUi();
+      showReportAlreadyPinnedUi(hit);
       return;
     }
     showReportDuplicateUi(hit);
@@ -20110,10 +20197,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-  /** Disabled Me too control → check + "Backed!" (pin popup or dupe sheet). */
-  function markMeTooButtonBacked(el) {
+  /** Disabled Me too control → check + label (default "Backed!"; already-state uses confirm.alreadyPinned). */
+  function markMeTooButtonBacked(el, labelKey) {
     if (!el) return;
-    const backed = t('confirm.backed');
+    const backed = t(labelKey || 'confirm.backed');
     el.disabled = true;
     el.setAttribute('aria-disabled', 'true');
     el.setAttribute('aria-label', backed);
@@ -20142,26 +20229,66 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  /** Actionable Profile deep-link next to already-pinned / backed controls (delegated click). */
+  function ensureTrackInProfileLink(parent, insertAfterEl) {
+    if (!parent) return null;
+    let link = parent.querySelector('[data-goto-profile]');
+    if (!link) {
+      link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'popup__track-profile';
+      link.setAttribute('data-goto-profile', '1');
+      link.setAttribute('data-i18n', 'confirm.trackProfile');
+      if (insertAfterEl && insertAfterEl.parentNode === parent) {
+        insertAfterEl.after(link);
+      } else {
+        parent.appendChild(link);
+      }
+    }
+    link.textContent = t('confirm.trackProfile');
+    return link;
+  }
 
-
-  function showMeTooDoneInPopup(el) {
-
+  /** Pin/sheet already Me-too'd or owned: disabled Already Pinned + Track in Profile (no top toast). */
+  function showAlreadyPinnedInline(el) {
     if (!el || !el.parentNode) return;
-
     const parent = el.parentNode;
-
-    const note = document.createElement('span');
-
-    note.className = 'popup__note popup__note--following';
-
-    note.textContent = t('confirm.done');
-
-    el.replaceWith(note);
-
+    markMeTooButtonBacked(el, 'confirm.alreadyPinned');
+    el.removeAttribute('data-confirm');
+    ensureTrackInProfileLink(parent, el);
     const hint = parent.querySelector && parent.querySelector('.popup__follow-hint');
-
     if (hint) hint.remove();
+  }
 
+  /** @deprecated name kept for call sites — already-pinned inline UI (no toast). */
+  function showMeTooDoneInPopup(el) {
+    showAlreadyPinnedInline(el);
+  }
+
+  function alreadyPinnedBlockHtml() {
+    const label = t('confirm.alreadyPinned');
+    const track = t('confirm.trackProfile');
+    return `<div class="popup__already-pinned">`
+      + `<button type="button" class="popup__btn popup__btn--primary popup__btn--backed" disabled aria-disabled="true" aria-label="${escapeHtml(label)}">`
+      + `<i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(label)}</button>`
+      + `<button type="button" class="popup__track-profile" data-goto-profile data-i18n="confirm.trackProfile">${escapeHtml(track)}</button>`
+      + `</div>`;
+  }
+
+  function goToProfileFromAlreadyPinned() {
+    try { closeMapPinPopup(); } catch { /* ignore */ }
+    try { closeModal('report'); } catch { /* ignore */ }
+    if (typeof window.openProfileModal === 'function') window.openProfileModal();
+  }
+
+  /** Bottom actionable toast (glass chip / snackbar stack) when sheet is closed — Track in Profile. */
+  function showAlreadyPinnedProfileSnackbar(messageKey) {
+    showToast(t(messageKey || 'confirm.ownDupe'), 'info', 5200, {
+      label: t('confirm.trackProfile'),
+      dedupeKey: 'already-pinned-profile',
+      toastClass: 'toast--gps toast--dock-bottom',
+      onClick: () => goToProfileFromAlreadyPinned(),
+    });
   }
 
   /** Inline mint chip near Me too — replaces bland success toast for the backed confirm. */
@@ -20247,11 +20374,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (report.status !== 'pending') return false;
 
-    if (ownsReport(report)) { showToast(t('confirm.you'), 'info', 2200); return false; }
+    // Own / already-backed: inline in open pin/sheet — never bland top #toast.
+    if (ownsReport(report)) {
+      if (sourceEl) showAlreadyPinnedInline(sourceEl);
+      else showAlreadyPinnedProfileSnackbar('confirm.ownDupe');
+      return false;
+    }
 
     if (hasConfirmed(id)) {
-      // Prefer inline "Following" on the open pin/sheet — no bland top banner.
-      if (sourceEl) showMeTooDoneInPopup(sourceEl);
+      if (sourceEl) showAlreadyPinnedInline(sourceEl);
+      else showAlreadyPinnedProfileSnackbar('confirm.alreadyPinned');
       return false;
     }
 
@@ -20301,7 +20433,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inline success (button + chip + count), then close pin + WA amplify snackbar.
     // v323: pin must close before WA snackbar so refresh cannot reopen under it.
-    // v353: no bland "Me too counted" top toast — confirm.meTooThanks is amplify copy only.
+    // v353: no bland "Me too counted" top toast — confirm.meTooThanks + WA snackbar CTA only.
     const nextCount = Number(report.confirmations) || 0;
     const prevCount = Math.max(0, nextCount - 1);
     Haptics.success();
@@ -21410,6 +21542,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     bar.classList.remove('hidden');
 
+    bar.removeAttribute('aria-hidden');
+
     barAction.classList.add('hidden');
 
     bar.classList.remove('persona-bar--clickable');
@@ -21546,19 +21680,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } else if (user.ward) {
 
-        // Ward name + counts already live in #wardPulse — hide this bar so the
-        // map HUD is not saying the same thing twice (unfiled/pending still show).
+        // Ward name + Open/Fixed/Me too already live in #wardPulse — collapse
+        // this counter strip so the HUD is not saying the same stats twice.
+        // Keep the bar for unfiled / pending (actionable, unique to the user).
         document.body.classList.add('persona-pulse-redundant');
 
-        const wardLabel = wardShortLabel(user.ward);
+        bar.setAttribute('aria-hidden', 'true');
 
-        const wardCount = getWardMonsoonCount(user.ward);
+        const wardLabel = getWardShortName(user.ward);
+
+        const pulseStats = (typeof getUserWardPulseStats === 'function')
+
+          ? getUserWardPulseStats()
+
+          : { open: 0 };
 
         barText.textContent = t('persona.wardImpact')
 
           .replace('{ward}', wardLabel)
 
-          .replace('{n}', String(wardCount));
+          .replace('{n}', String(pulseStats.open || 0));
 
       } else {
 
@@ -22585,15 +22726,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const isWaSnackbar = actionList.some((a) => a.variant === 'whatsapp');
 
+    const toastClassTokens = (action && action.toastClass)
+      ? String(action.toastClass).trim().split(/\s+/).filter(Boolean)
+      : [];
+
     // Action toasts (except Me too WhatsApp snackbar) use the v286 glass chip —
     // not the old navy card with stacked text-link CTAs.
     const useGlassChip = !isWaSnackbar && actionList.length > 0
-      && (!action.toastClass || action.toastClass === 'toast--gps');
+      && (!toastClassTokens.length || toastClassTokens.indexOf('toast--gps') !== -1);
 
     // Stack CTAs under copy (glass chip + WA snackbar) so long messages never clip.
     const stackActions = (useGlassChip || isWaSnackbar) && actionList.length > 0;
 
-    if (action && action.toastClass) toast.classList.add(action.toastClass);
+    if (toastClassTokens.length) toast.classList.add.apply(toast.classList, toastClassTokens);
 
     if (useGlassChip) toast.classList.add('toast--gps');
 
@@ -28090,6 +28235,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Mute Weak/Poor GPS chips while live fix is outside Mumbai/Pune/Thane. */
+  function muteGpsAccuracyNudgeIfOutOfBounds(lat, lng) {
+
+    const useLat = Number.isFinite(lat) ? lat : currentLat;
+
+    const useLng = Number.isFinite(lng) ? lng : currentLng;
+
+    if (!Number.isFinite(useLat) || !Number.isFinite(useLng)) return false;
+
+    if (typeof isGpsOutsideSupportedCities !== 'function') return false;
+
+    if (!isGpsOutsideSupportedCities(useLat, useLng)) return false;
+
+    markGpsAccuracyNudgeConsumed();
+
+    return true;
+
+  }
+
+
+
   function showGpsRecoveryActions(message, type, duration, opts) {
 
     if (!isMapSurfaceActive()) return;
@@ -28144,7 +28310,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function showGpsAccuracyFeedback(accuracyM) {
+  function showGpsAccuracyFeedback(accuracyM, lat, lng) {
 
     if (!Number.isFinite(accuracyM)) return;
 
@@ -28154,20 +28320,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (reportOpen || !isMapSurfaceActive() || isSoftNudgeOverlayBlocking()) return;
 
+    // OOB (e.g. testing outside Mumbai/Pune/Thane): never spam Weak GPS; pin still works.
+    if (muteGpsAccuracyNudgeIfOutOfBounds(lat, lng)) return;
+
     // Accuracy improved — allow one more nudge later if GPS degrades again.
     if (accuracyM <= GEO_ACCURACY_POOR_M) {
 
-      if (gpsAccuracyNudge.suppressedUntilGood) {
+      gpsAccuracyNudge.suppressedUntilGood = false;
 
-        gpsAccuracyNudge.suppressedUntilGood = false;
-
-      }
+      gpsAccuracyNudge.shownThisSession = false;
 
       return;
 
     }
 
-    // Once per session (or until dismiss / pin / accuracy improves). No tick spam.
+    // Once per poor episode (or until dismiss / pin / tip). Blocks watchPosition spam.
     if (gpsAccuracyNudge.shownThisSession || gpsAccuracyNudge.suppressedUntilGood) return;
 
     if (accuracyM > GEO_ACCURACY_MAX_M) {
@@ -28370,6 +28537,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (Number.isFinite(accuracyM) && accuracyM > GEO_ACCURACY_MAX_M) {
 
+      // OOB junk fixes (common when testing abroad) — mute, don't toast-spam.
+      if (muteGpsAccuracyNudgeIfOutOfBounds(lat, lng)) return false;
+
       if (!gpsAccuracyNudge.shownThisSession && !gpsAccuracyNudge.suppressedUntilGood) {
 
         gpsAccuracyNudge.shownThisSession = true;
@@ -28413,7 +28583,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (opts.refine !== false) startUserLocationRefine();
 
-    if (opts.showAccuracyFeedback !== false) showGpsAccuracyFeedback(accuracyM);
+    if (opts.showAccuracyFeedback !== false) showGpsAccuracyFeedback(accuracyM, lat, lng);
 
     if (!opts.quiet) {
 
@@ -28852,13 +29022,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (report.status === 'pending') {
 
-      if (ownsReport(report)) {
+      if (ownsReport(report) || hasConfirmed(report.id)) {
 
-        action = `<span class="popup__note">${escapeHtml(t('confirm.you'))}</span>`;
-
-      } else if (hasConfirmed(report.id)) {
-
-        action = `<span class="popup__note popup__note--following">${escapeHtml(t('confirm.done'))}</span>`;
+        action = alreadyPinnedBlockHtml();
 
       } else {
 
@@ -30638,6 +30804,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('click', (e) => {
 
+      const profileLink = e.target.closest && e.target.closest('[data-goto-profile]');
+
+      if (profileLink) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        goToProfileFromAlreadyPinned();
+
+        return;
+
+      }
+
       const cb = e.target.closest && e.target.closest('[data-confirm]');
 
       if (cb) {
@@ -30652,8 +30832,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (hasConfirmed(rid)) {
 
-          // Inline "Following" note — skip redundant top toast when the pin is open.
-          showMeTooDoneInPopup(cb);
+          // Inline Already Pinned + Profile — no top toast when the pin is open.
+          showAlreadyPinnedInline(cb);
 
           return;
 
@@ -33727,11 +33907,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (ownsReport(dupeHit) || hasConfirmed(dupeId)) {
 
+        // Close sheet + bottom actionable snackbar (Track in Profile) — no legacy toast.
         clearReportDuplicateUi();
-
-        showToast(t('confirm.ownDupe'), 'info', 4000);
-
         closeModal('report');
+        showAlreadyPinnedProfileSnackbar(
+          ownsReport(dupeHit) ? 'confirm.ownDupe' : 'confirm.alreadyPinned'
+        );
 
       } else {
 
@@ -34342,11 +34523,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const reportCount = getUserReports().length;
 
-    $('#successClock').textContent = corpCopy('success.clock');
+    const clockEl = $('#successClock');
+
+    if (clockEl) clockEl.textContent = corpCopy('success.clock');
 
     const taglineEl = $('#successTagline');
 
     if (taglineEl) {
+
+      // Compact pin row: short pinned label (neighbours note stays in celebrate/share).
+      taglineEl.textContent = t('success.tagline');
+
+    }
+
+    const wardNameEl = $('#successWardName');
+
+    if (wardNameEl) {
+
+      const wardLabel = user.ward ? getWardShortName(user.ward) : '';
+
+      wardNameEl.textContent = wardLabel || t('share.defaultArea');
+
+    }
+
+    const celebrateEl = $('#successCelebrate');
+
+    if (celebrateEl) {
 
       const wardConfirms = user.ward
 
@@ -34358,18 +34560,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : 0;
 
-      taglineEl.textContent = wardConfirms > 0
-
-        ? t('success.taglineNeighbours').replace('{n}', String(wardConfirms))
-
-        : t('success.tagline');
-
-    }
-
-    const celebrateEl = $('#successCelebrate');
-
-    if (celebrateEl) {
-
       if (reportCount === 1) {
 
         celebrateEl.textContent = t('success.celebrateFirst');
@@ -34377,6 +34567,10 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
 
         celebrateEl.textContent = t('success.celebrateMilestone').replace('{n}', String(reportCount));
+
+      } else if (wardConfirms > 0) {
+
+        celebrateEl.textContent = t('success.taglineNeighbours').replace('{n}', String(wardConfirms));
 
       } else {
 
@@ -34390,11 +34584,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const progressEl = $('#successProgress');
 
+    const progressWrap = $('#successProgressWrap');
+
+    const progressFill = $('#successProgressFill');
+
+    const progressBar = $('#successProgressBar');
+
+    const progressMsg = buildSuccessProgress(reportCount);
+
+    const mile = getReportMilestoneProgress(reportCount);
+
     if (progressEl) {
 
-      const progressMsg = buildSuccessProgress(reportCount);
+      progressEl.textContent = progressMsg || '';
 
-      progressEl.textContent = progressMsg;
+    }
+
+    if (progressWrap && progressFill) {
+
+      if (progressMsg) {
+
+        progressWrap.classList.remove('hidden');
+
+        const pct = mile && typeof mile.pct === 'number' ? mile.pct : (progressMsg ? 100 : 0);
+
+        progressFill.style.width = pct + '%';
+
+        if (progressBar) progressBar.setAttribute('aria-valuenow', String(pct));
+
+      } else {
+
+        progressWrap.classList.add('hidden');
+
+        progressFill.style.width = '0%';
+
+        if (progressBar) progressBar.setAttribute('aria-valuenow', '0');
+
+      }
+
+    } else if (progressEl) {
 
       progressEl.classList.toggle('hidden', !progressMsg);
 
@@ -34470,6 +34698,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const thumb = $('#successThumbnail');
 
+    const thumbEmpty = $('#successThumbEmpty');
+
     if (thumb) {
 
       thumb.removeAttribute('src');
@@ -34477,6 +34707,8 @@ document.addEventListener('DOMContentLoaded', function () {
       thumb.hidden = true;
 
     }
+
+    if (thumbEmpty) thumbEmpty.classList.remove('hidden');
 
     resetReportForm();
 
@@ -34544,6 +34776,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const thumb = $('#successThumbnail');
 
+    const thumbEmpty = $('#successThumbEmpty');
+
     const photoSrc = imageUrl || lastReportDataUrl || null;
 
     if (photoSrc) lastReportDataUrl = photoSrc;
@@ -34556,11 +34790,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         thumb.hidden = false;
 
+        if (thumbEmpty) thumbEmpty.classList.add('hidden');
+
       } else {
 
         thumb.removeAttribute('src');
 
         thumb.hidden = true;
+
+        if (thumbEmpty) thumbEmpty.classList.remove('hidden');
 
       }
 
@@ -34958,6 +35196,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .replace(/\{city\}/g, vars.city || getCityLabel())
 
+      .replace(/\{location\}/g, vars.location || ward || '')
+
       .replace(/\{marathi\}/g, '')
 
       .replace(/\{hashtags\}/g, buildHashtagLine(vars.wardFull || user.ward));
@@ -34997,6 +35237,8 @@ document.addEventListener('DOMContentLoaded', function () {
       hazard: hazardLabel(report.hazard),
 
       ward: getWardShortName(report.ward) || t('header.context'),
+
+      location: getReportShareLocation(report),
 
       link: reportDeepLink(report.id, 'report'),
 
@@ -35039,6 +35281,8 @@ document.addEventListener('DOMContentLoaded', function () {
       hazard: hazardLabel(report.hazard),
 
       ward: getWardShortName(report.ward) || t('header.context'),
+
+      location: getReportShareLocation(report),
 
       link: reportDeepLink(report.id, 'metoo'),
 
@@ -36056,13 +36300,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const soc = (report.society || report.neighbourhood || '').trim();
 
-    if (soc) return soc;
+    const wardShort = getWardShortName(report.ward) || '';
+
+    if (soc) {
+
+      if (wardShort && soc.toLowerCase().indexOf(wardShort.toLowerCase()) === -1) {
+
+        return soc + ' · ' + wardShort;
+
+      }
+
+      return soc;
+
+    }
 
     const parts = parseWardParts(report.ward);
 
     if (parts.area) return parts.area;
 
-    return getWardShortName(report.ward) || t('header.context');
+    return wardShort || t('header.context');
 
   }
 
@@ -37533,6 +37789,8 @@ document.addEventListener('DOMContentLoaded', function () {
       hazard,
 
       ward,
+
+      location: getReportShareLocation(report),
 
       link: reportDeepLink(report.id),
 
