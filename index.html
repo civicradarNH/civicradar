@@ -2,17 +2,17 @@
 <html lang="en" class="app-booting" style="background-color:#6366f1">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- Critical splash — FIRST paint must be brand indigo (TWA/Play WSOD).
        Inline style on <html> + this block before any external CSS/fonts. -->
   <style id="critical-splash">
-    html,body{margin:0;padding:0;height:100%;min-height:100%;background:#6366f1}
-    .app-launch{position:fixed;inset:0;z-index:999999;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;width:100%;min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);background:#6366f1;transition:opacity .32s ease,visibility .32s ease}
+    html,body{margin:0;min-height:100%;background:#6366f1}
+    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(130% 95% at 50% 28%,#6366f1 0%,#4f46e5 52%,#3730a3 100%);transition:opacity .32s ease,visibility .32s ease}
     .app-launch__mark{position:relative;width:108px;height:108px;display:flex;align-items:center;justify-content:center}
     .app-launch__ring{position:absolute;inset:0;border:1.5px solid rgba(34,211,238,.5);border-radius:50%;animation:launch-ring 2.4s ease-out infinite}
     .app-launch__ring--2{animation-delay:.8s}
     .app-launch__ring--3{animation-delay:1.6s}
-    .app-launch__logo{position:relative;width:80px;height:80px;object-fit:contain;background:transparent;border:0;border-radius:0;box-shadow:none;animation:launch-logo-pulse 2.4s ease-in-out infinite}
+    .app-launch__logo{position:relative;width:80px;height:80px;border-radius:20px;box-shadow:0 14px 34px rgba(15,23,42,.35);animation:launch-logo-pulse 2.4s ease-in-out infinite}
     .app-launch__word{display:flex;flex-direction:column;align-items:center;gap:5px}
     .app-launch__title{font:700 22px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#fff;letter-spacing:.01em}
     .app-launch__tag{font:500 12.5px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:rgba(224,231,255,.8);letter-spacing:.01em}
@@ -26,7 +26,7 @@
     @keyframes launch-logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
     @keyframes launch-ring{0%{transform:scale(.78);opacity:.9}100%{transform:scale(1.55);opacity:0}}
     @keyframes launch-dot{0%,80%,100%{opacity:.4;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
-    @media (prefers-reduced-motion:reduce){.app-launch{transition:none}.app-launch__logo,.app-launch__ring,.app-launch__dots span{animation:none}.app-launch__ring{opacity:.35}.app-launch--done{opacity:0;visibility:hidden}}
+    @media (prefers-reduced-motion:reduce){.app-launch__logo,.app-launch__ring,.app-launch__dots span{animation:none}.app-launch__ring{opacity:.35}}
   </style>
   <meta name="theme-color" content="#6366f1">
   <meta name="color-scheme" content="light dark">
@@ -50,7 +50,6 @@
   <meta name="twitter:description" content="Report garbage, potholes, streetlights &amp; stagnant water in your ward. Rally neighbours, track fixes — free PWA · #CivicRadar">
   <meta name="twitter:image" content="https://civicradarnh.github.io/civicradar/assets/og-civicradar.svg">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" as="image" href="assets/brand/splash-mark.svg" fetchpriority="high">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 
@@ -77,14 +76,14 @@
   </noscript>
   <title>CivicRadar</title>
 </head>
-<body class="app-booting" style="background-color:#6366f1;margin:0;padding:0">
+<body class="app-booting" style="background-color:#6366f1;margin:0">
 
   <div id="appLaunch" class="app-launch" role="status" aria-live="polite" aria-label="Loading CivicRadar">
     <div class="app-launch__mark">
       <span class="app-launch__ring" aria-hidden="true"></span>
       <span class="app-launch__ring app-launch__ring--2" aria-hidden="true"></span>
       <span class="app-launch__ring app-launch__ring--3" aria-hidden="true"></span>
-      <img class="app-launch__logo" src="assets/brand/splash-mark.svg" width="80" height="80" alt="" fetchpriority="high" decoding="async">
+      <img class="app-launch__logo" src="assets/icon-192.png" width="80" height="80" alt="" fetchpriority="high" decoding="async">
     </div>
     <div class="app-launch__word">
       <span class="app-launch__title">CivicRadar</span>
@@ -214,10 +213,10 @@
   <div id="locationBanner" class="location-banner location-banner--compact hidden" role="status">
     <div class="location-banner__msg">
       <i class="ph ph-map-pin"></i>
-      <span id="locationBannerText" data-i18n="location.bannerCompact">Enable location to see hazards near you.</span>
+      <span id="locationBannerText" data-i18n="location.bannerCompact">Turn on location to pin hazards — or place a pin when reporting.</span>
     </div>
     <div class="location-banner__actions">
-      <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Enable</button>
+      <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
       <button type="button" class="location-banner__close" id="btnDismissLocation" data-i18n-aria="location.dismiss" aria-label="Dismiss">&times;</button>
     </div>
   </div>
@@ -273,32 +272,23 @@
       <div class="coach-mark__handle" aria-hidden="true"></div>
       <span class="coach-mark__step" data-i18n="purpose.kicker">From alert to fix</span>
       <h3 id="coachTitle" data-i18n="purpose.title">See it. Snap it. Sort it out.</h3>
-      <p id="purposeBody" data-i18n="purpose.body">Pin local hazards to alert your community, track updates, and drive faster municipal action.</p>
-      <ol class="purpose-steps" aria-hidden="true">
+      <p id="purposeBody" data-i18n="purpose.body">Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.</p>
+      <ul class="purpose-steps" aria-hidden="true">
         <li>
-          <span class="purpose-steps__icon purpose-steps__icon--map">
-            <span class="purpose-steps__num">1</span>
-            <i class="ph ph-map-trifold" aria-hidden="true"></i>
-          </span>
+          <span class="purpose-steps__icon purpose-steps__icon--map"><i class="ph ph-map-trifold" aria-hidden="true"></i></span>
           <span data-i18n="purpose.stepMap">Map</span>
         </li>
         <li>
-          <span class="purpose-steps__icon purpose-steps__icon--snap">
-            <span class="purpose-steps__num">2</span>
-            <i class="ph ph-camera" aria-hidden="true"></i>
-          </span>
+          <span class="purpose-steps__icon purpose-steps__icon--snap"><i class="ph ph-camera" aria-hidden="true"></i></span>
           <span data-i18n="purpose.stepSnap">Snap</span>
         </li>
         <li>
-          <span class="purpose-steps__icon purpose-steps__icon--resolve">
-            <span class="purpose-steps__num">3</span>
-            <i class="ph ph-handshake" aria-hidden="true"></i>
-          </span>
+          <span class="purpose-steps__icon purpose-steps__icon--resolve"><i class="ph ph-handshake" aria-hidden="true"></i></span>
           <span data-i18n="purpose.stepResolve">Resolve</span>
         </li>
-      </ol>
+      </ul>
       <div class="coach-mark__actions">
-        <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="purpose.got">Explore Map</button>
+        <button type="button" class="btn btn--primary btn--full" id="btnDismissCoach" data-i18n="purpose.got">Got it</button>
       </div>
     </div>
   </div>
@@ -399,68 +389,64 @@
     </div>
   </div>
 
-  <!-- Onboarding Modal — flex column: locked header + scroll body + sticky Join footer -->
+  <!-- Onboarding Modal -->
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
-    <div class="modal modal--sheet-flex" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
-      <div class="modal__sheet-header">
-        <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-        <p class="modal__subtitle" data-i18n="onboard.subtitle">Select your ward or housing society to filter local alerts.</p>
-      </div>
-      <div class="modal__sheet-body">
-        <div class="form-group" id="wardDetectGroup">
-          <div id="wardDetectPrompt" class="ward-detect-prompt">
-            <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
-              <i class="ph ph-crosshair" aria-hidden="true"></i>
-              <span data-i18n="onboard.wardDetectCta">Detect my Ward (GPS)</span>
-            </button>
-            <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
-          </div>
-          <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
+      <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
+      <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot a problem, snap it — neighbours see it on the map.</p>
+      <div class="form-group" id="wardDetectGroup">
+        <div id="wardDetectPrompt" class="ward-detect-prompt">
+          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
+          <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
-            <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
-          </div>
-          <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
-            <i class="ph ph-map-pin" aria-hidden="true"></i>
-            <span id="wardDetectedName"></span>
-          </div>
-          <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
-          <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
-            <span data-i18n="onboard.or">or</span>
-          </div>
-          <div id="onboardManualSearch" class="onboard-manual-search">
-            <div class="form-group" id="onboardCityGroup">
-              <label for="onboardCity" data-i18n="onboard.city">Your city</label>
-              <select id="onboardCity" aria-describedby="onboardCityHint">
-                <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-                <option value="pune" data-i18n-option="city.pune">Pune</option>
-                <option value="thane" data-i18n-option="city.thane">Thane</option>
-              </select>
-              <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
-            </div>
-            <div id="wardManualGroup" class="form-group">
-              <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
-              <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-              <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
-            </div>
-          </div>
-          <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
-          <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
-          <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
+            <span data-i18n="onboard.wardDetectCta">Auto-detect my ward</span>
+          </button>
         </div>
-        <div class="form-group">
-          <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
-          <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
-          <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
-          <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
+        <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
+          <i class="ph ph-crosshair" aria-hidden="true"></i>
+          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
         </div>
-        <div class="form-group">
-          <label for="displayName" data-i18n="onboard.name">Display Name</label>
-          <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
+        <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
+          <i class="ph ph-map-pin" aria-hidden="true"></i>
+          <span id="wardDetectedName"></span>
         </div>
+        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
+        <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
+          <span data-i18n="onboard.or">or</span>
+        </div>
+        <div id="onboardManualSearch" class="onboard-manual-search">
+          <div class="form-group" id="onboardCityGroup">
+            <label for="onboardCity" data-i18n="onboard.city">Your city</label>
+            <select id="onboardCity" aria-describedby="onboardCityHint">
+              <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+              <option value="pune" data-i18n-option="city.pune">Pune</option>
+              <option value="thane" data-i18n-option="city.thane">Thane</option>
+            </select>
+            <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
+          </div>
+          <div id="wardManualGroup" class="form-group">
+            <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
+            <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
+            <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+          </div>
+        </div>
+        <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
+        <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
+        <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
       </div>
-      <div class="modal__sticky-footer modal__sheet-footer">
-        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join your ward</button>
+      <div class="form-group">
+        <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
+        <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
+        <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
+        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
+      </div>
+      <div class="form-group">
+        <label for="displayName" data-i18n="onboard.name">Display Name</label>
+        <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
+      </div>
+      <div class="modal__sticky-footer">
+        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join Community</button>
       </div>
     </div>
   </div>
@@ -491,7 +477,7 @@
       <ul class="disclosure-list" id="reportCameraBody">
         <li><i class="ph ph-camera" aria-hidden="true"></i><span id="reportCameraBodyVerify" data-i18n="report.cameraDisclosure.verify">Used only to verify this hazard</span></li>
         <li><i class="ph ph-users" aria-hidden="true"></i><span id="reportCameraBodyVisible" data-i18n="report.cameraDisclosure.visible">Visible to neighbours on the community map</span></li>
-        <li><i class="ph ph-eye-slash" aria-hidden="true"></i><span id="reportCameraBodyLocation" data-i18n="report.cameraDisclosure.location">Photo EXIF metadata stripped for privacy</span></li>
+        <li><i class="ph ph-map-pin" aria-hidden="true"></i><span id="reportCameraBodyLocation" data-i18n="report.cameraDisclosure.location">Exact location is stripped automatically</span></li>
         <li><i class="ph ph-shield-check" aria-hidden="true"></i><span id="reportCameraBodyNoSell" data-i18n="report.cameraDisclosure.noSell">Never sold or used for marketing</span></li>
       </ul>
       <div class="report-geo__actions">
@@ -863,11 +849,11 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
-      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official municipal portals and ways to support your ward.</p>
+      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Filing links and ways to help in your ward.</p>
 
       <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
         <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-        <p class="resources-disclaimer" role="note"><i class="ph ph-warning" aria-hidden="true"></i> <span data-i18n="official.subtitle">CivicRadar redirects you to official government channels and does not file directly</span></p>
+        <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals — CivicRadar does not file for you.</p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
       </div>
 

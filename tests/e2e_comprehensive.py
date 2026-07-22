@@ -637,24 +637,14 @@ async def seed_confirm_pin(page, lat=19.0760, lng=72.8777, accuracy=5, user_adju
 
 
 async def js_click(page, selector: str):
-    """Click via deferred DOM event so Playwright evaluate can return.
 
-    Native el.click() inside page.evaluate can wedge the CDP session after
-    heavy sync UI (onboarding complete reached 'done' but evaluate never
-    returned — smoke hung after C07 for the full job timeout).
-    """
     await page.evaluate(
-        """(sel) => {
-          const el = document.querySelector(sel);
-          if (!el) return;
-          setTimeout(() => {
-            try { el.click(); } catch (e) { /* ignore */ }
-          }, 0);
-        }""",
+
+        """(sel) => { const el = document.querySelector(sel); if (el) el.click(); }""",
+
         selector,
+
     )
-    # Yield so the scheduled click runs before the next assertion.
-    await page.wait_for_timeout(50)
 
 
 async def dismiss_toasts(page):
@@ -671,76 +661,10 @@ async def dismiss_toasts(page):
 async def dismiss_civic_comboboxes(page):
     await page.evaluate(
         '''() => {
-          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.closeAll === 'function') {
-            CivicSearchableSelect.closeAll();
-          }
           document.querySelectorAll('.civic-combobox__list').forEach((el) => el.classList.add('hidden'));
-          document.querySelectorAll('.civic-combobox').forEach((el) => el.classList.remove('is-open'));
-          document.querySelectorAll('[role="combobox"]').forEach((el) => {
-            el.setAttribute('aria-expanded', 'false');
-            try { el.blur(); } catch (e) {}
-          });
-          document.querySelectorAll('.modal.sheet--kb-expanded').forEach((el) => {
-            el.classList.remove('sheet--kb-expanded');
-          });
-          document.querySelectorAll('.modal-overlay.sheet-kb-active').forEach((el) => {
-            el.classList.remove('sheet-kb-active');
-            el.style.removeProperty('--vv-height');
-            el.style.removeProperty('--vv-offset-top');
-            el.style.removeProperty('--kb-inset');
-          });
-          try { if (document.activeElement) document.activeElement.blur(); } catch (e) {}
+          document.querySelectorAll('[role="combobox"]').forEach((el) => el.setAttribute('aria-expanded', 'false'));
         }'''
     )
-
-
-async def set_input_value(page, selector: str, value: str):
-    """Set a plain input without Playwright fill()/focus (avoids sheet-kb races)."""
-    await page.evaluate(
-        """([sel, val]) => {
-          const el = document.querySelector(sel);
-          if (!el) return;
-          el.value = val;
-          el.dispatchEvent(new Event('input', { bubbles: true }));
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-          try { el.blur(); } catch (e) {}
-        }""",
-        [selector, value],
-    )
-
-
-async def set_combobox_value(page, selector: str, value: str):
-    """Set a CivicSearchableSelect value without Playwright fill() focus races.
-
-    fill() focuses the input, opens the list, and can enable sheet-kb-active in
-    headless CI — that hung smoke after C07 for 15+ minutes.
-
-    Prefer CivicSearchableSelect.setValueQuiet (suppressInput + close) so the
-    combobox input handler does not call openList/ensureAboveKeyboard.
-    """
-    await dismiss_civic_comboboxes(page)
-    await page.evaluate(
-        """([sel, val]) => {
-          const el = document.querySelector(sel);
-          if (!el) return;
-          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.setValueQuiet === 'function') {
-            CivicSearchableSelect.setValueQuiet(el, val);
-          } else {
-            el.value = val;
-            el.dispatchEvent(new Event('change', { bubbles: true }));
-            try { el.blur(); } catch (e) {}
-          }
-          const wrap = el.closest('.civic-combobox');
-          if (wrap) {
-            wrap.classList.remove('is-open');
-            const list = wrap.querySelector('.civic-combobox__list');
-            if (list) list.classList.add('hidden');
-          }
-          el.setAttribute('aria-expanded', 'false');
-        }""",
-        [selector, value],
-    )
-    await dismiss_civic_comboboxes(page)
 
 
 async def open_profile_edit_sheet(page):
@@ -1148,7 +1072,7 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward')
+    await page.fill('#wardInput', '<script>alert(1)</script> Ward')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
@@ -1159,31 +1083,14 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await set_combobox_value(page, '#wardInput', WARD)
+    await page.fill('#wardInput', WARD)
 
-    # Never use Playwright fill() here — focus triggers onboarding kb assist /
-    # sheet layout races that hung smoke after C07 for the full 15m job timeout.
-    await set_input_value(page, '#displayName', '<img onerror=alert(1)>')
+    await page.fill('#displayName', '<img onerror=alert(1)>')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
 
-    # Wait for onboarding to finish (js_click is deferred; do not race localStorage).
-    try:
-        await page.wait_for_function(
-            """() => {
-              try {
-                const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
-                const open = document.getElementById('onboardingOverlay')?.classList.contains('open');
-                return !!u.ward && !open;
-              } catch (e) { return false; }
-            }""",
-            timeout=10000,
-        )
-    except Exception:
-        pass
-
-    await page.wait_for_timeout(200)
+    await page.wait_for_timeout(500)
 
     u = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user"))')
 
@@ -1269,7 +1176,7 @@ async def run_citizen_tests(s: Suite, browser):
 
         await page_def.wait_for_timeout(600)
 
-        await set_combobox_value(page_def, '#wardInput', WARD)
+        await page_def.fill('#wardInput', WARD)
 
         await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
 
@@ -3341,14 +3248,14 @@ async def run_extended_scenarios(s: Suite, browser):
       const profileStillOpen = document.getElementById('profileOverlay')?.classList.contains('open');
       window.openProfileModal();
       const stale = window.civicMaybeResetSessionOnResume({
-        hiddenMs: window.civicWarmResumePreserveMs + 1000,
+        hiddenMs: window.civicSessionResumeResetMs + 1000,
         forceStandalone: true,
       });
       const mapActive = document.querySelector('#bottomNav .nav-tab[data-tab=map]')?.classList.contains('active');
       return { warm, profileStillOpen, stale, mapActive };
     }""")
 
-    s.record('U28b', 'UI', 'Warm resume preserves; stale (≥2m) resets to map',
+    s.record('U28b', 'UI', 'Warm resume preserves; stale resets to map',
 
              session_policy['warm'] is False
 
@@ -5624,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v373" in sw_src
+            "civicradar-v374" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6408,7 +6315,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
 
 
-    # TR03/TR04/TR06 — first-run: purpose sheet only (v321); Explore Map sets both flags; no FAB tip auto-stack.
+    # TR03/TR04/TR06 — first-run: purpose sheet only (v321); Got it sets both flags; no FAB tip auto-stack.
 
     # NB: coach gates on a *truthy* flag, so '0' would suppress it — omit the key entirely.
 
@@ -6465,7 +6372,7 @@ async def run_tour_scenarios(s: Suite, browser):
     s.record(
         'TR04',
         'Tour',
-        'Explore Map sets coach+fab flags and clears first-run lock',
+        'Got it sets coach+fab flags and clears first-run lock',
         completed,
     )
 
@@ -6520,7 +6427,7 @@ async def run_tour_scenarios(s: Suite, browser):
         '&& localStorage.getItem("civicradar_coach_seen") === "1"'
     )
 
-    s.record('TR05', 'Tour', 'Purpose Explore Map sets fab_spot without FAB tip overlay', skipped)
+    s.record('TR05', 'Tour', 'Purpose Got it sets fab_spot without FAB tip overlay', skipped)
 
     await ctx.close()
 
@@ -8549,25 +8456,20 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
-    # Preferred Resources chrome (v325+ layout): Official App + Fastest badges + Help cards;
+    # Preferred Resources chrome (v325+): subtitle + Recommended (not Fastest) + Help cards;
     # v344+: single footer catalogue link (no mid-block "All official sources" duplicate).
     resources_ux_ok = await page.evaluate(
         """() => {
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
           const sub = document.getElementById('resourcesSubtitle');
-          const subOk = !!sub && /municipal portals|support your ward|नगरपालिका|महापालिका|નગરપાલિકા/i.test((sub.textContent || '').trim());
+          const subOk = !!sub && /filing links|ways to help/i.test((sub.textContent || '').trim());
           const el = document.getElementById('resourcesOfficialChannels');
           if (!el) return false;
           const badges = Array.from(el.querySelectorAll('.esc-channel__badge')).map(
             (b) => (b.textContent || '').trim().toLowerCase()
           );
-          const hasOfficialApp = badges.some((b) =>
-            b.includes('official app') || b.includes('आधिकारिक ऐप') || b.includes('अधिकृत अॅप') || b.includes('અધિકૃત એપ')
-          );
+          const hasRecommended = badges.some((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
           const hasFastest = badges.some((b) => b.includes('fastest') || b.includes('तेज़') || b.includes('जलद') || b.includes('ઝડપી'));
-          const disclaimer = document.querySelector('#resourcesOfficialBlock .resources-disclaimer');
-          const disclaimerOk = !!disclaimer
-            && /does not file|दर्ज नहीं|दाखल करत नाही|નોંધાવતું નથી/i.test((disclaimer.textContent || '').trim());
           const help = document.querySelector('#resourcesModal .resources-section--community');
           const helpOk = !!help
             && !!help.querySelector('#btnOpenVolunteer')
@@ -8579,10 +8481,10 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const fileTitle = document.querySelector('#resourcesOfficialBlock .resources-section__title');
           const fileTitleOk = !!fileTitle
             && !/official grievance/i.test((fileTitle.textContent || '').trim());
-          return subOk && hasOfficialApp && hasFastest && disclaimerOk && helpOk && footerOk && fileTitleOk;
+          return subOk && hasRecommended && !hasFastest && helpOk && footerOk && fileTitleOk;
         }"""
     )
-    s.record('OC06', 'OfficialChannels', 'Resources grouping + Official App/Fastest + footer sources link', resources_ux_ok)
+    s.record('OC06', 'OfficialChannels', 'Resources grouping + Recommended + footer sources link', resources_ux_ok)
 
     await ctx.close()
 
@@ -8937,7 +8839,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v373" in sw_src
+            "civicradar-v374" in sw_src
 
             and "'/index.html'" not in sw_src
 

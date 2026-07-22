@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v373';
+  const CIVIC_APP_VERSION = 'v374';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -861,23 +861,19 @@ document.addEventListener('DOMContentLoaded', function () {
   // scan (now bounded to 8s below) could still occasionally miss on a weak device.
   const REPORT_PHOTO_PROCESSING_TIMEOUT_MS = 20000;
 
-  // Session / tab policy (see maybeResetSessionOnResume + ensureMapHomeOnBoot):
-  // • Every full page load → Map home (no cross-session tab restore; no localStorage tab key).
-  // • Optional hash deep links: #community | #resources | #profile (auth hashes ignored).
-  // • PWA/TWA cold start / tab discard → map home.
-  // • Warm resume: hidden < WARM_RESUME_PRESERVE_MS → preserve (mid-report camera/share).
-  // • Stale resume: hidden ≥ WARM_RESUME_PRESERVE_MS → map home (was 30 min dead-zone).
-  // • BFCache (pageshow persisted): always reset — browser or standalone.
+  // PWA/TWA session policy (installed app only — see maybeResetSessionOnResume):
+  // • Cold start: OS process killed or tab discarded → map home, modals closed (no reload).
+  // • Warm resume: hidden < WARM_RESUME_PRESERVE_MS → preserve state (mid-report camera/share).
+  // • Stale: hidden ≥ SESSION_RESUME_RESET_MS → map home (industry-typical 30 min).
+  // • BFCache (pageshow persisted): reset — restored snapshot must not leave Profile open.
   // manifest.json has no launch_handler: avoid navigate-existing reload; JS reset is enough.
+  // focus-existing (if added later) resumes the WebView — warm/stale timers still apply.
 
   const SESSION_MARKER_KEY = 'civicradar_pwa_session';
 
   const WARM_RESUME_PRESERVE_MS = 2 * 60 * 1000;
 
-  // Kept for E2E (U28b) and older callers; resume reset now uses WARM_RESUME_PRESERVE_MS.
   const SESSION_RESUME_RESET_MS = 30 * 60 * 1000;
-
-  const NAV_HASH_TABS = { community: 'community', resources: 'resources', profile: 'profile' };
 
 
 
@@ -1588,33 +1584,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      let badgeKind = '';
+      const badge = ch.recommended
 
-      if (ch.recommended) {
+        ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
 
-        if (ch.id === 'marg' || ch.id === 'pmc_care' || ch.id === 'tmc_portal') badgeKind = 'officialApp';
-
-        else if (ch.urlKind === 'whatsapp' || ch.id === 'bmc_whatsapp' || ch.id === 'pmc_wa') badgeKind = 'fastest';
-
-        else badgeKind = 'recommended';
-
-      }
-
-      let badge = '';
-
-      if (badgeKind === 'officialApp') {
-
-        badge = `<em class="esc-channel__badge esc-channel__badge--official-app">${escapeHtml(t('official.officialApp'))}</em>`;
-
-      } else if (badgeKind === 'fastest') {
-
-        badge = `<em class="esc-channel__badge esc-channel__badge--fastest">${escapeHtml(t('official.fastest'))}</em>`;
-
-      } else if (badgeKind === 'recommended') {
-
-        badge = `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`;
-
-      }
+        : '';
 
       // Resources: single row affordance (no duplicate URL under the button).
       // Elsewhere: skip source link when it repeats the subtitle host.
@@ -1641,15 +1615,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ? '<i class="ph ph-arrow-square-out esc-channel__external" aria-hidden="true"></i>'
         : '';
 
-      const wrapExtra = badgeKind === 'officialApp'
-        ? ' esc-channel-wrap--recommended esc-channel-wrap--official-app'
-        : badgeKind === 'fastest'
-          ? ' esc-channel-wrap--recommended esc-channel-wrap--fastest'
-          : badgeKind === 'recommended'
-            ? ' esc-channel-wrap--recommended'
-            : '';
-
-      return `<div class="esc-channel-wrap${wrapExtra}">
+      return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
 
         <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
@@ -2871,9 +2837,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': 'Ward hazard map for {city}',
 
-      'location.banner': 'Enable location to see hazards near you.',
+      'location.banner': 'Turn on location to pin hazards on the map — or place a pin when reporting.',
 
-      'location.bannerCompact': 'Enable location to see hazards near you.',
+      'location.bannerCompact': 'Turn on location to pin hazards — or place a pin when reporting.',
 
       'location.bannerNearby': 'Turn on location to pin hazards and see nearby issues. Pins only — not sold.',
 
@@ -2887,7 +2853,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.locateAria': 'Turn on location',
 
-      'location.enable': 'Enable',
+      'location.enable': 'Turn on',
 
       'tagline.threeBeat': 'Map it · Snap it · Report it',
 
@@ -2903,17 +2869,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'See it. Snap it. Sort it out.',
 
-      'coach.body': 'Pin local hazards to alert your community, track updates, and drive faster municipal action.',
+      'coach.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
-      'coach.got': 'Explore Map',
+      'coach.got': 'Got it',
 
       'purpose.kicker': 'From alert to fix',
 
       'purpose.title': 'See it. Snap it. Sort it out.',
 
-      'purpose.body': 'Pin local hazards to alert your community, track updates, and drive faster municipal action.',
+      'purpose.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
-      'purpose.got': 'Explore Map',
+      'purpose.got': 'Got it',
 
       'purpose.report': 'Report a hazard',
 
@@ -2973,7 +2939,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'Welcome to CivicRadar',
 
-      'onboard.subtitle': 'Select your ward or housing society to filter local alerts.',
+      'onboard.subtitle': 'Spot a problem, snap it — then sort it out with official channels or neighbourhood volunteers.',
 
       'onboard.city': 'Your city',
 
@@ -3003,7 +2969,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'Optional: use precise location once to suggest your ward. Nothing is shared on the map until you report. Or pick a ward from the list.',
 
-      'onboard.wardDetectCta': 'Detect my Ward (GPS)',
+      'onboard.wardDetectCta': 'Auto-detect my ward',
 
       'onboard.or': 'or',
 
@@ -3083,7 +3049,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'Visible to neighbours on the map',
 
-      'report.cameraDisclosure.location': 'Photo EXIF metadata stripped for privacy',
+      'report.cameraDisclosure.location': 'Exact location stripped automatically',
 
       'report.cameraDisclosure.noSell': 'Never sold or used for marketing',
 
@@ -3564,7 +3530,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'Fast filing via official WhatsApp bot',
+      'esc.pmc.channelWaSmall': 'Chat — pre-fill below',
 
       'esc.pmc.channelCall': 'Toll-free helpline',
 
@@ -3652,7 +3618,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'Resources',
 
-      'resources.subtitle': 'Official municipal portals and ways to support your ward.',
+      'resources.subtitle': 'Filing links and ways to help in your ward.',
 
       'resources.fileTitle': 'File with Corporation',
 
@@ -4366,11 +4332,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'CivicRadar redirects you to official government channels and does not file directly',
+      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you.',
 
       'official.recommended': 'Recommended',
-
-      'official.officialApp': 'Official App',
 
       'official.fastest': 'Fastest',
 
@@ -4388,31 +4352,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': 'Official app for road, drainage & civic complaints',
+      'official.marg.small': '114 categories — geo photos — tracking',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'National portal for garbage & sanitation',
+      'official.swachhata.small': 'MoHUA sanitation — ward inspector',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'Maharashtra state grievance escalation',
+      'official.aaple.small': 'Maharashtra state grievance portal',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'Official app for Pune civic complaints',
+      'official.pmc.small': 'Pune Municipal Corporation app',
 
       'official.tmc.label': 'TMC citizen portal',
 
-      'official.tmc.small': 'Official portal for Thane civic services',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'Fast filing via official WhatsApp bot',
+      'official.bmcWa.small': 'Quick chat filing',
 
       'official.bmcPortal.label': 'BMC online portal',
 
-      'official.bmcPortal.small': 'Web portal for civic services',
+      'official.bmcPortal.small': 'Web portal',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
 
@@ -5419,9 +5383,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} के लिए वार्ड खतरा नक्शा',
 
-      'location.banner': 'पास के खतरे देखने के लिए लोकेशन चालू करें।',
+      'location.banner': 'मानचित्र पर पिन लगाने के लिए लोकेशन चालू करें — या रिपोर्ट करते समय पिन रखें।',
 
-      'location.bannerCompact': 'पास के खतरे देखने के लिए लोकेशन चालू करें।',
+      'location.bannerCompact': 'खतरे पिन करने के लिए स्थान चालू करें — या रिपोर्ट करते समय पिन लगाएँ।',
 
       'location.bannerNearby': 'पिन लगाने और पास की समस्याएँ देखने के लिए लोकेशन चालू करें। सिर्फ पिन — बेचा नहीं जाता।',
 
@@ -5451,17 +5415,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'coach.body': 'स्थानीय खतरों को पिन करें ताकि समुदाय सचेत हो, अपडेट ट्रैक करें, और नगरपालिका की तेज़ कार्रवाई को आगे बढ़ाएँ।',
+      'coach.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
-      'coach.got': 'नक्शा देखें',
+      'coach.got': 'समझ गया',
 
       'purpose.kicker': 'अलर्ट से समाधान तक',
 
       'purpose.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'purpose.body': 'स्थानीय खतरों को पिन करें ताकि समुदाय सचेत हो, अपडेट ट्रैक करें, और नगरपालिका की तेज़ कार्रवाई को आगे बढ़ाएँ।',
+      'purpose.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
-      'purpose.got': 'नक्शा देखें',
+      'purpose.got': 'समझ गया',
 
       'purpose.report': 'खतरा रिपोर्ट करें',
 
@@ -5521,7 +5485,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar में आपका स्वागत है',
 
-      'onboard.subtitle': 'स्थानीय अलर्ट फ़िल्टर करने के लिए अपना वार्ड या हाउसिंग सोसाइटी चुनें।',
+      'onboard.subtitle': 'समस्या देखें, फोटो लें — आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
 
       'onboard.city': 'आपका शहर',
 
@@ -5551,7 +5515,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'वैकल्पिक: वार्ड सुझाने के लिए एक बार सटीक लोकेशन। रिपोर्ट तक मानचित्र पर कुछ साझा नहीं। या सूची से वार्ड चुनें।',
 
-      'onboard.wardDetectCta': 'मेरा वार्ड पहचानें (GPS)',
+      'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
 
       'onboard.or': 'या',
 
@@ -5631,7 +5595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'मानचित्र पर पड़ोसियों को दिखता है',
 
-      'report.cameraDisclosure.location': 'गोपनीयता के लिए फोटो EXIF मेटाडेटा हटाया जाता है',
+      'report.cameraDisclosure.location': 'सटीक लोकेशन अपने आप हटाई जाती है',
 
       'report.cameraDisclosure.noSell': 'कभी बेचा या मार्केटिंग में उपयोग नहीं होता',
 
@@ -6114,7 +6078,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'आधिकारिक WhatsApp बॉट से तेज़ दर्ज',
+      'esc.pmc.channelWaSmall': 'चैट · नीचे से कॉपी',
 
       'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन',
 
@@ -6202,7 +6166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधन',
 
-      'resources.subtitle': 'आधिकारिक नगरपालिका पोर्टल और अपने वार्ड का साथ देने के तरीके।',
+      'resources.subtitle': 'दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
 
       'resources.fileTitle': 'निगम में दर्ज करें',
 
@@ -6914,11 +6878,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'CivicRadar आपको आधिकारिक सरकारी चैनलों पर भेजता है और सीधे दर्ज नहीं करता',
+      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता।',
 
       'official.recommended': 'अनुशंसित',
-
-      'official.officialApp': 'आधिकारिक ऐप',
 
       'official.fastest': 'सबसे तेज़',
 
@@ -6936,29 +6898,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': 'सड़क, नाली और नागरिक शिकायतों के लिए आधिकारिक ऐप',
+      'official.marg.small': '114 श्रेणियाँ · जियो फोटो · ट्रैकिंग',
 
-      'official.bmcPortal.small': 'नागरिक सेवाओं का वेब पोर्टल',
+      'official.bmcPortal.small': 'वेब पोर्टल',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'कचरा और स्वच्छता का राष्ट्रीय पोर्टल',
+      'official.swachhata.small': 'MoHUA स्वच्छता · वार्ड निरीक्षक',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'महाराष्ट्र राज्य शिकायत एस्केलेशन',
+      'official.aaple.small': 'महाराष्ट्र राज्य शिकायत पोर्टल',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'पुणे नागरिक शिकायतों के लिए आधिकारिक ऐप',
+      'official.pmc.small': 'पुणे नगर निगम ऐप',
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'ठाणे नागरिक सेवाओं का आधिकारिक पोर्टल',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'आधिकारिक WhatsApp बॉट से तेज़ दर्ज',
+      'official.bmcWa.small': 'त्वरित चैट शिकायत',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
@@ -7967,9 +7929,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} साठी वॉर्ड धोका नकाशा',
 
-      'location.banner': 'जवळचे धोके पाहण्यासाठी लोकेशन चालू करा.',
+      'location.banner': 'नकाशावर पिन लावण्यासाठी लोकेशन चालू करा — किंवा रिपोर्ट करताना पिन ठेवा.',
 
-      'location.bannerCompact': 'जवळचे धोके पाहण्यासाठी लोकेशन चालू करा.',
+      'location.bannerCompact': 'धोके पिन करण्यासाठी स्थान चालू करा — किंवा तक्रार करताना पिन लावा.',
 
       'location.bannerNearby': 'पिन लावण्यासाठी आणि जवळच्या समस्या पाहण्यासाठी लोकेशन चालू करा. फक्त पिन — विकले जात नाही.',
 
@@ -7999,17 +7961,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'coach.body': 'स्थानिक धोके पिन करा जेणेकरून समुदाय सतर्क होईल, अपडेट ट्रॅक करा आणि नगरपालिकेची जलद कारवाई पुढे नेईल.',
+      'coach.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
-      'coach.got': 'नकाशा पहा',
+      'coach.got': 'समजले',
 
       'purpose.kicker': 'सतर्केपासून सोडवणुकीपर्यंत',
 
       'purpose.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'purpose.body': 'स्थानिक धोके पिन करा जेणेकरून समुदाय सतर्क होईल, अपडेट ट्रॅक करा आणि नगरपालिकेची जलद कारवाई पुढे नेईल.',
+      'purpose.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
-      'purpose.got': 'नकाशा पहा',
+      'purpose.got': 'समजले',
 
       'purpose.report': 'धोका नोंदवा',
 
@@ -8069,7 +8031,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
 
-      'onboard.subtitle': 'स्थानिक अलर्ट फिल्टर करण्यासाठी तुमचा वॉर्ड किंवा हाऊसिंग सोसायटी निवडा.',
+      'onboard.subtitle': 'समस्या बघा, फोटो काढा — अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
 
       'onboard.city': 'तुमचे शहर',
 
@@ -8099,7 +8061,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'पर्यायी: वॉर्ड सुचवण्यासाठी एकदा अचूक लोकेशन. रिपोर्ट करेपर्यंत नकाशावर काही शेअर होत नाही. किंवा यादीतून वॉर्ड निवडा.',
 
-      'onboard.wardDetectCta': 'माझा वॉर्ड शोधा (GPS)',
+      'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
 
       'onboard.or': 'किंवा',
 
@@ -8179,7 +8141,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'नकाशावर शेजाऱ्यांना दिसते',
 
-      'report.cameraDisclosure.location': 'गोपनीयतेसाठी फोटो EXIF मेटाडेटा काढला जातो',
+      'report.cameraDisclosure.location': 'अचूक लोकेशन आपोआप काढली जाते',
 
       'report.cameraDisclosure.noSell': 'कधीही विकले किंवा मार्केटिंगसाठी वापरले जात नाही',
 
@@ -8662,7 +8624,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'अधिकृत WhatsApp बॉटने जलद दाखल',
+      'esc.pmc.channelWaSmall': 'चॅट · खाली कॉपी',
 
       'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन',
 
@@ -8750,7 +8712,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधने',
 
-      'resources.subtitle': 'अधिकृत महापालिका पोर्टल्स आणि तुमच्या वॉर्डला पाठबिंबा देण्याचे मार्ग.',
+      'resources.subtitle': 'दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
 
       'resources.fileTitle': 'महापालिकेकडे नोंदवा',
 
@@ -9462,11 +9424,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'CivicRadar तुम्हाला अधिकृत सरकारी चॅनेलवर पाठवते आणि थेट दाखल करत नाही',
+      'official.subtitle': 'सत्यापित .gov अॅप्स आणि पोर्टल्स — CivicRadar तुमच्यावतीने दाखल करत नाही.',
 
       'official.recommended': 'शिफारस',
-
-      'official.officialApp': 'अधिकृत अॅप',
 
       'official.fastest': 'सर्वात जलद',
 
@@ -9484,31 +9444,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': 'रस्ते, गटार आणि नागरी तक्रारींसाठी अधिकृत अॅप',
+      'official.marg.small': '114 श्रेण्या · जिओ फोटो · ट्रॅकिंग',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'कचरा आणि स्वच्छतेसाठी राष्ट्रीय पोर्टल',
+      'official.swachhata.small': 'MoHUA स्वच्छता · वार्ड निरीक्षक',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'महाराष्ट्र राज्य तक्रार वाढवणे',
+      'official.aaple.small': 'महाराष्ट्र राज्य तक्रार पोर्टल',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'पुणे नागरी तक्रारींसाठी अधिकृत अॅप',
+      'official.pmc.small': 'पुणे महानगरपालिका अॅप',
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'ठाणे नागरी सेवांसाठी अधिकृत पोर्टल',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'अधिकृत WhatsApp बॉटने जलद दाखल',
+      'official.bmcWa.small': 'जलद चॅट तक्रार',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
-      'official.bmcPortal.small': 'नागरी सेवांसाठी वेब पोर्टल',
+      'official.bmcPortal.small': 'वेब पोर्टल',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
 
@@ -10514,9 +10474,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} માટે વોર્ડ જોખમ નકશો',
 
-      'location.banner': 'નજીકના જોખમો જોવા સ્થાન ચાલુ કરો.',
+      'location.banner': 'CivicRadar ચોક્કસ સ્થાનથી જોખમો સમુદાય નકશા પર પિન કરે છે (પડોશીઓને દેખાય). ચાલુ કરો દબાવો — અથવા ફરિયાદ કરતી વખતે મેન્યુઅલ પિન મૂકો.',
 
-      'location.bannerCompact': 'નજીકના જોખમો જોવા સ્થાન ચાલુ કરો.',
+      'location.bannerCompact': 'જોખમ પિન કરવા સ્થાન ચાલુ કરો — અથવા ફરિયાદ વખતે પિન મૂકો.',
 
       'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો. સ્થાન ફક્ત રિપોર્ટ પિન તરીકે શેર થાય છે — વેચાતું નથી.',
 
@@ -10546,17 +10506,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'coach.body': 'સ્થાનિક જોખમો પિન કરો જેથી સમુદાયને જાણ થાય, અપડેટ ટ્રૅક કરો, અને નગરપાલિકાની ઝડપી કાર્યવાહી આગળ વધે.',
+      'coach.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
-      'coach.got': 'નકશો જુઓ',
+      'coach.got': 'સમજાઈ ગયું',
 
       'purpose.kicker': 'જાણથી ઉકેલ સુધી',
 
       'purpose.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'purpose.body': 'સ્થાનિક જોખમો પિન કરો જેથી સમુદાયને જાણ થાય, અપડેટ ટ્રૅક કરો, અને નગરપાલિકાની ઝડપી કાર્યવાહી આગળ વધે.',
+      'purpose.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
-      'purpose.got': 'નકશો જુઓ',
+      'purpose.got': 'સમજાઈ ગયું',
 
       'purpose.report': 'જોખમ રિપોર્ટ કરો',
 
@@ -10616,7 +10576,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
 
-      'onboard.subtitle': 'સ્થાનિક અલર્ટ ફિલ્ટર કરવા માટે તમારો વોર્ડ અથવા હાઉસિંગ સોસાયટી પસંદ કરો.',
+      'onboard.subtitle': 'સમસ્યા જુઓ, ફોટો લો — સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
 
       'onboard.city': 'તમારું શહેર',
 
@@ -10646,7 +10606,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
 
-      'onboard.wardDetectCta': 'મારો વોર્ડ શોધો (GPS)',
+      'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
 
       'onboard.or': 'અથવા',
 
@@ -10726,7 +10686,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'સામુદાયિક નકશા પર પડોશીઓને દેખાય છે',
 
-      'report.cameraDisclosure.location': 'ગોપનીયતા માટે ફોટો EXIF મેટાડેટા દૂર કરવામાં આવે છે',
+      'report.cameraDisclosure.location': 'ચોક્કસ સ્થાન આપમેળે દૂર કરવામાં આવે છે',
 
       'report.cameraDisclosure.noSell': 'ક્યારેય વેચાતું નથી કે માર્કેટિંગ માટે વપરાતું નથી',
 
@@ -11209,7 +11169,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'અધિકૃત WhatsApp બૉટથી ઝડપી નોંધણી',
+      'esc.pmc.channelWaSmall': 'ચેટ · નીચેથી કૉપી',
 
       'esc.pmc.channelCall': 'ટોલ-ફ્રી હેલ્પલાઇન',
 
@@ -11297,7 +11257,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'સંસાધનો',
 
-      'resources.subtitle': 'અધિકૃત નગરપાલિકા પોર્ટલ્સ અને તમારા વોર્ડને ટેકો આપવાના માર્ગો.',
+      'resources.subtitle': 'દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
 
       'resources.fileTitle': 'નગરપાલિકામાં નોંધાવો',
 
@@ -12009,11 +11969,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'CivicRadar તમને અધિકૃત સરકારી ચેનલ્સ પર મોકલે છે અને સીધું નોંધાવતું નથી',
+      'official.subtitle': 'ચકાસેલ .gov એપ્સ અને પોર્ટલ્સ — CivicRadar તમારી તરફથી નોંધાવતું નથી.',
 
       'official.recommended': 'ભલામણ',
-
-      'official.officialApp': 'અધિકૃત એપ',
 
       'official.fastest': 'સૌથી ઝડપી',
 
@@ -12031,31 +11989,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': 'રસ્તા, ગટર અને નાગરિક ફરિયાદો માટે અધિકૃત એપ',
+      'official.marg.small': '114 શ્રેણીઓ · જીઓ ફોટો · ટ્રેકિંગ',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'કચરો અને સ્વચ્છતા માટે રાષ્ટ્રીય પોર્ટલ',
+      'official.swachhata.small': 'MoHUA સ્વચ્છતા · વોર્ડ નિરીક્ષક',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'મહારાષ્ટ્ર રાજ્ય ફરિયાદ એસ્કલેશન',
+      'official.aaple.small': 'મહારાષ્ટ્ર રાજ્ય ફરિયાદ પોર્ટલ',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'પુણે નાગરિક ફરિયાદો માટે અધિકૃત એપ',
+      'official.pmc.small': 'પુણે મહાનગરપાલિકા એપ',
 
       'official.tmc.label': 'TMC નાગરિક પોર્ટલ',
 
-      'official.tmc.small': 'થાણે નાગરિક સેવાઓ માટે અધિકૃત પોર્ટલ',
+      'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'અધિકૃત WhatsApp બૉટથી ઝડપી નોંધણી',
+      'official.bmcWa.small': 'ઝડપી ચેટ ફરિયાદ',
 
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
 
-      'official.bmcPortal.small': 'નાગરિક સેવાઓ માટે વેબ પોર્ટલ',
+      'official.bmcPortal.small': 'વેબ પોર્ટલ',
 
       'official.hint.marg.stagnant-water': 'જાહેર આરોગ્ય → કીટ નિયંત્રણ → stagnant water / મચ્છર પ્રજનન',
 
@@ -22259,7 +22217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       $('#tourStep').textContent = t('fabSpot.step');
 
-      $('#btnTourNext').textContent = t('tour.done');
+      $('#btnTourNext').textContent = t('purpose.got');
 
       const skip = $('#btnTourSkip');
 
@@ -23771,22 +23729,9 @@ document.addEventListener('DOMContentLoaded', function () {
       cityGroup.classList.add('onboard-city--highlight');
 
       requestAnimationFrame(() => {
-        const modal = $('#onboardingModal');
-        const scroller = modal?.querySelector('.modal__sheet-body') || modal;
-        if (scroller && cityGroup) {
-          try {
-            const sheetRect = scroller.getBoundingClientRect();
-            const wrapRect = cityGroup.getBoundingClientRect();
-            const pad = 12;
-            let delta = 0;
-            if (wrapRect.bottom > sheetRect.bottom - pad) {
-              delta = wrapRect.bottom - (sheetRect.bottom - pad);
-            } else if (wrapRect.top < sheetRect.top + pad) {
-              delta = wrapRect.top - (sheetRect.top + pad);
-            }
-            if (delta) scroller.scrollTop += delta;
-          } catch { /* ignore */ }
-        }
+
+        cityGroup.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
       });
 
     }
@@ -24168,8 +24113,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.documentElement.classList.add('modal-open');
 
     document.body.classList.add('modal-open');
-
-    document.documentElement.style.overflow = 'hidden';
 
     document.body.style.overflow = 'hidden';
 
@@ -25707,8 +25650,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.body.classList.remove('modal-open');
 
-      document.documentElement.style.overflow = '';
-
       document.body.style.overflow = '';
 
       document.body.style.position = '';
@@ -25742,15 +25683,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
 
-        // Do not restore focus into the sheet we just closed — that re-opens
-        // combobox/keyboard assist and can wedge Playwright evaluate/CDP.
-        const restore = lastFocusedEl;
+        try { lastFocusedEl.focus(); } catch { /* ignore */ }
+
         lastFocusedEl = null;
-        if (!el.contains(restore)) {
-          try { restore.focus({ preventScroll: true }); } catch { try { restore.focus(); } catch { /* ignore */ } }
-        } else {
-          try { if (document.activeElement && el.contains(document.activeElement)) document.activeElement.blur(); } catch { /* ignore */ }
-        }
 
       }
 
@@ -25860,63 +25795,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-  /** Full page load: always Map. No localStorage/sessionStorage tab restore. */
-  function ensureMapHomeOnBoot() {
-
-    closeStackedModalsForNav(null);
-
-    setNavTab('map');
-
-    clearNavModalHistory();
-
-  }
-
-  /**
-   * Honor intentional share deep links (#community / #resources / #profile).
-   * Ignores auth callback hashes and unknown fragments. Clears hash after apply.
-   */
-  function applyNavHashDeepLink() {
-
-    try {
-
-      if (Backend.hasAuthCallbackInUrl && Backend.hasAuthCallbackInUrl()) return false;
-
-      const raw = String(location.hash || '').replace(/^#/, '').trim().toLowerCase();
-
-      if (!raw || raw.indexOf('=') !== -1) return false;
-
-      const tab = NAV_HASH_TABS[raw];
-
-      if (!tab) return false;
-
-      if (tab === 'community' && typeof window.openCommunityModal === 'function') window.openCommunityModal();
-
-      else if (tab === 'resources' && typeof window.openResourcesModal === 'function') window.openResourcesModal();
-
-      else if (tab === 'profile' && typeof window.openProfileModal === 'function') window.openProfileModal();
-
-      else return false;
-
-      try {
-
-        const u = new URL(location.href);
-
-        u.hash = '';
-
-        history.replaceState(history.state, '', u.pathname + u.search);
-
-      } catch { /* ignore */ }
-
-      return true;
-
-    } catch {
-
-      return false;
-
-    }
-
-  }
-
 
 
   function markPwaSessionActive() {
@@ -25981,7 +25859,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (overlays.report?.classList.contains('open') && hasReportPhotoPreview()) return false;
 
-    // BFCache / cold start: always Map (browser + PWA). Do not leave last tab open.
+    if (!standalone) return false;
+
     if (bfcache || coldStart) {
 
       resetAppSessionUi();
@@ -25992,13 +25871,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Visibility resume timers apply to installed PWA/TWA only.
-    if (!standalone) return false;
-
     if (hiddenMs > 0 && hiddenMs < WARM_RESUME_PRESERVE_MS) return false;
 
-    // Away ≥ warm window → Map (closes the old 2–30 min “keep Profile open” gap).
-    if (hiddenMs >= WARM_RESUME_PRESERVE_MS) {
+    if (hiddenMs >= SESSION_RESUME_RESET_MS) {
 
       resetAppSessionUi();
 
@@ -27335,43 +27210,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     _launchHideScheduled = true;
 
-    const finishBootChrome = () => {
-
-      document.documentElement.classList.remove('app-booting');
-
-      document.body.classList.remove('app-booting');
-
-      document.documentElement.style.removeProperty('background-color');
-
-      document.body.style.removeProperty('background-color');
-
-      document.body.style.removeProperty('margin');
-
-      document.body.style.removeProperty('padding');
-
-      if (el.parentNode) el.remove();
-
-    };
-
     // Wait for map/chrome first paint under the splash, then fade. Keep
     // app-booting (indigo canvas) until the fade finishes — removing it at
     // fade-start exposed --bg-main (#f8fafc) through a translucent splash.
-    // Reduced-motion: instant hide (no opacity fade / clip-path wipe).
     requestAnimationFrame(() => {
 
       requestAnimationFrame(() => {
 
         if (!el.parentNode || el.classList.contains('app-launch--done')) return;
-
-        if (prefersReducedMotion()) {
-
-          el.classList.add('app-launch--done');
-
-          finishBootChrome();
-
-          return;
-
-        }
 
         el.classList.add('app-launch--done');
 
@@ -27391,7 +27237,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
           el.removeEventListener('transitionend', onEnd);
 
-          finishBootChrome();
+          document.documentElement.classList.remove('app-booting');
+
+          document.body.classList.remove('app-booting');
+
+          document.documentElement.style.removeProperty('background-color');
+
+          document.body.style.removeProperty('background-color');
+
+          document.body.style.removeProperty('margin');
+
+          if (el.parentNode) el.remove();
 
         };
 
@@ -27435,8 +27291,6 @@ document.addEventListener('DOMContentLoaded', function () {
   updatePersonaUI();
 
   maybeResetSessionOnResume({ coldStart: shouldResetOnColdPwaLaunch() });
-
-  ensureMapHomeOnBoot();
 
   runBootSequence();
 
@@ -27717,13 +27571,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       handleReportDeepLink();
-
-      // Share deep links (#community etc.) only after gates; never override ?report=.
-      try {
-
-        if (!new URLSearchParams(location.search).get('report')) applyNavHashDeepLink();
-
-      } catch { /* ignore */ }
 
       if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: 'map', initial: true, reportDraftRestore: restoredReportDraft });
 
@@ -28862,7 +28709,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // While snoozed, collapse the full banner into the unobtrusive locate pill.
 
-  let locationBannerDismissTimer = null;
   function showLocationBanner(message) {
 
     if (shouldDeferFirstRunNudges()) return;
@@ -28905,15 +28751,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     banner.classList.toggle('location-banner--compact', isConsent);
 
-    if (locationBannerDismissTimer) {
-
-      clearTimeout(locationBannerDismissTimer);
-
-      locationBannerDismissTimer = null;
-
-    }
-
-    banner.classList.remove('hidden', 'location-banner--dismissing');
+    banner.classList.remove('hidden');
 
     syncLocationBannerChrome();
 
@@ -28937,90 +28775,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-
   function hideLocationBanner(opts) {
 
-    const banner = $('#locationBanner');
+    $('#locationBanner').classList.add('hidden');
 
-    if (!banner) return;
+    syncLocationBannerChrome();
 
-    const skipWelcomeFlush = !!(opts && opts.skipWelcomeFlush);
+    // When parking for a primary overlay, skip FAB/nudge resume (caller flushes later).
+    if (opts && opts.skipWelcomeFlush) return;
 
-    const animate = !!(opts && opts.animate);
+    // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
+    if (typeof maybeShowFabSpotlight === 'function') {
 
-    const finishHide = () => {
-
-      if (locationBannerDismissTimer) {
-
-        clearTimeout(locationBannerDismissTimer);
-
-        locationBannerDismissTimer = null;
-
-      }
-
-      banner.classList.remove('location-banner--dismissing');
-
-      banner.classList.add('hidden');
-
-      syncLocationBannerChrome();
-
-      // When parking for a primary overlay, skip FAB/nudge resume (caller flushes later).
-      if (skipWelcomeFlush) return;
-
-      // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
-      if (typeof maybeShowFabSpotlight === 'function') {
-
-        setTimeout(maybeShowFabSpotlight, 200);
-
-      }
-
-    };
-
-    // Parking / GPS enable / reduced-motion: instant hide (keeps overlay park + snooze paths).
-    if (!animate || prefersReducedMotion() || banner.classList.contains('hidden')) {
-
-      finishHide();
-
-      return;
+      setTimeout(maybeShowFabSpotlight, 200);
 
     }
-
-    if (banner.classList.contains('location-banner--dismissing')) return;
-
-    let finished = false;
-
-    const onEnd = (e) => {
-
-      if (e.target !== banner) return;
-
-      if (finished) return;
-
-      finished = true;
-
-      banner.removeEventListener('transitionend', onEnd);
-
-      finishHide();
-
-    };
-
-    banner.addEventListener('transitionend', onEnd);
-
-    // Force layout so the dismissing transition always runs from the resting state.
-    void banner.offsetWidth;
-
-    banner.classList.add('location-banner--dismissing');
-
-    locationBannerDismissTimer = setTimeout(() => {
-
-      if (finished) return;
-
-      finished = true;
-
-      banner.removeEventListener('transitionend', onEnd);
-
-      finishHide();
-
-    }, 220);
 
   }
 
@@ -30003,116 +29772,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnWardDetectGps = $('#btnWardDetectGps');
 
     if (btnWardDetectGps) btnWardDetectGps.addEventListener('click', startOnboardingWardDetect);
-
-    // Soft-keyboard: keep ward/society fields + combobox list above the keyboard.
-    (function bindOnboardingKeyboardAssist() {
-      const modal = $('#onboardingModal');
-      const overlay = overlays.onboarding || $('#onboardingOverlay');
-      if (!modal) return;
-
-      let kbRaf = 0;
-      function clearKbVars() {
-        modal.style.setProperty('--kb-inset', '0px');
-        modal.style.removeProperty('--vv-height');
-        modal.style.removeProperty('--vv-offset-top');
-        modal.classList.remove('sheet--kb-expanded');
-        if (overlay) {
-          overlay.classList.remove('sheet-kb-active');
-          overlay.style.removeProperty('--vv-height');
-          overlay.style.removeProperty('--vv-offset-top');
-          overlay.style.removeProperty('--kb-inset');
-        }
-      }
-      function syncKbInset() {
-        const open = overlay && overlay.classList.contains('open');
-        if (!open) {
-          clearKbVars();
-          return;
-        }
-        const vv = window.visualViewport;
-        let inset = 0;
-        let height = window.innerHeight || 0;
-        let offsetTop = 0;
-        if (vv) {
-          inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-          height = Math.round(vv.height);
-          offsetTop = Math.round(vv.offsetTop || 0);
-        }
-        modal.style.setProperty('--kb-inset', inset + 'px');
-        // Pin overlay to visualViewport when keyboard is up (ward/society/name focus).
-        const fieldFocused = modal.contains(document.activeElement) &&
-          (document.activeElement.matches('input, textarea, select') ||
-            document.activeElement.closest('.civic-combobox'));
-        if (fieldFocused && inset > 40) {
-          const heightPx = (height || window.innerHeight) + 'px';
-          modal.classList.add('sheet--kb-expanded');
-          modal.style.setProperty('--vv-height', heightPx);
-          modal.style.setProperty('--vv-offset-top', offsetTop + 'px');
-          if (overlay) {
-            overlay.classList.add('sheet-kb-active');
-            overlay.style.setProperty('--vv-height', heightPx);
-            overlay.style.setProperty('--vv-offset-top', offsetTop + 'px');
-            overlay.style.setProperty('--kb-inset', inset + 'px');
-          }
-        } else if (!modal.querySelector('.civic-combobox.is-open')) {
-          modal.classList.remove('sheet--kb-expanded');
-          if (overlay && !overlay.querySelector('.modal.sheet--kb-expanded')) {
-            overlay.classList.remove('sheet-kb-active');
-            overlay.style.removeProperty('--vv-height');
-            overlay.style.removeProperty('--vv-offset-top');
-            overlay.style.removeProperty('--kb-inset');
-          }
-        }
-      }
-      function scheduleKbInset() {
-        if (kbRaf) cancelAnimationFrame(kbRaf);
-        kbRaf = requestAnimationFrame(() => {
-          kbRaf = 0;
-          syncKbInset();
-        });
-      }
-      function scrollFieldIntoView(el) {
-        if (!el || !modal.contains(el)) return;
-        scheduleKbInset();
-        requestAnimationFrame(() => {
-          const wrap = el.closest('.civic-combobox') || el.closest('.form-group') || el;
-          const scroller = modal.querySelector('.modal__sheet-body') || modal;
-          // Scroll only inside the sheet body — never document scrollIntoView.
-          try {
-            const sheetRect = scroller.getBoundingClientRect();
-            const wrapRect = wrap.getBoundingClientRect();
-            const pad = 12;
-            let delta = 0;
-            if (wrapRect.bottom > sheetRect.bottom - pad) {
-              delta = wrapRect.bottom - (sheetRect.bottom - pad);
-            } else if (wrapRect.top < sheetRect.top + pad) {
-              delta = wrapRect.top - (sheetRect.top + pad);
-            }
-            if (delta) scroller.scrollTop += delta;
-          } catch { /* ignore */ }
-        });
-      }
-
-      ['wardInput', 'onboardSociety', 'displayName'].forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('focus', () => scrollFieldIntoView(el));
-        el.addEventListener('blur', () => setTimeout(scheduleKbInset, 160));
-      });
-
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', scheduleKbInset);
-        window.visualViewport.addEventListener('scroll', scheduleKbInset);
-      }
-      window.addEventListener('resize', scheduleKbInset);
-      if (overlay) {
-        const mo = new MutationObserver(() => {
-          if (!overlay.classList.contains('open')) clearKbVars();
-          else scheduleKbInset();
-        });
-        mo.observe(overlay, { attributes: true, attributeFilter: ['class'] });
-      }
-    })();
 
     const onboardCity = $('#onboardCity');
 
@@ -31416,7 +31075,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       snoozeLocBanner();
 
-      hideLocationBanner({ animate: true });
+      hideLocationBanner();
 
       showLocatePill();
 

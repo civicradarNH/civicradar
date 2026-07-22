@@ -230,37 +230,11 @@ textarea {
    (#f8fafc ≈ white) while the splash is still up — keep indigo until boot ends. */
 html.app-booting,
 body.app-booting {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  min-height: 100%;
   background: #6366f1;
 }
 
 .app-launch {
   -webkit-tap-highlight-color: transparent;
-  background: #6366f1;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding:
-    env(safe-area-inset-top, 0px)
-    env(safe-area-inset-right, 0px)
-    env(safe-area-inset-bottom, 0px)
-    env(safe-area-inset-left, 0px);
-}
-
-.app-launch__logo {
-  object-fit: contain;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .app-launch {
-    transition: none;
-  }
 }
 
 /* ============================================
@@ -898,7 +872,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   list-style: none;
   margin: 0 0 24px;
   padding: 16px 12px;
@@ -907,9 +881,6 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(129, 140, 248, 0.22);
   border-radius: var(--radius-md);
-  /* Sequential explainer — not interactive nav */
-  pointer-events: none;
-  user-select: none;
 }
 
 .purpose-steps li {
@@ -925,19 +896,6 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--ink-600);
   line-height: 1.25;
   overflow-wrap: anywhere;
-  position: relative;
-}
-
-/* Subtle 1→2→3 connector between pillars */
-.purpose-steps li:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 22px;
-  left: calc(50% + 28px);
-  width: calc(100% - 40px);
-  height: 1px;
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0.12));
-  pointer-events: none;
 }
 
 /* One-shot stagger on open — no breathe/pulse loop */
@@ -949,7 +907,6 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 .coach-mark:not(.hidden) .purpose-steps li:nth-child(3) { animation-delay: 0.26s; }
 
 .purpose-steps__icon {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -957,28 +914,6 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   height: 44px;
   border-radius: var(--radius-md);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  cursor: default;
-}
-
-.purpose-steps__num {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--ink-600);
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0;
-  box-shadow: var(--shadow-sm);
 }
 
 .purpose-steps__icon i {
@@ -986,7 +921,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   line-height: 1;
 }
 
-/* Distinct soft gradient tiles — indigo / teal-emerald / violet (decorative only) */
+/* Distinct soft gradient tiles — indigo / teal-emerald / violet */
 .purpose-steps__icon--map {
   background: linear-gradient(145deg, rgba(199, 210, 254, 0.95) 0%, rgba(165, 180, 252, 0.55) 55%, rgba(99, 102, 241, 0.18) 100%);
   border: 1px solid rgba(129, 140, 248, 0.45);
@@ -1011,7 +946,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   gap: 0;
 }
 
-/* Explore Map — brand → blue gradient + soft elevate (no breathe loop) */
+/* Got it — brand → blue gradient + soft elevate (no breathe loop) */
 .coach-mark__card .btn--primary {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
@@ -1134,14 +1069,6 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   }
   .purpose-steps__icon {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  }
-  .purpose-steps__num {
-    background: #1e293b;
-    border-color: rgba(148, 163, 184, 0.35);
-    color: #e2e8f0;
-  }
-  .purpose-steps li:not(:last-child)::after {
-    background: linear-gradient(90deg, rgba(148, 163, 184, 0.35), rgba(148, 163, 184, 0.08));
   }
   .purpose-steps__icon--map {
     background: linear-gradient(145deg, rgba(99, 102, 241, 0.42) 0%, rgba(67, 56, 202, 0.28) 100%);
@@ -1872,16 +1799,7 @@ body.persona-lead #wardPulse {
   border-radius: var(--radius-lg);
   font-size: var(--fs-sm);
   color: var(--warning-dark);
-  transform: translateY(0);
-  opacity: 1;
-  transition: transform 0.18s var(--ease-out-soft, ease), opacity 0.18s ease;
   }
-
-.location-banner.location-banner--dismissing {
-  transform: translateY(calc(-100% - 12px));
-  opacity: 0;
-  pointer-events: none;
-}
 
 /* Compact chip — keeps map viewport clear after onboarding (Gemini 4 / P0) */
 .location-banner--compact {
@@ -1913,13 +1831,13 @@ body.persona-lead #wardPulse {
 }
 
 .location-banner--compact .location-banner__btn {
-  min-height: var(--touch-min);
+  min-height: 36px;
   padding: 6px 12px;
   font-size: var(--fs-xs);
 }
 
 /* Two-row layout (v255) — icon+text on their own line, actions on the next
-   one, right-aligned. Sharing a single row squeezed the "Enable" button
+   one, right-aligned. Sharing a single row squeezed the "Turn on" button
    into an awkward mid-sentence wrap on narrow phones. Text itself is
    untouched (DPDP location-consent notice, not something to trim). */
 .location-banner__msg {
@@ -1997,14 +1915,6 @@ body.persona-lead #wardPulse {
 
 @media (prefers-reduced-motion: reduce) {
   .location-banner__close:active { transform: none; }
-  .location-banner {
-    transition: none;
-  }
-  .location-banner.location-banner--dismissing {
-    transform: none;
-    opacity: 0;
-    visibility: hidden;
-  }
 }
 
 /* Location banner owns top chrome — collapse persona so map keeps viewport */
@@ -3361,68 +3271,17 @@ body.pwa-nudge-visible #btnCamera {
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-/* Sticky CTA sheets: last inputs must clear the sticky footer (v241).
-   Flex sheet-flex modals use a locked footer instead — skip margin hack. */
-.modal:has(> .modal__sticky-footer):not(.modal--sheet-flex),
+/* Sticky CTA sheets: last inputs must clear the sticky footer (v241) */
+.modal:has(> .modal__sticky-footer),
+#onboardingModal,
 #reportStepConfirm.report-step--active {
-  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
+  scroll-padding-bottom: 96px;
 }
 
-.modal:not(.modal--sheet-flex) > *:has(+ .modal__sticky-footer),
+.modal > *:has(+ .modal__sticky-footer),
+#onboardingModal > *:has(+ .modal__sticky-footer),
 #reportStepConfirm > *:has(+ .modal__sticky-footer) {
-  margin-bottom: calc(96px + var(--kb-inset, 0px));
-}
-
-/* Welcome / onboarding: flex column so keyboard shrinks body, not the whole sheet */
-.modal.modal--sheet-flex {
-  display: flex;
-  flex-direction: column;
-  max-height: min(85vh, 100dvh);
-  overflow: hidden;
-  padding-bottom: 0;
-  scroll-padding-bottom: 0;
-}
-
-.modal.modal--sheet-flex .modal__sheet-header {
-  flex: none;
-  padding-bottom: 12px;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.modal.modal--sheet-flex .modal__sheet-header .modal__subtitle {
-  margin-bottom: 0;
-}
-
-.modal.modal--sheet-flex .modal__sheet-body {
-  flex: 1 1 auto;
-  min-height: 0; /* critical — allows flex child to shrink + scroll */
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding-top: 16px;
-  padding-bottom: 8px;
-  scroll-padding-bottom: 16px;
-}
-
-.modal.modal--sheet-flex .modal__sheet-footer,
-.modal.modal--sheet-flex > .modal__sticky-footer {
-  flex: none;
-  position: relative;
-  z-index: 2;
-  margin: 0 -24px 0;
-  padding: 12px 24px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-@media (min-width: 768px) {
-  .modal.modal--sheet-flex {
-    max-height: min(90vh, 900px);
-  }
+  margin-bottom: 96px;
 }
 
 .modal--tall {
@@ -3609,7 +3468,7 @@ body.pwa-nudge-visible #btnCamera {
   right: 0;
   top: calc(100% + 4px);
   z-index: 50;
-  max-height: 200px;
+  max-height: min(280px, 42vh);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -4768,44 +4627,6 @@ body.pwa-nudge-visible #btnCamera {
   font-size: var(--text-sm, var(--fs-sm));
   color: var(--ink-600, var(--text-muted));
   line-height: 1.4;
-}
-
-/* Resources: amber alert pill — AA contrast (legal.css disclaimer pattern) */
-.resources-disclaimer {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0 0 14px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  background: rgba(245, 158, 11, 0.12);
-  color: #78350f;
-  font-size: var(--text-xs, var(--fs-xs));
-  line-height: 1.45;
-  font-weight: 500;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-.resources-disclaimer i {
-  flex-shrink: 0;
-  margin-top: 1px;
-  color: #fbbf24;
-  font-size: 1.05em;
-}
-
-@media (prefers-color-scheme: dark) {
-  .resources-disclaimer {
-    background: rgba(245, 158, 11, 0.16);
-    border-color: rgba(245, 158, 11, 0.35);
-    color: #fef08a;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  }
-
-  .resources-disclaimer i {
-    color: #fbbf24;
-  }
 }
 
 .success-optional-block .accountability-clock {
@@ -7507,7 +7328,7 @@ body.persona-lead .app-open-banner { display: none; }
   display: inline-block;
   margin-top: 2px;
   padding: 2px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: rgba(238, 242, 255, 0.88);
   color: var(--primary-fill);
   border: 1px solid rgba(99, 102, 241, 0.28);
@@ -7518,24 +7339,6 @@ body.persona-lead .app-open-banner { display: none; }
   font-style: normal;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-}
-
-/* Distinct weight: Official App (filled) vs Fastest (tint) — not twin pills */
-.esc-channel__badge--official-app {
-  background: var(--primary-fill, #6366f1);
-  color: #fff;
-  border-color: transparent;
-  border-radius: var(--radius-sm);
-  letter-spacing: 0.04em;
-}
-
-.esc-channel__badge--fastest {
-  background: rgba(5, 150, 105, 0.12);
-  color: var(--success, #059669);
-  border: 1px solid rgba(5, 150, 105, 0.35);
-  border-radius: var(--radius-pill);
-  font-weight: 600;
-  letter-spacing: 0.03em;
 }
 
 .esc-channels--primary {
@@ -7735,14 +7538,6 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .esc-channel-wrap--recommended {
   background: rgba(99, 102, 241, 0.05);
   border-radius: var(--radius-md);
-}
-
-#resourcesModal .esc-channel-wrap--official-app {
-  background: rgba(99, 102, 241, 0.07);
-}
-
-#resourcesModal .esc-channel-wrap--fastest {
-  background: rgba(5, 150, 105, 0.06);
 }
 
 #resourcesModal .official-channels .esc-channel__badge {
@@ -9842,10 +9637,7 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 
 html.modal-open,
 body.modal-open {
-  overflow: hidden;
   overscroll-behavior: none;
-  /* Keep layout viewport stable while soft keyboard resizes visualViewport */
-  height: 100%;
 }
 
 button,
@@ -12618,108 +12410,10 @@ body.sheet-depth-blocking .map-hud {
   }
 }
 
-/* Sticky-footer sheets: scroll focus + last-field clearance (margin above).
-   Onboarding uses flex sheet-body — do not pad the outer modal for sticky. */
+/* Sticky-footer sheets: scroll focus + last-field clearance (margin above) */
+#onboardingOverlay #onboardingModal,
 #tosOverlay .modal:has(> .modal__sticky-footer) {
-  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
-  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + var(--kb-inset, 0px));
-}
-
-#onboardingOverlay #onboardingModal.modal--sheet-flex {
-  scroll-padding-bottom: 0;
-  padding-bottom: 0;
-}
-
-/* Combobox list needs room above keyboard when open inside sheets */
-.modal .civic-combobox.is-open {
-  position: relative;
-  z-index: 30;
-  scroll-margin-top: 8px;
-  scroll-margin-bottom: calc(48px + var(--kb-inset, 0px));
-}
-
-/* Sheets: keep suggestion list in document flow under the input.
-   Absolute/composited lists inside transform+overflow sheets orphan over the
-   map when the soft keyboard moves visualViewport (onboarding + Profile Edit). */
-.modal .civic-combobox__list:not(.hidden) {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  max-height: 180px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  margin-top: 4px;
-  z-index: 10;
-  /* Stay in sheet stacking context — never paint over map behind overlay */
-  transform: none;
-}
-
-.modal .form-group:has(.civic-combobox.is-open) {
-  overflow: visible;
-}
-
-/*
-  Ward/society focus: pin overlay to visualViewport, not layout viewport.
-  Root cause of off-screen push: flex-end docked the sheet to the bottom of
-  inset:0 (under the keyboard), so the visual viewport showed map/Resources.
-*/
-#onboardingOverlay.sheet-kb-active,
-#profileEditOverlay.sheet-kb-active {
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
-  top: var(--vv-offset-top, 0px);
-  left: 0;
-  right: 0;
-  bottom: auto;
-  width: 100%;
-  height: var(--vv-height, 100dvh);
-  max-height: var(--vv-height, 100dvh);
-  overflow: hidden;
-}
-
-#onboardingOverlay.sheet-kb-active #onboardingModal,
-#profileEditOverlay.sheet-kb-active #profileEditModal,
-.modal.sheet--kb-expanded {
-  max-height: var(--vv-height, 100dvh);
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
-  /* Stay anchored inside the vv-pinned overlay — no translate off-screen */
-  transform: translate3d(0, 0, 0) !important;
-  margin-bottom: 0;
-}
-
-/* Flex onboarding: outer sheet does not scroll — body does */
-#onboardingOverlay.sheet-kb-active #onboardingModal.modal--sheet-flex,
-#onboardingModal.modal--sheet-flex.sheet--kb-expanded {
-  display: flex;
-  flex-direction: column;
-  height: min(85vh, var(--vv-height, 100dvh));
-  max-height: min(85vh, var(--vv-height, 100dvh));
-  overflow: hidden;
-  scroll-padding-bottom: 0;
-}
-
-#onboardingOverlay.sheet-kb-active #onboardingModal.modal--sheet-flex .modal__sheet-body,
-#onboardingModal.modal--sheet-flex.sheet--kb-expanded .modal__sheet-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-#onboardingOverlay.sheet-kb-active #onboardingModal {
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  width: 100%;
-  max-width: 480px;
-}
-
-.modal.sheet--kb-expanded .civic-combobox__list:not(.hidden) {
-  max-height: min(180px, calc(var(--vv-height, 100dvh) * 0.32));
+  scroll-padding-bottom: 96px;
 }
 
 /* ============================================================
