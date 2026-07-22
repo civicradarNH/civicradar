@@ -25742,9 +25742,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
 
-        try { lastFocusedEl.focus(); } catch { /* ignore */ }
-
+        // Do not restore focus into the sheet we just closed — that re-opens
+        // combobox/keyboard assist and can wedge Playwright evaluate/CDP.
+        const restore = lastFocusedEl;
         lastFocusedEl = null;
+        if (!el.contains(restore)) {
+          try { restore.focus({ preventScroll: true }); } catch { try { restore.focus(); } catch { /* ignore */ } }
+        } else {
+          try { if (document.activeElement && el.contains(document.activeElement)) document.activeElement.blur(); } catch { /* ignore */ }
+        }
 
       }
 

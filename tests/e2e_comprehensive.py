@@ -637,14 +637,24 @@ async def seed_confirm_pin(page, lat=19.0760, lng=72.8777, accuracy=5, user_adju
 
 
 async def js_click(page, selector: str):
+    """Click via deferred DOM event so Playwright evaluate can return.
 
+    Native el.click() inside page.evaluate can wedge the CDP session after
+    heavy sync UI (onboarding complete reached 'done' but evaluate never
+    returned — smoke hung after C07 for the full job timeout).
+    """
     await page.evaluate(
-
-        """(sel) => { const el = document.querySelector(sel); if (el) el.click(); }""",
-
+        """(sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          setTimeout(() => {
+            try { el.click(); } catch (e) { /* ignore */ }
+          }, 0);
+        }""",
         selector,
-
     )
+    # Yield so the scheduled click runs before the next assertion.
+    await page.wait_for_timeout(50)
 
 
 async def dismiss_toasts(page):
@@ -1158,7 +1168,22 @@ async def run_citizen_tests(s: Suite, browser):
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
 
-    await page.wait_for_timeout(500)
+    # Wait for onboarding to finish (js_click is deferred; do not race localStorage).
+    try:
+        await page.wait_for_function(
+            """() => {
+              try {
+                const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
+                const open = document.getElementById('onboardingOverlay')?.classList.contains('open');
+                return !!u.ward && !open;
+              } catch (e) { return false; }
+            }""",
+            timeout=10000,
+        )
+    except Exception:
+        pass
+
+    await page.wait_for_timeout(200)
 
     u = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user"))')
 
