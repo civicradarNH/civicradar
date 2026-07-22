@@ -637,14 +637,24 @@ async def seed_confirm_pin(page, lat=19.0760, lng=72.8777, accuracy=5, user_adju
 
 
 async def js_click(page, selector: str):
+    """Click via deferred DOM event so Playwright evaluate can return.
 
+    Native el.click() inside page.evaluate can wedge the CDP session after
+    heavy sync UI (onboarding complete finishes but evaluate never returns —
+    smoke hung after C07 for the full 15m job timeout).
+    """
     await page.evaluate(
-
-        """(sel) => { const el = document.querySelector(sel); if (el) el.click(); }""",
-
+        """(sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          setTimeout(() => {
+            try { el.click(); } catch (e) { /* ignore */ }
+          }, 0);
+        }""",
         selector,
-
     )
+    # Yield so the scheduled click runs before the next assertion.
+    await page.wait_for_timeout(50)
 
 
 async def dismiss_toasts(page):
@@ -661,10 +671,60 @@ async def dismiss_toasts(page):
 async def dismiss_civic_comboboxes(page):
     await page.evaluate(
         '''() => {
+          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.closeAll === 'function') {
+            CivicSearchableSelect.closeAll();
+          }
           document.querySelectorAll('.civic-combobox__list').forEach((el) => el.classList.add('hidden'));
-          document.querySelectorAll('[role="combobox"]').forEach((el) => el.setAttribute('aria-expanded', 'false'));
+          document.querySelectorAll('.civic-combobox').forEach((el) => el.classList.remove('is-open'));
+          document.querySelectorAll('[role="combobox"]').forEach((el) => {
+            el.setAttribute('aria-expanded', 'false');
+            try { el.blur(); } catch (e) {}
+          });
+          try { if (document.activeElement) document.activeElement.blur(); } catch (e) {}
         }'''
     )
+
+
+async def set_input_value(page, selector: str, value: str):
+    """Set a plain input without Playwright fill()/focus (avoids layout races)."""
+    await page.evaluate(
+        """([sel, val]) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          el.value = val;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          try { el.blur(); } catch (e) {}
+        }""",
+        [selector, value],
+    )
+
+
+async def set_combobox_value(page, selector: str, value: str):
+    """Set a CivicSearchableSelect value without Playwright fill() focus races."""
+    await dismiss_civic_comboboxes(page)
+    await page.evaluate(
+        """([sel, val]) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.setValueQuiet === 'function') {
+            CivicSearchableSelect.setValueQuiet(el, val);
+          } else {
+            el.value = val;
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            try { el.blur(); } catch (e) {}
+          }
+          const wrap = el.closest('.civic-combobox');
+          if (wrap) {
+            wrap.classList.remove('is-open');
+            const list = wrap.querySelector('.civic-combobox__list');
+            if (list) list.classList.add('hidden');
+          }
+          el.setAttribute('aria-expanded', 'false');
+        }""",
+        [selector, value],
+    )
+    await dismiss_civic_comboboxes(page)
 
 
 async def open_profile_edit_sheet(page):
@@ -1072,7 +1132,7 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await page.fill('#wardInput', '<script>alert(1)</script> Ward')
+    await set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
@@ -1083,14 +1143,31 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await page.fill('#wardInput', WARD)
+    await set_combobox_value(page, '#wardInput', WARD)
 
-    await page.fill('#displayName', '<img onerror=alert(1)>')
+    # Never use Playwright fill() here — focus + sync el.click() in evaluate
+    # wedged CDP after onboarding complete (smoke hung after C07 for 15m).
+    await set_input_value(page, '#displayName', '<img onerror=alert(1)>')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
 
-    await page.wait_for_timeout(500)
+    # js_click is deferred; wait for onboarding to finish before reading user.
+    try:
+        await page.wait_for_function(
+            """() => {
+              try {
+                const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
+                const open = document.getElementById('onboardingOverlay')?.classList.contains('open');
+                return !!u.ward && !open;
+              } catch (e) { return false; }
+            }""",
+            timeout=10000,
+        )
+    except Exception:
+        pass
+
+    await page.wait_for_timeout(200)
 
     u = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user"))')
 
@@ -1176,7 +1253,7 @@ async def run_citizen_tests(s: Suite, browser):
 
         await page_def.wait_for_timeout(600)
 
-        await page_def.fill('#wardInput', WARD)
+        await set_combobox_value(page_def, '#wardInput', WARD)
 
         await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
 
@@ -5531,7 +5608,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v377" in sw_src
+            "civicradar-v378" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8839,7 +8916,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v377" in sw_src
+            "civicradar-v378" in sw_src
 
             and "'/index.html'" not in sw_src
 
