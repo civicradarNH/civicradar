@@ -1872,7 +1872,16 @@ body.persona-lead #wardPulse {
   border-radius: var(--radius-lg);
   font-size: var(--fs-sm);
   color: var(--warning-dark);
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 0.18s var(--ease-out-soft, ease), opacity 0.18s ease;
   }
+
+.location-banner.location-banner--dismissing {
+  transform: translateY(calc(-100% - 12px));
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* Compact chip — keeps map viewport clear after onboarding (Gemini 4 / P0) */
 .location-banner--compact {
@@ -1904,13 +1913,13 @@ body.persona-lead #wardPulse {
 }
 
 .location-banner--compact .location-banner__btn {
-  min-height: 36px;
+  min-height: var(--touch-min);
   padding: 6px 12px;
   font-size: var(--fs-xs);
 }
 
 /* Two-row layout (v255) — icon+text on their own line, actions on the next
-   one, right-aligned. Sharing a single row squeezed the "Turn on" button
+   one, right-aligned. Sharing a single row squeezed the "Enable" button
    into an awkward mid-sentence wrap on narrow phones. Text itself is
    untouched (DPDP location-consent notice, not something to trim). */
 .location-banner__msg {
@@ -1988,6 +1997,14 @@ body.persona-lead #wardPulse {
 
 @media (prefers-reduced-motion: reduce) {
   .location-banner__close:active { transform: none; }
+  .location-banner {
+    transition: none;
+  }
+  .location-banner.location-banner--dismissing {
+    transform: none;
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 /* Location banner owns top chrome — collapse persona so map keeps viewport */
@@ -3541,7 +3558,7 @@ body.pwa-nudge-visible #btnCamera {
   right: 0;
   top: calc(100% + 4px);
   z-index: 50;
-  max-height: min(280px, 42vh);
+  max-height: 200px;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -4700,6 +4717,28 @@ body.pwa-nudge-visible #btnCamera {
   font-size: var(--text-sm, var(--fs-sm));
   color: var(--ink-600, var(--text-muted));
   line-height: 1.4;
+}
+
+/* Resources: subtle alert pill — expectation-setting, not tucked field-hint */
+.resources-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  background: rgba(254, 243, 199, 0.55);
+  color: var(--ink-600, var(--text-muted));
+  font-size: var(--text-xs, var(--fs-xs));
+  line-height: 1.45;
+}
+
+.resources-disclaimer i {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--warning, #d97706);
+  font-size: 1.05em;
 }
 
 .success-optional-block .accountability-clock {
@@ -7401,7 +7440,7 @@ body.persona-lead .app-open-banner { display: none; }
   display: inline-block;
   margin-top: 2px;
   padding: 2px 8px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: rgba(238, 242, 255, 0.88);
   color: var(--primary-fill);
   border: 1px solid rgba(99, 102, 241, 0.28);
@@ -7412,6 +7451,24 @@ body.persona-lead .app-open-banner { display: none; }
   font-style: normal;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+/* Distinct weight: Official App (filled) vs Fastest (tint) — not twin pills */
+.esc-channel__badge--official-app {
+  background: var(--primary-fill, #6366f1);
+  color: #fff;
+  border-color: transparent;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.04em;
+}
+
+.esc-channel__badge--fastest {
+  background: rgba(5, 150, 105, 0.12);
+  color: var(--success, #059669);
+  border: 1px solid rgba(5, 150, 105, 0.35);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .esc-channels--primary {
@@ -7611,6 +7668,14 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .esc-channel-wrap--recommended {
   background: rgba(99, 102, 241, 0.05);
   border-radius: var(--radius-md);
+}
+
+#resourcesModal .esc-channel-wrap--official-app {
+  background: rgba(99, 102, 241, 0.07);
+}
+
+#resourcesModal .esc-channel-wrap--fastest {
+  background: rgba(5, 150, 105, 0.06);
 }
 
 #resourcesModal .official-channels .esc-channel__badge {
@@ -12492,7 +12557,30 @@ body.sheet-depth-blocking .map-hud {
 
 /* Combobox list needs room above keyboard when open inside sheets */
 .modal .civic-combobox.is-open {
+  position: relative;
+  z-index: 30;
+  scroll-margin-top: 8px;
   scroll-margin-bottom: calc(48px + var(--kb-inset, 0px));
+}
+
+/* Sheets: keep suggestion list in document flow under the input.
+   Absolute/composited lists inside transform+overflow sheets orphan over the
+   map when the soft keyboard moves visualViewport (onboarding + Profile Edit). */
+.modal .civic-combobox__list:not(.hidden) {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  margin-top: 4px;
+  z-index: 10;
+}
+
+.modal .form-group:has(.civic-combobox.is-open) {
+  overflow: visible;
 }
 
 /* Ward/society focus: expand sheet to visualViewport height (keyboard-aware) */
@@ -12506,6 +12594,8 @@ body.sheet-depth-blocking .map-hud {
 #profileEditOverlay.sheet-kb-active #profileEditModal,
 .modal.sheet--kb-expanded {
   max-height: var(--vv-height, 100dvh);
+  overflow-x: hidden;
+  overflow-y: auto;
   scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
 }
 
@@ -12515,23 +12605,8 @@ body.sheet-depth-blocking .map-hud {
   max-width: 480px;
 }
 
-.modal.sheet--kb-expanded .civic-combobox.is-open {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
 .modal.sheet--kb-expanded .civic-combobox__list:not(.hidden) {
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  flex: 1 1 auto;
-  max-height: min(42vh, calc(var(--vv-height, 100dvh) * 0.42));
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  margin-top: 4px;
+  max-height: min(240px, calc(var(--vv-height, 100dvh) * 0.36));
 }
 
 /* ============================================================

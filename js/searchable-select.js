@@ -58,6 +58,9 @@
     // When the user scrolls the option list, blur the input to dismiss the
     // keyboard but keep the list open for tapping an option.
     let keepOpenOnBlur = false;
+    // Ignore sheet scroll fired by our own scrollIntoView / keyboard resize
+    // so we don't immediately close the list we just opened.
+    let ignoreSheetScrollUntil = 0;
     // When we set input.value programmatically (on selection) we still need to
     // fire 'input'/'change' so app.js reacts — but the component's OWN 'input'
     // listener must ignore that self-dispatched event, otherwise it re-opens
@@ -171,8 +174,8 @@
 
     /**
      * Expand parent sheet toward visualViewport height, then scroll the
-     * focused combobox to the top of the sheet so the list stays above the
-     * soft keyboard (onboarding + Profile Edit).
+     * focused combobox (input + in-flow list) so both stay above the soft
+     * keyboard (onboarding + Profile Edit).
      */
     function ensureAboveKeyboard() {
       const sheet = input.closest('.modal');
@@ -180,6 +183,8 @@
       bindViewportSyncOnce();
       sheet.classList.add('sheet--kb-expanded');
       syncViewportVars(sheet);
+      // Programmatic scroll must not trip the sheet-scroll closer.
+      ignoreSheetScrollUntil = Date.now() + 450;
       const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
       requestAnimationFrame(function () {
         try {
@@ -188,6 +193,19 @@
           try { wrap.scrollIntoView(true); } catch (e2) { /* ignore */ }
         }
       });
+    }
+
+    /**
+     * Sheet scroll while open can leave menus visually orphaned over the map
+     * (transform + overflow + visualViewport). Close + blur — listbox has its
+     * own scroll container so this does not fire when browsing options.
+     */
+    function onSheetScrollClose() {
+      if (!isOpen || Date.now() < ignoreSheetScrollUntil) return;
+      closeList();
+      try {
+        if (document.activeElement === input) input.blur();
+      } catch (e) { /* ignore */ }
     }
 
     function collapseSheetIfIdle() {
@@ -365,6 +383,8 @@
     function blurInputKeepList() {
       if (document.activeElement !== input) return;
       keepOpenOnBlur = true;
+      // Keyboard dismiss resizes the sheet; suppress scroll-close briefly.
+      ignoreSheetScrollUntil = Date.now() + 500;
       try { input.blur(); } catch (e) { /* ignore */ }
     }
     listbox.addEventListener('touchmove', blurInputKeepList, { passive: true });
@@ -380,6 +400,12 @@
     document.addEventListener('touchstart', function onDocTouch(e) {
       if (!wrap.contains(e.target)) closeList();
     }, { passive: true });
+
+    // Close on sheet scroll (onboarding + Profile Edit + other modals).
+    const sheetEl = input.closest('.modal');
+    if (sheetEl) {
+      sheetEl.addEventListener('scroll', onSheetScrollClose, { passive: true });
+    }
 
     const api = {
       refresh: function () {

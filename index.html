@@ -214,10 +214,10 @@
   <div id="locationBanner" class="location-banner location-banner--compact hidden" role="status">
     <div class="location-banner__msg">
       <i class="ph ph-map-pin"></i>
-      <span id="locationBannerText" data-i18n="location.bannerCompact">Turn on location to pin hazards — or place a pin when reporting.</span>
+      <span id="locationBannerText" data-i18n="location.bannerCompact">Enable location to see hazards near you.</span>
     </div>
     <div class="location-banner__actions">
-      <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
+      <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Enable</button>
       <button type="button" class="location-banner__close" id="btnDismissLocation" data-i18n-aria="location.dismiss" aria-label="Dismiss">&times;</button>
     </div>
   </div>
@@ -859,11 +859,11 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
-      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Filing links and ways to help in your ward.</p>
+      <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Official municipal portals and ways to support your ward.</p>
 
       <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
         <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-        <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals — CivicRadar does not file for you.</p>
+        <p class="resources-disclaimer" role="note"><i class="ph ph-info" aria-hidden="true"></i> <span data-i18n="official.subtitle">CivicRadar redirects you to official government channels and does not file directly</span></p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
       </div>
 

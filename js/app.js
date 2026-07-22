@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v364';
+  const CIVIC_APP_VERSION = 'v367';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1584,11 +1584,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      const badge = ch.recommended
+      let badgeKind = '';
 
-        ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
+      if (ch.recommended) {
 
-        : '';
+        if (ch.id === 'marg' || ch.id === 'pmc_care' || ch.id === 'tmc_portal') badgeKind = 'officialApp';
+
+        else if (ch.urlKind === 'whatsapp' || ch.id === 'bmc_whatsapp' || ch.id === 'pmc_wa') badgeKind = 'fastest';
+
+        else badgeKind = 'recommended';
+
+      }
+
+      let badge = '';
+
+      if (badgeKind === 'officialApp') {
+
+        badge = `<em class="esc-channel__badge esc-channel__badge--official-app">${escapeHtml(t('official.officialApp'))}</em>`;
+
+      } else if (badgeKind === 'fastest') {
+
+        badge = `<em class="esc-channel__badge esc-channel__badge--fastest">${escapeHtml(t('official.fastest'))}</em>`;
+
+      } else if (badgeKind === 'recommended') {
+
+        badge = `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`;
+
+      }
 
       // Resources: single row affordance (no duplicate URL under the button).
       // Elsewhere: skip source link when it repeats the subtitle host.
@@ -1615,7 +1637,15 @@ document.addEventListener('DOMContentLoaded', function () {
         ? '<i class="ph ph-arrow-square-out esc-channel__external" aria-hidden="true"></i>'
         : '';
 
-      return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
+      const wrapExtra = badgeKind === 'officialApp'
+        ? ' esc-channel-wrap--recommended esc-channel-wrap--official-app'
+        : badgeKind === 'fastest'
+          ? ' esc-channel-wrap--recommended esc-channel-wrap--fastest'
+          : badgeKind === 'recommended'
+            ? ' esc-channel-wrap--recommended'
+            : '';
+
+      return `<div class="esc-channel-wrap${wrapExtra}">
 
         <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
@@ -2837,9 +2867,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': 'Ward hazard map for {city}',
 
-      'location.banner': 'Turn on location to pin hazards on the map — or place a pin when reporting.',
+      'location.banner': 'Enable location to see hazards near you.',
 
-      'location.bannerCompact': 'Turn on location to pin hazards — or place a pin when reporting.',
+      'location.bannerCompact': 'Enable location to see hazards near you.',
 
       'location.bannerNearby': 'Turn on location to pin hazards and see nearby issues. Pins only — not sold.',
 
@@ -2853,7 +2883,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.locateAria': 'Turn on location',
 
-      'location.enable': 'Turn on',
+      'location.enable': 'Enable',
 
       'tagline.threeBeat': 'Map it · Snap it · Report it',
 
@@ -3530,7 +3560,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'Chat — pre-fill below',
+      'esc.pmc.channelWaSmall': 'Fast filing via official WhatsApp bot',
 
       'esc.pmc.channelCall': 'Toll-free helpline',
 
@@ -3618,7 +3648,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'Resources',
 
-      'resources.subtitle': 'Filing links and ways to help in your ward.',
+      'resources.subtitle': 'Official municipal portals and ways to support your ward.',
 
       'resources.fileTitle': 'File with Corporation',
 
@@ -4332,9 +4362,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you.',
+      'official.subtitle': 'CivicRadar redirects you to official government channels and does not file directly',
 
       'official.recommended': 'Recommended',
+
+      'official.officialApp': 'Official App',
 
       'official.fastest': 'Fastest',
 
@@ -4352,31 +4384,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': '114 categories — geo photos — tracking',
+      'official.marg.small': 'Official app for road, drainage & civic complaints',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'MoHUA sanitation — ward inspector',
+      'official.swachhata.small': 'National portal for garbage & sanitation',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'Maharashtra state grievance portal',
+      'official.aaple.small': 'Maharashtra state grievance escalation',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'Pune Municipal Corporation app',
+      'official.pmc.small': 'Official app for Pune civic complaints',
 
       'official.tmc.label': 'TMC citizen portal',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'Official portal for Thane civic services',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'Quick chat filing',
+      'official.bmcWa.small': 'Fast filing via official WhatsApp bot',
 
       'official.bmcPortal.label': 'BMC online portal',
 
-      'official.bmcPortal.small': 'Web portal',
+      'official.bmcPortal.small': 'Web portal for civic services',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
 
@@ -5383,9 +5415,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} के लिए वार्ड खतरा नक्शा',
 
-      'location.banner': 'मानचित्र पर पिन लगाने के लिए लोकेशन चालू करें — या रिपोर्ट करते समय पिन रखें।',
+      'location.banner': 'पास के खतरे देखने के लिए लोकेशन चालू करें।',
 
-      'location.bannerCompact': 'खतरे पिन करने के लिए स्थान चालू करें — या रिपोर्ट करते समय पिन लगाएँ।',
+      'location.bannerCompact': 'पास के खतरे देखने के लिए लोकेशन चालू करें।',
 
       'location.bannerNearby': 'पिन लगाने और पास की समस्याएँ देखने के लिए लोकेशन चालू करें। सिर्फ पिन — बेचा नहीं जाता।',
 
@@ -6078,7 +6110,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'चैट · नीचे से कॉपी',
+      'esc.pmc.channelWaSmall': 'आधिकारिक WhatsApp बॉट से तेज़ दर्ज',
 
       'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन',
 
@@ -6166,7 +6198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधन',
 
-      'resources.subtitle': 'दर्ज लिंक और अपने वार्ड में मदद के तरीके।',
+      'resources.subtitle': 'आधिकारिक नगरपालिका पोर्टल और अपने वार्ड का साथ देने के तरीके।',
 
       'resources.fileTitle': 'निगम में दर्ज करें',
 
@@ -6878,9 +6910,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता।',
+      'official.subtitle': 'CivicRadar आपको आधिकारिक सरकारी चैनलों पर भेजता है और सीधे दर्ज नहीं करता',
 
       'official.recommended': 'अनुशंसित',
+
+      'official.officialApp': 'आधिकारिक ऐप',
 
       'official.fastest': 'सबसे तेज़',
 
@@ -6898,29 +6932,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': '114 श्रेणियाँ · जियो फोटो · ट्रैकिंग',
+      'official.marg.small': 'सड़क, नाली और नागरिक शिकायतों के लिए आधिकारिक ऐप',
 
-      'official.bmcPortal.small': 'वेब पोर्टल',
+      'official.bmcPortal.small': 'नागरिक सेवाओं का वेब पोर्टल',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'MoHUA स्वच्छता · वार्ड निरीक्षक',
+      'official.swachhata.small': 'कचरा और स्वच्छता का राष्ट्रीय पोर्टल',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'महाराष्ट्र राज्य शिकायत पोर्टल',
+      'official.aaple.small': 'महाराष्ट्र राज्य शिकायत एस्केलेशन',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'पुणे नगर निगम ऐप',
+      'official.pmc.small': 'पुणे नागरिक शिकायतों के लिए आधिकारिक ऐप',
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'ठाणे नागरिक सेवाओं का आधिकारिक पोर्टल',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'त्वरित चैट शिकायत',
+      'official.bmcWa.small': 'आधिकारिक WhatsApp बॉट से तेज़ दर्ज',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
@@ -7929,9 +7963,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} साठी वॉर्ड धोका नकाशा',
 
-      'location.banner': 'नकाशावर पिन लावण्यासाठी लोकेशन चालू करा — किंवा रिपोर्ट करताना पिन ठेवा.',
+      'location.banner': 'जवळचे धोके पाहण्यासाठी लोकेशन चालू करा.',
 
-      'location.bannerCompact': 'धोके पिन करण्यासाठी स्थान चालू करा — किंवा तक्रार करताना पिन लावा.',
+      'location.bannerCompact': 'जवळचे धोके पाहण्यासाठी लोकेशन चालू करा.',
 
       'location.bannerNearby': 'पिन लावण्यासाठी आणि जवळच्या समस्या पाहण्यासाठी लोकेशन चालू करा. फक्त पिन — विकले जात नाही.',
 
@@ -8624,7 +8658,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'चॅट · खाली कॉपी',
+      'esc.pmc.channelWaSmall': 'अधिकृत WhatsApp बॉटने जलद दाखल',
 
       'esc.pmc.channelCall': 'टोल-फ्री हेल्पलाइन',
 
@@ -8712,7 +8746,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'संसाधने',
 
-      'resources.subtitle': 'दाखल दुवे आणि तुमच्या वॉर्डमध्ये मदत करण्याचे मार्ग.',
+      'resources.subtitle': 'अधिकृत महापालिका पोर्टल्स आणि तुमच्या वॉर्डला पाठबिंबा देण्याचे मार्ग.',
 
       'resources.fileTitle': 'महापालिकेकडे नोंदवा',
 
@@ -9424,9 +9458,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'सत्यापित .gov अॅप्स आणि पोर्टल्स — CivicRadar तुमच्यावतीने दाखल करत नाही.',
+      'official.subtitle': 'CivicRadar तुम्हाला अधिकृत सरकारी चॅनेलवर पाठवते आणि थेट दाखल करत नाही',
 
       'official.recommended': 'शिफारस',
+
+      'official.officialApp': 'अधिकृत अॅप',
 
       'official.fastest': 'सर्वात जलद',
 
@@ -9444,31 +9480,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': '114 श्रेण्या · जिओ फोटो · ट्रॅकिंग',
+      'official.marg.small': 'रस्ते, गटार आणि नागरी तक्रारींसाठी अधिकृत अॅप',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'MoHUA स्वच्छता · वार्ड निरीक्षक',
+      'official.swachhata.small': 'कचरा आणि स्वच्छतेसाठी राष्ट्रीय पोर्टल',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'महाराष्ट्र राज्य तक्रार पोर्टल',
+      'official.aaple.small': 'महाराष्ट्र राज्य तक्रार वाढवणे',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'पुणे महानगरपालिका अॅप',
+      'official.pmc.small': 'पुणे नागरी तक्रारींसाठी अधिकृत अॅप',
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'ठाणे नागरी सेवांसाठी अधिकृत पोर्टल',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'जलद चॅट तक्रार',
+      'official.bmcWa.small': 'अधिकृत WhatsApp बॉटने जलद दाखल',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
-      'official.bmcPortal.small': 'वेब पोर्टल',
+      'official.bmcPortal.small': 'नागरी सेवांसाठी वेब पोर्टल',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
 
@@ -10474,9 +10510,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'header.contextCity': '{city} માટે વોર્ડ જોખમ નકશો',
 
-      'location.banner': 'CivicRadar ચોક્કસ સ્થાનથી જોખમો સમુદાય નકશા પર પિન કરે છે (પડોશીઓને દેખાય). ચાલુ કરો દબાવો — અથવા ફરિયાદ કરતી વખતે મેન્યુઅલ પિન મૂકો.',
+      'location.banner': 'નજીકના જોખમો જોવા સ્થાન ચાલુ કરો.',
 
-      'location.bannerCompact': 'જોખમ પિન કરવા સ્થાન ચાલુ કરો — અથવા ફરિયાદ વખતે પિન મૂકો.',
+      'location.bannerCompact': 'નજીકના જોખમો જોવા સ્થાન ચાલુ કરો.',
 
       'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો. સ્થાન ફક્ત રિપોર્ટ પિન તરીકે શેર થાય છે — વેચાતું નથી.',
 
@@ -11169,7 +11205,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
-      'esc.pmc.channelWaSmall': 'ચેટ · નીચેથી કૉપી',
+      'esc.pmc.channelWaSmall': 'અધિકૃત WhatsApp બૉટથી ઝડપી નોંધણી',
 
       'esc.pmc.channelCall': 'ટોલ-ફ્રી હેલ્પલાઇન',
 
@@ -11257,7 +11293,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.title': 'સંસાધનો',
 
-      'resources.subtitle': 'દાખલ લિંક્સ અને તમારા વોર્ડમાં મદદ કરવાના માર્ગો.',
+      'resources.subtitle': 'અધિકૃત નગરપાલિકા પોર્ટલ્સ અને તમારા વોર્ડને ટેકો આપવાના માર્ગો.',
 
       'resources.fileTitle': 'નગરપાલિકામાં નોંધાવો',
 
@@ -11969,9 +12005,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'ચકાસેલ .gov એપ્સ અને પોર્ટલ્સ — CivicRadar તમારી તરફથી નોંધાવતું નથી.',
+      'official.subtitle': 'CivicRadar તમને અધિકૃત સરકારી ચેનલ્સ પર મોકલે છે અને સીધું નોંધાવતું નથી',
 
       'official.recommended': 'ભલામણ',
+
+      'official.officialApp': 'અધિકૃત એપ',
 
       'official.fastest': 'સૌથી ઝડપી',
 
@@ -11989,31 +12027,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.label': 'MyBMC MARG',
 
-      'official.marg.small': '114 શ્રેણીઓ · જીઓ ફોટો · ટ્રેકિંગ',
+      'official.marg.small': 'રસ્તા, ગટર અને નાગરિક ફરિયાદો માટે અધિકૃત એપ',
 
       'official.swachhata.label': 'Swachhata-MoHUA',
 
-      'official.swachhata.small': 'MoHUA સ્વચ્છતા · વોર્ડ નિરીક્ષક',
+      'official.swachhata.small': 'કચરો અને સ્વચ્છતા માટે રાષ્ટ્રીય પોર્ટલ',
 
       'official.aaple.label': 'Aaple Sarkar',
 
-      'official.aaple.small': 'મહારાષ્ટ્ર રાજ્ય ફરિયાદ પોર્ટલ',
+      'official.aaple.small': 'મહારાષ્ટ્ર રાજ્ય ફરિયાદ એસ્કલેશન',
 
       'official.pmc.label': 'PMC CARE',
 
-      'official.pmc.small': 'પુણે મહાનગરપાલિકા એપ',
+      'official.pmc.small': 'પુણે નાગરિક ફરિયાદો માટે અધિકૃત એપ',
 
       'official.tmc.label': 'TMC નાગરિક પોર્ટલ',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'થાણે નાગરિક સેવાઓ માટે અધિકૃત પોર્ટલ',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'ઝડપી ચેટ ફરિયાદ',
+      'official.bmcWa.small': 'અધિકૃત WhatsApp બૉટથી ઝડપી નોંધણી',
 
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
 
-      'official.bmcPortal.small': 'વેબ પોર્ટલ',
+      'official.bmcPortal.small': 'નાગરિક સેવાઓ માટે વેબ પોર્ટલ',
 
       'official.hint.marg.stagnant-water': 'જાહેર આરોગ્ય → કીટ નિયંત્રણ → stagnant water / મચ્છર પ્રજનન',
 
@@ -28728,6 +28766,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // While snoozed, collapse the full banner into the unobtrusive locate pill.
 
+  let locationBannerDismissTimer = null;
   function showLocationBanner(message) {
 
     if (shouldDeferFirstRunNudges()) return;
@@ -28770,7 +28809,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     banner.classList.toggle('location-banner--compact', isConsent);
 
-    banner.classList.remove('hidden');
+    if (locationBannerDismissTimer) {
+
+      clearTimeout(locationBannerDismissTimer);
+
+      locationBannerDismissTimer = null;
+
+    }
+
+    banner.classList.remove('hidden', 'location-banner--dismissing');
 
     syncLocationBannerChrome();
 
@@ -28794,21 +28841,90 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
   function hideLocationBanner(opts) {
 
-    $('#locationBanner').classList.add('hidden');
+    const banner = $('#locationBanner');
 
-    syncLocationBannerChrome();
+    if (!banner) return;
 
-    // When parking for a primary overlay, skip FAB/nudge resume (caller flushes later).
-    if (opts && opts.skipWelcomeFlush) return;
+    const skipWelcomeFlush = !!(opts && opts.skipWelcomeFlush);
 
-    // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
-    if (typeof maybeShowFabSpotlight === 'function') {
+    const animate = !!(opts && opts.animate);
 
-      setTimeout(maybeShowFabSpotlight, 200);
+    const finishHide = () => {
+
+      if (locationBannerDismissTimer) {
+
+        clearTimeout(locationBannerDismissTimer);
+
+        locationBannerDismissTimer = null;
+
+      }
+
+      banner.classList.remove('location-banner--dismissing');
+
+      banner.classList.add('hidden');
+
+      syncLocationBannerChrome();
+
+      // When parking for a primary overlay, skip FAB/nudge resume (caller flushes later).
+      if (skipWelcomeFlush) return;
+
+      // Purpose may have finished while the GPS chip was up — resume FAB spotlight.
+      if (typeof maybeShowFabSpotlight === 'function') {
+
+        setTimeout(maybeShowFabSpotlight, 200);
+
+      }
+
+    };
+
+    // Parking / GPS enable / reduced-motion: instant hide (keeps overlay park + snooze paths).
+    if (!animate || prefersReducedMotion() || banner.classList.contains('hidden')) {
+
+      finishHide();
+
+      return;
 
     }
+
+    if (banner.classList.contains('location-banner--dismissing')) return;
+
+    let finished = false;
+
+    const onEnd = (e) => {
+
+      if (e.target !== banner) return;
+
+      if (finished) return;
+
+      finished = true;
+
+      banner.removeEventListener('transitionend', onEnd);
+
+      finishHide();
+
+    };
+
+    banner.addEventListener('transitionend', onEnd);
+
+    // Force layout so the dismissing transition always runs from the resting state.
+    void banner.offsetWidth;
+
+    banner.classList.add('location-banner--dismissing');
+
+    locationBannerDismissTimer = setTimeout(() => {
+
+      if (finished) return;
+
+      finished = true;
+
+      banner.removeEventListener('transitionend', onEnd);
+
+      finishHide();
+
+    }, 220);
 
   }
 
@@ -29825,13 +29941,10 @@ document.addEventListener('DOMContentLoaded', function () {
         requestAnimationFrame(() => {
           const wrap = el.closest('.civic-combobox') || el.closest('.form-group') || el;
           try {
-            wrap.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            // Prefer start so input + in-flow suggestion list stay above keyboard.
+            wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
           } catch {
             try { wrap.scrollIntoView(true); } catch { /* ignore */ }
-          }
-          const list = el.closest('.civic-combobox')?.querySelector('.civic-combobox__list:not(.hidden)');
-          if (list) {
-            try { list.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch { /* ignore */ }
           }
         });
       }
@@ -31155,7 +31268,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       snoozeLocBanner();
 
-      hideLocationBanner();
+      hideLocationBanner({ animate: true });
 
       showLocatePill();
 

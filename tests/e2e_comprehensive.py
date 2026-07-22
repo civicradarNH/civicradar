@@ -5531,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v364" in sw_src
+            "civicradar-v367" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8456,20 +8456,25 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
-    # Preferred Resources chrome (v325+): subtitle + Recommended (not Fastest) + Help cards;
+    # Preferred Resources chrome (v325+ layout): Official App + Fastest badges + Help cards;
     # v344+: single footer catalogue link (no mid-block "All official sources" duplicate).
     resources_ux_ok = await page.evaluate(
         """() => {
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
           const sub = document.getElementById('resourcesSubtitle');
-          const subOk = !!sub && /filing links|ways to help/i.test((sub.textContent || '').trim());
+          const subOk = !!sub && /municipal portals|support your ward|नगरपालिका|महापालिका|નગરપાલિકા/i.test((sub.textContent || '').trim());
           const el = document.getElementById('resourcesOfficialChannels');
           if (!el) return false;
           const badges = Array.from(el.querySelectorAll('.esc-channel__badge')).map(
             (b) => (b.textContent || '').trim().toLowerCase()
           );
-          const hasRecommended = badges.some((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
+          const hasOfficialApp = badges.some((b) =>
+            b.includes('official app') || b.includes('आधिकारिक ऐप') || b.includes('अधिकृत अॅप') || b.includes('અધિકૃત એપ')
+          );
           const hasFastest = badges.some((b) => b.includes('fastest') || b.includes('तेज़') || b.includes('जलद') || b.includes('ઝડપી'));
+          const disclaimer = document.querySelector('#resourcesOfficialBlock .resources-disclaimer');
+          const disclaimerOk = !!disclaimer
+            && /does not file|दर्ज नहीं|दाखल करत नाही|નોંધાવતું નથી/i.test((disclaimer.textContent || '').trim());
           const help = document.querySelector('#resourcesModal .resources-section--community');
           const helpOk = !!help
             && !!help.querySelector('#btnOpenVolunteer')
@@ -8481,10 +8486,10 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const fileTitle = document.querySelector('#resourcesOfficialBlock .resources-section__title');
           const fileTitleOk = !!fileTitle
             && !/official grievance/i.test((fileTitle.textContent || '').trim());
-          return subOk && hasRecommended && !hasFastest && helpOk && footerOk && fileTitleOk;
+          return subOk && hasOfficialApp && hasFastest && disclaimerOk && helpOk && footerOk && fileTitleOk;
         }"""
     )
-    s.record('OC06', 'OfficialChannels', 'Resources grouping + Recommended + footer sources link', resources_ux_ok)
+    s.record('OC06', 'OfficialChannels', 'Resources grouping + Official App/Fastest + footer sources link', resources_ux_ok)
 
     await ctx.close()
 
@@ -8839,7 +8844,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v364" in sw_src
+            "civicradar-v367" in sw_src
 
             and "'/index.html'" not in sw_src
 
