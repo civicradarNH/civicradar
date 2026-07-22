@@ -446,16 +446,32 @@
       }
     }
 
+    function setValueQuiet(value) {
+      suppressInput = true;
+      input.value = value == null ? '' : String(value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      suppressInput = false;
+      closeList();
+      try { input.blur(); } catch (e) { /* ignore */ }
+    }
+
     const api = {
       refresh: function () {
         // City/source changes call this while the list may be open — re-filter
         // from fresh getOptions(). Also recover visual/state desync.
-        if (isOpen || !listbox.classList.contains('hidden')) {
+        // Do not open solely because isOpen is stale after external DOM dismiss.
+        if (!listbox.classList.contains('hidden')) {
           openList(false);
+        } else {
+          isOpen = false;
+          wrap.classList.remove('is-open');
+          input.setAttribute('aria-expanded', 'false');
         }
       },
       open: function () { openList(true); },
       close: closeList,
+      setValueQuiet: setValueQuiet,
     };
 
     registry.set(input, api);
@@ -468,8 +484,36 @@
     if (api) api.refresh();
   }
 
+  function closeSearchableSelect(input) {
+    const api = registry.get(input);
+    if (api) api.close();
+  }
+
+  /** Close every mounted combobox (E2E + sheet teardown). Syncs isOpen, not just DOM. */
+  function closeAllSearchableSelects() {
+    document.querySelectorAll('.civic-combobox input[role="combobox"]').forEach(closeSearchableSelect);
+  }
+
+  /**
+   * Set value without focus / openList (Playwright fill hung smoke after C07).
+   * Fires input+change with suppressInput so app listeners still run.
+   */
+  function setValueQuiet(input, value) {
+    if (!input) return;
+    const api = registry.get(input);
+    if (api && typeof api.setValueQuiet === 'function') {
+      api.setValueQuiet(value);
+      return;
+    }
+    input.value = value == null ? '' : String(value);
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   global.CivicSearchableSelect = {
     init: initSearchableSelect,
     refresh: refreshSearchableSelect,
+    close: closeSearchableSelect,
+    closeAll: closeAllSearchableSelects,
+    setValueQuiet: setValueQuiet,
   };
 }(typeof window !== 'undefined' ? window : globalThis));

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v372';
+  const CIVIC_APP_VERSION = 'v373';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -30052,6 +30052,9 @@ document.addEventListener('DOMContentLoaded', function () {
           modal.classList.remove('sheet--kb-expanded');
           if (overlay && !overlay.querySelector('.modal.sheet--kb-expanded')) {
             overlay.classList.remove('sheet-kb-active');
+            overlay.style.removeProperty('--vv-height');
+            overlay.style.removeProperty('--vv-offset-top');
+            overlay.style.removeProperty('--kb-inset');
           }
         }
       }

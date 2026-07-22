@@ -661,6 +661,9 @@ async def dismiss_toasts(page):
 async def dismiss_civic_comboboxes(page):
     await page.evaluate(
         '''() => {
+          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.closeAll === 'function') {
+            CivicSearchableSelect.closeAll();
+          }
           document.querySelectorAll('.civic-combobox__list').forEach((el) => el.classList.add('hidden'));
           document.querySelectorAll('.civic-combobox').forEach((el) => el.classList.remove('is-open'));
           document.querySelectorAll('[role="combobox"]').forEach((el) => {
@@ -672,18 +675,17 @@ async def dismiss_civic_comboboxes(page):
           });
           document.querySelectorAll('.modal-overlay.sheet-kb-active').forEach((el) => {
             el.classList.remove('sheet-kb-active');
+            el.style.removeProperty('--vv-height');
+            el.style.removeProperty('--vv-offset-top');
+            el.style.removeProperty('--kb-inset');
           });
+          try { if (document.activeElement) document.activeElement.blur(); } catch (e) {}
         }'''
     )
 
 
-async def set_combobox_value(page, selector: str, value: str):
-    """Set a CivicSearchableSelect value without Playwright fill() focus races.
-
-    fill() focuses the input, opens the list, and can enable sheet-kb-active in
-    headless CI — that hung smoke after C07 for 15+ minutes.
-    """
-    await dismiss_civic_comboboxes(page)
+async def set_input_value(page, selector: str, value: str):
+    """Set a plain input without Playwright fill()/focus (avoids sheet-kb races)."""
     await page.evaluate(
         """([sel, val]) => {
           const el = document.querySelector(sel);
@@ -692,6 +694,32 @@ async def set_combobox_value(page, selector: str, value: str):
           el.dispatchEvent(new Event('input', { bubbles: true }));
           el.dispatchEvent(new Event('change', { bubbles: true }));
           try { el.blur(); } catch (e) {}
+        }""",
+        [selector, value],
+    )
+
+
+async def set_combobox_value(page, selector: str, value: str):
+    """Set a CivicSearchableSelect value without Playwright fill() focus races.
+
+    fill() focuses the input, opens the list, and can enable sheet-kb-active in
+    headless CI — that hung smoke after C07 for 15+ minutes.
+
+    Prefer CivicSearchableSelect.setValueQuiet (suppressInput + close) so the
+    combobox input handler does not call openList/ensureAboveKeyboard.
+    """
+    await dismiss_civic_comboboxes(page)
+    await page.evaluate(
+        """([sel, val]) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          if (window.CivicSearchableSelect && typeof CivicSearchableSelect.setValueQuiet === 'function') {
+            CivicSearchableSelect.setValueQuiet(el, val);
+          } else {
+            el.value = val;
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            try { el.blur(); } catch (e) {}
+          }
           const wrap = el.closest('.civic-combobox');
           if (wrap) {
             wrap.classList.remove('is-open');
@@ -702,6 +730,7 @@ async def set_combobox_value(page, selector: str, value: str):
         }""",
         [selector, value],
     )
+    await dismiss_civic_comboboxes(page)
 
 
 async def open_profile_edit_sheet(page):
@@ -1122,7 +1151,9 @@ async def run_citizen_tests(s: Suite, browser):
 
     await set_combobox_value(page, '#wardInput', WARD)
 
-    await page.fill('#displayName', '<img onerror=alert(1)>', timeout=10000)
+    # Never use Playwright fill() here — focus triggers onboarding kb assist /
+    # sheet layout races that hung smoke after C07 for the full 15m job timeout.
+    await set_input_value(page, '#displayName', '<img onerror=alert(1)>')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
@@ -5568,7 +5599,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v372" in sw_src
+            "civicradar-v373" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8881,7 +8912,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v372" in sw_src
+            "civicradar-v373" in sw_src
 
             and "'/index.html'" not in sw_src
 
