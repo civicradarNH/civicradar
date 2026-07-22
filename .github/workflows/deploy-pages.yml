@@ -36,6 +36,9 @@ jobs:
   test:
     if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.skip_tests) }}
     runs-on: ubuntu-latest
+    # Smoke is ~3–8 min; hang must not block Pages forever (seen ~27+ min stuck).
+    # Full suite via workflow_dispatch + full_tests gets a longer ceiling.
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.full_tests && 45 || 15 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
