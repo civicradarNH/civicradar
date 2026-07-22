@@ -3248,14 +3248,14 @@ async def run_extended_scenarios(s: Suite, browser):
       const profileStillOpen = document.getElementById('profileOverlay')?.classList.contains('open');
       window.openProfileModal();
       const stale = window.civicMaybeResetSessionOnResume({
-        hiddenMs: window.civicSessionResumeResetMs + 1000,
+        hiddenMs: window.civicWarmResumePreserveMs + 1000,
         forceStandalone: true,
       });
       const mapActive = document.querySelector('#bottomNav .nav-tab[data-tab=map]')?.classList.contains('active');
       return { warm, profileStillOpen, stale, mapActive };
     }""")
 
-    s.record('U28b', 'UI', 'Warm resume preserves; stale resets to map',
+    s.record('U28b', 'UI', 'Warm resume preserves; stale (≥2m) resets to map',
 
              session_policy['warm'] is False
 
@@ -5531,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v367" in sw_src
+            "civicradar-v370" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8844,7 +8844,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v367" in sw_src
+            "civicradar-v370" in sw_src
 
             and "'/index.html'" not in sw_src
 

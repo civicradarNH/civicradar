@@ -134,29 +134,47 @@
       ensureAboveKeyboard();
     }
 
-    function prefersReducedMotion() {
-      try {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      } catch (e) {
-        return false;
-      }
-    }
-
     function syncViewportVars(sheet) {
       if (!sheet) return;
       const vv = window.visualViewport;
       const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight || 0);
+      const offsetTop = vv ? Math.round(vv.offsetTop || 0) : 0;
       const inset = vv
         ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))
         : 0;
-      sheet.style.setProperty('--vv-height', (h || window.innerHeight) + 'px');
+      const heightPx = (h || window.innerHeight) + 'px';
+      sheet.style.setProperty('--vv-height', heightPx);
+      sheet.style.setProperty('--vv-offset-top', offsetTop + 'px');
       sheet.style.setProperty('--kb-inset', inset + 'px');
       const overlay = sheet.closest('.modal-overlay');
       if (overlay) {
         overlay.classList.add('sheet-kb-active');
-        overlay.style.setProperty('--vv-height', (h || window.innerHeight) + 'px');
+        overlay.style.setProperty('--vv-height', heightPx);
+        overlay.style.setProperty('--vv-offset-top', offsetTop + 'px');
         overlay.style.setProperty('--kb-inset', inset + 'px');
       }
+    }
+
+    /**
+     * Scroll only inside the sheet. Native scrollIntoView can scroll the
+     * document / visualViewport and shove a fixed overlay off-screen.
+     */
+    function scrollFieldInsideSheet(sheet, target) {
+      if (!sheet || !target || !sheet.contains(target)) return;
+      try {
+        const sheetRect = sheet.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const pad = 12;
+        const visibleBottom = sheetRect.bottom - pad;
+        const visibleTop = sheetRect.top + pad;
+        let delta = 0;
+        if (targetRect.bottom > visibleBottom) {
+          delta = targetRect.bottom - visibleBottom;
+        } else if (targetRect.top < visibleTop) {
+          delta = targetRect.top - visibleTop;
+        }
+        if (delta) sheet.scrollTop += delta;
+      } catch (e) { /* ignore */ }
     }
 
     function bindViewportSyncOnce() {
@@ -185,13 +203,9 @@
       syncViewportVars(sheet);
       // Programmatic scroll must not trip the sheet-scroll closer.
       ignoreSheetScrollUntil = Date.now() + 450;
-      const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
       requestAnimationFrame(function () {
-        try {
-          wrap.scrollIntoView({ block: 'start', behavior: behavior });
-        } catch (e1) {
-          try { wrap.scrollIntoView(true); } catch (e2) { /* ignore */ }
-        }
+        // In-sheet scroll only — native scrollIntoView can shove a fixed overlay off-screen.
+        scrollFieldInsideSheet(sheet, wrap);
       });
     }
 
@@ -219,7 +233,13 @@
       const overlay = sheet.closest('.modal-overlay');
       if (overlay && !overlay.querySelector('.modal.sheet--kb-expanded')) {
         overlay.classList.remove('sheet-kb-active');
+        overlay.style.removeProperty('--vv-height');
+        overlay.style.removeProperty('--vv-offset-top');
+        overlay.style.removeProperty('--kb-inset');
       }
+      sheet.style.removeProperty('--vv-height');
+      sheet.style.removeProperty('--vv-offset-top');
+      sheet.style.removeProperty('--kb-inset');
     }
 
     function closeList() {

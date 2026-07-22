@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v367';
+  const CIVIC_APP_VERSION = 'v370';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -861,19 +861,23 @@ document.addEventListener('DOMContentLoaded', function () {
   // scan (now bounded to 8s below) could still occasionally miss on a weak device.
   const REPORT_PHOTO_PROCESSING_TIMEOUT_MS = 20000;
 
-  // PWA/TWA session policy (installed app only — see maybeResetSessionOnResume):
-  // • Cold start: OS process killed or tab discarded → map home, modals closed (no reload).
-  // • Warm resume: hidden < WARM_RESUME_PRESERVE_MS → preserve state (mid-report camera/share).
-  // • Stale: hidden ≥ SESSION_RESUME_RESET_MS → map home (industry-typical 30 min).
-  // • BFCache (pageshow persisted): reset — restored snapshot must not leave Profile open.
+  // Session / tab policy (see maybeResetSessionOnResume + ensureMapHomeOnBoot):
+  // • Every full page load → Map home (no cross-session tab restore; no localStorage tab key).
+  // • Optional hash deep links: #community | #resources | #profile (auth hashes ignored).
+  // • PWA/TWA cold start / tab discard → map home.
+  // • Warm resume: hidden < WARM_RESUME_PRESERVE_MS → preserve (mid-report camera/share).
+  // • Stale resume: hidden ≥ WARM_RESUME_PRESERVE_MS → map home (was 30 min dead-zone).
+  // • BFCache (pageshow persisted): always reset — browser or standalone.
   // manifest.json has no launch_handler: avoid navigate-existing reload; JS reset is enough.
-  // focus-existing (if added later) resumes the WebView — warm/stale timers still apply.
 
   const SESSION_MARKER_KEY = 'civicradar_pwa_session';
 
   const WARM_RESUME_PRESERVE_MS = 2 * 60 * 1000;
 
+  // Kept for E2E (U28b) and older callers; resume reset now uses WARM_RESUME_PRESERVE_MS.
   const SESSION_RESUME_RESET_MS = 30 * 60 * 1000;
+
+  const NAV_HASH_TABS = { community: 'community', resources: 'resources', profile: 'profile' };
 
 
 
@@ -24152,6 +24156,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.classList.add('modal-open');
 
+    document.documentElement.style.overflow = 'hidden';
+
     document.body.style.overflow = 'hidden';
 
     // Immediately park location/PWA (not CSS-only) when a primary sheet opens.
@@ -25688,6 +25694,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.body.classList.remove('modal-open');
 
+      document.documentElement.style.overflow = '';
+
       document.body.style.overflow = '';
 
       document.body.style.position = '';
@@ -25833,6 +25841,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  /** Full page load: always Map. No localStorage/sessionStorage tab restore. */
+  function ensureMapHomeOnBoot() {
+
+    closeStackedModalsForNav(null);
+
+    setNavTab('map');
+
+    clearNavModalHistory();
+
+  }
+
+  /**
+   * Honor intentional share deep links (#community / #resources / #profile).
+   * Ignores auth callback hashes and unknown fragments. Clears hash after apply.
+   */
+  function applyNavHashDeepLink() {
+
+    try {
+
+      if (Backend.hasAuthCallbackInUrl && Backend.hasAuthCallbackInUrl()) return false;
+
+      const raw = String(location.hash || '').replace(/^#/, '').trim().toLowerCase();
+
+      if (!raw || raw.indexOf('=') !== -1) return false;
+
+      const tab = NAV_HASH_TABS[raw];
+
+      if (!tab) return false;
+
+      if (tab === 'community' && typeof window.openCommunityModal === 'function') window.openCommunityModal();
+
+      else if (tab === 'resources' && typeof window.openResourcesModal === 'function') window.openResourcesModal();
+
+      else if (tab === 'profile' && typeof window.openProfileModal === 'function') window.openProfileModal();
+
+      else return false;
+
+      try {
+
+        const u = new URL(location.href);
+
+        u.hash = '';
+
+        history.replaceState(history.state, '', u.pathname + u.search);
+
+      } catch { /* ignore */ }
+
+      return true;
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
 
 
   function markPwaSessionActive() {
@@ -25897,8 +25962,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (overlays.report?.classList.contains('open') && hasReportPhotoPreview()) return false;
 
-    if (!standalone) return false;
-
+    // BFCache / cold start: always Map (browser + PWA). Do not leave last tab open.
     if (bfcache || coldStart) {
 
       resetAppSessionUi();
@@ -25909,9 +25973,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Visibility resume timers apply to installed PWA/TWA only.
+    if (!standalone) return false;
+
     if (hiddenMs > 0 && hiddenMs < WARM_RESUME_PRESERVE_MS) return false;
 
-    if (hiddenMs >= SESSION_RESUME_RESET_MS) {
+    // Away ≥ warm window → Map (closes the old 2–30 min “keep Profile open” gap).
+    if (hiddenMs >= WARM_RESUME_PRESERVE_MS) {
 
       resetAppSessionUi();
 
@@ -27349,6 +27417,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   maybeResetSessionOnResume({ coldStart: shouldResetOnColdPwaLaunch() });
 
+  ensureMapHomeOnBoot();
+
   runBootSequence();
 
   // Foreground-triggered opt-in reminder: re-check when the user returns to the tab.
@@ -27628,6 +27698,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       handleReportDeepLink();
+
+      // Share deep links (#community etc.) only after gates; never override ?report=.
+      try {
+
+        if (!new URLSearchParams(location.search).get('report')) applyNavHashDeepLink();
+
+      } catch { /* ignore */ }
 
       if (window.CivicAnalytics) CivicAnalytics.track('tab_view', { tab: 'map', initial: true, reportDraftRestore: restoredReportDraft });
 
@@ -29915,18 +29992,55 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!modal) return;
 
       let kbRaf = 0;
+      function clearKbVars() {
+        modal.style.setProperty('--kb-inset', '0px');
+        modal.style.removeProperty('--vv-height');
+        modal.style.removeProperty('--vv-offset-top');
+        modal.classList.remove('sheet--kb-expanded');
+        if (overlay) {
+          overlay.classList.remove('sheet-kb-active');
+          overlay.style.removeProperty('--vv-height');
+          overlay.style.removeProperty('--vv-offset-top');
+          overlay.style.removeProperty('--kb-inset');
+        }
+      }
       function syncKbInset() {
         const open = overlay && overlay.classList.contains('open');
         if (!open) {
-          modal.style.setProperty('--kb-inset', '0px');
+          clearKbVars();
           return;
         }
         const vv = window.visualViewport;
         let inset = 0;
+        let height = window.innerHeight || 0;
+        let offsetTop = 0;
         if (vv) {
           inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+          height = Math.round(vv.height);
+          offsetTop = Math.round(vv.offsetTop || 0);
         }
         modal.style.setProperty('--kb-inset', inset + 'px');
+        // Pin overlay to visualViewport when keyboard is up (ward/society/name focus).
+        const fieldFocused = modal.contains(document.activeElement) &&
+          (document.activeElement.matches('input, textarea, select') ||
+            document.activeElement.closest('.civic-combobox'));
+        if (fieldFocused && inset > 40) {
+          const heightPx = (height || window.innerHeight) + 'px';
+          modal.classList.add('sheet--kb-expanded');
+          modal.style.setProperty('--vv-height', heightPx);
+          modal.style.setProperty('--vv-offset-top', offsetTop + 'px');
+          if (overlay) {
+            overlay.classList.add('sheet-kb-active');
+            overlay.style.setProperty('--vv-height', heightPx);
+            overlay.style.setProperty('--vv-offset-top', offsetTop + 'px');
+            overlay.style.setProperty('--kb-inset', inset + 'px');
+          }
+        } else if (!modal.querySelector('.civic-combobox.is-open')) {
+          modal.classList.remove('sheet--kb-expanded');
+          if (overlay && !overlay.querySelector('.modal.sheet--kb-expanded')) {
+            overlay.classList.remove('sheet-kb-active');
+          }
+        }
       }
       function scheduleKbInset() {
         if (kbRaf) cancelAnimationFrame(kbRaf);
@@ -29940,12 +30054,19 @@ document.addEventListener('DOMContentLoaded', function () {
         scheduleKbInset();
         requestAnimationFrame(() => {
           const wrap = el.closest('.civic-combobox') || el.closest('.form-group') || el;
+          // Scroll only inside the sheet — document scrollIntoView pushes the modal off-screen.
           try {
-            // Prefer start so input + in-flow suggestion list stay above keyboard.
-            wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
-          } catch {
-            try { wrap.scrollIntoView(true); } catch { /* ignore */ }
-          }
+            const sheetRect = modal.getBoundingClientRect();
+            const wrapRect = wrap.getBoundingClientRect();
+            const pad = 12;
+            let delta = 0;
+            if (wrapRect.bottom > sheetRect.bottom - pad) {
+              delta = wrapRect.bottom - (sheetRect.bottom - pad);
+            } else if (wrapRect.top < sheetRect.top + pad) {
+              delta = wrapRect.top - (sheetRect.top + pad);
+            }
+            if (delta) modal.scrollTop += delta;
+          } catch { /* ignore */ }
         });
       }
 
@@ -29953,6 +30074,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('focus', () => scrollFieldIntoView(el));
+        el.addEventListener('blur', () => setTimeout(scheduleKbInset, 160));
       });
 
       if (window.visualViewport) {
@@ -29961,7 +30083,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       window.addEventListener('resize', scheduleKbInset);
       if (overlay) {
-        const mo = new MutationObserver(scheduleKbInset);
+        const mo = new MutationObserver(() => {
+          if (!overlay.classList.contains('open')) clearKbVars();
+          else scheduleKbInset();
+        });
         mo.observe(overlay, { attributes: true, attributeFilter: ['class'] });
       }
     })();

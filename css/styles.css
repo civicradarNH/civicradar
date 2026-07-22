@@ -4719,7 +4719,7 @@ body.pwa-nudge-visible #btnCamera {
   line-height: 1.4;
 }
 
-/* Resources: subtle alert pill — expectation-setting, not tucked field-hint */
+/* Resources: amber alert pill — AA contrast (legal.css disclaimer pattern) */
 .resources-disclaimer {
   display: flex;
   align-items: flex-start;
@@ -4727,18 +4727,34 @@ body.pwa-nudge-visible #btnCamera {
   margin: 0 0 14px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(217, 119, 6, 0.28);
-  background: rgba(254, 243, 199, 0.55);
-  color: var(--ink-600, var(--text-muted));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.12);
+  color: #78350f;
   font-size: var(--text-xs, var(--fs-xs));
   line-height: 1.45;
+  font-weight: 500;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .resources-disclaimer i {
   flex-shrink: 0;
   margin-top: 1px;
-  color: var(--warning, #d97706);
+  color: #fbbf24;
   font-size: 1.05em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .resources-disclaimer {
+    background: rgba(245, 158, 11, 0.16);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fef08a;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .resources-disclaimer i {
+    color: #fbbf24;
+  }
 }
 
 .success-optional-block .accountability-clock {
@@ -9775,7 +9791,10 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 
 html.modal-open,
 body.modal-open {
+  overflow: hidden;
   overscroll-behavior: none;
+  /* Keep layout viewport stable while soft keyboard resizes visualViewport */
+  height: 100%;
 }
 
 button,
@@ -12567,36 +12586,55 @@ body.sheet-depth-blocking .map-hud {
    Absolute/composited lists inside transform+overflow sheets orphan over the
    map when the soft keyboard moves visualViewport (onboarding + Profile Edit). */
 .modal .civic-combobox__list:not(.hidden) {
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  max-height: 200px;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  max-height: 180px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   margin-top: 4px;
   z-index: 10;
+  /* Stay in sheet stacking context — never paint over map behind overlay */
+  transform: none;
 }
 
 .modal .form-group:has(.civic-combobox.is-open) {
   overflow: visible;
 }
 
-/* Ward/society focus: expand sheet to visualViewport height (keyboard-aware) */
+/*
+  Ward/society focus: pin overlay to visualViewport, not layout viewport.
+  Root cause of off-screen push: flex-end docked the sheet to the bottom of
+  inset:0 (under the keyboard), so the visual viewport showed map/Resources.
+*/
 #onboardingOverlay.sheet-kb-active,
 #profileEditOverlay.sheet-kb-active {
   align-items: flex-end;
-  padding-bottom: 0;
+  justify-content: center;
+  padding: 0;
+  top: var(--vv-offset-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: auto;
+  width: 100%;
+  height: var(--vv-height, 100dvh);
+  max-height: var(--vv-height, 100dvh);
+  overflow: hidden;
 }
 
 #onboardingOverlay.sheet-kb-active #onboardingModal,
 #profileEditOverlay.sheet-kb-active #profileEditModal,
 .modal.sheet--kb-expanded {
   max-height: var(--vv-height, 100dvh);
+  height: auto;
   overflow-x: hidden;
   overflow-y: auto;
   scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
+  /* Stay anchored inside the vv-pinned overlay — no translate off-screen */
+  transform: translate3d(0, 0, 0) !important;
+  margin-bottom: 0;
 }
 
 #onboardingOverlay.sheet-kb-active #onboardingModal {
@@ -12606,7 +12644,7 @@ body.sheet-depth-blocking .map-hud {
 }
 
 .modal.sheet--kb-expanded .civic-combobox__list:not(.hidden) {
-  max-height: min(240px, calc(var(--vv-height, 100dvh) * 0.36));
+  max-height: min(180px, calc(var(--vv-height, 100dvh) * 0.32));
 }
 
 /* ============================================================
