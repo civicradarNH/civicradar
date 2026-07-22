@@ -30,7 +30,7 @@ async def step(label, coro, timeout=15):
         raise
 
 
-async main_async():
+async def main():
     from playwright.async_api import async_playwright
 
     async with async_playwright() as p:
@@ -51,9 +51,11 @@ async main_async():
         await step('tos continue', js_click(page, '#btnTosContinue'))
         await page.wait_for_timeout(800)
 
-        # Skip GPS path — set ward directly like post-C07
         await step('dismiss', dismiss_civic_comboboxes(page))
-        await step('set XSS ward', set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward'))
+        await step(
+            'set XSS ward',
+            set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward'),
+        )
         await step('dismiss2', dismiss_civic_comboboxes(page))
         await step('continue XSS', js_click(page, '#btnOnboardingContinue'))
         await page.wait_for_timeout(300)
@@ -61,22 +63,24 @@ async main_async():
         print(f'   after XSS ward={ward!r}', flush=True)
 
         await step('set VALID ward', set_combobox_value(page, '#wardInput', WARD), timeout=20)
-        await step('set displayName', set_input_value(page, '#displayName', '<img onerror=alert(1)>'), timeout=10)
+        await step(
+            'set displayName',
+            set_input_value(page, '#displayName', '<img onerror=alert(1)>'),
+            timeout=10,
+        )
         await step('dismiss3', dismiss_civic_comboboxes(page), timeout=10)
         await step('continue valid', js_click(page, '#btnOnboardingContinue'), timeout=10)
         await page.wait_for_timeout(500)
         u = await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user")||"{}")')
-        print(f'   user={json.dumps({k: u.get(k) for k in ("ward","city","displayName")}, ensure_ascii=True)}', flush=True)
+        print(
+            '   user='
+            + json.dumps({k: u.get(k) for k in ('ward', 'city', 'displayName')}, ensure_ascii=True),
+            flush=True,
+        )
         print('DONE — past C08 hang point', flush=True)
         await ctx.close()
         await browser.close()
 
 
-def main():
-    # Fix syntax — Python needs async def
-    pass
-
-
 if __name__ == '__main__':
-    # rewrite below — file body uses invalid async main_async(): syntax
-    pass
+    asyncio.run(main())
