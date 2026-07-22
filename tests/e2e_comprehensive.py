@@ -662,8 +662,45 @@ async def dismiss_civic_comboboxes(page):
     await page.evaluate(
         '''() => {
           document.querySelectorAll('.civic-combobox__list').forEach((el) => el.classList.add('hidden'));
-          document.querySelectorAll('[role="combobox"]').forEach((el) => el.setAttribute('aria-expanded', 'false'));
+          document.querySelectorAll('.civic-combobox').forEach((el) => el.classList.remove('is-open'));
+          document.querySelectorAll('[role="combobox"]').forEach((el) => {
+            el.setAttribute('aria-expanded', 'false');
+            try { el.blur(); } catch (e) {}
+          });
+          document.querySelectorAll('.modal.sheet--kb-expanded').forEach((el) => {
+            el.classList.remove('sheet--kb-expanded');
+          });
+          document.querySelectorAll('.modal-overlay.sheet-kb-active').forEach((el) => {
+            el.classList.remove('sheet-kb-active');
+          });
         }'''
+    )
+
+
+async def set_combobox_value(page, selector: str, value: str):
+    """Set a CivicSearchableSelect value without Playwright fill() focus races.
+
+    fill() focuses the input, opens the list, and can enable sheet-kb-active in
+    headless CI — that hung smoke after C07 for 15+ minutes.
+    """
+    await dismiss_civic_comboboxes(page)
+    await page.evaluate(
+        """([sel, val]) => {
+          const el = document.querySelector(sel);
+          if (!el) return;
+          el.value = val;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          try { el.blur(); } catch (e) {}
+          const wrap = el.closest('.civic-combobox');
+          if (wrap) {
+            wrap.classList.remove('is-open');
+            const list = wrap.querySelector('.civic-combobox__list');
+            if (list) list.classList.add('hidden');
+          }
+          el.setAttribute('aria-expanded', 'false');
+        }""",
+        [selector, value],
     )
 
 
@@ -1072,7 +1109,7 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await page.fill('#wardInput', '<script>alert(1)</script> Ward')
+    await set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward')
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
@@ -1083,9 +1120,9 @@ async def run_citizen_tests(s: Suite, browser):
 
 
 
-    await page.fill('#wardInput', WARD)
+    await set_combobox_value(page, '#wardInput', WARD)
 
-    await page.fill('#displayName', '<img onerror=alert(1)>')
+    await page.fill('#displayName', '<img onerror=alert(1)>', timeout=10000)
 
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
@@ -1176,7 +1213,7 @@ async def run_citizen_tests(s: Suite, browser):
 
         await page_def.wait_for_timeout(600)
 
-        await page_def.fill('#wardInput', WARD)
+        await set_combobox_value(page_def, '#wardInput', WARD)
 
         await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
 
@@ -5531,7 +5568,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v371" in sw_src
+            "civicradar-v372" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8844,7 +8881,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v371" in sw_src
+            "civicradar-v372" in sw_src
 
             and "'/index.html'" not in sw_src
 

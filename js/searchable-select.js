@@ -134,24 +134,33 @@
       ensureAboveKeyboard();
     }
 
+    function keyboardInsetPx() {
+      const vv = window.visualViewport;
+      if (!vv) return 0;
+      return Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    }
+
     function syncViewportVars(sheet) {
       if (!sheet) return;
       const vv = window.visualViewport;
       const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight || 0);
       const offsetTop = vv ? Math.round(vv.offsetTop || 0) : 0;
-      const inset = vv
-        ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))
-        : 0;
+      const inset = keyboardInsetPx();
       const heightPx = (h || window.innerHeight) + 'px';
       sheet.style.setProperty('--vv-height', heightPx);
       sheet.style.setProperty('--vv-offset-top', offsetTop + 'px');
       sheet.style.setProperty('--kb-inset', inset + 'px');
       const overlay = sheet.closest('.modal-overlay');
-      if (overlay) {
+      // Only pin/expand for a real soft keyboard. Headless CI / desktop focus
+      // must not get sheet-kb-active or Playwright fill() can hang on a
+      // zeroed / off-screen sheet (smoke stuck after C07).
+      if (overlay && inset > 40) {
         overlay.classList.add('sheet-kb-active');
         overlay.style.setProperty('--vv-height', heightPx);
         overlay.style.setProperty('--vv-offset-top', offsetTop + 'px');
         overlay.style.setProperty('--kb-inset', inset + 'px');
+      } else if (overlay && inset <= 40) {
+        overlay.classList.remove('sheet-kb-active');
       }
     }
 
@@ -201,8 +210,12 @@
       const sheet = input.closest('.modal');
       if (!sheet) return;
       bindViewportSyncOnce();
-      sheet.classList.add('sheet--kb-expanded');
       syncViewportVars(sheet);
+      if (keyboardInsetPx() > 40) {
+        sheet.classList.add('sheet--kb-expanded');
+      } else {
+        sheet.classList.remove('sheet--kb-expanded');
+      }
       // Programmatic scroll must not trip the sheet-scroll closer.
       ignoreSheetScrollUntil = Date.now() + 450;
       requestAnimationFrame(function () {
