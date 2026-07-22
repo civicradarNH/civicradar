@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v361';
+  const CIVIC_APP_VERSION = 'v362';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3127,7 +3127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'Connect to the internet to verify photo safety.',
 
-      'success.title': 'Reported — nice one',
+      'success.title': 'Report logged — thank you!',
 
       'success.tagline': 'Pinned on ward map',
 
@@ -3151,9 +3151,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'Done',
 
-      'success.shareTitle': 'Help keep your neighbours safe',
+      'success.shareTitle': 'Help your community stay safe — share this update with your WhatsApp group.',
 
-      'success.sharePrompt': 'Share real-time updates with your local WhatsApp groups.',
+      'success.sharePrompt': 'Help your community stay safe — share this update with your WhatsApp group.',
 
       'success.shareWhatsapp': 'Share on WhatsApp',
 
@@ -3273,9 +3273,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} — your first report this week',
+      'success.weekBonus': 'Includes +{n} first report bonus',
 
-      'success.celebrateFirst': 'First report logged — your lane just got a little safer.',
+      'success.celebrateFirst': 'First report logged.',
 
       'success.celebrateMilestone': '{n} reports in — your neighbours are lucky to have you.',
 
@@ -3308,11 +3308,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'Badge unlocked — {n} more to next',
 
+      'success.progressBadge': 'Badge Progress: {n}/{m} reports to next level',
+
       'success.progressGuardian': '{n} reports — Monsoon Guardian',
 
-      'success.shareBrag': 'Help your neighbours avoid this area — Share on WhatsApp.',
+      'success.shareBrag': 'Help your community stay safe — share this update with your WhatsApp group.',
 
-      'success.shareBragFirst': 'Help your neighbours avoid this area — Share on WhatsApp.',
+      'success.shareBragFirst': 'Help your community stay safe — share this update with your WhatsApp group.',
 
       'toast.badgeMonsoon': 'First report logged — welcome!',
 
@@ -5671,7 +5673,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'फ़ोटो सुरक्षा जाँच के लिए इंटरनेट से जुड़ें।',
 
-      'success.title': 'रिपोर्ट हो गई — शाबाश',
+      'success.title': 'रिपोर्ट दर्ज हुई — धन्यवाद!',
 
       'success.tagline': 'वार्ड मानचित्र पर पिन',
 
@@ -5695,9 +5697,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'हो गया',
 
-      'success.shareTitle': 'अपने पड़ोसियों को सुरक्षित रखें',
+      'success.shareTitle': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
-      'success.sharePrompt': 'अपने स्थानीय WhatsApp ग्रुप में रीयल-टाइम अपडेट साझा करें।',
+      'success.sharePrompt': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
       'success.shareWhatsapp': 'WhatsApp पर साझा करें',
 
@@ -5819,9 +5821,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} — इस सप्ताह आपकी पहली रिपोर्ट',
+      'success.weekBonus': '+{n} पहली रिपोर्ट बोनस शामिल',
 
-      'success.celebrateFirst': 'पहली रिपोर्ट दर्ज — आपकी गली अभी थोड़ी सुरक्षित हुई।',
+      'success.celebrateFirst': 'पहली रिपोर्ट दर्ज।',
 
       'success.celebrateMilestone': '{n} रिपोर्ट हो गईं — आपके पड़ोसी खुशकिस्मत हैं कि आप हैं।',
 
@@ -5854,11 +5856,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'बैज मिला — अगले के लिए {n} और',
 
+      'success.progressBadge': 'बैज प्रगति: अगले स्तर तक {n}/{m} रिपोर्ट',
+
       'success.progressGuardian': '{n} रिपोर्ट — मानसून रक्षक',
 
-      'success.shareBrag': 'पड़ोसियों को इस इलाके से बचने में मदद करें — WhatsApp पर साझा करें।',
+      'success.shareBrag': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
-      'success.shareBragFirst': 'पड़ोसियों को इस इलाके से बचने में मदद करें — WhatsApp पर साझा करें।',
+      'success.shareBragFirst': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है!',
 
@@ -8215,7 +8219,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'फोटो सुरक्षा तपासणीसाठी इंटरनेटशी कनेक्ट व्हा.',
 
-      'success.title': 'नोंदवले — छान काम',
+      'success.title': 'तक्रार नोंदली — धन्यवाद!',
 
       'success.tagline': 'वॉर्ड नकाशावर पिन',
 
@@ -8239,9 +8243,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'झाले',
 
-      'success.shareTitle': 'तुमच्या शेजाऱ्यांना सुरक्षित ठेवा',
+      'success.shareTitle': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
-      'success.sharePrompt': 'तुमच्या स्थानिक WhatsApp गटांमध्ये रिअल-टाइम अपडेट शेअर करा.',
+      'success.sharePrompt': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
 
@@ -8363,9 +8367,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} — या आठवड्यातील तुमची पहिली तक्रार',
+      'success.weekBonus': '+{n} पहिल्या तक्रारीचा बोनस समाविष्ट',
 
-      'success.celebrateFirst': 'पहिली रिपोर्ट नोंदली — तुमची गल्ली आत्ताच थोडी सुरक्षित झाली.',
+      'success.celebrateFirst': 'पहिली तक्रार नोंदली.',
 
       'success.celebrateMilestone': '{n} तक्रारी झाल्या — तुमचे शेजारी भाग्यवान आहेत की तुम्ही आहात.',
 
@@ -8398,11 +8402,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'बॅज मिळाला — पुढच्यासाठी {n} आणखी',
 
+      'success.progressBadge': 'बॅज प्रगती: पुढील पातळीसाठी {n}/{m} तक्रारी',
+
       'success.progressGuardian': '{n} तक्रारी — पावसाळी रक्षक',
 
-      'success.shareBrag': 'शेजाऱ्यांना या भागापासून सावध राहण्यास मदत करा — WhatsApp वर शेअर करा.',
+      'success.shareBrag': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
-      'success.shareBragFirst': 'शेजाऱ्यांना या भागापासून सावध राहण्यास मदत करा — WhatsApp वर शेअर करा.',
+      'success.shareBragFirst': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
       'toast.badgeMonsoon': 'पहिली रिपोर्ट नोंदली — स्वागत!',
 
@@ -10758,7 +10764,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.offline': 'ફોટો સલામતી તપાસ માટે ઇન્ટરનેટથી કનેક્ટ થાઓ.',
 
-      'success.title': 'નોંધાઈ ગઈ — સરસ',
+      'success.title': 'ફરિયાદ નોંધાઈ — આભાર!',
 
       'success.tagline': 'વોર્ડ નકશા પર પિન',
 
@@ -10782,9 +10788,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'થઈ ગયું',
 
-      'success.shareTitle': 'તમારા પડોશીઓને સુરક્ષિત રાખો',
+      'success.shareTitle': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
-      'success.sharePrompt': 'તમારા સ્થાનિક WhatsApp ગ્રુપમાં રીયલ-ટાઇમ અપડેટ શેર કરો.',
+      'success.sharePrompt': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
       'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
 
@@ -10906,9 +10912,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.xpBonus': '+{n} Civic Points',
 
-      'success.weekBonus': '+{n} — આ અઠવાડિયે તમારી પહેલી ફરિયાદ',
+      'success.weekBonus': '+{n} પહેલી ફરિયાદ બોનસ સામેલ',
 
-      'success.celebrateFirst': 'પહેલો રિપોર્ટ નોંધાયો — તમારી શેરી હમણાં જ થોડી સુરક્ષિત થઈ.',
+      'success.celebrateFirst': 'પહેલી ફરિયાદ નોંધાઈ.',
 
       'success.celebrateMilestone': '{n} ફરિયાદો થઈ — તમારા પડોશીઓ નસીબદાર છે કે તમે છો.',
 
@@ -10941,11 +10947,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.progressMilestone': 'બેજ મળ્યો — આગલા માટે {n} વધુ',
 
+      'success.progressBadge': 'બેજ પ્રગતિ: આગલા સ્તર સુધી {n}/{m} ફરિયાદો',
+
       'success.progressGuardian': '{n} ફરિયાદો — ચોમાસુ રક્ષક',
 
-      'success.shareBrag': 'પડોશીઓને આ વિસ્તારથી બચવામાં મદદ કરો — WhatsApp પર શેર કરો.',
+      'success.shareBrag': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
-      'success.shareBragFirst': 'પડોશીઓને આ વિસ્તારથી બચવામાં મદદ કરો — WhatsApp પર શેર કરો.',
+      'success.shareBragFirst': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત!',
 
@@ -34483,7 +34491,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Short nudge telling the user how close they are to their next milestone/badge.
+  // Compact badge progress: current reports / next milestone threshold.
 
   function buildSuccessProgress(reportCount) {
 
@@ -34501,19 +34509,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!next) return '';
 
-    const remaining = next - n;
+    return t('success.progressBadge')
 
-    if (REPORT_CELEBRATION_MILESTONES.includes(n)) {
+      .replace('{n}', String(n))
 
-      return t('success.progressMilestone').replace('{n}', String(remaining));
-
-    }
-
-    return remaining === 1
-
-      ? t('success.progressOne')
-
-      : t('success.progressMany').replace('{n}', String(remaining));
+      .replace('{m}', String(next));
 
   }
 
@@ -34562,23 +34562,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (reportCount === 1) {
 
+        // Points hero + badge progress already carry the message; keep text for E2E, hide UI.
+
         celebrateEl.textContent = t('success.celebrateFirst');
+
+        celebrateEl.classList.add('hidden');
 
       } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
 
         celebrateEl.textContent = t('success.celebrateMilestone').replace('{n}', String(reportCount));
 
+        celebrateEl.classList.remove('hidden');
+
       } else if (wardConfirms > 0) {
 
         celebrateEl.textContent = t('success.taglineNeighbours').replace('{n}', String(wardConfirms));
+
+        celebrateEl.classList.remove('hidden');
 
       } else {
 
         celebrateEl.textContent = getRotatingKudos(reportCount);
 
-      }
+        celebrateEl.classList.remove('hidden');
 
-      celebrateEl.classList.remove('hidden');
+      }
 
     }
 

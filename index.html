@@ -589,7 +589,7 @@
             <path class="animated-check__path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
           </svg>
         </div>
-        <h2 id="successTitle" data-i18n="success.title">Report Logged</h2>
+        <h2 id="successTitle" data-i18n="success.title">Report logged — thank you!</h2>
       </div>
       <div class="success-reward-panel">
         <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
@@ -615,13 +615,13 @@
         </div>
       </div>
       <div class="success-share-block success-share-block--primary">
-        <p class="success-share-title" data-i18n="success.shareTitle">Help keep your neighbours safe</p>
-        <p class="success-share-prompt" data-i18n="success.sharePrompt">Share real-time updates with your local WhatsApp groups.</p>
+        <p class="success-share-title hidden" data-i18n="success.shareTitle">Help your community stay safe — share this update with your WhatsApp group.</p>
+        <p class="success-share-prompt" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
         <button type="button" class="btn btn--whatsapp btn--full" id="btnShareWhatsApp">
           <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Share on WhatsApp</span>
         </button>
-        <button type="button" class="btn btn--ghost btn--full hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
-          <i class="ph ph-share-network"></i> <span data-i18n="share.nativeShare">Share</span>
+        <button type="button" class="success-native-share hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
+          <i class="ph ph-share-network" aria-hidden="true"></i> <span data-i18n="share.nativeShare">Share</span>
         </button>
       </div>
       <div class="success-optional-block">
