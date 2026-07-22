@@ -55,6 +55,9 @@
     let activeIndex = -1;
     let isOpen = false;
     let blurTimer = null;
+    // When the user scrolls the option list, blur the input to dismiss the
+    // keyboard but keep the list open for tapping an option.
+    let keepOpenOnBlur = false;
     // When we set input.value programmatically (on selection) we still need to
     // fire 'input'/'change' so app.js reacts — but the component's OWN 'input'
     // listener must ignore that self-dispatched event, otherwise it re-opens
@@ -125,15 +128,92 @@
       input.setAttribute('aria-expanded', 'true');
       wrap.classList.add('is-open');
       renderList(filterOptions(showAll ? '' : input.value));
+      ensureAboveKeyboard();
+    }
+
+    function prefersReducedMotion() {
+      try {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function syncViewportVars(sheet) {
+      if (!sheet) return;
+      const vv = window.visualViewport;
+      const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight || 0);
+      const inset = vv
+        ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))
+        : 0;
+      sheet.style.setProperty('--vv-height', (h || window.innerHeight) + 'px');
+      sheet.style.setProperty('--kb-inset', inset + 'px');
+      const overlay = sheet.closest('.modal-overlay');
+      if (overlay) {
+        overlay.classList.add('sheet-kb-active');
+        overlay.style.setProperty('--vv-height', (h || window.innerHeight) + 'px');
+        overlay.style.setProperty('--kb-inset', inset + 'px');
+      }
+    }
+
+    function bindViewportSyncOnce() {
+      if (global.__civicComboboxVvBound) return;
+      global.__civicComboboxVvBound = true;
+      function syncAll() {
+        document.querySelectorAll('.modal.sheet--kb-expanded').forEach(syncViewportVars);
+      }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncAll);
+        window.visualViewport.addEventListener('scroll', syncAll);
+      }
+      window.addEventListener('resize', syncAll);
+    }
+
+    /**
+     * Expand parent sheet toward visualViewport height, then scroll the
+     * focused combobox to the top of the sheet so the list stays above the
+     * soft keyboard (onboarding + Profile Edit).
+     */
+    function ensureAboveKeyboard() {
+      const sheet = input.closest('.modal');
+      if (!sheet) return;
+      bindViewportSyncOnce();
+      sheet.classList.add('sheet--kb-expanded');
+      syncViewportVars(sheet);
+      const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+      requestAnimationFrame(function () {
+        try {
+          wrap.scrollIntoView({ block: 'start', behavior: behavior });
+        } catch (e1) {
+          try { wrap.scrollIntoView(true); } catch (e2) { /* ignore */ }
+        }
+      });
+    }
+
+    function collapseSheetIfIdle() {
+      const sheet = input.closest('.modal');
+      if (!sheet) return;
+      const busy = sheet.querySelector(
+        '.civic-combobox.is-open, .civic-combobox input:focus'
+      );
+      if (busy) return;
+      sheet.classList.remove('sheet--kb-expanded');
+      const overlay = sheet.closest('.modal-overlay');
+      if (overlay && !overlay.querySelector('.modal.sheet--kb-expanded')) {
+        overlay.classList.remove('sheet-kb-active');
+      }
     }
 
     function closeList() {
       isOpen = false;
+      keepOpenOnBlur = false;
       listbox.classList.add('hidden');
       input.setAttribute('aria-expanded', 'false');
       wrap.classList.remove('is-open');
       activeIndex = -1;
       input.removeAttribute('aria-activedescendant');
+      // Defer so a focus move to another combobox can claim expanded state first.
+      setTimeout(collapseSheetIfIdle, 0);
     }
 
     /**
@@ -184,22 +264,22 @@
       input.dispatchEvent(new Event('change', { bubbles: true }));
       suppressInput = false;
 
-      // Auto-advance: move focus to the next field so the user flows straight
-      // into it. Deferred a tick so the just-dispatched change handlers (which
-      // may re-render the next field's options) settle first. If the next field
-      // is itself a combobox, we intentionally do NOT auto-open its list — we
-      // focus it quietly so a mobile keyboard/dropdown doesn't spring open
-      // unprompted. (blur() first ensures our own list stays closed.)
+      // Always blur immediately so the soft keyboard dismisses.
       input.blur();
+
+      // In bottom sheets (onboarding / Profile Edit), do not auto-focus the
+      // next field — that would re-open the keyboard and fight scroll layout.
+      if (input.closest('.modal')) {
+        collapseSheetIfIdle();
+        return;
+      }
+
+      // Outside sheets: auto-advance focus to the next field.
       const next = findNextField();
       if (next) {
-        // Mark the target so, if it's another combobox, its focus handler
-        // opens quietly (no auto-dropdown). Harmless on plain fields.
         next.dataset.civicQuietFocus = '1';
         setTimeout(function () {
           try { next.focus({ preventScroll: false }); } catch (e) { next.focus(); }
-          // If focus didn't land (e.g. field became disabled), clean up the
-          // marker so a later real focus still opens normally.
           if (document.activeElement !== next) delete next.dataset.civicQuietFocus;
         }, 0);
       }
@@ -216,6 +296,7 @@
       // user can still open it with a tap, arrow key, or the toggle caret.
       if (input.dataset.civicQuietFocus === '1') {
         delete input.dataset.civicQuietFocus;
+        ensureAboveKeyboard();
         return;
       }
       openList(false);
@@ -252,7 +333,14 @@
       }
     });
 
-    input.addEventListener('blur', scheduleClose);
+    input.addEventListener('blur', function () {
+      if (keepOpenOnBlur) {
+        keepOpenOnBlur = false;
+        // Keyboard dismissed; leave the list open so the user can tap an option.
+        return;
+      }
+      scheduleClose();
+    });
 
     toggleBtn.addEventListener('mousedown', function (e) {
       e.preventDefault();
@@ -271,6 +359,16 @@
     listbox.addEventListener('mousedown', function (e) {
       e.preventDefault();
     });
+
+    // Dismiss keyboard when the user scrolls/drags the option list, but keep
+    // the list open (see keepOpenOnBlur). Does not affect dismiss_civic_comboboxes.
+    function blurInputKeepList() {
+      if (document.activeElement !== input) return;
+      keepOpenOnBlur = true;
+      try { input.blur(); } catch (e) { /* ignore */ }
+    }
+    listbox.addEventListener('touchmove', blurInputKeepList, { passive: true });
+    listbox.addEventListener('scroll', blurInputKeepList, { passive: true });
 
     listbox.addEventListener('click', function (e) {
       const btn = e.target.closest('.civic-combobox__option');

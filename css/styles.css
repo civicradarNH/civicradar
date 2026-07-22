@@ -230,11 +230,37 @@ textarea {
    (#f8fafc ≈ white) while the splash is still up — keep indigo until boot ends. */
 html.app-booting,
 body.app-booting {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100%;
   background: #6366f1;
 }
 
 .app-launch {
   -webkit-tap-highlight-color: transparent;
+  background: #6366f1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+}
+
+.app-launch__logo {
+  object-fit: contain;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-launch {
+    transition: none;
+  }
 }
 
 /* ============================================
@@ -872,7 +898,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   list-style: none;
   margin: 0 0 24px;
   padding: 16px 12px;
@@ -881,6 +907,9 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(129, 140, 248, 0.22);
   border-radius: var(--radius-md);
+  /* Sequential explainer — not interactive nav */
+  pointer-events: none;
+  user-select: none;
 }
 
 .purpose-steps li {
@@ -896,6 +925,19 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--ink-600);
   line-height: 1.25;
   overflow-wrap: anywhere;
+  position: relative;
+}
+
+/* Subtle 1→2→3 connector between pillars */
+.purpose-steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: calc(50% + 28px);
+  width: calc(100% - 40px);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0.12));
+  pointer-events: none;
 }
 
 /* One-shot stagger on open — no breathe/pulse loop */
@@ -907,6 +949,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 .coach-mark:not(.hidden) .purpose-steps li:nth-child(3) { animation-delay: 0.26s; }
 
 .purpose-steps__icon {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -914,6 +957,28 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   height: 44px;
   border-radius: var(--radius-md);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  cursor: default;
+}
+
+.purpose-steps__num {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink-600);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .purpose-steps__icon i {
@@ -921,7 +986,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   line-height: 1;
 }
 
-/* Distinct soft gradient tiles — indigo / teal-emerald / violet */
+/* Distinct soft gradient tiles — indigo / teal-emerald / violet (decorative only) */
 .purpose-steps__icon--map {
   background: linear-gradient(145deg, rgba(199, 210, 254, 0.95) 0%, rgba(165, 180, 252, 0.55) 55%, rgba(99, 102, 241, 0.18) 100%);
   border: 1px solid rgba(129, 140, 248, 0.45);
@@ -946,7 +1011,7 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   gap: 0;
 }
 
-/* Got it — brand → blue gradient + soft elevate (no breathe loop) */
+/* Explore Map — brand → blue gradient + soft elevate (no breathe loop) */
 .coach-mark__card .btn--primary {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
@@ -1069,6 +1134,14 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   }
   .purpose-steps__icon {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .purpose-steps__num {
+    background: #1e293b;
+    border-color: rgba(148, 163, 184, 0.35);
+    color: #e2e8f0;
+  }
+  .purpose-steps li:not(:last-child)::after {
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.35), rgba(148, 163, 184, 0.08));
   }
   .purpose-steps__icon--map {
     background: linear-gradient(145deg, rgba(99, 102, 241, 0.42) 0%, rgba(67, 56, 202, 0.28) 100%);
@@ -3275,13 +3348,13 @@ body.pwa-nudge-visible #btnCamera {
 .modal:has(> .modal__sticky-footer),
 #onboardingModal,
 #reportStepConfirm.report-step--active {
-  scroll-padding-bottom: 96px;
+  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
 }
 
 .modal > *:has(+ .modal__sticky-footer),
 #onboardingModal > *:has(+ .modal__sticky-footer),
 #reportStepConfirm > *:has(+ .modal__sticky-footer) {
-  margin-bottom: 96px;
+  margin-bottom: calc(96px + var(--kb-inset, 0px));
 }
 
 .modal--tall {
@@ -12413,7 +12486,52 @@ body.sheet-depth-blocking .map-hud {
 /* Sticky-footer sheets: scroll focus + last-field clearance (margin above) */
 #onboardingOverlay #onboardingModal,
 #tosOverlay .modal:has(> .modal__sticky-footer) {
-  scroll-padding-bottom: 96px;
+  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + var(--kb-inset, 0px));
+}
+
+/* Combobox list needs room above keyboard when open inside sheets */
+.modal .civic-combobox.is-open {
+  scroll-margin-bottom: calc(48px + var(--kb-inset, 0px));
+}
+
+/* Ward/society focus: expand sheet to visualViewport height (keyboard-aware) */
+#onboardingOverlay.sheet-kb-active,
+#profileEditOverlay.sheet-kb-active {
+  align-items: flex-end;
+  padding-bottom: 0;
+}
+
+#onboardingOverlay.sheet-kb-active #onboardingModal,
+#profileEditOverlay.sheet-kb-active #profileEditModal,
+.modal.sheet--kb-expanded {
+  max-height: var(--vv-height, 100dvh);
+  scroll-padding-bottom: calc(96px + var(--kb-inset, 0px));
+}
+
+#onboardingOverlay.sheet-kb-active #onboardingModal {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: 100%;
+  max-width: 480px;
+}
+
+.modal.sheet--kb-expanded .civic-combobox.is-open {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.modal.sheet--kb-expanded .civic-combobox__list:not(.hidden) {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  flex: 1 1 auto;
+  max-height: min(42vh, calc(var(--vv-height, 100dvh) * 0.42));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  margin-top: 4px;
 }
 
 /* ============================================================

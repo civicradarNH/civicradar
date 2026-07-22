@@ -5531,7 +5531,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v362" in sw_src
+            "civicradar-v364" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6315,7 +6315,7 @@ async def run_tour_scenarios(s: Suite, browser):
 
 
 
-    # TR03/TR04/TR06 — first-run: purpose sheet only (v321); Got it sets both flags; no FAB tip auto-stack.
+    # TR03/TR04/TR06 — first-run: purpose sheet only (v321); Explore Map sets both flags; no FAB tip auto-stack.
 
     # NB: coach gates on a *truthy* flag, so '0' would suppress it — omit the key entirely.
 
@@ -6372,7 +6372,7 @@ async def run_tour_scenarios(s: Suite, browser):
     s.record(
         'TR04',
         'Tour',
-        'Got it sets coach+fab flags and clears first-run lock',
+        'Explore Map sets coach+fab flags and clears first-run lock',
         completed,
     )
 
@@ -6427,7 +6427,7 @@ async def run_tour_scenarios(s: Suite, browser):
         '&& localStorage.getItem("civicradar_coach_seen") === "1"'
     )
 
-    s.record('TR05', 'Tour', 'Purpose Got it sets fab_spot without FAB tip overlay', skipped)
+    s.record('TR05', 'Tour', 'Purpose Explore Map sets fab_spot without FAB tip overlay', skipped)
 
     await ctx.close()
 
@@ -8839,7 +8839,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v362" in sw_src
+            "civicradar-v364" in sw_src
 
             and "'/index.html'" not in sw_src
 

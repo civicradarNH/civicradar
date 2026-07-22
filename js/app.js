@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v362';
+  const CIVIC_APP_VERSION = 'v364';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2869,17 +2869,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'See it. Snap it. Sort it out.',
 
-      'coach.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
+      'coach.body': 'Pin local hazards to alert your community, track updates, and drive faster municipal action.',
 
-      'coach.got': 'Got it',
+      'coach.got': 'Explore Map',
 
       'purpose.kicker': 'From alert to fix',
 
       'purpose.title': 'See it. Snap it. Sort it out.',
 
-      'purpose.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
+      'purpose.body': 'Pin local hazards to alert your community, track updates, and drive faster municipal action.',
 
-      'purpose.got': 'Got it',
+      'purpose.got': 'Explore Map',
 
       'purpose.report': 'Report a hazard',
 
@@ -2939,7 +2939,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'Welcome to CivicRadar',
 
-      'onboard.subtitle': 'Spot a problem, snap it — then sort it out with official channels or neighbourhood volunteers.',
+      'onboard.subtitle': 'Select your ward or housing society to filter local alerts.',
 
       'onboard.city': 'Your city',
 
@@ -2969,7 +2969,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'Optional: use precise location once to suggest your ward. Nothing is shared on the map until you report. Or pick a ward from the list.',
 
-      'onboard.wardDetectCta': 'Auto-detect my ward',
+      'onboard.wardDetectCta': 'Detect my Ward (GPS)',
 
       'onboard.or': 'or',
 
@@ -3049,7 +3049,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'Visible to neighbours on the map',
 
-      'report.cameraDisclosure.location': 'Exact location stripped automatically',
+      'report.cameraDisclosure.location': 'Photo EXIF metadata stripped for privacy',
 
       'report.cameraDisclosure.noSell': 'Never sold or used for marketing',
 
@@ -5415,17 +5415,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'coach.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
+      'coach.body': 'स्थानीय खतरों को पिन करें ताकि समुदाय सचेत हो, अपडेट ट्रैक करें, और नगरपालिका की तेज़ कार्रवाई को आगे बढ़ाएँ।',
 
-      'coach.got': 'समझ गया',
+      'coach.got': 'नक्शा देखें',
 
       'purpose.kicker': 'अलर्ट से समाधान तक',
 
       'purpose.title': 'देखें। फोटो लें। सुलझाएँ।',
 
-      'purpose.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
+      'purpose.body': 'स्थानीय खतरों को पिन करें ताकि समुदाय सचेत हो, अपडेट ट्रैक करें, और नगरपालिका की तेज़ कार्रवाई को आगे बढ़ाएँ।',
 
-      'purpose.got': 'समझ गया',
+      'purpose.got': 'नक्शा देखें',
 
       'purpose.report': 'खतरा रिपोर्ट करें',
 
@@ -5485,7 +5485,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar में आपका स्वागत है',
 
-      'onboard.subtitle': 'समस्या देखें, फोटो लें — आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
+      'onboard.subtitle': 'स्थानीय अलर्ट फ़िल्टर करने के लिए अपना वार्ड या हाउसिंग सोसाइटी चुनें।',
 
       'onboard.city': 'आपका शहर',
 
@@ -5515,7 +5515,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'वैकल्पिक: वार्ड सुझाने के लिए एक बार सटीक लोकेशन। रिपोर्ट तक मानचित्र पर कुछ साझा नहीं। या सूची से वार्ड चुनें।',
 
-      'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
+      'onboard.wardDetectCta': 'मेरा वार्ड पहचानें (GPS)',
 
       'onboard.or': 'या',
 
@@ -5595,7 +5595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'मानचित्र पर पड़ोसियों को दिखता है',
 
-      'report.cameraDisclosure.location': 'सटीक लोकेशन अपने आप हटाई जाती है',
+      'report.cameraDisclosure.location': 'गोपनीयता के लिए फोटो EXIF मेटाडेटा हटाया जाता है',
 
       'report.cameraDisclosure.noSell': 'कभी बेचा या मार्केटिंग में उपयोग नहीं होता',
 
@@ -7961,17 +7961,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'coach.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
+      'coach.body': 'स्थानिक धोके पिन करा जेणेकरून समुदाय सतर्क होईल, अपडेट ट्रॅक करा आणि नगरपालिकेची जलद कारवाई पुढे नेईल.',
 
-      'coach.got': 'समजले',
+      'coach.got': 'नकाशा पहा',
 
       'purpose.kicker': 'सतर्केपासून सोडवणुकीपर्यंत',
 
       'purpose.title': 'पहा. फोटो काढा. सोडवा.',
 
-      'purpose.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
+      'purpose.body': 'स्थानिक धोके पिन करा जेणेकरून समुदाय सतर्क होईल, अपडेट ट्रॅक करा आणि नगरपालिकेची जलद कारवाई पुढे नेईल.',
 
-      'purpose.got': 'समजले',
+      'purpose.got': 'नकाशा पहा',
 
       'purpose.report': 'धोका नोंदवा',
 
@@ -8031,7 +8031,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
 
-      'onboard.subtitle': 'समस्या बघा, फोटो काढा — अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
+      'onboard.subtitle': 'स्थानिक अलर्ट फिल्टर करण्यासाठी तुमचा वॉर्ड किंवा हाऊसिंग सोसायटी निवडा.',
 
       'onboard.city': 'तुमचे शहर',
 
@@ -8061,7 +8061,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'पर्यायी: वॉर्ड सुचवण्यासाठी एकदा अचूक लोकेशन. रिपोर्ट करेपर्यंत नकाशावर काही शेअर होत नाही. किंवा यादीतून वॉर्ड निवडा.',
 
-      'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
+      'onboard.wardDetectCta': 'माझा वॉर्ड शोधा (GPS)',
 
       'onboard.or': 'किंवा',
 
@@ -8141,7 +8141,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'नकाशावर शेजाऱ्यांना दिसते',
 
-      'report.cameraDisclosure.location': 'अचूक लोकेशन आपोआप काढली जाते',
+      'report.cameraDisclosure.location': 'गोपनीयतेसाठी फोटो EXIF मेटाडेटा काढला जातो',
 
       'report.cameraDisclosure.noSell': 'कधीही विकले किंवा मार्केटिंगसाठी वापरले जात नाही',
 
@@ -10506,17 +10506,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'coach.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'coach.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
+      'coach.body': 'સ્થાનિક જોખમો પિન કરો જેથી સમુદાયને જાણ થાય, અપડેટ ટ્રૅક કરો, અને નગરપાલિકાની ઝડપી કાર્યવાહી આગળ વધે.',
 
-      'coach.got': 'સમજાઈ ગયું',
+      'coach.got': 'નકશો જુઓ',
 
       'purpose.kicker': 'જાણથી ઉકેલ સુધી',
 
       'purpose.title': 'જુઓ. ફોટો લો. ઉકેલો.',
 
-      'purpose.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
+      'purpose.body': 'સ્થાનિક જોખમો પિન કરો જેથી સમુદાયને જાણ થાય, અપડેટ ટ્રૅક કરો, અને નગરપાલિકાની ઝડપી કાર્યવાહી આગળ વધે.',
 
-      'purpose.got': 'સમજાઈ ગયું',
+      'purpose.got': 'નકશો જુઓ',
 
       'purpose.report': 'જોખમ રિપોર્ટ કરો',
 
@@ -10576,7 +10576,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
 
-      'onboard.subtitle': 'સમસ્યા જુઓ, ફોટો લો — સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
+      'onboard.subtitle': 'સ્થાનિક અલર્ટ ફિલ્ટર કરવા માટે તમારો વોર્ડ અથવા હાઉસિંગ સોસાયટી પસંદ કરો.',
 
       'onboard.city': 'તમારું શહેર',
 
@@ -10606,7 +10606,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
 
-      'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
+      'onboard.wardDetectCta': 'મારો વોર્ડ શોધો (GPS)',
 
       'onboard.or': 'અથવા',
 
@@ -10686,7 +10686,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.visible': 'સામુદાયિક નકશા પર પડોશીઓને દેખાય છે',
 
-      'report.cameraDisclosure.location': 'ચોક્કસ સ્થાન આપમેળે દૂર કરવામાં આવે છે',
+      'report.cameraDisclosure.location': 'ગોપનીયતા માટે ફોટો EXIF મેટાડેટા દૂર કરવામાં આવે છે',
 
       'report.cameraDisclosure.noSell': 'ક્યારેય વેચાતું નથી કે માર્કેટિંગ માટે વપરાતું નથી',
 
@@ -22217,7 +22217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       $('#tourStep').textContent = t('fabSpot.step');
 
-      $('#btnTourNext').textContent = t('purpose.got');
+      $('#btnTourNext').textContent = t('tour.done');
 
       const skip = $('#btnTourSkip');
 
@@ -27210,14 +27210,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     _launchHideScheduled = true;
 
+    const finishBootChrome = () => {
+
+      document.documentElement.classList.remove('app-booting');
+
+      document.body.classList.remove('app-booting');
+
+      document.documentElement.style.removeProperty('background-color');
+
+      document.body.style.removeProperty('background-color');
+
+      document.body.style.removeProperty('margin');
+
+      document.body.style.removeProperty('padding');
+
+      if (el.parentNode) el.remove();
+
+    };
+
     // Wait for map/chrome first paint under the splash, then fade. Keep
     // app-booting (indigo canvas) until the fade finishes — removing it at
     // fade-start exposed --bg-main (#f8fafc) through a translucent splash.
+    // Reduced-motion: instant hide (no opacity fade / clip-path wipe).
     requestAnimationFrame(() => {
 
       requestAnimationFrame(() => {
 
         if (!el.parentNode || el.classList.contains('app-launch--done')) return;
+
+        if (prefersReducedMotion()) {
+
+          el.classList.add('app-launch--done');
+
+          finishBootChrome();
+
+          return;
+
+        }
 
         el.classList.add('app-launch--done');
 
@@ -27237,17 +27266,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           el.removeEventListener('transitionend', onEnd);
 
-          document.documentElement.classList.remove('app-booting');
-
-          document.body.classList.remove('app-booting');
-
-          document.documentElement.style.removeProperty('background-color');
-
-          document.body.style.removeProperty('background-color');
-
-          document.body.style.removeProperty('margin');
-
-          if (el.parentNode) el.remove();
+          finishBootChrome();
 
         };
 
@@ -29772,6 +29791,67 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnWardDetectGps = $('#btnWardDetectGps');
 
     if (btnWardDetectGps) btnWardDetectGps.addEventListener('click', startOnboardingWardDetect);
+
+    // Soft-keyboard: keep ward/society fields + combobox list above the keyboard.
+    (function bindOnboardingKeyboardAssist() {
+      const modal = $('#onboardingModal');
+      const overlay = overlays.onboarding || $('#onboardingOverlay');
+      if (!modal) return;
+
+      let kbRaf = 0;
+      function syncKbInset() {
+        const open = overlay && overlay.classList.contains('open');
+        if (!open) {
+          modal.style.setProperty('--kb-inset', '0px');
+          return;
+        }
+        const vv = window.visualViewport;
+        let inset = 0;
+        if (vv) {
+          inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+        }
+        modal.style.setProperty('--kb-inset', inset + 'px');
+      }
+      function scheduleKbInset() {
+        if (kbRaf) cancelAnimationFrame(kbRaf);
+        kbRaf = requestAnimationFrame(() => {
+          kbRaf = 0;
+          syncKbInset();
+        });
+      }
+      function scrollFieldIntoView(el) {
+        if (!el || !modal.contains(el)) return;
+        scheduleKbInset();
+        requestAnimationFrame(() => {
+          const wrap = el.closest('.civic-combobox') || el.closest('.form-group') || el;
+          try {
+            wrap.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          } catch {
+            try { wrap.scrollIntoView(true); } catch { /* ignore */ }
+          }
+          const list = el.closest('.civic-combobox')?.querySelector('.civic-combobox__list:not(.hidden)');
+          if (list) {
+            try { list.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch { /* ignore */ }
+          }
+        });
+      }
+
+      ['wardInput', 'onboardSociety', 'displayName'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('focus', () => scrollFieldIntoView(el));
+      });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', scheduleKbInset);
+        window.visualViewport.addEventListener('scroll', scheduleKbInset);
+      }
+      window.addEventListener('resize', scheduleKbInset);
+      if (overlay) {
+        const mo = new MutationObserver(scheduleKbInset);
+        mo.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+      }
+    })();
 
     const onboardCity = $('#onboardCity');
 
