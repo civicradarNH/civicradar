@@ -892,52 +892,56 @@
 
   <!-- Volunteer Signup Modal -->
   <div class="modal-overlay" id="volunteerOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="volunteerModal" role="dialog" aria-modal="true" aria-labelledby="volunteerTitle">
+    <div class="modal modal--tall modal--sheet-flex" id="volunteerModal" role="dialog" aria-modal="true" aria-labelledby="volunteerTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="volunteer" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="volunteerTitle" data-i18n="volunteer.title">Volunteer in my ward</h2>
       <p class="modal__subtitle" data-i18n="volunteer.subtitle">Fix it together with neighbours — not a government volunteer programme.</p>
-      <div class="form-group">
-        <label for="volunteerWard" data-i18n="volunteer.ward">Your ward</label>
-        <input type="text" id="volunteerWard" readonly>
-      </div>
-      <div class="form-group">
-        <label for="volunteerNeighbourhood" data-i18n="volunteer.neighbourhood">Neighbourhood / society / lane</label>
-        <input type="text" id="volunteerNeighbourhood" maxlength="120" placeholder="e.g. Phoenix Mills lane, Building 7 Worli" data-i18n-ph="volunteer.neighbourhoodPh" autocomplete="off" aria-describedby="volunteerNeighbourhoodHint">
-        <p class="field-hint" id="volunteerNeighbourhoodHint" data-i18n="volunteer.neighbourhoodHintNoWard">Pick your ward first for local suggestions.</p>
-      </div>
-      <div class="form-group">
-        <label data-i18n="volunteer.hours">Hours available this monsoon</label>
-        <div class="hours-picker" id="volunteerHoursPicker">
-          <button type="button" class="hours-picker__btn" data-hours="2">2</button>
-          <button type="button" class="hours-picker__btn active" data-hours="4">4</button>
-          <button type="button" class="hours-picker__btn" data-hours="8">8</button>
-          <button type="button" class="hours-picker__btn" data-hours="custom" data-i18n="volunteer.hoursCustom">Custom</button>
+      <div class="modal__sheet-body">
+        <div class="form-group">
+          <label for="volunteerWard" data-i18n="volunteer.ward">Your ward</label>
+          <input type="text" id="volunteerWard" readonly aria-readonly="true">
         </div>
-        <input type="number" id="volunteerHoursCustom" class="hidden" min="1" max="200" placeholder="Hours">
-      </div>
-      <div class="form-group">
-        <label data-i18n="volunteer.skills">I can help with</label>
-        <div class="checkbox-group">
-          <label class="checkbox-row">
-            <input type="checkbox" id="volSkillCleanup" value="cleanup" checked>
-            <span data-i18n="volunteer.skill.cleanup">Cleanup stagnant water</span>
-          </label>
-          <label class="checkbox-row">
-            <input type="checkbox" id="volSkillAwareness" value="awareness">
-            <span data-i18n="volunteer.skill.awareness">Awareness &amp; WhatsApp outreach</span>
-          </label>
-          <label class="checkbox-row">
-            <input type="checkbox" id="volSkillPledge" value="pledge">
-            <span data-i18n="volunteer.skill.pledge">Pledge delivery (supplies)</span>
-          </label>
+        <div class="form-group">
+          <label for="volunteerNeighbourhood" data-i18n="volunteer.neighbourhood">Neighbourhood / society / lane</label>
+          <input type="text" id="volunteerNeighbourhood" maxlength="120" placeholder="e.g. Phoenix Mills lane, Building 7 Worli" data-i18n-ph="volunteer.neighbourhoodPh" autocomplete="off" aria-describedby="volunteerNeighbourhoodHint">
+          <p class="field-hint" id="volunteerNeighbourhoodHint" data-i18n="volunteer.neighbourhoodHintNoWard">Pick your ward first for local suggestions.</p>
         </div>
-      </div>
-      <p class="field-hint field-hint--compact" data-i18n="volunteer.ageNote">18+ required per Terms. Under-18? Participate only with a parent/guardian or school NSS coordinator who accepts Terms.</p>
-      <div class="form-group">
-        <label for="volunteerContact" data-i18n="volunteer.contact">Phone / WhatsApp (optional)</label>
-        <input type="tel" id="volunteerContact" maxlength="20" placeholder="+91 …" autocomplete="tel">
-        <p class="field-hint" data-i18n="volunteer.contactHint">Optional — shared with your ward or neighbourhood coordinator only if you enter it. You control this; CivicRadar never auto-calls.</p>
+        <div class="form-group">
+          <label data-i18n="volunteer.hours">Hours available this monsoon</label>
+          <div class="hours-picker" id="volunteerHoursPicker">
+            <button type="button" class="hours-picker__btn" data-hours="2">2</button>
+            <button type="button" class="hours-picker__btn active" data-hours="4">4</button>
+            <button type="button" class="hours-picker__btn" data-hours="8">8</button>
+            <button type="button" class="hours-picker__btn" data-hours="custom" data-i18n="volunteer.hoursCustom">Custom</button>
+          </div>
+          <input type="number" id="volunteerHoursCustom" class="hidden" min="1" max="200" placeholder="Hours">
+        </div>
+        <div class="form-group">
+          <label data-i18n="volunteer.skills">I can help with</label>
+          <div class="checkbox-group">
+            <label class="checkbox-row">
+              <input type="checkbox" id="volSkillCleanup" value="cleanup" checked>
+              <span data-i18n="volunteer.skill.cleanup">Cleanup stagnant water</span>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="volSkillAwareness" value="awareness">
+              <span data-i18n="volunteer.skill.awareness">Awareness &amp; WhatsApp outreach</span>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="volSkillPledge" value="pledge">
+              <span data-i18n="volunteer.skill.pledge">Pledge delivery (supplies)</span>
+            </label>
+          </div>
+        </div>
+        <div class="volunteer-age-card" data-i18n="volunteer.ageNote">
+          18+ required per Terms. Under-18? Participate only with a parent/guardian or school NSS coordinator who accepts Terms.
+        </div>
+        <div class="form-group form-group--sheet-end">
+          <label for="volunteerContact" data-i18n="volunteer.contact">Phone / WhatsApp (optional)</label>
+          <input type="tel" id="volunteerContact" maxlength="20" placeholder="+91 …" autocomplete="tel">
+          <p class="field-hint" data-i18n="volunteer.contactHint">Optional — shared with your ward or neighbourhood coordinator only if you enter it. You control this; CivicRadar never auto-calls.</p>
+        </div>
       </div>
       <div class="modal__sticky-footer">
         <button type="button" class="btn btn--primary btn--full" id="btnSubmitVolunteer" data-i18n="volunteer.submit">Save volunteer signup</button>

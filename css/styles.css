@@ -3254,6 +3254,12 @@ body.pwa-nudge-visible #btnCamera {
   );
 }
 
+/* Keep Profile sheet scrollable; auto scroll-behavior avoids open-time jump */
+#profileModal {
+  overflow-y: auto;
+  scroll-behavior: auto;
+}
+
 .modal {
   width: 100%;
   max-width: 480px;
@@ -5788,16 +5794,24 @@ body.persona-lead .app-open-banner { display: none; }
   min-height: var(--touch-min);
   padding: 8px 10px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   background: var(--bg-main);
+  color: var(--ink-900);
   font-weight: 600;
   font-size: var(--fs-base);
   cursor: pointer;
 }
+/* Filled active state: --primary-fill (#4f46e5) + white clears ≥4.5:1
+   (plain --primary #6366f1 + white ≈ 3.8:1 — do not use tint-only active). */
 .hours-picker__btn.active {
-  border-color: var(--primary);
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--primary);
+  border-color: var(--primary-fill);
+  background: var(--primary-fill);
+  color: var(--on-primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+.hours-picker__btn.active:focus-visible {
+  outline-color: var(--primary-fill);
 }
 
 .checkbox-group {
@@ -5808,6 +5822,58 @@ body.persona-lead .app-open-banner { display: none; }
 
 .checkbox-group .checkbox-row {
   margin-bottom: 0;
+}
+
+/* Sheet-flex: scrollable body + docked sticky footer (no field overlap) */
+.modal--sheet-flex {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+  max-height: min(92vh, 100dvh);
+}
+
+.modal--sheet-flex > .modal__handle,
+.modal--sheet-flex > .modal__close,
+.modal--sheet-flex > h2,
+.modal--sheet-flex > .modal__subtitle {
+  flex-shrink: 0;
+}
+
+.modal__sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  /* Last-field clearance above docked footer (footer is flex sibling, not overlay) */
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+}
+
+.modal__sheet-body .form-group--sheet-end {
+  padding-bottom: 4px;
+  scroll-margin-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Soft keyboard: keep focused field clear of the sheet bottom edge */
+.modal__sheet-body input:focus,
+.modal__sheet-body textarea:focus {
+  scroll-margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+.modal--sheet-flex > .modal__sticky-footer {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 -24px 0;
+  padding: 12px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+  /* Solid dock — content scrolls under a transparent sticky band no longer */
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Volunteer modal — tighter spacing, title clearance for close btn */
@@ -5825,6 +5891,48 @@ body.persona-lead .app-open-banner { display: none; }
 
 #volunteerModal .field-hint {
   margin-top: 4px;
+}
+
+/* Auto-populated ward — muted locked surface (not editable-looking) */
+#volunteerModal #volunteerWard {
+  background: var(--surface-light);
+  color: var(--ink-600);
+  border-color: var(--border);
+  cursor: default;
+  box-shadow: none;
+  opacity: 1;
+  -webkit-text-fill-color: var(--ink-600);
+}
+
+#volunteerModal #volunteerWard:focus,
+#volunteerModal #volunteerWard:focus-visible {
+  border-color: var(--border);
+  box-shadow: none;
+  outline: none;
+}
+
+/* 18+ legal note — subtle glass card (Clean SaaS; no glow) */
+.volunteer-age-card {
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(var(--primary-rgb), 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(238, 242, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--ink-600);
+  font-size: var(--text-sm, var(--fs-sm));
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volunteer-age-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--primary-50);
+  }
 }
 
 #volunteerModal .modal__sticky-footer {
@@ -11722,6 +11830,10 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   .modal--tall {
     max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
   }
+
+  .modal.modal--sheet-flex {
+    padding-bottom: 0;
+  }
 }
 
 .modal {
@@ -11765,6 +11877,18 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--glass-sheet) 12%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* Sheet-flex dock wins over glass sticky band — fields scroll in .modal__sheet-body */
+.modal--sheet-flex > .modal__sticky-footer {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 -24px 0;
+  padding: 12px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Blocking dialogs: centered, solid surface — not glass sheets */
@@ -12148,6 +12272,23 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
 
   .modal__sticky-footer {
     background: linear-gradient(180deg, rgba(17, 24, 39, 0) 0%, var(--glass-sheet) 12%);
+  }
+
+  .modal--sheet-flex > .modal__sticky-footer {
+    background: var(--surface);
+    border-top-color: var(--border);
+  }
+
+  .volunteer-age-card {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: var(--ink-600);
+  }
+
+  #volunteerModal #volunteerWard {
+    background: var(--surface-light);
+    color: var(--ink-600);
+    -webkit-text-fill-color: var(--ink-600);
   }
 
   #tosOverlay .modal,

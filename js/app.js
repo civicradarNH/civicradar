@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v374';
+  const CIVIC_APP_VERSION = 'v377';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -24040,6 +24040,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Profile: land on close at top — never scroll-into mid-sheet form fields.
+
+    if (name === 'profile') {
+
+      const closeBtn = modal.querySelector('.modal__close');
+
+      const land = closeBtn || modal;
+
+      try { land.focus({ preventScroll: true }); } catch {
+
+        try { land.focus(); } catch { /* ignore */ }
+
+      }
+
+      return;
+
+    }
+
     const focusable = getFocusable(modal);
 
     if (focusable.length) focusable[0].focus();
@@ -26314,6 +26332,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.closePledgeModal = function () { closeModal('pledge'); };
 
+  function resetProfileModalScroll() {
+    const profileModal = $('#profileModal');
+    if (!profileModal) return;
+    profileModal.scrollTop = 0;
+    profileModal.querySelectorAll('.modal__body, .modal__sheet-body, .modal__content, [data-modal-scroll]').forEach((el) => {
+      el.scrollTop = 0;
+    });
+  }
+
   window.openProfileModal = function () {
 
     pushNavModalHistory();
@@ -26338,12 +26365,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     openModal('profile');
 
+    // Always open at the greeting — prior scroll + focus must not leave the sheet mid-way.
+    resetProfileModalScroll();
+
     // Let the skeleton paint one frame before sync list fill.
     requestAnimationFrame(() => {
 
-      updateProfileUI();
+      resetProfileModalScroll();
 
-      $('#btnReplayTour')?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      updateProfileUI();
 
       pulseProfilePointsStat();
 
