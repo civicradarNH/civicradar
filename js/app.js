@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v379';
+  const CIVIC_APP_VERSION = 'v381';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2839,9 +2839,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'Turn on location to pin hazards on the map — or place a pin when reporting.',
 
-      'location.bannerCompact': 'Turn on location to pin hazards — or place a pin when reporting.',
+      'location.bannerCompact': 'See hazards near you — turn on location.',
 
-      'location.bannerNearby': 'Turn on location to pin hazards and see nearby issues. Pins only — not sold.',
+      'location.bannerNearby': 'Turn on location to pin hazards and see nearby issues.',
 
       'location.unavailable': 'Location unavailable in this browser.',
 
@@ -2917,7 +2917,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'Your pin is public. Track Civic Points in Profile.',
 
-      'persona.citizen.idle': 'Hazard nearby? Report it in 30 seconds.',
+      'persona.citizen.idle': 'Hazard nearby? Report it.',
 
       'persona.wardImpact': '{ward}: {n} neighbour reports. Add yours.',
 
@@ -2967,7 +2967,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar currently serves Mumbai, Pune, and Thane only. Please select one of these cities manually to explore.',
 
-      'onboard.gpsDisclosure': 'Optional: use precise location once to suggest your ward. Nothing is shared on the map until you report. Or pick a ward from the list.',
+      'onboard.gpsDisclosure': 'Used once to find your ward. Nothing is shared until you report.',
 
       'onboard.wardDetectCta': 'Auto-detect my ward',
 
@@ -3035,7 +3035,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'Pin this hazard on the map',
 
-      'report.geoExplainerBody': 'Precise location places this pin on the community map. Pins and photos are visible to neighbours. Location is not sold or used for marketing.',
+      'report.geoExplainerBody': 'Used once to place this pin where you\'re standing. Neighbours see the pin — never your live location.',
 
       'report.geoExplainerContinue': 'Use my location',
 
@@ -3043,7 +3043,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'Photo for your hazard report',
 
-      'report.cameraDisclosureBody': 'Camera is only for hazard evidence. Photos show on the community map. EXIF location is stripped on-device. Photos are not sold or used for marketing. Avoid faces and documents.',
+      'report.cameraDisclosureBody': 'Camera is only for hazard evidence. Photos show on the community map. EXIF location is stripped on-device. Avoid faces and documents.',
 
       'report.cameraDisclosure.verify': 'Used only to verify this hazard',
 
@@ -3051,7 +3051,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'Exact location stripped automatically',
 
-      'report.cameraDisclosure.noSell': 'Never sold or used for marketing',
+      'report.cameraDisclosure.noSell': 'Used only for this hazard report',
 
       'report.cameraDisclosureContinue': 'Continue to camera',
 
@@ -3081,7 +3081,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'Take photo',
 
-      'report.captureExifHint': 'EXIF stripped on-device',
+      'report.captureExifHint': 'Location data removed from photos automatically',
 
       'report.notes': 'Landmark (optional)',
 
@@ -3133,7 +3133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} neighbour(s) already backing nearby spots — yours is up too.',
 
-      'success.subtitle': 'Open a {corp} app below — starts the complaint clock. We don\'t file for you.',
+      'success.subtitle': 'Filing with {corp} starts the official clock — you file, we track.',
 
       'success.step1': 'Share on WhatsApp so neighbours can back it',
 
@@ -3332,7 +3332,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.empty': 'Be the first pin in {ward}.',
 
-      'map.emptyHint': 'Spot a hazard, snap a photo — neighbours see it in about 30 seconds.',
+      'map.emptyHint': 'Spot a hazard, snap a photo — neighbours see it too.',
 
       'map.emptyAction': 'Report the first hazard',
 
@@ -3632,13 +3632,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.volunteerTitle': 'Volunteer in my ward',
 
-      'community.volunteerBody': 'Join local cleanup crews — filing with {corp} stays separate.',
+      'community.volunteerBody': 'Join local cleanup crews in your ward.',
 
       'community.volunteerCta': 'Sign up',
 
       'volunteer.title': 'Volunteer in my ward',
 
-      'volunteer.subtitle': 'Fix it together with neighbours — not a government volunteer programme.',
+      'volunteer.subtitle': 'Join neighbours for local cleanups.',
 
       'volunteer.ward': 'Your ward',
 
@@ -3893,15 +3893,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'About the project',
 
-      'about.creditNote': 'Independent student project by Nihira for neighbours in Mumbai, Pune, and Thane. Not affiliated with any municipal authority. For press or partnership, use the contact below.',
+      'about.creditNote': 'Independent student project by Nihira for neighbours in Mumbai, Pune, and Thane. For press or partnership, use the contact below.',
 
       'about.privacyTitle': 'Privacy & data',
 
-      'about.privacyNote': 'EXIF location is stripped before upload. GPS places your pin only when you allow it. Reports show on the community map. Official complaints go through BMC, PMC, or TMC when you file there.',
+      'about.privacyNote': 'EXIF location is stripped before upload. GPS places your pin only when you allow it. Reports show on the community map. See the Privacy Policy for full details.',
 
       'about.officialSourcesTitle': 'Official information sources',
 
-      'about.officialSourcesNote': 'Not a government app. Verified BMC, PMC, TMC, and Maharashtra portal links are on our official sources page — you file there yourself.',
+      'about.officialSourcesNote': 'Verified BMC, PMC, TMC, and Maharashtra portal links are on our official sources page — you file there yourself.',
 
       'about.impactTitle': 'Community impact',
 
@@ -4332,7 +4332,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'Official grievance channels',
 
-      'official.subtitle': 'Verified .gov apps and portals — CivicRadar does not file for you.',
+      'official.subtitle': 'Verified .gov apps and portals for your city.',
 
       'official.recommended': 'Recommended',
 
@@ -4600,7 +4600,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.messagePh': 'Note for volunteers—',
 
-      'pledge.notice': 'Your ward NGO coordinator sees this in their hub — not BMC. Follow-up is in-app only.',
+      'pledge.notice': 'Seen only by your ward coordinator. Follow-up happens in-app.',
 
       'pledge.status.pledged': 'Pledged',
 
@@ -5385,9 +5385,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'मानचित्र पर पिन लगाने के लिए लोकेशन चालू करें — या रिपोर्ट करते समय पिन रखें।',
 
-      'location.bannerCompact': 'खतरे पिन करने के लिए स्थान चालू करें — या रिपोर्ट करते समय पिन लगाएँ।',
+      'location.bannerCompact': 'अपने पास के खतरे देखें — लोकेशन चालू करें।',
 
-      'location.bannerNearby': 'पिन लगाने और पास की समस्याएँ देखने के लिए लोकेशन चालू करें। सिर्फ पिन — बेचा नहीं जाता।',
+      'location.bannerNearby': 'पिन लगाने और पास की समस्याएँ देखने के लिए लोकेशन चालू करें।',
 
       'location.unavailable': 'इस ब्राउज़र में स्थान उपलब्ध नहीं है।',
 
@@ -5463,7 +5463,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'आपका पिन सार्वजनिक है। Civic Points प्रोफ़ाइल में देखें।',
 
-      'persona.citizen.idle': 'पास में खतरा? 30 सेकंड में रिपोर्ट करें।',
+      'persona.citizen.idle': 'पास में खतरा? रिपोर्ट करें।',
 
       'persona.wardImpact': '{ward}: {n} पड़ोसी रिपोर्ट। अपनी जोड़ें।',
 
@@ -5513,7 +5513,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar अभी केवल मुंबई, पुणे और ठाणे में उपलब्ध है। कृपया इनमें से कोई शहर खुद चुनकर देखें।',
 
-      'onboard.gpsDisclosure': 'वैकल्पिक: वार्ड सुझाने के लिए एक बार सटीक लोकेशन। रिपोर्ट तक मानचित्र पर कुछ साझा नहीं। या सूची से वार्ड चुनें।',
+      'onboard.gpsDisclosure': 'आपका वार्ड खोजने के लिए एक बार उपयोग। रिपोर्ट करने तक कुछ साझा नहीं होता।',
 
       'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
 
@@ -5581,7 +5581,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'खतरे को मैप पर पिन करें',
 
-      'report.geoExplainerBody': 'सटीक लोकेशन इस पिन को सामुदायिक मानचित्र पर रखती है। पिन और फोटो पड़ोसियों को दिखते हैं। लोकेशन बेची या मार्केटिंग के लिए नहीं।',
+      'report.geoExplainerBody': 'जहाँ आप खड़े हैं, वहाँ पिन लगाने के लिए एक बार उपयोग। पड़ोसी पिन देखते हैं — आपका लाइव लोकेशन कभी नहीं।',
 
       'report.geoExplainerContinue': 'मेरी लोकेशन उपयोग करें',
 
@@ -5589,7 +5589,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'खतरा रिपोर्ट के लिए फ़ोटो',
 
-      'report.cameraDisclosureBody': 'कैमरा केवल खतरे के प्रमाण के लिए। फोटो सामुदायिक मानचित्र पर दिखते हैं। EXIF लोकेशन डिवाइस पर हटाई जाती है। फोटो बेचे या मार्केटिंग के लिए नहीं। चेहरे और दस्तावेज़ न लें।',
+      'report.cameraDisclosureBody': 'कैमरा केवल खतरे के प्रमाण के लिए। फोटो सामुदायिक मानचित्र पर दिखते हैं। EXIF लोकेशन डिवाइस पर हटाई जाती है। चेहरे और दस्तावेज़ न लें।',
 
       'report.cameraDisclosure.verify': 'केवल इस खतरे की पुष्टि के लिए उपयोग होता है',
 
@@ -5597,7 +5597,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'सटीक लोकेशन अपने आप हटाई जाती है',
 
-      'report.cameraDisclosure.noSell': 'कभी बेचा या मार्केटिंग में उपयोग नहीं होता',
+      'report.cameraDisclosure.noSell': 'केवल इस खतरा रिपोर्ट के लिए',
 
       'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
@@ -5627,7 +5627,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फ़ोटो लें',
 
-      'report.captureExifHint': 'EXIF डिवाइस पर हटाई जाती है',
+      'report.captureExifHint': 'फोटो से स्थान डेटा अपने आप हटा दिया जाता है',
 
       'report.notes': 'Landmark (वैकल्पिक)',
 
@@ -5679,7 +5679,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} पड़ोसी पहले से पास के स्पॉट का समर्थन कर रहे हैं — आपका भी जुड़ गया।',
 
-      'success.subtitle': 'नीचे {corp} ऐप खोलें — शिकायत घड़ी शुरू होती है। हम आपकी ओर से दर्ज नहीं करते।',
+      'success.subtitle': '{corp} में दर्ज करने से आधिकारिक घड़ी शुरू होती है — आप दर्ज करते हैं, हम ट्रैक करते हैं।',
 
       'success.step1': 'WhatsApp पर शेयर करें ताकि पड़ोसी समर्थन करें',
 
@@ -5880,7 +5880,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.empty': '{ward} में पहले पिन आप लगाएँ।',
 
-      'map.emptyHint': 'खतरा देखें, फोटो लें — करीब 30 सेकंड में पड़ोसी देखेंगे।',
+      'map.emptyHint': 'खतरा देखें, फोटो लें — पड़ोसी भी देखेंगे।',
 
       'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
 
@@ -6180,13 +6180,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.volunteerTitle': 'मेरे वार्ड में स्वयंसेवा',
 
-      'community.volunteerBody': 'स्थानीय सफ़ाई दल से जुड़ें — {corp} में दर्ज करना अलग है।',
+      'community.volunteerBody': 'अपने वार्ड के स्थानीय सफ़ाई दल से जुड़ें।',
 
       'community.volunteerCta': 'साइन अप',
 
       'volunteer.title': 'मेरे वार्ड में स्वयंसेवा',
 
-      'volunteer.subtitle': 'पड़ोसियों के साथ मिलकर — सरकारी स्वयंसेवी कार्यक्रम नहीं।',
+      'volunteer.subtitle': 'स्थानीय सफाई के लिए पड़ोसियों से जुड़ें।',
 
       'volunteer.ward': 'आपका वार्ड',
 
@@ -6441,15 +6441,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'प्रोजेक्ट के बारे में',
 
-      'about.creditNote': 'निहिरा का स्वतंत्र छात्र प्रोजेक्ट — मुंबई, पुणे, ठाणे के पड़ोसियों के लिए। किसी नगरपालिका से संबद्ध नहीं। प्रेस या साझेदारी के लिए नीचे संपर्क करें।',
+      'about.creditNote': 'निहिरा का स्वतंत्र छात्र प्रोजेक्ट — मुंबई, पुणे, ठाणे के पड़ोसियों के लिए। प्रेस या साझेदारी के लिए नीचे संपर्क करें।',
 
       'about.privacyTitle': 'गोपनीयता और डेटा',
 
-      'about.privacyNote': 'अपलोड से पहले EXIF लोकेशन हटाई जाती है। GPS पिन तभी जब आप अनुमति दें। रिपोर्ट सामुदायिक मानचित्र पर दिखती हैं। आधिकारिक शिकायत BMC, PMC या TMC में आप दर्ज करें।',
+      'about.privacyNote': 'अपलोड से पहले EXIF लोकेशन हटाई जाती है। GPS पिन तभी जब आप अनुमति दें। रिपोर्ट सामुदायिक मानचित्र पर दिखती हैं। पूरी जानकारी गोपनीयता नीति में।',
 
       'about.officialSourcesTitle': 'आधिकारिक सूचना स्रोत',
 
-      'about.officialSourcesNote': 'सरकारी ऐप नहीं। सत्यापित BMC, PMC, TMC व महाराष्ट्र पोर्टल लिंक आधिकारिक स्रोत पृष्ठ पर — वहाँ आप खुद दर्ज करें।',
+      'about.officialSourcesNote': 'सत्यापित BMC, PMC, TMC व महाराष्ट्र पोर्टल लिंक आधिकारिक स्रोत पृष्ठ पर — वहाँ आप खुद दर्ज करें।',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
@@ -6878,7 +6878,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'आधिकारिक शिकायत चैनल',
 
-      'official.subtitle': 'सत्यापित .gov ऐप और पोर्टल — CivicRadar आपकी ओर से दर्ज नहीं करता।',
+      'official.subtitle': 'आपके शहर के सत्यापित .gov ऐप और पोर्टल।',
 
       'official.recommended': 'अनुशंसित',
 
@@ -7146,7 +7146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.messagePh': 'स्वयंसेवकों के लिए नोट…',
 
-      'pledge.notice': 'आपके वार्ड NGO समन्वयक इसे अपने हब में देखते हैं — BMC नहीं। फॉलो-अप केवल ऐप में।',
+      'pledge.notice': 'केवल आपके वार्ड समन्वयक देखते हैं। फॉलो-अप ऐप में होता है।',
 
       'pledge.status.pledged': 'दान दर्ज',
 
@@ -7931,9 +7931,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'नकाशावर पिन लावण्यासाठी लोकेशन चालू करा — किंवा रिपोर्ट करताना पिन ठेवा.',
 
-      'location.bannerCompact': 'धोके पिन करण्यासाठी स्थान चालू करा — किंवा तक्रार करताना पिन लावा.',
+      'location.bannerCompact': 'जवळचे धोके पहा — लोकेशन चालू करा.',
 
-      'location.bannerNearby': 'पिन लावण्यासाठी आणि जवळच्या समस्या पाहण्यासाठी लोकेशन चालू करा. फक्त पिन — विकले जात नाही.',
+      'location.bannerNearby': 'पिन लावण्यासाठी आणि जवळच्या समस्या पाहण्यासाठी लोकेशन चालू करा.',
 
       'location.unavailable': 'या ब्राउझरमध्ये स्थान उपलब्ध नाही.',
 
@@ -8009,7 +8009,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'तुमचा पिन सार्वजनिक आहे. Civic Points प्रोफाइलमध्ये पहा.',
 
-      'persona.citizen.idle': 'जवळ धोका? ३० सेकंदांत रिपोर्ट करा.',
+      'persona.citizen.idle': 'जवळ धोका? रिपोर्ट करा.',
 
       'persona.wardImpact': '{ward}: {n} शेजारी तक्रारी. तुमची जोडा.',
 
@@ -8059,7 +8059,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar सध्या फक्त मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. कृपया यातील एक शहर स्वतः निवडून पाहा.',
 
-      'onboard.gpsDisclosure': 'पर्यायी: वॉर्ड सुचवण्यासाठी एकदा अचूक लोकेशन. रिपोर्ट करेपर्यंत नकाशावर काही शेअर होत नाही. किंवा यादीतून वॉर्ड निवडा.',
+      'onboard.gpsDisclosure': 'तुमचा वॉर्ड शोधण्यासाठी एकदा वापर. रिपोर्ट करेपर्यंत काही शेअर होत नाही.',
 
       'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
 
@@ -8127,7 +8127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'धोका नकाशावर पिन करा',
 
-      'report.geoExplainerBody': 'अचूक लोकेशन हा पिन समुदाय नकाशावर ठेवतो. पिन आणि फोटो शेजाऱ्यांना दिसतात. लोकेशन विकली किंवा मार्केटिंगसाठी नाही.',
+      'report.geoExplainerBody': 'तुम्ही उभे असता तिथे पिन ठेवण्यासाठी एकदा वापर. शेजारी पिन पाहतात — तुमचे लाइव्ह लोकेशन कधीही नाही.',
 
       'report.geoExplainerContinue': 'माझे स्थान वापरा',
 
@@ -8135,7 +8135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'धोका तक्रारीसाठी फोटो',
 
-      'report.cameraDisclosureBody': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी. फोटो समुदाय नकाशावर दिसतात. EXIF लोकेशन डिव्हाइसवर काढली जाते. फोटो विकले किंवा मार्केटिंगसाठी नाहीत. चेहरे व कागदपत्रे टाळा.',
+      'report.cameraDisclosureBody': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी. फोटो समुदाय नकाशावर दिसतात. EXIF लोकेशन डिव्हाइसवर काढली जाते. चेहरे व कागदपत्रे टाळा.',
 
       'report.cameraDisclosure.verify': 'फक्त या धोक्याची खात्री करण्यासाठी वापरले जाते',
 
@@ -8143,7 +8143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'अचूक लोकेशन आपोआप काढली जाते',
 
-      'report.cameraDisclosure.noSell': 'कधीही विकले किंवा मार्केटिंगसाठी वापरले जात नाही',
+      'report.cameraDisclosure.noSell': 'फक्त या धोका तक्रारीसाठी',
 
       'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
@@ -8173,7 +8173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फोटो काढा',
 
-      'report.captureExifHint': 'EXIF डिव्हाइसवर काढली जाते',
+      'report.captureExifHint': 'फोटोमधून स्थान डेटा आपोआप काढला जातो',
 
       'report.notes': 'Landmark (ऐच्छिक)',
 
@@ -8225,7 +8225,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} शेजारी आधीच जवळच्या स्पॉटला पाठिंबा देत आहेत — तुमचाही लागला.',
 
-      'success.subtitle': 'खाली {corp} अॅप उघडा — तक्रार घड्याळ सुरू होते. आम्ही तुमच्यावतीने दाखल करत नाही.',
+      'success.subtitle': '{corp} मध्ये दाखल केल्याने अधिकृत घड्याळ सुरू होते — तुम्ही दाखल करता, आम्ही ट्रॅक करतो.',
 
       'success.step1': 'WhatsApp वर शेअर करा जेणेकरून शेजारी पाठिंबा देतील',
 
@@ -8426,7 +8426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.empty': '{ward} मध्ये पहिला पिन तुम्ही लावा.',
 
-      'map.emptyHint': 'धोका पहा, फोटो काढा — सुमारे 30 सेकंदांत शेजारी पाहतील.',
+      'map.emptyHint': 'धोका पहा, फोटो काढा — शेजारीही पाहतील.',
 
       'map.emptyAction': 'पहिला धोका नोंदवा',
 
@@ -8726,13 +8726,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.volunteerTitle': 'माझ्या वार्डात स्वयंसेवा',
 
-      'community.volunteerBody': 'स्थानिक स्वच्छता पथकात सामील व्हा — {corp} नोंद वेगळी आहे.',
+      'community.volunteerBody': 'तुमच्या वॉर्डमधील स्थानिक स्वच्छता पथकात सामील व्हा.',
 
       'community.volunteerCta': 'नोंदणी',
 
       'volunteer.title': 'माझ्या वार्डात स्वयंसेवा',
 
-      'volunteer.subtitle': 'शेजाऱ्यांसोबत एकत्र — अधिकृत BMC स्वयंसेवा कार्यक्रम नाही.',
+      'volunteer.subtitle': 'स्थानिक स्वच्छतेसाठी शेजाऱ्यांसोबत सामील व्हा.',
 
       'volunteer.ward': 'तुमचा वॉर्ड',
 
@@ -8987,15 +8987,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'प्रकल्पाबद्दल',
 
-      'about.creditNote': 'निहिराचे स्वतंत्र विद्यार्थी प्रकल्प — मुंबई, पुणे, ठाणेतील शेजाऱ्यांसाठी. कोणत्याही महापालिकेशी संबंधित नाही. प्रेस किंवा भागीदारीसाठी खाली संपर्क करा.',
+      'about.creditNote': 'निहिराचे स्वतंत्र विद्यार्थी प्रकल्प — मुंबई, पुणे, ठाणेतील शेजाऱ्यांसाठी. प्रेस किंवा भागीदारीसाठी खाली संपर्क करा.',
 
       'about.privacyTitle': 'गोपनीयता आणि डेटा',
 
-      'about.privacyNote': 'अपलोडपूर्वी EXIF लोकेशन काढली जाते. GPS पिन फक्त तुम्ही परवानगी दिल्यावर. रिपोर्ट समुदाय नकाशावर दिसतात. अधिकृत तक्रारी BMC, PMC किंवा TMC मध्ये तुम्ही दाखल करा.',
+      'about.privacyNote': 'अपलोडपूर्वी EXIF लोकेशन काढली जाते. GPS पिन फक्त तुम्ही परवानगी दिल्यावर. रिपोर्ट समुदाय नकाशावर दिसतात. पूर्ण तपशील गोपनीयता धोरणात.',
 
       'about.officialSourcesTitle': 'अधिकृत माहिती स्रोत',
 
-      'about.officialSourcesNote': 'सरकारी अॅप नाही. सत्यापित BMC, PMC, TMC व महाराष्ट्र पोर्टल लिंक अधिकृत स्रोत पृष्ठावर — तिथे तुम्ही स्वतः दाखल करा.',
+      'about.officialSourcesNote': 'सत्यापित BMC, PMC, TMC व महाराष्ट्र पोर्टल लिंक अधिकृत स्रोत पृष्ठावर — तिथे तुम्ही स्वतः दाखल करा.',
 
       'about.impactTitle': 'सामुदायिक प्रभाव',
 
@@ -9424,7 +9424,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'अधिकृत तक्रार चॅनेल',
 
-      'official.subtitle': 'सत्यापित .gov अॅप्स आणि पोर्टल्स — CivicRadar तुमच्यावतीने दाखल करत नाही.',
+      'official.subtitle': 'तुमच्या शहरातील सत्यापित .gov अॅप्स आणि पोर्टल्स.',
 
       'official.recommended': 'शिफारस',
 
@@ -9692,7 +9692,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.messagePh': 'स्वयंसेवकांसाठी टीप…',
 
-      'pledge.notice': 'तुमचे वॉर्ड NGO समन्वयक हे त्यांच्या हबमध्ये पाहतात — BMC नाही. फॉलो-अप फक्त अॅपमध्ये.',
+      'pledge.notice': 'फक्त तुमचे वॉर्ड समन्वयक पाहतात. फॉलो-अप अॅपमध्ये होतो.',
 
       'pledge.status.pledged': 'देणगी नोंद',
 
@@ -10476,9 +10476,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.banner': 'CivicRadar ચોક્કસ સ્થાનથી જોખમો સમુદાય નકશા પર પિન કરે છે (પડોશીઓને દેખાય). ચાલુ કરો દબાવો — અથવા ફરિયાદ કરતી વખતે મેન્યુઅલ પિન મૂકો.',
 
-      'location.bannerCompact': 'જોખમ પિન કરવા સ્થાન ચાલુ કરો — અથવા ફરિયાદ વખતે પિન મૂકો.',
+      'location.bannerCompact': 'નજીકના જોખમો જુઓ — સ્થાન ચાલુ કરો.',
 
-      'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો. સ્થાન ફક્ત રિપોર્ટ પિન તરીકે શેર થાય છે — વેચાતું નથી.',
+      'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો.',
 
       'location.unavailable': 'આ બ્રાઉઝરમાં સ્થાન ઉપલબ્ધ નથી.',
 
@@ -10554,7 +10554,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tour.profile.body': 'તમારા પડોશીઓ પિન જુએ છે. Profile માં તમારા Civic Points ટ્રૅક કરો.',
 
-      'persona.citizen.idle': 'નજીક જોખમ? ૩૦ સેકન્ડમાં રિપોર્ટ કરો.',
+      'persona.citizen.idle': 'નજીક જોખમ? રિપોર્ટ કરો.',
 
       'persona.wardImpact': '{ward}: {n} પડોશી ફરિયાદ. તમારી ઉમેરો.',
 
@@ -10604,7 +10604,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar હાલમાં ફક્ત મુંબઈ, પુણે અને ઠાણેમાં જ ઉપલબ્ધ છે. કૃપા કરીને આમાંથી એક શહેર જાતે પસંદ કરીને જુઓ.',
 
-      'onboard.gpsDisclosure': 'વૈકલ્પિક: CivicRadar એક વાર તમારા ચોક્કસ સ્થાનથી વોર્ડ સૂચવી શકે. ફરિયાદ નોંધાવા સુધી સ્થાન નકશા પર શેર થતું નથી. તમે યાદીમાંથી પણ વોર્ડ પસંદ કરી શકો.',
+      'onboard.gpsDisclosure': 'તમારો વોર્ડ શોધવા એક વાર વપરાય. ફરિયાદ નોંધાવા સુધી કંઈ શેર થતું નથી.',
 
       'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
 
@@ -10672,7 +10672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'જોખમ નકશા પર પિન કરો',
 
-      'report.geoExplainerBody': 'અમે તમારું ચોક્કસ સ્થાન ફક્ત આ જોખમ સમુદાય નકશા પર પિન કરવા માટે વાપરીએ છીએ. પિન અને ફોટો તમારા વોર્ડના પડોશીઓને દેખાય છે. સ્થાન વેચાતું નથી અને માર્કેટિંગ માટે વપરાતું નથી.',
+      'report.geoExplainerBody': 'તમે ઊભા હો ત્યાં પિન મૂકવા એક વાર વપરાય. પડોશીઓ પિન જુએ છે — તમારું લાઈવ સ્થાન ક્યારેય નહીં.',
 
       'report.geoExplainerContinue': 'મારું સ્થાન વાપરો',
 
@@ -10680,7 +10680,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitle': 'જોખમ ફરિયાદ માટે ફોટો',
 
-      'report.cameraDisclosureBody': 'CivicRadar કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે વાપરે છે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ફોટો વેચાતા નથી અને માર્કેટિંગ માટે વપરાતા નથી. ચહેરા અને દસ્તાવેજો ટાળો.',
+      'report.cameraDisclosureBody': 'કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
 
       'report.cameraDisclosure.verify': 'ફક્ત આ જોખમની ખાતરી કરવા માટે વપરાય છે',
 
@@ -10688,7 +10688,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'ચોક્કસ સ્થાન આપમેળે દૂર કરવામાં આવે છે',
 
-      'report.cameraDisclosure.noSell': 'ક્યારેય વેચાતું નથી કે માર્કેટિંગ માટે વપરાતું નથી',
+      'report.cameraDisclosure.noSell': 'ફક્ત આ જોખમ ફરિયાદ માટે',
 
       'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
@@ -10718,7 +10718,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'ફોટો લો',
 
-      'report.captureExifHint': 'EXIF ડિવાઇસ પર દૂર થાય છે',
+      'report.captureExifHint': 'ફોટામાંથી સ્થાન ડેટા આપમેળે દૂર થાય છે',
 
       'report.notes': 'Landmark (વૈકલ્પિક)',
 
@@ -10770,7 +10770,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.taglineNeighbours': '{n} પડોશીઓ પહેલેથી નજીકના સ્પોટને ટેકો આપી રહ્યા છે — હવે તમારી ફરિયાદ પણ ત્યાં છે.',
 
-      'success.subtitle': 'નીચે {corp} એપ ખોલો — ફરિયાદ ઘડિયાળ શરૂ થાય. અમે તમારી તરફથી નોંધાવતા નથી.',
+      'success.subtitle': '{corp} માં નોંધાવવાથી અધિકૃત ઘડિયાળ શરૂ થાય — તમે નોંધાવો, અમે ટ્રૅક કરીએ.',
 
       'success.step1': 'WhatsApp પર શેર કરો જેથી પડોશીઓ તેને ટેકો આપી શકે',
 
@@ -10971,7 +10971,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.empty': '{ward} માં પહેલી પિન તમે મૂકો.',
 
-      'map.emptyHint': 'જોખમ જુઓ, ફોટો લો — લગભગ 30 સેકંડમાં પડોશીઓ જોશે.',
+      'map.emptyHint': 'જોખમ જુઓ, ફોટો લો — પડોશીઓ પણ જોશે.',
 
       'map.emptyAction': 'પહેલું જોખમ રિપોર્ટ કરો',
 
@@ -11271,13 +11271,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.volunteerTitle': 'મારા વોર્ડમાં સ્વયંસેવા',
 
-      'community.volunteerBody': 'સ્થાનિક સફાઈ દળમાં જોડાઓ — {corp} નોંધ અલગ છે.',
+      'community.volunteerBody': 'તમારા વોર્ડના સ્થાનિક સફાઈ દળમાં જોડાઓ.',
 
       'community.volunteerCta': 'સાઇન અપ',
 
       'volunteer.title': 'મારા વોર્ડમાં સ્વયંસેવા',
 
-      'volunteer.subtitle': 'પડોશીઓ સાથે મળીને — અધિકૃત BMC સ્વયંસેવક કાર્યક્રમ નથી.',
+      'volunteer.subtitle': 'સ્થાનિક સફાઈ માટે પડોશીઓ સાથે જોડાઓ.',
 
       'volunteer.ward': 'તમારો વોર્ડ',
 
@@ -11532,15 +11532,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.creditTitle': 'પ્રોજેક્ટ વિશે',
 
-      'about.creditNote': 'CivicRadar એક સ્વતંત્ર વિદ્યાર્થી પ્રોજેક્ટ છે — Nihira દ્વારા શરૂઆતથી બનાવવામાં આવેલ, જેથી મુંબઈ, પુણે અને ઠાણેના પડોશીઓ સ્થાનિક નાગરિક જોખમોની જાણ કરી શકે અને તેને ટ્રેક કરી શકે. તે કોઈપણ મ્યુનિસિપલ ઓથોરિટી સાથે સંલગ્ન, માન્યતાપ્રાપ્ત અથવા તેમના વતી સંચાલિત નથી. પ્રોજેક્ટ, પ્રેસ અથવા ભાગીદારી અંગેની પૂછપરછ માટે કૃપા કરીને નીચે આપેલા સંપર્કનો ઉપયોગ કરો.',
+      'about.creditNote': 'Nihira દ્વારા સ્વતંત્ર વિદ્યાર્થી પ્રોજેક્ટ — મુંબઈ, પુણે અને ઠાણેના પડોશીઓ માટે. પ્રેસ અથવા ભાગીદારી માટે નીચે સંપર્ક કરો.',
 
       'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
 
-      'about.privacyNote': 'અપલોડ પહેલાં ફોટોની location metadata (EXIF) દૂર થાય છે. GPS ફક્ત તમારી પરવાનગીથી પિન મૂકવા માટે. રિપોર્ટ નકશા પર સમુદાયને દેખાય છે. અધિકૃત ફરિયાદ BMC, PMC કે TMC ચેનલ દ્વારા થાય છે.',
+      'about.privacyNote': 'અપલોડ પહેલાં EXIF સ્થાન દૂર થાય છે. GPS ફક્ત તમારી પરવાનગીથી પિન મૂકે છે. રિપોર્ટ સમુદાય નકશા પર દેખાય છે. સંપૂર્ણ વિગતો ગોપનીયતા નીતિમાં.',
 
       'about.officialSourcesTitle': 'અધિકૃત માહિતી સ્રોતો',
 
-      'about.officialSourcesNote': 'CivicRadar સરકારી એપ નથી. BMC, PMC, TMC અને મહારાષ્ટ્ર રાજ્ય પોર્ટલના ચકાસેલ લિંક અમારા અધિકૃત સ્રોત પૃષ્ઠ પર છે — ફરિયાદ તમે જ દાખલ કરો.',
+      'about.officialSourcesNote': 'BMC, PMC, TMC અને મહારાષ્ટ્ર રાજ્ય પોર્ટલના ચકાસેલ લિંક અમારા અધિકૃત સ્રોત પૃષ્ઠ પર છે — ફરિયાદ તમે જ દાખલ કરો.',
 
       'about.impactTitle': 'સામુદાયિક પ્રભાવ',
 
@@ -11969,7 +11969,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.title': 'અધિકૃત ફરિયાદ ચેનલ',
 
-      'official.subtitle': 'ચકાસેલ .gov એપ્સ અને પોર્ટલ્સ — CivicRadar તમારી તરફથી નોંધાવતું નથી.',
+      'official.subtitle': 'તમારા શહેરના ચકાસેલ .gov એપ્સ અને પોર્ટલ્સ.',
 
       'official.recommended': 'ભલામણ',
 
@@ -12237,7 +12237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.messagePh': 'સ્વયંસેવકો માટે નોંધ…',
 
-      'pledge.notice': 'તમારા વોર્ડનો NGO સંકલક આને તેમના હબમાં જોશે — BMC નહીં. તેઓ એપમાં સંપર્ક કરી શકે; સ્વચાલિત કૉલ/SMS નહીં.',
+      'pledge.notice': 'ફક્ત તમારા વોર્ડ સંકલક જુએ છે. ફોલો-અપ એપમાં થાય છે.',
 
       'pledge.status.pledged': 'પ્રતિજ્ઞા નોંધ',
 
@@ -32500,15 +32500,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const bodyLocation = $('#reportCameraBodyLocation');
 
-      const bodyNoSell = $('#reportCameraBodyNoSell');
-
       if (bodyVerify) bodyVerify.textContent = t('report.cameraDisclosure.verify');
 
       if (bodyVisible) bodyVisible.textContent = t('report.cameraDisclosure.visible');
 
       if (bodyLocation) bodyLocation.textContent = t('report.cameraDisclosure.location');
-
-      if (bodyNoSell) bodyNoSell.textContent = t('report.cameraDisclosure.noSell');
 
       if (btnContinue) btnContinue.textContent = t('report.cameraDisclosureContinue');
 

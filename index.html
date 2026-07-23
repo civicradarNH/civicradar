@@ -137,7 +137,7 @@
   <div id="personaBar" class="persona-bar persona-bar--citizen" role="status">
     <div class="persona-bar__main">
       <i class="ph ph-info persona-bar__icon" id="personaBarIcon"></i>
-      <p id="personaBarText" data-i18n="persona.citizen.idle">Report hazards in your ward — garbage, potholes, streetlights &amp; stagnant water. Tap Report in 30 sec, then share on WhatsApp.</p>
+      <p id="personaBarText" data-i18n="persona.citizen.idle">Hazard nearby? Report it.</p>
     </div>
     <button type="button" class="persona-bar__action hidden" id="personaBarAction"></button>
   </div>
@@ -200,7 +200,7 @@
         <img src="assets/brand/empty-pin.svg" alt="" width="84" height="84">
       </div>
       <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">Be the first pin in your ward.</h2>
-      <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Spot a hazard, snap a photo — neighbours see it in about 30 seconds.</p>
+      <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Spot a hazard, snap a photo — neighbours see it too.</p>
       <button type="button" class="btn btn--primary btn--full" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first hazard</button>
       <button type="button" class="map-empty-cta__share hidden" id="btnMapEmptyShare">
         <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
@@ -213,7 +213,7 @@
   <div id="locationBanner" class="location-banner location-banner--compact hidden" role="status">
     <div class="location-banner__msg">
       <i class="ph ph-map-pin"></i>
-      <span id="locationBannerText" data-i18n="location.bannerCompact">Turn on location to pin hazards — or place a pin when reporting.</span>
+      <span id="locationBannerText" data-i18n="location.bannerCompact">See hazards near you — turn on location.</span>
     </div>
     <div class="location-banner__actions">
       <button type="button" class="location-banner__btn" id="btnEnableLocation" data-i18n="location.enable">Turn on</button>
@@ -397,7 +397,7 @@
       <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.</p>
       <div class="form-group" id="wardDetectGroup">
         <div id="wardDetectPrompt" class="ward-detect-prompt">
-          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
+          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Nothing is shared until you report.</p>
           <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
             <span data-i18n="onboard.wardDetectCta">Auto-detect my ward</span>
@@ -458,7 +458,7 @@
       <button type="button" class="modal__close" data-close="reportGeo" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-map-pin"></i></div>
       <h2 id="reportGeoTitle" data-i18n="report.geoExplainerTitle">Pin this hazard on the map</h2>
-      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">We use your precise location only to place this hazard pin on the community map. Pins and photos are visible to neighbours in your ward. Location is not sold or used for marketing.</p>
+      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">Used once to place this pin where you're standing. Neighbours see the pin — never your live location.</p>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportGeoContinue" data-i18n="report.geoExplainerContinue">Use my location</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnReportGeoManual" data-i18n="report.geoExplainerManual">Place pin on map instead</button>
@@ -476,9 +476,8 @@
       <h2 id="reportCameraTitle" data-i18n="report.cameraDisclosureTitle">Photo for your hazard report</h2>
       <ul class="disclosure-list" id="reportCameraBody">
         <li><i class="ph ph-camera" aria-hidden="true"></i><span id="reportCameraBodyVerify" data-i18n="report.cameraDisclosure.verify">Used only to verify this hazard</span></li>
-        <li><i class="ph ph-users" aria-hidden="true"></i><span id="reportCameraBodyVisible" data-i18n="report.cameraDisclosure.visible">Visible to neighbours on the community map</span></li>
-        <li><i class="ph ph-map-pin" aria-hidden="true"></i><span id="reportCameraBodyLocation" data-i18n="report.cameraDisclosure.location">Exact location is stripped automatically</span></li>
-        <li><i class="ph ph-shield-check" aria-hidden="true"></i><span id="reportCameraBodyNoSell" data-i18n="report.cameraDisclosure.noSell">Never sold or used for marketing</span></li>
+        <li><i class="ph ph-users" aria-hidden="true"></i><span id="reportCameraBodyVisible" data-i18n="report.cameraDisclosure.visible">Visible to neighbours on the map</span></li>
+        <li><i class="ph ph-map-pin" aria-hidden="true"></i><span id="reportCameraBodyLocation" data-i18n="report.cameraDisclosure.location">Exact location stripped automatically</span></li>
       </ul>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportCameraContinue" data-i18n="report.cameraDisclosureContinue">Continue to camera</button>
@@ -510,7 +509,7 @@
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
-            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">EXIF stripped on-device</p>
+            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">Location data removed from photos automatically</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
             <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
               <div class="skeleton skeleton--line"></div>
@@ -631,7 +630,7 @@
             <i class="ph ph-caret-down" aria-hidden="true"></i>
           </button>
           <div class="official-channels-block__body hidden" id="successOfficialBody">
-            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Open a {corp} app below — starts the complaint clock. We don't file for you.</p>
+            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Filing with {corp} starts the official clock — you file, we track.</p>
             <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
             <div class="esc-channels official-channels official-channels--success" id="successOfficialChannels" data-official-context="success"></div>
             <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
@@ -853,7 +852,7 @@
 
       <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
         <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-        <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals — CivicRadar does not file for you.</p>
+        <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals for your city.</p>
         <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
       </div>
 
@@ -864,7 +863,7 @@
           <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
           <div class="pledge-card__body">
             <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-            <p data-i18n="community.volunteerBody">Join local cleanup crews — filing with BMC stays separate.</p>
+            <p data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</p>
           </div>
           <button type="button" class="btn btn--primary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
         </div>
@@ -896,7 +895,7 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="volunteer" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="volunteerTitle" data-i18n="volunteer.title">Volunteer in my ward</h2>
-      <p class="modal__subtitle" data-i18n="volunteer.subtitle">Fix it together with neighbours — not a government volunteer programme.</p>
+      <p class="modal__subtitle" data-i18n="volunteer.subtitle">Join neighbours for local cleanups.</p>
       <div class="modal__sheet-body">
         <div class="form-group">
           <label for="volunteerWard" data-i18n="volunteer.ward">Your ward</label>
@@ -957,7 +956,7 @@
       <button type="button" class="modal__close" data-close="pledge" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="pledgeTitle" data-i18n="pledge.title">Pledge support</h2>
       <p class="modal__subtitle" data-i18n="pledge.subtitle">Help volunteers in your ward with supplies.</p>
-      <p class="pledge-notice" data-i18n="pledge.notice">Your ward NGO coordinator sees this in their hub — not BMC. They may follow up in-app; no automatic calls or SMS.</p>
+      <p class="pledge-notice" data-i18n="pledge.notice">Seen only by your ward coordinator. Follow-up happens in-app.</p>
       <div class="form-group">
         <label for="pledgeType" data-i18n="pledge.type">Supply type</label>
         <select id="pledgeType">
@@ -1691,7 +1690,10 @@
       <p class="about-story" data-i18n="about.audience">Residents, RWAs, and neighbourhood groups in Mumbai, Pune, and Thane — especially during monsoon when stagnant water and blocked drains matter most.</p>
 
       <h3 class="section-title" data-i18n="about.privacyTitle">Privacy &amp; data</h3>
-      <p class="about-story" data-i18n="about.privacyNote">Photo location metadata (EXIF) is stripped before upload. GPS is used only to place your pin when you allow it. Reports are visible to the community on the map. Official complaints go through BMC, PMC, or TMC when you file there.</p>
+      <p class="about-story" data-i18n="about.privacyNote">EXIF location is stripped before upload. GPS places your pin only when you allow it. Reports show on the community map. See the Privacy Policy for full details.</p>
+      <p class="about-story">
+        <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.privacy">Privacy Policy</a>
+      </p>
 
       <h3 class="section-title" data-i18n="about.impactTitle">Community impact</h3>
       <div class="impact-stats impact-stats--about" id="aboutImpactStats">
@@ -1713,10 +1715,10 @@
         "Nihira" stays unchanged in every language — proper noun.
       -->
       <h3 class="section-title" data-i18n="about.creditTitle">About the project</h3>
-      <p class="about-story" data-i18n="about.creditNote">CivicRadar is an independent student project — designed and built from scratch by Nihira to help neighbours in Mumbai, Pune, and Thane report and track local civic hazards. It is not affiliated with, endorsed by, or operated on behalf of any municipal authority. For project, press, or partnership enquiries, please use the contact below.</p>
+      <p class="about-story" data-i18n="about.creditNote">Independent student project by Nihira for neighbours in Mumbai, Pune, and Thane. For press or partnership, use the contact below.</p>
 
       <h3 class="section-title" data-i18n="about.officialSourcesTitle">Official information sources</h3>
-      <p class="about-story" data-i18n="about.officialSourcesNote">CivicRadar is not a government app. Verified links to BMC, PMC, TMC, and Maharashtra state portals are listed on our official sources page — where you file complaints yourself.</p>
+      <p class="about-story" data-i18n="about.officialSourcesNote">Verified BMC, PMC, TMC, and Maharashtra portal links are on our official sources page — you file there yourself.</p>
       <p class="about-story">
         <a href="official-sources.html" target="_blank" rel="noopener noreferrer" data-i18n="legal.officialSources">Official government sources</a>
       </p>
