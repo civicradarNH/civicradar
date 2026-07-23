@@ -118,7 +118,7 @@
       <span class="brand-mark"><img src="assets/brand/radar-mark.svg" alt="" width="26" height="26"></span>
       <div class="header__titles">
         <span>CivicRadar</span>
-        <span class="header__context" id="headerContext" data-i18n="header.context">Ward hazard map for Mumbai</span>
+        <span class="header__context" id="headerContext" data-i18n="header.context">Ward hazard map — Mumbai, Pune &amp; Thane</span>
         <span class="header__sync header__sync--local" id="syncStatus" role="status" aria-live="polite"></span>
       </div>
     </div>
@@ -188,7 +188,7 @@
     <i class="ph ph-device-mobile ios-install-hint__icon" aria-hidden="true"></i>
     <div class="ios-install-hint__copy">
       <p class="ios-install-hint__title" data-i18n="iosInstall.title">Install on iPhone</p>
-      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">Same app as Android — no App Store needed. Open in Safari if needed, then Share → Add to Home Screen.</p>
+      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">No App Store needed. In Safari: Share → Add to Home Screen.</p>
     </div>
     <button type="button" class="ios-install-hint__dismiss" id="btnIosInstallDismiss" data-i18n-aria="iosInstall.dismiss" aria-label="Dismiss">&times;</button>
   </div>
@@ -239,7 +239,7 @@
   <div id="appOpenBanner" class="app-open-banner hidden" role="region" aria-labelledby="appOpenBannerTitle">
     <button type="button" class="app-open-banner__dismiss" id="btnAppOpenDismiss" data-i18n-aria="appOpen.dismiss" aria-label="Dismiss">&times;</button>
     <p class="app-open-banner__title" id="appOpenBannerTitle" data-i18n="appOpen.title">Open in CivicRadar app</p>
-    <p class="app-open-banner__body" data-i18n="appOpen.body">View this report in the app for a faster map experience.</p>
+    <p class="app-open-banner__body" data-i18n="appOpen.body">Open this report in the app — faster map and alerts.</p>
     <div class="app-open-banner__actions">
       <button type="button" class="app-open-banner__btn app-open-banner__btn--primary" id="btnAppOpenInApp" data-i18n="appOpen.open">Open in app</button>
       <button type="button" class="app-open-banner__btn app-open-banner__btn--store" id="btnAppOpenGetApp" data-i18n="appOpen.getApp">Get the app</button>
@@ -249,7 +249,7 @@
   <!-- Referral welcome (shown once when arriving via ?ref= from a neighbour) -->
   <div id="referralWelcome" class="ref-welcome hidden" role="region" aria-labelledby="refWelcomeTitle">
     <button type="button" class="ref-welcome__dismiss" id="btnRefWelcomeDismiss" data-i18n-aria="ref.dismiss" aria-label="Dismiss invite">&times;</button>
-    <p class="ref-welcome__title" id="refWelcomeTitle" data-i18n="ref.welcomeTitle">A neighbour invited you 👋</p>
+    <p class="ref-welcome__title" id="refWelcomeTitle" data-i18n="ref.welcomeTitle">A neighbour invited you</p>
     <p class="ref-welcome__body" id="refWelcomeBody"></p>
     <div class="ref-welcome__actions">
       <button type="button" class="ref-welcome__btn ref-welcome__btn--primary" id="btnRefWelcomeReport" data-i18n="ref.welcomeReport">Report a spot</button>
@@ -356,7 +356,7 @@
     <div class="modal" id="tosModal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
       <div class="modal__handle"></div>
       <h2 id="tosTitle" tabindex="-1" data-i18n="tos.title">Terms of Service</h2>
-      <p class="tos-summary" data-i18n="tos.summary">CivicRadar is a free community hazard map. You must be 18+ and accept the Terms to continue.</p>
+      <p class="tos-summary" data-i18n="tos.summary">Free community hazard map. You must be 18+ and accept the Terms to continue.</p>
       <details class="tos-details">
         <summary data-i18n="tos.readFull">Read full terms</summary>
         <ol class="tos-clauses">
@@ -393,29 +393,32 @@
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
-      <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
+      <h2 id="onboardingTitle" tabindex="-1" data-i18n="onboard.title">Welcome to CivicRadar</h2>
       <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.</p>
       <div class="form-group" id="wardDetectGroup">
         <div id="wardDetectPrompt" class="ward-detect-prompt">
-          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Nothing is shared until you report.</p>
           <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
             <span data-i18n="onboard.wardDetectCta">Auto-detect my ward</span>
           </button>
+          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Nothing is shared until you report.</p>
         </div>
         <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
           <i class="ph ph-crosshair" aria-hidden="true"></i>
           <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
         </div>
-        <div id="wardDetected" class="ward-detected hidden" aria-live="polite">
-          <i class="ph ph-map-pin" aria-hidden="true"></i>
-          <span id="wardDetectedName"></span>
+        <div id="wardDetected" class="ward-detected ward-detected--chip hidden" role="status" aria-live="polite">
+          <i class="ph ph-check-circle" aria-hidden="true"></i>
+          <span class="ward-detected__text">
+            <span class="ward-detected__label" data-i18n="onboard.wardConfirmedLabel">Confirmed</span>
+            <span id="wardDetectedName" class="ward-detected__name"></span>
+          </span>
         </div>
-        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from GPS — not an official boundary survey.</p>
-        <div class="onboard-or" id="onboardOrDivider" role="separator" aria-hidden="true">
+        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from your location — you can change it.</p>
+        <div class="onboard-or hidden" id="onboardOrDivider" role="separator" aria-hidden="true">
           <span data-i18n="onboard.or">or</span>
         </div>
-        <div id="onboardManualSearch" class="onboard-manual-search">
+        <div id="onboardManualSearch" class="onboard-manual-search hidden">
           <div class="form-group" id="onboardCityGroup">
             <label for="onboardCity" data-i18n="onboard.city">Your city</label>
             <select id="onboardCity" aria-describedby="onboardCityHint">
@@ -423,30 +426,30 @@
               <option value="pune" data-i18n-option="city.pune">Pune</option>
               <option value="thane" data-i18n-option="city.thane">Thane</option>
             </select>
-            <p class="field-hint" id="onboardCityHint" data-i18n="onboard.cityHint">Choose where you live — then pick your ward or detect it with location.</p>
+            <p class="field-hint hidden" id="onboardCityHint" data-i18n="onboard.cityHint">Pick your city, then your ward — or detect with location.</p>
           </div>
           <div id="wardManualGroup" class="form-group">
             <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
             <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-            <p class="field-hint" id="wardHint" data-i18n="onboard.wardHint">Pick from your city's official wards.</p>
+            <p class="field-hint hidden" id="wardHint" data-i18n="onboard.wardHint">Pick a {city} ward, or detect with GPS.</p>
           </div>
         </div>
-        <button type="button" class="ward-manual-link hidden" id="btnWardManual" data-i18n="onboard.wardManual">Not right? Pick manually</button>
-        <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try detecting again</button>
-        <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list or allow location.</p>
+        <button type="button" class="ward-manual-link" id="btnWardManual" data-i18n="onboard.pickManually">Or pick manually</button>
+        <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try again</button>
+        <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
       </div>
       <div class="form-group">
         <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
         <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
         <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
-        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first for local suggestions.</p>
+        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first to see nearby societies.</p>
       </div>
       <div class="form-group">
-        <label for="displayName" data-i18n="onboard.name">Display Name</label>
-        <input type="text" id="displayName" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" maxlength="30">
+        <label for="displayName" data-i18n="onboard.name">Display name</label>
+        <input type="text" id="displayName" placeholder="What should neighbours call you?" data-i18n-ph="onboard.namePh" maxlength="30">
       </div>
       <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join Community</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join your ward</button>
       </div>
     </div>
   </div>
@@ -493,7 +496,7 @@
     <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="report" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <h2 id="reportTitle" data-i18n="report.title">Report a Hazard</h2>
+      <h2 id="reportTitle" data-i18n="report.title">Report a hazard</h2>
       <div class="flow-steps flow-steps--compact" id="reportFlowSteps" role="list" aria-label="Report progress">
         <span class="flow-step is-active" role="listitem" data-step="capture" data-i18n="report.step.capture">Capture</span>
         <span class="flow-step" role="listitem" data-step="confirm" data-i18n="report.step.confirm">Confirm</span>
@@ -559,7 +562,10 @@
         <div class="modal__sticky-footer modal__sticky-footer--glass">
           <div class="inline-duplicate-warning hidden" id="inlineDuplicateWarning" role="status" aria-live="polite" hidden>
             <i class="ph ph-info" aria-hidden="true"></i>
-            <p class="inline-duplicate-warning__text" id="inlineDuplicateWarningText"></p>
+            <div class="inline-duplicate-warning__body">
+              <p class="inline-duplicate-warning__explain hidden" id="inlineDuplicateExplain" hidden></p>
+              <p class="inline-duplicate-warning__text" id="inlineDuplicateWarningText"></p>
+            </div>
           </div>
           <button type="button" class="btn btn--primary btn--full" id="btnSubmitReport">
             <span class="btn__label" data-i18n="report.submit">Submit report</span>
@@ -567,6 +573,9 @@
           <button type="button" class="btn btn--primary btn--full hidden" id="btnReportDupeMeToo" hidden>
             <i class="ph ph-hand-pointing" aria-hidden="true"></i>
             <span class="btn__label" data-i18n="confirm.dupeAction">Me too</span>
+          </button>
+          <button type="button" class="btn btn--ghost btn--full report-dupe-force-new hidden" id="btnReportDupeForceNew" hidden>
+            <span class="btn__label" data-i18n="confirm.dupeForceNew">It's a different issue — submit new report</span>
           </button>
           <button type="button" class="btn btn--ghost btn--full report-retake-btn" id="btnRetakePhoto">
             <i class="ph ph-camera"></i> <span data-i18n="report.retake">Retake photo</span>
@@ -614,7 +623,7 @@
         </div>
       </div>
       <div class="success-share-block success-share-block--primary">
-        <p class="success-share-title hidden" data-i18n="success.shareTitle">Help your community stay safe — share this update with your WhatsApp group.</p>
+        <p class="success-share-title hidden" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
         <p class="success-share-prompt" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
         <button type="button" class="btn btn--whatsapp btn--full" id="btnShareWhatsApp">
           <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Share on WhatsApp</span>
@@ -665,7 +674,7 @@
         <i class="ph ph-trophy"></i>
       </div>
       <h2 id="shareWinTitle" data-i18n="shareWin.title">Share the win!</h2>
-      <p class="modal__subtitle" id="shareWinSubtitle" data-i18n="shareWin.subtitle">Before → after proof on your ward map — neighbours love seeing fixes.</p>
+      <p class="modal__subtitle" id="shareWinSubtitle" data-i18n="shareWin.subtitle">Before → after on your ward map — share the fix.</p>
       <p class="share-win-impact hidden" id="shareWinImpact" aria-live="polite"></p>
       <div class="share-win-preview" id="shareWinPreviewWrap" hidden>
         <img id="shareWinCardPreview" class="share-win-preview__img" alt="">
@@ -806,7 +815,7 @@
           <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
             <h3 class="success-stories__title" id="successStoriesTitle">
               <i class="ph ph-trophy"></i>
-              <span data-i18n="community.winsTitle">Wins this monsoon</span>
+              <span data-i18n="community.winsTitle">Recent wins</span>
             </h3>
             <div class="success-stories__scroll" id="successStoriesList" role="list"></div>
             <div class="success-stories__empty empty-state--action hidden" id="successStoriesEmpty">
@@ -879,7 +888,7 @@
       </div>
 
       <p class="resources-footer">
-        <a href="official-sources.html" class="resources-footer-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">All official sources</a>
+        <a href="official-sources.html" class="resources-footer-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">More filing links</a>
       </p>
 
       <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
@@ -1104,8 +1113,8 @@
             </label>
             <label class="toggle-row" for="reportReminderToggle">
               <span class="toggle-row__text">
-                <span class="toggle-row__label" data-i18n="settings.reminder.label">Remind me to report stagnant water nearby</span>
-                <span class="toggle-row__sub" data-i18n="settings.reminder.sub">A gentle monsoon-season nudge when you open CivicRadar. No background tracking.</span>
+                <span class="toggle-row__label" data-i18n="settings.reminder.label">Remind me to report hazards nearby</span>
+                <span class="toggle-row__sub" data-i18n="settings.reminder.sub">A gentle nudge when you open the app. No background tracking.</span>
               </span>
               <input type="checkbox" id="reportReminderToggle" class="toggle-row__input">
               <span class="toggle-row__switch" aria-hidden="true"></span>
@@ -1141,7 +1150,7 @@
           </button>
           <button type="button" class="btn btn--ghost btn--full" id="btnReplayTour">
             <span class="profile-row-icon profile-row-icon--teal" aria-hidden="true"><i class="ph ph-compass"></i></span>
-            <span data-i18n="tour.replay">Replay app tour</span>
+            <span data-i18n="tour.replay">Replay tour</span>
           </button>
         </div>
         <p class="profile-list-label" id="profileRolesLabel" data-i18n="profile.section.communityRoles">Community Roles</p>
@@ -1200,8 +1209,8 @@
 
       <div class="profile-edit-sheet" id="profileLocationBlock">
         <div class="profile-name form-group">
-          <label for="profileDisplayNameInput" data-i18n="onboard.name">Display Name</label>
-          <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="How should we call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
+          <label for="profileDisplayNameInput" data-i18n="onboard.name">Display name</label>
+          <input type="text" id="profileDisplayNameInput" maxlength="30" placeholder="What should neighbours call you?" data-i18n-ph="onboard.namePh" autocomplete="nickname">
         </div>
 
         <div class="profile-ward form-group">
@@ -1213,8 +1222,8 @@
           </select>
           <label for="profileWardInput" data-i18n="onboard.ward">Your ward</label>
           <input type="text" id="profileWardInput" maxlength="120" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="profileWardHint profileWardError">
-          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick a ward, or detect with GPS.</p>
-          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list.</p>
+          <p class="field-hint" id="profileWardHint" data-i18n="onboard.wardHint">Pick a {city} ward, or detect with GPS.</p>
+          <p class="field-error hidden" id="profileWardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
           <button type="button" class="btn btn--secondary btn--full profile-edit-sheet__detect" id="btnProfileDetectWard">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
             <span data-i18n="profile.detectWard">Detect with GPS</span>

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v381';
+  const CIVIC_APP_VERSION = 'v383';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -800,6 +800,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let confirmPinProvisional = false;
 
   let reportDupeTargetId = null;
+  /** When true, skip near-dupe Me too and allow a fresh Submit (escape hatch). */
+  let reportForceNewSubmit = false;
 
   let reportPinMap = null;
 
@@ -2889,8 +2891,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepResolve': 'Sorted',
 
-      'purpose.stepNeighbours': 'Sorted',
-
       'fabSpot.step': 'Tip',
 
       'fabSpot.title': 'Report a hazard',
@@ -2960,6 +2960,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardDetectedHint': 'Approximate ward from your location — you can change it.',
 
       'onboard.wardManual': 'Not right? Pick it yourself',
+
+      'onboard.pickManually': 'Or pick manually',
+
+      'onboard.wardConfirmedLabel': 'Confirmed',
+
+      'onboard.wardConfirmedAria': 'Confirmed ward: {ward}',
 
       'onboard.wardRetry': 'Try again',
 
@@ -3151,8 +3157,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'Done',
 
-      'success.shareTitle': 'Help your community stay safe — share this update with your WhatsApp group.',
-
       'success.sharePrompt': 'Help your community stay safe — share this update with your WhatsApp group.',
 
       'success.shareWhatsapp': 'Share on WhatsApp',
@@ -3311,10 +3315,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.progressBadge': 'Badge Progress: {n}/{m} reports to next level',
 
       'success.progressGuardian': '{n} reports — Monsoon Guardian',
-
-      'success.shareBrag': 'Help your community stay safe — share this update with your WhatsApp group.',
-
-      'success.shareBragFirst': 'Help your community stay safe — share this update with your WhatsApp group.',
 
       'toast.badgeMonsoon': 'First report logged — welcome!',
 
@@ -3992,6 +3992,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'confirm.dupeInline': '{n} nearby · 10 m',
 
       'confirm.dupeInlineOne': '1 nearby · 10 m',
+
+      'confirm.dupeExplain': 'Looks like this spot is already pinned {m} m away.',
+
+      'confirm.dupeForceNew': 'It\'s a different issue — submit new report',
 
       'confirm.ownDupe': 'You already pinned this spot.',
 
@@ -5435,8 +5439,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepResolve': 'हो गया',
 
-      'purpose.stepNeighbours': 'हो गया',
-
       'fabSpot.step': 'टिप',
 
       'fabSpot.title': 'खतरा रिपोर्ट करें',
@@ -5506,6 +5508,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित वार्ड — आप इसे बदल सकते हैं।',
 
       'onboard.wardManual': 'सही नहीं है? खुद चुनें',
+
+      'onboard.pickManually': 'या खुद चुनें',
+
+      'onboard.wardConfirmedLabel': 'पुष्टि',
+
+      'onboard.wardConfirmedAria': 'पुष्टि वार्ड: {ward}',
 
       'onboard.wardRetry': 'फिर कोशिश करें',
 
@@ -5697,8 +5705,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'हो गया',
 
-      'success.shareTitle': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
-
       'success.sharePrompt': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
       'success.shareWhatsapp': 'WhatsApp पर साझा करें',
@@ -5859,10 +5865,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.progressBadge': 'बैज प्रगति: अगले स्तर तक {n}/{m} रिपोर्ट',
 
       'success.progressGuardian': '{n} रिपोर्ट — मानसून रक्षक',
-
-      'success.shareBrag': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
-
-      'success.shareBragFirst': 'समुदाय सुरक्षित रहे — यह अपडेट अपने WhatsApp ग्रुप में साझा करें।',
 
       'toast.badgeMonsoon': 'पहली रिपोर्ट दर्ज — स्वागत है!',
 
@@ -6538,6 +6540,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'confirm.dupeInline': '{n} पास · 10 मी.',
 
       'confirm.dupeInlineOne': '1 पास · 10 मी.',
+
+      'confirm.dupeExplain': 'लगता है यह जगह पहले से {m} मी. दूर पिन है।',
+
+      'confirm.dupeForceNew': 'यह अलग समस्या है — नई रिपोर्ट दर्ज करें',
 
       'confirm.ownDupe': 'आपने यहाँ पहले ही पिन किया है।',
 
@@ -7981,8 +7987,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepResolve': 'झालं',
 
-      'purpose.stepNeighbours': 'झालं',
-
       'fabSpot.step': 'टीप',
 
       'fabSpot.title': 'धोका नोंदवा',
@@ -8052,6 +8056,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे वॉर्ड — तुम्ही तो बदलू शकता.',
 
       'onboard.wardManual': 'बरोबर नाही? स्वतः निवडा',
+
+      'onboard.pickManually': 'किंवा स्वतः निवडा',
+
+      'onboard.wardConfirmedLabel': 'पुष्टी',
+
+      'onboard.wardConfirmedAria': 'पुष्ट वॉर्ड: {ward}',
 
       'onboard.wardRetry': 'पुन्हा प्रयत्न करा',
 
@@ -8243,8 +8253,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'झाले',
 
-      'success.shareTitle': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
-
       'success.sharePrompt': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
       'success.shareWhatsapp': 'WhatsApp वर शेअर करा',
@@ -8405,10 +8413,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.progressBadge': 'बॅज प्रगती: पुढील पातळीसाठी {n}/{m} तक्रारी',
 
       'success.progressGuardian': '{n} तक्रारी — पावसाळी रक्षक',
-
-      'success.shareBrag': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
-
-      'success.shareBragFirst': 'समुदाय सुरक्षित राहो — हा अपडेट तुमच्या WhatsApp गटात शेअर करा.',
 
       'toast.badgeMonsoon': 'पहिली रिपोर्ट नोंदली — स्वागत!',
 
@@ -9084,6 +9088,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'confirm.dupeInline': '{n} जवळ · 10 मी.',
 
       'confirm.dupeInlineOne': '1 जवळ · 10 मी.',
+
+      'confirm.dupeExplain': 'असे दिसते की हे ठिकाण आधीच {m} मी. लांब पिन आहे.',
+
+      'confirm.dupeForceNew': 'ही वेगळी समस्या आहे — नवीन तक्रार नोंदवा',
 
       'confirm.ownDupe': 'तुम्ही येथे आधीच पिन केले आहे.',
 
@@ -10526,8 +10534,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.stepResolve': 'થઈ ગયું',
 
-      'purpose.stepNeighbours': 'થઈ ગયું',
-
       'fabSpot.step': 'ટિપ',
 
       'fabSpot.title': 'જોખમ રિપોર્ટ કરો',
@@ -10597,6 +10603,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વોર્ડ — તમે તે બદલી શકો છો.',
 
       'onboard.wardManual': 'બરાબર નથી? જાતે પસંદ કરો',
+
+      'onboard.pickManually': 'અથવા જાતે પસંદ કરો',
+
+      'onboard.wardConfirmedLabel': 'પુષ્ટિ',
+
+      'onboard.wardConfirmedAria': 'પુષ્ટ વોર્ડ: {ward}',
 
       'onboard.wardRetry': 'ફરી પ્રયત્ન કરો',
 
@@ -10788,8 +10800,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.done': 'થઈ ગયું',
 
-      'success.shareTitle': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
-
       'success.sharePrompt': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
       'success.shareWhatsapp': 'WhatsApp પર શેર કરો',
@@ -10950,10 +10960,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.progressBadge': 'બેજ પ્રગતિ: આગલા સ્તર સુધી {n}/{m} ફરિયાદો',
 
       'success.progressGuardian': '{n} ફરિયાદો — ચોમાસુ રક્ષક',
-
-      'success.shareBrag': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
-
-      'success.shareBragFirst': 'સમુદાય સુરક્ષિત રહે — આ અપડેટ તમારા WhatsApp ગ્રુપમાં શેર કરો.',
 
       'toast.badgeMonsoon': 'પહેલો રિપોર્ટ નોંધાયો — સ્વાગત!',
 
@@ -11629,6 +11635,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'confirm.dupeInline': '{n} નજીક · 10 મી.',
 
       'confirm.dupeInlineOne': '1 નજીક · 10 મી.',
+
+      'confirm.dupeExplain': 'લાગે છે કે આ જગ્યા પહેલેથી {m} મી. દૂર પિન છે.',
+
+      'confirm.dupeForceNew': 'આ અલગ સમસ્યા છે — નવી રિપોર્ટ સબમિટ કરો',
 
       'confirm.ownDupe': 'તમે અહીં પહેલેથી પિન કર્યું છે.',
 
@@ -13104,6 +13114,58 @@ document.addEventListener('DOMContentLoaded', function () {
     return t('confirm.dupeInline').replace('{n}', String(n));
   }
 
+  function dupeDistanceMeters(report) {
+    const coords = getReportDupeCheckCoords();
+    if (!coords || !report || report.lat == null || report.lng == null) {
+      return DUPLICATE_RADIUS_M;
+    }
+    const dist = getDistanceInMeters(coords.lat, coords.lng, report.lat, report.lng);
+    if (!Number.isFinite(dist)) return DUPLICATE_RADIUS_M;
+    return Math.max(1, Math.round(dist));
+  }
+
+  function dupeExplainMessage(report) {
+    return t('confirm.dupeExplain').replace('{m}', String(dupeDistanceMeters(report)));
+  }
+
+  function setReportDupeExplainVisible(show, text) {
+    const explainEl = $('#inlineDuplicateExplain');
+    if (!explainEl) return;
+    if (show) {
+      explainEl.textContent = text || '';
+      explainEl.classList.remove('hidden');
+      explainEl.hidden = false;
+    } else {
+      explainEl.textContent = '';
+      explainEl.classList.add('hidden');
+      explainEl.hidden = true;
+    }
+  }
+
+  function setReportDupeForceNewVisible(show) {
+    const btn = $('#btnReportDupeForceNew');
+    if (!btn) return;
+    if (show) {
+      const label = t('confirm.dupeForceNew');
+      const labelEl = btn.querySelector('.btn__label');
+      if (labelEl) labelEl.textContent = label;
+      btn.setAttribute('aria-label', label);
+      btn.classList.remove('hidden');
+      btn.hidden = false;
+    } else {
+      btn.classList.add('hidden');
+      btn.hidden = true;
+    }
+  }
+
+  /** Escape hatch: dismiss Me too and allow a genuine new report at this pin. */
+  function forceNewReportDespiteDupe() {
+    reportForceNewSubmit = true;
+    clearReportDuplicateUi();
+    const hazardEl = $('#hazardType');
+    if (hazardEl && hazardEl.value) updateHazardSelectedCue(hazardEl.value);
+  }
+
   /** Sync primary report CTA label + aria (Submit vs Me too). Two-button swap. */
   function syncReportPrimaryActionLabel(mode) {
     const submitBtn = $('#btnSubmitReport');
@@ -13190,6 +13252,8 @@ document.addEventListener('DOMContentLoaded', function () {
       warn.hidden = true;
     }
     if (textEl) textEl.textContent = '';
+    setReportDupeExplainVisible(false);
+    setReportDupeForceNewVisible(false);
     const footer = $('#btnReportDupeMeToo') && $('#btnReportDupeMeToo').parentNode;
     if (footer) {
       footer.querySelectorAll('[data-goto-profile]').forEach((el) => el.remove());
@@ -13210,6 +13274,8 @@ document.addEventListener('DOMContentLoaded', function () {
     reportDupeTargetId = String(report.id);
     const warn = $('#inlineDuplicateWarning');
     const textEl = $('#inlineDuplicateWarningText');
+    setReportDupeExplainVisible(false);
+    setReportDupeForceNewVisible(false);
     if (textEl) {
       textEl.textContent = ownsReport(report) ? t('confirm.ownDupe') : t('confirm.alreadyPinned');
     }
@@ -13247,6 +13313,7 @@ document.addEventListener('DOMContentLoaded', function () {
     reportDupeTargetId = String(report.id);
     const warn = $('#inlineDuplicateWarning');
     const textEl = $('#inlineDuplicateWarningText');
+    setReportDupeExplainVisible(true, dupeExplainMessage(report));
     if (textEl) textEl.textContent = dupeInlineMessage(report);
     if (warn) {
       warn.classList.remove('hidden');
@@ -13258,6 +13325,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     resetReportDupeMeTooChrome();
     syncReportPrimaryActionLabel('dupe');
+    setReportDupeForceNewVisible(true);
     // The hazard cue ("X selected — drag pin if needed") repeats this pill's
     // guidance and scrolls under the sticky footer's translucent band, where
     // the two near-identical indigo pills visually mash into one garbled line
@@ -13267,6 +13335,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshReportDuplicateUi() {
+    // User chose "different issue" — keep Submit and do not re-show Me too.
+    if (reportForceNewSubmit) {
+      if (reportDupeTargetId) clearReportDuplicateUi();
+      return;
+    }
     const coords = getReportDupeCheckCoords();
     if (!coords) {
       clearReportDuplicateUi();
@@ -23513,6 +23586,100 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Max one grey hint/disclosure in the ward-detect group per state (v382). */
+
+  function setOnboardingWardHintMode(mode) {
+
+    const disclosure = $('#wardGpsDisclosure');
+
+    const cityHint = $('#onboardCityHint');
+
+    const wardHint = $('#wardHint');
+
+    const detectedHint = $('#wardDetectedHint');
+
+    const orDiv = $('#onboardOrDivider');
+
+    [disclosure, cityHint, wardHint, detectedHint].forEach((el) => {
+
+      if (el) el.classList.add('hidden');
+
+    });
+
+    // OR divider is always redundant with btnWardManual — keep hidden.
+
+    if (orDiv) orDiv.classList.add('hidden');
+
+    if (mode === 'disclosure' && disclosure) disclosure.classList.remove('hidden');
+
+    else if (mode === 'wardHint' && wardHint) wardHint.classList.remove('hidden');
+
+    else if (mode === 'cityHint' && cityHint) cityHint.classList.remove('hidden');
+
+    // 'none' / 'chip' / 'error': no field-hint — status/chip/error carries the message
+
+  }
+
+
+
+  function setOnboardingManualExpanded(expanded) {
+
+    const manual = $('#onboardManualSearch');
+
+    if (manual) manual.classList.toggle('hidden', !expanded);
+
+    // wardManualGroup lives inside onboardManualSearch — keep in sync for tests/legacy
+
+    const group = $('#wardManualGroup');
+
+    if (group) group.classList.toggle('hidden', !expanded);
+
+    const cityGroup = $('#onboardCityGroup');
+
+    if (cityGroup) cityGroup.classList.toggle('hidden', !expanded);
+
+  }
+
+
+
+  function setOnboardingWardManualLink(mode) {
+
+    const btn = $('#btnWardManual');
+
+    if (!btn) return;
+
+    const key = mode === 'change' ? 'onboard.wardManual' : 'onboard.pickManually';
+
+    btn.setAttribute('data-i18n', key);
+
+    btn.textContent = t(key);
+
+  }
+
+
+
+  function scrollOnboardingJoinIntoView() {
+
+    const btn = $('#btnOnboardingContinue');
+
+    if (!btn) return;
+
+    const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+
+    requestAnimationFrame(() => {
+
+      try {
+
+        btn.scrollIntoView({ block: 'nearest', behavior });
+
+      } catch { /* ignore */ }
+
+    });
+
+  }
+
+
+
   function showOnboardingWardDetectPrompt() {
 
     onboardingDetectedWard = '';
@@ -23525,15 +23692,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#wardDetected')?.classList.add('hidden');
 
-    $('#wardDetectedHint')?.classList.add('hidden');
+    setOnboardingManualExpanded(false);
 
-    $('#onboardCityGroup')?.classList.remove('hidden');
+    setOnboardingWardManualLink('pick');
 
-    $('#wardManualGroup')?.classList.remove('hidden');
-
-    $('#btnWardManual')?.classList.add('hidden');
+    $('#btnWardManual')?.classList.remove('hidden');
 
     $('#btnWardRetry')?.classList.add('hidden');
+
+    setOnboardingWardHintMode('disclosure');
+
+    resetOnboardingWardErrorDefault();
 
   }
 
@@ -23547,20 +23716,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const detected = $('#wardDetected');
 
-    const hint = $('#wardDetectedHint');
-
     if (status) status.classList.remove('hidden');
 
     if (detected) detected.classList.add('hidden');
 
-    if (hint) hint.classList.add('hidden');
-
-    // Ward list is local — keep the picker usable while GPS auto-fill runs.
-    $('#wardManualGroup')?.classList.remove('hidden');
+    setOnboardingManualExpanded(false);
 
     $('#btnWardManual')?.classList.add('hidden');
 
     $('#btnWardRetry')?.classList.add('hidden');
+
+    setOnboardingWardHintMode('none');
 
     const statusText = $('#wardDetectStatusText');
 
@@ -23586,23 +23752,159 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#wardDetectStatus')?.classList.add('hidden');
 
-    $('#wardDetected')?.classList.remove('hidden');
+    const chip = $('#wardDetected');
+
+    if (chip) {
+
+      chip.classList.remove('hidden');
+
+      chip.setAttribute('aria-label', t('onboard.wardConfirmedAria').replace('{ward}', ward));
+
+    }
 
     const nameEl = $('#wardDetectedName');
 
     if (nameEl) nameEl.textContent = ward;
 
-    $('#wardDetectedHint')?.classList.remove('hidden');
+    // Collapse manual path — chip is the confirmation; keep change/retry exits
 
-    $('#wardManualGroup')?.classList.remove('hidden');
+    setOnboardingManualExpanded(false);
 
-    $('#btnWardManual')?.classList.add('hidden');
+    setOnboardingWardManualLink('change');
+
+    $('#btnWardManual')?.classList.remove('hidden');
 
     $('#btnWardRetry')?.classList.add('hidden');
+
+    setOnboardingWardHintMode('chip');
 
     refreshSocietyForOnboarding();
 
     syncOnboardingJoinCta();
+
+    scrollOnboardingJoinIntoView();
+
+  }
+
+
+
+  function showOnboardingWardDetectFailed() {
+
+    onboardingDetectedWard = '';
+
+    clearOnboardingCityHighlight();
+
+    resetOnboardingWardErrorDefault();
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
+
+    $('#wardDetectStatus')?.classList.add('hidden');
+
+    $('#wardDetected')?.classList.add('hidden');
+
+    // Expand manual so user can pick — but do not focus (no keyboard spring-up)
+
+    setOnboardingManualExpanded(true);
+
+    setOnboardingWardManualLink('pick');
+
+    $('#btnWardManual')?.classList.add('hidden');
+
+    $('#btnWardRetry')?.classList.remove('hidden');
+
+    setOnboardingWardHintMode('wardHint');
+
+    syncOnboardingJoinCta();
+
+  }
+
+
+
+  /** GPS resolved but outside Mumbai / Pune / Thane — nudge manual city pick. */
+
+  function showOnboardingWardOutOfBounds() {
+
+    onboardingDetectedWard = '';
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
+
+    $('#wardDetectStatus')?.classList.add('hidden');
+
+    $('#wardDetected')?.classList.add('hidden');
+
+    setOnboardingManualExpanded(true);
+
+    setOnboardingWardManualLink('pick');
+
+    $('#btnWardManual')?.classList.add('hidden');
+
+    $('#btnWardRetry')?.classList.remove('hidden');
+
+    // Error alert is the single message for this state
+
+    setOnboardingWardHintMode('none');
+
+    const cityGroup = $('#onboardCityGroup');
+
+    if (cityGroup) {
+
+      cityGroup.classList.add('onboard-city--highlight');
+
+      requestAnimationFrame(() => {
+
+        cityGroup.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+
+      });
+
+    }
+
+    const err = $('#wardError');
+
+    if (err) {
+
+      err.setAttribute('data-i18n', 'onboard.outOfBounds');
+
+      err.textContent = t('onboard.outOfBounds');
+
+      revealFieldError(err);
+
+    }
+
+    // Do not focus city select — avoids mobile picker/keyboard over the sheet
+
+    syncOnboardingJoinCta();
+
+  }
+
+
+
+  function showOnboardingWardManual() {
+
+    setOnboardingManualExpanded(true);
+
+    $('#btnWardManual')?.classList.add('hidden');
+
+    // Editing path: hide confirmed chip so the form is the source of truth
+
+    $('#wardDetected')?.classList.add('hidden');
+
+    $('#wardDetectStatus')?.classList.add('hidden');
+
+    // Keep detect CTA available as an alternative
+
+    $('#wardDetectPrompt')?.classList.remove('hidden');
+
+    setOnboardingWardHintMode('wardHint');
+
+    const input = $('#wardInput');
+
+    if (input) {
+
+      input.focus();
+
+      input.select();
+
+    }
 
   }
 
@@ -23659,124 +23961,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     return CITY_IDS.every((id) => isGpsOutsideCity(lat, lng, id));
-
-  }
-
-
-
-  function showOnboardingWardDetectFailed() {
-
-    onboardingDetectedWard = '';
-
-    clearOnboardingCityHighlight();
-
-    resetOnboardingWardErrorDefault();
-
-    $('#wardDetectPrompt')?.classList.remove('hidden');
-
-    $('#wardDetectStatus')?.classList.add('hidden');
-
-    $('#wardDetected')?.classList.add('hidden');
-
-    $('#wardDetectedHint')?.classList.add('hidden');
-
-    $('#onboardCityGroup')?.classList.remove('hidden');
-
-    $('#wardManualGroup')?.classList.remove('hidden');
-
-    $('#btnWardManual')?.classList.add('hidden');
-
-    $('#btnWardRetry')?.classList.remove('hidden');
-
-    const input = $('#wardInput');
-
-    if (input && !input.value.trim()) input.focus();
-
-    syncOnboardingJoinCta();
-
-  }
-
-
-
-  /** GPS resolved but outside Mumbai / Pune / Thane — nudge manual city pick. */
-
-  function showOnboardingWardOutOfBounds() {
-
-    onboardingDetectedWard = '';
-
-    $('#wardDetectPrompt')?.classList.remove('hidden');
-
-    $('#wardDetectStatus')?.classList.add('hidden');
-
-    $('#wardDetected')?.classList.add('hidden');
-
-    $('#wardDetectedHint')?.classList.add('hidden');
-
-    $('#onboardCityGroup')?.classList.remove('hidden');
-
-    $('#wardManualGroup')?.classList.remove('hidden');
-
-    $('#onboardManualSearch')?.classList.remove('hidden');
-
-    $('#btnWardManual')?.classList.add('hidden');
-
-    $('#btnWardRetry')?.classList.remove('hidden');
-
-    const cityGroup = $('#onboardCityGroup');
-
-    if (cityGroup) {
-
-      cityGroup.classList.add('onboard-city--highlight');
-
-      requestAnimationFrame(() => {
-
-        cityGroup.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-
-      });
-
-    }
-
-    const err = $('#wardError');
-
-    if (err) {
-
-      err.setAttribute('data-i18n', 'onboard.outOfBounds');
-
-      err.textContent = t('onboard.outOfBounds');
-
-      revealFieldError(err);
-
-    }
-
-    const citySel = $('#onboardCity');
-
-    if (citySel) {
-
-      try { citySel.focus(); } catch { /* ignore */ }
-
-    }
-
-    syncOnboardingJoinCta();
-
-  }
-
-
-
-  function showOnboardingWardManual() {
-
-    $('#wardManualGroup')?.classList.remove('hidden');
-
-    $('#btnWardManual')?.classList.add('hidden');
-
-    const input = $('#wardInput');
-
-    if (input) {
-
-      input.focus();
-
-      input.select();
-
-    }
 
   }
 
@@ -24040,6 +24224,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Onboarding: never autofocus inputs (mobile keyboard over sheet). Title only.
+    // Ward field focuses only after "Or pick manually" (showOnboardingWardManual).
+
+    if (name === 'onboarding') {
+
+      const onboardTitle = $('#onboardingTitle');
+
+      if (onboardTitle) {
+
+        try { onboardTitle.focus({ preventScroll: true }); } catch {
+
+          try { onboardTitle.focus(); } catch { /* ignore */ }
+
+        }
+
+        return;
+
+      }
+
+    }
+
     // Profile: land on close at top — never scroll-into mid-sheet form fields.
 
     if (name === 'profile') {
@@ -24209,15 +24414,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         $('#wardDetected')?.classList.add('hidden');
 
-        $('#wardDetectedHint')?.classList.add('hidden');
+        $('#wardDetectPrompt')?.classList.add('hidden');
 
-        $('#wardManualGroup')?.classList.remove('hidden');
+        setOnboardingManualExpanded(true);
+
+        setOnboardingWardManualLink('pick');
 
         $('#btnWardManual')?.classList.add('hidden');
 
         $('#btnWardRetry')?.classList.remove('hidden');
 
-        $('#wardDetectPrompt')?.classList.add('hidden');
+        setOnboardingWardHintMode('wardHint');
 
         refreshSocietyForOnboarding();
 
@@ -30736,6 +30943,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnReportDupeForceNew = $('#btnReportDupeForceNew');
+    if (btnReportDupeForceNew) {
+      btnReportDupeForceNew.addEventListener('click', () => {
+        Haptics.tap();
+        forceNewReportDespiteDupe();
+      });
+    }
+
 
 
     $('#btnShareTwitter').addEventListener('click', () => shareTwitter(buildDefaultShareMessage()));
@@ -32340,6 +32555,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Clear dupe target + force primary CTA back to Submit report (label + aria).
     reportDupeTargetId = null;
+    reportForceNewSubmit = false;
 
     submitReport.__inFlight = false;
 
@@ -33914,8 +34130,11 @@ document.addEventListener('DOMContentLoaded', function () {
     currentLng = lng;
 
     // Bounds / OOB GPS before nearby match — keep Submit path (no Me too CTA).
+    // Escape hatch: reportForceNewSubmit skips Me too so a genuine new pin can file.
     let dupeHit = null;
-    if (!liveGpsBlocksDupe && isDupeMatchLocationInBounds(lat, lng)) {
+    if (reportForceNewSubmit) {
+      clearReportDuplicateUi();
+    } else if (!liveGpsBlocksDupe && isDupeMatchLocationInBounds(lat, lng)) {
       dupeHit = findSubmitDuplicate(lat, lng, $('#hazardType') && $('#hazardType').value);
     } else {
       clearReportDuplicateUi();
@@ -34694,11 +34913,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (sharePromptEl) {
 
-      sharePromptEl.textContent = reportCount === 1
-
-        ? t('success.shareBragFirst')
-
-        : t('success.shareBrag');
+      sharePromptEl.textContent = t('success.sharePrompt');
 
     }
 
