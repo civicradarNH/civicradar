@@ -1437,11 +1437,25 @@ async def run_citizen_tests(s: Suite, browser):
 
     try:
         await page.wait_for_selector('#btnShareWhatsApp', state='visible', timeout=5000)
-        await page.wait_for_selector('#btnSuccessOfficialToggle', state='visible', timeout=5000)
+        await page.wait_for_selector('#btnSuccessMoreToggle', state='visible', timeout=5000)
     except Exception:
         pass
 
-    s.record('C17', 'Citizen', 'Success modal WhatsApp + official filing', await page.is_visible('#btnShareWhatsApp') and await page.is_visible('#btnSuccessOfficialToggle'))
+    # v386+ pin-drop: WhatsApp is the only primary CTA; official filing lives under More.
+    c17_ok = await page.evaluate(
+        """() => {
+          const wa = document.getElementById('btnShareWhatsApp');
+          const more = document.getElementById('btnSuccessMoreToggle');
+          const official = document.getElementById('btnSuccessOfficialToggle');
+          const moreBody = document.getElementById('successMoreBody');
+          const waOk = !!(wa && wa.getBoundingClientRect().width > 0);
+          const moreOk = !!(more && more.getBoundingClientRect().width > 0);
+          const officialInMore = !!(official && moreBody && moreBody.contains(official)
+            && moreBody.classList.contains('hidden'));
+          return waOk && moreOk && officialInMore;
+        }"""
+    )
+    s.record('C17', 'Citizen', 'Success modal WhatsApp primary + More (official filing)', c17_ok)
 
     native_share_ok = await page.evaluate("""() => {
 
@@ -3829,11 +3843,32 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
-    # RP26 — success thumbnail must survive resetReportForm (ship-glitch class)
+    # RP26 — success thumbnail must survive resetReportForm (ship-glitch class).
+    # Pin-drop v386+: thumb lives under collapsed More — expand before visibility check.
     await page.wait_for_function(
         '() => document.getElementById("successOverlay")?.classList.contains("open")',
         timeout=12000,
     )
+    await page.evaluate(
+        """() => {
+          const toggle = document.getElementById('btnSuccessMoreToggle');
+          if (toggle) toggle.click();
+        }"""
+    )
+    try:
+        await page.wait_for_function(
+            """() => {
+              const thumb = document.getElementById('successThumbnail');
+              const body = document.getElementById('successMoreBody');
+              if (!thumb || !body || body.classList.contains('hidden')) return false;
+              const src = thumb.getAttribute('src') || thumb.src || '';
+              return src.startsWith('data:image') && !thumb.hidden
+                && thumb.getBoundingClientRect().width > 0;
+            }""",
+            timeout=5000,
+        )
+    except Exception:
+        pass
     thumb_ok = await page.evaluate(
         """() => {
           const thumb = document.getElementById('successThumbnail');
@@ -3843,7 +3878,7 @@ async def run_extended_scenarios(s: Suite, browser):
           return src.startsWith('data:image') && visible;
         }"""
     )
-    s.record('RP26', 'Report', 'Success thumbnail src visible after submit', thumb_ok)
+    s.record('RP26', 'Report', 'Success thumbnail src visible after submit (via More)', thumb_ok)
 
     # RP23 — GPS denied → manual pin fallback (D-2 v146)
 
@@ -6028,7 +6063,17 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('CL02', 'Celebration', 'WhatsApp share btn present', await page.is_visible('#btnShareWhatsApp'))
 
-    s.record('CL03', 'Celebration', 'Official filing accordion present', await page.is_visible('#btnSuccessOfficialToggle'))
+    # Official filing is nested under the collapsed More accordion (pin-drop v386+).
+    cl03_ok = await page.evaluate(
+        """() => {
+          const more = document.getElementById('btnSuccessMoreToggle');
+          const official = document.getElementById('btnSuccessOfficialToggle');
+          const moreBody = document.getElementById('successMoreBody');
+          return !!(more && more.getBoundingClientRect().width > 0
+            && official && moreBody && moreBody.contains(official));
+        }"""
+    )
+    s.record('CL03', 'Celebration', 'More accordion hosts official filing', cl03_ok)
 
     s.record('CL04', 'Celebration', 'Success close btn present', await page.is_visible('#btnSuccessClose'))
 
@@ -8847,10 +8892,31 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
     s.record('RP08', 'Report', 'Success overlay has celebrate el', await page.evaluate('() => !!document.getElementById("successCelebrate")'))
 
+    # Pin-drop v386+: thumb lives under collapsed More — expand before visibility check.
     await page.wait_for_function(
         '() => document.getElementById("successOverlay")?.classList.contains("open")',
         timeout=12000,
     )
+    await page.evaluate(
+        """() => {
+          const toggle = document.getElementById('btnSuccessMoreToggle');
+          if (toggle) toggle.click();
+        }"""
+    )
+    try:
+        await page.wait_for_function(
+            """() => {
+              const thumb = document.getElementById('successThumbnail');
+              const body = document.getElementById('successMoreBody');
+              if (!thumb || !body || body.classList.contains('hidden')) return false;
+              const src = thumb.getAttribute('src') || thumb.src || '';
+              return src.startsWith('data:image') && !thumb.hidden
+                && thumb.getBoundingClientRect().width > 0;
+            }""",
+            timeout=5000,
+        )
+    except Exception:
+        pass
     thumb_ok = await page.evaluate(
         """() => {
           const thumb = document.getElementById('successThumbnail');
@@ -8860,7 +8926,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
           return src.startsWith('data:image') && visible;
         }"""
     )
-    s.record('RP26', 'Report', 'Success thumbnail src visible after submit', thumb_ok)
+    s.record('RP26', 'Report', 'Success thumbnail src visible after submit (via More)', thumb_ok)
 
     nav_icons_ok = await page.evaluate(
         """() => {

@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-22 22:40:09
+**Run:** 2026-07-23 06:04:17
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 237 | **Pass:** 228 | **Fail:** 9
+**Total:** 40 | **Pass:** 40 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -76,59 +76,17 @@
 
 ## Summary by category
 
-- **API:** 5 pass / 0 fail
-- **Access:** 13 pass / 0 fail
-- **Admin:** 2 pass / 0 fail
-- **BMC:** 9 pass / 0 fail
-- **Celebration:** 4 pass / 0 fail
-- **Citizen:** 43 pass / 1 fail
-- **Community:** 3 pass / 0 fail
-- **DeepLink:** 2 pass / 0 fail
-- **Edge:** 17 pass / 0 fail
-- **Escalation:** 6 pass / 0 fail
-- **Feedback:** 7 pass / 0 fail
-- **HomeHero:** 7 pass / 0 fail
-- **ImageSafety:** 1 pass / 2 fail
-- **LeadVote:** 8 pass / 0 fail
-- **Legal:** 2 pass / 0 fail
-- **Load:** 5 pass / 0 fail
-- **LocationBanner:** 7 pass / 0 fail
-- **Map:** 4 pass / 0 fail
-- **MultiCity:** 8 pass / 0 fail
-- **NGO:** 10 pass / 0 fail
-- **Neighbourhood:** 6 pass / 0 fail
-- **OfficialChannels:** 9 pass / 0 fail
-- **Onboarding:** 4 pass / 0 fail
-- **PWA:** 2 pass / 0 fail
-- **Partner:** 1 pass / 0 fail
-- **Persona:** 1 pass / 0 fail
-- **Pledge:** 1 pass / 0 fail
-- **Profile:** 4 pass / 0 fail
-- **Reminder:** 7 pass / 0 fail
-- **Report:** 3 pass / 0 fail
-- **Security:** 1 pass / 0 fail
-- **ShareWin:** 3 pass / 1 fail
-- **Storage:** 2 pass / 0 fail
-- **Sync:** 1 pass / 0 fail
-- **System:** 0 pass / 2 fail
-- **Tour:** 7 pass / 3 fail
-- **UI:** 7 pass / 0 fail
-- **Viral:** 4 pass / 0 fail
-- **Volunteer:** 1 pass / 0 fail
-- **i18n:** 1 pass / 0 fail
+- **Citizen:** 20 pass / 0 fail
+- **DeepLink:** 1 pass / 0 fail
+- **PWA:** 1 pass / 0 fail
+- **Report:** 11 pass / 0 fail
+- **Store:** 1 pass / 0 fail
+- **UI:** 2 pass / 0 fail
+- **iOS:** 4 pass / 0 fail
 
 ## Failures
 
-- `C09b` **Report-on-the-spot guidance shown at onboarding completion** — failed
-- `ERR-Extended` **Suite Extended crashed** — Page.wait_for_function: Timeout 10000ms exceeded.
-- `IS01` **Photo hint visible after capture** — failed
-- `IS03` **Hint hidden on modal reopen without photo** — failed
-- `ERR-ImageSafety` **Suite ImageSafety crashed** — Page.evaluate: TypeError: Cannot read properties of null (reading 'classList')
-    at eval (eval at evaluate (:234:30), 
-- `TR03` **Purpose sheet shows on first run (no FAB tip stack)** — failed
-- `TR07` **Replay entry restarts tour on demand** — failed
-- `TR10` **Purpose sheet blocks pin popup open** — failed
-- `WIN02` **Success card canvas 1080×1080 + society location label** — failed
+_None_
 
 ## Limitations
 
@@ -153,229 +111,31 @@
 | C08 | Citizen | Valid ward onboarding | PASS |  |
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
-| C09b | Citizen | Report-on-the-spot guidance shown at onboarding completion | **FAIL** |  |
-| C09c | Citizen | Empty display name gets unique civic default | PASS | name=Ward Scout · Dadar, Shiva #C5F |
-| C34 | Citizen | Pune hides BMC partner card | PASS |  |
-| C34b | Citizen | Pune blocks BMC admin modal | PASS |  |
-| C34c | Citizen | Pune community subtitle ward-scoped (no BMC) | PASS |  |
-| C10-hi | Citizen | Language switch HI | PASS |  |
-| C10-mr | Citizen | Language switch MR | PASS |  |
-| C10-gu | Citizen | Language switch GU | PASS |  |
-| C10-en | Citizen | Language switch EN | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=de598366-f682-4857-b9bb-3fe76b296daf |
-| C17 | Citizen | Success modal WhatsApp + official filing | PASS |  |
+| C16 | Citizen | Report submit success modal | PASS | rid=56874780-7df1-495d-9f5e-f65e1f2b589c |
+| C17 | Citizen | Success modal WhatsApp primary + More (official filing) | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
 | DL01 | DeepLink | WhatsApp share URL is canonical HTTPS ?report= | PASS |  |
 | C19b | Citizen | PWA nudge after first report | PASS |  |
 | C19 | Citizen | Map shows markers after report | PASS | markers=3 |
-| C20 | Citizen | Duplicate nearby Me too prompt | PASS |  |
-| C21 | Citizen | Profile civic points visible | PASS |  |
-| C22 | Citizen | Profile pending count | PASS |  |
-| C23 | Citizen | Profile report cards | PASS | cards=1 |
-| C24 | Citizen | Escalation modal opens | PASS |  |
-| C25 | Citizen | Escalation copy-all button | PASS |  |
-| C26 | Citizen | Complaint save blocked without consent | PASS |  |
-| C27 | Citizen | Complaint ID saved | PASS |  |
-| C28 | Citizen | Invalid complaint # handled | PASS |  |
-| C29 | Citizen | Community modal opens | PASS |  |
-| C30 | Citizen | Leaderboard wards populated | PASS | items=5 |
-| C31 | Citizen | Pledge modal opens | PASS |  |
-| C32 | Citizen | Pledge saved | PASS |  |
-| C33 | Citizen | Sponsor wall renders | PASS |  |
-| C35 | Citizen | Coach mark dismiss sets flag | PASS | already dismissed |
-| N01 | NGO | Lead demo login | PASS |  |
-| N02 | NGO | Coordinator hub opens | PASS |  |
-| N03 | NGO | Coordinator pledges list | PASS |  |
-| N04 | NGO | Log community cleanup | PASS |  |
-| N05 | NGO | Mark pledge delivered | PASS |  |
-| N06 | NGO | Verify volunteer hours | PASS |  |
-| N07 | NGO | Persona bar lead styling | PASS |  |
-| N08 | NGO | Exit NGO mode | PASS |  |
-| A01 | BMC | Admin demo login | PASS |  |
-| A02 | BMC | Admin queue opens | PASS |  |
-| A03 | BMC | Queue ward filter options | PASS |  |
-| A04 | BMC | Queue sort options | PASS |  |
-| A05 | BMC | Copy for 1916 | PASS |  |
-| A06 | BMC | CSV export button present | PASS |  |
-| A07 | BMC | Resolve requires proof photo | PASS |  |
-| A08 | BMC | App health panel element | PASS |  |
-| A09 | BMC | Admin persona bar text | PASS |  |
-| E01 | Edge | Corrupt reports JSON recovery | PASS |  |
-| E02 | Edge | Corrupt user JSON -> default user | PASS |  |
-| E03 | Edge | i18n keys render | PASS |  |
-| E04 | Edge | Invalid deep link shows toast | PASS |  |
-| E05 | Edge | Community closes profile (no stack) | PASS |  |
-| E06 | Edge | Double submit disables button | PASS |  |
-| E07 | Edge | XSS notes sanitized on save | PASS |  |
-| SEC01 | Security | XSS notes escaped in profile DOM | PASS |  |
-| E08 | Edge | Analytics blocked without consent | PASS |  |
-| E09 | Edge | Analytics allowed after analytics opt-in | PASS |  |
-| E10 | Edge | Admin mode persists mid-flow | PASS |  |
-| E11 | Edge | Reminder snooze future date stored | PASS |  |
-| E12 | Edge | Hidden report IDs stored | PASS |  |
-| E13 | Edge | Empty community stats zero | PASS |  |
-| E14 | Edge | Local demo sync status shown | PASS |  |
-| E15 | Edge | Map empty CTA visible | PASS |  |
-| E15b | Edge | Map empty share hidden first visit | PASS |  |
-| E16 | Edge | Invalid ward cleared on load | PASS |  |
-| L01 | Load | 15 parallel report contexts | PASS | 15/15 |
-| L02 | Load | 200 reports refresh under 3s | PASS | 0.07s |
-| L03 | Load | 50x loadReports parse under 500ms | PASS | 13ms |
-| L04 | Load | Rapid corroboration increments | PASS | n=5 |
-| L05 | Load | Analytics batch enqueue | PASS |  |
-| M01 | Map | Leaflet map container | PASS |  |
-| M02 | Map | Map legend visible | PASS |  |
-| M03 | Map | Recenter button | PASS |  |
-| M04 | PWA | Manifest link | PASS |  |
-| M05 | PWA | Service worker API available | PASS |  |
-| P01 | Profile | Delete data button | PASS |  |
-| P02 | Profile | About button | PASS |  |
-| P03 | Community | Ward challenge element | PASS |  |
-| P04 | Community | Impact stats grid | PASS |  |
-| P05 | Report | Hazard grid renders | PASS |  |
-| P06 | Report | Stagnant-water live tile | PASS |  |
-| P07 | Legal | Privacy link in ToS | PASS |  |
-| P08 | Partner | Partner portal opens | PASS |  |
-| P09 | Admin | Admin demo login btn | PASS |  |
-| P10 | NGO | Lead demo login btn | PASS |  |
-| P11 | Profile | Delete my data resets to ToS | PASS |  |
-| P12 | DeepLink | Valid ?report= opens popup | PASS |  |
-| X01 | API | openReportModal exported | PASS |  |
-| X02 | API | setAdminMode exported | PASS |  |
-| X03 | API | renderLeaderboard exported | PASS |  |
-| X04 | API | markReportResolved exported | PASS |  |
-| X05 | API | Backend local mode | PASS |  |
-| X06 | i18n | Missing key fallback | PASS |  |
-| X07 | Map | Marker layer refresh | PASS |  |
-| X08 | Community | Citizens panel toggle | PASS |  |
-| X09 | Report | Notes maxlength 500 | PASS |  |
-| X10 | Admin | Invalid login rejected | PASS |  |
-| X11 | NGO | Invalid login rejected | PASS |  |
-| X12 | Escalation | Tier ladder markup | PASS |  |
-| X13 | Profile | Civic points numeric | PASS |  |
-| X14 | Storage | Pledges JSON parse safe | PASS |  |
-| X15 | Storage | Confirmed set parse safe | PASS |  |
-| X16 | UI | Bottom nav tabs | PASS |  |
-| UX01 | UI | Active nav tab bold label | PASS |  |
+| RP01 | Report | Four live hazard tiles at launch | PASS | live=4 |
+| RP02 | Report | No coming-soon locks on launch hazards | PASS | soon=0 |
+| RP03 | Report | Default hazard is stagnant-water | PASS |  |
+| RP04 | Report | Photo input accepts images | PASS |  |
+| RP05 | Report | Capture photo button present | PASS |  |
+| RP22 | Report | Photo-first opens capture step | PASS |  |
+| RP06 | Report | Close without submit saves nothing | PASS |  |
+| RP21 | Report | Draft restores report modal after reload | PASS |  |
+| RP07 | Report | Report stored in localStorage | PASS |  |
+| RP08 | Report | Success overlay has celebrate el | PASS |  |
+| RP26 | Report | Success thumbnail src visible after submit (via More) | PASS |  |
 | UX04 | UI | Bottom nav icons have mask-image | PASS |  |
 | UX05 | UI | Report notes font matches Outfit path | PASS |  |
-| UX02 | UI | Modal title clears close btn | PASS |  |
-| UX03 | UI | Lead candidates light surface | PASS |  |
-| X17 | UI | FAB report button | PASS |  |
-| X18 | Legal | Terms page linked | PASS |  |
-| X19 | Persona | Citizen default mode | PASS |  |
-| X20 | Sync | Local mode label | PASS |  |
-| X21 | Escalation | PMC modal opens (Pune) | PASS |  |
-| X22 | Escalation | TMC modal opens (Thane) | PASS |  |
-| X23 | Escalation | PMC complaint ID saved | PASS |  |
-| X26 | Escalation | TMC Aaple label after PMC | PASS |  |
-| X27 | Volunteer | Skill checkbox compact width | PASS |  |
-| X24 | Escalation | Consent checkbox compact width | PASS |  |
-| X25 | Pledge | Sticky footer present | PASS |  |
-| OB10 | Onboarding | Hero welcome card present (explainer trim v89) | PASS |  |
-| OB11 | Onboarding | Hero renders 3 benefit pills | PASS |  |
-| OB12 | Onboarding | Hero subline populated (terse) | PASS |  |
-| OB13 | Onboarding | Spot guidance in hero subline | PASS |  |
-| X28 | Celebration | Success celebrate element present | PASS |  |
-| X29 | Celebration | Success progress nudge element present | PASS |  |
-| X30 | Celebration | Success streak callout element present | PASS |  |
-| X31 | Celebration | Profile rewards dashboard present | PASS |  |
-| V40 | Viral | Referral welcome banner present + hidden by default | PASS |  |
-| V41 | Viral | Seasonal hook element present in community | PASS |  |
-| V42 | Viral | Ward weekly social proof line populated | PASS |  |
-| V43 | Viral | Weekly recap share shown when recent reports | PASS |  |
-| MC01 | MultiCity | Thane community subtitle ward-scoped (no BMC) | PASS |  |
-| MC02 | MultiCity | Thane blocks BMC admin modal | PASS |  |
-| MC03 | MultiCity | Thane user city persisted | PASS |  |
-| MC04 | MultiCity | Thane partner portal hides BMC card | PASS |  |
-| MC05 | MultiCity | Pune user city persisted | PASS |  |
-| MC06 | MultiCity | Pune ward combobox on pledge | PASS |  |
-| MC07 | MultiCity | Mumbai ward combobox on pledge | PASS |  |
-| MC08 | MultiCity | City picker has 3 options | PASS |  |
-| ERR-Extended | System | Suite Extended crashed | **FAIL** | Page.wait_for_function: Timeout 10000ms exceeded. |
-| IS01 | ImageSafety | Photo hint visible after capture | **FAIL** |  |
-| IS02 | ImageSafety | Submit succeeds without checkbox confirm | PASS |  |
-| IS03 | ImageSafety | Hint hidden on modal reopen without photo | **FAIL** |  |
-| ERR-ImageSafety | System | Suite ImageSafety crashed | **FAIL** | Page.evaluate: TypeError: Cannot read properties of null (reading 'classList')
-    at eval (eval at evaluate (:234:30),  |
-| FB01 | Feedback | Feedback entry point present (About) | PASS |  |
-| FB02 | Feedback | Feedback modal opens from menu | PASS |  |
-| FB03 | Feedback | Empty message blocked with inline error | PASS |  |
-| FB04 | Feedback | Category (Bug/Idea/Other) selectable | PASS |  |
-| FB05 | Feedback | Local submit stores feedback + closes modal | PASS |  |
-| FB06 | Feedback | Submit shows success/saved toast | PASS |  |
-| FB07 | Feedback | Feedback strings render (i18n, no key leak) | PASS |  |
-| TR01 | Tour | Tour overlay element present | PASS |  |
-| TR02 | Tour | Replay-tour entry present in Profile | PASS |  |
-| TR03 | Tour | Purpose sheet shows on first run (no FAB tip stack) | **FAIL** |  |
-| TR04 | Tour | Got it sets coach+fab flags and clears first-run lock | PASS |  |
-| TR06 | Tour | Purpose/tour do not reappear on reload once seen | PASS |  |
-| TR05 | Tour | Purpose Got it sets fab_spot without FAB tip overlay | PASS |  |
-| TR07 | Tour | Replay entry restarts tour on demand | **FAIL** |  |
-| TR08 | Tour | Tour does NOT show in demo mode | PASS |  |
-| TR09 | Tour | Tour does NOT show for referral (?ref=) entry | PASS |  |
-| TR10 | Tour | Purpose sheet blocks pin popup open | **FAIL** |  |
-| RR01 | Reminder | Report-reminder opt-in toggle present | PASS |  |
-| RR02 | Reminder | Enable persists opt-in with no Notification API (no error) | PASS |  |
-| RR03 | Reminder | Disable persists opt-out | PASS |  |
-| RR04 | Reminder | Opt-in reminder shows in-app card (no push backend) | PASS |  |
-| RR05 | Reminder | Reminder respects cadence (not re-shown same day) | PASS |  |
-| RR06 | Reminder | No location nudge when hazard is far away | PASS |  |
-| RR07 | Reminder | Nearby pending hazard triggers location nudge | PASS |  |
-| NA01 | Neighbourhood | Neighbourhood alert toggles present | PASS |  |
-| NA02 | Neighbourhood | Alert preferences persist in localStorage | PASS |  |
-| NA03 | Neighbourhood | No new-report alert when toggle off | PASS |  |
-| NA04 | Neighbourhood | Resolved alert fires for matching neighbourhood user | PASS |  |
-| NA05 | Neighbourhood | No resolved alert when toggle off | PASS |  |
-| NA06 | Neighbourhood | Rate limit prevents burst (max 3 / 24h) | PASS |  |
-| WIN01 | ShareWin | Share win modal has preview + aspect toggles | PASS |  |
-| WIN02 | ShareWin | Success card canvas 1080×1080 + society location label | **FAIL** |  |
-| WIN03 | ShareWin | Story aspect canvas 1080×1920 (9:16) | PASS |  |
-| WIN04 | ShareWin | Resolved neighbourhood toast has Share win action | PASS |  |
-| AR01 | Access | Lead + BMC entry points present | PASS |  |
-| AR02 | Access | BMC request modal opens with explainer | PASS |  |
-| AR03 | Access | Empty name blocked with inline error | PASS |  |
-| AR04 | Access | Contact required (email or phone) | PASS |  |
-| AR05 | Access | BMC submit (name+email) confirms + stores | PASS |  |
-| AR06 | Access | Access strings render (i18n, no key leak) | PASS |  |
-| AR07 | Access | Admin review lists pending BMC request | PASS |  |
-| AR08 | Access | Approve issues claim code | PASS |  |
-| AR09 | Access | Reject marks request rejected | PASS |  |
-| AR10 | Access | Claim code unlocks BMC role | PASS |  |
-| AR13 | Access | Used claim code rejected on second redeem | PASS |  |
-| AR11 | Access | Invalid claim code rejected | PASS |  |
-| AR12 | Access | Phone-only confirm uses contact-neutral copy | PASS |  |
-| LV01 | LeadVote | Nomination modal opens with explainer | PASS |  |
-| LV02 | LeadVote | Ward required for nomination | PASS |  |
-| LV03 | LeadVote | Nomination confirms + stores locally | PASS |  |
-| LV04 | LeadVote | Candidate listed in Community | PASS |  |
-| LV05 | LeadVote | Self-vote blocked | PASS |  |
-| LV06 | LeadVote | 2 peer votes grant NGO lead role | PASS |  |
-| LV07 | LeadVote | Conflict shows 5-vote co-lead threshold | PASS |  |
-| LV08 | LeadVote | Lead strings render (i18n, no key leak) | PASS |  |
-| LB01 | LocationBanner | Banner shows when consent missing | PASS |  |
-| LB02 | LocationBanner | Dismiss hides banner + sets snooze + shows pill | PASS |  |
-| LB03 | LocationBanner | Banner does not reappear while snoozed | PASS |  |
-| LB04 | LocationBanner | Locate pill re-triggers enable flow | PASS |  |
-| LB05 | LocationBanner | Banner text localized (Marathi, not hardcoded EN) | PASS |  |
-| LB06 | LocationBanner | Dismiss control has localized aria-label | PASS |  |
-| LB07 | LocationBanner | Pin popup parks / hides location banner | PASS |  |
-| HM01 | HomeHero | Hero visible for onboarded user with no reports | PASS |  |
-| HM02 | HomeHero | Purpose headline + subline visible | PASS |  |
-| HM03 | HomeHero | Primary CTA present | PASS |  |
-| HM04 | HomeHero | Three benefit pills present | PASS |  |
-| HM05 | HomeHero | Hero hides map-empty overlay while visible | PASS |  |
-| HM06 | HomeHero | Dismiss hides hero + sets localStorage | PASS |  |
-| HM07 | HomeHero | After dismiss, map empty CTA can show | PASS |  |
-| OC01 | OfficialChannels | Resources tab panel renders for mumbai | PASS |  |
-| OC01b | OfficialChannels | mumbai primary channel href verified | PASS |  |
-| OC02 | OfficialChannels | Resources tab panel renders for pune | PASS |  |
-| OC02b | OfficialChannels | pune primary channel href verified | PASS |  |
-| OC03 | OfficialChannels | Resources tab panel renders for thane | PASS |  |
-| OC03b | OfficialChannels | thane primary channel href verified | PASS |  |
-| OC04 | OfficialChannels | Copy helper includes report ID on open | PASS |  |
-| OC05 | OfficialChannels | Resources tab renders channel buttons | PASS |  |
-| OC06 | OfficialChannels | Resources grouping + Recommended + footer sources link | PASS |  |
+| SW06 | PWA | SW precache uses scope-relative paths (subpath-safe) | PASS |  |
+| ST01 | Store | assetlinks.json served for TWA | PASS |  |
+| IOS01 | iOS | apple-mobile-web-app-capable meta | PASS |  |
+| IOS02 | iOS | viewport-fit=cover | PASS |  |
+| IOS03 | iOS | apple-touch-icon linked | PASS |  |
+| IOS04 | iOS | Report photo input capture=environment | PASS |  |
