@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v378';
+  const CIVIC_APP_VERSION = 'v379';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2855,19 +2855,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.enable': 'Turn on',
 
-      'tagline.threeBeat': 'Map it · Snap it · Report it',
+      'tagline.threeBeat': 'Spot it. Snap it. Sorted.',
 
       'tagline.subline': 'Three taps — ward, photo, neighbours alerted.',
 
-      'tagline.beatMap': 'Map it',
+      'tagline.beatMap': 'Spot it',
 
       'tagline.beatSnap': 'Snap it',
 
-      'tagline.beatReport': 'Report it',
+      'tagline.beatReport': 'Sorted',
 
       'coach.step': 'From alert to fix',
 
-      'coach.title': 'See it. Snap it. Sort it out.',
+      'coach.title': 'Spot it. Snap it. Sorted.',
 
       'coach.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
@@ -2875,7 +2875,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.kicker': 'From alert to fix',
 
-      'purpose.title': 'See it. Snap it. Sort it out.',
+      'purpose.title': 'Spot it. Snap it. Sorted.',
 
       'purpose.body': 'Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.',
 
@@ -2883,13 +2883,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.report': 'Report a hazard',
 
-      'purpose.stepMap': 'Map',
+      'purpose.stepMap': 'Spot',
 
       'purpose.stepSnap': 'Snap',
 
-      'purpose.stepResolve': 'Resolve',
+      'purpose.stepResolve': 'Sorted',
 
-      'purpose.stepNeighbours': 'Resolve',
+      'purpose.stepNeighbours': 'Sorted',
 
       'fabSpot.step': 'Tip',
 
@@ -2939,7 +2939,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'Welcome to CivicRadar',
 
-      'onboard.subtitle': 'Spot a problem, snap it — then sort it out with official channels or neighbourhood volunteers.',
+      'onboard.subtitle': 'Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.',
 
       'onboard.city': 'Your city',
 
@@ -5401,19 +5401,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.enable': 'चालू करें',
 
-      'tagline.threeBeat': 'नक्शे पर · फोटो · रिपोर्ट',
+      'tagline.threeBeat': 'देखा। खींचा। हो गया।',
 
       'tagline.subline': 'तीन टैप — वार्ड, फोटो, पड़ोसी सूचित।',
 
-      'tagline.beatMap': 'नक्शे पर',
+      'tagline.beatMap': 'देखा',
 
-      'tagline.beatSnap': 'फोटो',
+      'tagline.beatSnap': 'खींचा',
 
-      'tagline.beatReport': 'रिपोर्ट',
+      'tagline.beatReport': 'हो गया',
 
       'coach.step': 'अलर्ट से समाधान तक',
 
-      'coach.title': 'देखें। फोटो लें। सुलझाएँ।',
+      'coach.title': 'देखा। खींचा। हो गया।',
 
       'coach.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
@@ -5421,7 +5421,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.kicker': 'अलर्ट से समाधान तक',
 
-      'purpose.title': 'देखें। फोटो लें। सुलझाएँ।',
+      'purpose.title': 'देखा। खींचा। हो गया।',
 
       'purpose.body': 'पिन पड़ोसियों को सचेत करते हैं — फिर आधिकारिक चैनलों से, या स्थानीय स्वयंसेवकों को जोड़कर, समस्या सुलझाएँ।',
 
@@ -5429,13 +5429,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.report': 'खतरा रिपोर्ट करें',
 
-      'purpose.stepMap': 'नक्शा',
+      'purpose.stepMap': 'देखा',
 
-      'purpose.stepSnap': 'फोटो',
+      'purpose.stepSnap': 'खींचा',
 
-      'purpose.stepResolve': 'सुलझाएँ',
+      'purpose.stepResolve': 'हो गया',
 
-      'purpose.stepNeighbours': 'सुलझाएँ',
+      'purpose.stepNeighbours': 'हो गया',
 
       'fabSpot.step': 'टिप',
 
@@ -5485,7 +5485,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar में आपका स्वागत है',
 
-      'onboard.subtitle': 'समस्या देखें, फोटो लें — आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
+      'onboard.subtitle': 'देखा। खींचा। हो गया। — फिर आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
 
       'onboard.city': 'आपका शहर',
 
@@ -7947,19 +7947,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.enable': 'चालू करा',
 
-      'tagline.threeBeat': 'नकाशावर · फोटो · नोंदवा',
+      'tagline.threeBeat': 'दिसलं. टिपलं. झालं.',
 
       'tagline.subline': 'तीन टॅप — वॉर्ड, फोटो, शेजारी सूचित.',
 
-      'tagline.beatMap': 'नकाशावर',
+      'tagline.beatMap': 'दिसलं',
 
-      'tagline.beatSnap': 'फोटो',
+      'tagline.beatSnap': 'टिपलं',
 
-      'tagline.beatReport': 'नोंदवा',
+      'tagline.beatReport': 'झालं',
 
       'coach.step': 'सतर्केपासून सोडवणुकीपर्यंत',
 
-      'coach.title': 'पहा. फोटो काढा. सोडवा.',
+      'coach.title': 'दिसलं. टिपलं. झालं.',
 
       'coach.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
@@ -7967,7 +7967,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.kicker': 'सतर्केपासून सोडवणुकीपर्यंत',
 
-      'purpose.title': 'पहा. फोटो काढा. सोडवा.',
+      'purpose.title': 'दिसलं. टिपलं. झालं.',
 
       'purpose.body': 'पिन शेजाऱ्यांना सतर्क करतात — मग अधिकृत मार्गाने किंवा स्थानिक स्वयंसेवक एकत्र करून समस्या सोडवा.',
 
@@ -7975,13 +7975,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.report': 'धोका नोंदवा',
 
-      'purpose.stepMap': 'नकाशा',
+      'purpose.stepMap': 'दिसलं',
 
-      'purpose.stepSnap': 'फोटो',
+      'purpose.stepSnap': 'टिपलं',
 
-      'purpose.stepResolve': 'सोडवा',
+      'purpose.stepResolve': 'झालं',
 
-      'purpose.stepNeighbours': 'सोडवा',
+      'purpose.stepNeighbours': 'झालं',
 
       'fabSpot.step': 'टीप',
 
@@ -8031,7 +8031,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
 
-      'onboard.subtitle': 'समस्या बघा, फोटो काढा — अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
+      'onboard.subtitle': 'दिसलं. टिपलं. झालं. — मग अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
 
       'onboard.city': 'तुमचे शहर',
 
@@ -10492,19 +10492,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.enable': 'ચાલુ કરો',
 
-      'tagline.threeBeat': 'નકશા પર · ફોટો · રિપોર્ટ',
+      'tagline.threeBeat': 'જોયું. લીધું. થઈ ગયું.',
 
       'tagline.subline': 'ત્રણ ટૅપ — તમારો વોર્ડ, એક ફોટો, પડોશીઓને ચેતવણી.',
 
-      'tagline.beatMap': 'નકશા પર',
+      'tagline.beatMap': 'જોયું',
 
-      'tagline.beatSnap': 'ફોટો',
+      'tagline.beatSnap': 'લીધું',
 
-      'tagline.beatReport': 'રિપોર્ટ',
+      'tagline.beatReport': 'થઈ ગયું',
 
       'coach.step': 'જાણથી ઉકેલ સુધી',
 
-      'coach.title': 'જુઓ. ફોટો લો. ઉકેલો.',
+      'coach.title': 'જોયું. લીધું. થઈ ગયું.',
 
       'coach.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
@@ -10512,7 +10512,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.kicker': 'જાણથી ઉકેલ સુધી',
 
-      'purpose.title': 'જુઓ. ફોટો લો. ઉકેલો.',
+      'purpose.title': 'જોયું. લીધું. થઈ ગયું.',
 
       'purpose.body': 'પિન પડોશીઓને જાણ કરે છે — પછી સત્તાવાર ચેનલોથી, અથવા સ્થાનિક સ્વયંસેવકોને જોડીને, સમસ્યા ઉકેલો.',
 
@@ -10520,13 +10520,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'purpose.report': 'જોખમ રિપોર્ટ કરો',
 
-      'purpose.stepMap': 'નકશો',
+      'purpose.stepMap': 'જોયું',
 
-      'purpose.stepSnap': 'ફોટો',
+      'purpose.stepSnap': 'લીધું',
 
-      'purpose.stepResolve': 'ઉકેલો',
+      'purpose.stepResolve': 'થઈ ગયું',
 
-      'purpose.stepNeighbours': 'ઉકેલો',
+      'purpose.stepNeighbours': 'થઈ ગયું',
 
       'fabSpot.step': 'ટિપ',
 
@@ -10576,7 +10576,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
 
-      'onboard.subtitle': 'સમસ્યા જુઓ, ફોટો લો — સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
+      'onboard.subtitle': 'જોયું. લીધું. થઈ ગયું. — પછી સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
 
       'onboard.city': 'તમારું શહેર',
 

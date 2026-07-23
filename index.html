@@ -87,7 +87,7 @@
     </div>
     <div class="app-launch__word">
       <span class="app-launch__title">CivicRadar</span>
-      <span class="app-launch__tag">Map it &middot; Snap it &middot; Report it</span>
+      <span class="app-launch__tag" data-i18n="tagline.threeBeat">Spot it. Snap it. Sorted.</span>
     </div>
     <div class="app-launch__dots" aria-hidden="true"><span></span><span></span><span></span></div>
   </div>
@@ -166,21 +166,21 @@
 
   <!-- Home hero — purpose + CTA for first-time mappers (dismissible) -->
   <section id="homeHero" class="home-hero hidden" role="region" aria-labelledby="homeHeroTitle">
-    <button type="button" class="home-hero__dismiss" id="btnHeroDismiss" data-i18n-aria="home.hero.dismiss" aria-label="Dismiss">&times;</button>
+    <button type="button" class="home-hero__dismiss" id="btnHeroDismiss" data-i18n-aria="home.hero.dismiss" aria-label="Dismiss welcome card">&times;</button>
     <div class="home-hero__badge">
       <i class="ph ph-shield-check" aria-hidden="true"></i>
-      <span data-i18n="home.hero.badge">#MonsoonGuardian</span>
+      <span data-i18n="home.hero.badge">Your ward, together</span>
     </div>
-    <h2 class="home-hero__title" id="homeHeroTitle" data-i18n="home.hero.headline">Map it · Snap it · Report it</h2>
+    <h2 class="home-hero__title" id="homeHeroTitle" data-i18n="home.hero.headline">Spot it. Snap it. Sorted.</h2>
     <p class="home-hero__sub" data-i18n="home.hero.subline">Report a hazard in 30 seconds — neighbours see it too.</p>
     <ul class="home-hero__benefits">
-      <li><i class="ph ph-map-trifold" aria-hidden="true"></i><span data-i18n="home.hero.benefit1">Map it</span></li>
-      <li><i class="ph ph-camera" aria-hidden="true"></i><span data-i18n="home.hero.benefit2">Snap it</span></li>
-      <li><i class="ph ph-megaphone-simple" aria-hidden="true"></i><span data-i18n="home.hero.benefit3">Report it</span></li>
+      <li><i class="ph ph-map-trifold" aria-hidden="true"></i><span data-i18n="home.hero.benefit1">Snap a photo</span></li>
+      <li><i class="ph ph-camera" aria-hidden="true"></i><span data-i18n="home.hero.benefit2">Pin your ward</span></li>
+      <li><i class="ph ph-megaphone-simple" aria-hidden="true"></i><span data-i18n="home.hero.benefit3">Neighbours notified</span></li>
     </ul>
-    <button type="button" class="btn btn--primary btn--full home-hero__cta" id="btnHeroReport" data-i18n="home.hero.cta">Report now</button>
-    <button type="button" class="home-hero__tour" id="btnHeroTour" data-i18n="home.hero.tour">Quick tour</button>
-    <p class="home-hero__trust" data-i18n="home.hero.trust">Free · offline · 3 cities · 4 langs</p>
+    <button type="button" class="btn btn--primary btn--full home-hero__cta" id="btnHeroReport" data-i18n="home.hero.cta">Report a spot</button>
+    <button type="button" class="home-hero__tour" id="btnHeroTour" data-i18n="home.hero.tour">Take the quick tour</button>
+    <p class="home-hero__trust" data-i18n="home.hero.trust">Free · 3 cities · 4 languages</p>
   </section>
 
   <!-- iOS landing: Add to Home Screen (no App Store) -->
@@ -271,12 +271,12 @@
     <div class="coach-mark__card" tabindex="-1">
       <div class="coach-mark__handle" aria-hidden="true"></div>
       <span class="coach-mark__step" data-i18n="purpose.kicker">From alert to fix</span>
-      <h3 id="coachTitle" data-i18n="purpose.title">See it. Snap it. Sort it out.</h3>
+      <h3 id="coachTitle" data-i18n="purpose.title">Spot it. Snap it. Sorted.</h3>
       <p id="purposeBody" data-i18n="purpose.body">Pins alert your neighbours — then fix hazards via official channels or neighbourhood volunteers.</p>
       <ul class="purpose-steps" aria-hidden="true">
         <li>
           <span class="purpose-steps__icon purpose-steps__icon--map"><i class="ph ph-map-trifold" aria-hidden="true"></i></span>
-          <span data-i18n="purpose.stepMap">Map</span>
+          <span data-i18n="purpose.stepMap">Spot</span>
         </li>
         <li>
           <span class="purpose-steps__icon purpose-steps__icon--snap"><i class="ph ph-camera" aria-hidden="true"></i></span>
@@ -284,7 +284,7 @@
         </li>
         <li>
           <span class="purpose-steps__icon purpose-steps__icon--resolve"><i class="ph ph-handshake" aria-hidden="true"></i></span>
-          <span data-i18n="purpose.stepResolve">Resolve</span>
+          <span data-i18n="purpose.stepResolve">Sorted</span>
         </li>
       </ul>
       <div class="coach-mark__actions">
@@ -298,8 +298,8 @@
     <div class="tour__spotlight" id="tourSpotlight" aria-hidden="true"></div>
     <div class="tour__bubble" id="tourBubble" tabindex="-1">
       <span class="tour__step" id="tourStep">1 / 3</span>
-      <h3 class="tour__title" id="tourTitle" data-i18n="tour.map.title">Map it</h3>
-      <p class="tour__body" id="tourBody" data-i18n="tour.map.body">Your ward map — hazard pins and Me too show here.</p>
+      <h3 class="tour__title" id="tourTitle" data-i18n="tour.map.title">Your ward, on the map</h3>
+      <p class="tour__body" id="tourBody" data-i18n="tour.map.body">Neighbour reports appear here as pins.</p>
       <div class="tour__actions">
         <button type="button" class="tour__skip" id="btnTourSkip" data-i18n="tour.skip">Skip</button>
         <button type="button" class="btn btn--primary tour__next" id="btnTourNext" data-i18n="tour.next">Next</button>
@@ -394,7 +394,7 @@
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
       <h2 id="onboardingTitle" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-      <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot a problem, snap it — neighbours see it on the map.</p>
+      <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.</p>
       <div class="form-group" id="wardDetectGroup">
         <div id="wardDetectPrompt" class="ward-detect-prompt">
           <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Optional: CivicRadar can use your precise location once to suggest your ward. Location is not shared on the map until you file a report. You can pick a ward from the list instead.</p>
@@ -1677,7 +1677,7 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="about" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="aboutTitle"><i class="ph ph-radar"></i> <span data-i18n="about.title">About CivicRadar</span></h2>
-      <p class="modal__subtitle" id="aboutSubtitle" data-i18n="about.subtitle">CivicRadar is a free community app for reporting civic hazards on a live ward map in Mumbai, Pune, and Thane. It is not a government service or an official municipal complaint channel.</p>
+      <p class="modal__subtitle" id="aboutSubtitle" data-i18n="about.subtitle">Free community app to report civic hazards on a live ward map in Mumbai, Pune, and Thane. Not a government service or official complaint channel.</p>
 
       <h3 class="section-title" data-i18n="about.featuresTitle">What you can do</h3>
       <ul class="about-different">
