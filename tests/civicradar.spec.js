@@ -134,7 +134,6 @@ async function injectPhoto(page) {
       }
     }
     canvas.classList.add('visible');
-    document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
     if (typeof window.syncReportPhotoReturn === 'function') window.syncReportPhotoReturn();
   });
 }

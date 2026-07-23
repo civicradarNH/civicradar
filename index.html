@@ -571,7 +571,13 @@
           <span id="reportWardChipLabel"></span>
         </div>
         <div class="report-pin-confirm" id="reportPinConfirm">
-          <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
+          <div class="report-pin-confirm__head">
+            <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
+            <button type="button" class="btn btn--ghost btn--sm report-pin-adjust" id="btnReportPinAdjust" aria-expanded="false" aria-controls="reportPinMap">
+              <i class="ph ph-map-pin-line" aria-hidden="true"></i>
+              <span data-i18n="report.adjustPin">Adjust pin</span>
+            </button>
+          </div>
           <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
           <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
           <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">

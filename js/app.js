@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v390';
+  const CIVIC_APP_VERSION = 'v391';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3063,6 +3063,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinMapAria': 'Adjust hazard location on map',
 
+      'report.adjustPin': 'Adjust pin',
+
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'GPS location on submit',
@@ -3130,8 +3132,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.closeBusy': 'Still processing your photo — try closing again shortly.',
 
       'report.submit': 'Submit report',
-
-      'report.photoHint': 'Does this photo show the hazard clearly?',
 
       'report.retake': 'Retake photo',
 
@@ -5617,6 +5617,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinMapAria': 'खतरे का स्थान मैप पर ठीक करें',
 
+      'report.adjustPin': 'पिन ठीक करें',
+
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'भेजते समय GPS स्थान',
@@ -5684,8 +5686,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.closeBusy': 'फोटो अभी प्रोसेस हो रही है — थोड़ी देर बाद बंद करें।',
 
       'report.submit': 'रिपोर्ट भेजें',
-
-      'report.photoHint': 'फ़ोटो में खतरा साफ़ दिख रहा है?',
 
       'report.retake': 'फिर से लें',
 
@@ -8171,6 +8171,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinMapAria': 'धोक्याचे स्थान नकाशावर समायोजित करा',
 
+      'report.adjustPin': 'पिन सुधारा',
+
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'पाठवताना GPS स्थान',
@@ -8238,8 +8240,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.closeBusy': 'फोटो अजून प्रोसेस होत आहे — थोड्या वेळाने पुन्हा बंद करा.',
 
       'report.submit': 'तक्रार पाठवा',
-
-      'report.photoHint': 'फोटोमध्ये धोका स्पष्ट दिसतो का?',
 
       'report.retake': 'पुन्हा काढा',
 
@@ -10724,6 +10724,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinMapAria': 'જોખમનું સ્થાન નકશા પર સમાયોજિત કરો',
 
+      'report.adjustPin': 'પિન સમાયોજિત કરો',
+
       'report.wardChip': '{ward}',
 
       'report.wardGps': 'મોકલતી વખતે GPS સ્થાન',
@@ -10791,8 +10793,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.closeBusy': 'હજુ પણ તમારા ફોટો પર કામ ચાલુ છે — થોડી વાર પછી ફરી બંધ કરવાનો પ્રયાસ કરો.',
 
       'report.submit': 'ફરિયાદ મોકલો',
-
-      'report.photoHint': 'ફોટોમાં જોખમ સ્પષ્ટ દેખાય છે?',
 
       'report.retake': 'ફરી લો',
 
@@ -26251,6 +26251,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   };
 
+  /** E2E helper: expand collapsed confirm pin map (Adjust pin). */
+  window.civicTestExpandConfirmPin = function () {
+    setReportPinMapExpanded(true);
+    return !!($('#reportPinConfirm') && $('#reportPinConfirm').classList.contains('report-pin-confirm--expanded'));
+  };
+
   /** E2E helper: inspect report-photo flow flags (stuck-processing regressions). */
   window.__civicTestReportPhotoFlags = function () {
 
@@ -31028,6 +31034,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnPinAdjust = $('#btnReportPinAdjust');
+
+    if (btnPinAdjust) {
+
+      btnPinAdjust.addEventListener('click', () => {
+
+        setReportPinMapExpanded(true);
+
+        const mapEl = $('#reportPinMap');
+
+        if (mapEl) {
+
+          try { mapEl.focus({ preventScroll: true }); } catch { /* ignore */ }
+
+        }
+
+      });
+
+    }
+
     $('#reportNotes').addEventListener('input', () => {
 
       touchReportDraft({ notes: ($('#reportNotes')?.value ?? '') });
@@ -33140,6 +33166,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     confirmPinProvisional = false;
 
+    setReportPinMapExpanded(false, { resize: false });
+
     if (reportPinAttentionTimer) {
 
       clearTimeout(reportPinAttentionTimer);
@@ -33182,6 +33210,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     clearReportDuplicateUi();
 
+  }
+
+
+
+  /** Poor GPS / provisional pin — expand mini-map so the user can drag. */
+  function confirmPinAccuracyIsPoor() {
+    if (confirmPinProvisional && !confirmPinUserAdjusted) return true;
+    const acc = confirmPinAccuracyM;
+    return Number.isFinite(acc) && acc > GEO_ACCURACY_POOR_M && !confirmPinUserAdjusted;
+  }
+
+
+
+  function setReportPinMapExpanded(expanded, opts) {
+    const pinBlock = $('#reportPinConfirm');
+    const btn = $('#btnReportPinAdjust');
+    if (!pinBlock) return;
+    const next = !!expanded;
+    const was = pinBlock.classList.contains('report-pin-confirm--expanded');
+    pinBlock.classList.toggle('report-pin-confirm--expanded', next);
+    if (btn) {
+      btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+      btn.classList.toggle('hidden', next);
+      btn.hidden = next;
+    }
+    if (next && (!was || (opts && opts.resize !== false))) {
+      scheduleReportPinMapResize();
+    }
   }
 
 
@@ -33288,6 +33344,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const pinBlock = $('#reportPinConfirm');
 
     if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', softHint);
+
+    // Auto-expand map when accuracy is poor / provisional; once expanded, stay open.
+    if (confirmPinAccuracyIsPoor()) {
+      setReportPinMapExpanded(true);
+    }
 
     const fullMapBtn = $('#btnReportPinFullMap');
 

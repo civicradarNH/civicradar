@@ -602,8 +602,6 @@ async def inject_photo(page):
 
           canvas.classList.add('visible');
 
-          document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
-
           if (typeof window.syncReportPhotoReturn === 'function') window.syncReportPhotoReturn();
 
         }"""
@@ -858,8 +856,6 @@ async def submit_report_via_api(page, lat=19.0760, lng=72.8777, notes='test haza
           }
 
           canvas.classList.add('visible');
-
-          document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
 
           document.getElementById('reportNotes').value = notes;
 
@@ -3696,8 +3692,6 @@ async def run_extended_scenarios(s: Suite, browser):
 
           canvas.classList.add('visible');
 
-          document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
-
           document.getElementById('reportNotes').value = 'garbage launch test';
 
           navigator.geolocation.getCurrentPosition = (ok) => ok({ coords: { latitude: 19.0763, longitude: 72.8780, accuracy: 5 } });
@@ -3981,6 +3975,10 @@ async def run_extended_scenarios(s: Suite, browser):
 
           const mapEl = document.getElementById('reportPinMap');
 
+          const pinBlock = document.getElementById('reportPinConfirm');
+
+          const adjustBtn = document.getElementById('btnReportPinAdjust');
+
           const acc = document.getElementById('reportPinAccuracy');
 
           const hint = document.getElementById('reportPinDragHint');
@@ -3989,11 +3987,35 @@ async def run_extended_scenarios(s: Suite, browser):
 
           const notes = document.getElementById('reportNotes');
 
-          const mapOk = !!(mapEl && mapEl.clientHeight >= 120);
+          const hero = document.getElementById('reportPhotoHero');
+
+          const hazard = document.querySelector('.hazard-picker-group--compact');
+
+          const collapsed = !!(pinBlock && !pinBlock.classList.contains('report-pin-confirm--expanded'));
+
+          const peekOk = collapsed
+            ? !!(mapEl && mapEl.clientHeight >= 70 && mapEl.clientHeight < 130)
+            : true; // already auto-expanded for poor/provisional GPS
+
+          const adjustOk = collapsed
+            ? !!(adjustBtn && !adjustBtn.hidden && !adjustBtn.classList.contains('hidden'))
+            : true;
+
+          // Expand to verify full drag map + hint (no-op if already expanded).
+          if (typeof window.civicTestExpandConfirmPin === 'function') {
+            window.civicTestExpandConfirmPin();
+          } else if (adjustBtn && !adjustBtn.hidden) {
+            adjustBtn.click();
+          }
+
+          const expanded = !!(pinBlock && pinBlock.classList.contains('report-pin-confirm--expanded'));
+
+          const mapOk = !!(mapEl && mapEl.clientHeight >= 120 && expanded);
 
           const accOk = !!(acc && acc.textContent.trim().length > 4);
 
-          const hintOk = !!(hint && /drag|खींच|ओढ|ખેંચ/i.test(hint.textContent));
+          const hintOk = !!(hint && !hint.classList.contains('hidden')
+            && /drag|खींच|ओढ|ખેંચ/i.test(hint.textContent));
 
           const notesOpen = !!(notesBody && !notesBody.classList.contains('hidden'));
 
@@ -4001,7 +4023,12 @@ async def run_extended_scenarios(s: Suite, browser):
 
           const landmarkPh = /shop|building|landmark|दुकान|इमारत|दुकान|ઇમારત|Sai|मेडिकल|મેડિકલ/i.test(ph);
 
-          return { mapOk, accOk, hintOk, notesOpen, landmarkPh };
+          // Photo + hazard should precede the pin block in DOM order.
+          const orderOk = !!(hero && hazard && pinBlock
+            && !!(hero.compareDocumentPosition(hazard) & Node.DOCUMENT_POSITION_FOLLOWING)
+            && !!(hazard.compareDocumentPosition(pinBlock) & Node.DOCUMENT_POSITION_FOLLOWING));
+
+          return { peekOk, adjustOk, mapOk, accOk, hintOk, notesOpen, landmarkPh, orderOk, collapsed, expanded };
 
         }"""
 
@@ -4015,7 +4042,9 @@ async def run_extended_scenarios(s: Suite, browser):
 
         'Confirm step shows pin map + accuracy + landmark notes',
 
-        pin_ui.get('mapOk') and pin_ui.get('accOk') and pin_ui.get('hintOk') and pin_ui.get('notesOpen') and pin_ui.get('landmarkPh'),
+        pin_ui.get('peekOk') and pin_ui.get('adjustOk') and pin_ui.get('mapOk')
+        and pin_ui.get('accOk') and pin_ui.get('hintOk') and pin_ui.get('notesOpen')
+        and pin_ui.get('landmarkPh') and pin_ui.get('orderOk'),
 
         str(pin_ui),
 
@@ -4719,7 +4748,6 @@ async def run_extended_scenarios(s: Suite, browser):
           try { localStorage.setItem('civicradar_report_camera_disclosure', '1'); } catch (_) {}
           window.openReportModal(false);
           window.__civicTestStickReportPhotoProcessing();
-          document.getElementById('photoConfirmGroup')?.classList.remove('hidden');
           const input = document.getElementById('photoInput');
           try { input.dispatchEvent(new Event('cancel', { bubbles: true })); } catch (_) {}
           const flags = window.__civicTestReportPhotoFlags();
@@ -5643,7 +5671,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v390" in sw_src
+            "civicradar-v391" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8980,7 +9008,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v390" in sw_src
+            "civicradar-v391" in sw_src
 
             and "'/index.html'" not in sw_src
 
