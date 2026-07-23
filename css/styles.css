@@ -743,6 +743,14 @@ body.app-booting {
   word-break: break-word;
 }
 
+.ward-detected__society {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--ink-600, var(--text-muted));
+  line-height: 1.35;
+  word-break: break-word;
+}
+
 #onboardingModal .onboard-or.hidden,
 #onboardingModal .onboard-manual-search.hidden {
   display: none;

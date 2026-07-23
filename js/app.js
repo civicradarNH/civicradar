@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v387';
+  const CIVIC_APP_VERSION = 'v388';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2962,7 +2962,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'Your city',
 
-      'onboard.cityHint': 'Pick your city, then your ward — or detect with location.',
+      'onboard.cityHint': 'Pick your city, then ward and neighbourhood — or detect with location.',
 
       'onboard.ward': 'Your ward',
 
@@ -2972,29 +2972,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'Show all options',
 
-      'onboard.wardHint': 'Pick a {city} ward, or detect with GPS.',
+      'onboard.wardHint': 'Pick your {city} ward and neighbourhood, or detect with GPS.',
 
-      'onboard.wardDetecting': 'Finding your ward from your location…',
+      'onboard.wardDetecting': 'Finding your area from your location…',
 
-      'onboard.wardDetectedHint': 'Approximate ward from your location — you can change it.',
+      'onboard.wardDetectedHint': 'Approximate area from your location — you can change it.',
 
-      'onboard.wardManual': 'Not right? Pick it yourself',
+      'onboard.wardManual': 'Not right? Pick manually',
 
       'onboard.pickManually': 'Or pick manually',
 
       'onboard.wardConfirmedLabel': 'Confirmed',
 
-      'onboard.wardConfirmedAria': 'Confirmed ward: {ward}',
+      'onboard.wardConfirmedAria': 'Confirmed area: {ward}',
+
+      'onboard.wardConfirmedAriaWithSociety': 'Confirmed area: {ward}, {society}',
 
       'onboard.wardRetry': 'Try again',
 
-      'onboard.wardDetectFailed': 'Couldn\'t find your ward. Pick it, or turn on location.',
+      'onboard.wardDetectFailed': 'Couldn\'t find your area. Pick it, or turn on location.',
 
       'onboard.outOfBounds': 'CivicRadar currently serves Mumbai, Pune, and Thane only. Please select one of these cities manually to explore.',
 
-      'onboard.gpsDisclosure': 'Used once to find your ward. Nothing is shared until you report.',
+      'onboard.gpsDisclosure': 'Used once to find your ward. Neighbourhood is optional — nothing is shared until you report.',
 
-      'onboard.wardDetectCta': 'Auto-detect my ward',
+      'onboard.wardDetectCta': 'Detect my area',
 
       'onboard.or': 'or',
 
@@ -5514,7 +5516,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'आपका शहर',
 
-      'onboard.cityHint': 'शहर चुनें, फिर वार्ड — या लोकेशन से पहचानें।',
+      'onboard.cityHint': 'शहर चुनें, फिर वार्ड और पड़ोस — या लोकेशन से पहचानें।',
 
       'onboard.ward': 'आपका वार्ड',
 
@@ -5524,11 +5526,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सभी विकल्प दिखाएँ',
 
-      'onboard.wardHint': '{city} वार्ड चुनें, या GPS से पता लगाएँ।',
+      'onboard.wardHint': '{city} का वार्ड और पड़ोस चुनें, या GPS से पता लगाएँ।',
 
-      'onboard.wardDetecting': 'आपके स्थान से आपका वार्ड ढूंढ रहे हैं…',
+      'onboard.wardDetecting': 'आपके स्थान से आपका इलाका ढूंढ रहे हैं…',
 
-      'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित वार्ड — आप इसे बदल सकते हैं।',
+      'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित इलाका — आप इसे बदल सकते हैं।',
 
       'onboard.wardManual': 'सही नहीं है? खुद चुनें',
 
@@ -5536,17 +5538,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardConfirmedLabel': 'पुष्टि',
 
-      'onboard.wardConfirmedAria': 'पुष्टि वार्ड: {ward}',
+      'onboard.wardConfirmedAria': 'पुष्टि इलाका: {ward}',
+
+      'onboard.wardConfirmedAriaWithSociety': 'पुष्टि इलाका: {ward}, {society}',
 
       'onboard.wardRetry': 'फिर कोशिश करें',
 
-      'onboard.wardDetectFailed': 'वार्ड नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
+      'onboard.wardDetectFailed': 'इलाका नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
 
       'onboard.outOfBounds': 'CivicRadar अभी केवल मुंबई, पुणे और ठाणे में उपलब्ध है। कृपया इनमें से कोई शहर खुद चुनकर देखें।',
 
-      'onboard.gpsDisclosure': 'आपका वार्ड खोजने के लिए एक बार उपयोग। रिपोर्ट करने तक कुछ साझा नहीं होता।',
+      'onboard.gpsDisclosure': 'आपका वार्ड खोजने के लिए एक बार उपयोग। पड़ोस वैकल्पिक है — रिपोर्ट करने तक कुछ साझा नहीं होता।',
 
-      'onboard.wardDetectCta': 'मेरा वार्ड ऑटो-डिटेक्ट करें',
+      'onboard.wardDetectCta': 'मेरा इलाका ऑटो-डिटेक्ट करें',
 
       'onboard.or': 'या',
 
@@ -8066,7 +8070,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'तुमचे शहर',
 
-      'onboard.cityHint': 'शहर निवडा, मग वॉर्ड — किंवा लोकेशनने ओळखा.',
+      'onboard.cityHint': 'शहर निवडा, मग वॉर्ड आणि परिसर — किंवा लोकेशनने ओळखा.',
 
       'onboard.ward': 'तुमचा वॉर्ड',
 
@@ -8076,11 +8080,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'सर्व पर्याय दाखवा',
 
-      'onboard.wardHint': '{city} वॉर्ड निवडा, किंवा GPS ने शोधा.',
+      'onboard.wardHint': '{city} चा वॉर्ड आणि परिसर निवडा, किंवा GPS ने शोधा.',
 
-      'onboard.wardDetecting': 'तुमच्या स्थानावरून तुमचा वॉर्ड शोधत आहोत…',
+      'onboard.wardDetecting': 'तुमच्या स्थानावरून तुमचा परिसर शोधत आहोत…',
 
-      'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे वॉर्ड — तुम्ही तो बदलू शकता.',
+      'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे परिसर — तुम्ही तो बदलू शकता.',
 
       'onboard.wardManual': 'बरोबर नाही? स्वतः निवडा',
 
@@ -8088,17 +8092,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardConfirmedLabel': 'पुष्टी',
 
-      'onboard.wardConfirmedAria': 'पुष्ट वॉर्ड: {ward}',
+      'onboard.wardConfirmedAria': 'पुष्ट परिसर: {ward}',
+
+      'onboard.wardConfirmedAriaWithSociety': 'पुष्ट परिसर: {ward}, {society}',
 
       'onboard.wardRetry': 'पुन्हा प्रयत्न करा',
 
-      'onboard.wardDetectFailed': 'वॉर्ड सापडला नाही. स्वतः निवडा, किंवा लोकेशन चालू करा.',
+      'onboard.wardDetectFailed': 'परिसर सापडला नाही. स्वतः निवडा, किंवा लोकेशन चालू करा.',
 
       'onboard.outOfBounds': 'CivicRadar सध्या फक्त मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. कृपया यातील एक शहर स्वतः निवडून पाहा.',
 
-      'onboard.gpsDisclosure': 'तुमचा वॉर्ड शोधण्यासाठी एकदा वापर. रिपोर्ट करेपर्यंत काही शेअर होत नाही.',
+      'onboard.gpsDisclosure': 'तुमचा वॉर्ड शोधण्यासाठी एकदा वापर. परिसर पर्यायी आहे — रिपोर्ट करेपर्यंत काही शेअर होत नाही.',
 
-      'onboard.wardDetectCta': 'माझा वॉर्ड ऑटो-डिटेक्ट करा',
+      'onboard.wardDetectCta': 'माझा परिसर ऑटो-डिटेक्ट करा',
 
       'onboard.or': 'किंवा',
 
@@ -10617,7 +10623,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.city': 'તમારું શહેર',
 
-      'onboard.cityHint': 'ક્યાં રહો છો પસંદ કરો — પછી વોર્ડ પસંદ કરો અથવા GPS થી શોધો.',
+      'onboard.cityHint': 'શહેર પસંદ કરો, પછી વોર્ડ અને પડોશ — અથવા લોકેશનથી શોધો.',
 
       'onboard.ward': 'તમારો વોર્ડ',
 
@@ -10627,11 +10633,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'combobox.showOptions': 'બધા વિકલ્પો બતાવો',
 
-      'onboard.wardHint': '{city} વોર્ડ પસંદ કરો, અથવા GPS થી શોધો.',
+      'onboard.wardHint': '{city}નો વોર્ડ અને પડોશ પસંદ કરો, અથવા GPS થી શોધો.',
 
-      'onboard.wardDetecting': 'તમારા સ્થાનથી તમારો વોર્ડ શોધી રહ્યા છીએ…',
+      'onboard.wardDetecting': 'તમારા સ્થાનથી તમારો વિસ્તાર શોધી રહ્યા છીએ…',
 
-      'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વોર્ડ — તમે તે બદલી શકો છો.',
+      'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વિસ્તાર — તમે તે બદલી શકો છો.',
 
       'onboard.wardManual': 'બરાબર નથી? જાતે પસંદ કરો',
 
@@ -10639,17 +10645,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardConfirmedLabel': 'પુષ્ટિ',
 
-      'onboard.wardConfirmedAria': 'પુષ્ટ વોર્ડ: {ward}',
+      'onboard.wardConfirmedAria': 'પુષ્ટ વિસ્તાર: {ward}',
+
+      'onboard.wardConfirmedAriaWithSociety': 'પુષ્ટ વિસ્તાર: {ward}, {society}',
 
       'onboard.wardRetry': 'ફરી પ્રયત્ન કરો',
 
-      'onboard.wardDetectFailed': 'તમારો વોર્ડ મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
+      'onboard.wardDetectFailed': 'તમારો વિસ્તાર મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
       'onboard.outOfBounds': 'CivicRadar હાલમાં ફક્ત મુંબઈ, પુણે અને ઠાણેમાં જ ઉપલબ્ધ છે. કૃપા કરીને આમાંથી એક શહેર જાતે પસંદ કરીને જુઓ.',
 
-      'onboard.gpsDisclosure': 'તમારો વોર્ડ શોધવા એક વાર વપરાય. ફરિયાદ નોંધાવા સુધી કંઈ શેર થતું નથી.',
+      'onboard.gpsDisclosure': 'તમારો વોર્ડ શોધવા એક વાર વપરાય. પડોશ વૈકલ્પિક છે — ફરિયાદ નોંધાવા સુધી કંઈ શેર થતું નથી.',
 
-      'onboard.wardDetectCta': 'મારો વોર્ડ ઑટો-ડિટેક્ટ કરો',
+      'onboard.wardDetectCta': 'મારો વિસ્તાર ઑટો-ડિટેક્ટ કરો',
 
       'onboard.or': 'અથવા',
 
@@ -23661,7 +23669,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (manual) manual.classList.toggle('hidden', !expanded);
 
-    // wardManualGroup lives inside onboardManualSearch — keep in sync for tests/legacy
+    // ward + neighbourhood live inside onboardManualSearch — keep ids in sync for tests/legacy
 
     const group = $('#wardManualGroup');
 
@@ -23670,6 +23678,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const cityGroup = $('#onboardCityGroup');
 
     if (cityGroup) cityGroup.classList.toggle('hidden', !expanded);
+
+    const societyGroup = $('#onboardSocietyGroup');
+
+    if (societyGroup) societyGroup.classList.toggle('hidden', !expanded);
 
   }
 
@@ -23686,6 +23698,60 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.setAttribute('data-i18n', key);
 
     btn.textContent = t(key);
+
+  }
+
+
+
+  /** Confirmed chip: ward always; neighbourhood only when already filled (GPS fills ward only). */
+
+  function updateOnboardingDetectedChip(ward) {
+
+    const nameEl = $('#wardDetectedName');
+
+    if (nameEl) nameEl.textContent = ward || '';
+
+    const society = (($('#onboardSociety') && $('#onboardSociety').value) || '').trim();
+
+    const socEl = $('#wardDetectedSociety');
+
+    if (socEl) {
+
+      if (society) {
+
+        socEl.textContent = society;
+
+        socEl.classList.remove('hidden');
+
+      } else {
+
+        socEl.textContent = '';
+
+        socEl.classList.add('hidden');
+
+      }
+
+    }
+
+    const chip = $('#wardDetected');
+
+    if (!chip) return;
+
+    if (society) {
+
+      chip.setAttribute(
+
+        'aria-label',
+
+        t('onboard.wardConfirmedAriaWithSociety').replace('{ward}', ward).replace('{society}', society)
+
+      );
+
+    } else {
+
+      chip.setAttribute('aria-label', t('onboard.wardConfirmedAria').replace('{ward}', ward));
+
+    }
 
   }
 
@@ -23787,19 +23853,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const chip = $('#wardDetected');
 
-    if (chip) {
+    if (chip) chip.classList.remove('hidden');
 
-      chip.classList.remove('hidden');
+    updateOnboardingDetectedChip(ward);
 
-      chip.setAttribute('aria-label', t('onboard.wardConfirmedAria').replace('{ward}', ward));
-
-    }
-
-    const nameEl = $('#wardDetectedName');
-
-    if (nameEl) nameEl.textContent = ward;
-
-    // Collapse manual path — chip is the confirmation; keep change/retry exits
+    // Collapse ward + neighbourhood manual path — chip is the confirmation
 
     setOnboardingManualExpanded(false);
 
@@ -23912,6 +23970,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function showOnboardingWardManual() {
+
+    // Expand ward + neighbourhood together; focus ward (never on sheet open)
 
     setOnboardingManualExpanded(true);
 
@@ -24258,7 +24318,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Onboarding: never autofocus inputs (mobile keyboard over sheet). Title only.
-    // Ward field focuses only after "Or pick manually" (showOnboardingWardManual).
+    // Ward field focuses only after "Or pick manually" expands ward + neighbourhood.
 
     if (name === 'onboarding') {
 
@@ -24463,7 +24523,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } else {
 
-        // Play / DPDP: do not call geolocation until the user taps Detect ward with GPS.
+        // Play / DPDP: do not call geolocation until the user taps Detect my area.
         showOnboardingWardDetectPrompt();
 
       }

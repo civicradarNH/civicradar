@@ -422,22 +422,23 @@
         <div id="wardDetectPrompt" class="ward-detect-prompt">
           <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
-            <span data-i18n="onboard.wardDetectCta">Auto-detect my ward</span>
+            <span data-i18n="onboard.wardDetectCta">Detect my area</span>
           </button>
-          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Nothing is shared until you report.</p>
+          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Neighbourhood is optional — nothing is shared until you report.</p>
         </div>
         <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
           <i class="ph ph-crosshair" aria-hidden="true"></i>
-          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your ward from your location…</span>
+          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your area from your location…</span>
         </div>
         <div id="wardDetected" class="ward-detected ward-detected--chip hidden" role="status" aria-live="polite">
           <i class="ph ph-check-circle" aria-hidden="true"></i>
           <span class="ward-detected__text">
             <span class="ward-detected__label" data-i18n="onboard.wardConfirmedLabel">Confirmed</span>
             <span id="wardDetectedName" class="ward-detected__name"></span>
+            <span id="wardDetectedSociety" class="ward-detected__society hidden"></span>
           </span>
         </div>
-        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate ward from your location — you can change it.</p>
+        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate area from your location — you can change it.</p>
         <div class="onboard-or hidden" id="onboardOrDivider" role="separator" aria-hidden="true">
           <span data-i18n="onboard.or">or</span>
         </div>
@@ -449,23 +450,23 @@
               <option value="pune" data-i18n-option="city.pune">Pune</option>
               <option value="thane" data-i18n-option="city.thane">Thane</option>
             </select>
-            <p class="field-hint hidden" id="onboardCityHint" data-i18n="onboard.cityHint">Pick your city, then your ward — or detect with location.</p>
+            <p class="field-hint hidden" id="onboardCityHint" data-i18n="onboard.cityHint">Pick your city, then ward and neighbourhood — or detect with location.</p>
           </div>
           <div id="wardManualGroup" class="form-group">
             <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
             <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-            <p class="field-hint hidden" id="wardHint" data-i18n="onboard.wardHint">Pick a {city} ward, or detect with GPS.</p>
+            <p class="field-hint hidden" id="wardHint" data-i18n="onboard.wardHint">Pick your {city} ward and neighbourhood, or detect with GPS.</p>
+          </div>
+          <div class="form-group" id="onboardSocietyGroup">
+            <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
+            <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
+            <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
+            <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first to see nearby societies.</p>
           </div>
         </div>
         <button type="button" class="ward-manual-link" id="btnWardManual" data-i18n="onboard.pickManually">Or pick manually</button>
         <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try again</button>
         <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
-      </div>
-      <div class="form-group">
-        <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
-        <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
-        <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
-        <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first to see nearby societies.</p>
       </div>
       <div class="form-group">
         <label for="displayName" data-i18n="onboard.name">Display name</label>
