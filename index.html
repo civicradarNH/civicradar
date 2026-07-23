@@ -322,6 +322,7 @@
 
   <!-- Bottom Navigation -->
   <nav id="bottomNav" class="bottom-nav">
+    <span class="bottom-nav__pill" aria-hidden="true"></span>
     <button type="button" class="nav-tab active" data-tab="map">
       <img class="nav-tab__glyph" src="assets/nav-icons/nav-map.svg" alt="" width="24" height="24">
       <span data-i18n="nav.map">Map</span>
@@ -563,6 +564,7 @@
           </div>
           <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a hazard — avoid faces and documents.</p>
           <div class="camera-area camera-area--capture">
+            <div class="camera-shutter-flash" id="cameraShutterFlash" aria-hidden="true"></div>
             <div class="report-capture-focal" id="reportCaptureFocal" aria-hidden="true">
               <svg class="report-capture-viewfinder" viewBox="0 0 160 120" width="160" height="120" fill="none" focusable="false">
                 <rect x="18" y="14" width="124" height="92" rx="10" stroke="currentColor" stroke-width="2" opacity="0.35"/>
@@ -804,8 +806,9 @@
     <div class="modal" id="certificateModal" role="dialog" aria-modal="true" aria-labelledby="certificateTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="certificate" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <div class="success-icon success-icon--cert" aria-hidden="true">
+      <div class="success-icon success-icon--cert cert-medal" aria-hidden="true">
         <i class="ph ph-medal"></i>
+        <span class="cert-medal-shine" aria-hidden="true"></span>
       </div>
       <h2 id="certificateTitle" data-i18n="cert.title">Certificate unlocked!</h2>
       <p class="modal__subtitle" id="certificateSubtitle" data-i18n="cert.subtitle">You reached a new Civic Hero level</p>
@@ -1127,7 +1130,13 @@
               <p class="profile-xp__hint" id="profileXpHint"></p>
               <p class="profile-rewards__hint hidden" id="profileNextBadgeHint" aria-hidden="true"></p>
             </div>
-            <div class="profile-rewards__streak" id="profileStreakLine"></div>
+            <div class="profile-rewards__streak hidden" id="profileStreakLine">
+              <svg class="streak-flame" width="14" height="18" viewBox="0 0 24 32" aria-hidden="true" focusable="false">
+                <path class="streak-flame__core" fill="#f97316" d="M12 1.5C9.2 6.2 5 11.4 5 18.2c0 4.6 3.1 8.3 7 8.3s7-3.7 7-8.3C19 11.4 14.8 6.2 12 1.5z"/>
+                <path class="streak-flame__inner" fill="#fde047" d="M12 11c-1.7 2.6-3.2 5.1-3.2 8.1 0 2.1 1.4 3.9 3.2 3.9s3.2-1.8 3.2-3.9C15.2 16.1 13.7 13.6 12 11z"/>
+              </svg>
+              <span class="profile-rewards__streak-text" id="profileStreakText"></span>
+            </div>
             <div class="streak-tracker hidden" id="profileStreakTracker" aria-hidden="true">
               <span class="streak-tracker__step" data-week="1"></span>
               <span class="streak-tracker__step" data-week="2"></span>

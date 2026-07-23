@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v400';
+  const CIVIC_APP_VERSION = 'v406';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -43,6 +43,159 @@ document.addEventListener('DOMContentLoaded', function () {
     el.addEventListener('animationend', done);
     setTimeout(done, 350);
   }
+
+  /** Small glowing dot flies from Me too button to the map pin, then removes. */
+  function fireMeTooPing(fromEl, toEl) {
+    if (!fromEl || !toEl || prefersReducedMotion()) return;
+    let from;
+    let to;
+    try {
+      from = fromEl.getBoundingClientRect();
+      to = toEl.getBoundingClientRect();
+    } catch (_) {
+      return;
+    }
+    if (!from.width && !from.height) return;
+    if (!to.width && !to.height) return;
+    const dot = document.createElement('span');
+    dot.className = 'metoo-ping-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    // Center the 9px dot on each rect midpoint for a cleaner arc.
+    const fromX = from.left + from.width / 2 - 4.5;
+    const fromY = from.top + from.height / 2 - 4.5;
+    const toX = to.left + to.width / 2 - 4.5;
+    const toY = to.top + to.height / 2 - 4.5;
+    dot.style.left = fromX + 'px';
+    dot.style.top = fromY + 'px';
+    dot.style.setProperty('--dx', (toX - fromX) + 'px');
+    dot.style.setProperty('--dy', (toY - fromY) + 'px');
+    document.body.appendChild(dot);
+    requestAnimationFrame(() => dot.classList.add('is-flying'));
+    const cleanup = () => {
+      try { if (dot.parentNode) dot.remove(); } catch (_) { /* ignore */ }
+      dot.removeEventListener('animationend', cleanup);
+    };
+    dot.addEventListener('animationend', cleanup);
+    setTimeout(cleanup, 800);
+  }
+
+  /** Leaflet marker icon DOM for a report — works in popup or sheet-mode. */
+  function getReportMarkerIconEl(reportId) {
+    if (reportId == null) return null;
+    try {
+      const marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(String(reportId));
+      if (!marker) return null;
+      if (typeof marker.getElement === 'function') {
+        const el = marker.getElement();
+        if (el) return el;
+      }
+      const icon = marker._icon;
+      if (icon && icon.nodeType === 1) return icon;
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+
+
+  /** Classic FLIP: First → insertFn (Last) → Invert → Play + rising glow. */
+  function animateRowReorder(list, row, insertFn) {
+    if (!row || typeof insertFn !== 'function') return;
+    let first;
+    try { first = row.getBoundingClientRect(); } catch (_) { return; }
+    insertFn();
+    let last;
+    try { last = row.getBoundingClientRect(); } catch (_) { return; }
+    const dy = first.top - last.top;
+    if (prefersReducedMotion() || dy === 0) {
+      row.classList.add('is-rising');
+      setTimeout(() => row.classList.remove('is-rising'), 1100);
+      return;
+    }
+    row.style.transition = 'none';
+    row.style.transform = 'translateY(' + dy + 'px)';
+    requestAnimationFrame(() => {
+      row.style.transition = '';
+      row.style.transform = '';
+      row.classList.add('is-rising');
+    });
+    setTimeout(() => row.classList.remove('is-rising'), 1200);
+  }
+
+  /** FLIP after a full list re-render (keyed by data-lb-key). */
+  function captureLeaderboardFirst(listEl) {
+    const map = new Map();
+    if (!listEl) return map;
+    listEl.querySelectorAll('li[data-lb-key]').forEach((row) => {
+      const key = row.getAttribute('data-lb-key');
+      if (!key) return;
+      let top = 0;
+      try { top = row.getBoundingClientRect().top; } catch (_) { /* ignore */ }
+      map.set(key, { top: top, rank: row.getAttribute('data-lb-rank') || '' });
+    });
+    return map;
+  }
+
+  function playLeaderboardFlips(listEl, firstMap) {
+    if (!listEl || !firstMap || !firstMap.size) return;
+    listEl.querySelectorAll('li[data-lb-key]').forEach((row) => {
+      const key = row.getAttribute('data-lb-key');
+      const prev = firstMap.get(key);
+      if (!prev) return;
+      let lastTop = 0;
+      try { lastTop = row.getBoundingClientRect().top; } catch (_) { return; }
+      const dy = prev.top - lastTop;
+      const rankChanged = String(prev.rank) !== String(row.getAttribute('data-lb-rank') || '');
+      if (!rankChanged && Math.abs(dy) < 0.5) return;
+      // Same invert/play as animateRowReorder (DOM already at Last).
+      if (prefersReducedMotion() || dy === 0) {
+        row.classList.add('is-rising');
+        setTimeout(() => row.classList.remove('is-rising'), 1100);
+        return;
+      }
+      row.style.transition = 'none';
+      row.style.transform = 'translateY(' + dy + 'px)';
+      requestAnimationFrame(() => {
+        row.style.transition = '';
+        row.style.transform = '';
+        row.classList.add('is-rising');
+      });
+      setTimeout(() => row.classList.remove('is-rising'), 1200);
+    });
+  }
+
+  /** Re-trigger certificate coin-flip + shine when the modal opens. */
+  function replayCertMedal(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('cert-medal');
+    void el.offsetWidth;
+    el.classList.add('cert-medal');
+  }
+
+  /** White flash + shutter bounce when a capture photo is decoded ready. */
+  function playShutterEffect(cameraAreaEl, flashEl) {
+    if (!cameraAreaEl || !flashEl) return;
+    try { Haptics.tap(); } catch (_) { /* ignore */ }
+    flashEl.classList.remove('is-flashing');
+    cameraAreaEl.classList.remove('is-bounce');
+    void flashEl.offsetWidth;
+    flashEl.classList.add('is-flashing');
+    if (!prefersReducedMotion()) cameraAreaEl.classList.add('is-bounce');
+    const clear = () => {
+      flashEl.classList.remove('is-flashing');
+      cameraAreaEl.classList.remove('is-bounce');
+      flashEl.removeEventListener('animationend', clear);
+    };
+    flashEl.addEventListener('animationend', clear);
+    setTimeout(clear, 450);
+  }
+
+  function triggerCaptureShutter() {
+    const area = document.querySelector('#reportStepCapture .camera-area--capture')
+      || document.querySelector('.camera-area--capture');
+    if (!area) return;
+    const flash = area.querySelector('.camera-shutter-flash');
+    if (flash) playShutterEffect(area, flash);
+  }
+
 
   /** Per-element token so a newer countUp cancels an in-flight tick (no fighting rAFs). */
   const _countUpTokens = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
@@ -3413,6 +3566,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} fixed — {ward}',
 
+      'community.proofShowAfter': 'Show after photo',
+
+      'community.proofShowBefore': 'Show before photo',
+
       'success.points': 'Civic Points',
 
       'success.xpBonus': '+{n} Civic Points',
@@ -6010,6 +6167,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} हल · {ward}',
 
+      'community.proofShowAfter': 'बाद की फोटो दिखाएँ',
+
+      'community.proofShowBefore': 'पहले की फोटो दिखाएँ',
+
       'success.points': 'Civic Points',
 
       'success.xpBonus': '+{n} Civic Points',
@@ -8605,6 +8766,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} सोडवले · {ward}',
 
+      'community.proofShowAfter': 'नंतरचा फोटो दाखवा',
+
+      'community.proofShowBefore': 'आधीचा फोटो दाखवा',
+
       'success.points': 'Civic Points',
 
       'success.xpBonus': '+{n} Civic Points',
@@ -11199,6 +11364,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsResolved': '{hazard} ઉકેલાયું · {ward}',
 
+      'community.proofShowAfter': 'પછીનો ફોટો બતાવો',
+
+      'community.proofShowBefore': 'પહેલાંનો ફોટો બતાવો',
+
       'success.points': 'Civic Points',
 
       'success.xpBonus': '+{n} Civic Points',
@@ -13738,6 +13907,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const mapEl = $('#reportPinMap');
       if (mapEl) mapEl.setAttribute('aria-label', t('report.pinMapAria'));
     }
+    // Nav label widths change with language — re-measure sliding pill.
+    if (typeof syncNavPill === 'function') requestAnimationFrame(syncNavPill);
   }
 
   function updateSyncStatus() {
@@ -21095,6 +21266,11 @@ document.addEventListener('DOMContentLoaded', function () {
     markMeTooButtonBacked(sourceEl);
     triggerBtnPop(sourceEl);
     showMeTooBackedChip(sourceEl);
+    // Flight ping: Me too button → map pin (sheet-mode still targets the Leaflet icon).
+    if (sourceEl) {
+      const pinEl = getReportMarkerIconEl(id);
+      if (pinEl) fireMeTooPing(sourceEl, pinEl);
+    }
     bumpPopupConfirmCount(prevCount, nextCount);
     const pulseEl = $('#wardPulseMeToo');
     if (pulseEl) {
@@ -23334,6 +23510,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function placeNavPill(activeBtn) {
+    const pill = document.querySelector('.bottom-nav__pill');
+    if (!pill || !activeBtn) return;
+    pill.style.transform = 'translateX(' + activeBtn.offsetLeft + 'px)';
+    pill.style.width = activeBtn.offsetWidth + 'px';
+  }
+
+  function syncNavPill() {
+    placeNavPill(document.querySelector('#bottomNav .nav-tab.active'));
+  }
+
   function setNavTab(tab) {
 
     $$('#bottomNav .nav-tab').forEach((t) => {
@@ -23341,6 +23528,9 @@ document.addEventListener('DOMContentLoaded', function () {
       t.classList.toggle('active', t.dataset.tab === tab);
 
     });
+
+    // rAF so flex layout (label wrap / i18n) settles before measuring.
+    requestAnimationFrame(syncNavPill);
 
     if (tab === 'map' && typeof scheduleFlushPendingReportSessionPrompts === 'function') {
 
@@ -28500,6 +28690,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (el.parentNode) el.remove();
 
+          // Nav was visibility:hidden during boot — measure pill once visible.
+          if (typeof syncNavPill === 'function') requestAnimationFrame(syncNavPill);
+
         };
 
         el.addEventListener('transitionend', onEnd);
@@ -28542,6 +28735,13 @@ document.addEventListener('DOMContentLoaded', function () {
   updatePartnerPortalUi();
 
   updatePersonaUI();
+
+  // Initial sliding pill under the default active tab (Map).
+  requestAnimationFrame(() => {
+    syncNavPill();
+    // Second frame: fonts / boot visibility can still shift layout.
+    requestAnimationFrame(syncNavPill);
+  });
 
   maybeResetSessionOnResume({ coldStart: shouldResetOnColdPwaLaunch() });
 
@@ -28907,6 +29107,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+      // Report pins: plain LayerGroup (viewport-capped). Leaflet.markercluster is
+      // not in vendor — cluster bloom CSS (.cluster-badge / .cluster-pin) is ready
+      // for Stage 2 when the plugin ships; do not invent a heavy custom clusterer.
       reportMarkerLayer = L.layerGroup().addTo(map);
       try {
         refreshReportMarkers();
@@ -32510,6 +32713,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    // Sliding nav pill tracks active tab width/offset on viewport changes.
+    let navPillResizeTimer = 0;
+    const scheduleNavPillSync = () => {
+      clearTimeout(navPillResizeTimer);
+      navPillResizeTimer = setTimeout(syncNavPill, 50);
+    };
+    window.addEventListener('resize', scheduleNavPillSync);
+    window.addEventListener('orientationchange', () => setTimeout(syncNavPill, 120));
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', scheduleNavPillSync);
+    }
+
 
 
     const btnEnableLocation = $('#btnEnableLocation');
@@ -33769,6 +33984,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
           reportPhotoModerationPassed = true;
+          triggerCaptureShutter();
           finishReportPhotoFlow('handlePhotoCaptureRawFallback');
           reportPhotoDismissGuard = Date.now();
           advanceReportPhotoReady();
@@ -33817,6 +34033,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         canvas.classList.add('visible');
+        triggerCaptureShutter();
         let dataUrl;
         try {
           dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
@@ -38074,101 +38291,189 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function renderSuccessStories() {
+  let successStoriesFlipTimer = null;
+  let successStoriesFlipPausedUntil = 0;
 
-    const list = $('#successStoriesList');
-
-    const empty = $('#successStoriesEmpty');
-
-    if (!list) return;
-
-    const stories = getSuccessStories();
-
-    if (stories.length === 0) {
-
-      list.innerHTML = '';
-
-      if (empty) empty.classList.remove('hidden');
-
-      updateCommunityWinBadge();
-
-      return;
-
-    }
-
-    if (empty) empty.classList.add('hidden');
-
-    list.innerHTML = stories.map((r) => {
-
-      const type = getSuccessStoryType(r);
-
-      const ward = getWardShortName(r.ward) || t('header.context');
-
-      const thumb = isSafeReportImage(r.resolutionImage)
-
-        ? r.resolutionImage
-
-        : (isSafeReportImage(r.image) ? r.image : '');
-
-      const labelKey = type === 'cleanup'
-
-        ? 'community.winsCleanup'
-
-        : type === 'community'
-
-          ? 'community.winsCommunityVerified'
-
-          : 'community.winsResolved';
-
-      const label = t(labelKey)
-
-        .replace('{hazard}', hazardLabel(r.hazard))
-
-        .replace('{ward}', ward);
-
-      const meta = t('community.winsNeighbours').replace('{ward}', ward);
-
-      const thumbHtml = thumb
-
-        ? `<img class="success-story-card__thumb" src="${thumb}" alt="">`
-
-        : '<div class="success-story-card__thumb success-story-card__thumb--empty"><i class="ph ph-trophy"></i></div>';
-
-      return `<button type="button" class="success-story-card" data-win-id="${escapeHtml(String(r.id))}" data-win-type="${type}" role="listitem">${thumbHtml}<div class="success-story-card__body"><span class="success-story-card__label">${escapeHtml(label)}</span><span class="success-story-card__meta">${escapeHtml(meta)}</span></div></button>`;
-
-    }).join('');
-
-    list.querySelectorAll('.success-story-card').forEach((btn) => {
-
-      btn.addEventListener('click', () => {
-
-        const report = findReportById(btn.dataset.winId);
-
-        if (!report) return;
-
-        if (window.CivicAnalytics) {
-
-          CivicAnalytics.track('success_story_viewed', {
-
-            reportId: String(report.id),
-
-            type: btn.dataset.winType || 'resolved',
-
-          }, report.ward);
-
-        }
-
-        showShareWinModal(report.id, btn.dataset.winType || 'resolved', { celebrate: false });
-
-      });
-
-    });
-
-    updateCommunityWinBadge();
-
+  function pauseSuccessStoriesAutoFlip(ms) {
+    successStoriesFlipPausedUntil = Date.now() + (ms || 8000);
   }
 
+  function isProofFlipVisibleInCarousel(scene, scroller) {
+    if (!scene || !scroller) return false;
+    const sRect = scroller.getBoundingClientRect();
+    const cRect = scene.getBoundingClientRect();
+    if (cRect.width <= 0 || cRect.height <= 0) return false;
+    const overlap = Math.min(cRect.right, sRect.right) - Math.max(cRect.left, sRect.left);
+    return overlap > cRect.width * 0.45;
+  }
 
+  function setProofFlipState(scene, flipped) {
+    if (!scene) return;
+    const on = !!flipped;
+    scene.classList.toggle('is-flipped', on);
+    scene.setAttribute('aria-pressed', on ? 'true' : 'false');
+    scene.setAttribute(
+      'aria-label',
+      on ? t('community.proofShowBefore') : t('community.proofShowAfter')
+    );
+  }
+
+  function toggleProofFlip(scene, opts) {
+    if (!scene) return;
+    const instant = !!(opts && opts.instant) || prefersReducedMotion();
+    if (instant) scene.classList.add('proof-flip-scene--instant');
+    else scene.classList.remove('proof-flip-scene--instant');
+    setProofFlipState(scene, !scene.classList.contains('is-flipped'));
+    if (instant) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scene.classList.remove('proof-flip-scene--instant'));
+      });
+    }
+  }
+
+  function stopSuccessStoriesAutoFlip() {
+    if (successStoriesFlipTimer) {
+      clearInterval(successStoriesFlipTimer);
+      successStoriesFlipTimer = null;
+    }
+  }
+
+  function startSuccessStoriesAutoFlip(list) {
+    stopSuccessStoriesAutoFlip();
+    if (!list || prefersReducedMotion()) return;
+    const scenes = list.querySelectorAll('.proof-flip-scene[data-proof-flip]');
+    if (!scenes.length) return;
+    successStoriesFlipTimer = setInterval(() => {
+      if (Date.now() < successStoriesFlipPausedUntil) return;
+      if (prefersReducedMotion()) {
+        stopSuccessStoriesAutoFlip();
+        return;
+      }
+      const overlay = $('#communityOverlay');
+      if (overlay && overlay.getAttribute('aria-hidden') === 'true') return;
+      scenes.forEach((scene) => {
+        if (!document.contains(scene)) return;
+        if (!isProofFlipVisibleInCarousel(scene, list)) return;
+        toggleProofFlip(scene, { instant: false });
+      });
+    }, 3800);
+  }
+
+  function bindSuccessStoryProofFlips(list) {
+    if (!list) return;
+    list.querySelectorAll('.proof-flip-scene[data-proof-flip]').forEach((scene) => {
+      setProofFlipState(scene, false);
+      const onInteract = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        pauseSuccessStoriesAutoFlip(10000);
+        toggleProofFlip(scene, { instant: prefersReducedMotion() });
+      };
+      scene.addEventListener('click', onInteract);
+      scene.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') onInteract(e);
+      });
+    });
+    if (!list.dataset.proofFlipBound) {
+      list.dataset.proofFlipBound = '1';
+      list.addEventListener('pointerdown', () => pauseSuccessStoriesAutoFlip(10000), { passive: true });
+      list.addEventListener('scroll', () => pauseSuccessStoriesAutoFlip(6000), { passive: true });
+    }
+    startSuccessStoriesAutoFlip(list);
+  }
+
+  function buildSuccessStoryThumbHtml(report) {
+    const hasBefore = isSafeReportImage(report.image);
+    const hasAfter = isSafeReportImage(report.resolutionImage);
+    const beforeLabel = escapeHtml(t('ba.before'));
+    const afterLabel = escapeHtml(t('ba.after'));
+    if (hasBefore && hasAfter) {
+      return (
+        `<div class="proof-flip-scene success-story-card__flip" data-proof-flip role="button" tabindex="0" aria-pressed="false" aria-label="${escapeHtml(t('community.proofShowAfter'))}">` +
+          `<div class="proof-flip-card">` +
+            `<div class="proof-flip-face proof-flip-face--front">` +
+              `<img src="${report.image}" alt="">` +
+              `<span class="proof-flip-label">${beforeLabel}</span>` +
+            `</div>` +
+            `<div class="proof-flip-face proof-flip-face--back">` +
+              `<img src="${report.resolutionImage}" alt="">` +
+              `<span class="proof-flip-label">${afterLabel}</span>` +
+            `</div>` +
+          `</div>` +
+        `</div>`
+      );
+    }
+    const thumb = hasAfter ? report.resolutionImage : (hasBefore ? report.image : '');
+    if (thumb) {
+      return `<img class="success-story-card__thumb" src="${thumb}" alt="">`;
+    }
+    return '<div class="success-story-card__thumb success-story-card__thumb--empty"><i class="ph ph-trophy" aria-hidden="true"></i></div>';
+  }
+
+  function renderSuccessStories() {
+    const list = $('#successStoriesList');
+    const empty = $('#successStoriesEmpty');
+    if (!list) return;
+    stopSuccessStoriesAutoFlip();
+    const stories = getSuccessStories();
+    if (stories.length === 0) {
+      list.innerHTML = '';
+      if (empty) empty.classList.remove('hidden');
+      updateCommunityWinBadge();
+      return;
+    }
+    if (empty) empty.classList.add('hidden');
+    list.innerHTML = stories.map((r) => {
+      const type = getSuccessStoryType(r);
+      const ward = getWardShortName(r.ward) || t('header.context');
+      const labelKey = type === 'cleanup'
+        ? 'community.winsCleanup'
+        : type === 'community'
+          ? 'community.winsCommunityVerified'
+          : 'community.winsResolved';
+      const label = t(labelKey)
+        .replace('{hazard}', hazardLabel(r.hazard))
+        .replace('{ward}', ward);
+      const meta = t('community.winsNeighbours').replace('{ward}', ward);
+      const thumbHtml = buildSuccessStoryThumbHtml(r);
+      return (
+        `<article class="success-story-card" data-win-id="${escapeHtml(String(r.id))}" data-win-type="${type}" role="listitem">` +
+          thumbHtml +
+          `<button type="button" class="success-story-card__open">` +
+            `<span class="success-story-card__label">${escapeHtml(label)}</span>` +
+            `<span class="success-story-card__meta">${escapeHtml(meta)}</span>` +
+          `</button>` +
+        `</article>`
+      );
+    }).join('');
+
+    list.querySelectorAll('.success-story-card').forEach((card) => {
+      const openWin = () => {
+        const report = findReportById(card.dataset.winId);
+        if (!report) return;
+        if (window.CivicAnalytics) {
+          CivicAnalytics.track('success_story_viewed', {
+            reportId: String(report.id),
+            type: card.dataset.winType || 'resolved',
+          }, report.ward);
+        }
+        showShareWinModal(report.id, card.dataset.winType || 'resolved', { celebrate: false });
+      };
+      const openBtn = card.querySelector('.success-story-card__open');
+      if (openBtn) openBtn.addEventListener('click', openWin);
+      // Static thumb / empty trophy: tap opens share. Flip scenes stopPropagation.
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-proof-flip]')) return;
+        if (e.target.closest('.success-story-card__open')) return;
+        openWin();
+      });
+    });
+
+    bindSuccessStoryProofFlips(list);
+    updateCommunityWinBadge();
+  }
 
   function getReportShareLocation(report) {
 
@@ -38771,11 +39076,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     openModal('certificate');
 
+    replayCertMedal(icon);
+
 
 
     const revealCard = async () => {
 
-      if (icon) icon.classList.add('cert-badge--pop');
+      if (icon && prefersReducedMotion()) icon.classList.add('cert-badge--pop');
 
       try {
 
@@ -43212,6 +43519,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const listEl = $('#wardsList');
 
+      const lbFirst = captureLeaderboardFirst(listEl);
+
       if (liveBackend && realWards.length === 0) {
 
         const emptyMsg = user.ward ? t('leaderboard.emptyFirst') : t('leaderboard.emptyWards');
@@ -43238,7 +43547,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           (w, i) => `
 
-          <li class="${w.isUser ? 'lb-highlight' : ''}${w.isDemo ? ' lb-demo-row' : ''}">
+          <li class="leaderboard-row${w.isUser ? ' lb-highlight' : ''}${w.isDemo ? ' lb-demo-row' : ''}" data-lb-key="${escapeHtml(String(w.name || i))}" data-lb-rank="${i + 1}">
 
             <span class="lb-rank ${rankClass(i)}">${i + 1}</span>
 
@@ -43261,6 +43570,7 @@ document.addEventListener('DOMContentLoaded', function () {
       countUpMounted(listEl, '.js-lb-pts', {
         format: (n) => Math.round(n).toLocaleString(),
       });
+      playLeaderboardFlips(listEl, lbFirst);
 
     }
 
@@ -43323,6 +43633,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const listEl = $('#citizensList');
 
+      const lbFirst = captureLeaderboardFirst(listEl);
+
       const realCitizens = citizens.filter((c) => !c.isDemo && !c.isUser);
 
       if (liveBackend && realCitizens.length === 0) {
@@ -43349,7 +43661,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           (c, i) => `
 
-          <li class="${c.isUser ? 'lb-highlight' : ''}${c.isDemo ? ' lb-demo-row' : ''}">
+          <li class="leaderboard-row${c.isUser ? ' lb-highlight' : ''}${c.isDemo ? ' lb-demo-row' : ''}" data-lb-key="${escapeHtml(String(c.id != null ? c.id : (c.isUser ? '__you__' : c.name) || i))}" data-lb-rank="${i + 1}">
 
             <span class="lb-rank ${rankClass(i)}">${i + 1}</span>
 
@@ -43372,6 +43684,7 @@ document.addEventListener('DOMContentLoaded', function () {
       countUpMounted(listEl, '.js-lb-pts', {
         format: (n) => Math.round(n).toLocaleString(),
       });
+      playLeaderboardFlips(listEl, lbFirst);
 
     }
 
@@ -43657,11 +43970,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (streakLineEl) {
 
-        streakLineEl.textContent = streak >= 1
+        const streakTextEl = $('#profileStreakText') || streakLineEl.querySelector('.profile-rewards__streak-text');
+
+        const streakLabel = streak >= 1
 
           ? t('profile.streak').replace('{n}', String(streak))
 
           : '';
+
+        if (streakTextEl) {
+
+          streakTextEl.textContent = streakLabel;
+
+        } else {
+
+          streakLineEl.textContent = streakLabel;
+
+        }
 
         streakLineEl.classList.toggle('hidden', streak < 1);
 
