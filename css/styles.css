@@ -4203,6 +4203,10 @@ body.pwa-nudge-visible #btnCamera {
 
 .pin-drop__check {
   stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+}
+
+.success-icon:not(.is-celebrating) .pin-drop__check {
   stroke-dashoffset: 0;
 }
 
@@ -8858,12 +8862,27 @@ body.persona-lead .app-open-banner { display: none; }
 }
 .hazard-tile--active {
   /* Conduit gradient border — surface fill + indigo edge (no purple) */
+  position: relative;
   border-color: transparent;
   background:
     linear-gradient(var(--surface), var(--surface)) padding-box,
     linear-gradient(135deg, var(--primary), var(--brand-700, var(--primary-dark))) border-box;
   box-shadow: inset 0 0 14px rgba(var(--primary-rgb), 0.12);
   color: var(--text-dark);
+}
+.hazard-tile--active::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid var(--primary);
+  animation: tile-ring-in 0.28s var(--ease-spring) both;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes tile-ring-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
 }
 .hazard-tile--active .hazard-tile__label {
   color: var(--text-dark);
@@ -13080,6 +13099,7 @@ body.sheet-depth-blocking .map-hud {
 
 @media (prefers-reduced-motion: reduce) {
   .hazard-tile--active .hazard-tile__check,
+  .hazard-tile--active::before,
   #tosModal .checkbox-row:has(input:checked),
   .modal-overlay.open .disclosure-list li,
   .header__brand .brand-mark::after,
@@ -13901,8 +13921,98 @@ body.persona-pulse-redundant .ward-pulse {
 @media (prefers-reduced-motion: reduce) {
   #btnCamera,
   #btnCamera:hover,
-  #btnCamera:active {
+  #btnCamera:active,
+  #btnCamera::after {
     animation: none !important;
     transition: none;
+  }
+}
+
+/* ============================================================
+   Custom SVGs & motion (v387) — §§5.1 / 5.3
+   Radar onboarding hero + FAB idle sonar. Pin-drop (§5.2) +
+   hazard ring (§5.6) live with their components above.
+   ============================================================ */
+
+.onboard-hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  margin: 0 auto 8px;
+  line-height: 0;
+  pointer-events: none;
+}
+
+.onboard-hero svg {
+  display: block;
+  width: min(132px, 42vw);
+  height: auto;
+}
+
+.radar-sweep {
+  transform-origin: 80px 80px;
+  transform-box: view-box;
+  animation: radar-rotate 3.6s linear infinite;
+}
+
+@keyframes radar-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.radar-pip {
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: radar-pip-blink 3.6s ease-out infinite;
+}
+
+.radar-pip--1 { animation-delay: 0.35s; }
+.radar-pip--2 { animation-delay: 2.15s; }
+.radar-pip--3 { animation-delay: 1.45s; }
+
+@keyframes radar-pip-blink {
+  0%, 6% { opacity: 0; transform: scale(0.6); }
+  9% { opacity: 1; transform: scale(1.25); }
+  14% { transform: scale(1); }
+  55% { opacity: 1; }
+  75%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep { animation: none; }
+  .radar-pip { animation: none; opacity: 0.9; transform: none; }
+}
+
+/* FAB idle sonar — one quiet ring every 6s until first report */
+#btnCamera::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(99, 102, 241, 0.55);
+  opacity: 0;
+  animation: fab-sonar 6s ease-out infinite;
+  animation-delay: 3s;
+  pointer-events: none;
+}
+
+@keyframes fab-sonar {
+  0%, 78% { opacity: 0; transform: scale(1); }
+  80% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+body.has-reported #btnCamera::after,
+body.modal-open #btnCamera::after,
+html.modal-open #btnCamera::after {
+  animation: none;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #btnCamera::after {
+    animation: none !important;
+    opacity: 0;
   }
 }

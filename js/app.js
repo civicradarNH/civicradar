@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v386';
+  const CIVIC_APP_VERSION = 'v387';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -64,6 +64,22 @@ document.addEventListener('DOMContentLoaded', function () {
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+  }
+
+  /** Count-up from current text → to. Respects prefers-reduced-motion via animateValue. */
+  function countUp(el, to, { duration = 600, format } = {}) {
+    if (!el) return;
+    const raw = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
+    const from = Number.isFinite(raw) ? raw : 0;
+    animateValue(el, from, to, duration, format ? { format } : undefined);
+  }
+
+  /** Stop FAB idle sonar after the user has filed at least one report. */
+  function syncHasReportedClass() {
+    try {
+      const has = typeof getUserReports === 'function' && getUserReports().length > 0;
+      document.body.classList.toggle('has-reported', !!has);
+    } catch (_) { /* ignore during early boot */ }
   }
 
   const PENDING_AUTH_FLOW_KEY = 'civicradar_pending_auth_flow';
@@ -27540,6 +27556,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   bindEvents();
 
+  syncHasReportedClass();
+
   updateMapLocationControls();
 
   updateAuthMode();
@@ -29798,15 +29816,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (nameEl) nameEl.textContent = wardLabel;
     const stats = getUserWardPulseStats();
     // Roll count changes only (Me too bump path already animates; this covers Open/Fixed + full refresh).
-    const rollPulse = (el, next) => {
-      if (!el) return;
-      const prev = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
-      const from = Number.isFinite(prev) ? prev : next;
-      animateValue(el, from, next, 650);
-    };
-    rollPulse(openEl, stats.open || 0);
-    rollPulse(fixedEl, stats.fixedWeek || 0);
-    rollPulse(meTooEl, stats.meToo || 0);
+    countUp(openEl, stats.open || 0, { duration: 650 });
+    countUp(fixedEl, stats.fixedWeek || 0, { duration: 650 });
+    countUp(meTooEl, stats.meToo || 0, { duration: 650 });
     const meterOpen = $('#wardPulseMeterOpen');
     const meterFixed = $('#wardPulseMeterFixed');
     const total = Math.max(1, (stats.open || 0) + (stats.fixedWeek || 0));
@@ -35303,9 +35315,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const numEl = ptsEl.querySelector('.success-points__num');
 
-      if (numEl) animateValue(numEl, 0, total, 800);
+      if (numEl) countUp(numEl, total, { duration: 800 });
 
     }
+
+    syncHasReportedClass();
 
     updateSuccessNativeButton();
 
@@ -42155,13 +42169,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const profilePtsEl = $('#profilePoints');
     if (profilePtsEl) {
-      const nextPts = getTotalCivicXp();
-      const prevPts = parseInt(String(profilePtsEl.textContent || '0').replace(/[^\d-]/g, ''), 10);
-      const startPts = Number.isFinite(prevPts) ? prevPts : nextPts;
-      animateValue(profilePtsEl, startPts, nextPts, 800, {
+      countUp(profilePtsEl, getTotalCivicXp(), {
+        duration: 800,
         format: (n) => Math.round(n).toLocaleString(),
       });
     }
+    syncHasReportedClass();
 
     $('#profileFixed').textContent = resolved.length;
 

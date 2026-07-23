@@ -393,6 +393,29 @@
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
+      <div class="onboard-hero" aria-hidden="true">
+        <svg viewBox="0 0 160 160" width="132" height="132" fill="none" focusable="false">
+          <circle cx="80" cy="80" r="70" stroke="#6366F1" stroke-opacity=".14" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="48" stroke="#6366F1" stroke-opacity=".22" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="26" stroke="#6366F1" stroke-opacity=".34" stroke-width="1.5"/>
+          <path d="M80 8v144M8 80h144" stroke="#6366F1" stroke-opacity=".08" stroke-width="1.2"/>
+          <g class="radar-sweep">
+            <path d="M80 80 L80 10 A70 70 0 0 1 129.5 30.5 Z" fill="url(#sweepGradOnboard)"/>
+            <line x1="80" y1="80" x2="80" y2="10" stroke="#22D3EE" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <circle class="radar-pip radar-pip--1" cx="112" cy="52" r="4.5" fill="#0891B2"/>
+          <circle class="radar-pip radar-pip--2" cx="52" cy="104" r="4.5" fill="#EA580C"/>
+          <circle class="radar-pip radar-pip--3" cx="106" cy="112" r="4.5" fill="#15803D"/>
+          <circle cx="80" cy="80" r="7" fill="#6366F1"/>
+          <circle cx="80" cy="80" r="7" fill="none" stroke="#6366F1" stroke-opacity=".3" stroke-width="6"/>
+          <defs>
+            <linearGradient id="sweepGradOnboard" x1="80" y1="10" x2="120" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#22D3EE" stop-opacity=".35"/>
+              <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
       <h2 id="onboardingTitle" tabindex="-1" data-i18n="onboard.title">Welcome to CivicRadar</h2>
       <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.</p>
       <div class="form-group" id="wardDetectGroup">
