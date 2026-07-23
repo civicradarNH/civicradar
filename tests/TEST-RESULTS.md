@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-23 06:04:17
+**Run:** 2026-07-23 07:53:39
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 40 | **Pass:** 40 | **Fail:** 0
+**Total:** 42 | **Pass:** 42 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -76,7 +76,7 @@
 
 ## Summary by category
 
-- **Citizen:** 20 pass / 0 fail
+- **Citizen:** 22 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **PWA:** 1 pass / 0 fail
 - **Report:** 11 pass / 0 fail
@@ -99,21 +99,23 @@ _None_
 
 | ID | Category | Scenario | Result | Note |
 |---|---|---|---|---|
-| C01 | Citizen | ToS modal on fresh user | PASS |  |
-| C02 | Citizen | ToS continue disabled without checkbox | PASS |  |
-| C03 | Citizen | ToS accept enables continue | PASS |  |
-| C04 | Citizen | Onboarding after ToS accept | PASS |  |
+| C01 | Citizen | Welcome onboarding on fresh user | PASS |  |
+| C02 | Citizen | Welcome progress dots (2-step) | PASS | dots=2 |
+| C03 | Citizen | Step 1 Where do you live visible | PASS |  |
+| C04 | Citizen | Explore-map skip CTA present | PASS |  |
 | C04b | Citizen | City picker defaults to Mumbai | PASS | city=mumbai |
 | C05 | Citizen | GPS consent after ward detect | PASS |  |
 | C06 | Citizen | Ward auto-detected on onboarding | PASS | ward=L Ward — Kurla, Sakinaka |
 | C06b | Citizen | Empty ward rejected | PASS |  |
 | C07 | Citizen | Invalid/XSS ward rejected | PASS |  |
+| C07b | Citizen | Join disabled without Terms checkbox | PASS |  |
+| C07c | Citizen | Join enabled after Terms accept | PASS |  |
 | C08 | Citizen | Valid ward onboarding | PASS |  |
 | C08b | Citizen | City saved on onboarding | PASS |  |
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=56874780-7df1-495d-9f5e-f65e1f2b589c |
+| C16 | Citizen | Report submit success modal | PASS | rid=4728769d-d639-405e-8266-0332cccc5a32 |
 | C17 | Citizen | Success modal WhatsApp primary + More (official filing) | PASS |  |
 | C17b | Citizen | Native share button feature-detect gating | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |

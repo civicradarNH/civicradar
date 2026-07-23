@@ -1021,33 +1021,31 @@ async def run_citizen_tests(s: Suite, browser):
 
     await page.wait_for_timeout(800)
 
-    tos_open = await is_open(page, 'tosOverlay')
+    onboard_open = await is_open(page, 'onboardingOverlay')
 
-    if not tos_open:
+    if not onboard_open:
 
-        tos_open = await page.evaluate('() => document.getElementById("tosOverlay")?.getAttribute("aria-hidden") === "false"')
+        onboard_open = await page.evaluate(
 
-    if not tos_open:
+            '() => document.getElementById("onboardingOverlay")?.getAttribute("aria-hidden") === "false"'
 
-        tos_open = not await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user")||"{}").tosAccepted')
+        )
 
-    s.record('C01', 'Citizen', 'ToS modal on fresh user', tos_open)
+    s.record('C01', 'Citizen', 'Welcome onboarding on fresh user', onboard_open)
 
-    s.record('C02', 'Citizen', 'ToS continue disabled without checkbox', await page.is_disabled('#btnTosContinue'))
+    dots = await page.evaluate('() => document.querySelectorAll("#onboardProgress .onboard-progress__dot").length')
 
+    s.record('C02', 'Citizen', 'Welcome progress dots (2-step)', dots == 2, f'dots={dots}')
 
+    step1 = await page.evaluate(
 
-    await page.evaluate('() => document.getElementById("tosAccept").click()')
+        '() => { const el = document.getElementById("onboardStep1"); return !!(el && !el.classList.contains("hidden") && !el.hidden); }'
 
-    s.record('C03', 'Citizen', 'ToS accept enables continue', not await page.is_disabled('#btnTosContinue'))
+    )
 
+    s.record('C03', 'Citizen', 'Step 1 Where do you live visible', step1 and await page.is_visible('#btnWardDetectGps'))
 
-
-    await js_click(page, '#btnTosContinue')
-
-    await page.wait_for_timeout(600)
-
-    s.record('C04', 'Citizen', 'Onboarding after ToS accept', await is_open(page, 'onboardingOverlay'))
+    s.record('C04', 'Citizen', 'Explore-map skip CTA present', await page.is_visible('#btnOnboardingExplore'))
 
 
 
@@ -1141,12 +1139,26 @@ async def run_citizen_tests(s: Suite, browser):
 
     await set_combobox_value(page, '#wardInput', WARD)
 
-    # Never use Playwright fill() here — focus + sync el.click() in evaluate
-    # wedged CDP after onboarding complete (smoke hung after C07 for 15m).
-    await set_input_value(page, '#displayName', '<img onerror=alert(1)>')
-
     await dismiss_civic_comboboxes(page)
     await js_click(page, '#btnOnboardingContinue')
+
+    await page.wait_for_timeout(400)
+
+    # Step 2: name + Terms checkbox + Join
+    await set_input_value(page, '#displayName', '<img onerror=alert(1)>')
+
+    join_disabled = await page.is_disabled('#btnOnboardingJoin')
+
+    s.record('C07b', 'Citizen', 'Join disabled without Terms checkbox', join_disabled)
+
+    await page.evaluate('() => document.getElementById("onboardTosAccept")?.click()')
+
+    await page.wait_for_timeout(100)
+
+    s.record('C07c', 'Citizen', 'Join enabled after Terms accept', not await page.is_disabled('#btnOnboardingJoin'))
+
+    await dismiss_civic_comboboxes(page)
+    await js_click(page, '#btnOnboardingJoin')
 
     # js_click is deferred; wait for onboarding to finish before reading user.
     try:
@@ -1155,7 +1167,7 @@ async def run_citizen_tests(s: Suite, browser):
               try {
                 const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
                 const open = document.getElementById('onboardingOverlay')?.classList.contains('open');
-                return !!u.ward && !open;
+                return !!u.ward && !!u.tosAccepted && !open;
               } catch (e) { return false; }
             }""",
             timeout=10000,
@@ -1225,7 +1237,10 @@ async def run_citizen_tests(s: Suite, browser):
 
             )
 
-        s.record('C09b', 'Citizen', 'Report-on-the-spot guidance shown at onboarding completion', spot_visible)
+        coach_hidden = await page.evaluate(
+            '() => document.getElementById("coachMark")?.classList.contains("hidden") !== false'
+        )
+        s.record('C09b', 'Citizen', 'Purpose sheet suppressed after welcome Join', coach_hidden)
 
         ctx_defname = await new_ctx(browser, storage={
 
@@ -1243,18 +1258,19 @@ async def run_citizen_tests(s: Suite, browser):
 
         await page_def.wait_for_timeout(800)
 
-        await page_def.evaluate('() => document.getElementById("tosAccept").click()')
-
-        await js_click(page_def, '#btnTosContinue')
-
-        await page_def.wait_for_timeout(600)
-
         await set_combobox_value(page_def, '#wardInput', WARD)
-
-        await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
 
         await dismiss_civic_comboboxes(page_def)
         await js_click(page_def, '#btnOnboardingContinue')
+
+        await page_def.wait_for_timeout(400)
+
+        await page_def.evaluate('() => { const el = document.getElementById("displayName"); if (el) el.value = ""; }')
+
+        await page_def.evaluate('() => document.getElementById("onboardTosAccept")?.click()')
+
+        await dismiss_civic_comboboxes(page_def)
+        await js_click(page_def, '#btnOnboardingJoin')
 
         await page_def.wait_for_timeout(500)
 
@@ -1270,9 +1286,9 @@ async def run_citizen_tests(s: Suite, browser):
 
             'Citizen',
 
-            'Empty display name gets unique civic default',
+            'Empty display name defaults to Neighbour',
 
-            bool(def_name) and def_name != 'Citizen' and len(def_name) >= 8,
+            def_name == 'Neighbour',
 
             f'name={def_name[:32]}',
 
@@ -2063,13 +2079,28 @@ async def run_edge_tests(s: Suite, browser):
 
     s.record('E08', 'Edge', 'Analytics blocked without consent', tracked is None or tracked.get('before') == tracked.get('after'))
 
-    await page.evaluate('() => document.getElementById("tosAccept").click()')
+    await set_combobox_value(page, '#wardInput', WARD)
 
-    await page.evaluate('() => document.getElementById("tosAnalytics").click()')
+    await dismiss_civic_comboboxes(page)
 
-    await js_click(page, '#btnTosContinue')
+    await js_click(page, '#btnOnboardingContinue')
 
     await page.wait_for_timeout(300)
+
+    await page.evaluate('() => document.getElementById("onboardTosAccept")?.click()')
+
+    await js_click(page, '#btnOnboardingJoin')
+
+    await page.wait_for_timeout(400)
+
+    await page.evaluate("""() => {
+      const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
+      u.analyticsConsent = true;
+      localStorage.setItem('civicradar_user', JSON.stringify(u));
+      if (window.CivicAnalytics) CivicAnalytics.setConsent(true);
+    }""")
+
+    await page.wait_for_timeout(200)
 
     s.record('E09', 'Edge', 'Analytics allowed after analytics opt-in', await page.evaluate(
 
@@ -3128,15 +3159,27 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await goto_app(page)
 
-    s.record('AN01', 'Analytics', 'Analytics checkbox separate from ToS', await page.is_visible('#tosAnalytics'))
+    s.record('AN01', 'Analytics', 'Analytics not in welcome gate', not await page.is_visible('#tosAnalytics'))
 
-    s.record('AN02', 'Analytics', 'Analytics unchecked by default', not await page.is_checked('#tosAnalytics'))
+    s.record('AN02', 'Analytics', 'Profile analytics toggle present in DOM', await page.evaluate(
 
-    await page.evaluate('() => document.getElementById("tosAccept").click()')
+        '() => !!document.getElementById("analyticsConsentToggle")'
 
-    await js_click(page, '#btnTosContinue')
+    ))
 
-    await page.wait_for_timeout(400)
+    await set_combobox_value(page, '#wardInput', WARD)
+
+    await dismiss_civic_comboboxes(page)
+
+    await js_click(page, '#btnOnboardingContinue')
+
+    await page.wait_for_timeout(300)
+
+    await page.evaluate('() => document.getElementById("onboardTosAccept")?.click()')
+
+    await js_click(page, '#btnOnboardingJoin')
+
+    await page.wait_for_timeout(500)
 
     s.record('AN03', 'Analytics', 'Analytics consent false when not opted in', await page.evaluate(
 
@@ -3150,7 +3193,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ctx = await new_ctx(browser, storage={
 
-        'civicradar_user': default_user(id='an02', tosAccepted=False, gpsConsent=False, ward='', displayName=''),
+        'civicradar_user': default_user(id='an02', tosAccepted=True, gpsConsent=True, ward=WARD, displayName='Ana'),
 
     })
 
@@ -3158,13 +3201,27 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await goto_app(page)
 
-    await page.evaluate('() => { document.getElementById("tosAccept").click(); document.getElementById("tosAnalytics").click(); }')
-
-    await js_click(page, '#btnTosContinue')
-
     await page.wait_for_timeout(400)
 
-    s.record('AN04', 'Analytics', 'Analytics consent true when opted in', await page.evaluate(
+    await page.evaluate("""() => {
+      const u = JSON.parse(localStorage.getItem('civicradar_user') || '{}');
+      u.analyticsConsent = true;
+      localStorage.setItem('civicradar_user', JSON.stringify(u));
+      localStorage.setItem('civicradar_analytics_prompt_seen', '1');
+      if (window.CivicAnalytics) CivicAnalytics.setConsent(true);
+    }""")
+
+    await page.evaluate('() => { window.openProfileModal && window.openProfileModal(); }')
+
+    await page.wait_for_timeout(300)
+
+    await page.evaluate(
+
+        '() => { const el = document.getElementById("analyticsConsentToggle"); if (el) { el.checked = true; el.dispatchEvent(new Event("change", { bubbles: true })); } }'
+
+    )
+
+    s.record('AN04', 'Analytics', 'Analytics consent true via Profile toggle', await page.evaluate(
 
         '() => JSON.parse(localStorage.getItem("civicradar_user")).analyticsConsent === true'
 
@@ -5671,7 +5728,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v391" in sw_src
+            "civicradar-v392" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -9008,7 +9065,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v391" in sw_src
+            "civicradar-v392" in sw_src
 
             and "'/index.html'" not in sw_src
 

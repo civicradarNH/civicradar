@@ -352,12 +352,14 @@
   <!-- ========== MODALS ========== -->
 
   <!-- Terms of Service Modal -->
+  <!-- Terms reference sheet (not a first-run gate — acceptance is onboarding step 2) -->
   <div class="modal-overlay" id="tosOverlay" aria-hidden="true">
     <div class="modal" id="tosModal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
       <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="tos" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="tosTitle" tabindex="-1" data-i18n="tos.title">Terms of Service</h2>
-      <p class="tos-summary" data-i18n="tos.summary">Free community hazard map. You must be 18+ and accept the Terms to continue.</p>
-      <details class="tos-details">
+      <p class="tos-summary" data-i18n="tos.summary">Free community hazard map. You must be 18+ and accept the Terms to join your ward or report.</p>
+      <details class="tos-details" open>
         <summary data-i18n="tos.readFull">Read full terms</summary>
         <ol class="tos-clauses">
           <li data-i18n-html="tos.age"><strong>Age requirement:</strong> You must be 18 or older to submit reports and use community features.</li>
@@ -375,105 +377,124 @@
           <a href="terms.html" target="_blank" rel="noopener noreferrer">Full Terms of Service</a>
         </p>
       </details>
-      <label class="checkbox-row">
-        <input type="checkbox" id="tosAccept">
-        <span data-i18n-html="tos.accept">I am 18+, I accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
-      </label>
-      <label class="checkbox-row">
-        <input type="checkbox" id="tosAnalytics">
-        <span data-i18n="tos.analyticsOptIn">I consent to anonymous usage analytics (optional — can withdraw in Profile)</span>
-      </label>
       <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--primary btn--full" id="btnTosContinue" disabled data-i18n="tos.continue">Continue</button>
+        <button type="button" class="btn btn--primary btn--full" data-close="tos" data-i18n="tos.continue">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Onboarding Modal -->
+  <!-- Welcome / onboarding — 2-step paged sheet (v392) -->
   <div class="modal-overlay" id="onboardingOverlay" aria-hidden="true">
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="modal__handle"></div>
-      <div class="onboard-hero" aria-hidden="true">
-        <svg viewBox="0 0 160 160" width="132" height="132" fill="none" focusable="false">
-          <circle cx="80" cy="80" r="70" stroke="#6366F1" stroke-opacity=".14" stroke-width="1.5"/>
-          <circle cx="80" cy="80" r="48" stroke="#6366F1" stroke-opacity=".22" stroke-width="1.5"/>
-          <circle cx="80" cy="80" r="26" stroke="#6366F1" stroke-opacity=".34" stroke-width="1.5"/>
-          <path d="M80 8v144M8 80h144" stroke="#6366F1" stroke-opacity=".08" stroke-width="1.2"/>
-          <g class="radar-sweep">
-            <path d="M80 80 L80 10 A70 70 0 0 1 129.5 30.5 Z" fill="url(#sweepGradOnboard)"/>
-            <line x1="80" y1="80" x2="80" y2="10" stroke="#22D3EE" stroke-width="2" stroke-linecap="round"/>
-          </g>
-          <circle class="radar-pip radar-pip--1" cx="112" cy="52" r="4.5" fill="#0891B2"/>
-          <circle class="radar-pip radar-pip--2" cx="52" cy="104" r="4.5" fill="#EA580C"/>
-          <circle class="radar-pip radar-pip--3" cx="106" cy="112" r="4.5" fill="#15803D"/>
-          <circle cx="80" cy="80" r="7" fill="#6366F1"/>
-          <circle cx="80" cy="80" r="7" fill="none" stroke="#6366F1" stroke-opacity=".3" stroke-width="6"/>
-          <defs>
-            <linearGradient id="sweepGradOnboard" x1="80" y1="10" x2="120" y2="60" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#22D3EE" stop-opacity=".35"/>
-              <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-        </svg>
+      <div class="onboard-progress" id="onboardProgress" role="tablist" aria-label="Welcome steps">
+        <button type="button" class="onboard-progress__dot is-active" role="tab" aria-selected="true" data-onboard-step="1" id="onboardDot1" aria-controls="onboardStep1" aria-label="Step 1 of 2"></button>
+        <button type="button" class="onboard-progress__dot" role="tab" aria-selected="false" data-onboard-step="2" id="onboardDot2" aria-controls="onboardStep2" aria-label="Step 2 of 2" disabled></button>
       </div>
-      <h2 id="onboardingTitle" tabindex="-1" data-i18n="onboard.title">Welcome to CivicRadar</h2>
-      <p class="modal__subtitle" data-i18n="onboard.subtitle">Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.</p>
-      <div class="form-group" id="wardDetectGroup">
-        <div id="wardDetectPrompt" class="ward-detect-prompt">
-          <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
+
+      <div class="onboard-step-panel" id="onboardStep1" data-onboard-panel="1" role="tabpanel" aria-labelledby="onboardingTitle">
+        <div class="onboard-hero" aria-hidden="true">
+          <svg viewBox="0 0 160 160" width="132" height="132" fill="none" focusable="false">
+            <circle cx="80" cy="80" r="70" stroke="#6366F1" stroke-opacity=".14" stroke-width="1.5"/>
+            <circle cx="80" cy="80" r="48" stroke="#6366F1" stroke-opacity=".22" stroke-width="1.5"/>
+            <circle cx="80" cy="80" r="26" stroke="#6366F1" stroke-opacity=".34" stroke-width="1.5"/>
+            <path d="M80 8v144M8 80h144" stroke="#6366F1" stroke-opacity=".08" stroke-width="1.2"/>
+            <g class="radar-sweep">
+              <path d="M80 80 L80 10 A70 70 0 0 1 129.5 30.5 Z" fill="url(#sweepGradOnboard)"/>
+              <line x1="80" y1="80" x2="80" y2="10" stroke="#22D3EE" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <circle class="radar-pip radar-pip--1" cx="112" cy="52" r="4.5" fill="#0891B2"/>
+            <circle class="radar-pip radar-pip--2" cx="52" cy="104" r="4.5" fill="#EA580C"/>
+            <circle class="radar-pip radar-pip--3" cx="106" cy="112" r="4.5" fill="#15803D"/>
+            <circle cx="80" cy="80" r="7" fill="#6366F1"/>
+            <circle cx="80" cy="80" r="7" fill="none" stroke="#6366F1" stroke-opacity=".3" stroke-width="6"/>
+            <defs>
+              <linearGradient id="sweepGradOnboard" x1="80" y1="10" x2="120" y2="60" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#22D3EE" stop-opacity=".35"/>
+                <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 id="onboardingTitle" tabindex="-1" data-i18n="onboard.step1Title">Where do you live?</h2>
+        <p class="modal__subtitle" data-i18n="onboard.step1Subtitle">We’ll suggest your ward so neighbours nearby see your reports.</p>
+        <div class="form-group" id="wardDetectGroup">
+          <div id="wardDetectPrompt" class="ward-detect-prompt">
+            <button type="button" class="btn btn--primary btn--full btn--detect" id="btnWardDetectGps">
+              <i class="ph ph-crosshair" aria-hidden="true"></i>
+              <span data-i18n="onboard.wardDetectCta">Detect my area</span>
+            </button>
+            <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to suggest your ward. Never shown on the map until you report.</p>
+          </div>
+          <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
             <i class="ph ph-crosshair" aria-hidden="true"></i>
-            <span data-i18n="onboard.wardDetectCta">Detect my area</span>
-          </button>
-          <p class="field-hint" id="wardGpsDisclosure" data-i18n="onboard.gpsDisclosure">Used once to find your ward. Neighbourhood is optional — nothing is shared until you report.</p>
-        </div>
-        <div id="wardDetectStatus" class="ward-detect-status hidden" aria-live="polite">
-          <i class="ph ph-crosshair" aria-hidden="true"></i>
-          <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your area from your location…</span>
-        </div>
-        <div id="wardDetected" class="ward-detected ward-detected--chip hidden" role="status" aria-live="polite">
-          <i class="ph ph-check-circle" aria-hidden="true"></i>
-          <span class="ward-detected__text">
-            <span class="ward-detected__label" data-i18n="onboard.wardConfirmedLabel">Confirmed</span>
-            <span id="wardDetectedName" class="ward-detected__name"></span>
-            <span id="wardDetectedSociety" class="ward-detected__society hidden"></span>
-          </span>
-        </div>
-        <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate area from your location — you can change it.</p>
-        <div class="onboard-or hidden" id="onboardOrDivider" role="separator" aria-hidden="true">
-          <span data-i18n="onboard.or">or</span>
-        </div>
-        <div id="onboardManualSearch" class="onboard-manual-search hidden">
-          <div class="form-group" id="onboardCityGroup">
-            <label for="onboardCity" data-i18n="onboard.city">Your city</label>
-            <select id="onboardCity" aria-describedby="onboardCityHint">
-              <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
-              <option value="pune" data-i18n-option="city.pune">Pune</option>
-              <option value="thane" data-i18n-option="city.thane">Thane</option>
-            </select>
-            <p class="field-hint hidden" id="onboardCityHint" data-i18n="onboard.cityHint">Pick your city, then ward and neighbourhood — or detect with location.</p>
+            <span id="wardDetectStatusText" data-i18n="onboard.wardDetecting">Finding your area from your location…</span>
           </div>
-          <div id="wardManualGroup" class="form-group">
-            <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
-            <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
-            <p class="field-hint hidden" id="wardHint" data-i18n="onboard.wardHint">Pick your {city} ward and neighbourhood, or detect with GPS.</p>
+          <div id="wardDetected" class="ward-detected ward-detected--chip hidden" role="status" aria-live="polite">
+            <i class="ph ph-check-circle" aria-hidden="true"></i>
+            <span class="ward-detected__text">
+              <span class="ward-detected__label" data-i18n="onboard.wardConfirmedLabel">Confirmed</span>
+              <span id="wardDetectedName" class="ward-detected__name"></span>
+              <span id="wardDetectedSociety" class="ward-detected__society hidden"></span>
+            </span>
           </div>
-          <div class="form-group" id="onboardSocietyGroup">
-            <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
-            <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
-            <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
-            <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first to see nearby societies.</p>
+          <p class="field-hint hidden" id="wardDetectedHint" data-i18n="onboard.wardDetectedHint">Approximate area from your location — you can change it.</p>
+          <div class="onboard-or hidden" id="onboardOrDivider" role="separator" aria-hidden="true">
+            <span data-i18n="onboard.or">or</span>
           </div>
+          <div id="onboardManualSearch" class="onboard-manual-search hidden">
+            <div class="form-group" id="onboardCityGroup">
+              <label id="onboardCityLabel" data-i18n="onboard.city">Your city</label>
+              <div class="onboard-city-chips" id="onboardCityChips" role="group" aria-labelledby="onboardCityLabel">
+                <button type="button" class="onboard-city-chip is-active" data-city="mumbai" data-i18n="city.mumbai">Mumbai</button>
+                <button type="button" class="onboard-city-chip" data-city="pune" data-i18n="city.pune">Pune</button>
+                <button type="button" class="onboard-city-chip" data-city="thane" data-i18n="city.thane">Thane</button>
+              </div>
+              <select id="onboardCity" class="visually-hidden" tabindex="-1" aria-hidden="true" aria-describedby="onboardCityHint">
+                <option value="mumbai" data-i18n-option="city.mumbai">Mumbai</option>
+                <option value="pune" data-i18n-option="city.pune">Pune</option>
+                <option value="thane" data-i18n-option="city.thane">Thane</option>
+              </select>
+              <p class="field-hint hidden" id="onboardCityHint" data-i18n="onboard.cityHint">Pick your city, then ward and neighbourhood — or detect with location.</p>
+            </div>
+            <div id="wardManualGroup" class="form-group">
+              <label for="wardInput" data-i18n="onboard.ward">Your ward</label>
+              <input type="text" id="wardInput" placeholder="Start typing your ward…" data-i18n-ph="onboard.wardPh" autocomplete="off" aria-describedby="wardHint wardError wardDetectStatusText wardGpsDisclosure">
+              <p class="field-hint hidden" id="wardHint" data-i18n="onboard.wardHint">Pick your {city} ward and neighbourhood, or detect with GPS.</p>
+            </div>
+            <div class="form-group" id="onboardSocietyGroup">
+              <label for="onboardSociety" data-i18n="onboard.society">Neighbourhood or society (optional)</label>
+              <p class="field-hint onboard-society-context hidden" id="onboardSocietyContext" aria-live="polite"></p>
+              <input type="text" id="onboardSociety" maxlength="120" placeholder="Society or RWA name" data-i18n-ph="onboard.societyPh" autocomplete="off" aria-describedby="onboardSocietyContext onboardSocietyHint">
+              <p class="field-hint" id="onboardSocietyHint" data-i18n="onboard.societyHintNoWard">Pick your ward first to see nearby societies.</p>
+            </div>
+          </div>
+          <button type="button" class="ward-manual-link" id="btnWardManual" data-i18n="onboard.pickManually">Or pick manually</button>
+          <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try again</button>
+          <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
         </div>
-        <button type="button" class="ward-manual-link" id="btnWardManual" data-i18n="onboard.pickManually">Or pick manually</button>
-        <button type="button" class="ward-manual-link hidden" id="btnWardRetry" data-i18n="onboard.wardRetry">Try again</button>
-        <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
+        <div class="modal__sticky-footer onboard-step-footer">
+          <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.continue">Continue</button>
+          <button type="button" class="btn btn--ghost btn--full" id="btnOnboardingExplore" data-i18n="onboard.exploreMap">Explore the map first</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="displayName" data-i18n="onboard.name">Display name</label>
-        <input type="text" id="displayName" placeholder="What should neighbours call you?" data-i18n-ph="onboard.namePh" maxlength="30">
-      </div>
-      <div class="modal__sticky-footer">
-        <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.join">Join your ward</button>
+
+      <div class="onboard-step-panel hidden" id="onboardStep2" data-onboard-panel="2" role="tabpanel" aria-labelledby="onboardStep2Title" hidden>
+        <h2 id="onboardStep2Title" tabindex="-1" data-i18n="onboard.step2Title">What should neighbours call you?</h2>
+        <p class="modal__subtitle" data-i18n="onboard.step2Subtitle">Optional — you can change this anytime in Profile.</p>
+        <div class="form-group">
+          <label for="displayName" data-i18n="onboard.name">Display name</label>
+          <input type="text" id="displayName" placeholder="What should neighbours call you?" data-i18n-ph="onboard.namePh" maxlength="30" autocomplete="nickname">
+        </div>
+        <label class="checkbox-row" id="onboardTosRow">
+          <input type="checkbox" id="onboardTosAccept">
+          <span data-i18n-html="onboard.tosAccept">I'm 18+ and accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> &amp; <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
+        </label>
+        <p class="field-error hidden" id="onboardTosError" role="alert" data-i18n="onboard.tosError">Accept the Terms to join your ward.</p>
+        <div class="modal__sticky-footer onboard-step-footer">
+          <button type="button" class="btn btn--primary btn--full" id="btnOnboardingJoin" disabled data-i18n="onboard.join">Join your ward</button>
+          <button type="button" class="btn btn--ghost btn--full" id="btnOnboardingBack" data-i18n="onboard.back">Back</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1172,9 +1193,14 @@
             </label>
           </div>
           <div class="profile-settings profile-settings--consent">
-            <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawAnalytics">
-              <span data-i18n="profile.withdrawAnalytics">Withdraw analytics consent</span>
-            </button>
+            <label class="toggle-row" for="analyticsConsentToggle">
+              <span class="toggle-row__text">
+                <span class="toggle-row__label" data-i18n="profile.analyticsLabel">Anonymous usage analytics</span>
+                <span class="toggle-row__sub" data-i18n="profile.analyticsSub">Helps improve reliability. No photos, GPS, or names.</span>
+              </span>
+              <input type="checkbox" id="analyticsConsentToggle" class="toggle-row__input">
+              <span class="toggle-row__switch" aria-hidden="true"></span>
+            </label>
             <button type="button" class="btn btn--ghost btn--full" id="btnWithdrawGps">
               <span data-i18n="profile.withdrawGps">Withdraw location consent</span>
             </button>

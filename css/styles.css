@@ -13944,6 +13944,87 @@ body.persona-pulse-redundant .ward-pulse {
    hazard ring (§5.6) live with their components above.
    ============================================================ */
 
+/* Welcome 2-step progress (§5.5) + city chips (v392) */
+.onboard-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.onboard-progress__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--border, #E2E8F0);
+  cursor: default;
+  min-width: 0;
+  min-height: 0;
+}
+
+.onboard-progress__dot.is-active {
+  background: var(--primary, #6366f1);
+  width: 20px;
+}
+
+.onboard-progress__dot:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.onboard-step-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.onboard-step-panel[hidden],
+.onboard-step-panel.hidden {
+  display: none !important;
+}
+
+.onboard-step-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.onboard-city-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.onboard-city-chip {
+  flex: 1 1 auto;
+  min-height: var(--touch-min, 44px);
+  padding: 8px 12px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-md, 12px);
+  background: var(--surface, #fff);
+  color: var(--text-dark, #0F172A);
+  font: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.onboard-city-chip.is-active {
+  border-color: var(--primary, #6366f1);
+  background: var(--primary-50, #eef2ff);
+  color: var(--primary, #6366f1);
+  font-weight: 600;
+}
+
+.onboard-city-chip:focus-visible {
+  outline: 2px solid var(--primary, #6366f1);
+  outline-offset: 2px;
+}
+
 .onboard-hero {
   display: flex;
   justify-content: center;

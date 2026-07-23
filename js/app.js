@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v391';
+  const CIVIC_APP_VERSION = 'v392';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -389,6 +389,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const TOUR_KEY = 'civicradar_tour_seen';
 
   const FAB_SPOT_KEY = 'civicradar_fab_spot_seen';
+
+  const EXPLORE_MAP_KEY = 'civicradar_explore_map';
+
+  const ANALYTICS_PROMPT_KEY = 'civicradar_analytics_prompt_seen';
 
   const HERO_DISMISSED_KEY = 'civicradar_hero_dismissed';
 
@@ -1901,6 +1905,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = cityId || getOnboardingCity();
 
+    const chips = document.querySelectorAll('#onboardCityChips .onboard-city-chip');
+
+    chips.forEach((btn) => {
+
+      const active = btn.getAttribute('data-city') === city;
+
+      btn.classList.toggle('is-active', active);
+
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+
+    });
+
+    const sel = $('#onboardCity');
+
+    if (sel && sel.value !== city) sel.value = city;
+
     refreshWardComboboxes();
 
     const hint = $('#wardHint');
@@ -2827,6 +2847,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (trimmed) return trimmed;
 
+    if (opts && opts.neighbourDefault) {
+
+      const fallback = t('onboard.nameDefault');
+
+      return sanitizeText(fallback, 30) || 'Neighbour';
+
+    }
+
     return generateDefaultDisplayName(opts);
 
   }
@@ -2965,7 +2993,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.ngo.exit': 'Exit NGO mode',
 
-      'onboard.title': 'Welcome to CivicRadar',
+      'onboard.title': 'Where do you live?',
 
       'onboard.subtitle': 'Spot it. Snap it. Sorted. — then fix via official channels or neighbourhood volunteers.',
 
@@ -3003,11 +3031,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar currently serves Mumbai, Pune, and Thane only. Please select one of these cities manually to explore.',
 
-      'onboard.gpsDisclosure': 'Used once to find your ward. Neighbourhood is optional — nothing is shared until you report.',
+      'onboard.gpsDisclosure': 'Used once to suggest your ward. Never shown on the map until you report.',
 
       'onboard.wardDetectCta': 'Detect my area',
 
       'onboard.or': 'or',
+
+      'onboard.step1Title': 'Where do you live?',
+
+      'onboard.step1Subtitle': 'We\'ll suggest your ward so neighbours nearby see your reports.',
+
+      'onboard.step2Title': 'What should neighbours call you?',
+
+      'onboard.step2Subtitle': 'Optional — you can change this anytime in Profile.',
+
+      'onboard.continue': 'Continue',
+
+      'onboard.back': 'Back',
+
+      'onboard.exploreMap': 'Explore the map first',
+
+      'onboard.nameDefault': 'Neighbour',
+
+      'onboard.tosAccept': 'I\'m 18+ and accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> &amp; <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>',
+
+      'onboard.tosError': 'Accept the Terms to join your ward.',
+
+      'analytics.prompt': 'Help improve CivicRadar with anonymous usage analytics?',
+
+      'analytics.allow': 'Allow',
+
+      'analytics.noThanks': 'No thanks',
+
+      'profile.analyticsLabel': 'Anonymous usage analytics',
+
+      'profile.analyticsSub': 'Helps improve reliability. No photos, GPS, or names.',
+
 
       'onboard.name': 'Display name',
 
@@ -4592,7 +4651,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.subtitle': 'Please read and accept before using CivicRadar.',
 
-      'tos.summary': 'Free community hazard map. You must be 18+ and accept the Terms to continue.',
+      'tos.summary': 'Free community hazard map. You must be 18+ and accept the Terms to join your ward or report.',
 
       'tos.readFull': 'Read full terms',
 
@@ -4616,7 +4675,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'tos.accept': 'I am 18+, I accept the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>',
 
-      'tos.continue': 'Continue',
+      'tos.continue': 'Close',
 
       'pledge.title': 'Pledge support',
 
@@ -5519,7 +5578,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.ngo.exit': 'NGO मोड बंद',
 
-      'onboard.title': 'CivicRadar में आपका स्वागत है',
+      'onboard.title': 'आप कहाँ रहते हैं?',
 
       'onboard.subtitle': 'देखा। खींचा। हो गया। — फिर आधिकारिक चैनलों या पड़ोसी स्वयंसेवकों के साथ सुलझाएँ।',
 
@@ -5557,11 +5616,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar अभी केवल मुंबई, पुणे और ठाणे में उपलब्ध है। कृपया इनमें से कोई शहर खुद चुनकर देखें।',
 
-      'onboard.gpsDisclosure': 'आपका वार्ड खोजने के लिए एक बार उपयोग। पड़ोस वैकल्पिक है — रिपोर्ट करने तक कुछ साझा नहीं होता।',
+      'onboard.gpsDisclosure': 'आपका वार्ड सुझाने के लिए एक बार उपयोग। रिपोर्ट करने तक मानचित्र पर नहीं दिखता।',
 
       'onboard.wardDetectCta': 'मेरा इलाका ऑटो-डिटेक्ट करें',
 
       'onboard.or': 'या',
+
+      'onboard.step1Title': 'आप कहाँ रहते हैं?',
+
+      'onboard.step1Subtitle': 'हम आपका वार्ड सुझाएँगे ताकि आस-पास के पड़ोसी आपकी रिपोर्ट देख सकें।',
+
+      'onboard.step2Title': 'पड़ोसी आपको क्या कहें?',
+
+      'onboard.step2Subtitle': 'वैकल्पिक — Profile में कभी भी बदल सकते हैं।',
+
+      'onboard.continue': 'आगे बढ़ें',
+
+      'onboard.back': 'पीछे',
+
+      'onboard.exploreMap': 'पहले नक्शा देखें',
+
+      'onboard.nameDefault': 'Neighbour',
+
+      'onboard.tosAccept': 'मैं 18+ हूँ और <a href="terms.html" target="_blank" rel="noopener noreferrer">नियम</a> व <a href="privacy.html" target="_blank" rel="noopener noreferrer">गोपनीयता नीति</a> स्वीकार करता/करती हूँ',
+
+      'onboard.tosError': 'वार्ड से जुड़ने के लिए नियम स्वीकार करें।',
+
+      'analytics.prompt': 'गुमनाम उपयोग आँकड़ों से CivicRadar सुधारने में मदद करें?',
+
+      'analytics.allow': 'अनुमति दें',
+
+      'analytics.noThanks': 'नहीं धन्यवाद',
+
+      'profile.analyticsLabel': 'गुमनाम उपयोग एनालिटिक्स',
+
+      'profile.analyticsSub': 'विश्वसनीयता सुधारने में मदद। कोई फ़ोटो, GPS या नाम नहीं।',
+
 
       'onboard.name': 'प्रदर्शित नाम',
 
@@ -8073,7 +8163,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.ngo.exit': 'NGO मोड बंद',
 
-      'onboard.title': 'CivicRadar मध्ये स्वागत आहे',
+      'onboard.title': 'तुम्ही कुठे राहता?',
 
       'onboard.subtitle': 'दिसलं. टिपलं. झालं. — मग अधिकृत मार्गाने किंवा शेजारी स्वयंसेवक एकत्र करून सोडवा.',
 
@@ -8111,11 +8201,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar सध्या फक्त मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. कृपया यातील एक शहर स्वतः निवडून पाहा.',
 
-      'onboard.gpsDisclosure': 'तुमचा वॉर्ड शोधण्यासाठी एकदा वापर. परिसर पर्यायी आहे — रिपोर्ट करेपर्यंत काही शेअर होत नाही.',
+      'onboard.gpsDisclosure': 'तुमचा वॉर्ड सुचवण्यासाठी एकदा वापर. तक्रार करेपर्यंत नकाशावर दिसणार नाही.',
 
       'onboard.wardDetectCta': 'माझा परिसर ऑटो-डिटेक्ट करा',
 
       'onboard.or': 'किंवा',
+
+      'onboard.step1Title': 'तुम्ही कुठे राहता?',
+
+      'onboard.step1Subtitle': 'आम्ही तुमचा वॉर्ड सुचवू जेणेकरून जवळचे शेजारी तुमच्या तक्रारी पाहतील.',
+
+      'onboard.step2Title': 'शेजारी तुम्हाला काय म्हणतील?',
+
+      'onboard.step2Subtitle': 'ऐच्छिक — Profile मध्ये कधीही बदलू शकता.',
+
+      'onboard.continue': 'पुढे',
+
+      'onboard.back': 'मागे',
+
+      'onboard.exploreMap': 'आधी नकाशा पाहा',
+
+      'onboard.nameDefault': 'Neighbour',
+
+      'onboard.tosAccept': 'मी 18+ आहे आणि <a href="terms.html" target="_blank" rel="noopener noreferrer">अटी</a> व <a href="privacy.html" target="_blank" rel="noopener noreferrer">गोपनीयता धोरण</a> स्वीकारतो/स्वीकारते',
+
+      'onboard.tosError': 'वॉर्डमध्ये सामील होण्यासाठी अटी स्वीकारा.',
+
+      'analytics.prompt': 'अनामित वापर विश्लेषणाने CivicRadar सुधारण्यास मदत कराल?',
+
+      'analytics.allow': 'परवानगी द्या',
+
+      'analytics.noThanks': 'नको धन्यवाद',
+
+      'profile.analyticsLabel': 'अनामित वापर विश्लेषण',
+
+      'profile.analyticsSub': 'विश्वसनीयता सुधारण्यास मदत. फोटो, GPS किंवा नावे नाहीत.',
+
 
       'onboard.name': 'प्रदर्शित नाव',
 
@@ -10626,7 +10747,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'persona.ngo.exit': 'NGO મોડ બંધ',
 
-      'onboard.title': 'CivicRadar માં આપનું સ્વાગત છે',
+      'onboard.title': 'તમે ક્યાં રહો છો?',
 
       'onboard.subtitle': 'જોયું. લીધું. થઈ ગયું. — પછી સત્તાવાર ચેનલો અથવા પડોશી સ્વયંસેવકો સાથે ઉકેલો.',
 
@@ -10664,11 +10785,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.outOfBounds': 'CivicRadar હાલમાં ફક્ત મુંબઈ, પુણે અને ઠાણેમાં જ ઉપલબ્ધ છે. કૃપા કરીને આમાંથી એક શહેર જાતે પસંદ કરીને જુઓ.',
 
-      'onboard.gpsDisclosure': 'તમારો વોર્ડ શોધવા એક વાર વપરાય. પડોશ વૈકલ્પિક છે — ફરિયાદ નોંધાવા સુધી કંઈ શેર થતું નથી.',
+      'onboard.gpsDisclosure': 'તમારો વોર્ડ સૂચવવા એક વાર ઉપયોગ. ફરિયાદ કરતાં પહેલાં નકશા પર નહીં દેખાય.',
 
       'onboard.wardDetectCta': 'મારો વિસ્તાર ઑટો-ડિટેક્ટ કરો',
 
       'onboard.or': 'અથવા',
+
+      'onboard.step1Title': 'તમે ક્યાં રહો છો?',
+
+      'onboard.step1Subtitle': 'અમે તમારો વોર્ડ સૂચવીશું જેથી નજીકના પડોશીઓ તમારી ફરિયાદ જોઈ શકે.',
+
+      'onboard.step2Title': 'પડોશીઓ તમને શું કહે?',
+
+      'onboard.step2Subtitle': 'વૈકલ્પિક — Profileમાં ક્યારેય બદલી શકો.',
+
+      'onboard.continue': 'આગળ',
+
+      'onboard.back': 'પાછળ',
+
+      'onboard.exploreMap': 'પહેલા નકશો જુઓ',
+
+      'onboard.nameDefault': 'Neighbour',
+
+      'onboard.tosAccept': 'હું 18+ છું અને <a href="terms.html" target="_blank" rel="noopener noreferrer">નિયમો</a> તથા <a href="privacy.html" target="_blank" rel="noopener noreferrer">ગોપનીયતા નીતિ</a> સ્વીકારું છું',
+
+      'onboard.tosError': 'વોર્ડમાં જોડાવા નિયમો સ્વીકારો.',
+
+      'analytics.prompt': 'અનામી વપરાશ વિશ્લેષણથી CivicRadar સુધારવામાં મદદ કરશો?',
+
+      'analytics.allow': 'મંજૂરી આપો',
+
+      'analytics.noThanks': 'ના આભાર',
+
+      'profile.analyticsLabel': 'અનામી વપરાશ એનાલિટિક્સ',
+
+      'profile.analyticsSub': 'વિશ્વસનીયતા સુધારવામાં મદદ. ફોટો, GPS કે નામ નહીં.',
+
 
       'onboard.name': 'પ્રદર્શિત નામ',
 
@@ -13490,8 +13642,8 @@ document.addEventListener('DOMContentLoaded', function () {
       el.setAttribute('aria-label', t(el.dataset.i18nAria));
     });
     applyCorpAwareI18n();
-    const tosBtn = $('#btnTosContinue');
-    if (tosBtn) tosBtn.disabled = !($('#tosAccept') && $('#tosAccept').checked);
+    const joinBtn = $('#btnOnboardingJoin');
+    if (joinBtn) joinBtn.disabled = !($('#onboardTosAccept') && $('#onboardTosAccept').checked);
     const langBtn = $('#btnLang');
     if (langBtn) langBtn.textContent = currentLang === 'en' ? 'EN' : t('lang.native');
     updateSyncStatus();
@@ -15559,7 +15711,9 @@ document.addEventListener('DOMContentLoaded', function () {
       // the full-screen ToS/onboarding gate visually collides with it — and the
       // gate reappearing is itself the confirmation that data was wiped.
       // profile.deleteDone remains for offline/tests that surface it elsewhere.
-      openModal('tos');
+      try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(ANALYTICS_PROMPT_KEY); } catch { /* ignore */ }
+      openModal('onboarding');
 
     } catch (e) {
 
@@ -15815,11 +15969,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function requireCommunityConsent(action) {
 
-    if (!user.tosAccepted) {
+    if (!user.tosAccepted || !user.ward) {
 
       showToast(t('toast.tosRequired'), 'info');
 
-      openModal('tos');
+      openModal('onboarding');
 
       return false;
 
@@ -23610,6 +23764,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let onboardingDetectedWard = '';
 
+  let onboardingStep = 1;
+
 
 
   function detectWardFromCoords(lat, lng, cityId) {
@@ -23768,7 +23924,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function scrollOnboardingJoinIntoView() {
 
-    const btn = $('#btnOnboardingContinue');
+    const btn = (onboardingStep === 2 ? $('#btnOnboardingJoin') : null)
+
+      || $('#btnOnboardingContinue')
+
+      || $('#btnOnboardingJoin');
 
     if (!btn) return;
 
@@ -24078,7 +24238,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-  // Detect stays primary; Join is secondary until city+ward are valid (one glow).
+  // Detect stays primary; Continue is secondary until city+ward are valid (one glow).
   // Stay enabled so empty/invalid taps still run validation (E2E C06b/C07).
   function syncOnboardingJoinCta() {
     const btn = $('#btnOnboardingContinue');
@@ -24089,6 +24249,105 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.disabled = false;
     btn.classList.toggle('btn--primary', ready);
     btn.classList.toggle('btn--secondary', !ready);
+    syncOnboardingTosJoinCta();
+  }
+
+  function syncOnboardingTosJoinCta() {
+    const join = $('#btnOnboardingJoin');
+    const accept = $('#onboardTosAccept');
+    if (!join) return;
+    join.disabled = !(accept && accept.checked);
+  }
+
+  function setOnboardingStep(step, opts) {
+    const next = step === 2 ? 2 : 1;
+    onboardingStep = next;
+    const s1 = $('#onboardStep1');
+    const s2 = $('#onboardStep2');
+    if (s1) {
+      const show = next === 1;
+      s1.classList.toggle('hidden', !show);
+      s1.hidden = !show;
+    }
+    if (s2) {
+      const show = next === 2;
+      s2.classList.toggle('hidden', !show);
+      s2.hidden = !show;
+    }
+    const d1 = $('#onboardDot1');
+    const d2 = $('#onboardDot2');
+    if (d1) {
+      d1.classList.toggle('is-active', next === 1);
+      d1.setAttribute('aria-selected', next === 1 ? 'true' : 'false');
+    }
+    if (d2) {
+      d2.classList.toggle('is-active', next === 2);
+      d2.setAttribute('aria-selected', next === 2 ? 'true' : 'false');
+      d2.disabled = next < 2 && !(opts && opts.unlockStep2);
+      if (next === 2) d2.disabled = false;
+    }
+    const title = next === 2 ? $('#onboardStep2Title') : $('#onboardingTitle');
+    if (title && !(opts && opts.skipFocus)) {
+      try { title.focus({ preventScroll: true }); } catch {
+        try { title.focus(); } catch { /* ignore */ }
+      }
+    }
+    if (next === 2) syncOnboardingTosJoinCta();
+    else syncOnboardingJoinCta();
+  }
+
+  function suppressPurposeAfterWelcome() {
+    try {
+      safeLocalSet(COACH_KEY, '1');
+      safeLocalSet(FAB_SPOT_KEY, '1');
+      safeLocalSet(HERO_DISMISSED_KEY, '1');
+    } catch { /* ignore */ }
+    const coach = $('#coachMark');
+    if (coach) coach.classList.add('hidden');
+    syncFirstRunActiveClass();
+  }
+
+  function hasExploredMapFirst() {
+    try { return localStorage.getItem(EXPLORE_MAP_KEY) === '1'; } catch { return false; }
+  }
+
+  function markExploredMapFirst() {
+    try { safeLocalSet(EXPLORE_MAP_KEY, '1'); } catch { /* ignore */ }
+    suppressPurposeAfterWelcome();
+  }
+
+  function maybePromptAnalyticsConsent() {
+    try {
+      if (localStorage.getItem(ANALYTICS_PROMPT_KEY) === '1') return;
+      if (user && user.analyticsConsent) {
+        safeLocalSet(ANALYTICS_PROMPT_KEY, '1');
+        return;
+      }
+    } catch { /* ignore */ }
+    if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
+    showToast(t('analytics.prompt'), 'info', 14000, {
+      label: t('analytics.allow'),
+      onClick: () => {
+        user.analyticsConsent = true;
+        saveUser();
+        if (window.CivicAnalytics) CivicAnalytics.setConsent(true);
+        try { safeLocalSet(ANALYTICS_PROMPT_KEY, '1'); } catch { /* ignore */ }
+        syncAnalyticsConsentToggle();
+      },
+      secondary: {
+        label: t('analytics.noThanks'),
+        onClick: () => {
+          try { safeLocalSet(ANALYTICS_PROMPT_KEY, '1'); } catch { /* ignore */ }
+        },
+      },
+      dedupeKey: 'analytics-prompt',
+      toastClass: 'toast--gps',
+    });
+  }
+
+  function syncAnalyticsConsentToggle() {
+    const el = $('#analyticsConsentToggle');
+    if (el) el.checked = !!(user && user.analyticsConsent);
   }
 
 
@@ -24504,6 +24763,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (societyInput) societyInput.value = user.society || '';
 
+      const nameInput = $('#displayName');
+
+      if (nameInput && !nameInput.value) nameInput.value = user.displayName || '';
+
+      const tosBox = $('#onboardTosAccept');
+
+      if (tosBox) {
+        tosBox.checked = !!user.tosAccepted;
+        $('#onboardTosError')?.classList.add('hidden');
+      }
+
       if (user.ward) {
 
         onboardingDetectedWard = user.ward;
@@ -24514,21 +24784,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         $('#wardDetectStatus')?.classList.add('hidden');
 
-        $('#wardDetected')?.classList.add('hidden');
-
-        $('#wardDetectPrompt')?.classList.add('hidden');
-
-        setOnboardingManualExpanded(true);
-
-        setOnboardingWardManualLink('pick');
-
-        $('#btnWardManual')?.classList.add('hidden');
-
-        $('#btnWardRetry')?.classList.remove('hidden');
-
-        setOnboardingWardHintMode('wardHint');
-
-        refreshSocietyForOnboarding();
+        showOnboardingWardDetected(user.ward);
 
       } else {
 
@@ -24536,6 +24792,9 @@ document.addEventListener('DOMContentLoaded', function () {
         showOnboardingWardDetectPrompt();
 
       }
+
+      if (user.ward && !user.tosAccepted) setOnboardingStep(2, { unlockStep2: true, skipFocus: false });
+      else setOnboardingStep(1, { skipFocus: true });
 
       syncOnboardingJoinCta();
 
@@ -26429,15 +26688,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     debugLog('REPORT', 'openReportModal', { openCamera });
 
-    if (!user.tosAccepted) {
-
-      openModal('tos');
-
-      return;
-
-    }
-
-    if (!user.ward) {
+    if (!user.tosAccepted || !user.ward) {
 
       showToast(t('toast.onboardFirst'), 'info');
 
@@ -27875,13 +28126,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!user.tosAccepted) {
-
-      openModal('tos');
-
-    } else if (!user.ward) {
+    if ((!user.tosAccepted || !user.ward) && !hasExploredMapFirst()) {
 
       openModal('onboarding');
+
+    } else if (!user.tosAccepted || !user.ward) {
+
+      // Explored map first — stay on map; Report reopens welcome for ward + Terms.
+      updateProfileUI();
+
+      updatePersonaUI();
+
+      updateMapEmptyCta();
+
+      syncFirstRunActiveClass();
 
     } else {
 
@@ -29938,42 +30196,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    const tosAcceptEl = $('#tosAccept');
+    const onboardTosAcceptEl = $('#onboardTosAccept');
 
-    if (tosAcceptEl) tosAcceptEl.addEventListener('change', (e) => {
+    if (onboardTosAcceptEl) onboardTosAcceptEl.addEventListener('change', () => {
 
-      const btn = $('#btnTosContinue');
+      $('#onboardTosError')?.classList.add('hidden');
 
-      if (btn) btn.disabled = !e.target.checked;
-
-    });
-
-    const btnTosContinue = $('#btnTosContinue');
-    if (btnTosContinue) btnTosContinue.addEventListener('click', () => {
-
-      user.tosAccepted = true;
-
-      user.analyticsConsent = !!$('#tosAnalytics').checked;
-
-      saveUser();
-
-      if (window.CivicAnalytics) CivicAnalytics.setConsent(!!user.analyticsConsent);
-
-      closeModal('tos');
-
-      maybeRequestLocation(true);
-
-      if (!user.ward) openModal('onboarding');
+      syncOnboardingTosJoinCta();
 
     });
 
+    const btnOnboardingExplore = $('#btnOnboardingExplore');
 
+    if (btnOnboardingExplore) btnOnboardingExplore.addEventListener('click', () => {
+
+      markExploredMapFirst();
+
+      closeModal('onboarding');
+
+      setNavTab('map');
+
+      armNavTabGhostGuard(450);
+
+      updateHeaderContext();
+
+      updateProfileUI();
+
+      updatePersonaUI();
+
+      updateMapEmptyCta();
+
+      syncFirstRunActiveClass();
+
+      setTimeout(() => flushSecondaryNudgesAfterOverlay(), 300);
+
+    });
+
+    const btnOnboardingBack = $('#btnOnboardingBack');
+
+    if (btnOnboardingBack) btnOnboardingBack.addEventListener('click', () => {
+
+      setOnboardingStep(1, { skipFocus: false });
+
+    });
+
+    const onboardCityChips = $('#onboardCityChips');
+
+    if (onboardCityChips) onboardCityChips.addEventListener('click', (e) => {
+
+      const btn = e.target && e.target.closest && e.target.closest('.onboard-city-chip');
+
+      if (!btn) return;
+
+      const city = btn.getAttribute('data-city');
+
+      if (!city || !CITIES[city]) return;
+
+      const sel = $('#onboardCity');
+
+      if (sel) sel.value = city;
+
+      syncOnboardingCityUi(city);
+
+      onboardingDetectedWard = '';
+
+      const wardIn = $('#wardInput');
+
+      if (wardIn) wardIn.value = '';
+
+      $('#wardDetected')?.classList.add('hidden');
+
+      refreshSocietyForOnboarding();
+
+      syncOnboardingJoinCta();
+
+    });
 
     $('#btnOnboardingContinue').addEventListener('click', () => {
 
       const ward = getOnboardingWard().trim();
-
-      const name = resolveDisplayName($('#displayName').value, { ward, city: getOnboardingCity() });
 
       $('#wardError').classList.add('hidden');
 
@@ -29981,7 +30282,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         revealFieldError($('#wardError'));
 
-        if ($('#wardManualGroup')?.classList.contains('hidden')) showOnboardingWardManual();
+        if ($('#onboardManualSearch')?.classList.contains('hidden')) showOnboardingWardManual();
 
         else $('#wardInput')?.focus();
 
@@ -29999,6 +30300,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      onboardingDetectedWard = ward;
+
+      setOnboardingStep(2, { unlockStep2: true });
+
+      scrollOnboardingJoinIntoView();
+
+    });
+
+    const btnOnboardingJoin = $('#btnOnboardingJoin');
+
+    if (btnOnboardingJoin) btnOnboardingJoin.addEventListener('click', () => {
+
+      const ward = getOnboardingWard().trim();
+
+      const accept = $('#onboardTosAccept');
+
+      $('#wardError')?.classList.add('hidden');
+
+      $('#onboardTosError')?.classList.add('hidden');
+
+      if (!ward || !isValidWard(ward, getOnboardingCity())) {
+
+        setOnboardingStep(1, { skipFocus: false });
+
+        revealFieldError($('#wardError'));
+
+        return;
+
+      }
+
+      if (!accept || !accept.checked) {
+
+        revealFieldError($('#onboardTosError'));
+
+        syncOnboardingTosJoinCta();
+
+        return;
+
+      }
+
+      const name = resolveDisplayName($('#displayName')?.value || '', {
+
+        ward,
+
+        city: getOnboardingCity(),
+
+        neighbourDefault: true,
+
+      });
+
+      user.tosAccepted = true;
+
       user.city = getOnboardingCity();
 
       user.ward = ward;
@@ -30008,6 +30361,8 @@ document.addEventListener('DOMContentLoaded', function () {
       cacheSocietyIfCustom(user.city, user.ward, user.society);
 
       user.displayName = name;
+
+      try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
 
       saveUser();
 
@@ -30021,7 +30376,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         CivicAnalytics.track('onboarding_complete', {
 
-          wardCode: ward.split('—')[0].trim(),
+          wardCode: ward.split('\u2014')[0].trim(),
 
           city: user.city,
 
@@ -30029,11 +30384,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      // v317: no welcome toast after onboarding — purpose sheet owns first-run copy.
+      suppressPurposeAfterWelcome();
+
       closeModal('onboarding');
 
-      // Land on Map (default tab). Guard + settle absorb sticky-footer → nav ghost taps
-      // (Join CTA sits over Community/Resources on the floating dock).
       setNavTab('map');
 
       armNavTabGhostGuard(450);
@@ -30066,26 +30420,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderLeaderboard('citizens');
 
-      // Welcome was queued before closeModal('onboarding'); closeModal already
-      // schedules flushSecondaryNudgesAfterOverlay (banner-aware). Do not flush
-      // toast here — that stacked welcome + location banner on first map view.
-
       syncFirstRunActiveClass();
 
-      if (!shouldShowHomeHero()) {
-
-        setTimeout(() => {
-
-          if (!localStorage.getItem(COACH_KEY)) showCoachMark();
-
-          else maybeShowFabSpotlight();
-
-        }, 500);
-
-      }
+      setTimeout(() => maybePromptAnalyticsConsent(), 900);
 
     });
-
 
 
     const onOnboardWardEdited = () => {
@@ -30590,9 +30929,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnDeleteConfirmProceed').addEventListener('click', () => { executeDeleteMyData(); });
 
-    const btnWithdrawAnalytics = $('#btnWithdrawAnalytics');
+    const analyticsConsentToggle = $('#analyticsConsentToggle');
 
-    if (btnWithdrawAnalytics) btnWithdrawAnalytics.addEventListener('click', withdrawAnalyticsConsent);
+    if (analyticsConsentToggle) {
+      analyticsConsentToggle.addEventListener('change', (e) => {
+        user.analyticsConsent = !!e.target.checked;
+        saveUser();
+        if (window.CivicAnalytics) CivicAnalytics.setConsent(!!user.analyticsConsent);
+        try { safeLocalSet(ANALYTICS_PROMPT_KEY, '1'); } catch { /* ignore */ }
+        if (!user.analyticsConsent) {
+          showToast(t('profile.withdrawAnalyticsDone'), 'info', 4500);
+        }
+      });
+    }
 
     const btnWithdrawGps = $('#btnWithdrawGps');
 
@@ -42170,6 +42519,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateProfileUI() {
 
     syncReportReminderToggle();
+
+    syncAnalyticsConsentToggle();
 
     syncNbhAlertToggles();
 
