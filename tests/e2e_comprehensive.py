@@ -1118,22 +1118,19 @@ async def run_citizen_tests(s: Suite, browser):
     )
 
     await dismiss_civic_comboboxes(page)
-    await js_click(page, '#btnOnboardingContinue')
-
-    await page.wait_for_timeout(200)
-
-    s.record('C06b', 'Citizen', 'Empty ward rejected', not await page.evaluate('() => document.getElementById("wardError").classList.contains("hidden")'))
+    await page.wait_for_timeout(150)
+    # Continue is disabled until a valid ward is set (Explore map stays enabled).
+    cont_disabled = await page.is_disabled('#btnOnboardingContinue')
+    s.record('C06b', 'Citizen', 'Continue disabled without ward', cont_disabled)
 
 
 
     await set_combobox_value(page, '#wardInput', '<script>alert(1)</script> Ward')
 
     await dismiss_civic_comboboxes(page)
-    await js_click(page, '#btnOnboardingContinue')
-
-    await page.wait_for_timeout(300)
-
-    s.record('C07', 'Citizen', 'Invalid/XSS ward rejected', not (await page.evaluate('() => JSON.parse(localStorage.getItem("civicradar_user")).ward')))
+    await page.wait_for_timeout(150)
+    cont_invalid = await page.is_disabled('#btnOnboardingContinue')
+    s.record('C07', 'Citizen', 'Continue disabled for invalid/XSS ward', cont_invalid)
 
 
 
@@ -5754,7 +5751,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v399" in sw_src
+            "civicradar-v400" in sw_src
 
             and "'/index.html'" not in sw_src
 

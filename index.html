@@ -474,7 +474,7 @@
           <p class="field-error hidden" id="wardError" role="alert" data-i18n="onboard.wardError">Pick a ward from the list, or turn on location.</p>
         </div>
         <div class="modal__sticky-footer onboard-step-footer">
-          <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.continue">Continue</button>
+          <button type="button" class="btn btn--secondary btn--full" id="btnOnboardingContinue" data-i18n="onboard.continue" disabled>Continue</button>
           <button type="button" class="btn btn--ghost btn--full" id="btnOnboardingExplore" data-i18n="onboard.exploreMap">Explore the map first</button>
         </div>
       </div>
@@ -484,7 +484,7 @@
         <p class="modal__subtitle" data-i18n="onboard.step2Subtitle">Optional — you can change this anytime in Profile.</p>
         <div class="form-group">
           <label for="displayName" data-i18n="onboard.name">Display name</label>
-          <input type="text" id="displayName" placeholder="What should neighbours call you?" data-i18n-ph="onboard.namePh" maxlength="30" autocomplete="nickname">
+          <input type="text" id="displayName" placeholder="e.g. Priya" data-i18n-ph="onboard.namePh" maxlength="30" autocomplete="nickname">
         </div>
         <label class="checkbox-row" id="onboardTosRow">
           <input type="checkbox" id="onboardTosAccept">
@@ -521,6 +521,10 @@
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="reportCamera" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-camera"></i></div>
+      <div class="report-capture-hazard-chip report-camera-hazard-chip" id="reportCameraHazardChip" data-hazard="stagnant-water" role="status">
+        <img class="report-capture-hazard-chip__icon" id="reportCameraHazardChipIcon" src="assets/hazard-icons/hazard-water.svg" alt="" width="16" height="16">
+        <span class="report-capture-hazard-chip__label" id="reportCameraHazardChipLabel">Stagnant Water</span>
+      </div>
       <h2 id="reportCameraTitle" data-i18n="report.cameraDisclosureTitle">Photo for your hazard report</h2>
       <ul class="disclosure-list" id="reportCameraBody">
         <li><i class="ph ph-camera" aria-hidden="true"></i><span id="reportCameraBodyVerify" data-i18n="report.cameraDisclosure.verify">Used only to verify this hazard</span></li>
@@ -529,6 +533,7 @@
       </ul>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportCameraContinue" data-i18n="report.cameraDisclosureContinue">Continue to camera</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnReportCameraGallery" data-i18n="report.chooseGallery">Choose from gallery</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnReportCameraCancel" data-i18n="common.cancel">Cancel</button>
       </div>
     </div>

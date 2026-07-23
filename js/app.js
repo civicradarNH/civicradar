@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v399';
+  const CIVIC_APP_VERSION = 'v400';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -874,6 +874,13 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportPinSeedToken = 0;
 
   let confirmPinGpsCancel = null;
+
+  let confirmPinGpsEscapeTimer = null;
+
+  const GEO_PIN_ESCAPE_MS = 8000;
+
+  // Session: success-modal WhatsApp share — skip map WA snackbar for that report.
+  const sharedFromSuccessSession = new Set();
 
   let reportPinAttentionTimer = null;
 
@@ -3100,7 +3107,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.name': 'Display name',
 
-      'onboard.namePh': 'What should neighbours call you?',
+      'onboard.namePh': 'e.g. Priya',
 
       'onboard.join': 'Join your ward',
 
@@ -3150,6 +3157,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinLocating': 'Finding your location…',
 
+      'report.pinLocatingSlow': 'Still finding GPS — place the pin yourself if needed.',
+
       'report.pinMapAria': 'Adjust hazard location on map',
 
       'report.adjustPin': 'Adjust pin',
@@ -3169,6 +3178,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.geoExplainerManual': 'Place pin on map instead',
 
       'report.cameraDisclosureTitle': 'Photo for your hazard report',
+
+      'report.cameraDisclosureTitleHazard': 'Photo for {hazard}',
 
       'report.cameraDisclosureBody': 'Camera is only for hazard evidence. Photos show on the community map. EXIF location is stripped on-device. Avoid faces and documents.',
 
@@ -5691,7 +5702,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.name': 'प्रदर्शित नाम',
 
-      'onboard.namePh': 'पड़ोसी आपको क्या कहें?',
+      'onboard.namePh': 'जैसे प्रिया',
 
       'onboard.join': 'अपने वार्ड से जुड़ें',
 
@@ -5741,6 +5752,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinLocating': 'आपका स्थान खोज रहे हैं…',
 
+      'report.pinLocatingSlow': 'GPS अभी भी खोज रहा है — ज़रूरत हो तो पिन खुद लगाएँ।',
+
       'report.pinMapAria': 'खतरे का स्थान मैप पर ठीक करें',
 
       'report.adjustPin': 'पिन ठीक करें',
@@ -5760,6 +5773,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.geoExplainerManual': 'मैप पर पिन लगाएँ',
 
       'report.cameraDisclosureTitle': 'खतरा रिपोर्ट के लिए फ़ोटो',
+
+      'report.cameraDisclosureTitleHazard': '{hazard} के लिए फ़ोटो',
 
       'report.cameraDisclosureBody': 'कैमरा केवल खतरे के प्रमाण के लिए। फोटो सामुदायिक मानचित्र पर दिखते हैं। EXIF लोकेशन डिवाइस पर हटाई जाती है। चेहरे और दस्तावेज़ न लें।',
 
@@ -8282,7 +8297,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.name': 'प्रदर्शित नाव',
 
-      'onboard.namePh': 'शेजारी तुम्हाला काय म्हणावेत?',
+      'onboard.namePh': 'उदा. प्रिया',
 
       'onboard.join': 'तुमच्या वॉर्डमध्ये सामील व्हा',
 
@@ -8332,6 +8347,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinLocating': 'तुमचे स्थान शोधत आहोत…',
 
+      'report.pinLocatingSlow': 'GPS अजून शोधत आहे — गरज असल्यास पिन स्वतः लावा.',
+
       'report.pinMapAria': 'धोक्याचे स्थान नकाशावर समायोजित करा',
 
       'report.adjustPin': 'पिन सुधारा',
@@ -8351,6 +8368,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.geoExplainerManual': 'नकाशावर पिन लावा',
 
       'report.cameraDisclosureTitle': 'धोका तक्रारीसाठी फोटो',
+
+      'report.cameraDisclosureTitleHazard': '{hazard} साठी फोटो',
 
       'report.cameraDisclosureBody': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी. फोटो समुदाय नकाशावर दिसतात. EXIF लोकेशन डिव्हाइसवर काढली जाते. चेहरे व कागदपत्रे टाळा.',
 
@@ -10872,7 +10891,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.name': 'પ્રદર્શિત નામ',
 
-      'onboard.namePh': 'પડોશીઓ તમને શું કહે?',
+      'onboard.namePh': 'દા.ત. પ્રિયા',
 
       'onboard.join': 'તમારા વોર્ડમાં જોડાઓ',
 
@@ -10922,6 +10941,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
 
+      'report.pinLocatingSlow': 'GPS હજુ શોધી રહ્યું છે — જરૂર હોય તો પિન પોતે મૂકો.',
+
       'report.pinMapAria': 'જોખમનું સ્થાન નકશા પર સમાયોજિત કરો',
 
       'report.adjustPin': 'પિન સમાયોજિત કરો',
@@ -10941,6 +10962,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.geoExplainerManual': 'નકશા પર પિન મૂકો',
 
       'report.cameraDisclosureTitle': 'જોખમ ફરિયાદ માટે ફોટો',
+
+      'report.cameraDisclosureTitleHazard': '{hazard} માટે ફોટો',
 
       'report.cameraDisclosureBody': 'કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
 
@@ -13698,6 +13721,7 @@ document.addEventListener('DOMContentLoaded', function () {
     applyCorpAwareI18n();
     const joinBtn = $('#btnOnboardingJoin');
     if (joinBtn) joinBtn.disabled = !($('#onboardTosAccept') && $('#onboardTosAccept').checked);
+    if (typeof syncOnboardingJoinCta === 'function') syncOnboardingJoinCta();
     const langBtn = $('#btnLang');
     if (langBtn) langBtn.textContent = currentLang === 'en' ? 'EN' : t('lang.native');
     updateSyncStatus();
@@ -22516,6 +22540,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
+  /** Hide map HUD chrome behind blocking sheets (onboarding, success, camera disclosure, etc.). */
+  function setSheetHudQuiet(quiet) {
+    document.documentElement.classList.toggle('sheet-hud-quiet', !!quiet);
+    document.body.classList.toggle('sheet-hud-quiet', !!quiet);
+  }
+
+  function syncSheetHudQuietFromOverlays() {
+    const quietNames = ['onboarding', 'success', 'reportCamera', 'tos', 'report'];
+    const quiet = quietNames.some((n) => overlays[n] && overlays[n].classList.contains('open'));
+    setSheetHudQuiet(quiet);
+    // report-open stays tied to the report sheet only (Capture UX).
+    setReportOpenHud(!!(overlays.report && overlays.report.classList.contains('open')));
+  }
+
+  /** Park FAB while a WA snackbar or analytics opt-in toast covers the dock. */
+  function setToastFabQuiet(quiet) {
+    document.body.classList.toggle('toast-fab-quiet', !!quiet);
+  }
+
+  function syncToastFabQuietFromDom() {
+    const container = $('#toastContainer');
+    if (!container) {
+      setToastFabQuiet(false);
+      return;
+    }
+    const quiet = Array.from(container.children).some((el) =>
+      el.classList
+      && (el.classList.contains('toast--snackbar') || el.classList.contains('toast--fab-quiet'))
+    );
+    setToastFabQuiet(quiet);
+  }
+
 
 
   function updateReportFlowSteps(step) {
@@ -23578,6 +23634,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const afterRemove = () => {
         // Snackbar gone — may restore parked GPS chip (still gated by pin popup / modals).
         flushPendingLocationBanner();
+        syncToastFabQuietFromDom();
       };
 
       if (instant) {
@@ -23629,6 +23686,7 @@ document.addEventListener('DOMContentLoaded', function () {
         toast.remove();
 
         flushPendingLocationBanner();
+        syncToastFabQuietFromDom();
 
       });
 
@@ -23651,6 +23709,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       toast.classList.add('toast--snackbar');
 
+    }
+
+    if (action && action.fabQuiet) {
+      toast.classList.add('toast--fab-quiet');
     }
 
     if (stackActions) {
@@ -23755,6 +23817,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Snackbar / toast owns attention — park GPS chip so it cannot stack under Me too.
     parkLocationBannerForAttention();
+
+    if (isWaSnackbar || (action && action.fabQuiet) || toast.classList.contains('toast--fab-quiet')) {
+      setToastFabQuiet(true);
+    } else {
+      syncToastFabQuietFromDom();
+    }
 
     // Action / duration-0 toasts stay until the user taps an action or ×.
     if (!sticky) {
@@ -24753,15 +24821,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-  // Detect stays primary; Continue is secondary until city+ward are valid (one glow).
-  // Stay enabled so empty/invalid taps still run validation (E2E C06b/C07).
+  // Continue stays disabled until city+ward are valid (Explore map stays enabled).
   function syncOnboardingJoinCta() {
     const btn = $('#btnOnboardingContinue');
     if (!btn) return;
     const ward = getOnboardingWard().trim();
     const city = getOnboardingCity();
     const ready = !!(ward && isValidWard(ward, city));
-    btn.disabled = false;
+    btn.disabled = !ready;
     btn.classList.toggle('btn--primary', ready);
     btn.classList.toggle('btn--secondary', !ready);
     syncOnboardingTosJoinCta();
@@ -24840,7 +24907,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch { /* ignore */ }
     if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
-    showToast(t('analytics.prompt'), 'info', 14000, {
+    showToast(t('analytics.prompt'), 'info', 12000, {
       label: t('analytics.allow'),
       onClick: () => {
         user.analyticsConsent = true;
@@ -24856,7 +24923,11 @@ document.addEventListener('DOMContentLoaded', function () {
         },
       },
       dedupeKey: 'analytics-prompt',
-      toastClass: 'toast--gps',
+      toastClass: 'toast--gps toast--dock-bottom toast--fab-quiet',
+      fabQuiet: true,
+      onDismiss: () => {
+        try { safeLocalSet(ANALYTICS_PROMPT_KEY, '1'); } catch { /* ignore */ }
+      },
     });
   }
 
@@ -25225,6 +25296,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       updateReportDraftResumeCue();
 
+    }
+
+    if (name === 'report' || name === 'onboarding' || name === 'success' || name === 'reportCamera' || name === 'tos') {
+      setSheetHudQuiet(true);
     }
 
     // Immediately park location/PWA (not CSS-only) when a primary sheet opens.
@@ -26631,6 +26706,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         touchReportDraft({ step: 'capture', awaitingPhoto: false });
 
+      },
+
+      {
+        hazardKey: $('#hazardType')?.value,
+        onGallerySync: () => {
+          reportPhotoFlowActive = true;
+          armReportPhotoWatchdog(REPORT_PHOTO_PICKER_TIMEOUT_MS);
+          parkReportOverlayForPicker();
+          launchReportPhotoInput({ gallery: true });
+        },
       }
 
     );
@@ -26716,6 +26801,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       cancelConfirmPinGpsRefine('close_report_modal');
 
+      clearConfirmPinGpsEscapeTimer();
+
       setReportPinMapLoading(false);
 
       if (!reportManualPinDismiss) {
@@ -26748,6 +26835,8 @@ document.addEventListener('DOMContentLoaded', function () {
     el.classList.remove('open');
 
     el.setAttribute('aria-hidden', 'true');
+
+    syncSheetHudQuietFromOverlays();
 
     if (name === 'reportGeo' && reportGeoExplainerResolve) {
 
@@ -32082,7 +32171,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnShareWhatsApp').addEventListener('click', () => {
 
-      if (lastReportId) shareReportWhatsApp(lastReportId);
+      if (lastReportId) {
+        sharedFromSuccessSession.add(String(lastReportId));
+        cancelPendingShareNudge();
+        shareReportWhatsApp(lastReportId);
+      }
 
       else shareWhatsApp(buildDefaultShareMessage());
 
@@ -33910,6 +34003,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function showReportCameraDisclosureModal(opts) {
 
     const onContinueSync = opts && typeof opts.onContinueSync === 'function' ? opts.onContinueSync : null;
+    const onGallerySync = opts && typeof opts.onGallerySync === 'function' ? opts.onGallerySync : null;
 
     return new Promise((resolve) => {
 
@@ -33928,27 +34022,35 @@ document.addEventListener('DOMContentLoaded', function () {
       reportCameraDisclosureResolve = resolve;
 
       const btnContinue = $('#btnReportCameraContinue');
-
+      const btnGallery = $('#btnReportCameraGallery');
       const btnCancel = $('#btnReportCameraCancel');
-
       const title = $('#reportCameraTitle');
 
-      if (title) title.textContent = t('report.cameraDisclosureTitle');
+      const rawHazard = (opts && opts.hazardKey) || $('#hazardType')?.value || 'stagnant-water';
+      const hazardKey = isLiveHazardKey(rawHazard) ? rawHazard : 'stagnant-water';
+      const cat = HAZARD_CATEGORIES.find((c) => c.key === hazardKey) || HAZARD_CATEGORIES[0];
+      const chip = $('#reportCameraHazardChip');
+      const chipLabel = $('#reportCameraHazardChipLabel');
+      const chipIcon = $('#reportCameraHazardChipIcon');
+      if (chip) chip.setAttribute('data-hazard', hazardKey);
+      if (chipLabel) chipLabel.textContent = hazardLabel(hazardKey);
+      if (chipIcon && cat && cat.iconSrc) {
+        chipIcon.src = cat.iconSrc;
+        chipIcon.alt = '';
+      }
+
+      if (title) {
+        title.textContent = t('report.cameraDisclosureTitleHazard').replace('{hazard}', hazardLabel(hazardKey));
+      }
 
       const bodyVerify = $('#reportCameraBodyVerify');
-
       const bodyVisible = $('#reportCameraBodyVisible');
-
       const bodyLocation = $('#reportCameraBodyLocation');
-
       if (bodyVerify) bodyVerify.textContent = t('report.cameraDisclosure.verify');
-
       if (bodyVisible) bodyVisible.textContent = t('report.cameraDisclosure.visible');
-
       if (bodyLocation) bodyLocation.textContent = t('report.cameraDisclosure.location');
-
       if (btnContinue) btnContinue.textContent = t('report.cameraDisclosureContinue');
-
+      if (btnGallery) btnGallery.textContent = t('report.chooseGallery');
       if (btnCancel) btnCancel.textContent = t('common.cancel');
 
       function dismissCameraOverlayQuiet() {
@@ -33961,24 +34063,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
         overlay.setAttribute('aria-hidden', 'true');
 
+        syncSheetHudQuietFromOverlays();
+
       }
 
-      function finish(ok, runSyncContinue) {
+      function finish(ok, syncKind) {
 
         if (!reportCameraDisclosureResolve) return;
 
         reportCameraDisclosureResolve = null;
 
         if (btnContinue) btnContinue.removeEventListener('click', onContinue);
-
+        if (btnGallery) btnGallery.removeEventListener('click', onGallery);
         if (btnCancel) btnCancel.removeEventListener('click', onCancel);
 
-        if (ok && runSyncContinue && onContinueSync) {
+        const syncFn = syncKind === 'gallery'
+          ? (onGallerySync || onContinueSync)
+          : onContinueSync;
+
+        if (ok && syncFn) {
 
           dismissCameraOverlayQuiet();
 
-          // Must stay inside the Continue click stack (no await / Promise.then).
-          onContinueSync();
+          // Must stay inside the Continue/Gallery click stack (no await / Promise.then).
+          if (syncKind === 'gallery' && onGallerySync) onGallerySync();
+          else if (syncKind === 'camera' && onContinueSync) onContinueSync();
+          else if (onContinueSync) onContinueSync();
 
           resolve(true);
 
@@ -33999,17 +34109,19 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       function onContinue() {
-
         markCameraDisclosureSeen();
-
-        finish(true, true);
-
+        finish(true, 'camera');
       }
 
-      function onCancel() { finish(false, false); }
+      function onGallery() {
+        markCameraDisclosureSeen();
+        finish(true, 'gallery');
+      }
+
+      function onCancel() { finish(false, null); }
 
       if (btnContinue) btnContinue.addEventListener('click', onContinue);
-
+      if (btnGallery) btnGallery.addEventListener('click', onGallery);
       if (btnCancel) btnCancel.addEventListener('click', onCancel);
 
       openModal('reportCamera');
@@ -34020,7 +34132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function ensureCameraDisclosureThen(onContinue, onCancel) {
+  function ensureCameraDisclosureThen(onContinue, onCancel, opts) {
 
     if (hasSeenCameraDisclosure()) {
 
@@ -34030,9 +34142,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Pass onContinue as sync hook so input.click() runs in the Continue click
+    const gallerySync = opts && typeof opts.onGallerySync === 'function' ? opts.onGallerySync : null;
+
+    // Pass sync hooks so input.click() runs in the Continue/Gallery click
     // handler — not in a microtask after closeModal resolves the Promise.
-    showReportCameraDisclosureModal({ onContinueSync: onContinue }).then((ok) => {
+    showReportCameraDisclosureModal({
+      onContinueSync: onContinue,
+      onGallerySync: gallerySync || onContinue,
+      hazardKey: opts && opts.hazardKey,
+    }).then((ok) => {
 
       if (!ok && typeof onCancel === 'function') onCancel();
 
@@ -34228,6 +34346,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function cancelConfirmPinGpsRefine(reason) {
+
+    clearConfirmPinGpsEscapeTimer();
 
     if (!confirmPinGpsCancel) return;
 
@@ -34539,6 +34659,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     mapEl.classList.toggle('report-pin-map--loading', !!loading);
 
+    if (!loading) clearConfirmPinGpsEscapeTimer();
+
+  }
+
+  function clearConfirmPinGpsEscapeTimer() {
+    if (confirmPinGpsEscapeTimer) {
+      clearTimeout(confirmPinGpsEscapeTimer);
+      confirmPinGpsEscapeTimer = null;
+    }
+  }
+
+  /** After ~8s of "Finding…", surface Place pin / Adjust so the user is not stuck. */
+  function scheduleConfirmPinGpsEscape(token) {
+    clearConfirmPinGpsEscapeTimer();
+    confirmPinGpsEscapeTimer = setTimeout(() => {
+      confirmPinGpsEscapeTimer = null;
+      if (token !== reportPinSeedToken) return;
+      if (confirmPinUserAdjusted) return;
+      if (manualPinLat != null && manualPinLng != null) return;
+      if (!overlays.report || !overlays.report.classList.contains('open')) return;
+      const mapEl = $('#reportPinMap');
+      if (!mapEl || !mapEl.classList.contains('report-pin-map--loading')) return;
+      // Drop exclusive "Finding…" chrome; GPS may still settle in the background.
+      setReportPinMapLoading(false);
+      confirmPinProvisional = true;
+      setReportPinMapExpanded(true);
+      const fullMapBtn = $('#btnReportPinFullMap');
+      if (fullMapBtn) {
+        fullMapBtn.classList.remove('btn--ghost');
+        fullMapBtn.classList.add('btn--secondary');
+        fullMapBtn.classList.remove('hidden');
+        fullMapBtn.hidden = false;
+      }
+      // If map somehow stayed collapsed, keep Adjust visible as a second escape.
+      const adjustBtn = $('#btnReportPinAdjust');
+      const pinBlock = $('#reportPinConfirm');
+      if (adjustBtn && pinBlock && !pinBlock.classList.contains('report-pin-confirm--expanded')) {
+        adjustBtn.classList.remove('hidden');
+        adjustBtn.hidden = false;
+      }
+      syncConfirmPinUiHints();
+      showToast(t('report.pinLocatingSlow'), 'info', 7000, {
+        label: t('report.placePinOnMap'),
+        onClick: () => startManualPinMode(),
+        toastClass: 'toast--gps',
+        dedupeKey: 'pin-gps-escape',
+      });
+    }, GEO_PIN_ESCAPE_MS);
   }
 
 
@@ -34835,6 +35003,8 @@ document.addEventListener('DOMContentLoaded', function () {
     cancelConfirmPinGpsRefine('restart_refine');
 
     debugLog('PIN', 'GPS refine start', { token });
+
+    scheduleConfirmPinGpsEscape(token);
 
     // fresh:false (was true) — demanding a brand-new fix here threw away a perfectly
     // usable position the OS/browser was already holding (the map screen behind this
@@ -36395,7 +36565,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cancelPendingShareNudge();
 
-    if (notShared && reportId) {
+    const sharedThisSession = reportId && sharedFromSuccessSession.has(String(reportId));
+
+    if (notShared && reportId && !sharedThisSession) {
 
       shareNudgeShown = true;
 
@@ -36405,6 +36577,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Never show over an in-progress report (FAB reopen right after Done).
         if (isReportFlowBusy()) return;
+
+        // Re-check: user may have shared from success before Done.
+        if (sharedFromSuccessSession.has(String(reportId))) return;
+        const latest = findReportById(reportId);
+        if (latest && latest.communityShared) return;
 
         showToast(t('success.shareNudge'), 'info', 5500, {
 

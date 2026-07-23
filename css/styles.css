@@ -3144,6 +3144,27 @@ body.pwa-nudge-visible #btnCamera {
   );
 }
 
+/* WA snackbar / analytics opt-in — park FAB so it is not covered */
+body.toast-fab-quiet #btnCamera {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(12px);
+}
+
+body.toast-fab-quiet .toast-container:has(> .toast--snackbar),
+body.toast-fab-quiet .toast-container:has(> .toast--dock-bottom),
+body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float, 12px) + var(--nav-height) + 12px
+  );
+}
+
+.report-camera-hazard-chip {
+  margin: 0 auto 12px;
+  width: fit-content;
+}
+
 /* PWA install — glass chip (v290; was navy anti-pattern card) */
 .pwa-nudge {
   --chip-fg: #0f172a;
@@ -10573,7 +10594,13 @@ body.report-open #wardPulse,
 body.report-open #mapHud,
 html.report-open #personaBar,
 html.report-open #wardPulse,
-html.report-open #mapHud {
+html.report-open #mapHud,
+body.sheet-hud-quiet #personaBar,
+body.sheet-hud-quiet #wardPulse,
+body.sheet-hud-quiet #mapHud,
+html.sheet-hud-quiet #personaBar,
+html.sheet-hud-quiet #wardPulse,
+html.sheet-hud-quiet #mapHud {
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
