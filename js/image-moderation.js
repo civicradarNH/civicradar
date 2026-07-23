@@ -87,8 +87,9 @@
       return fail('fileType', 'Choose a JPEG, PNG, or WebP photo.', 'moderation.blocked.fileType');
     }
 
-    if (file.size > cfg.maxUploadBytes) {
-      return fail('fileSize', 'Photo is too large. Use a smaller image (max 8 MB).', 'moderation.blocked.fileSize');
+    // skipMaxBytes: caller will compress oversized camera JPEGs first, then re-check.
+    if (!cfg.skipMaxBytes && file.size > cfg.maxUploadBytes) {
+      return fail('fileSize', 'Photo is too large. Use a smaller image (max 5 MB).', 'moderation.blocked.fileSize');
     }
 
     if (file.size < 2048) {

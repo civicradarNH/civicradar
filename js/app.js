@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v392';
+  const CIVIC_APP_VERSION = 'v395';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -580,6 +580,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Raw FileReader / unscaled fallback only when the file is already small
   // enough that base64 expansion will not OOM (never keep 12MP as success).
   const PHOTO_SMALL_FALLBACK_BYTES = 400 * 1024;
+
+  // Pre-validate compress for oversized camera picks (before the 5 MB gate).
+  // Final storage still uses CANVAS_MAX_WIDTH / JPEG_QUALITY via the canvas pipeline.
+  const REPORT_PHOTO_PRECOMPRESS_MAX_DIM = 1920;
+  const REPORT_PHOTO_PRECOMPRESS_QUALITY = 0.75;
 
   const DUPLICATE_RADIUS_M = 10;
 
@@ -20004,6 +20009,124 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     } catch (_) { /* ignore */ }
     document.body.classList.remove('map-popup-open');
+    try { clearPinPopupSheetMode(); } catch (_) { /* ignore */ }
+  }
+
+  // Top clearance under floating HUD (header / persona / ward pulse). Measure painted
+  // bottoms so safe-area + persona-pulse-redundant collapse stay accurate.
+  function getMapPinPopupTopClearancePx() {
+    let bottom = 0;
+    const header = document.querySelector('.header');
+    if (header) bottom = Math.max(bottom, header.getBoundingClientRect().bottom);
+    const persona = document.getElementById('personaBar');
+    if (persona && persona.offsetHeight > 0 && getComputedStyle(persona).display !== 'none') {
+      bottom = Math.max(bottom, persona.getBoundingClientRect().bottom);
+    }
+    const hud = document.getElementById('mapHud');
+    const pulse = document.getElementById('wardPulse');
+    const pulseVisible = pulse && !pulse.classList.contains('hidden')
+      && getComputedStyle(pulse).display !== 'none';
+    if (hud && pulseVisible) {
+      bottom = Math.max(bottom, hud.getBoundingClientRect().bottom);
+    } else if (pulseVisible) {
+      bottom = Math.max(bottom, pulse.getBoundingClientRect().bottom);
+    }
+    return Math.max(96, Math.ceil(bottom + 12));
+  }
+
+  function getMapPinPopupBottomClearancePx() {
+    const nav = document.getElementById('bottomNav');
+    if (nav && getComputedStyle(nav).display !== 'none') {
+      const top = nav.getBoundingClientRect().top;
+      return Math.max(72, Math.ceil(window.innerHeight - top + 10));
+    }
+    return 88;
+  }
+
+  function preferPinPopupSheet() {
+    try {
+      return window.matchMedia('(max-width: 767px)').matches;
+    } catch (_) {
+      return (window.innerWidth || 0) <= 767;
+    }
+  }
+
+  function getReportPopupOptions() {
+    const top = getMapPinPopupTopClearancePx();
+    const bottom = getMapPinPopupBottomClearancePx();
+    const sheet = preferPinPopupSheet();
+    const maxH = Math.max(
+      160,
+      Math.min(
+        sheet ? Math.floor(window.innerHeight * 0.52) : Math.floor(window.innerHeight * 0.42),
+        window.innerHeight - top - bottom - 16
+      )
+    );
+    const opts = {
+      maxWidth: sheet ? Math.min(420, (window.innerWidth || 360) - 24) : 320,
+      minWidth: 180,
+      maxHeight: maxH,
+      autoPan: true,
+      keepInView: true,
+      className: sheet ? 'map-pin-popup map-pin-popup--sheet' : 'map-pin-popup',
+      autoPanPaddingTopLeft: (typeof L !== 'undefined' && L.point)
+        ? L.point(16, top)
+        : [16, top],
+      // Sheet mode: keep the pin visible in the band above the bottom card.
+      autoPanPaddingBottomRight: (typeof L !== 'undefined' && L.point)
+        ? L.point(16, sheet ? Math.max(bottom, Math.floor(maxH * 0.85) + 24) : bottom)
+        : [16, sheet ? Math.max(bottom, Math.floor(maxH * 0.85) + 24) : bottom],
+    };
+    return opts;
+  }
+
+  // Mobile: reparent Leaflet popup out of the transformed map-pane onto #map so CSS
+  // can bottom-anchor it without fighting pan transforms / climbing under the HUD.
+  function applyPinPopupSheetMode(popup) {
+    if (!popup || !map || !preferPinPopupSheet()) {
+      clearPinPopupSheetMode();
+      return;
+    }
+    const el = popup.getElement && popup.getElement();
+    const host = map.getContainer && map.getContainer();
+    if (!el || !host) return;
+
+    const top = getMapPinPopupTopClearancePx();
+    host.style.setProperty('--pin-sheet-top-clearance', top + 'px');
+    el.classList.add('leaflet-popup--sheet');
+    if (el.parentNode !== host) host.appendChild(el);
+
+    if (!popup._civicSheetPatched) {
+      popup._civicUpdatePosition = popup._updatePosition;
+      popup._updatePosition = function civicSheetUpdatePosition() {
+        if (this._container && this._container.classList.contains('leaflet-popup--sheet')) {
+          try {
+            if (typeof L !== 'undefined' && L.DomUtil && L.point) {
+              L.DomUtil.setPosition(this._container, L.point(0, 0));
+            }
+          } catch (_) { /* ignore */ }
+          return;
+        }
+        if (typeof this._civicUpdatePosition === 'function') {
+          return this._civicUpdatePosition.apply(this, arguments);
+        }
+      };
+      popup._civicSheetPatched = true;
+    }
+    try {
+      if (typeof L !== 'undefined' && L.DomUtil && L.point) {
+        L.DomUtil.setPosition(el, L.point(0, 0));
+      }
+    } catch (_) { /* ignore */ }
+  }
+
+  function clearPinPopupSheetMode() {
+    try {
+      const host = map && map.getContainer && map.getContainer();
+      if (host) host.style.removeProperty('--pin-sheet-top-clearance');
+      const sheets = document.querySelectorAll('.leaflet-popup--sheet');
+      sheets.forEach((el) => el.classList.remove('leaflet-popup--sheet'));
+    } catch (_) { /* ignore */ }
   }
 
   // body.first-run-active: CSS-hides .leaflet-popup even if a stale card races open.
@@ -29879,7 +30002,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    marker.bindPopup(() => buildReportPopup(report));
+    marker.bindPopup(() => buildReportPopup(report), getReportPopupOptions());
 
     marker.on('popupopen', () => {
 
@@ -29888,6 +30011,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try { marker.closePopup(); } catch (_) { /* ignore */ }
         try { if (map && map.closePopup) map.closePopup(); } catch (_) { /* ignore */ }
         document.body.classList.remove('map-popup-open');
+        try { clearPinPopupSheetMode(); } catch (_) { /* ignore */ }
         return;
       }
 
@@ -29896,7 +30020,13 @@ document.addEventListener('DOMContentLoaded', function () {
       // Park GPS chip — keep Me-too snackbar if present (toast owns share CTA).
       parkLocationBannerForAttention();
 
-      const el = marker.getPopup() && marker.getPopup().getElement();
+      const popup = marker.getPopup && marker.getPopup();
+      try {
+        if (popup && popup.options) Object.assign(popup.options, getReportPopupOptions());
+        applyPinPopupSheetMode(popup);
+      } catch (_) { /* ignore */ }
+
+      const el = popup && popup.getElement && popup.getElement();
 
       if (el) bindBeforeAfterSliders(el);
 
@@ -29909,6 +30039,7 @@ document.addEventListener('DOMContentLoaded', function () {
     marker.on('popupclose', () => {
 
       document.body.classList.remove('map-popup-open');
+      try { clearPinPopupSheetMode(); } catch (_) { /* ignore */ }
 
       const pathEl = marker.getElement && marker.getElement();
 
@@ -30057,7 +30188,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Lazy factory for next open; refresh live popup content without teardown.
-        existing.bindPopup(() => buildReportPopup(r));
+        existing.bindPopup(() => buildReportPopup(r), getReportPopupOptions());
 
         if (typeof existing.isPopupOpen === 'function' && existing.isPopupOpen()) {
 
@@ -30066,6 +30197,8 @@ document.addEventListener('DOMContentLoaded', function () {
           if (popup && typeof popup.setContent === 'function') {
 
             popup.setContent(buildReportPopup(r));
+
+            try { applyPinPopupSheetMode(popup); } catch (_) { /* ignore */ }
 
             const el = popup.getElement && popup.getElement();
 
@@ -32726,6 +32859,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /**
+   * Downscale/re-encode a report photo to a JPEG Blob before the upload size gate.
+   * Uses the same OOM-safe decode path as the preview pipeline. Returns null on
+   * failure (HEIC/unsupported decode, canvas OOM) so callers can fall through.
+   */
+  function canvasToJpegBlob(canvas, quality) {
+    return new Promise((resolve) => {
+      try {
+        if (!canvas || typeof canvas.toBlob !== 'function') {
+          resolve(null);
+          return;
+        }
+        canvas.toBlob((blob) => resolve(blob && blob.size ? blob : null), 'image/jpeg', quality);
+      } catch {
+        resolve(null);
+      }
+    });
+  }
+
+  async function compressReportPhotoToBlob(file, maxDim, quality) {
+    maxDim = maxDim || REPORT_PHOTO_PRECOMPRESS_MAX_DIM;
+    quality = quality == null ? REPORT_PHOTO_PRECOMPRESS_QUALITY : quality;
+    let decoded = null;
+    const canvas = document.createElement('canvas');
+    try {
+      decoded = await decodeImageFileForReport(file, maxDim);
+      const w = decoded.w;
+      const h = decoded.h;
+      if (!w || !h) return null;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) return null;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'medium';
+      ctx.drawImage(decoded.drawSrc, 0, 0, w, h);
+      releaseDecodedReportImage(decoded);
+      decoded = null;
+      const blob = await canvasToJpegBlob(canvas, quality);
+      if (!blob) return null;
+      const base = String(file && file.name ? file.name : 'photo').replace(/\.[^.]+$/, '') || 'photo';
+      try {
+        return new File([blob], base + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+      } catch {
+        return blob;
+      }
+    } catch (err) {
+      debugLog('PHOTO', 'precompress failed', {
+        msg: err && err.message ? String(err.message).slice(0, 80) : 'error',
+        size: file && file.size,
+      });
+      return null;
+    } finally {
+      releaseDecodedReportImage(decoded);
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+
+
+
   function handlePhotoCapture(e) {
 
     const file = e.target.files && e.target.files[0];
@@ -32827,35 +33021,78 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    if (window.ImageModeration) {
-
-      const fileCheck = ImageModeration.validateFile(file, getModCfg());
-
-      if (!fileCheck.ok) {
-
-        rejectPhoto(fileCheck);
-
-        return;
-
-      }
-
-    }
-
-
-
     const stillCurrent = () => captureGen === reportPhotoCaptureGen;
 
     // Low-memory decode: createImageBitmap resize during decode (not full-res
     // then scale). Avoids FileReader base64 as primary. Preview stays on
     // #imageCanvas; durable JPEG data URL → lastReportDataUrl + sessionStorage
     // (ObjectURL alone cannot survive pageshow restore).
+    // Oversized camera JPEGs are pre-compressed (1920px / 0.75) before the 5 MB gate.
     (async () => {
       let decoded = null;
+      let workFile = file;
       try {
         setPhotoScanning(true);
         setReportPhotoSubmitLocked(true);
+
+        const modCfg = getModCfg();
+        const maxBytes = (modCfg && modCfg.maxUploadBytes) || (5 * 1024 * 1024);
+
+        // Type/min-size first (allow oversized — compress next). Size gate after.
+        if (window.ImageModeration) {
+          const earlyCheck = ImageModeration.validateFile(file, Object.assign({}, modCfg, { skipMaxBytes: true }));
+          if (!earlyCheck.ok) {
+            rejectPhoto(earlyCheck);
+            return;
+          }
+        }
+
+        if (file.size > maxBytes) {
+          debugLog('PHOTO', 'precompress start', { size: file.size, maxBytes, captureGen });
+          const compressed = await compressReportPhotoToBlob(
+            file,
+            REPORT_PHOTO_PRECOMPRESS_MAX_DIM,
+            REPORT_PHOTO_PRECOMPRESS_QUALITY
+          );
+          if (!stillCurrent()) {
+            if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
+              && !reportPhotoFileAccepted && !reportPhotoProcessing) {
+              failReportPhotoCapture();
+            } else {
+              setPhotoScanning(false);
+              setReportPhotoSubmitLocked(false);
+            }
+            return;
+          }
+          if (compressed && compressed.size > 0 && compressed.size <= maxBytes) {
+            workFile = compressed;
+            debugLog('PHOTO', 'precompress ok', {
+              from: file.size,
+              to: compressed.size,
+              captureGen,
+            });
+          } else if (compressed && compressed.size > maxBytes) {
+            rejectPhoto({
+              ok: false,
+              code: 'fileSize',
+              message: 'Photo is too large. Use a smaller image (max 5 MB).',
+              i18nKey: 'moderation.blocked.fileSize',
+            });
+            return;
+          }
+          // compress failed → fall through; full validateFile may still reject size
+        }
+
+        if (window.ImageModeration) {
+          const fileCheck = ImageModeration.validateFile(workFile, modCfg);
+          if (!fileCheck.ok) {
+            rejectPhoto(fileCheck);
+            return;
+          }
+        }
+
         const maxDim = CANVAS_MAX_WIDTH;
-        decoded = await decodeImageFileForReport(file, maxDim);
+        decoded = await decodeImageFileForReport(workFile, maxDim);
         if (!stillCurrent()) {
           // Superseded by a newer capture — quiet drop only if that capture owns the flow.
           if (!hasReportPhotoPreview() && !getHeldReportPhotoDataUrl()
@@ -32902,13 +33139,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!canvasOk) {
           // Canvas OOM: accept raw file only when already small — never 12MP "success".
-          if (!isPhotoSmallEnoughForRawFallback(file)) {
+          if (!isPhotoSmallEnoughForRawFallback(workFile)) {
             failReportPhotoCapture();
             return;
           }
           let rawUrl;
           try {
-            rawUrl = await readSmallFileAsDataUrl(file);
+            rawUrl = await readSmallFileAsDataUrl(workFile);
           } catch {
             failReportPhotoCapture();
             return;
@@ -32935,7 +33172,7 @@ document.addEventListener('DOMContentLoaded', function () {
           finishReportPhotoFlow('handlePhotoCaptureRawFallback');
           reportPhotoDismissGuard = Date.now();
           advanceReportPhotoReady();
-          debugLog('PHOTO', 'handlePhotoCapture raw-small fallback', { size: file.size, captureGen });
+          debugLog('PHOTO', 'handlePhotoCapture raw-small fallback', { size: workFile.size, captureGen });
           return;
         }
 
@@ -32984,9 +33221,9 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
         } catch {
-          if (isPhotoSmallEnoughForRawFallback(file)) {
+          if (isPhotoSmallEnoughForRawFallback(workFile)) {
             try {
-              dataUrl = await readSmallFileAsDataUrl(file);
+              dataUrl = await readSmallFileAsDataUrl(workFile);
             } catch {
               failReportPhotoCapture();
               return;

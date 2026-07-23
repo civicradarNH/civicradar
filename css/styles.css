@@ -125,9 +125,10 @@
   --dock-float: 16px; /* Living Map HUD: command strip float from bottom */
   --attr-clearance: 28px;
 
-  /* Z-index scale (v321) — map chrome → pin popup (Leaflet pane) → tab sheets →
-     nav → toasts → blocking modals → first-run (purpose / replay tour). Toast sits
-     ABOVE nav/map chrome but BELOW blocking sheets; first-run isolates above all. */
+  /* Z-index scale (v321 / pin sheet v395) — map (+ pin popup pane / sheet) →
+     map chrome (header / persona / ward pulse) → tab sheets → nav → toasts →
+     blocking modals → first-run. Pin detail stays inside #map (z≈1) so sticky
+     HUD never sits under the card; mobile sheet anchors below HUD via padding. */
   --z-map-chrome: 1000;
   --z-map-chrome-mid: 1002;   /* location banner, locate pill, ward pulse floats */
   --z-map-chrome-top: 1003;   /* legend / recenter cluster */
@@ -787,15 +788,17 @@ body.app-booting {
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* Capture-step photo moderation / validation — inline under guidelines */
-#reportPhotoError {
+/* Capture-step photo moderation / validation — below Take photo (not over viewfinder) */
+#reportPhotoError,
+.report-photo-error {
+  position: relative;
+  z-index: 1;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.35);
   color: #b91c1c;
   border-radius: var(--radius-md);
   padding: 10px 14px;
-  margin-top: 0;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
 .next-steps {
@@ -3302,11 +3305,40 @@ body.pwa-nudge-visible #btnCamera {
   );
 }
 
-/* Profile + Resources: extra clearance so last cards clear the floating dock */
-#profileModal,
-#resourcesModal {
+/* Profile: extra clearance so last cards clear the floating dock */
+#profileModal {
   padding-bottom: calc(
     100px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+  );
+}
+
+/* Resources: sheet-flex — header stays put; body scrolls (no sticky-h2 clip) */
+#resourcesModal.modal--sheet-flex {
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+#resourcesModal.modal--sheet-flex > h2 {
+  /* Header is outside the scroller — drop sticky chrome that clipped under × */
+  position: relative;
+  top: auto;
+  z-index: auto;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 4px;
+  background: transparent;
+  border-bottom: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#resourcesModal .modal__sheet-body {
+  /* Dock clearance lives on the scroller, not the clipped sheet chrome */
+  padding-bottom: calc(
+    100px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+  );
+  scroll-padding-bottom: calc(
+    48px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
   );
 }
 
@@ -7901,6 +7933,30 @@ body.persona-lead .app-open-banner { display: none; }
   min-width: 72px;
 }
 
+/* Option-card CTAs: matching outlined glass secondary (not solid primary) */
+#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
+  background: var(--glass-hud-bg, rgba(255, 255, 255, 0.88)) !important;
+  color: var(--ink-900, var(--text)) !important;
+  border: 1px solid var(--glass-hud-border, rgba(226, 232, 240, 0.9)) !important;
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.52)),
+    var(--shadow-sm);
+  backdrop-filter: blur(var(--glass-hud-blur, 22px));
+  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
+  font-weight: 600;
+}
+
+#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--glass-hud-bg, rgba(255, 255, 255, 0.92)) 70%, var(--canvas, #F8FAFC)) !important;
+  border-color: var(--border) !important;
+  filter: none !important;
+  transform: none;
+}
+
+#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
+  background: var(--canvas, #F8FAFC) !important;
+}
+
 #resourcesModal .esc-channel:hover,
 #resourcesModal .esc-channel:focus-visible {
   filter: brightness(0.97);
@@ -9426,6 +9482,73 @@ html[lang="gu"] .leaflet-container { font-family: var(--font-devanagari); }
 }
 .leaflet-popup-close-button:hover { color: var(--ink-900, #0f172a) !important; }
 
+/* Pin detail (v395) — mobile bottom sheet: reparented onto #map (not map-pane),
+   so it cannot climb under header / ward-pulse. Desktop keeps classic Leaflet popup
+   with JS autoPanPadding clearing the HUD stack. */
+#map > .leaflet-popup.leaflet-popup--sheet,
+#map .leaflet-popup.leaflet-popup--sheet {
+  position: absolute !important;
+  left: max(12px, env(safe-area-inset-left, 0px)) !important;
+  right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float, 16px) + var(--nav-height, 56px) + 10px
+  ) !important;
+  top: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 1200;
+  pointer-events: auto;
+}
+
+#map > .leaflet-popup.leaflet-popup--sheet .leaflet-popup-tip-container,
+#map .leaflet-popup.leaflet-popup--sheet .leaflet-popup-tip-container {
+  display: none !important;
+}
+
+#map > .leaflet-popup.leaflet-popup--sheet .leaflet-popup-content-wrapper,
+#map .leaflet-popup.leaflet-popup--sheet .leaflet-popup-content-wrapper {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  max-height: min(
+    52vh,
+    calc(
+      100dvh
+      - var(--pin-sheet-top-clearance, 160px)
+      - env(safe-area-inset-bottom, 0px)
+      - var(--dock-float, 16px)
+      - var(--nav-height, 56px)
+      - 24px
+    )
+  );
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 12px 36px rgba(15, 23, 42, 0.18);
+}
+
+#map > .leaflet-popup.leaflet-popup--sheet .leaflet-popup-content,
+#map .leaflet-popup.leaflet-popup--sheet .leaflet-popup-content {
+  margin: 14px 16px 16px;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* Quiet map tiles while pin sheet is open — HUD stays sharp above (#map z≈1) */
+body.map-popup-open #map .leaflet-tile-pane {
+  filter: contrast(1.02) saturate(1.02) brightness(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.map-popup-open #map .leaflet-tile-pane {
+    filter: contrast(1.04) saturate(1.06) brightness(1.01);
+  }
+}
+
 /* ---- Leaflet zoom controls: cohesive radius + brand focus ring ---- */
 .leaflet-bar {
   border-radius: var(--radius-sm);
@@ -10515,6 +10638,23 @@ a,
   #resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
   #resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
     background: rgba(21, 128, 61, 0.18);
+  }
+
+  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
+    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.88)) !important;
+    color: var(--text-primary, #f1f5f9) !important;
+    border-color: var(--glass-hud-border, rgba(148, 163, 184, 0.28)) !important;
+    box-shadow:
+      inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.08)),
+      var(--shadow-sm);
+  }
+
+  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--glass-hud-bg, rgba(17, 24, 39, 0.9)) 80%, #0f172a) !important;
+  }
+
+  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
+    background: rgba(15, 23, 42, 0.95) !important;
   }
 }
 

@@ -561,10 +561,10 @@
                 <circle cx="80" cy="60" r="4" fill="currentColor" opacity="0.22"/>
               </svg>
             </div>
-            <div id="reportPhotoError" class="field-error hidden" role="alert" aria-live="assertive"></div>
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
+            <div id="reportPhotoError" class="field-error report-photo-error hidden" role="alert" aria-live="assertive"></div>
             <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">Location data is removed from photos automatically</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
             <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
@@ -925,47 +925,49 @@
 
   <!-- Resources Modal (official channels, volunteer, pledge) -->
   <div class="modal-overlay" id="resourcesOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="resourcesModal" role="dialog" aria-modal="true" aria-labelledby="resourcesTitle">
+    <div class="modal modal--tall modal--sheet-flex" id="resourcesModal" role="dialog" aria-modal="true" aria-labelledby="resourcesTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="resources" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="resourcesTitle" data-i18n="resources.title">Resources</h2>
       <p class="modal__subtitle" id="resourcesSubtitle" data-i18n="resources.subtitle">Filing links and ways to help in your ward.</p>
 
-      <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
-        <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-        <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals for your city.</p>
-        <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
-      </div>
-
-      <div class="resources-section resources-section--community">
-        <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in Your Ward</span></h3>
-
-        <div class="pledge-card pledge-card--volunteer">
-          <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-          <div class="pledge-card__body">
-            <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-            <p data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</p>
-          </div>
-          <button type="button" class="btn btn--primary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
+      <div class="modal__sheet-body">
+        <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
+          <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
+          <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals for your city.</p>
+          <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
         </div>
 
-        <div class="pledge-card pledge-card--pledge">
-          <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-          <div class="pledge-card__body">
-            <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-            <p data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</p>
+        <div class="resources-section resources-section--community">
+          <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in Your Ward</span></h3>
+
+          <div class="pledge-card pledge-card--volunteer">
+            <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
+            <div class="pledge-card__body">
+              <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
+              <p data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</p>
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
           </div>
-          <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+
+          <div class="pledge-card pledge-card--pledge">
+            <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
+            <div class="pledge-card__body">
+              <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
+              <p data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</p>
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+          </div>
         </div>
-      </div>
 
-      <p class="resources-footer">
-        <a href="official-sources.html" class="resources-footer-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">More filing links</a>
-      </p>
+        <p class="resources-footer">
+          <a href="official-sources.html" class="resources-footer-link" target="_blank" rel="noopener noreferrer" data-i18n="official.viewAllSources">More filing links</a>
+        </p>
 
-      <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
-      <div class="resources-section resources-section--sponsors" id="resourcesSponsorsSection">
-        <div id="impactWall"></div>
+        <!-- Ward-local sponsored offers (config-driven — see js/config.js) -->
+        <div class="resources-section resources-section--sponsors" id="resourcesSponsorsSection">
+          <div id="impactWall"></div>
+        </div>
       </div>
     </div>
   </div>
