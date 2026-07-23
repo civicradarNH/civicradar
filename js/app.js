@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v388';
+  const CIVIC_APP_VERSION = 'v389';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -44,6 +44,9 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(done, 350);
   }
 
+  /** Per-element token so a newer countUp cancels an in-flight tick (no fighting rAFs). */
+  const _countUpTokens = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+
   function animateValue(element, start, end, duration, opts) {
     if (!element) return;
     const format = (opts && typeof opts.format === 'function')
@@ -52,12 +55,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const from = Number(start) || 0;
     const to = Number(end) || 0;
     const ms = Math.max(0, Number(duration) || 800);
+    const token = {};
+    if (_countUpTokens) _countUpTokens.set(element, token);
     if (prefersReducedMotion() || ms === 0 || from === to) {
       element.textContent = format(to);
       return;
     }
     const t0 = performance.now();
     const tick = (now) => {
+      if (_countUpTokens && _countUpTokens.get(element) !== token) return;
       const p = Math.min(1, (now - t0) / ms);
       const eased = 1 - Math.pow(1 - p, 3);
       element.textContent = format(from + (to - from) * eased);
@@ -66,7 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
     requestAnimationFrame(tick);
   }
 
-  /** Count-up from current text → to. Respects prefers-reduced-motion via animateValue. */
+  /**
+   * Count-up from current text → to.
+   * Reduced-motion / same-value → instant set; else ease-out cubic via animateValue.
+   */
   function countUp(el, to, { duration = 600, format } = {}) {
     if (!el) return;
     const raw = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
@@ -20447,7 +20456,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const to = Math.max(from, Number(nextCount) || 0);
     let countEl = popup.querySelector('.js-confirm-count');
     if (countEl) {
-      animateValue(countEl, from, to, 650);
+      countUp(countEl, to, { duration: 650 });
       return;
     }
     let pill = popup.querySelector('.popup__pill--confirms');
@@ -20473,7 +20482,7 @@ document.addEventListener('DOMContentLoaded', function () {
       `<i class="ph ph-hand-pointing" aria-hidden="true"></i> `
       + `<span class="js-confirm-count">${from}</span> ${escapeHtml(label)}`;
     countEl = pill.querySelector('.js-confirm-count');
-    if (countEl) animateValue(countEl, from, to, 650);
+    if (countEl) countUp(countEl, to, { duration: 650 });
   }
 
 
@@ -20576,7 +20585,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pulseEl = $('#wardPulseMeToo');
     if (pulseEl) {
       const pulseFrom = parseInt(pulseEl.textContent, 10) || 0;
-      animateValue(pulseEl, pulseFrom, pulseFrom + 1, 650);
+      countUp(pulseEl, pulseFrom + 1, { duration: 650 });
     }
     launchConfetti({ intensity: 'mini' });
 
