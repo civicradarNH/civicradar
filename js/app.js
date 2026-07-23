@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v395';
+  const CIVIC_APP_VERSION = 'v397';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -47,6 +47,13 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Per-element token so a newer countUp cancels an in-flight tick (no fighting rAFs). */
   const _countUpTokens = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
 
+  /** Parse a displayed metric (strips commas, "+", "pts", locale junk). */
+  function readCount(el) {
+    if (!el) return 0;
+    const raw = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
+    return Number.isFinite(raw) ? raw : 0;
+  }
+
   function animateValue(element, start, end, duration, opts) {
     if (!element) return;
     const format = (opts && typeof opts.format === 'function')
@@ -54,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
       : (n) => String(Math.round(n));
     const from = Number(start) || 0;
     const to = Number(end) || 0;
-    const ms = Math.max(0, Number(duration) || 800);
+    const ms = Math.max(0, Number(duration) || 600);
     const token = {};
     if (_countUpTokens) _countUpTokens.set(element, token);
     if (prefersReducedMotion() || ms === 0 || from === to) {
@@ -73,14 +80,32 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /**
-   * Count-up from current text → to.
+   * Count-up from current text → to (or explicit `from`).
    * Reduced-motion / same-value → instant set; else ease-out cubic via animateValue.
    */
-  function countUp(el, to, { duration = 600, format } = {}) {
+  function countUp(el, to, { duration = 600, format, from } = {}) {
     if (!el) return;
-    const raw = parseInt(String(el.textContent || '0').replace(/[^\d-]/g, ''), 10);
-    const from = Number.isFinite(raw) ? raw : 0;
-    animateValue(el, from, to, duration, format ? { format } : undefined);
+    const start = (from != null && Number.isFinite(Number(from)))
+      ? Number(from)
+      : readCount(el);
+    animateValue(el, start, to, duration, format ? { format } : undefined);
+  }
+
+  /** Reset metric node(s) to 0 so the next countUp always ticks (view reopen). */
+  function zeroStats(ids) {
+    (ids || []).forEach((id) => {
+      const el = typeof id === 'string' ? document.querySelector(id) : id;
+      if (el) el.textContent = '0';
+    });
+  }
+
+  /** After innerHTML remount: animate each numeric child 0 → current text. */
+  function countUpMounted(root, selector, opts) {
+    if (!root) return;
+    const base = Object.assign({ duration: 600, from: 0 }, opts || {});
+    root.querySelectorAll(selector).forEach((el) => {
+      countUp(el, readCount(el), base);
+    });
   }
 
   /** Stop FAB idle sonar after the user has filed at least one report. */
@@ -15812,7 +15837,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (impactSkel) impactSkel.classList.add('hidden');
 
-    const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
+    const set = (id, val) => {
+      const el = $(id);
+      if (el) countUp(el, Number(val) || 0);
+    };
 
     set('#impactReports', s.totalReports);
 
@@ -17738,9 +17766,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isAdmin && !isSuperAdmin) return; // server RLS is the real guard
 
-    renderAccessReview();
+    zeroStats(['#arPending', '#arApproved', '#arRejected']);
 
     openModal('accessReview');
+
+    renderAccessReview();
 
   };
 
@@ -17862,7 +17892,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const rejected = all.filter((r) => r.status === 'rejected');
 
-    const setNum = (id, n) => { const el = $(id); if (el) el.textContent = String(n); };
+    const setNum = (id, n) => {
+      const el = $(id);
+      if (el) countUp(el, Number(n) || 0);
+    };
 
     setNum('#arPending', pending.length);
 
@@ -18064,9 +18097,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.openAboutModal = function () {
 
-    renderAboutModal();
+    zeroStats(['#aboutReports', '#aboutResolved', '#aboutConfirmations', '#aboutWards']);
 
     openModal('about');
+
+    requestAnimationFrame(() => { renderAboutModal(); });
 
   };
 
@@ -20733,7 +20768,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const to = Math.max(from, Number(nextCount) || 0);
     let countEl = popup.querySelector('.js-confirm-count');
     if (countEl) {
-      countUp(countEl, to, { duration: 650 });
+      countUp(countEl, to);
       return;
     }
     let pill = popup.querySelector('.popup__pill--confirms');
@@ -20759,7 +20794,7 @@ document.addEventListener('DOMContentLoaded', function () {
       `<i class="ph ph-hand-pointing" aria-hidden="true"></i> `
       + `<span class="js-confirm-count">${from}</span> ${escapeHtml(label)}`;
     countEl = pill.querySelector('.js-confirm-count');
-    if (countEl) countUp(countEl, to, { duration: 650 });
+    if (countEl) countUp(countEl, to);
   }
 
 
@@ -20861,8 +20896,7 @@ document.addEventListener('DOMContentLoaded', function () {
     bumpPopupConfirmCount(prevCount, nextCount);
     const pulseEl = $('#wardPulseMeToo');
     if (pulseEl) {
-      const pulseFrom = parseInt(pulseEl.textContent, 10) || 0;
-      countUp(pulseEl, pulseFrom + 1, { duration: 650 });
+      countUp(pulseEl, readCount(pulseEl) + 1);
     }
     launchConfetti({ intensity: 'mini' });
 
@@ -26941,8 +26975,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     closeStackedModalsForNav('community');
 
-    renderLeaderboard('wards');
-
     updateCommunitySubtitle();
 
     checkReferralRewards();
@@ -26956,6 +26988,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (impactRoot) impactRoot.classList.add('is-skeleton');
 
     if (impactSkel) impactSkel.classList.remove('hidden');
+
+    zeroStats(['#impactReports', '#impactResolved', '#impactConfirmations', '#impactPledges']);
 
     renderWardWeekSocialProof();
 
@@ -26973,7 +27007,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     openModal('community');
 
-    requestAnimationFrame(() => { renderCommunityImpactStats(); });
+    // Animate after the sheet is open so rAF ticks aren't spent while display:none.
+    requestAnimationFrame(() => {
+      renderLeaderboard('wards');
+      renderLeaderboard('citizens');
+      renderCommunityImpactStats();
+    });
 
     // Engaged users (≥1 report) see the volunteer section expanded by default.
     if (getUserReports().length >= 1) {
@@ -27068,6 +27107,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       resetProfileModalScroll();
 
+      zeroStats(['#profilePoints', '#profileFixed', '#profilePending']);
+
       updateProfileUI();
 
       pulseProfilePointsStat();
@@ -27139,15 +27180,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    renderCoordinatorPledges();
-
-    renderCoordinatorVolunteers();
-
-    renderCoordinatorTasks();
-
-    renderCoordinatorHazards();
-
+    zeroStats([
+      '#coordPledgeCount', '#coordPendingVerify', '#coordVolunteers',
+      '#coordTasksPending', '#coordHazards', '#coordCleared',
+    ]);
     openModal('coordinator');
+    renderCoordinatorPledges();
+    renderCoordinatorVolunteers();
+    renderCoordinatorTasks();
+    renderCoordinatorHazards();
 
   };
 
@@ -27201,13 +27242,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!hasRole('bmc')) return;
 
+    zeroStats(['#aqPending', '#aqOverdue', '#aqResolved', '#aqAvgAge']);
+
+    openModal('adminQueue');
+
     renderAdminQueue();
 
     refreshAccessReviewBadge();
 
     setNavTab('map');
-
-    openModal('adminQueue');
 
   };
 
@@ -30282,9 +30325,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (nameEl) nameEl.textContent = wardLabel;
     const stats = getUserWardPulseStats();
     // Roll count changes only (Me too bump path already animates; this covers Open/Fixed + full refresh).
-    countUp(openEl, stats.open || 0, { duration: 650 });
-    countUp(fixedEl, stats.fixedWeek || 0, { duration: 650 });
-    countUp(meTooEl, stats.meToo || 0, { duration: 650 });
+    countUp(openEl, stats.open || 0);
+    countUp(fixedEl, stats.fixedWeek || 0);
+    countUp(meTooEl, stats.meToo || 0);
     const meterOpen = $('#wardPulseMeterOpen');
     const meterFixed = $('#wardPulseMeterFixed');
     const total = Math.max(1, (stats.open || 0) + (stats.fixedWeek || 0));
@@ -36031,7 +36074,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const numEl = ptsEl.querySelector('.success-points__num');
 
-      if (numEl) countUp(numEl, total, { duration: 800 });
+      if (numEl) countUp(numEl, total);
 
     }
 
@@ -36602,7 +36645,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let top = scroller.scrollTop || 0;
         // Also consider nested steppers when the outer modal is the clip parent.
         if (scroller === modalEl) {
-          const nested = modalEl.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
+          const nested = modalEl.querySelector('.report-step--active, .modal__body, .modal__sheet-body, [data-modal-scroll]');
           if (nested) top = Math.max(top, nested.scrollTop || 0);
         }
         return top;
@@ -36844,11 +36887,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getModalScrollParent(modal) {
     if (!modal) return null;
-    const nested = modal.querySelector('.report-step--active, .modal__body, [data-modal-scroll]');
+    // Include .modal__sheet-body (sheet-flex Resources / Volunteer) — without it,
+    // overflow:hidden on .modal makes scrollTop always 0 and swipe-dismiss steals scroll.
+    const nested = modal.querySelector('.report-step--active, .modal__body, .modal__sheet-body, [data-modal-scroll]');
     try {
       const style = window.getComputedStyle(modal);
       const oy = style.overflowY || '';
-      // Prefer nested scroller when .modal itself is clipped (e.g. report confirm).
+      // Prefer nested scroller when .modal itself is clipped (e.g. report confirm, sheet-flex).
       if (nested && /(hidden|clip)/.test(oy)) return nested;
       if (/(auto|scroll|overlay)/.test(oy)) return modal;
     } catch { /* ignore */ }
@@ -42562,13 +42607,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             </div>
 
-            <span class="lb-score">${w.points.toLocaleString()} pts</span>
+            <span class="lb-score"><span class="js-lb-pts">${w.points}</span> pts</span>
 
           </li>`
 
         )
 
         .join('');
+
+      countUpMounted(listEl, '.js-lb-pts', {
+        format: (n) => Math.round(n).toLocaleString(),
+      });
 
     }
 
@@ -42669,13 +42718,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             </div>
 
-            <span class="lb-score">${c.points.toLocaleString()} pts</span>
+            <span class="lb-score"><span class="js-lb-pts">${c.points}</span> pts</span>
 
           </li>`
 
         )
 
         .join('');
+
+      countUpMounted(listEl, '.js-lb-pts', {
+        format: (n) => Math.round(n).toLocaleString(),
+      });
 
     }
 
@@ -42888,15 +42941,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const profilePtsEl = $('#profilePoints');
     if (profilePtsEl) {
       countUp(profilePtsEl, getTotalCivicXp(), {
-        duration: 800,
         format: (n) => Math.round(n).toLocaleString(),
       });
     }
     syncHasReportedClass();
 
-    $('#profileFixed').textContent = resolved.length;
+    const profileFixedEl = $('#profileFixed');
+    if (profileFixedEl) countUp(profileFixedEl, resolved.length);
 
-    $('#profilePending').textContent = pending.length;
+    const profilePendingEl = $('#profilePending');
+    if (profilePendingEl) countUp(profilePendingEl, pending.length);
 
     syncUserCivicXp();
 
@@ -44347,11 +44401,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <div class="tracking-breakdown__bar" aria-hidden="true"><div class="tracking-breakdown__fill" style="width:${pct}%"></div></div>
 
-        <strong>${val}</strong>
+        <strong class="js-count">${val}</strong>
 
       </li>`;
 
     }).join('');
+
+    countUpMounted(el, '.js-count');
 
   }
 
@@ -44431,7 +44487,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    const set = (id, val) => { const el = $(id); if (el) el.textContent = val != null ? String(val) : '—'; };
+    const set = (id, val) => {
+      const el = $(id);
+      if (!el) return;
+      if (val == null) {
+        el.textContent = '—';
+        return;
+      }
+      countUp(el, Number(val) || 0);
+    };
 
     const pwaCount = (traffic.pwa_installs || 0) + (traffic.pwa_standalone_sessions || 0);
 
@@ -44527,9 +44591,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    renderTrackingDashboard();
+    zeroStats([
+      '#trSessions', '#trPwa', '#trReports', '#trResolved',
+      '#trReporters', '#trMeToo', '#trFiled', '#trLeads',
+    ]);
 
     openModal('tracking');
+
+    renderTrackingDashboard();
 
   };
 
@@ -44555,13 +44624,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#aqPending').textContent = pending.length;
+    countUp($('#aqPending'), pending.length);
 
-    $('#aqOverdue').textContent = overdue;
+    countUp($('#aqOverdue'), overdue);
 
-    $('#aqResolved').textContent = resolved.length;
+    countUp($('#aqResolved'), resolved.length);
 
-    $('#aqAvgAge').textContent = avgAge;
+    countUp($('#aqAvgAge'), avgAge);
 
 
 
@@ -45079,9 +45148,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $('#coordPledgeCount').textContent = citizenPledges.length;
+    countUp($('#coordPledgeCount'), citizenPledges.length);
 
-    $('#coordPendingVerify').textContent = toVerify;
+    countUp($('#coordPendingVerify'), toVerify);
 
 
 
@@ -45253,7 +45322,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const countEl = $('#coordVolunteers');
 
-    if (countEl) countEl.textContent = volunteers.length;
+    if (countEl) countUp(countEl, volunteers.length);
 
     const listEl = $('#coordVolunteerList');
 
@@ -45311,7 +45380,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const countEl = $('#coordTasksPending');
 
-    if (countEl) countEl.textContent = pending.length;
+    if (countEl) countUp(countEl, pending.length);
 
     const listEl = $('#coordTaskList');
 
@@ -45439,9 +45508,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const cleared = loadReports().filter((r) => r.communityCleared).length;
 
-    $('#coordHazards').textContent = open;
+    countUp($('#coordHazards'), open);
 
-    $('#coordCleared').textContent = cleared;
+    countUp($('#coordCleared'), cleared);
 
 
 
