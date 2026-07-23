@@ -12008,8 +12008,10 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: #fbcfe8;
   }
 
-  #map .leaflet-tile-pane {
-    filter: contrast(0.95) saturate(0.75) brightness(0.88);
+  /* Dark map tiles — tile pane only; pins/popups live in other panes.
+     Covers #map and #reportPinMap (any .leaflet-tile-pane). */
+  .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(.91) contrast(.88) saturate(.65);
   }
 
   .ward-pulse,
@@ -13796,7 +13798,8 @@ body::after {
        keep assets/map-pins/* (danger/hazard open · success fixed)
      · Global CartoDB Dark Matter basemap — dark-mode-first fights
        Clean SaaS light chrome; keep OSM standard tiles (JS unchanged).
-       Dark chrome already adapts via prefers-color-scheme glass tokens.
+       Dark chrome adapts via prefers-color-scheme; basemap darkens via
+       CSS filter on .leaflet-tile-pane only (v390) — not a tile URL swap.
    Basemap decision: OSM standard (tile.openstreetmap.org). SW stays
    same-origin-only (tiles never intercepted; v302 Leaflet network-first).
    ============================================================ */
