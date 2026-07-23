@@ -536,24 +536,29 @@
 
   <!-- Outside report sheet so parking the overlay for the OS picker never hides the input. -->
   <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+  <input type="file" id="photoInputGallery" accept="image/*" hidden>
 
   <div class="modal-overlay" id="reportOverlay" aria-hidden="true">
     <div class="modal modal--tall report-modal--capture" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="report" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <h2 id="reportTitle" data-i18n="report.title">Report a hazard</h2>
-      <div class="flow-steps flow-steps--compact" id="reportFlowSteps" role="list" aria-label="Report progress">
-        <span class="flow-step is-active" role="listitem" data-step="capture" data-i18n="report.step.capture">Capture</span>
-        <span class="flow-step" role="listitem" data-step="confirm" data-i18n="report.step.confirm">Confirm</span>
+      <div class="flow-steps flow-steps--compact" id="reportFlowSteps" role="tablist" aria-label="Report progress">
+        <button type="button" class="flow-step is-active" role="tab" id="btnCaptureStep" data-step="capture" aria-selected="true" data-i18n="report.step.capture">Capture</button>
+        <button type="button" class="flow-step" role="tab" id="btnConfirmStep" data-step="confirm" aria-selected="false" disabled aria-disabled="true" data-i18n="report.step.confirm">Confirm</button>
       </div>
       <input type="hidden" id="hazardType" value="stagnant-water">
 
       <!-- Screen A: camera capture (minimal chrome) -->
       <div class="report-step report-step--active" id="reportStepCapture" data-step="capture">
         <div class="form-group report-photo-section" id="reportPhotoSection">
+          <div class="report-capture-hazard-chip" id="reportCaptureHazardChip" data-hazard="stagnant-water" role="status">
+            <img class="report-capture-hazard-chip__icon" id="reportCaptureHazardChipIcon" src="assets/hazard-icons/hazard-water.svg" alt="" width="16" height="16">
+            <span class="report-capture-hazard-chip__label" id="reportCaptureHazardChipLabel">Stagnant Water</span>
+          </div>
           <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a hazard — avoid faces and documents.</p>
           <div class="camera-area camera-area--capture">
-            <div class="report-capture-focal" aria-hidden="true">
+            <div class="report-capture-focal" id="reportCaptureFocal" aria-hidden="true">
               <svg class="report-capture-viewfinder" viewBox="0 0 160 120" width="160" height="120" fill="none" focusable="false">
                 <rect x="18" y="14" width="124" height="92" rx="10" stroke="currentColor" stroke-width="2" opacity="0.35"/>
                 <path d="M18 38V24a10 10 0 0 1 10-10h14M142 38V24a10 10 0 0 0-10-10h-14M18 82v14a10 10 0 0 0 10 10h14M142 82v14a10 10 0 0 1-10 10h-14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
@@ -561,9 +566,23 @@
                 <circle cx="80" cy="60" r="4" fill="currentColor" opacity="0.22"/>
               </svg>
             </div>
-            <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
-              <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
-            </button>
+            <div class="report-draft-resume hidden" id="reportDraftResume" hidden>
+              <img class="report-draft-resume__thumb" id="reportDraftResumeThumb" alt="" width="72" height="54">
+              <button type="button" class="btn btn--primary btn--full btn--capture" id="btnContinueDraftPhoto">
+                <i class="ph ph-check" aria-hidden="true"></i> <span data-i18n="report.continueDraft">Continue with this photo</span>
+              </button>
+              <button type="button" class="btn btn--ghost btn--full" id="btnDraftRetake">
+                <i class="ph ph-camera" aria-hidden="true"></i> <span data-i18n="report.retake">Retake photo</span>
+              </button>
+            </div>
+            <div class="report-capture-actions" id="reportCaptureActions">
+              <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
+                <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
+              </button>
+              <button type="button" class="btn btn--ghost btn--full btn--gallery" id="btnChooseGallery">
+                <span data-i18n="report.chooseGallery">Choose from gallery</span>
+              </button>
+            </div>
             <div id="reportPhotoError" class="field-error report-photo-error hidden" role="alert" aria-live="assertive"></div>
             <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">Location data is removed from photos automatically</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>

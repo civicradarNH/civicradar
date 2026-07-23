@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v397';
+  const CIVIC_APP_VERSION = 'v399';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3208,6 +3208,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'Take photo',
 
+      'report.chooseGallery': 'Choose from gallery',
+
+      'report.continueDraft': 'Continue with this photo',
+
       'report.captureExifHint': 'Location data is removed from photos automatically',
 
       'report.notes': 'Landmark (optional)',
@@ -3219,6 +3223,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.photoMissingRetry': 'Couldn\'t get that photo — please try again.',
 
       'report.closeBusy': 'Still processing your photo — try closing again shortly.',
+
+      'report.confirmLocked': 'Take a photo before confirming',
 
       'report.submit': 'Submit report',
 
@@ -5793,6 +5799,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फ़ोटो लें',
 
+      'report.chooseGallery': 'गैलरी से चुनें',
+
+      'report.continueDraft': 'इस फ़ोटो से जारी रखें',
+
       'report.captureExifHint': 'फोटो से स्थान डेटा अपने आप हटा दिया जाता है',
 
       'report.notes': 'Landmark (वैकल्पिक)',
@@ -5804,6 +5814,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.photoMissingRetry': 'फोटो नहीं मिली — कृपया फिर कोशिश करें।',
 
       'report.closeBusy': 'फोटो अभी प्रोसेस हो रही है — थोड़ी देर बाद बंद करें।',
+
+      'report.confirmLocked': 'पुष्टि से पहले फ़ोटो लें',
 
       'report.submit': 'रिपोर्ट भेजें',
 
@@ -8378,6 +8390,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'फोटो काढा',
 
+      'report.chooseGallery': 'गॅलरीतून निवडा',
+
+      'report.continueDraft': 'या फोटोसह सुरू ठेवा',
+
       'report.captureExifHint': 'फोटोमधून स्थान डेटा आपोआप काढला जातो',
 
       'report.notes': 'Landmark (ऐच्छिक)',
@@ -8389,6 +8405,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.photoMissingRetry': 'फोटो मिळाली नाही — कृपया पुन्हा प्रयत्न करा.',
 
       'report.closeBusy': 'फोटो अजून प्रोसेस होत आहे — थोड्या वेळाने पुन्हा बंद करा.',
+
+      'report.confirmLocked': 'पुष्टीपूर्वी फोटो काढा',
 
       'report.submit': 'तक्रार पाठवा',
 
@@ -10962,6 +10980,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'ફોટો લો',
 
+      'report.chooseGallery': 'ગૅલરીમાંથી પસંદ કરો',
+
+      'report.continueDraft': 'આ ફોટો સાથે ચાલુ રાખો',
+
       'report.captureExifHint': 'ફોટામાંથી સ્થાન ડેટા આપમેળે દૂર થાય છે',
 
       'report.notes': 'Landmark (વૈકલ્પિક)',
@@ -10973,6 +10995,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'report.photoMissingRetry': 'ફોટો મળ્યો નહીં — કૃપા કરી ફરી પ્રયાસ કરો.',
 
       'report.closeBusy': 'હજુ પણ તમારા ફોટો પર કામ ચાલુ છે — થોડી વાર પછી ફરી બંધ કરવાનો પ્રયાસ કરો.',
+
+      'report.confirmLocked': 'પુષ્ટિ પહેલાં ફોટો લો',
 
       'report.submit': 'ફરિયાદ મોકલો',
 
@@ -13682,6 +13706,8 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshWardComboboxes();
     refreshSocietyComboboxes();
     updatePhotoGuidelines($('#hazardType')?.value || 'stagnant-water');
+    updateCaptureHazardChip($('#hazardType')?.value || 'stagnant-water');
+    syncReportConfirmStepLock();
     refreshAllContextHints();
     if ($('#reportStepConfirm') && !$('#reportStepConfirm').hidden) {
       syncConfirmPinUiHints();
@@ -18432,30 +18458,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!hit) return;
 
-    sessionStorage.setItem('civicradar_nearby_prompt', '1');
-
     const { report, dist } = hit;
 
-    showToast(
+    const deliverNearby = () => {
 
-      t('confirm.nearby').replace('{m}', String(dist)).replace('{backing}', backingSuffix(report.confirmations)),
+      sessionStorage.setItem('civicradar_nearby_prompt', '1');
 
-      'info', 7500, {
+      showToast(
 
-      label: t('confirm.metoo'),
+        t('confirm.nearby').replace('{m}', String(dist)).replace('{backing}', backingSuffix(report.confirmations)),
 
-      onClick: () => {
+        'info', 7500, {
 
-        if (confirmReport(report.id) && map) {
+        label: t('confirm.metoo'),
 
-          // Fly to pin only — success path shows WA toast without reopening the card.
-          map.setView([report.lat, report.lng], 16);
+        onClick: () => {
 
-        }
+          if (confirmReport(report.id) && map) {
 
-      },
+            // Fly to pin only — success path shows WA toast without reopening the card.
+            map.setView([report.lat, report.lng], 16);
 
-    });
+          }
+
+        },
+
+      });
+
+    };
+
+    // Never mix another report's Me-too into an active Capture/Confirm session.
+    if (typeof isReportSessionBlockingMapPrompts === 'function' && isReportSessionBlockingMapPrompts()) {
+
+      queueReportSessionPrompt({
+
+        id: 'nearby:' + String(report.id),
+
+        kind: 'nearby',
+
+        show: deliverNearby,
+
+      });
+
+      return;
+
+    }
+
+    deliverNearby();
 
   }
 
@@ -19551,14 +19600,95 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  /* ---------- Defer map prompts while reporting (v399) ----------
+     "New report near…" / View on map, nearby Me-too, and proximity
+     corroboration must not cover Capture/Confirm or the success sheet.
+     Queue + flush when the user is back on the map with no primary overlay. */
+
+  let pendingReportSessionPrompts = [];
+  let pendingReportSessionFlushTimer = null;
+
+  function isReportSessionBlockingMapPrompts() {
+    try {
+      if (typeof isReportFlowBusy === 'function' && isReportFlowBusy()) return true;
+    } catch (_) { /* ignore */ }
+    if (overlays.report && overlays.report.classList.contains('open')) return true;
+    if (overlays.success && overlays.success.classList.contains('open')) return true;
+    if (overlays.shareWin && overlays.shareWin.classList.contains('open')) return true;
+    if (overlays.certificate && overlays.certificate.classList.contains('open')) return true;
+    return false;
+  }
+
+  function queueReportSessionPrompt(entry) {
+    if (!entry || typeof entry.show !== 'function') return;
+    const id = String(entry.id || entry.kind || 'prompt');
+    pendingReportSessionPrompts = pendingReportSessionPrompts.filter((e) => e.id !== id);
+    pendingReportSessionPrompts.push({
+      id,
+      kind: entry.kind || 'prompt',
+      show: entry.show,
+    });
+    if (pendingReportSessionPrompts.length > 6) {
+      pendingReportSessionPrompts = pendingReportSessionPrompts.slice(-6);
+    }
+  }
+
+  function flushPendingReportSessionPrompts() {
+    if (!pendingReportSessionPrompts.length) return;
+    if (isReportSessionBlockingMapPrompts()) return;
+    if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
+    if (typeof isMapSurfaceActive === 'function' && !isMapSurfaceActive()) return;
+    // Don't cover an active snackbar (e.g. post-success WhatsApp CTA).
+    if (typeof hasActiveToast === 'function' && hasActiveToast()) {
+      scheduleFlushPendingReportSessionPrompts(1200);
+      return;
+    }
+    const priority = { nbh_new: 0, nearby: 1, proximity: 2, nbh_resolved: 3 };
+    const q = pendingReportSessionPrompts.slice().sort((a, b) =>
+      (priority[a.kind] != null ? priority[a.kind] : 9)
+      - (priority[b.kind] != null ? priority[b.kind] : 9)
+    );
+    pendingReportSessionPrompts = [];
+    const next = q[0];
+    const rest = q.slice(1);
+    try { next.show(); } catch (_) { /* ignore */ }
+    if (rest.length) {
+      pendingReportSessionPrompts = rest;
+      scheduleFlushPendingReportSessionPrompts(9500);
+    }
+  }
+
+  function scheduleFlushPendingReportSessionPrompts(delayMs) {
+    clearTimeout(pendingReportSessionFlushTimer);
+    pendingReportSessionFlushTimer = setTimeout(() => {
+      pendingReportSessionFlushTimer = null;
+      flushPendingReportSessionPrompts();
+    }, typeof delayMs === 'number' ? delayMs : 400);
+  }
+
+  window.__civicFlushPendingReportSessionPrompts = flushPendingReportSessionPrompts;
+  window.__civicPendingReportSessionPromptCount = () => pendingReportSessionPrompts.length;
+
   function showNbhAlertInApp(title, body, reportId, ctaKey, secondaryAction) {
-    window.__civicNbhAlertLast = body;
-    const action = {
-      label: t(ctaKey || 'notify.nbh.new.cta'),
-      onClick: () => focusReportOnMap(reportId),
+    const deliver = () => {
+      window.__civicNbhAlertLast = body;
+      const action = {
+        label: t(ctaKey || 'notify.nbh.new.cta'),
+        onClick: () => focusReportOnMap(reportId),
+      };
+      if (secondaryAction && secondaryAction.label) action.secondary = [secondaryAction];
+      showToast(body, 'info', 9000, action);
     };
-    if (secondaryAction && secondaryAction.label) action.secondary = [secondaryAction];
-    showToast(body, 'info', 9000, action);
+    if (isReportSessionBlockingMapPrompts()) {
+      const resolved = !!(ctaKey && String(ctaKey).indexOf('resolved') >= 0);
+      queueReportSessionPrompt({
+        id: 'nbh:' + (resolved ? 'res:' : 'new:') + String(reportId || ''),
+        kind: resolved ? 'nbh_resolved' : 'nbh_new',
+        show: deliver,
+      });
+      return;
+    }
+    deliver();
   }
 
   function fireNbhAlertNotification(title, body, reportId, alertType) {
@@ -19869,7 +19999,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!user.ward || !user.tosAccepted) return;
 
-    dispatchReminderQueue(collectProximityReminders(lat, lng));
+    const candidates = collectProximityReminders(lat, lng);
+
+    if (!candidates.length) return;
+
+    // Defer Me-too / add-photo proximity cards while Capture/Confirm is open.
+    if (typeof isReportSessionBlockingMapPrompts === 'function' && isReportSessionBlockingMapPrompts()) {
+
+      candidates.forEach((c) => {
+
+        queueReportSessionPrompt({
+
+          id: 'proximity:' + String((c.meta && c.meta.reportId) || ''),
+
+          kind: 'proximity',
+
+          show: () => {
+
+            if (typeof isReportSessionBlockingMapPrompts === 'function' && isReportSessionBlockingMapPrompts()) {
+
+              queueReportSessionPrompt({
+
+                id: 'proximity:' + String((c.meta && c.meta.reportId) || ''),
+
+                kind: 'proximity',
+
+                show: () => dispatchReminderQueue([c]),
+
+              });
+
+              return;
+
+            }
+
+            dispatchReminderQueue([c]);
+
+          },
+
+        });
+
+      });
+
+      return;
+
+    }
+
+    dispatchReminderQueue(candidates);
 
   }
 
@@ -20300,6 +20475,9 @@ document.addEventListener('DOMContentLoaded', function () {
     flushPendingLocationBanner();
 
     flushPendingGeoEnableHelp();
+
+    // Drain queued "New report near…" / nearby Me-too after report/success closes.
+    scheduleFlushPendingReportSessionPrompts(350);
 
   }
 
@@ -21709,6 +21887,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updatePhotoGuidelines(key);
 
+    updateCaptureHazardChip(key);
+
     // Dupe match is same-hazard-scoped, so switching hazard on the confirm
     // step must re-evaluate — e.g. a garbage dupe pill clears (Submit returns)
     // when the user switches to streetlight at the same spot.
@@ -22185,13 +22365,179 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function syncReportConfirmStepLock() {
+
+    const confirmBtn = $('#btnConfirmStep');
+
+    const captureBtn = $('#btnCaptureStep');
+
+    const ready = hasReportPhotoPreview();
+
+    if (confirmBtn) {
+
+      confirmBtn.disabled = !ready;
+
+      confirmBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
+
+      if (!ready) {
+
+        confirmBtn.setAttribute('title', t('report.confirmLocked'));
+
+        confirmBtn.setAttribute('aria-label', t('report.confirmLocked'));
+
+      } else {
+
+        confirmBtn.removeAttribute('title');
+
+        confirmBtn.setAttribute('aria-label', t('report.step.confirm'));
+
+      }
+
+    }
+
+    if (captureBtn) {
+
+      captureBtn.setAttribute('aria-label', t('report.step.capture'));
+
+    }
+
+    // Recover if Confirm chrome is showing without a photo preview.
+    if (reportFlowStep === 'confirm' && !ready) {
+
+      updateReportFlowSteps('capture');
+
+    }
+
+  }
+
+
+
+  function updateCaptureHazardChip(key) {
+
+    const chip = $('#reportCaptureHazardChip');
+
+    const label = $('#reportCaptureHazardChipLabel');
+
+    const icon = $('#reportCaptureHazardChipIcon');
+
+    if (!chip || !label) return;
+
+    const raw = key || $('#hazardType')?.value || 'stagnant-water';
+
+    const k = isLiveHazardKey(raw) ? raw : 'stagnant-water';
+
+    const cat = HAZARD_CATEGORIES.find((c) => c.key === k) || HAZARD_CATEGORIES[0];
+
+    chip.dataset.hazard = cat.key;
+
+    label.textContent = hazardLabel(cat.key);
+
+    if (icon && cat.iconSrc) {
+
+      icon.src = cat.iconSrc;
+
+      icon.alt = '';
+
+    }
+
+  }
+
+
+
+  function getReportDraftPhotoDataUrl() {
+
+    if (lastReportDataUrl) return lastReportDataUrl;
+
+    try {
+
+      const d = readReportDraft();
+
+      return (d && d.photoDataUrl) || null;
+
+    } catch {
+
+      return null;
+
+    }
+
+  }
+
+
+
+  function updateReportDraftResumeCue() {
+
+    const resume = $('#reportDraftResume');
+
+    const actions = $('#reportCaptureActions');
+
+    const focal = $('#reportCaptureFocal');
+
+    const thumb = $('#reportDraftResumeThumb');
+
+    if (!resume || !actions) return;
+
+    const capturePanel = $('#reportStepCapture');
+
+    const onCapture = !!(capturePanel && !capturePanel.hidden && capturePanel.classList.contains('report-step--active'));
+
+    const dataUrl = getReportDraftPhotoDataUrl();
+
+    const show = onCapture && !!dataUrl && !reportPhotoProcessing;
+
+    resume.classList.toggle('hidden', !show);
+
+    resume.hidden = !show;
+
+    actions.classList.toggle('hidden', show);
+
+    if (focal) {
+
+      focal.classList.toggle('hidden', show);
+
+      focal.setAttribute('aria-hidden', show ? 'true' : 'true');
+
+    }
+
+    if (show && thumb && thumb.getAttribute('src') !== dataUrl) {
+
+      thumb.src = dataUrl;
+
+    }
+
+  }
+
+
+
+  function setReportOpenHud(open) {
+
+    document.documentElement.classList.toggle('report-open', !!open);
+
+    document.body.classList.toggle('report-open', !!open);
+
+  }
+
+
+
   function updateReportFlowSteps(step) {
 
-    const s = normalizeReportStep(step);
+    let s = normalizeReportStep(step);
+
+    // Confirm is unreachable without a captured photo preview.
+    if (s === 'confirm' && !hasReportPhotoPreview()) {
+
+      debugLog('REPORT', 'updateReportFlowSteps force capture', { reason: 'no photo' });
+
+      s = 'capture';
+
+    }
 
     if (s === reportFlowStep) {
 
       debugLog('REPORT', 'updateReportFlowSteps skip', { step: s });
+
+      syncReportConfirmStepLock();
+
+      updateReportDraftResumeCue();
 
       return;
 
@@ -22218,6 +22564,8 @@ document.addEventListener('DOMContentLoaded', function () {
       el.classList.remove('is-active', 'is-done');
 
       el.removeAttribute('aria-current');
+
+      el.setAttribute('aria-selected', ds === s ? 'true' : 'false');
 
       if (ds === s) {
 
@@ -22246,6 +22594,10 @@ document.addEventListener('DOMContentLoaded', function () {
       panel.hidden = !active;
 
     });
+
+    syncReportConfirmStepLock();
+
+    updateReportDraftResumeCue();
 
   }
 
@@ -22933,6 +23285,12 @@ document.addEventListener('DOMContentLoaded', function () {
       t.classList.toggle('active', t.dataset.tab === tab);
 
     });
+
+    if (tab === 'map' && typeof scheduleFlushPendingReportSessionPrompts === 'function') {
+
+      scheduleFlushPendingReportSessionPrompts(280);
+
+    }
 
   }
 
@@ -24857,6 +25215,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.style.overflow = 'hidden';
 
+    if (name === 'report') {
+
+      setReportOpenHud(true);
+
+      updateCaptureHazardChip($('#hazardType')?.value);
+
+      syncReportConfirmStepLock();
+
+      updateReportDraftResumeCue();
+
+    }
+
     // Immediately park location/PWA (not CSS-only) when a primary sheet opens.
     if (name === 'tos' || name === 'onboarding' || name === 'report' || name === 'success') {
 
@@ -25326,11 +25696,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
           }
 
-          showPhotoConfirm();
+          const wantConfirm = normalizeReportStep(draft.step || 'capture') === 'confirm';
 
-          touchReportDraft({ step: 'confirm', awaitingPhoto: false, photoDataUrl: lastReportDataUrl || draft.photoDataUrl || null });
+          if (wantConfirm) {
 
-          scheduleReportPinMapResize();
+            showPhotoConfirm();
+
+            touchReportDraft({ step: 'confirm', awaitingPhoto: false, photoDataUrl: lastReportDataUrl || draft.photoDataUrl || null });
+
+            scheduleReportPinMapResize();
+
+          } else {
+
+            // Draft photo on Capture — show resume cue instead of blank viewfinder.
+            updateReportFlowSteps('capture');
+
+            touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: lastReportDataUrl || draft.photoDataUrl || null });
+
+            updateReportDraftResumeCue();
+
+          }
 
           runReady(true);
 
@@ -25479,6 +25864,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     try { $('#photoInput').value = ''; } catch { /* ignore */ }
+
+    try { $('#photoInputGallery').value = ''; } catch { /* ignore */ }
 
     lastReportDataUrl = null;
 
@@ -25973,6 +26360,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try { $('#photoInput').value = ''; } catch { /* ignore */ }
 
+    try { $('#photoInputGallery').value = ''; } catch { /* ignore */ }
+
     clearReportPhotoPreviewOnly();
 
     ensureReportModalOpen();
@@ -26158,7 +26547,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /** Push history + open the system camera/gallery. Must stay sync in a user gesture. */
-  function launchReportPhotoInput() {
+  function launchReportPhotoInput(opts) {
+    opts = opts || {};
     // Free decoded map tile bitmaps before the Android camera Activity — OS toast
     // "Unable to complete previous operation due to low memory" often means
     // the browser was OOM-killed while handing off to the camera.
@@ -26175,7 +26565,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     pushReportPhotoHistory();
 
-    const input = $('#photoInput');
+    const input = opts.gallery ? $('#photoInputGallery') : $('#photoInput');
 
     if (input) input.click();
 
@@ -26184,11 +26574,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function openReportPhotoPicker() {
+  function openReportPhotoPicker(opts) {
 
-    debugLog('PHOTO', 'openReportPhotoPicker', { reportPhotoProcessing });
+    opts = opts || {};
 
-    const input = $('#photoInput');
+    debugLog('PHOTO', 'openReportPhotoPicker', { reportPhotoProcessing, gallery: !!opts.gallery });
+
+    const input = opts.gallery ? $('#photoInputGallery') : $('#photoInput');
 
     if (!input || reportPhotoProcessing) return;
 
@@ -26227,7 +26619,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         parkReportOverlayForPicker();
 
-        launchReportPhotoInput();
+        launchReportPhotoInput({ gallery: !!opts.gallery });
 
       },
 
@@ -26305,6 +26697,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (name === 'report') {
+
+      setReportOpenHud(false);
 
       resetSubmitReportButton();
 
@@ -31405,9 +31799,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnTakePhotoEl = $('#btnTakePhoto');
     if (btnTakePhotoEl) btnTakePhotoEl.addEventListener('click', () => openReportPhotoPicker());
 
-    $('#photoInput').addEventListener('change', handlePhotoCapture);
+    const btnChooseGalleryEl = $('#btnChooseGallery');
+    if (btnChooseGalleryEl) btnChooseGalleryEl.addEventListener('click', () => openReportPhotoPicker({ gallery: true }));
 
-    $('#photoInput').addEventListener('cancel', () => {
+    const bindPhotoInputEvents = (inputEl) => {
+      if (!inputEl) return;
+      inputEl.addEventListener('change', handlePhotoCapture);
+      inputEl.addEventListener('cancel', () => {
 
       // Late cancel after accept is common on Android WebView/TWA — do not abort
       // an in-flight decode or kick a finished preview back to capture.
@@ -31449,7 +31847,65 @@ document.addEventListener('DOMContentLoaded', function () {
       // Genuine cancel often races a late File after OK — wait briefly before abandon.
       scheduleReportPhotoEmptyExit('photoInputCancel', { toast: false });
 
-    });
+      });
+    };
+    bindPhotoInputEvents($('#photoInput'));
+    bindPhotoInputEvents($('#photoInputGallery'));
+
+    const btnContinueDraft = $('#btnContinueDraftPhoto');
+    if (btnContinueDraft) {
+      btnContinueDraft.addEventListener('click', () => {
+        if (submitReport.__inFlight) return;
+        const dataUrl = getReportDraftPhotoDataUrl();
+        if (!dataUrl) {
+          updateReportDraftResumeCue();
+          return;
+        }
+        if (hasReportPhotoPreview()) {
+          showPhotoConfirm();
+          return;
+        }
+        restoreReportPhotoFromDataUrl(dataUrl, (ok) => {
+          if (ok) showPhotoConfirm();
+          else {
+            showToast(t('report.photoLostRetake'), 'info', 4500);
+            touchReportDraft({ photoDataUrl: null, step: 'capture' });
+            updateReportDraftResumeCue();
+          }
+        });
+      });
+    }
+
+    const btnDraftRetake = $('#btnDraftRetake');
+    if (btnDraftRetake) {
+      btnDraftRetake.addEventListener('click', () => {
+        if (submitReport.__inFlight) return;
+        clearReportDuplicateUi();
+        clearReportPhotoPreviewOnly();
+        try { $('#photoInputGallery').value = ''; } catch { /* ignore */ }
+        touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
+        updateReportFlowSteps('capture');
+        updateReportDraftResumeCue();
+      });
+    }
+
+    const btnCaptureStep = $('#btnCaptureStep');
+    if (btnCaptureStep) {
+      btnCaptureStep.addEventListener('click', () => {
+        updateReportFlowSteps('capture');
+      });
+    }
+
+    const btnConfirmStep = $('#btnConfirmStep');
+    if (btnConfirmStep) {
+      btnConfirmStep.addEventListener('click', () => {
+        if (!hasReportPhotoPreview()) {
+          updateReportFlowSteps('capture');
+          return;
+        }
+        showPhotoConfirm();
+      });
+    }
 
     const btnRetake = $('#btnRetakePhoto');
 
@@ -31483,6 +31939,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+        try { $('#photoInputGallery').value = ''; } catch { /* ignore */ }
+
         lastReportDataUrl = null;
 
         reportPhotoModerationPassed = false;
@@ -31490,6 +31948,8 @@ document.addEventListener('DOMContentLoaded', function () {
         touchReportDraft({ step: 'capture', awaitingPhoto: false, photoDataUrl: null });
 
         updateReportFlowSteps('capture');
+
+        updateReportDraftResumeCue();
 
         openReportPhotoPicker();
 
@@ -32551,6 +33011,10 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.disabled = on;
 
     }
+
+    const galleryBtn = $('#btnChooseGallery');
+
+    if (galleryBtn) galleryBtn.disabled = on;
 
     if (status) {
 
@@ -36121,7 +36585,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function resetReportForm() {
 
-    $('#photoInput').value = '';
+    try { $('#photoInput').value = ''; } catch { /* ignore */ }
+
+    try { $('#photoInputGallery').value = ''; } catch { /* ignore */ }
 
     $('#reportNotes').value = '';
 

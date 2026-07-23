@@ -75,7 +75,7 @@ SMOKE_TEST_IDS = frozenset({
     'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C19b',
     'DL01',
     # Report flow basics + draft restore + ship-glitch guards
-    'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22',
+    'RP01', 'RP02', 'RP03', 'RP04', 'RP05', 'RP06', 'RP07', 'RP08', 'RP21', 'RP22', 'RP22b',
     'RP26', 'UX04', 'UX05',
     # PWA cache version + iOS meta/quick checks
     'SW06', 'IOS01', 'IOS02', 'IOS03', 'IOS04',
@@ -3834,6 +3834,32 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('RP22', 'Report', 'Photo-first opens capture step', capture_step)
 
+    confirm_locked = await page.evaluate(
+        """() => {
+          const btn = document.getElementById('btnConfirmStep');
+          const gallery = document.getElementById('btnChooseGallery');
+          const galleryInput = document.getElementById('photoInputGallery');
+          const chip = document.getElementById('reportCaptureHazardChip');
+          const hudHidden = document.body.classList.contains('report-open');
+          if (!btn || !gallery || !galleryInput || !chip) return false;
+          const locked = !!(btn.disabled || btn.getAttribute('aria-disabled') === 'true');
+          const galleryOk = !galleryInput.hasAttribute('capture')
+            && (galleryInput.accept || '').includes('image');
+          // Confirm-without-photo must bounce to capture (stick helper previously forced confirm).
+          if (typeof window.__civicTestStickReportPhotoProcessing !== 'function') return false;
+          window.__civicTestStickReportPhotoProcessing();
+          const flags = window.__civicTestReportPhotoFlags();
+          const bounced = flags && flags.step === 'capture';
+          if (typeof window.__civicTestClearReportPhoto === 'function') window.__civicTestClearReportPhoto();
+          document.getElementById('btnConfirmStep')?.click();
+          const stillCapture = !!(document.getElementById('reportStepCapture')
+            && !document.getElementById('reportStepCapture').hidden
+            && document.getElementById('reportStepConfirm')?.hidden);
+          return locked && galleryOk && hudHidden && bounced && stillCapture;
+        }"""
+    )
+    s.record('RP22b', 'Report', 'Confirm locked until photo; gallery + hazard chip + report-open HUD', confirm_locked)
+
     await page.evaluate('() => document.querySelector("[data-close=report]")?.click()')
 
     before = await page.evaluate('() => JSON.parse(localStorage.getItem("mosquiTrackReports")||"[]").length')
@@ -5728,7 +5754,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v397" in sw_src
+            "civicradar-v399" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8902,6 +8928,32 @@ async def run_smoke_extended_tests(s: Suite, browser):
     )
 
     s.record('RP22', 'Report', 'Photo-first opens capture step', capture_step)
+
+    confirm_locked = await page.evaluate(
+        """() => {
+          const btn = document.getElementById('btnConfirmStep');
+          const gallery = document.getElementById('btnChooseGallery');
+          const galleryInput = document.getElementById('photoInputGallery');
+          const chip = document.getElementById('reportCaptureHazardChip');
+          const hudHidden = document.body.classList.contains('report-open');
+          if (!btn || !gallery || !galleryInput || !chip) return false;
+          const locked = !!(btn.disabled || btn.getAttribute('aria-disabled') === 'true');
+          const galleryOk = !galleryInput.hasAttribute('capture')
+            && (galleryInput.accept || '').includes('image');
+          // Confirm-without-photo must bounce to capture (stick helper previously forced confirm).
+          if (typeof window.__civicTestStickReportPhotoProcessing !== 'function') return false;
+          window.__civicTestStickReportPhotoProcessing();
+          const flags = window.__civicTestReportPhotoFlags();
+          const bounced = flags && flags.step === 'capture';
+          if (typeof window.__civicTestClearReportPhoto === 'function') window.__civicTestClearReportPhoto();
+          document.getElementById('btnConfirmStep')?.click();
+          const stillCapture = !!(document.getElementById('reportStepCapture')
+            && !document.getElementById('reportStepCapture').hidden
+            && document.getElementById('reportStepConfirm')?.hidden);
+          return locked && galleryOk && hudHidden && bounced && stillCapture;
+        }"""
+    )
+    s.record('RP22b', 'Report', 'Confirm locked until photo; gallery + hazard chip + report-open HUD', confirm_locked)
 
     await page.evaluate('() => document.querySelector("[data-close=report]")?.click()')
 
