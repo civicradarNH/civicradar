@@ -74,7 +74,7 @@
     <link rel="stylesheet" href="css/phosphor-lite.css">
     <link rel="stylesheet" href="css/styles.css">
   </noscript>
-  <title>CivicRadar</title>
+  <title>CivicRadar — Ward hazard map for Mumbai, Pune &amp; Thane</title>
 </head>
 <body class="app-booting" style="background-color:#6366f1;margin:0">
 
@@ -461,7 +461,7 @@
       <button type="button" class="modal__close" data-close="reportGeo" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="report-geo__icon" aria-hidden="true"><i class="ph ph-map-pin"></i></div>
       <h2 id="reportGeoTitle" data-i18n="report.geoExplainerTitle">Pin this hazard on the map</h2>
-      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">Used once to place this pin where you're standing. Neighbours see the pin — never your live location.</p>
+      <p class="modal__subtitle" id="reportGeoBody" data-i18n="report.geoExplainerBody">Your location is used once — to place this pin where you're standing. Neighbours see the pin, never your live location.</p>
       <div class="report-geo__actions">
         <button type="button" class="btn btn--primary btn--full" id="btnReportGeoContinue" data-i18n="report.geoExplainerContinue">Use my location</button>
         <button type="button" class="btn btn--ghost btn--full" id="btnReportGeoManual" data-i18n="report.geoExplainerManual">Place pin on map instead</button>
@@ -508,11 +508,19 @@
         <div class="form-group report-photo-section" id="reportPhotoSection">
           <p class="photo-guidelines report-capture-hint" id="photoGuidelines" role="status" aria-live="polite">Snap a hazard — avoid faces and documents.</p>
           <div class="camera-area camera-area--capture">
+            <div class="report-capture-focal" aria-hidden="true">
+              <svg class="report-capture-viewfinder" viewBox="0 0 160 120" width="160" height="120" fill="none" focusable="false">
+                <rect x="18" y="14" width="124" height="92" rx="10" stroke="currentColor" stroke-width="2" opacity="0.35"/>
+                <path d="M18 38V24a10 10 0 0 1 10-10h14M142 38V24a10 10 0 0 0-10-10h-14M18 82v14a10 10 0 0 0 10 10h14M142 82v14a10 10 0 0 1-10 10h-14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="80" cy="60" r="18" stroke="currentColor" stroke-width="1.75" opacity="0.28"/>
+                <circle cx="80" cy="60" r="4" fill="currentColor" opacity="0.22"/>
+              </svg>
+            </div>
             <div id="reportPhotoError" class="field-error hidden" role="alert" aria-live="assertive"></div>
             <button type="button" class="btn btn--primary btn--full btn--capture" id="btnTakePhoto">
               <i class="ph ph-camera"></i> <span data-i18n="report.capture">Take photo</span>
             </button>
-            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">Location data removed from photos automatically</p>
+            <p class="report-capture-exif" id="reportCaptureExifHint" data-i18n="report.captureExifHint">Location data is removed from photos automatically</p>
             <p class="photo-scan-status hidden" id="photoScanStatus" role="status" aria-live="polite" data-i18n="moderation.scanning">Checking photo…</p>
             <div class="skeleton-stack skeleton-stack--photo hidden" id="photoScanSkeleton" aria-hidden="true">
               <div class="skeleton skeleton--line"></div>
@@ -549,15 +557,12 @@
         </div>
         <div class="report-notes-accordion" id="reportNotesAccordion">
           <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
-            <span data-i18n="report.addNote">+ Add landmark</span>
+            <span data-i18n="report.addNote">+ Near which shop/building?</span>
           </button>
           <div class="report-notes-body hidden" id="reportNotesBody">
             <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
             <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
           </div>
-        </div>
-        <div class="photo-confirm hidden" id="photoConfirmGroup" aria-hidden="true">
-          <p class="photo-confirm__hint" id="photoConfirmHint" data-i18n="report.photoHint">Does this photo show the hazard clearly?</p>
         </div>
         <div class="modal__sticky-footer modal__sticky-footer--glass">
           <div class="inline-duplicate-warning hidden" id="inlineDuplicateWarning" role="status" aria-live="polite" hidden>
@@ -585,82 +590,98 @@
     </div>
   </div>
 
-  <!-- Success Modal — compact sheet: rewards pill, pin row, WA primary, Done ghost -->
+  <!-- Success Modal — pin-drop moment: title + points + WA primary; More for extras -->
   <div class="modal-overlay" id="successOverlay" aria-hidden="true">
     <div class="modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="success" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="success-header">
-        <div class="success-icon">
-          <svg class="animated-check" viewBox="0 0 52 52" width="40" height="40" aria-hidden="true" focusable="false">
-            <circle class="animated-check__circle" cx="26" cy="26" r="25" fill="none"/>
-            <path class="animated-check__path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        <div class="success-icon" id="successPinIcon">
+          <svg class="pin-drop" viewBox="0 0 96 96" width="88" height="88" fill="none" aria-hidden="true" focusable="false">
+            <ellipse class="pin-drop__shadow" cx="48" cy="78" rx="16" ry="4.5" fill="#0F172A" fill-opacity=".14"/>
+            <circle class="pin-drop__ripple" cx="48" cy="78" r="10" stroke="#6366F1" stroke-width="2"/>
+            <circle class="pin-drop__ripple pin-drop__ripple--2" cx="48" cy="78" r="10" stroke="#22D3EE" stroke-width="1.5"/>
+            <g class="pin-drop__pin">
+              <path d="M48 12c-12.2 0-22 9.5-22 21.3 0 15 17 31.9 20.8 35.3.7.7 1.7.7 2.4 0C53 65.2 70 48.3 70 33.3 70 21.5 60.2 12 48 12z"
+                    fill="#4F46E5" stroke="#4338CA" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="48" cy="33" r="11.5" fill="#fff"/>
+              <path class="pin-drop__check" d="M42.5 33.5l4 4 7.5-8" stroke="#047857" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
           </svg>
         </div>
-        <h2 id="successTitle" data-i18n="success.title">Report logged — thank you!</h2>
+        <h2 id="successTitle">Pinned in {ward}</h2>
       </div>
-      <div class="success-reward-panel">
-        <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
-        <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
-        <div class="success-progress-wrap hidden" id="successProgressWrap">
-          <div class="success-progress-bar" id="successProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="success-progress-fill" id="successProgressFill"></div>
-          </div>
-          <p class="success-progress" id="successProgress" aria-live="polite"></p>
-        </div>
-        <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
-      </div>
-      <div class="success-location-row" id="successLocationRow">
-        <div class="success-thumb-slot">
-          <img id="successThumbnail" class="success-thumb-sm" alt="" hidden>
-          <div class="success-thumb-sm success-thumb-sm--empty" id="successThumbEmpty" aria-hidden="true">
-            <i class="ph ph-map-pin" aria-hidden="true"></i>
-          </div>
-        </div>
-        <div class="success-location-info">
-          <span class="success-pinned-tag" id="successTagline" data-i18n="success.tagline">Pinned on ward map</span>
-          <span class="success-ward-name" id="successWardName"></span>
-        </div>
-      </div>
+      <div class="success-points hidden" id="successPoints" aria-live="polite"></div>
+      <p class="success-gamify hidden" id="successGamifyLine" aria-live="polite"></p>
       <div class="success-share-block success-share-block--primary">
-        <p class="success-share-title hidden" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
-        <p class="success-share-prompt" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
         <button type="button" class="btn btn--whatsapp btn--full" id="btnShareWhatsApp">
           <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Share on WhatsApp</span>
         </button>
-        <button type="button" class="success-native-share hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
-          <i class="ph ph-share-network" aria-hidden="true"></i> <span data-i18n="share.nativeShare">Share</span>
-        </button>
-      </div>
-      <div class="success-optional-block">
-        <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
-          <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
-            <span data-i18n="success.alsoOfficial">File with {corp}</span>
-            <i class="ph ph-caret-down" aria-hidden="true"></i>
-          </button>
-          <div class="official-channels-block__body hidden" id="successOfficialBody">
-            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Filing with {corp} starts the official clock — you file, we track.</p>
-            <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
-            <div class="esc-channels official-channels official-channels--success" id="successOfficialChannels" data-official-context="success"></div>
-            <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
-              <i class="ph ph-list-checks"></i> <span data-i18n="success.filingGuide">How to file &amp; copy text</span>
-            </button>
-            <p class="official-sources-all">
-              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
-                <i class="ph ph-books" aria-hidden="true"></i>
-                <span data-i18n="official.viewAllSources">More filing links</span>
-              </a>
-            </p>
-            <div class="share-buttons">
-              <button type="button" class="btn btn--ghost btn--full" id="btnShareTwitter">
-                <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="success-footer">
         <button type="button" class="btn btn--ghost btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
+      </div>
+      <div class="success-more" id="successMore">
+        <button type="button" class="btn btn--ghost btn--sm success-more__toggle" id="btnSuccessMoreToggle" aria-expanded="false" aria-controls="successMoreBody">
+          <span data-i18n="success.more">More</span>
+          <i class="ph ph-caret-down" aria-hidden="true"></i>
+        </button>
+        <div class="success-more__body hidden" id="successMoreBody">
+          <div class="success-location-row" id="successLocationRow">
+            <div class="success-thumb-slot">
+              <img id="successThumbnail" class="success-thumb-sm" alt="" hidden>
+              <div class="success-thumb-sm success-thumb-sm--empty" id="successThumbEmpty" aria-hidden="true">
+                <i class="ph ph-map-pin" aria-hidden="true"></i>
+              </div>
+            </div>
+            <div class="success-location-info">
+              <span class="success-pinned-tag" id="successTagline" data-i18n="success.tagline">Pinned on ward map</span>
+              <span class="success-ward-name" id="successWardName"></span>
+            </div>
+          </div>
+          <div class="success-reward-panel">
+            <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
+            <div class="success-progress-wrap hidden" id="successProgressWrap">
+              <div class="success-progress-bar" id="successProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="success-progress-fill" id="successProgressFill"></div>
+              </div>
+              <p class="success-progress" id="successProgress" aria-live="polite"></p>
+            </div>
+            <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
+          </div>
+          <p class="success-share-prompt" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
+          <button type="button" class="success-native-share hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
+            <i class="ph ph-share-network" aria-hidden="true"></i> <span data-i18n="share.nativeShare">Share</span>
+          </button>
+          <div class="success-optional-block">
+            <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
+              <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
+                <span data-i18n="success.alsoOfficial">File with {corp}</span>
+                <i class="ph ph-caret-down" aria-hidden="true"></i>
+              </button>
+              <div class="official-channels-block__body hidden" id="successOfficialBody">
+                <p class="field-hint success-official-hint" data-i18n="success.subtitle">Filing with {corp} starts the official clock — you file, we track.</p>
+                <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
+                <div class="esc-channels official-channels official-channels--success" id="successOfficialChannels" data-official-context="success"></div>
+                <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
+                  <i class="ph ph-list-checks"></i> <span data-i18n="success.filingGuide">How to file &amp; copy text</span>
+                </button>
+                <p class="official-sources-all">
+                  <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
+                    <i class="ph ph-books" aria-hidden="true"></i>
+                    <span data-i18n="official.viewAllSources">More filing links</span>
+                  </a>
+                </p>
+                <div class="share-buttons">
+                  <button type="button" class="btn btn--ghost btn--full" id="btnShareTwitter">
+                    <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

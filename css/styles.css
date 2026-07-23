@@ -1760,13 +1760,16 @@ body::after {
 .ward-pulse__stat--fixed > span:not(strong) { color: var(--success); opacity: 0.85; }
 .ward-pulse__stat--metoo > span:not(strong) { color: var(--brand-600, var(--primary)); opacity: 0.85; }
 
-body.home-hero-visible,
+/* Hero keeps ward pulse visible (ambient status); admin/lead still hide it */
+body.home-hero-visible {
+  --persona-bar-height: 0px;
+}
+
 body.persona-admin,
 body.persona-lead {
   --ward-pulse-height: 0px;
 }
 
-body.home-hero-visible #wardPulse,
 body.persona-admin #wardPulse,
 body.persona-lead #wardPulse {
   display: none !important;
@@ -1972,7 +1975,7 @@ body.location-banner-visible .persona-bar {
   display: none !important;
 }
 
-/* Citizen ward-impact strip repeats #wardPulse Open/Fixed/Me too — collapse counters only.
+/* Citizen idle tip collapses after first visits (see PERSONA_IDLE_MAX_SESSIONS);
    Unfiled / pending / admin / NGO persona copy stays (unique + actionable). */
 body.persona-pulse-redundant {
   --persona-bar-height: 0px;
@@ -2823,10 +2826,9 @@ body.persona-lead .map-empty-cta {
   margin: 0;
 }
 
+/* Hero: hide persona lecture only — keep FAB + ward pulse (reinforcement OK) */
 body.home-hero-visible .map-recenter,
-body.home-hero-visible #btnCamera,
-body.home-hero-visible #personaBar,
-body.home-hero-visible #wardPulse {
+body.home-hero-visible #personaBar {
   display: none;
 }
 
@@ -4178,7 +4180,95 @@ body.pwa-nudge-visible #btnCamera {
   line-height: 0;
 }
 
-/* Inline SVG stroke-draw check (replaces phosphor in #successModal only) */
+/* Pin-drop success animation (§5.2) — plays when .success-icon.is-celebrating */
+.pin-drop {
+  display: block;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto;
+}
+
+.pin-drop__pin {
+  transform-origin: 48px 78px;
+}
+
+.pin-drop__shadow {
+  transform-origin: 48px 78px;
+}
+
+.pin-drop__ripple {
+  opacity: 0;
+  transform-origin: 48px 78px;
+}
+
+.pin-drop__check {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 0;
+}
+
+.success-icon.is-celebrating .pin-drop__pin {
+  animation: pin-fall 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+.success-icon.is-celebrating .pin-drop__shadow {
+  animation: pin-shadow 0.55s ease-out both;
+}
+
+.success-icon.is-celebrating .pin-drop__ripple {
+  animation: pin-ripple 0.9s ease-out 0.45s both;
+}
+
+.success-icon.is-celebrating .pin-drop__ripple--2 {
+  animation: pin-ripple 0.9s ease-out 0.6s both;
+}
+
+.success-icon.is-celebrating .pin-drop__check {
+  stroke-dashoffset: 20;
+  animation: pin-check-draw 0.3s ease-out 0.55s forwards;
+}
+
+@keyframes pin-fall {
+  0% { transform: translateY(-64px) scale(0.9); opacity: 0; }
+  55% { transform: translateY(0) scale(1); opacity: 1; }
+  72% { transform: translateY(-7px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes pin-shadow {
+  0% { transform: scale(0.3); opacity: 0; }
+  55%, 100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pin-ripple {
+  0% { opacity: 0.7; transform: scale(0.4); }
+  100% { opacity: 0; transform: scale(2.4); }
+}
+
+@keyframes pin-check-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon.is-celebrating .pin-drop__pin,
+  .success-icon.is-celebrating .pin-drop__shadow,
+  .success-icon.is-celebrating .pin-drop__ripple,
+  .success-icon.is-celebrating .pin-drop__ripple--2 {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .pin-drop__ripple {
+    display: none;
+  }
+
+  .success-icon.is-celebrating .pin-drop__check {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Legacy animated-check kept for any residual use */
 .success-icon .animated-check {
   display: block;
   width: 40px;
@@ -4194,7 +4284,6 @@ body.pwa-nudge-visible #btnCamera {
   stroke-linejoin: round;
 }
 
-/* Default: complete check (reduced-motion / between celebrations) */
 .animated-check__circle {
   stroke-dasharray: 157;
   stroke-dashoffset: 0;
@@ -4235,6 +4324,81 @@ body.pwa-nudge-visible #btnCamera {
   margin-bottom: 0;
 }
 
+.success-gamify {
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-600);
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.success-gamify.hidden {
+  display: none;
+}
+
+.success-more {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.success-more__toggle {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--ink-600);
+  min-height: var(--touch-min);
+}
+
+.success-more__toggle .ph-caret-down {
+  transition: transform 0.15s ease;
+}
+
+.success-more.is-open .success-more__toggle .ph-caret-down {
+  transform: rotate(180deg);
+}
+
+.success-more__body {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.success-more__body.hidden {
+  display: none;
+}
+
+.success-more__body .success-share-prompt {
+  margin: 0 0 8px;
+  font-size: var(--text-sm);
+  color: var(--ink-600);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.success-more__body .success-native-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: var(--touch-min);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-600);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.success-more__body .success-native-share.hidden {
+  display: none;
+}
+
 /* Rewards pill — indigo fill AA on light panel (no cyan/neon glow) */
 .success-points {
   display: inline-flex;
@@ -4249,7 +4413,7 @@ body.pwa-nudge-visible #btnCamera {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--primary-fill);
-  margin: 0 0 2px;
+  margin: 4px 0 8px;
   line-height: 1.1;
   text-shadow: none;
 }
@@ -4435,7 +4599,13 @@ body.pwa-nudge-visible #btnCamera {
 }
 
 .success-icon.is-celebrating {
-  animation: success-icon-pop 0.7s ease;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon.is-celebrating {
+    animation: none;
+  }
 }
 
 @keyframes success-icon-pop {
@@ -4692,10 +4862,10 @@ body.pwa-nudge-visible #btnCamera {
 }
 
 .success-footer {
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 4px;
+  padding-top: 0;
   padding-bottom: 0;
-  border-top: 1px solid var(--border);
+  border-top: none;
 }
 
 .inquiry-option--muted {
@@ -10137,10 +10307,35 @@ a,
 }
 
 .camera-area--capture {
+  position: relative;
   padding: 8px 0 4px;
+  min-height: 168px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.report-capture-focal {
+  position: absolute;
+  inset: 0 0 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--primary, #6366f1);
+  opacity: 0.55;
+}
+
+.report-capture-viewfinder {
+  display: block;
+  max-width: min(160px, 48vw);
+  height: auto;
 }
 
 .btn--capture {
+  position: relative;
+  z-index: 1;
   min-height: 52px;
   font-size: var(--fs-md);
 }
@@ -10148,6 +10343,12 @@ a,
 .report-capture-hint {
   font-size: var(--fs-sm);
   margin-bottom: 12px;
+}
+
+#reportCaptureExifHint,
+.report-capture-exif {
+  position: relative;
+  z-index: 1;
 }
 
 #reportStepConfirm .modal__sticky-footer--glass {
@@ -12476,8 +12677,7 @@ body.sheet-depth-blocking #map {
   }
 }
 
-/* When pulse hidden, legend sits under persona capsule */
-body.home-hero-visible .map-legend,
+/* When pulse hidden (admin/lead), legend sits under persona capsule */
 body.persona-admin .map-legend,
 body.persona-lead .map-legend {
   top: calc(
@@ -12605,19 +12805,16 @@ body.persona-lead .map-legend {
   white-space: nowrap;
 }
 
-body.home-hero-visible .map-hud > .ward-pulse,
 body.persona-admin .map-hud > .ward-pulse,
 body.persona-lead .map-hud > .ward-pulse {
   display: none !important;
 }
 
-body.home-hero-visible,
 body.persona-admin,
 body.persona-lead {
   --map-hud-height: 32px;
 }
 
-body.home-hero-visible .map-legend,
 body.persona-admin .map-legend,
 body.persona-lead .map-legend {
   top: auto; /* row layout — ignore old stacked offset */
@@ -13606,7 +13803,6 @@ body::after {
   );
 }
 
-body.home-hero-visible .map-legend,
 body.persona-admin .map-legend,
 body.persona-lead .map-legend {
   top: calc(

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v383';
+  const CIVIC_APP_VERSION = 'v386';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -449,6 +449,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const LEAD_NUDGE_SEEN_KEY = 'civicradar_lead_nudge_seen';
 
   const VISIT_COUNT_KEY = 'civicradar_visit_count';
+
+  // Citizen idle tip ("Hazard nearby?…") — first N tracked visits only.
+  const PERSONA_IDLE_MAX_SESSIONS = 3;
 
   const FIRST_REPORT_DONE_KEY = 'civicradar_first_report_done';
 
@@ -3011,7 +3014,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'Submit',
 
-      'report.addNote': '+ Add landmark',
+      'report.addNote': '+ Near which shop/building?',
 
       'report.pinDragHint': 'Drag the pin if it\'s not exactly right',
 
@@ -3041,7 +3044,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'Pin this hazard on the map',
 
-      'report.geoExplainerBody': 'Used once to place this pin where you\'re standing. Neighbours see the pin — never your live location.',
+      'report.geoExplainerBody': 'Your location is used once — to place this pin where you\'re standing. Neighbours see the pin, never your live location.',
 
       'report.geoExplainerContinue': 'Use my location',
 
@@ -3087,7 +3090,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.capture': 'Take photo',
 
-      'report.captureExifHint': 'Location data removed from photos automatically',
+      'report.captureExifHint': 'Location data is removed from photos automatically',
 
       'report.notes': 'Landmark (optional)',
 
@@ -3134,6 +3137,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'moderation.blocked.offline': 'Connect to the internet to verify photo safety.',
 
       'success.title': 'Report logged — thank you!',
+
+      'success.titlePinned': 'Pinned in {ward}',
+
+      'success.more': 'More',
 
       'success.tagline': 'Pinned on ward map',
 
@@ -5559,7 +5566,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'भेजें',
 
-      'report.addNote': '+ Landmark जोड़ें',
+      'report.addNote': '+ कौनसी दुकान/इमारत के पास?',
 
       'report.pinDragHint': 'पिन सही जगह पर नहीं है तो खींचकर ठीक करें',
 
@@ -5589,7 +5596,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'खतरे को मैप पर पिन करें',
 
-      'report.geoExplainerBody': 'जहाँ आप खड़े हैं, वहाँ पिन लगाने के लिए एक बार उपयोग। पड़ोसी पिन देखते हैं — आपका लाइव लोकेशन कभी नहीं।',
+      'report.geoExplainerBody': 'आपका स्थान एक बार इस्तेमाल होता है — जहाँ आप खड़े हैं वहाँ यह पिन लगाने के लिए। पड़ोसी पिन देखते हैं, आपका लाइव लोकेशन कभी नहीं।',
 
       'report.geoExplainerContinue': 'मेरी लोकेशन उपयोग करें',
 
@@ -5682,6 +5689,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'moderation.blocked.offline': 'फ़ोटो सुरक्षा जाँच के लिए इंटरनेट से जुड़ें।',
 
       'success.title': 'रिपोर्ट दर्ज हुई — धन्यवाद!',
+
+      'success.titlePinned': '{ward} में पिन हो गया',
+
+      'success.more': 'और देखें',
 
       'success.tagline': 'वार्ड मानचित्र पर पिन',
 
@@ -8107,7 +8118,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'पाठवा',
 
-      'report.addNote': '+ Landmark जोडा',
+      'report.addNote': '+ कोणत्या दुकान/इमारतीजवळ?',
 
       'report.pinDragHint': 'पिन योग्य जागी नसेल तर ओढून ठेवा',
 
@@ -8137,7 +8148,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'धोका नकाशावर पिन करा',
 
-      'report.geoExplainerBody': 'तुम्ही उभे असता तिथे पिन ठेवण्यासाठी एकदा वापर. शेजारी पिन पाहतात — तुमचे लाइव्ह लोकेशन कधीही नाही.',
+      'report.geoExplainerBody': 'तुमचे स्थान एकदाच वापरले जाते — तुम्ही उभे असता तिथे हे पिन ठेवण्यासाठी. शेजारी पिन पाहतात, तुमचे लाइव्ह लोकेशन कधीही नाही.',
 
       'report.geoExplainerContinue': 'माझे स्थान वापरा',
 
@@ -8230,6 +8241,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'moderation.blocked.offline': 'फोटो सुरक्षा तपासणीसाठी इंटरनेटशी कनेक्ट व्हा.',
 
       'success.title': 'तक्रार नोंदली — धन्यवाद!',
+
+      'success.titlePinned': '{ward} मध्ये पिन झाले',
+
+      'success.more': 'अधिक',
 
       'success.tagline': 'वॉर्ड नकाशावर पिन',
 
@@ -10654,7 +10669,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.step.submit': 'મોકલો',
 
-      'report.addNote': '+ Landmark ઉમેરો',
+      'report.addNote': '+ કઈ દુકાન/ઈમારત પાસે?',
 
       'report.pinDragHint': 'પિન યોગ્ય જગ્યાએ ન હોય તો ખેંચીને સેટ કરો',
 
@@ -10684,7 +10699,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.geoExplainerTitle': 'જોખમ નકશા પર પિન કરો',
 
-      'report.geoExplainerBody': 'તમે ઊભા હો ત્યાં પિન મૂકવા એક વાર વપરાય. પડોશીઓ પિન જુએ છે — તમારું લાઈવ સ્થાન ક્યારેય નહીં.',
+      'report.geoExplainerBody': 'તમારું સ્થાન એક વાર વપરાય છે — તમે ઊભા હો ત્યાં આ પિન મૂકવા. પડોશીઓ પિન જુએ છે, તમારું લાઈવ સ્થાન ક્યારેય નહીં.',
 
       'report.geoExplainerContinue': 'મારું સ્થાન વાપરો',
 
@@ -10777,6 +10792,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'moderation.blocked.offline': 'ફોટો સલામતી તપાસ માટે ઇન્ટરનેટથી કનેક્ટ થાઓ.',
 
       'success.title': 'ફરિયાદ નોંધાઈ — આભાર!',
+
+      'success.titlePinned': '{ward} માં પિન થયું',
+
+      'success.more': 'વધુ',
 
       'success.tagline': 'વોર્ડ નકશા પર પિન',
 
@@ -19963,6 +19982,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Empty-ward sheet content gate (overlays like coach/tour applied in updateMapEmptyCta).
+  function shouldOfferMapEmptyCta() {
+    return getActivePersona() === 'citizen'
+      && !!user.ward
+      && getUserReports().length === 0
+      && cityScopedReports(loadReports()).length === 0;
+  }
+
   function shouldShowHomeHero() {
 
     if (getActivePersona() !== 'citizen') return false;
@@ -19972,6 +19999,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isAdmin || isLead) return false;
 
     if (getUserReports().length > 0) return false;
+
+    // 3c: empty-state wins — don't stack hero + mapEmptyCta in the first minute.
+    if (shouldOfferMapEmptyCta()) return false;
 
     try {
 
@@ -20142,11 +20172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!el) return;
 
-    const citizen = getActivePersona() === 'citizen';
-
-    const show = citizen && user.ward && getUserReports().length === 0 && cityScopedReports(loadReports()).length === 0;
-
-    const heroUp = shouldShowHomeHero();
+    const show = shouldOfferMapEmptyCta();
 
     const coachEl = $('#coachMark');
 
@@ -20156,7 +20182,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const tourUp = !!(tourEl && !tourEl.classList.contains('hidden'));
 
-    const visible = !!(show && !heroUp && !coachUp && !tourUp);
+    // Empty-state wins over hero (hero suppressed in shouldShowHomeHero).
+    const visible = !!(show && !coachUp && !tourUp);
 
     el.classList.toggle('hidden', !visible);
 
@@ -21759,32 +21786,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         barText.textContent = t('persona.pendingFiled').replace('{n}', String(pendingReports.length));
 
-      } else if (user.ward) {
-
-        // Ward name + Open/Fixed/Me too already live in #wardPulse — collapse
-        // this counter strip so the HUD is not saying the same stats twice.
-        // Keep the bar for unfiled / pending (actionable, unique to the user).
-        document.body.classList.add('persona-pulse-redundant');
-
-        bar.setAttribute('aria-hidden', 'true');
-
-        const wardLabel = getWardShortName(user.ward);
-
-        const pulseStats = (typeof getUserWardPulseStats === 'function')
-
-          ? getUserWardPulseStats()
-
-          : { open: 0 };
-
-        barText.textContent = t('persona.wardImpact')
-
-          .replace('{ward}', wardLabel)
-
-          .replace('{n}', String(pulseStats.open || 0));
-
       } else {
 
-        barText.textContent = t('persona.citizen.idle');
+        // Idle tip only for the first few visits; after that ward pulse owns ambient
+        // status and the bar collapses to zero height unless it has dynamic copy.
+        let visits = 0;
+        try {
+          visits = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0', 10) || 0;
+        } catch { visits = 0; }
+
+        if (visits <= PERSONA_IDLE_MAX_SESSIONS) {
+          barText.textContent = t('persona.citizen.idle');
+        } else {
+          document.body.classList.add('persona-pulse-redundant');
+          bar.setAttribute('aria-hidden', 'true');
+          barText.textContent = t('persona.citizen.idle');
+        }
 
       }
 
@@ -30888,6 +30905,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnSuccessMore = $('#btnSuccessMoreToggle');
+
+    if (btnSuccessMore) {
+
+      btnSuccessMore.addEventListener('click', () => {
+
+        const body = $('#successMoreBody');
+
+        const open = !(body && !body.classList.contains('hidden'));
+
+        setSuccessMoreExpanded(open);
+
+      });
+
+    }
+
     wireCollapsibleSection('btnCommunityWardImpactToggle', 'communityWardImpactBody', 'communityWardImpactSection');
 
     wireCollapsibleSection('btnCommunityLeaderboardToggle', 'communityLeaderboardBody', 'communityLeaderboardSection');
@@ -31969,10 +32002,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function resetPhotoConfirm() {
 
-    const group = $('#photoConfirmGroup');
-
-    if (group) group.classList.add('hidden');
-
     clearConfirmPinState();
 
     updateReportFlowSteps('capture');
@@ -31996,10 +32025,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
 
     }
-
-    const group = $('#photoConfirmGroup');
-
-    if (group) group.classList.remove('hidden');
 
     updateReportWardChip();
 
@@ -34770,19 +34795,133 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Pick ONE secondary gamification line (streak OR badge OR celebrate) for the main surface. */
+
+  function pickSuccessGamifyLine(reportCount, weekBonus) {
+
+    const n = Number(reportCount) || 0;
+
+    const weekCount = getReportsThisWeek();
+
+    const progressMsg = buildSuccessProgress(n);
+
+    const mile = getReportMilestoneProgress(n);
+
+    const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(n) && n > 1;
+
+    const isFirst = n === 1;
+
+    const candidates = [];
+
+    // Points always shown separately; score secondary tracks by "how much changed".
+    if (isFirst || isMilestone) {
+
+      candidates.push({
+
+        kind: 'badge',
+
+        score: isFirst ? 100 : 90,
+
+        text: isFirst
+
+          ? t('success.celebrateFirst')
+
+          : t('success.celebrateMilestone').replace('{n}', String(n)),
+
+      });
+
+    } else if (progressMsg && mile && typeof mile.remaining === 'number' && mile.remaining > 0 && mile.remaining <= 2) {
+
+      candidates.push({ kind: 'badge', score: 70 - mile.remaining * 10, text: progressMsg });
+
+    } else if (progressMsg) {
+
+      candidates.push({ kind: 'badge', score: 35, text: progressMsg });
+
+    }
+
+    if (weekCount >= 2) {
+
+      candidates.push({
+
+        kind: 'streak',
+
+        score: 40 + weekCount * 8,
+
+        text: t('success.streakWeek').replace('{n}', String(weekCount)),
+
+      });
+
+    }
+
+    if (weekBonus > 0) {
+
+      candidates.push({
+
+        kind: 'points',
+
+        score: 55 + weekBonus,
+
+        text: t('success.weekBonus').replace('{n}', String(weekBonus)),
+
+      });
+
+    }
+
+    if (!candidates.length) return null;
+
+    candidates.sort((a, b) => b.score - a.score);
+
+    return candidates[0];
+
+  }
+
+
+
+  function setSuccessMoreExpanded(open) {
+
+    const wrap = $('#successMore');
+
+    const body = $('#successMoreBody');
+
+    const toggle = $('#btnSuccessMoreToggle');
+
+    if (body) body.classList.toggle('hidden', !open);
+
+    if (wrap) wrap.classList.toggle('is-open', !!open);
+
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+  }
+
+
+
   function refreshSuccessModalStrings() {
 
     const reportCount = getUserReports().length;
+
+    const weekBonusHint = 0;
 
     const clockEl = $('#successClock');
 
     if (clockEl) clockEl.textContent = corpCopy('success.clock');
 
+    const wardLabel = user.ward ? getWardShortName(user.ward) : '';
+
+    const wardDisplay = wardLabel || t('share.defaultArea');
+
+    const titleEl = $('#successTitle');
+
+    if (titleEl) {
+
+      titleEl.textContent = t('success.titlePinned').replace('{ward}', wardDisplay);
+
+    }
+
     const taglineEl = $('#successTagline');
 
     if (taglineEl) {
 
-      // Compact pin row: short pinned label (neighbours note stays in celebrate/share).
       taglineEl.textContent = t('success.tagline');
 
     }
@@ -34791,9 +34930,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (wardNameEl) {
 
-      const wardLabel = user.ward ? getWardShortName(user.ward) : '';
-
-      wardNameEl.textContent = wardLabel || t('share.defaultArea');
+      wardNameEl.textContent = wardDisplay;
 
     }
 
@@ -34813,11 +34950,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (reportCount === 1) {
 
-        // Points hero + badge progress already carry the message; keep text for E2E, hide UI.
-
         celebrateEl.textContent = t('success.celebrateFirst');
 
-        celebrateEl.classList.add('hidden');
+        celebrateEl.classList.remove('hidden');
 
       } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
 
@@ -34909,11 +35044,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const gamifyEl = $('#successGamifyLine');
+
+    if (gamifyEl) {
+
+      const pick = pickSuccessGamifyLine(reportCount, weekBonusHint);
+
+      // Prefer streak/badge over generic celebrate on the main surface; details stay under More.
+      if (pick && pick.kind !== 'points') {
+
+        gamifyEl.textContent = pick.text;
+
+        gamifyEl.classList.remove('hidden');
+
+      } else {
+
+        gamifyEl.textContent = '';
+
+        gamifyEl.classList.add('hidden');
+
+      }
+
+    }
+
     const sharePromptEl = document.querySelector('#successModal .success-share-prompt');
 
     if (sharePromptEl) {
 
       sharePromptEl.textContent = t('success.sharePrompt');
+
+    }
+
+    const moreToggle = $('#btnSuccessMoreToggle');
+
+    if (moreToggle) {
+
+      const label = moreToggle.querySelector('span');
+
+      if (label) label.textContent = t('success.more');
 
     }
 
@@ -34950,6 +35118,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const notShared = report && !report.communityShared;
 
     closeModal('success');
+
+    setSuccessMoreExpanded(false);
 
     const thumb = $('#successThumbnail');
 
@@ -35059,7 +35229,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    setSuccessMoreExpanded(false);
+
     refreshSuccessModalStrings();
+
+    // Re-pick gamify with the real weekBonus from this submission.
+    const gamifyEl = $('#successGamifyLine');
+
+    if (gamifyEl) {
+
+      const pick = pickSuccessGamifyLine(getUserReports().length, weekBonus);
+
+      if (pick && pick.kind !== 'points') {
+
+        gamifyEl.textContent = pick.text;
+
+        gamifyEl.classList.remove('hidden');
+
+      } else if (pick && pick.kind === 'points' && weekBonus > 0) {
+
+        // Week bonus already appears under +N points; keep main surface clean.
+        gamifyEl.textContent = '';
+
+        gamifyEl.classList.add('hidden');
+
+      } else {
+
+        gamifyEl.textContent = '';
+
+        gamifyEl.classList.add('hidden');
+
+      }
+
+    }
 
     const successIcon = document.querySelector('#successModal .success-icon');
 
@@ -35100,6 +35302,7 @@ document.addEventListener('DOMContentLoaded', function () {
       ptsEl.classList.add('is-animating');
 
       const numEl = ptsEl.querySelector('.success-points__num');
+
       if (numEl) animateValue(numEl, 0, total, 800);
 
     }

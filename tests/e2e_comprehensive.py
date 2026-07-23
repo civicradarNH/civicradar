@@ -5608,7 +5608,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v383" in sw_src
+            "civicradar-v386" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6062,13 +6062,13 @@ async def run_image_safety_scenarios(s: Suite, browser):
 
     await inject_photo(page)
 
-    hint_visible = await page.evaluate(
+    confirm_hero = await page.evaluate(
 
-        '() => { const g = document.getElementById("photoConfirmGroup"); const h = document.getElementById("photoConfirmHint"); return !!(g && !g.classList.contains("hidden") && h && h.textContent.trim().length > 10); }'
+        '() => { const canvas = document.getElementById("imageCanvas"); const step = document.getElementById("reportStepConfirm"); return !!(canvas && canvas.classList.contains("visible") && step && !step.hidden); }'
 
     )
 
-    s.record('IS01', 'ImageSafety', 'Photo hint visible after capture', hint_visible)
+    s.record('IS01', 'ImageSafety', 'Confirm photo hero visible after capture', confirm_hero)
 
 
 
@@ -6092,8 +6092,6 @@ async def run_image_safety_scenarios(s: Suite, browser):
 
           if (canvas) canvas.classList.remove('visible');
 
-          document.getElementById('photoConfirmGroup')?.classList.add('hidden');
-
         }"""
 
     )
@@ -6102,25 +6100,25 @@ async def run_image_safety_scenarios(s: Suite, browser):
 
     await page.wait_for_timeout(150)
 
-    group_hidden = await page.evaluate(
+    capture_step = await page.evaluate(
 
-        '() => document.getElementById("photoConfirmGroup")?.classList.contains("hidden")'
+        '() => { const cap = document.getElementById("reportStepCapture"); const conf = document.getElementById("reportStepConfirm"); return !!(cap && cap.classList.contains("report-step--active") && conf && conf.hidden); }'
 
     )
 
-    s.record('IS03', 'ImageSafety', 'Hint hidden on modal reopen without photo', group_hidden)
+    s.record('IS03', 'ImageSafety', 'Capture step on modal reopen without photo', capture_step)
 
 
 
     await inject_photo(page)
 
-    hint_again = await page.evaluate(
+    confirm_again = await page.evaluate(
 
-        '() => !document.getElementById("photoConfirmGroup").classList.contains("hidden")'
+        '() => { const canvas = document.getElementById("imageCanvas"); const step = document.getElementById("reportStepConfirm"); return !!(canvas && canvas.classList.contains("visible") && step && !step.hidden); }'
 
     )
 
-    s.record('IS04', 'ImageSafety', 'Hint shows again after new photo', hint_again)
+    s.record('IS04', 'ImageSafety', 'Confirm step again after new photo', confirm_again)
 
 
 
@@ -8916,7 +8914,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v383" in sw_src
+            "civicradar-v386" in sw_src
 
             and "'/index.html'" not in sw_src
 
