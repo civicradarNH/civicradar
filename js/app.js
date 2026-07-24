@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v415';
+  const CIVIC_APP_VERSION = 'v416';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3608,12 +3608,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.streakWeekMany': '{n} reports this week — keep it up!',
 
 
-      'profile.milestoneOne': '1 more report to your next milestone',
-
-      'profile.milestoneMany': '{n} more reports to your next milestone',
-
-      'profile.milestoneMax': '10+ reports — your ward thanks you!',
-
       'profile.nextStreakBadgeOne': '1 more week for {badge}',
 
       'profile.nextStreakBadgeMany': '{n} more weeks for {badge}',
@@ -6202,12 +6196,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.streakWeekMany': 'इस हफ़्ते {n} रिपोर्ट — बढ़िया!',
 
 
-      'profile.milestoneOne': 'अगले माइलस्टोन तक 1 रिपोर्ट और',
-
-      'profile.milestoneMany': 'अगले माइलस्टोन तक {n} रिपोर्ट और',
-
-      'profile.milestoneMax': '10+ रिपोर्ट — आपके वार्ड का धन्यवाद!',
-
       'profile.nextStreakBadgeOne': '{badge} के लिए 1 हफ़्ता और',
 
       'profile.nextStreakBadgeMany': '{badge} के लिए {n} हफ़्ते और',
@@ -8794,12 +8782,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.streakWeekMany': 'या आठवड्यात {n} तक्रारी — छान!',
 
 
-      'profile.milestoneOne': 'पुढच्या milestone साठी आणखी 1 तक्रार',
-
-      'profile.milestoneMany': 'पुढच्या milestone साठी आणखी {n} तक्रार',
-
-      'profile.milestoneMax': '10+ तक्रारी — तुमच्या वॉर्डकडून धन्यवाद!',
-
       'profile.nextStreakBadgeOne': '{badge} साठी 1 आठवडा',
 
       'profile.nextStreakBadgeMany': '{badge} साठी {n} आठवडे',
@@ -11384,12 +11366,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.streakWeekMany': 'આ અઠવાડિયે {n} રિપોર્ટ — સરસ!',
 
-
-      'profile.milestoneOne': 'આગલા milestone માટે 1 રિપોર્ટ બાકી',
-
-      'profile.milestoneMany': 'આગલા milestone માટે {n} રિપોર્ટ બાકી',
-
-      'profile.milestoneMax': '10+ રિપોર્ટ — તમારા વોર્ડ તરફથી આભાર!',
 
       'profile.nextStreakBadgeOne': '{badge} માટે 1 અઠવાડિયું',
 
@@ -18489,7 +18465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (n >= top) {
 
-      return { pct: 100, remaining: 0, hintKey: 'profile.milestoneMax', next: null };
+      return { pct: 100, remaining: 0, next: null };
 
     }
 
@@ -18508,8 +18484,6 @@ document.addEventListener('DOMContentLoaded', function () {
       pct: Math.min(100, Math.max(0, pct)),
 
       remaining,
-
-      hintKey: remaining === 1 ? 'profile.milestoneOne' : 'profile.milestoneMany',
 
       next,
 
@@ -44076,8 +44050,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const levelBadgeEl = $('#profileLevelBadge');
 
-    const xpTotalEl = $('#profileXpTotal');
-
     const xpTrackEl = $('#profileXpTrack');
 
     const xpProgressEl = $('#profileXpProgress');
@@ -44085,16 +44057,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const xpHintEl = $('#profileXpHint');
 
     if (levelBadgeEl) levelBadgeEl.textContent = civicLevelName(xpInfo.level.id);
-
-    if (xpTotalEl) {
-
-      xpTotalEl.textContent = '';
-
-      xpTotalEl.classList.add('hidden');
-
-      xpTotalEl.setAttribute('aria-hidden', 'true');
-
-    }
 
     if (xpProgressEl && xpTrackEl) {
 
