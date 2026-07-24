@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v414';
+  const CIVIC_APP_VERSION = 'v415';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1468,7 +1468,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           label: t('official.bmcWa.label'),
 
-          small: t('official.bmcWa.small'),
+          small: BMC.whatsapp ? ('+' + String(BMC.whatsapp).replace(/^\+/, '')) : '',
 
           url: `https://wa.me/${BMC.whatsapp}`,
 
@@ -1486,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           label: t('official.bmcPortal.label'),
 
-          small: t('official.bmcPortal.small'),
+          small: 'www.mcgm.gov.in',
 
           url: BMC.portalUrl,
 
@@ -1850,7 +1850,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
-        ${iconHtml}<span>${escapeHtml(ch.label)}</span><small>${escapeHtml(ch.small)}</small>${badge}${externalHtml}
+        ${iconHtml}<span>${escapeHtml(ch.label)}</span>${ch.small ? `<small>${escapeHtml(ch.small)}</small>` : ''}${badge}${externalHtml}
 
       </button>
 
@@ -2518,11 +2518,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const wardCount = getWardMonsoonCount(user.ward);
 
-      wardImpactEl.classList.remove('hidden');
+      if (user.ward && wardCount > 0) {
 
-      const streak = getReportWeekStreak();
+        wardImpactEl.classList.remove('hidden');
 
-      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
+        wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
+
+      } else {
+
+        wardImpactEl.classList.add('hidden');
+
+      }
 
     }
 
@@ -3974,6 +3980,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'Optional — shared with your coordinator only if you enter it. Never auto-called.',
 
+      'volunteer.ageToggle': 'Age requirement (18+)',
       'volunteer.ageNote': '18+ required. Under-18? Only with a parent/guardian or school NSS coordinator who accepts Terms.',
 
       'volunteer.submit': 'Save volunteer signup',
@@ -4061,8 +4068,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.persona': 'Citizen',
 
       'profile.points': 'Civic Points',
-
-      'profile.xpTotalLabel': '{n} Civic Points',
 
       'profile.xpToNext': '{n} pts to {level} (+{pts}/report)',
 
@@ -4682,11 +4687,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'Quick chat filing',
-
       'official.bmcPortal.label': 'BMC online portal',
-
-      'official.bmcPortal.small': 'Web portal',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
 
@@ -4751,10 +4752,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.neighbourOne': 'neighbour said Me too',
 
       'profile.neighbourMany': 'neighbours said Me too',
-
-      'profile.pointsHint.base': '50 Civic Points per report · +8 Me too · +200 volunteer verified',
-
-      'profile.pointsHint.bonus': '{n} reports — 50 Civic Points — +{bonus} volunteer bonus',
 
       'profile.greeting': 'Hello, {name}',
 
@@ -6577,6 +6574,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'वैकल्पिक — दर्ज करने पर ही समन्वयक से साझा। कभी ऑटो-कॉल नहीं।',
 
+      'volunteer.ageToggle': 'आयु सीमा (18+)',
       'volunteer.ageNote': '18+ आवश्यक। 18 से कम? केवल माता-पिता/अभिभावक या स्कूल NSS समन्वयक जो नियम स्वीकार करें।',
 
       'volunteer.submit': 'स्वयंसेवक जानकारी सहेजें',
@@ -6664,8 +6662,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.persona': 'नागरिक',
 
       'profile.points': 'Civic Points',
-
-      'profile.xpTotalLabel': '{n} Civic Points',
 
       'profile.xpToNext': '{level} तक {n} pts (+{pts}/रिपोर्ट)',
 
@@ -7265,8 +7261,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.marg.small': '114 श्रेणियाँ · जियो फोटो · ट्रैकिंग',
 
-      'official.bmcPortal.small': 'वेब पोर्टल',
-
       'official.swachhata.label': 'Swachhata-MoHUA',
 
       'official.swachhata.small': 'MoHUA स्वच्छता · वार्ड निरीक्षक',
@@ -7284,8 +7278,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
-
-      'official.bmcWa.small': 'त्वरित चैट शिकायत',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
@@ -7352,10 +7344,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.neighbourOne': 'पड़ोसी ने मुझे भी कहा',
 
       'profile.neighbourMany': 'पड़ोसियों ने मुझे भी कहा',
-
-      'profile.pointsHint.base': '50 Civic Points/रिपोर्ट · +8 मुझे भी · +200 स्वयंसेवा',
-
-      'profile.pointsHint.bonus': '{n} × 50 · +{bonus} बोनस',
 
       'profile.greeting': 'नमस्ते, {name}',
 
@@ -9178,6 +9166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'पर्यायी — टाकल्यासच समन्वयकाशी शेअर. कधीही ऑटो-कॉल नाही.',
 
+      'volunteer.ageToggle': 'वय मर्यादा (१८+)',
       'volunteer.ageNote': '१८+ आवश्यक. १८ पेक्षा कमी? फक्त पालक/पालकत्व किंवा शाळा NSS समन्वयक जे अटी स्वीकारतील.',
 
       'volunteer.submit': 'स्वयंसेवक नोंद जतन',
@@ -9265,8 +9254,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.persona': 'नागरिक',
 
       'profile.points': 'Civic Points',
-
-      'profile.xpTotalLabel': '{n} Civic Points',
 
       'profile.xpToNext': '{level} पर्यंत {n} pts (+{pts}/तक्रार)',
 
@@ -9884,11 +9871,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'जलद चॅट तक्रार',
-
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
-
-      'official.bmcPortal.small': 'वेब पोर्टल',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
 
@@ -9953,10 +9936,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.neighbourOne': 'शेजाऱ्याने मला पण म्हटले',
 
       'profile.neighbourMany': 'शेजाऱ्यांनी मला पण म्हटले',
-
-      'profile.pointsHint.base': '50 Civic Points/तक्रार · +8 मला पण · +200 स्वयंसेवा',
-
-      'profile.pointsHint.bonus': '{n} × 50 · +{bonus} बोनस',
 
       'profile.greeting': 'नमस्कार, {name}',
 
@@ -11778,6 +11757,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contactHint': 'વૈકલ્પિક — ફક્ત વોર્ડ/પડોશ સંકલકને દેખાશે. CivicRadar ઑટો-કૉલ કરતું નથી.',
 
+      'volunteer.ageToggle': 'ઉંમર જરૂરિયાત (18+)',
       'volunteer.ageNote': 'Terms મુજબ 18+ જરૂરી. 18 થી ઓછી ઉંમર? માતા-પિતા/સંભાળક અથવા NSS સંકલક સાથે જ.',
 
       'volunteer.submit': 'સ્વયંસેવક નોંધ સાચવો',
@@ -11865,8 +11845,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.persona': 'નાગરિક',
 
       'profile.points': 'Civic Points',
-
-      'profile.xpTotalLabel': '{n} Civic Points',
 
       'profile.xpToNext': '{level} સુધી {n} pts (+{pts}/ફરિયાદ)',
 
@@ -12484,11 +12462,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
-      'official.bmcWa.small': 'ઝડપી ચેટ ફરિયાદ',
-
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
-
-      'official.bmcPortal.small': 'વેબ પોર્ટલ',
 
       'official.hint.marg.stagnant-water': 'જાહેર આરોગ્ય → કીટ નિયંત્રણ → stagnant water / મચ્છર પ્રજનન',
 
@@ -12553,10 +12527,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'profile.neighbourOne': 'પડોશીએ મને પણ કહ્યું',
 
       'profile.neighbourMany': 'પડોશીઓએ મને પણ કહ્યું',
-
-      'profile.pointsHint.base': '50 Civic Points/ફરિયાદ · +8 મને પણ · +200 સ્વયંસેવા',
-
-      'profile.pointsHint.bonus': '{n} × 50 · +{bonus} બોનસ',
 
       'profile.greeting': 'નમસ્તે, {name}',
 
@@ -16115,9 +16085,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (weekEl) {
 
-      // Ward-scoped social line under "Your ward this week" already covers weekly
-      // counts when a ward is set — hide the city-wide duplicate.
-      if (user && user.ward) {
+      // Prefer social.wardWeekEmpty alone when quiet; ward social covers ward-scoped weeks.
+      const weekEmpty = !(Number(w.reports) || Number(w.resolved) || Number(w.confirmations));
+
+      if ((user && user.ward) || weekEmpty) {
 
         weekEl.textContent = '';
 
@@ -27835,12 +27806,6 @@ document.addEventListener('DOMContentLoaded', function () {
       setCollapsibleSectionOpen('getInvolvedSection', 'getInvolvedBody', 'btnGetInvolvedToggle', true);
     }
 
-    // Surface weekly ward facts once — subtitle keeps only a short personal open nudge.
-    const minePending = getUserReports().filter((r) => r.status === 'pending').length;
-    const weekStats = typeof getWardWeekStats === 'function' ? getWardWeekStats(user.ward) : null;
-    if (minePending > 0 || (weekStats && weekStats.reports > 0)) {
-      setCollapsibleSectionOpen('communityWardImpactSection', 'communityWardImpactBody', 'btnCommunityWardImpactToggle', true);
-    }
 
   };
 
@@ -32504,6 +32469,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnNotesToggle) {
 
       btnNotesToggle.addEventListener('click', () => setReportNotesExpanded(true, { focus: true }));
+
+    }
+
+    const btnVolunteerAgeToggle = $('#btnVolunteerAgeToggle');
+
+    if (btnVolunteerAgeToggle) {
+
+      btnVolunteerAgeToggle.addEventListener('click', () => {
+
+        const body = $('#volunteerAgeBody');
+
+        if (!body) return;
+
+        const open = body.classList.contains('hidden');
+
+        body.classList.toggle('hidden', !open);
+
+        btnVolunteerAgeToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+      });
 
     }
 
@@ -43458,7 +43443,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hook = getSeasonalHook();
 
-    if (!hook || localStorage.getItem(SEASON_HOOK_DISMISS_KEY) === hook.key) {
+    const weekStats = typeof getWardWeekStats === 'function' ? getWardWeekStats(user.ward) : null;
+
+    // Don't stack seasonal nudge on empty ward-week (same "report now" idea).
+    if (!hook || localStorage.getItem(SEASON_HOOK_DISMISS_KEY) === hook.key
+
+      || !(weekStats && weekStats.reports > 0)) {
 
       el.classList.add('hidden');
 
@@ -43944,8 +43934,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pending = reports.filter((r) => r.status === 'pending');
 
-    const bonus = loadPointsCache();
-
 
 
     $('#profileGreeting').textContent = user.displayName
@@ -44048,9 +44036,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const wardCount = getWardMonsoonCount(user.ward);
 
-      wardImpactEl.classList.remove('hidden');
+      if (wardCount > 0) {
 
-      wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
+        wardImpactEl.classList.remove('hidden');
+
+        wardImpactEl.textContent = t('profile.wardImpact').replace('{n}', String(wardCount));
+
+      } else {
+
+        wardImpactEl.classList.add('hidden');
+
+      }
 
     } else if (wardImpactEl) {
 
@@ -44090,7 +44086,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (levelBadgeEl) levelBadgeEl.textContent = civicLevelName(xpInfo.level.id);
 
-    if (xpTotalEl) xpTotalEl.textContent = t('profile.xpTotalLabel').replace('{n}', String(xpInfo.xp));
+    if (xpTotalEl) {
+
+      xpTotalEl.textContent = '';
+
+      xpTotalEl.classList.add('hidden');
+
+      xpTotalEl.setAttribute('aria-hidden', 'true');
+
+    }
 
     if (xpProgressEl && xpTrackEl) {
 
@@ -44126,8 +44130,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const badgeProgressEl = $('#profileBadgeProgress');
 
-    const nextBadgeHintEl = $('#profileNextBadgeHint');
-
     if (rewardsEl && (reports.length > 0 || getTotalCivicXp() > 0)) {
 
       rewardsEl.classList.remove('hidden');
@@ -44138,7 +44140,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const streakTextEl = $('#profileStreakText') || streakLineEl.querySelector('.profile-rewards__streak-text');
 
-        const streakLabel = streak >= 1
+        const streakLabel = streak >= 2
 
           ? t('profile.streak').replace('{n}', String(streak))
 
@@ -44154,7 +44156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        streakLineEl.classList.toggle('hidden', streak < 1);
+        streakLineEl.classList.toggle('hidden', streak < 2);
 
       }
 
@@ -44164,9 +44166,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const filled = Math.min(4, Math.max(0, streak));
 
-        streakTrackerEl.classList.toggle('hidden', streak < 1);
+        streakTrackerEl.classList.toggle('hidden', streak < 2);
 
-        streakTrackerEl.setAttribute('aria-hidden', streak < 1 ? 'true' : 'false');
+        streakTrackerEl.setAttribute('aria-hidden', streak < 2 ? 'true' : 'false');
 
         streakTrackerEl.querySelectorAll('.streak-tracker__step').forEach((step) => {
 
@@ -44197,10 +44199,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      if (nextBadgeHintEl || xpHintEl) {
+      if (xpHintEl) {
 
-        // v306: two scannable lines (not one dense multi-clause). XP bar stays sole tracker.
-        // Streak weeks stay on profileStreakLine / tracker — not repeated here.
+        // XP bar stays sole tracker; streak (if ≥2) is the only secondary line under it.
         const xpLine = xpInfo.next
 
           ? t('profile.xpToNext')
@@ -44213,25 +44214,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
           : t('profile.xpMax');
 
-        const milestoneLine = t(milestone.hintKey).replace('{n}', String(milestone.remaining));
+        xpHintEl.textContent = xpLine;
 
-        if (xpHintEl) {
-
-          xpHintEl.textContent = xpLine;
-
-          xpHintEl.classList.remove('hidden');
-
-        }
-
-        if (nextBadgeHintEl) {
-
-          nextBadgeHintEl.textContent = milestoneLine;
-
-          nextBadgeHintEl.classList.remove('hidden');
-
-          nextBadgeHintEl.setAttribute('aria-hidden', 'false');
-
-        }
+        xpHintEl.classList.remove('hidden');
 
       }
 
@@ -44240,25 +44225,6 @@ document.addEventListener('DOMContentLoaded', function () {
       rewardsEl.classList.add('hidden');
 
     }
-
-
-
-    // Element removed in the v259 profile declutter (points-math micro-copy
-    // under the stats row) — keep the write guarded rather than deleting the
-    // logic so the hint can be reinstated behind a (?) affordance later.
-    const pointsHintEl = $('#profilePointsHint');
-
-    if (pointsHintEl) pointsHintEl.textContent =
-
-      bonus > 0
-
-        ? t('profile.pointsHint.bonus')
-
-          .replace('{n}', String(reports.length))
-
-          .replace('{bonus}', String(bonus))
-
-        : t('profile.pointsHint.base');
 
 
 

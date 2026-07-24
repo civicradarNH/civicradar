@@ -6634,28 +6634,37 @@ body.persona-lead .app-open-banner { display: none; }
   outline: none;
 }
 
-/* 18+ legal note — subtle glass card (Clean SaaS; no glow) */
-.volunteer-age-card {
+/* 18+ legal note — progressive disclosure (like landmark notes) */
+.volunteer-age-disclosure {
   margin: 4px 0 14px;
+}
+.volunteer-age-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  padding-left: 0;
+  font-weight: 600;
+  color: var(--ink-600);
+  min-height: var(--touch-min);
+}
+.volunteer-age-toggle .ph {
+  font-size: 1.1em;
+  color: var(--brand-600, var(--primary));
+}
+.volunteer-age-body {
+  margin-top: 8px;
   padding: 12px 14px;
-  border: 1px solid rgba(var(--primary-rgb), 0.16);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: rgba(238, 242, 255, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--surface);
   color: var(--ink-600);
   font-size: var(--text-sm, var(--fs-sm));
   font-weight: 500;
   line-height: 1.45;
   box-shadow: var(--shadow-sm);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .volunteer-age-card {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: var(--primary-50);
-  }
+.volunteer-age-body p {
+  margin: 0;
 }
 
 #volunteerModal .modal__sticky-footer {
@@ -6755,7 +6764,7 @@ body.persona-lead .app-open-banner { display: none; }
 }
 .impact-stats--about { margin-bottom: 16px; }
 .impact-stat {
-  padding: 16px;
+  padding: 10px 6px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -6771,14 +6780,16 @@ body.persona-lead .app-open-banner { display: none; }
   letter-spacing: -0.02em;
 }
 .impact-stat label {
-  font-size: var(--fs-xs);
+  font-size: clamp(0.625rem, 2.6vw, var(--fs-xs));
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   font-weight: 700;
   line-height: 1.25;
-  word-break: break-word;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
+  hyphens: manual;
 }
 /* One hue per metric — never all primary */
 .impact-stat--reports span { color: var(--primary-dark); }
@@ -13533,12 +13544,6 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   .modal--sheet-flex > .modal__sticky-footer {
     background: var(--surface);
     border-top-color: var(--border);
-  }
-
-  .volunteer-age-card {
-    background: rgba(99, 102, 241, 0.12);
-    border-color: rgba(148, 163, 184, 0.28);
-    color: var(--ink-600);
   }
 
   #volunteerModal #volunteerWard {

@@ -178,7 +178,7 @@
     </ul>
     <button type="button" class="btn btn--primary btn--full home-hero__cta" id="btnHeroReport" data-i18n="home.hero.cta">Report a spot</button>
     <button type="button" class="home-hero__tour" id="btnHeroTour" data-i18n="home.hero.tour">Take the quick tour</button>
-    <p class="home-hero__trust" data-i18n="home.hero.trust">Free · 3 cities · 4 languages</p>
+    <p class="home-hero__trust" data-optional="home.hero.trust" data-i18n="home.hero.trust">Free · 3 cities · 4 languages</p>
   </section>
 
   <!-- iOS landing: Add to Home Screen (no App Store) -->
@@ -1043,8 +1043,14 @@
             </label>
           </div>
         </div>
-        <div class="volunteer-age-card" data-i18n="volunteer.ageNote">
-          18+ required per Terms. Under-18? Participate only with a parent/guardian or school NSS coordinator who accepts Terms.
+        <div class="volunteer-age-disclosure" id="volunteerAgeDisclosure">
+          <button type="button" class="btn btn--ghost btn--sm volunteer-age-toggle" id="btnVolunteerAgeToggle" aria-expanded="false" aria-controls="volunteerAgeBody">
+            <i class="ph ph-info" aria-hidden="true"></i>
+            <span data-i18n="volunteer.ageToggle">Age requirement (18+)</span>
+          </button>
+          <div class="volunteer-age-body hidden" id="volunteerAgeBody" role="note">
+            <p data-i18n="volunteer.ageNote">18+ required. Under-18? Only with a parent/guardian or school NSS coordinator who accepts Terms.</p>
+          </div>
         </div>
         <div class="form-group form-group--sheet-end">
           <label for="volunteerContact" data-i18n="volunteer.contact">Phone / WhatsApp (optional)</label>
@@ -1124,14 +1130,13 @@
             <div class="profile-xp" id="profileXp" aria-label="Civic Points level">
               <div class="profile-xp__header">
                 <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
-                <span class="profile-xp__total" id="profileXpTotal">0 Civic Points</span>
+                <span class="profile-xp__total hidden" id="profileXpTotal" aria-hidden="true"></span>
               </div>
               <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
                 <div class="profile-xp__fill" id="profileXpProgress"></div>
               </div>
               <p class="profile-xp__hint" id="profileXpHint"></p>
-              <p class="profile-rewards__hint hidden" id="profileNextBadgeHint" aria-hidden="true"></p>
-            </div>
+</div>
             <div class="profile-rewards__streak hidden" id="profileStreakLine">
               <svg class="streak-flame" width="14" height="18" viewBox="0 0 24 32" aria-hidden="true" focusable="false">
                 <path class="streak-flame__core" fill="#f97316" d="M12 1.5C9.2 6.2 5 11.4 5 18.2c0 4.6 3.1 8.3 7 8.3s7-3.7 7-8.3C19 11.4 14.8 6.2 12 1.5z"/>
