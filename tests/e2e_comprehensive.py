@@ -52,9 +52,9 @@ BASE = f'http://localhost:{PORT}/'
 
 WARD = 'G/N Ward — Dadar, Shivaji Park'
 
-PUNE_WARD = 'Ward 1 — Kasba Vishrambag'
+PUNE_WARD = 'Kasba Vishrambag'
 
-THANE_WARD = 'TMC Ward 1 — Kopri'
+THANE_WARD = 'Kopri'
 
 
 
@@ -2645,7 +2645,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X21', 'Escalation', 'PMC modal opens (Pune)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "pmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Aundh — Baner, Pashan", city: "pune", reporter: "Test", lat: 18.55, lng: 73.80, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
 
-        ('X22', 'Escalation', 'TMC modal opens (Thane)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "tmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "TMC Ward 1 — Kopri", city: "thane", reporter: "Test", lat: 19.20, lng: 72.98, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); const title = document.getElementById("escTitleText"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && title && title.textContent.includes("TMC") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
+        ('X22', 'Escalation', 'TMC modal opens (Thane)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "tmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Kopri", city: "thane", reporter: "Test", lat: 19.20, lng: 72.98, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); const title = document.getElementById("escTitleText"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && title && title.textContent.includes("TMC") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
 
         ('X23', 'Escalation', 'PMC complaint ID saved', """() => {
 
@@ -2683,7 +2683,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
           const pmc = { id: 'pmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Aundh — Baner, Pashan', city: 'pune', reporter: 'Test', lat: 18.55, lng: 73.80, status: 'pending', timestamp: new Date().toISOString() };
 
-          const tmc = { id: 'tmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'TMC Ward 1 — Kopri', city: 'thane', reporter: 'Test', lat: 19.20, lng: 72.98, status: 'pending', timestamp: new Date().toISOString() };
+          const tmc = { id: 'tmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Kopri', city: 'thane', reporter: 'Test', lat: 19.20, lng: 72.98, status: 'pending', timestamp: new Date().toISOString() };
 
           localStorage.setItem('mosquiTrackReports', JSON.stringify([pmc, tmc]));
 
@@ -2918,7 +2918,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ctx = await new_ctx(
 
-        browser, lat=19.20, lng=72.98,
+        browser, lat=19.194, lng=72.978,
 
         storage={'civicradar_user': default_user(id='mc-wd', tosAccepted=True, ward='', displayName='', city='')},
 
@@ -2935,8 +2935,7 @@ async def run_extended_scenarios(s: Suite, browser):
     if await page.is_visible('#btnWardDetectGps'):
         await js_click(page, '#btnWardDetectGps')
 
-    # Must wait for Thane-specific result — Mumbai may already have filled wardDetectedName
-    # (19.20, 72.98 sits in Mumbai T Ward / Mulund before city switch).
+    # Kopri centroid (~19.194, 72.978) — real locality boxes (not synthetic grid).
     await page.wait_for_function(
 
         """() => {
@@ -2945,7 +2944,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
             || (document.getElementById('wardInput')?.value || '').trim();
 
-          return /TMC Ward|Kopri|Patlipada|Naupada/i.test(t);
+          return /Kopri|Naupada|Rabodi|Charai/i.test(t);
 
         }""",
 
@@ -2959,7 +2958,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'TMC Ward' in detected or 'Kopri' in detected or 'Patlipada' in detected, detected[:40])
+    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'Kopri' in detected or 'Naupada' in detected or 'Rabodi' in detected, detected[:40])
 
     await ctx.close()
 
@@ -5750,7 +5749,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v417" in sw_src
+            "civicradar-v421" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -9113,7 +9112,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v417" in sw_src
+            "civicradar-v421" in sw_src
 
             and "'/index.html'" not in sw_src
 

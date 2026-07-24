@@ -622,7 +622,7 @@
     ]
   },
   "pune": {
-    "Ward 1 — Kasba Vishrambag": [
+    "Kasba Vishrambag": [
       "Vishrambag Wada CHS",
       "Kasba Peth CHS",
       "Shaniwar Wada vicinity",
@@ -644,7 +644,7 @@
       "Vishrambag Wada RWA",
       "Shukrawar Peth border"
     ],
-    "Ward 2 — Bhavani Peth": [
+    "Bhavani Peth": [
       "Bhavani Peth CHS",
       "Bhavani Peth RWA",
       "Gultekdi Market area",
@@ -666,7 +666,7 @@
       "Bhavani Peth Housing",
       "Swargate ST stand vicinity"
     ],
-    "Ward 3 — Swargate": [
+    "Swargate": [
       "Swargate CHS",
       "Swargate RWA",
       "Swargate ST Stand area",
@@ -688,7 +688,7 @@
       "Shahu College area",
       "Swargate Depot CHS"
     ],
-    "Ward 4 — Shaniwar Peth": [
+    "Shaniwar Peth": [
       "Shaniwar Peth CHS",
       "Shaniwar Wada vicinity",
       "Appa Balwant Chowk",
@@ -710,7 +710,7 @@
       "Shaniwar Peth Housing",
       "ABC Chowk RWA"
     ],
-    "Ward 5 — Sadashiv Peth": [
+    "Sadashiv Peth": [
       "Sadashiv Peth CHS",
       "Tilak Road CHS",
       "NMV School area",
@@ -732,7 +732,7 @@
       "Natu Baug area",
       "Tilak Road RWA"
     ],
-    "Ward 6 — Kasba Peth": [
+    "Kasba Peth": [
       "Kasba Peth CHS",
       "Kasba Ganpati area",
       "Tambdi Jogeshwari Temple",
@@ -754,7 +754,7 @@
       "Tulshibaug Kasba",
       "Kasba Peth Residents"
     ],
-    "Ward 7 — Narayan Peth": [
+    "Narayan Peth": [
       "Narayan Peth CHS",
       "Narayan Peth Gaothan",
       "Bajirao Road Narayan",
@@ -776,7 +776,7 @@
       "Bajirao Road RWA",
       "Narayan Peth Lane CHS"
     ],
-    "Ward 8 — Raviwar Peth": [
+    "Raviwar Peth": [
       "Raviwar Peth CHS",
       "Raviwar Peth Gaothan",
       "Phule Mandai area",
@@ -798,7 +798,7 @@
       "Raviwar Peth Lane CHS",
       "Shukrawar border Raviwar"
     ],
-    "Ward 9 — Shukrawar Peth": [
+    "Shukrawar Peth": [
       "Shukrawar Peth CHS",
       "Shukrawar Peth Gaothan",
       "Shanipar Chowk Shukrawar",
@@ -820,7 +820,7 @@
       "Gultekdi border Shukrawar",
       "Shukrawar Peth RWA East"
     ],
-    "Ward 10 — Ganesh Peth": [
+    "Ganesh Peth": [
       "Ganesh Peth CHS",
       "Ganesh Peth Gaothan",
       "Ganesh Peth RWA",
@@ -842,7 +842,7 @@
       "Tulshibaug Ganesh",
       "Ganesh Peth RWA West"
     ],
-    "Ward 11 — Somwar Peth": [
+    "Somwar Peth": [
       "Somwar Peth CHS",
       "Somwar Peth Gaothan",
       "Somwar Peth RWA",
@@ -864,7 +864,7 @@
       "Laxmi Road east Somwar",
       "Somwar Peth Naka CHS"
     ],
-    "Ward 12 — Mangalwar Peth": [
+    "Mangalwar Peth": [
       "Mangalwar Peth CHS",
       "Mangalwar Peth Gaothan",
       "Mangalwar Peth RWA",
@@ -886,7 +886,7 @@
       "Laxmi Road Mangalwar",
       "Mangalwar Peth Naka CHS"
     ],
-    "Ward 13 — Budhwar Peth": [
+    "Budhwar Peth": [
       "Budhwar Peth CHS",
       "Budhwar Peth Gaothan",
       "Budhwar Peth RWA",
@@ -908,7 +908,7 @@
       "Kasba south Budhwar",
       "Budhwar Peth Naka CHS"
     ],
-    "Ward 14 — Shivajinagar": [
+    "Shivajinagar": [
       "Shivajinagar CHS",
       "Model Colony CHS",
       "Fergusson College area",
@@ -932,7 +932,7 @@
       "University Road CHS",
       "Shivajinagar Housing"
     ],
-    "Ward 15 — Model Colony": [
+    "Model Colony": [
       "Model Colony CHS",
       "Model Colony RWA",
       "Shivajinagar Model Colony",
@@ -954,7 +954,7 @@
       "COEP border Model",
       "Model Colony Gaothan"
     ],
-    "Ward 16 — Aundh": [
+    "Aundh": [
       "Aundh CHS",
       "DP Road Aundh",
       "Parihar Chowk area",
@@ -978,7 +978,7 @@
       "Sindh Society Aundh",
       "Aundh Gaothan RWA"
     ],
-    "Ward 17 — Baner": [
+    "Baner": [
       "Baner Road CHS",
       "Baner Gaon CHS",
       "Aundh-Baner Link CHS",
@@ -1002,7 +1002,7 @@
       "Baner-Balewadi Road",
       "Baner Nagar CHS"
     ],
-    "Ward 18 — Balewadi": [
+    "Balewadi": [
       "Balewadi CHS",
       "Balewadi High Street",
       "Balewadi Gaon CHS",
@@ -1024,7 +1024,7 @@
       "Balewadi Hills CHS",
       "Balewadi Society Network"
     ],
-    "Ward 19 — Pashan": [
+    "Pashan": [
       "Pashan CHS",
       "Pashan Gaon CHS",
       "Pashan Lake vicinity",
@@ -1046,7 +1046,7 @@
       "Pashan Hills CHS",
       "Pashan Society Network"
     ],
-    "Ward 20 — Sus": [
+    "Sus": [
       "Sus Gaon CHS",
       "Sus Road CHS",
       "Sus RWA",
@@ -1068,7 +1068,7 @@
       "Baner border Sus",
       "Sus Road RWA"
     ],
-    "Ward 21 — Kothrud": [
+    "Kothrud": [
       "Kothrud CHS",
       "Paud Road CHS",
       "Karve Nagar border Kothrud",
@@ -1092,7 +1092,7 @@
       "Kothrud Nagar CHS",
       "Symbiosis Vishwabhavan area"
     ],
-    "Ward 22 — Karve Nagar": [
+    "Karve Nagar": [
       "Karve Nagar CHS",
       "Karve Nagar RWA",
       "Karve Putala area",
@@ -1114,7 +1114,7 @@
       "Deccan border Karve",
       "Karve Nagar Market"
     ],
-    "Ward 23 — Warje": [
+    "Warje": [
       "Warje CHS",
       "Warje Malwadi CHS",
       "Warje Gaon CHS",
@@ -1136,7 +1136,7 @@
       "Warje Hills CHS",
       "Warje Phata CHS"
     ],
-    "Ward 24 — Dahanukar Colony": [
+    "Dahanukar Colony": [
       "Dahanukar Colony CHS",
       "Dahanukar Colony RWA",
       "Kothrud Dahanukar",
@@ -1158,7 +1158,7 @@
       "Gujarat Colony border",
       "Dahanukar Colony RWA East"
     ],
-    "Ward 25 — Bavdhan": [
+    "Bavdhan": [
       "Bavdhan CHS",
       "Bavdhan Gaon CHS",
       "Bavdhan RWA",
@@ -1180,7 +1180,7 @@
       "Bavdhan Society Network",
       "Bhugaon road Bavdhan"
     ],
-    "Ward 26 — Erandwane": [
+    "Erandwane": [
       "Erandwane CHS",
       "Erandwane RWA",
       "Karve Road Erandwane",
@@ -1202,7 +1202,7 @@
       "JM Road Erandwane",
       "Erandwane Market"
     ],
-    "Ward 27 — Deccan": [
+    "Deccan": [
       "Deccan Gymkhana CHS",
       "FC Road Deccan",
       "JM Road Deccan",
@@ -1224,7 +1224,7 @@
       "NMV School Deccan",
       "Deccan Market lane"
     ],
-    "Ward 28 — Parvati": [
+    "Parvati": [
       "Parvati CHS",
       "Parvati Gaon CHS",
       "Parvati Hill Temple area",
@@ -1246,7 +1246,7 @@
       "Parvati Hills CHS",
       "Bibwewadi border Parvati"
     ],
-    "Ward 29 — Dhankawadi": [
+    "Dhankawadi": [
       "Dhankawadi CHS",
       "Dhankawadi Gaon CHS",
       "Dhankawadi RWA",
@@ -1268,7 +1268,7 @@
       "Pune Satara Road Dhankawadi",
       "Dhankawadi Depot area"
     ],
-    "Ward 30 — Bibwewadi": [
+    "Bibwewadi": [
       "Bibwewadi CHS",
       "Bibwewadi Gaon CHS",
       "Bibwewadi RWA",
@@ -1290,7 +1290,7 @@
       "Seven Loves Bibwewadi",
       "Bibwewadi Housing Society"
     ],
-    "Ward 31 — Hadapsar": [
+    "Hadapsar": [
       "Hadapsar Gaon CHS",
       "Hadapsar RWA",
       "Magarpatta border Hadapsar",
@@ -1314,7 +1314,7 @@
       "Hadapsar Gadital",
       "Pune Solapur Road Hadapsar"
     ],
-    "Ward 32 — Magarpatta": [
+    "Magarpatta": [
       "Magarpatta City CHS",
       "Magarpatta City Annexe",
       "Magarpatta RWA",
@@ -1336,7 +1336,7 @@
       "Mundhwa Magarpatta",
       "Magarpatta Colony"
     ],
-    "Ward 33 — Kondhwa": [
+    "Kondhwa": [
       "Kondhwa CHS",
       "Kondhwa Budruk CHS",
       "Kondhwa Khurd CHS",
@@ -1358,7 +1358,7 @@
       "Wanowrie border Kondhwa",
       "Kondhwa Hills CHS"
     ],
-    "Ward 34 — Mohammedwadi": [
+    "Mohammedwadi": [
       "Mohammedwadi CHS",
       "Mohammedwadi Gaon CHS",
       "Mohammedwadi RWA",
@@ -1380,7 +1380,7 @@
       "Mohammedwadi Housing Society",
       "NIBM Annexe Mohammedwadi"
     ],
-    "Ward 35 — Undri": [
+    "Undri": [
       "Undri CHS",
       "Undri Gaon CHS",
       "Undri RWA",
@@ -1402,7 +1402,7 @@
       "Handewadi road Undri",
       "Undri Phata CHS"
     ],
-    "Ward 36 — Wanowrie": [
+    "Wanowrie": [
       "Wanowrie CHS",
       "Wanowrie Gaon CHS",
       "Wanowrie RWA",
@@ -1424,7 +1424,7 @@
       "Defence area Wanowrie",
       "Wanowrie Housing Society"
     ],
-    "Ward 37 — Fatima Nagar": [
+    "Fatima Nagar": [
       "Fatima Nagar CHS",
       "Fatima Nagar RWA",
       "Fatima Nagar Society",
@@ -1446,7 +1446,7 @@
       "Fatima Nagar Housing Society",
       "Defence Fatima Nagar"
     ],
-    "Ward 38 — Koregaon Park": [
+    "Koregaon Park": [
       "Koregaon Park CHS",
       "Lane 1 KP",
       "Lane 5 KP",
@@ -1470,7 +1470,7 @@
       "German Bakery lane",
       "KP Market area"
     ],
-    "Ward 39 — Kalyani Nagar": [
+    "Kalyani Nagar": [
       "Kalyani Nagar CHS",
       "Kalyani Nagar RWA",
       "Kalyani Nagar Society",
@@ -1492,7 +1492,7 @@
       "Bund Garden Kalyani",
       "Kalyani Nagar Gaothan"
     ],
-    "Ward 40 — Yerwada": [
+    "Yerwada": [
       "Yerwada CHS",
       "Yerwada Gaon CHS",
       "Yerwada RWA",
@@ -1514,7 +1514,7 @@
       "Sangamwadi Yerwada",
       "Yerwada Housing Society"
     ],
-    "Ward 41 — Dhanori": [
+    "Dhanori": [
       "Dhanori CHS",
       "Dhanori Gaon CHS",
       "Dhanori RWA",
@@ -1538,7 +1538,7 @@
     ]
   },
   "thane": {
-    "TMC Ward 1 — Kopri": [
+    "Kopri": [
       "Kopri Colony CHS",
       "Kopri Naka CHS",
       "Kopri RWA",
@@ -1558,9 +1558,17 @@
       "Kopri Colony Phase 1",
       "Kopri Colony Phase 2",
       "Kopri Nagar CHS",
-      "Kopri Society Network"
+      "Kopri Society Network",
+      "Kopri East RWA",
+      "Kopri East Society",
+      "Kopri East Housing",
+      "Kopri East Residents",
+      "Kopri East Market lane",
+      "Kopri East Colony",
+      "Kopri East Society Network",
+      "Kopri East Naka CHS"
     ],
-    "TMC Ward 2 — Naupada": [
+    "Naupada": [
       "Naupada CHS",
       "Naupada RWA",
       "Naupada East CHS",
@@ -1580,9 +1588,17 @@
       "Station Road Naupada",
       "Naupada Gaothan RWA",
       "Naupada Hills CHS",
-      "Naupada Housing Society"
+      "Naupada Housing Society",
+      "Naupada East RWA",
+      "Naupada East Society",
+      "Naupada East Housing",
+      "Naupada East Residents",
+      "Naupada East Market lane",
+      "Naupada East Colony",
+      "Naupada East Society Network",
+      "Naupada East Naka CHS"
     ],
-    "TMC Ward 3 — Charai": [
+    "Charai": [
       "Charai CHS",
       "Charai RWA",
       "Charai West CHS",
@@ -1602,9 +1618,17 @@
       "Charai Housing Society",
       "Jambli Naka border Charai",
       "Charai Lane CHS",
-      "Charai Nagar CHS"
+      "Charai Nagar CHS",
+      "Charai West RWA",
+      "Charai West Society",
+      "Charai West Housing",
+      "Charai West Residents",
+      "Charai West Market lane",
+      "Charai West Colony",
+      "Charai West Society Network",
+      "Charai West Naka CHS"
     ],
-    "TMC Ward 4 — Panchpakhadi": [
+    "Panchpakhadi": [
       "Panchpakhadi CHS",
       "Talao Pali area CHS",
       "Panchpakhadi RWA",
@@ -1624,9 +1648,17 @@
       "Charai border Panchpakhadi",
       "Panchpakhadi Gaothan RWA",
       "Talao Pali RWA",
-      "Panchpakhadi Hills CHS"
+      "Panchpakhadi Hills CHS",
+      "Panchpakhadi North RWA",
+      "Panchpakhadi North Society",
+      "Panchpakhadi North Housing",
+      "Panchpakhadi North Residents",
+      "Panchpakhadi North Market",
+      "Panchpakhadi North Colony",
+      "Panchpakhadi North Society Network",
+      "Panchpakhadi North Naka"
     ],
-    "TMC Ward 5 — Vartak Nagar": [
+    "Vartak Nagar": [
       "Vartak Nagar CHS",
       "Vartak Nagar RWA",
       "Vartak Nagar East CHS",
@@ -1646,9 +1678,17 @@
       "Teen Hath Naka border",
       "Vartak Nagar Phase 1",
       "Vartak Nagar Phase 2",
-      "Vartak Nagar Naka CHS"
+      "Vartak Nagar Naka CHS",
+      "Vartak Nagar East RWA",
+      "Vartak Nagar East Society",
+      "Vartak Nagar East Housing",
+      "Vartak Nagar East Residents",
+      "Vartak Nagar East Market",
+      "Vartak Nagar East Colony",
+      "Vartak Nagar East Society Network",
+      "Vartak Nagar East Naka"
     ],
-    "TMC Ward 6 — Hiranandani Estate": [
+    "Hiranandani Estate": [
       "Hiranandani Estate CHS",
       "Hiranandani Meadows CHS",
       "Hiranandani RWA",
@@ -1668,9 +1708,17 @@
       "Hiranandani Estate Phase 1",
       "Hiranandani Estate Phase 2",
       "Rodas Enclave area",
-      "Hiranandani Meadows RWA"
+      "Hiranandani Meadows RWA",
+      "Hiranandani Estate West CHS",
+      "Hiranandani Estate West RWA",
+      "Hiranandani Estate West Society",
+      "Hiranandani Estate West Housing",
+      "Hiranandani Estate West Residents",
+      "Hiranandani Estate West Market",
+      "Hiranandani Estate West Colony",
+      "Hiranandani Estate West Society Network"
     ],
-    "TMC Ward 7 — Ghodbunder Road": [
+    "Ghodbunder Road": [
       "GB Road CHS",
       "Kavesar CHS",
       "Hiranandani Estate GB Road",
@@ -1690,9 +1738,17 @@
       "GB Road Market lane",
       "Bhayandarpada GB Road",
       "GB Road Society Network",
-      "Ghodbunder Village CHS"
+      "Ghodbunder Village CHS",
+      "Ghodbunder Village RWA",
+      "Ghodbunder Village Society",
+      "Ghodbunder Village Housing",
+      "Ghodbunder Village Residents",
+      "Ghodbunder Village Market",
+      "Ghodbunder Village Colony",
+      "Ghodbunder Village Society Network",
+      "Ghodbunder Village Naka"
     ],
-    "TMC Ward 8 — Kasarvadavali": [
+    "Kasarvadavali": [
       "Kasarvadavali CHS",
       "Kasarvadavali RWA",
       "Kasarvadavali Gaon CHS",
@@ -1714,7 +1770,7 @@
       "Kasarvadavali Phata CHS",
       "Kasarvadavali Housing Society"
     ],
-    "TMC Ward 9 — Waghbil": [
+    "Waghbil": [
       "Waghbil CHS",
       "Waghbil Naka CHS",
       "Waghbil RWA",
@@ -1734,9 +1790,17 @@
       "Waghbil Housing Society",
       "Waghbil Nagar CHS",
       "Anand Nagar Waghbil",
-      "Waghbil Phata CHS"
+      "Waghbil Phata CHS",
+      "Waghbil Naka RWA",
+      "Waghbil Naka Society",
+      "Waghbil Naka Housing",
+      "Waghbil Naka Residents",
+      "Waghbil Naka Market lane",
+      "Waghbil Naka Colony",
+      "Waghbil Naka Society Network",
+      "Waghbil Naka Hills CHS"
     ],
-    "TMC Ward 10 — Manpada": [
+    "Manpada": [
       "Manpada CHS",
       "Manpada Hills CHS",
       "Manpada RWA",
@@ -1756,9 +1820,17 @@
       "Manpada Gaothan RWA",
       "Bhayandarpada border Manpada",
       "Manpada Housing Society",
-      "Cadbury Junction Manpada"
+      "Cadbury Junction Manpada",
+      "Manpada Hills RWA",
+      "Manpada Hills Society",
+      "Manpada Hills Housing",
+      "Manpada Hills Residents",
+      "Manpada Hills Market lane",
+      "Manpada Hills Colony",
+      "Manpada Hills Society Network",
+      "Manpada Hills Naka CHS"
     ],
-    "TMC Ward 11 — Bhayandarpada": [
+    "Bhayandarpada": [
       "Bhayandarpada CHS",
       "Bhayandarpada East CHS",
       "Bhayandarpada RWA",
@@ -1778,9 +1850,17 @@
       "Bhayandarpada Housing Society",
       "Kavesar border Bhayandarpada",
       "Bhayandarpada Nagar CHS",
-      "Bhayandarpada Phata CHS"
+      "Bhayandarpada Phata CHS",
+      "Bhayandarpada East RWA",
+      "Bhayandarpada East Society",
+      "Bhayandarpada East Housing",
+      "Bhayandarpada East Residents",
+      "Bhayandarpada East Market",
+      "Bhayandarpada East Colony",
+      "Bhayandarpada East Society Network",
+      "Bhayandarpada East Naka"
     ],
-    "TMC Ward 12 — Majiwada": [
+    "Majiwada": [
       "Majiwada CHS",
       "Majiwada East CHS",
       "Majiwada RWA",
@@ -1800,9 +1880,17 @@
       "Majiwada Housing Society",
       "Wagle Estate border Majiwada",
       "Majiwada Nagar CHS",
-      "Teen Hath Naka Majiwada"
+      "Teen Hath Naka Majiwada",
+      "Majiwada East RWA",
+      "Majiwada East Society",
+      "Majiwada East Housing",
+      "Majiwada East Residents",
+      "Majiwada East Market lane",
+      "Majiwada East Colony",
+      "Majiwada East Society Network",
+      "Majiwada East Naka CHS"
     ],
-    "TMC Ward 13 — Kolshet": [
+    "Kolshet": [
       "Kolshet CHS",
       "Kolshet Road CHS",
       "Kolshet RWA",
@@ -1822,9 +1910,17 @@
       "Kolshet Housing Society",
       "GB Road Kolshet",
       "Kolshet Nagar CHS",
-      "Dhokali border Kolshet"
+      "Dhokali border Kolshet",
+      "Kolshet Road RWA",
+      "Kolshet Road Society",
+      "Kolshet Road Housing",
+      "Kolshet Road Residents",
+      "Kolshet Road Market lane",
+      "Kolshet Road Colony",
+      "Kolshet Road Society Network",
+      "Kolshet Road Naka CHS"
     ],
-    "TMC Ward 14 — Balkum": [
+    "Balkum": [
       "Balkum CHS",
       "Balkum Naka CHS",
       "Balkum RWA",
@@ -1844,9 +1940,17 @@
       "Dhokali border Balkum",
       "Balkum Industrial",
       "Balkum Phata CHS",
-      "Balkum Village CHS"
+      "Balkum Village CHS",
+      "Balkum Naka RWA",
+      "Balkum Naka Society",
+      "Balkum Naka Housing",
+      "Balkum Naka Residents",
+      "Balkum Naka Market lane",
+      "Balkum Naka Colony",
+      "Balkum Naka Society Network",
+      "Balkum Naka Hills CHS"
     ],
-    "TMC Ward 15 — Dhokali": [
+    "Dhokali": [
       "Dhokali CHS",
       "Dhokali RWA",
       "Dhokali Gaon CHS",
@@ -1868,7 +1972,7 @@
       "Dhokali Phata CHS",
       "Majiwada border Dhokali"
     ],
-    "TMC Ward 16 — Kalwa East": [
+    "Kalwa East": [
       "Kalwa East CHS",
       "Kalwa East RWA",
       "Kalwa Station East",
@@ -1890,7 +1994,7 @@
       "Kalwa East Village",
       "Kalwa East Phata CHS"
     ],
-    "TMC Ward 17 — Kalwa West": [
+    "Kalwa West": [
       "Kalwa West CHS",
       "Kalwa West RWA",
       "Kalwa Station West",
@@ -1912,7 +2016,7 @@
       "Kalwa West Phata CHS",
       "Mumbra border Kalwa West"
     ],
-    "TMC Ward 18 — Mumbra": [
+    "Mumbra": [
       "Mumbra CHS",
       "Mumbra Devi Temple area",
       "Mumbra RWA",
@@ -1932,9 +2036,17 @@
       "Mumbra Housing Society",
       "Mumbra Nagar CHS",
       "Shil Phata Mumbra",
-      "Mumbra Bypass CHS"
+      "Mumbra Bypass CHS",
+      "Mumbra Devi CHS",
+      "Mumbra Devi Temple CHS",
+      "Mumbra Devi RWA",
+      "Mumbra Devi Society",
+      "Mumbra Devi Housing",
+      "Mumbra Devi Residents",
+      "Mumbra Devi Market lane",
+      "Mumbra Devi Colony"
     ],
-    "TMC Ward 19 — Diva": [
+    "Diva": [
       "Diva CHS",
       "Diva East CHS",
       "Diva RWA",
@@ -1954,9 +2066,17 @@
       "Diva Nagar CHS",
       "Shil border Diva",
       "Diva Phata CHS",
-      "Mumbra border Diva"
+      "Mumbra border Diva",
+      "Diva East RWA",
+      "Diva East Society",
+      "Diva East Housing",
+      "Diva East Residents",
+      "Diva East Market lane",
+      "Diva East Colony",
+      "Diva East Society Network",
+      "Diva East Naka CHS"
     ],
-    "TMC Ward 20 — Shil": [
+    "Shil": [
       "Shil CHS",
       "Shil Phata CHS",
       "Shil RWA",
@@ -1976,9 +2096,17 @@
       "Diva border Shil",
       "Mumbra border Shil",
       "Shil Village CHS",
-      "Shil Phata RWA"
+      "Shil Phata RWA",
+      "Shil Phata Society",
+      "Shil Phata Housing",
+      "Shil Phata Residents",
+      "Shil Phata Market lane",
+      "Shil Phata Colony",
+      "Shil Phata Society Network",
+      "Shil Phata Naka CHS",
+      "Shil Phata Hills CHS"
     ],
-    "TMC Ward 21 — Kausa": [
+    "Kausa": [
       "Kausa CHS",
       "Kausa East CHS",
       "Kausa RWA",
@@ -1998,9 +2126,17 @@
       "Kausa Nagar CHS",
       "Kausa Village CHS",
       "Kausa Phata CHS",
-      "Shil border Kausa"
+      "Shil border Kausa",
+      "Kausa East RWA",
+      "Kausa East Society",
+      "Kausa East Housing",
+      "Kausa East Residents",
+      "Kausa East Market lane",
+      "Kausa East Colony",
+      "Kausa East Society Network",
+      "Kausa East Naka CHS"
     ],
-    "TMC Ward 22 — Rabodi": [
+    "Rabodi": [
       "Rabodi CHS",
       "Rabodi RWA",
       "Rabodi Gaon CHS",
@@ -2022,7 +2158,7 @@
       "Kopri border Rabodi",
       "Rabodi Lane CHS"
     ],
-    "TMC Ward 23 — Jambli Naka": [
+    "Jambli Naka": [
       "Jambli Naka CHS",
       "Jambli Naka West CHS",
       "Jambli Naka RWA",
@@ -2042,9 +2178,17 @@
       "Jambli Naka Lane CHS",
       "Station Road Jambli",
       "Jambli Naka Gaothan RWA",
-      "Jambli Naka Phata CHS"
+      "Jambli Naka Phata CHS",
+      "Jambli Naka West RWA",
+      "Jambli Naka West Society",
+      "Jambli Naka West Housing",
+      "Jambli Naka West Residents",
+      "Jambli Naka West Market",
+      "Jambli Naka West Colony",
+      "Jambli Naka West Society Network",
+      "Jambli Naka West Naka"
     ],
-    "TMC Ward 24 — Temghar": [
+    "Temghar": [
       "Temghar CHS",
       "Temghar RWA",
       "Temghar Gaon CHS",
@@ -2066,7 +2210,7 @@
       "Kalwa border Temghar",
       "Temghar Industrial"
     ],
-    "TMC Ward 25 — Teen Hath Naka": [
+    "Teen Hath Naka": [
       "Teen Hath Naka CHS",
       "Teen Hath Naka RWA",
       "Teen Hath Naka Society",
@@ -2088,7 +2232,7 @@
       "Teen Hath Naka RWA East",
       "Teen Hath Naka Phata CHS"
     ],
-    "TMC Ward 26 — Cadbury Junction": [
+    "Cadbury Junction": [
       "Cadbury Junction CHS",
       "Cadbury Junction RWA",
       "Cadbury Junction Society",
@@ -2110,7 +2254,7 @@
       "Cadbury Junction RWA West",
       "Cadbury Junction Phata CHS"
     ],
-    "TMC Ward 27 — Wagle Estate": [
+    "Wagle Estate": [
       "Wagle Estate CHS",
       "Wagle Industrial CHS",
       "Wagle Estate RWA",
@@ -2132,7 +2276,7 @@
       "Louis Wadi border Wagle",
       "Wagle Estate Housing Society"
     ],
-    "TMC Ward 28 — Louis Wadi": [
+    "Louis Wadi": [
       "Louis Wadi CHS",
       "Louis Wadi RWA",
       "Louis Wadi Society",
@@ -2154,7 +2298,7 @@
       "Hari Niwas border Louis",
       "Louis Wadi RWA East"
     ],
-    "TMC Ward 29 — Hari Niwas": [
+    "Hari Niwas": [
       "Hari Niwas CHS",
       "Hari Niwas RWA",
       "Hari Niwas Society",
@@ -2176,7 +2320,7 @@
       "Upvan border Hari Niwas",
       "Hari Niwas RWA West"
     ],
-    "TMC Ward 30 — Upvan": [
+    "Upvan": [
       "Upvan CHS",
       "Upvan Lake vicinity",
       "Upvan RWA",
@@ -2198,7 +2342,7 @@
       "Upvan Phata CHS",
       "Pokhran Road Upvan"
     ],
-    "TMC Ward 31 — Yeoor Hills": [
+    "Yeoor Hills": [
       "Yeoor Hills CHS",
       "Yeoor Hills RWA",
       "Yeoor Hills Society",
@@ -2220,7 +2364,7 @@
       "Pokhran Road Yeoor",
       "Yeoor Hills RWA East"
     ],
-    "TMC Ward 32 — Patlipada": [
+    "Patlipada": [
       "Patlipada CHS",
       "Patlipada RWA",
       "Patlipada Society",
@@ -2242,7 +2386,7 @@
       "Patlipada Phata CHS",
       "Hiranandani Estate Patlipada"
     ],
-    "TMC Ward 33 — Hiranandani Meadows": [
+    "Hiranandani Meadows": [
       "Hiranandani Meadows CHS",
       "Hiranandani Meadows RWA",
       "Hiranandani Meadows Society",
@@ -2264,7 +2408,7 @@
       "Patlipada Meadows",
       "Hiranandani Meadows Phata"
     ],
-    "TMC Ward 34 — Beverly Park": [
+    "Beverly Park": [
       "Beverly Park CHS",
       "Beverly Park RWA",
       "Beverly Park Society",
@@ -2286,29 +2430,7 @@
       "Manpada Beverly Park",
       "Beverly Park RWA East"
     ],
-    "TMC Ward 35 — Vartak Nagar East": [
-      "Vartak Nagar East CHS",
-      "Vartak Nagar East RWA",
-      "Vartak Nagar East Society",
-      "Vartak Nagar East Housing",
-      "Vartak Nagar East Residents",
-      "Vartak Nagar East Market",
-      "Vartak Nagar East Colony",
-      "Vartak Nagar East Society Network",
-      "Vartak Nagar East Naka",
-      "Vartak Nagar East Hills CHS",
-      "Vartak Nagar East Gaothan",
-      "Vartak Nagar East Road CHS",
-      "Vartak Nagar East Housing Society",
-      "Vartak Nagar East Nagar",
-      "Pokhran Vartak East",
-      "Vartak Nagar East Lane CHS",
-      "Vartak Nagar East Phase 1",
-      "Vartak Nagar East Phase 2",
-      "Teen Hath Naka Vartak East",
-      "Vartak Nagar East Phata"
-    ],
-    "TMC Ward 36 — Oswal Park": [
+    "Oswal Park": [
       "Oswal Park CHS",
       "Oswal Park RWA",
       "Oswal Park Society",
@@ -2330,29 +2452,7 @@
       "Oswal Park RWA East",
       "Oswal Park Phase 1"
     ],
-    "TMC Ward 37 — Kolshet Road": [
-      "Kolshet Road CHS",
-      "Kolshet Road RWA",
-      "Kolshet Road Society",
-      "Kolshet Road Housing",
-      "Kolshet Road Residents",
-      "Kolshet Road Market lane",
-      "Kolshet Road Colony",
-      "Kolshet Road Society Network",
-      "Kolshet Road Naka CHS",
-      "Kolshet Road Hills CHS",
-      "Kolshet Road Gaothan",
-      "Kolshet Road Housing Society",
-      "Kolshet Road Nagar CHS",
-      "Balkum Kolshet Road",
-      "Kolshet Road Lane CHS",
-      "Kolshet Road Village CHS",
-      "Kolshet Road Phata CHS",
-      "GB Road Kolshet Road",
-      "Kolshet Road RWA West",
-      "Dhokali Kolshet Road"
-    ],
-    "TMC Ward 38 — Mhada Colony": [
+    "Mhada Colony": [
       "Mhada Colony CHS",
       "Mhada Colony RWA",
       "Mhada Colony Society",
@@ -2374,7 +2474,7 @@
       "Mhada Colony RWA East",
       "Mhada Colony Sector A"
     ],
-    "TMC Ward 39 — Indira Nagar": [
+    "Indira Nagar": [
       "Indira Nagar CHS",
       "Indira Nagar RWA",
       "Indira Nagar Society",
@@ -2396,7 +2496,7 @@
       "Indira Nagar RWA West",
       "Indira Nagar Phase 1"
     ],
-    "TMC Ward 40 — Ram Maruti Road": [
+    "Ram Maruti Road": [
       "Ram Maruti Road CHS",
       "Ram Maruti Road RWA",
       "Ram Maruti Road Society",
@@ -2418,7 +2518,7 @@
       "Charai Ram Maruti",
       "Ram Maruti Road RWA East"
     ],
-    "TMC Ward 41 — Shree Nagar": [
+    "Shree Nagar": [
       "Shree Nagar CHS",
       "Shree Nagar RWA",
       "Shree Nagar Society",
@@ -2440,7 +2540,7 @@
       "Shree Nagar RWA West",
       "Shree Nagar Phase 1"
     ],
-    "TMC Ward 42 — Kisan Nagar": [
+    "Kisan Nagar": [
       "Kisan Nagar CHS",
       "Kisan Nagar RWA",
       "Kisan Nagar Society",
@@ -2462,29 +2562,7 @@
       "Kisan Nagar RWA East",
       "Wagle Estate Kisan Nagar"
     ],
-    "TMC Ward 43 — Naupada East": [
-      "Naupada East CHS",
-      "Naupada East RWA",
-      "Naupada East Society",
-      "Naupada East Housing",
-      "Naupada East Residents",
-      "Naupada East Market lane",
-      "Naupada East Colony",
-      "Naupada East Society Network",
-      "Naupada East Naka CHS",
-      "Naupada East Hills CHS",
-      "Naupada East Gaothan",
-      "Naupada East Road CHS",
-      "Naupada East Housing Society",
-      "Naupada East Nagar CHS",
-      "Naupada East Lane CHS",
-      "Talao Pali Naupada East",
-      "Naupada East Village CHS",
-      "Naupada East Phata CHS",
-      "Ram Maruti Naupada East",
-      "Naupada East RWA West"
-    ],
-    "TMC Ward 44 — Talao Pali": [
+    "Talao Pali": [
       "Talao Pali CHS",
       "Talao Pali RWA",
       "Talao Pali Society",
@@ -2506,29 +2584,7 @@
       "Talao Pali Hills CHS",
       "Talao Pali RWA East"
     ],
-    "TMC Ward 45 — Jambli Naka West": [
-      "Jambli Naka West CHS",
-      "Jambli Naka West RWA",
-      "Jambli Naka West Society",
-      "Jambli Naka West Housing",
-      "Jambli Naka West Residents",
-      "Jambli Naka West Market",
-      "Jambli Naka West Colony",
-      "Jambli Naka West Society Network",
-      "Jambli Naka West Naka",
-      "Jambli Naka West Hills CHS",
-      "Jambli Naka West Gaothan",
-      "Jambli Naka West Road CHS",
-      "Jambli Naka West Housing Society",
-      "Jambli Naka West Nagar",
-      "Jambli Naka West Lane",
-      "Charai Jambli West",
-      "Jambli Naka West Village",
-      "Jambli Naka West Phata",
-      "Station Road Jambli West",
-      "Jambli Naka West RWA East"
-    ],
-    "TMC Ward 46 — Kharegaon": [
+    "Kharegaon": [
       "Kharegaon CHS",
       "Kharegaon RWA",
       "Kharegaon Gaon CHS",
@@ -2550,51 +2606,7 @@
       "Kharegaon Phata CHS",
       "Kharegaon RWA West"
     ],
-    "TMC Ward 47 — Kolshet Industrial": [
-      "Kolshet Industrial CHS",
-      "Kolshet Industrial RWA",
-      "Kolshet Industrial Society",
-      "Kolshet Industrial Housing",
-      "Kolshet Industrial Residents",
-      "Kolshet Industrial Market",
-      "Kolshet Industrial Colony",
-      "Kolshet Industrial Society Network",
-      "Kolshet MIDC area",
-      "Kolshet Industrial Naka CHS",
-      "Kolshet Industrial Road CHS",
-      "Kolshet Industrial Housing Society",
-      "Kolshet Industrial Nagar",
-      "Kolshet Industrial Lane CHS",
-      "Kolshet Industrial Phase 1",
-      "Kolshet Industrial Phase 2",
-      "Balkum Industrial Kolshet",
-      "Kolshet Industrial Phata",
-      "Kolshet Industrial Gaothan",
-      "Kolshet Industrial RWA East"
-    ],
-    "TMC Ward 48 — Balkum Naka": [
-      "Balkum Naka CHS",
-      "Balkum Naka RWA",
-      "Balkum Naka Society",
-      "Balkum Naka Housing",
-      "Balkum Naka Residents",
-      "Balkum Naka Market lane",
-      "Balkum Naka Colony",
-      "Balkum Naka Society Network",
-      "Balkum Naka Hills CHS",
-      "Balkum Naka Gaothan RWA",
-      "Balkum Naka Road CHS",
-      "Balkum Naka Housing Society",
-      "Balkum Naka Nagar CHS",
-      "Balkum Naka Lane CHS",
-      "Kolshet Balkum Naka",
-      "Balkum Naka Village CHS",
-      "Balkum Naka Phata CHS",
-      "Balkum Naka RWA West",
-      "Dhokali Balkum Naka",
-      "Balkum Naka Industrial"
-    ],
-    "TMC Ward 49 — Dawodi": [
+    "Dawodi": [
       "Dawodi CHS",
       "Dawodi RWA",
       "Dawodi Gaon CHS",
@@ -2616,95 +2628,7 @@
       "Dawodi RWA East",
       "Kalwa border Dawodi"
     ],
-    "TMC Ward 50 — Kausa East": [
-      "Kausa East CHS",
-      "Kausa East RWA",
-      "Kausa East Society",
-      "Kausa East Housing",
-      "Kausa East Residents",
-      "Kausa East Market lane",
-      "Kausa East Colony",
-      "Kausa East Society Network",
-      "Kausa East Naka CHS",
-      "Kausa East Hills CHS",
-      "Kausa East Gaothan RWA",
-      "Kausa East Road CHS",
-      "Kausa East Housing Society",
-      "Kausa East Nagar CHS",
-      "Kausa East Lane CHS",
-      "Mumbra Kausa East",
-      "Kausa East Village",
-      "Kausa East Phata CHS",
-      "Kausa East RWA West",
-      "Shil Kausa East"
-    ],
-    "TMC Ward 51 — Mumbra Devi": [
-      "Mumbra Devi CHS",
-      "Mumbra Devi Temple CHS",
-      "Mumbra Devi RWA",
-      "Mumbra Devi Society",
-      "Mumbra Devi Housing",
-      "Mumbra Devi Residents",
-      "Mumbra Devi Market lane",
-      "Mumbra Devi Colony",
-      "Mumbra Devi Society Network",
-      "Mumbra Devi Naka CHS",
-      "Mumbra Devi Hills CHS",
-      "Mumbra Devi Gaothan RWA",
-      "Mumbra Devi Road CHS",
-      "Mumbra Devi Housing Society",
-      "Mumbra Devi Nagar CHS",
-      "Mumbra Devi Lane CHS",
-      "Mumbra Devi Village CHS",
-      "Mumbra Devi Phata CHS",
-      "Mumbra Devi RWA East",
-      "Kausa Mumbra Devi"
-    ],
-    "TMC Ward 52 — Diva East": [
-      "Diva East CHS",
-      "Diva East RWA",
-      "Diva East Society",
-      "Diva East Housing",
-      "Diva East Residents",
-      "Diva East Market lane",
-      "Diva East Colony",
-      "Diva East Society Network",
-      "Diva East Naka CHS",
-      "Diva East Hills CHS",
-      "Diva East Gaothan RWA",
-      "Diva East Road CHS",
-      "Diva East Housing Society",
-      "Diva East Nagar CHS",
-      "Diva East Lane CHS",
-      "Diva East Village CHS",
-      "Diva East Phata CHS",
-      "Diva East RWA West",
-      "Shil Diva East",
-      "Diva Station East"
-    ],
-    "TMC Ward 53 — Shil Phata": [
-      "Shil Phata CHS",
-      "Shil Phata RWA",
-      "Shil Phata Society",
-      "Shil Phata Housing",
-      "Shil Phata Residents",
-      "Shil Phata Market lane",
-      "Shil Phata Colony",
-      "Shil Phata Society Network",
-      "Shil Phata Naka CHS",
-      "Shil Phata Hills CHS",
-      "Shil Phata Gaothan RWA",
-      "Shil Phata Road CHS",
-      "Shil Phata Housing Society",
-      "Shil Phata Nagar CHS",
-      "Shil Phata Lane CHS",
-      "Mumbra Shil Phata",
-      "Shil Phata Village",
-      "Shil Phata Bypass CHS",
-      "Shil Phata RWA East",
-      "Diva Shil Phata"
-    ],
-    "TMC Ward 54 — Kasheli": [
+    "Kasheli": [
       "Kasheli CHS",
       "Kasheli RWA",
       "Kasheli Gaon CHS",
@@ -2726,7 +2650,7 @@
       "Kasheli RWA West",
       "Bhiwandi border Kasheli"
     ],
-    "TMC Ward 55 — Bhiwandi Naka": [
+    "Bhiwandi Naka": [
       "Bhiwandi Naka CHS",
       "Bhiwandi Naka RWA",
       "Bhiwandi Naka Society",
@@ -2747,248 +2671,6 @@
       "Bhiwandi Naka RWA East",
       "Bhiwandi Naka Bypass",
       "Bhiwandi Naka Industrial"
-    ],
-    "TMC Ward 56 — Majiwada East": [
-      "Majiwada East CHS",
-      "Majiwada East RWA",
-      "Majiwada East Society",
-      "Majiwada East Housing",
-      "Majiwada East Residents",
-      "Majiwada East Market lane",
-      "Majiwada East Colony",
-      "Majiwada East Society Network",
-      "Majiwada East Naka CHS",
-      "Majiwada East Hills CHS",
-      "Majiwada East Gaothan",
-      "Majiwada East Road CHS",
-      "Majiwada East Housing Society",
-      "Majiwada East Nagar CHS",
-      "Majiwada East Lane CHS",
-      "Kapurbawdi Majiwada East",
-      "Majiwada East Village CHS",
-      "Majiwada East Phata CHS",
-      "Majiwada Junction East",
-      "Majiwada East RWA West"
-    ],
-    "TMC Ward 57 — Hiranandani Estate West": [
-      "Hiranandani Estate West CHS",
-      "Hiranandani Estate West RWA",
-      "Hiranandani Estate West Society",
-      "Hiranandani Estate West Housing",
-      "Hiranandani Estate West Residents",
-      "Hiranandani Estate West Market",
-      "Hiranandani Estate West Colony",
-      "Hiranandani Estate West Society Network",
-      "Hiranandani Estate West Naka",
-      "Hiranandani Estate West Hills",
-      "Hiranandani Estate West Road CHS",
-      "Hiranandani Estate West Housing Society",
-      "Hiranandani Estate West Nagar",
-      "GB Road Estate West",
-      "Hiranandani Estate West Lane",
-      "Patlipada Estate West",
-      "Hiranandani Estate West Phase 1",
-      "Hiranandani Estate West Phase 2",
-      "Hiranandani Estate West Gaothan",
-      "Hiranandani Estate West Phata"
-    ],
-    "TMC Ward 58 — Manpada Hills": [
-      "Manpada Hills CHS",
-      "Manpada Hills RWA",
-      "Manpada Hills Society",
-      "Manpada Hills Housing",
-      "Manpada Hills Residents",
-      "Manpada Hills Market lane",
-      "Manpada Hills Colony",
-      "Manpada Hills Society Network",
-      "Manpada Hills Naka CHS",
-      "Manpada Hills Gaothan",
-      "Manpada Hills Road CHS",
-      "Manpada Hills Housing Society",
-      "Manpada Hills Nagar CHS",
-      "Manpada Hills Lane CHS",
-      "GB Road Manpada Hills",
-      "Manpada Hills Village CHS",
-      "Manpada Hills Phata CHS",
-      "Cadbury Manpada Hills",
-      "Manpada Hills RWA East",
-      "Beverly Park Manpada Hills"
-    ],
-    "TMC Ward 59 — Bhayandarpada East": [
-      "Bhayandarpada East CHS",
-      "Bhayandarpada East RWA",
-      "Bhayandarpada East Society",
-      "Bhayandarpada East Housing",
-      "Bhayandarpada East Residents",
-      "Bhayandarpada East Market",
-      "Bhayandarpada East Colony",
-      "Bhayandarpada East Society Network",
-      "Bhayandarpada East Naka",
-      "Bhayandarpada East Hills CHS",
-      "Bhayandarpada East Gaothan",
-      "Bhayandarpada East Road CHS",
-      "Bhayandarpada East Housing Society",
-      "Bhayandarpada East Nagar",
-      "GB Road Bhayandarpada East",
-      "Bhayandarpada East Lane CHS",
-      "Bhayandarpada East Village",
-      "Bhayandarpada East Phata",
-      "Kavesar Bhayandarpada East",
-      "Bhayandarpada East RWA West"
-    ],
-    "TMC Ward 60 — Waghbil Naka": [
-      "Waghbil Naka CHS",
-      "Waghbil Naka RWA",
-      "Waghbil Naka Society",
-      "Waghbil Naka Housing",
-      "Waghbil Naka Residents",
-      "Waghbil Naka Market lane",
-      "Waghbil Naka Colony",
-      "Waghbil Naka Society Network",
-      "Waghbil Naka Hills CHS",
-      "Waghbil Naka Gaothan RWA",
-      "Waghbil Naka Road CHS",
-      "Waghbil Naka Housing Society",
-      "Waghbil Naka Nagar CHS",
-      "Waghbil Naka Lane CHS",
-      "GB Road Waghbil Naka",
-      "Waghbil Naka Village CHS",
-      "Waghbil Naka Phata CHS",
-      "Kasarvadavali Waghbil Naka",
-      "Waghbil Naka RWA East",
-      "Anand Nagar Waghbil Naka"
-    ],
-    "TMC Ward 61 — Ghodbunder Village": [
-      "Ghodbunder Village CHS",
-      "Ghodbunder Village RWA",
-      "Ghodbunder Village Society",
-      "Ghodbunder Village Housing",
-      "Ghodbunder Village Residents",
-      "Ghodbunder Village Market",
-      "Ghodbunder Village Colony",
-      "Ghodbunder Village Society Network",
-      "Ghodbunder Village Naka",
-      "Ghodbunder Village Hills CHS",
-      "Ghodbunder Village Gaothan",
-      "Ghodbunder Village Road CHS",
-      "Ghodbunder Village Housing Society",
-      "Ghodbunder Village Nagar",
-      "GB Road Village",
-      "Ghodbunder Village Lane CHS",
-      "Ghodbunder Village Phata",
-      "Ghodbunder Village RWA East",
-      "Kavesar Ghodbunder Village",
-      "Ghodbunder Village Fishing area"
-    ],
-    "TMC Ward 62 — Kopri East": [
-      "Kopri East CHS",
-      "Kopri East RWA",
-      "Kopri East Society",
-      "Kopri East Housing",
-      "Kopri East Residents",
-      "Kopri East Market lane",
-      "Kopri East Colony",
-      "Kopri East Society Network",
-      "Kopri East Naka CHS",
-      "Kopri East Hills CHS",
-      "Kopri East Gaothan RWA",
-      "Kopri East Road CHS",
-      "Kopri East Housing Society",
-      "Kopri East Nagar CHS",
-      "Kopri East Lane CHS",
-      "Kopri Station East",
-      "Kopri East Village",
-      "Kopri East Phata CHS",
-      "Kopri East RWA West",
-      "Thane Station Kopri East"
-    ],
-    "TMC Ward 63 — Charai West": [
-      "Charai West CHS",
-      "Charai West RWA",
-      "Charai West Society",
-      "Charai West Housing",
-      "Charai West Residents",
-      "Charai West Market lane",
-      "Charai West Colony",
-      "Charai West Society Network",
-      "Charai West Naka CHS",
-      "Charai West Hills CHS",
-      "Charai West Gaothan RWA",
-      "Charai West Road CHS",
-      "Charai West Housing Society",
-      "Charai West Nagar CHS",
-      "Charai West Lane CHS",
-      "Naupada Charai West",
-      "Charai West Village CHS",
-      "Charai West Phata CHS",
-      "Charai West RWA East",
-      "Panchpakhadi Charai West"
-    ],
-    "TMC Ward 64 — Panchpakhadi North": [
-      "Panchpakhadi North CHS",
-      "Panchpakhadi North RWA",
-      "Panchpakhadi North Society",
-      "Panchpakhadi North Housing",
-      "Panchpakhadi North Residents",
-      "Panchpakhadi North Market",
-      "Panchpakhadi North Colony",
-      "Panchpakhadi North Society Network",
-      "Panchpakhadi North Naka",
-      "Panchpakhadi North Hills CHS",
-      "Panchpakhadi North Gaothan",
-      "Panchpakhadi North Road CHS",
-      "Panchpakhadi North Housing Society",
-      "Panchpakhadi North Nagar",
-      "Talao Pali North",
-      "Panchpakhadi North Lane CHS",
-      "Panchpakhadi North Village",
-      "Panchpakhadi North Phata",
-      "Naupada Panchpakhadi North",
-      "Panchpakhadi North RWA West"
-    ],
-    "TMC Ward 65 — Vartak Nagar West": [
-      "Vartak Nagar West CHS",
-      "Vartak Nagar West RWA",
-      "Vartak Nagar West Society",
-      "Vartak Nagar West Housing",
-      "Vartak Nagar West Residents",
-      "Vartak Nagar West Market",
-      "Vartak Nagar West Colony",
-      "Vartak Nagar West Society Network",
-      "Vartak Nagar West Naka",
-      "Vartak Nagar West Hills CHS",
-      "Vartak Nagar West Gaothan",
-      "Vartak Nagar West Road CHS",
-      "Vartak Nagar West Housing Society",
-      "Vartak Nagar West Nagar",
-      "Pokhran Vartak West",
-      "Vartak Nagar West Lane CHS",
-      "Vartak Nagar West Phase 1",
-      "Vartak Nagar West Phase 2",
-      "Teen Hath Naka Vartak West",
-      "Vartak Nagar West Phata"
-    ],
-    "TMC Ward 66 — Kolshet West": [
-      "Kolshet West CHS",
-      "Kolshet West RWA",
-      "Kolshet West Society",
-      "Kolshet West Housing",
-      "Kolshet West Residents",
-      "Kolshet West Market lane",
-      "Kolshet West Colony",
-      "Kolshet West Society Network",
-      "Kolshet West Naka CHS",
-      "Kolshet West Hills CHS",
-      "Kolshet West Gaothan RWA",
-      "Kolshet West Road CHS",
-      "Kolshet West Housing Society",
-      "Kolshet West Nagar CHS",
-      "Kolshet West Lane CHS",
-      "Balkum Kolshet West",
-      "Kolshet West Village CHS",
-      "Kolshet West Phata CHS",
-      "GB Road Kolshet West",
-      "Kolshet West RWA East"
     ]
   }
 };

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v417';
+  const CIVIC_APP_VERSION = 'v421';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -667,6 +667,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const PWA_NUDGE_KEY = 'civicradar_pwa_nudge_dismissed';
 
+  // sessionStorage (not localStorage): deep-link open-in-app is per browsing session
+  // so a new tab can re-offer on a different ?report= / ?ref= URL. Permanent localStorage
+  // dismiss would hide it across sessions even when the deep link is new.
   const APP_OPEN_BANNER_KEY = 'civicradar_app_open_banner_dismiss';
 
   const SEASON_HOOK_DISMISS_KEY = 'civicradar_season_hook_dismissed';
@@ -3218,6 +3221,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'Approximate area from your location — you can change it.',
 
+      'onboard.wardDetectedHintCheck': 'Estimated area only — please double-check and change if it looks wrong.',
+
       'onboard.wardManual': 'Not right? Pick manually',
 
       'onboard.pickManually': 'Or pick manually',
@@ -3553,7 +3558,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'Install on iPhone',
 
-      'iosInstall.hint': 'No App Store needed. In Safari: Share → Add to Home Screen.',
+      'iosInstall.hint': 'One-tap reporting from your home screen. No App Store needed — in Safari: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'Dismiss install hint',
 
@@ -4142,6 +4147,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'common.confirm': 'Confirm',
 
       'volunteer.removeConfirm': 'Remove your volunteer signup? This cannot be undone.',
+
+      'volunteer.removeAction': 'Remove signup',
 
       'profile.deleteDone': 'Your data has been deleted. You can start fresh.',
       'profile.deleteFail': "Couldn't delete your data — nothing was removed. Please try again, or email us if it keeps failing.",
@@ -4789,9 +4796,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'Hide this pin and flag it for our team to review? (Does not delete the report immediately.)',
 
+      'safety.hideAction': 'Hide pin',
+
       'mute.hideReporter': 'Hide reports from this reporter',
 
       'mute.hideConfirm': 'Hide all pins from this reporter on your device? You can undo in Profile → Hidden reporters.',
+
+      'mute.hideAction': 'Hide all from reporter',
 
       'mute.hidden': 'Reports from this reporter are hidden on your map.',
 
@@ -5063,9 +5074,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'Community cleanup logged. BMC complaint stays open until officially resolved.',
 
-      'pledge.deliverConfirm': 'Mark this pledge as delivered? This cannot be undone.',
+      'pledge.deliverConfirm': 'Mark this pledge as delivered?',
 
-      'pledge.verifyConfirm': 'Verify these volunteer hours? This cannot be undone.',
+      'pledge.deliverAction': 'Mark delivered',
+
+      'pledge.verifyConfirm': 'Verify these volunteer hours?',
+
+      'pledge.verifyAction': 'Verify hours',
 
       'toast.pledgeDelivered': 'Supplies marked delivered. Verify hours next.',
 
@@ -5118,6 +5133,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'Remove content',
 
       'admin.removeConfirm': 'Remove this report from the public map? Use this for content that violates guidelines — the reporter can still see it was removed.',
+
+      'admin.removeAction': 'Remove report',
 
       'admin.removeSuccess': 'Report removed from the public map.',
 
@@ -5804,6 +5821,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित इलाका — आप इसे बदल सकते हैं।',
 
+      'onboard.wardDetectedHintCheck': 'केवल अनुमानित इलाका — कृपया दोबारा जाँचें; गलत लगे तो बदल दें।',
+
       'onboard.wardManual': 'सही नहीं है? खुद चुनें',
 
       'onboard.pickManually': 'या खुद चुनें',
@@ -6141,7 +6160,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone पर इंस्टॉल करें',
 
-      'iosInstall.hint': 'App Store की ज़रूरत नहीं। Safari में: Share → Add to Home Screen.',
+      'iosInstall.hint': 'एक टैप में रिपोर्ट — होम स्क्रीन से। App Store की ज़रूरत नहीं। Safari में: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'इंस्टॉल सुझाव बंद करें',
 
@@ -6730,6 +6749,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'common.confirm': 'पुष्टि करें',
 
       'volunteer.removeConfirm': 'आपका स्वयंसेवक पंजीकरण हटाएँ? इसे पूर्ववत नहीं किया जा सकता।',
+
+      'volunteer.removeAction': 'पंजीकरण हटाएँ',
 
       'profile.deleteDone': 'आपका डेटा हटा दिया गया। आप नए सिरे से शुरू कर सकते हैं।',
       'profile.deleteFail': 'आपका डेटा हटाया नहीं जा सका — कुछ भी नहीं हटाया गया। कृपया फिर कोशिश करें, या समस्या बनी रहे तो हमें ईमेल करें।',
@@ -7375,9 +7396,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'इस पिन को छिपाएँ और समीक्षा के लिए हमारी टीम को भेजें? (रिपोर्ट तुरंत हटती नहीं।)',
 
+      'safety.hideAction': 'पिन छिपाएँ',
+
       'mute.hideReporter': 'इस रिपोर्टर की रिपोर्ट छिपाएँ',
 
       'mute.hideConfirm': 'अपने डिवाइस पर इस रिपोर्टर की सभी पिन छिपाएँ? प्रोफ़ाइल → छिपे रिपोर्टर में वापस ला सकते हैं।',
+
+      'mute.hideAction': 'रिपोर्टर की सभी छिपाएँ',
 
       'mute.hidden': 'इस रिपोर्टर की रिपोर्ट आपके मानचित्र पर छिपी हैं।',
 
@@ -7650,9 +7675,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत आधिकारिक रूप से खुली रह सकती है।',
 
-      'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें? इसे पूर्ववत नहीं किया जा सकता।',
+      'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें?',
 
-      'pledge.verifyConfirm': 'इन स्वयंसेवक घंटों को सत्यापित करें? इसे पूर्ववत नहीं किया जा सकता।',
+      'pledge.deliverAction': 'वितरित चिह्नित करें',
+
+      'pledge.verifyConfirm': 'इन स्वयंसेवक घंटों को सत्यापित करें?',
+
+      'pledge.verifyAction': 'घंटे सत्यापित करें',
 
       'toast.pledgeDelivered': 'सामान वितरित चिह्नित — अब घंटे सत्यापित करें।',
 
@@ -7705,6 +7734,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'सामग्री हटाएँ',
 
       'admin.removeConfirm': 'इस रिपोर्ट को सार्वजनिक मानचित्र से हटाएँ? दिशानिर्देशों का उल्लंघन करने वाली सामग्री के लिए उपयोग करें — रिपोर्टर देख सकेगा कि इसे हटाया गया।',
+
+      'admin.removeAction': 'रिपोर्ट हटाएँ',
 
       'admin.removeSuccess': 'रिपोर्ट सार्वजनिक मानचित्र से हटा दी गई।',
 
@@ -8390,6 +8421,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे परिसर — तुम्ही तो बदलू शकता.',
 
+      'onboard.wardDetectedHintCheck': 'फक्त अंदाजे परिसर — कृपया तपासा; चुकीचे वाटत असल्यास बदला.',
+
       'onboard.wardManual': 'बरोबर नाही? स्वतः निवडा',
 
       'onboard.pickManually': 'किंवा स्वतः निवडा',
@@ -8727,7 +8760,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone वर इंस्टॉल करा',
 
-      'iosInstall.hint': 'App Storeची गरज नाही. Safari मध्ये: Share → Add to Home Screen.',
+      'iosInstall.hint': 'एक टॅपमध्ये रिपोर्ट — होम स्क्रीनवरून. App Storeची गरज नाही — Safari मध्ये: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'इंस्टॉल सूचना बंद करा',
 
@@ -9316,6 +9349,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'common.confirm': 'खात्री करा',
 
       'volunteer.removeConfirm': 'तुमची स्वयंसेवक नोंदणी काढायची? हे पूर्ववत करता येणार नाही.',
+
+      'volunteer.removeAction': 'नोंदणी काढा',
 
       'profile.deleteDone': 'तुमचा डेटा हटवला. तुम्ही पुन्हा सुरू करू शकता.',
       'profile.deleteFail': 'तुमचा डेटा हटवता आला नाही — काहीही हटवले गेले नाही. कृपया पुन्हा प्रयत्न करा, किंवा समस्या राहिल्यास आम्हाला ईमेल करा.',
@@ -9961,9 +9996,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'हा पिन लपवायचा आणि आमच्या टीमकडे पुनरावलोकनासाठी पाठवायचा? (तक्रार लगेच हटत नाही.)',
 
+      'safety.hideAction': 'पिन लपवा',
+
       'mute.hideReporter': 'या तक्रारकर्त्याच्या तक्रारी लपवा',
 
       'mute.hideConfirm': 'तुमच्या डिव्हाइसवर या तक्रारकर्त्याचे सर्व पिन लपवायचे? प्रोफाइल → लपलेले तक्रारकर्ते मध्ये परत दाखवता येते.',
+
+      'mute.hideAction': 'तक्रारकर्त्याचे सर्व लपवा',
 
       'mute.hidden': 'या तक्रारकर्त्याच्या तक्रारी तुमच्या नकाशावर लपवल्या.',
 
@@ -10235,9 +10274,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार अधिकृतपणे उघडी राहू शकते.',
 
-      'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची? हे पूर्ववत करता येणार नाही.',
+      'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची?',
 
-      'pledge.verifyConfirm': 'हे स्वयंसेवक तास सत्यापित करायचे? हे पूर्ववत करता येणार नाही.',
+      'pledge.deliverAction': 'वितरित चिन्हांकित करा',
+
+      'pledge.verifyConfirm': 'हे स्वयंसेवक तास सत्यापित करायचे?',
+
+      'pledge.verifyAction': 'तास सत्यापित करा',
 
       'toast.pledgeDelivered': 'साहित्य वितरित — आता तास सत्यापित करा.',
 
@@ -10290,6 +10333,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'मजकूर काढा',
 
       'admin.removeConfirm': 'ही तक्रार सार्वजनिक नकाशावरून काढायची? मार्गदर्शक तत्त्वांचे उल्लंघन करणाऱ्या मजकुरासाठी वापरा — तक्रारदाराला ती काढल्याचे दिसेल.',
+
+      'admin.removeAction': 'तक्रार काढा',
 
       'admin.removeSuccess': 'तक्रार सार्वजनिक नकाशावरून काढली.',
 
@@ -10975,6 +11020,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વિસ્તાર — તમે તે બદલી શકો છો.',
 
+      'onboard.wardDetectedHintCheck': 'ફક્ત અંદાજિત વિસ્તાર — કૃપા કરીને ચકાસો; ખોટું લાગે તો બદલો.',
+
       'onboard.wardManual': 'બરાબર નથી? જાતે પસંદ કરો',
 
       'onboard.pickManually': 'અથવા જાતે પસંદ કરો',
@@ -11312,7 +11359,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone પર ઇન્સ્ટોલ કરો',
 
-      'iosInstall.hint': 'Android જેવી જ એપ — App Store જરૂરી નથી. જરૂર પડે તો Safari માં ખોલો, પછી Share → Add to Home Screen.',
+      'iosInstall.hint': 'એક ટૅપમાં રિપોર્ટ — હોમ સ્ક્રીનથી. App Store જરૂરી નથી — Safari માં: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'ઇન્સ્ટોલ સૂચન બંધ કરો',
 
@@ -11901,6 +11948,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'common.confirm': 'ખાતરી કરો',
 
       'volunteer.removeConfirm': 'તમારી સ્વયંસેવક નોંધણી કાઢી નાખીએ? આ પાછું ફેરવી શકાશે નહીં.',
+
+      'volunteer.removeAction': 'નોંધણી કાઢો',
 
       'profile.deleteDone': 'તમારો ડેટા કાઢી નાખ્યો. તમે ફરી શરૂ કરી શકો.',
       'profile.deleteFail': 'તમારો ડેટા કાઢી શકાયો નહીં — કંઈ પણ કાઢવામાં આવ્યું નથી. કૃપા કરી ફરી પ્રયાસ કરો, અથવા સમસ્યા રહે તો અમને ઈમેલ કરો.',
@@ -12546,9 +12595,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'આ પિન છુપાવીએ અને સમીક્ષા માટે અમારી ટીમને મોકલીએ? (ફરિયાદ તરત ડિલીટ થતી નથી.)',
 
+      'safety.hideAction': 'પિન છુપાવો',
+
       'mute.hideReporter': 'આ રિપોર્ટરની રિપોર્ટ છુપાવો',
 
       'mute.hideConfirm': 'તમારા ડિવાઇસ પર આ રિપોર્ટરની બધી પિન છુપાવીએ? પ્રોફાઇલ → છુપાયેલા રિપોર્ટરમાં પાછા લાવી શકાય.',
+
+      'mute.hideAction': 'રિપોર્ટરની બધી છુપાવો',
 
       'mute.hidden': 'આ રિપોર્ટરની રિપોર્ટ તમારા નકશાથી છુપાઈ.',
 
@@ -12820,9 +12873,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'સમુદાય સફાઈ લોગ — BMC ફરિયાદ અધિકૃત રીતે ખુલ્લી રહી શકે.',
 
-      'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ? આ પાછું ફેરવી શકાશે નહીં.',
+      'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ?',
 
-      'pledge.verifyConfirm': 'આ સ્વયંસેવક કલાકો ચકાસીએ? આ પાછું ફેરવી શકાશે નહીં.',
+      'pledge.deliverAction': 'વિતરિત ચિહ્નિત કરો',
+
+      'pledge.verifyConfirm': 'આ સ્વયંસેવક કલાકો ચકાસીએ?',
+
+      'pledge.verifyAction': 'કલાકો ચકાસો',
 
       'toast.pledgeDelivered': 'સામગ્રી વિતરિત — હવે કલાક ચકાસો.',
 
@@ -12875,6 +12932,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'સામગ્રી દૂર કરો',
 
       'admin.removeConfirm': 'આ ફરિયાદ જાહેર નકશા પરથી દૂર કરીએ? માર્ગદર્શિકાનું ઉલ્લંઘન કરતી સામગ્રી માટે વાપરો — ફરિયાદ કરનારને દેખાશે કે તે દૂર કરવામાં આવી.',
+
+      'admin.removeAction': 'ફરિયાદ દૂર કરો',
 
       'admin.removeSuccess': 'ફરિયાદ જાહેર નકશા પરથી દૂર કરવામાં આવી.',
 
@@ -14134,7 +14193,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', () => {
           setLanguage(btn.dataset.lang);
           closeModal('lang');
-          showToast(t('lang.native'), 'info', 1600);
+          showToast(t('lang.native'), 'info', TOAST_DURATION.SHORT);
         });
       });
     }
@@ -17886,7 +17945,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (/self_vote/.test(msg)) { showToast(t('lead.errSelfVote'), 'error', 4000); return; }
 
-          if (/already_voted/.test(msg)) { showToast(t('lead.errAlreadyVoted'), 'info', 3500); return; }
+          if (/already_voted/.test(msg)) { showToast(t('lead.errAlreadyVoted'), 'warning'); return; }
 
           throw new Error(error.message || 'vote_failed');
 
@@ -17908,7 +17967,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (localIVoted(nominationId)) {
 
-          showToast(t('lead.errAlreadyVoted'), 'info', 3500);
+          showToast(t('lead.errAlreadyVoted'), 'warning');
 
           return;
 
@@ -20719,13 +20778,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Mutual-exclusion guard for the stacked bottom/top attention banners — only one
-  // of appOpenBanner / referralWelcome / homeHero / iosInstallHint should be visible
-  // at a time. Boot order (setupAppOpenBanner -> maybeShowReferralWelcome ->
-  // updateHomeHero -> updateIosInstallHint) doubles as the priority order.
+  // Mutual-exclusion guard for stacked floating attention banners — only one should
+  // be visible at a time. Includes top-anchored map chrome (location / manualPin /
+  // iosInstall) plus bottom floating nudges so they cannot overlap. seasonHook is
+  // inline Community content (not floating) and is intentionally omitted. Boot order
+  // (setupAppOpenBanner -> maybeShowReferralWelcome -> updateHomeHero ->
+  // updateIosInstallHint) doubles as the priority order among those four.
   function isAnyBannerVisible(excludeId) {
 
-    const ids = ['appOpenBanner', 'referralWelcome', 'homeHero', 'iosInstallHint'];
+    const ids = [
+      'appOpenBanner',
+      'referralWelcome',
+      'homeHero',
+      'iosInstallHint',
+      'locationBanner',
+      'manualPinBanner',
+      'pwaInstallNudge',
+    ];
 
     return ids.some((id) => {
 
@@ -23724,7 +23793,7 @@ document.addEventListener('DOMContentLoaded', function () {
           refreshSocietyDatalist(city, ward);
           saveProfileWard();
           syncProfileIdentitySummary();
-          showToast(t('onboard.wardDetectedHint'), 'success', 2800);
+          showToast(t(getWardDetectedHintKey(city)), 'success', 2800);
         } else {
           showToast(t('onboard.wardDetectFailed'), 'error');
         }
@@ -23759,7 +23828,15 @@ document.addEventListener('DOMContentLoaded', function () {
   // One snackbar at a time — new toast instantly replaces previous (timers + DOM).
   let _activeToastDismiss = null;
 
-  function showToast(message, type = 'info', duration = 3500, action = null) {
+  // Named duration tiers — prefer these over bespoke ms at call sites.
+  const TOAST_DURATION = Object.freeze({
+    SHORT: 2500,
+    STANDARD: 4000,
+    WITH_ACTION: 9000,
+    STICKY: 0,
+  });
+
+  function showToast(message, type = 'info', duration = TOAST_DURATION.STANDARD, action = null) {
 
     debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
 
@@ -23785,7 +23862,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (type === 'error') Haptics.error();
 
-    const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
+    const icons = {
+      success: 'check-circle',
+      error: 'warning-circle',
+      warning: 'warning',
+      info: 'info',
+    };
 
     // Instant replace: cancel prior timers and clear DOM (no stack, no fade race).
     if (typeof _activeToastDismiss === 'function') {
@@ -24646,6 +24728,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else if (mode === 'cityHint' && cityHint) cityHint.classList.remove('hidden');
 
+    else if (mode === 'detected' && detectedHint) detectedHint.classList.remove('hidden');
+
     // 'none' / 'chip' / 'error': no field-hint — status/chip/error carries the message
 
   }
@@ -24828,6 +24912,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Mumbai: approximate disclaimer. Pune/Thane: stronger double-check (locality boxes, not official wards). */
+  function getWardDetectedHintKey(cityId) {
+    if (cityId === 'pune' || cityId === 'thane') return 'onboard.wardDetectedHintCheck';
+    return 'onboard.wardDetectedHint';
+  }
+
+  function applyWardDetectedHintCopy(cityId) {
+    const hint = $('#wardDetectedHint');
+    if (!hint) return;
+    const key = getWardDetectedHintKey(cityId);
+    hint.setAttribute('data-i18n', key);
+    hint.textContent = t(key);
+  }
+
   function showOnboardingWardDetected(ward) {
 
     onboardingDetectedWard = ward;
@@ -24860,7 +24958,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnWardRetry')?.classList.add('hidden');
 
-    setOnboardingWardHintMode('chip');
+    applyWardDetectedHintCopy(getOnboardingCity());
+
+    setOnboardingWardHintMode('detected');
 
     refreshSocietyForOnboarding();
 
@@ -25148,7 +25248,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch { /* ignore */ }
     if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
-    showToast(t('analytics.prompt'), 'info', 12000, {
+    showToast(t('analytics.prompt'), 'info', TOAST_DURATION.WITH_ACTION, {
       label: t('analytics.allow'),
       onClick: () => {
         user.analyticsConsent = true;
@@ -28289,9 +28389,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nudgeDismiss = $('#btnPwaNudgeDismiss');
 
+    const nudgeClose = $('#btnPwaNudgeClose');
+
     if (nudgeInstall) nudgeInstall.addEventListener('click', () => triggerPwaInstall());
 
     if (nudgeDismiss) nudgeDismiss.addEventListener('click', () => dismissPwaNudge());
+
+    if (nudgeClose) nudgeClose.addEventListener('click', () => dismissPwaNudge());
 
     if (!canShowPwaNudge()) hidePwaInstallNudge();
 
@@ -31932,6 +32036,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnDeleteConfirmCancel').addEventListener('click', () => closeModal('deleteConfirm'));
 
+    // × mirrors Keep my data — dismissOverlayByName blocks deleteConfirm (intentional).
+    const btnDeleteConfirmClose = $('#btnDeleteConfirmClose');
+    if (btnDeleteConfirmClose) btnDeleteConfirmClose.addEventListener('click', () => closeModal('deleteConfirm'));
+
     $('#btnDeleteConfirmProceed').addEventListener('click', () => { executeDeleteMyData(); });
 
     const analyticsConsentToggle = $('#analyticsConsentToggle');
@@ -32721,7 +32829,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const hideId = hideBtn.dataset.hide;
 
-        confirmAction({ body: t('safety.hideConfirm') }).then((ok) => { if (ok) hideReportFromMap(hideId); });
+        confirmAction({ body: t('safety.hideConfirm'), confirmLabel: t('safety.hideAction') }).then((ok) => { if (ok) hideReportFromMap(hideId); });
 
         return;
 
@@ -32735,7 +32843,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const muteId = muteBtn.dataset.muteReporter;
 
-        confirmAction({ body: t('mute.hideConfirm') }).then((ok) => { if (ok) muteReporter(muteId); });
+        confirmAction({ body: t('mute.hideConfirm'), confirmLabel: t('mute.hideAction') }).then((ok) => { if (ok) muteReporter(muteId); });
 
         return;
 
@@ -42565,7 +42673,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hasDuplicatePendingPledge(type, ward)) {
 
-      showToast(t('toast.pledgeDuplicate'), 'error');
+      showToast(t('toast.pledgeDuplicate'), 'warning');
 
       return;
 
@@ -42575,7 +42683,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (user.ward && ward !== user.ward) {
 
-      showToast(t('toast.pledgeWardMismatch'), 'info', 4500);
+      showToast(t('toast.pledgeWardMismatch'), 'warning');
 
     }
 
@@ -44669,7 +44777,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const reportId = activeAdminReportId;
 
-    confirmAction({ body: t('admin.removeConfirm') }).then((ok) => {
+    confirmAction({ body: t('admin.removeConfirm'), confirmLabel: t('admin.removeAction') }).then((ok) => {
 
       if (!ok) return;
 
@@ -45968,7 +46076,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!existing) return;
 
-    confirmAction({ body: t('volunteer.removeConfirm') }).then((ok) => {
+    confirmAction({ body: t('volunteer.removeConfirm'), confirmLabel: t('volunteer.removeAction') }).then((ok) => {
 
       if (!ok) return;
 
@@ -46716,7 +46824,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    confirmAction({ body: t('pledge.deliverConfirm'), danger: false }).then((ok) => {
+    confirmAction({ body: t('pledge.deliverConfirm'), confirmLabel: t('pledge.deliverAction'), danger: false }).then((ok) => {
 
       if (!ok) return;
 
@@ -46774,7 +46882,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    confirmAction({ body: t('pledge.verifyConfirm'), danger: false }).then((ok) => {
+    confirmAction({ body: t('pledge.verifyConfirm'), confirmLabel: t('pledge.verifyAction'), danger: false }).then((ok) => {
 
       if (!ok) return;
 

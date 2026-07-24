@@ -124,7 +124,8 @@
       id: 'pune',
       label: 'Pune',
       center: [18.5204, 73.8567],
-      bounds: { minLat: 18.44, maxLat: 18.58, minLng: 73.78, maxLng: 73.95 },
+      // Expanded to cover west suburbs (Sus/Balewadi) and north (Dhanori).
+      bounds: { minLat: 18.44, maxLat: 18.61, minLng: 73.74, maxLng: 73.95 },
       detectRadiusKm: 6,
       corpChannels: {
         name: 'PMC',

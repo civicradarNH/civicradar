@@ -215,7 +215,7 @@
     <i class="ph ph-device-mobile ios-install-hint__icon" aria-hidden="true"></i>
     <div class="ios-install-hint__copy">
       <p class="ios-install-hint__title" data-i18n="iosInstall.title">Install on iPhone</p>
-      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">No App Store needed. In Safari: Share → Add to Home Screen.</p>
+      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">One-tap reporting from your home screen. No App Store needed — in Safari: Share → Add to Home Screen.</p>
     </div>
     <button type="button" class="ios-install-hint__dismiss" id="btnIosInstallDismiss" data-i18n-aria="iosInstall.dismiss" aria-label="Dismiss">&times;</button>
   </div>
@@ -336,6 +336,7 @@
 
   <!-- PWA install nudge — glass chip (v288; matches GPS tip quality bar) -->
   <div id="pwaInstallNudge" class="pwa-nudge hidden" role="region" aria-labelledby="pwaNudgeTitle">
+    <button type="button" class="pwa-nudge__dismiss" id="btnPwaNudgeClose" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
     <div class="pwa-nudge__copy">
       <p class="pwa-nudge__title" id="pwaNudgeTitle" data-i18n="pwa.nudgeTitle">Add to Home Screen</p>
       <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">One-tap reporting from your home screen.</p>
@@ -1408,6 +1409,7 @@
   <div class="modal-overlay" id="deleteConfirmOverlay" aria-hidden="true">
     <div class="modal modal--sm modal--alert delete-confirm-modal" id="deleteConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
       <div class="modal__handle"></div>
+      <button type="button" class="modal__close" id="btnDeleteConfirmClose" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="modal__header-icon delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></div>
       <h2 id="deleteConfirmTitle" data-i18n="profile.deleteConfirmTitle">Delete your data?</h2>
       <p class="modal__subtitle" id="deleteConfirmDesc" data-i18n="profile.deleteConfirmBody">This permanently removes your CivicRadar data from this device and our servers. This cannot be undone.</p>
@@ -1803,7 +1805,7 @@
           <input type="text" id="escComplaintId" data-i18n-ph="esc.complaintPh" placeholder="e.g. N/2026/123456" autocomplete="off">
           <button type="button" class="btn btn--primary btn--sm" id="btnEscSaveId" data-i18n="esc.save" disabled>Save</button>
         </div>
-        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
+        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" role="status" aria-live="polite" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
         <p class="field-hint" data-i18n="esc.complaintHint">Saving starts the official clock and unlocks the escalation ladder, days-since-filed tracker, and follow-up templates.</p>
         <p class="field-hint hidden" id="escFiledNote"><i class="ph ph-check-circle"></i> <span id="escFiledNoteText" data-i18n="esc.filedNote">Filed with BMC — escalation steps unlock as deadlines pass.</span></p>
         <p class="field-hint hidden" id="escDaysSince"></p>

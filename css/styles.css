@@ -77,6 +77,8 @@
   --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
   --toast-error-bg: rgba(153, 27, 27, 0.92);
   --toast-info-bg: rgba(15, 23, 42, 0.92);
+  --toast-warning-bg: rgba(146, 64, 14, 0.92);
+  --toast-warning-border: rgba(245, 158, 11, 0.42);
   /* Float above pin cards — soft drop + subtle teal ambient */
   --toast-shadow:
     0 12px 40px -8px rgba(15, 23, 42, 0.38),
@@ -134,11 +136,16 @@
   --z-map-chrome-top: 1003;   /* legend / recenter cluster */
   --z-sheet-tab: 2000;        /* Community / Resources / Profile under nav */
   --z-nav: 2100;
-  --z-toast: 2150;            /* snackbars; below --z-modal */
+  /* Toasts sit above modals so validation/errors stay visible while a sheet is open */
+  --z-toast: 9999;
   --z-modal: 2200;            /* blocking sheets (ToS, onboarding, report, success) */
   --z-modal-nested: 2350;     /* camera / geo / confirm above report */
   --z-first-run: 2500;        /* purpose sheet + replay tour — above leaflet popup pane */
   --z-coach: var(--z-first-run); /* alias */
+  /* Banner z-tiers (floating nudges — not map chrome pins) */
+  --z-banner-dock: 900;       /* bottom deep-link open-in-app */
+  --z-banner-map: 1002;       /* top-anchored: location / ios install / manual pin */
+  --z-banner-nudge: 1500;     /* bottom install nudge above FAB dock */
   --first-run-scrim: rgba(15, 23, 42, 0.94);
 
   /* Radii */
@@ -784,6 +791,7 @@ body.app-booting {
   color: var(--primary-dark, #6366f1);
 }
 
+/* Field-level validation (tied to one input). Form-level summaries use .form-error. */
 .field-error {
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -2092,7 +2100,7 @@ body.manual-pin-mode #map .leaflet-container {
   top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 8px);
   left: 12px;
   right: 12px;
-  z-index: 1003;
+  z-index: var(--z-map-chrome-top, 1003);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2101,7 +2109,7 @@ body.manual-pin-mode #map .leaflet-container {
   border: 1px solid rgba(245, 158, 11, 0.45);
   border-radius: var(--radius-md);
   background: rgba(255, 251, 235, 0.97);
-    color: #92400e;
+  color: #92400e;
   font-size: var(--fs-base);
   font-weight: 600;
 }
@@ -2272,38 +2280,42 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast-container {
   position: fixed;
-  /* Base stack — later block (v248+) refines with --map-chrome-stack-gap */
+  /* Clear header + persona + ward pulse (same stack as map chrome / v348) */
   top: calc(
     env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
     + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap, 12px)
     + var(--ward-pulse-height) + var(--map-chrome-stack-gap, 12px)
   );
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
-  /* Above map chrome + nav; below blocking modals (--z-modal 2200) */
-  z-index: var(--z-toast, 2150);
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: min(420px, calc(100vw - 24px));
+  align-items: center;
+  gap: 0;
+  width: auto;
+  max-width: min(420px, calc(100vw - 24px));
   pointer-events: none;
 }
 
 .toast {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  width: fit-content;
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 8px 14px 8px 16px;
   background: var(--toast-glass-bg);
   color: var(--toast-fg);
   border: 1px solid var(--toast-glass-border);
   border-radius: var(--radius-pill);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   line-height: 1.4;
   backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   -webkit-backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  animation: toast-in 0.3s var(--ease-spring, ease);
+  animation: snackbar-in 0.28s var(--ease-sheet) both;
   pointer-events: auto;
 }
 
@@ -2313,6 +2325,10 @@ body.manual-pin-mode #map .leaflet-container {
   color: var(--toast-success-fg, var(--toast-fg));
 }
 .toast--error { background: var(--toast-error-bg); }
+.toast--warning {
+  background: var(--toast-warning-bg);
+  border-color: var(--toast-warning-border, var(--toast-glass-border));
+}
 .toast--info {
   background: var(--toast-info-bg);
   border-color: var(--toast-action-border, var(--toast-glass-border));
@@ -2500,11 +2516,6 @@ body.manual-pin-mode #map .leaflet-container {
 .toast__action--whatsapp .ph {
   font-size: 1.1em;
   color: var(--whatsapp, #25D366);
-}
-
-@keyframes toast-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Language switch button in header */
@@ -2861,7 +2872,7 @@ body.persona-lead .home-hero {
   top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 8px);
   left: 12px;
   right: 12px;
-  z-index: 1001;
+  z-index: var(--z-banner-map, 1002);
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -2869,7 +2880,7 @@ body.persona-lead .home-hero {
   background: var(--surface);
   border: 1px solid rgba(99, 102, 241, 0.22);
   border-radius: var(--radius);
-    pointer-events: auto;
+  pointer-events: auto;
 }
 
 .ios-install-hint.hidden { display: none; }
@@ -3216,7 +3227,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
   right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   bottom: calc(env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 8px);
-  z-index: 1500;
+  z-index: var(--z-banner-nudge, 1500);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -3238,8 +3249,34 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   display: none;
 }
 
+.pwa-nudge__dismiss {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--chip-muted);
+  font-size: var(--fs-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pwa-nudge__dismiss:hover {
+  background: var(--chip-ghost-hover);
+  color: var(--chip-fg);
+}
+
+.pwa-nudge__dismiss:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .pwa-nudge__copy {
   min-width: 0;
+  padding-right: 36px;
 }
 
 .pwa-nudge__title {
@@ -5344,7 +5381,7 @@ body.persona-lead .ref-welcome { display: none; }
   left: max(var(--hud-inset), 12px);
   right: max(var(--hud-inset), 12px);
   bottom: calc(var(--bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 76px);
-  z-index: 900;
+  z-index: var(--z-banner-dock, 900);
   padding: 12px 14px;
   border-radius: var(--radius-xl);
   border: 1px solid var(--chip-border);
@@ -9749,7 +9786,7 @@ a:focus-visible {
   font-size: var(--fs-md);
 }
 
-/* ---- Inline form error (aria-live region) ---- */
+/* Form-level validation summary (not tied to a single field). Field-level uses .field-error. */
 .form-error {
   display: flex;
   align-items: flex-start;
@@ -12019,23 +12056,7 @@ html[lang="gu"] body {
   transform: scale(0.96);
 }
 
-/* ---- Toast → top snackbar (v248; glass pill polish v262; GPS chip v286) ---- */
-.toast-container {
-  /* Clear header + persona + ward pulse (same stack as map chrome / v348) */
-  top: calc(
-    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
-    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
-    + var(--ward-pulse-height) + var(--map-chrome-stack-gap)
-  );
-  bottom: auto;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  max-width: min(420px, calc(100vw - 24px));
-  align-items: center;
-  gap: 0;
-  z-index: 9999;
-}
+/* ---- Toast refinements (dock/out/GPS; base .toast/.toast-container above) ---- */
 
 /* WA / already-pinned snackbars stay above FAB + bottom nav — not forced top */
 .toast-container:has(> .toast--snackbar),
@@ -12045,17 +12066,6 @@ html[lang="gu"] body {
     env(safe-area-inset-bottom, 0px) + var(--dock-float, 12px) + var(--nav-height)
     + var(--fab-size) + 18px
   );
-}
-
-.toast {
-  width: fit-content;
-  max-width: min(420px, calc(100vw - 24px));
-  padding: 8px 14px 8px 16px;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-sm);
-  box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  animation: snackbar-in 0.28s var(--ease-sheet) both;
-  align-items: center;
 }
 
 .toast.toast--out {
@@ -12347,6 +12357,8 @@ body.pwa-nudge-visible .toast-container:has(> .toast--dock-bottom) {
     --toast-success-fg: #f8fafc;
     --toast-action-border: rgba(129, 140, 248, 0.45);
     --toast-error-bg: rgba(153, 27, 27, 0.94);
+    --toast-warning-bg: rgba(146, 64, 14, 0.94);
+    --toast-warning-border: rgba(245, 158, 11, 0.48);
     --toast-wa-btn-bg: rgba(30, 41, 59, 0.92);
     --toast-wa-btn-border: rgba(255, 255, 255, 0.18);
     --toast-wa-btn-inset: rgba(255, 255, 255, 0.08);
@@ -12862,7 +12874,6 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--primary);
   }
 
-  .snackbar,
   .toast {
     border-color: var(--border);
   }

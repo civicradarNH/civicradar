@@ -18,6 +18,7 @@ def extract_ward_names(path: Path, pattern: str) -> list[str]:
 
 mumbai = extract_ward_names(ROOT / "js/wards/mumbai.js", r"name: '([^']+)'")
 
+# Keys match js/wards/pune.js display names (locality labels, not "Ward N — …").
 PUNE_AREAS_LIST = [
     "Kasba Vishrambag", "Bhavani Peth", "Swargate", "Shaniwar Peth", "Sadashiv Peth",
     "Kasba Peth", "Narayan Peth", "Raviwar Peth", "Shukrawar Peth", "Ganesh Peth",
@@ -29,8 +30,9 @@ PUNE_AREAS_LIST = [
     "Wanowrie", "Fatima Nagar", "Koregaon Park", "Kalyani Nagar", "Yerwada",
     "Dhanori",
 ]
-pune = [f"Ward {i + 1} — {area}" for i, area in enumerate(PUNE_AREAS_LIST)]
+pune = list(PUNE_AREAS_LIST)
 
+# Deduped Thane localities (was 66 with East/West/Naka padding). Keys match js/wards/thane.js.
 THANE_AREAS_LIST = [
     "Kopri", "Naupada", "Charai", "Panchpakhadi", "Vartak Nagar", "Hiranandani Estate",
     "Ghodbunder Road", "Kasarvadavali", "Waghbil", "Manpada", "Bhayandarpada",
@@ -38,16 +40,36 @@ THANE_AREAS_LIST = [
     "Mumbra", "Diva", "Shil",
     "Kausa", "Rabodi", "Jambli Naka", "Temghar", "Teen Hath Naka", "Cadbury Junction",
     "Wagle Estate", "Louis Wadi", "Hari Niwas", "Upvan", "Yeoor Hills",
-    "Patlipada", "Hiranandani Meadows", "Beverly Park", "Vartak Nagar East", "Oswal Park",
-    "Kolshet Road", "Mhada Colony", "Indira Nagar", "Ram Maruti Road", "Shree Nagar",
-    "Kisan Nagar", "Naupada East", "Talao Pali", "Jambli Naka West", "Kharegaon",
-    "Kolshet Industrial", "Balkum Naka", "Dawodi", "Kausa East", "Mumbra Devi",
-    "Diva East", "Shil Phata", "Kasheli", "Bhiwandi Naka", "Majiwada East",
-    "Hiranandani Estate West", "Manpada Hills", "Bhayandarpada East", "Waghbil Naka",
-    "Ghodbunder Village", "Kopri East", "Charai West", "Panchpakhadi North", "Vartak Nagar West",
-    "Kolshet West",
+    "Patlipada", "Hiranandani Meadows", "Beverly Park", "Oswal Park",
+    "Mhada Colony", "Indira Nagar", "Ram Maruti Road", "Shree Nagar",
+    "Kisan Nagar", "Talao Pali", "Kharegaon", "Dawodi", "Kasheli", "Bhiwandi Naka",
 ]
-thane = [f"TMC Ward {i + 1} — {area}" for i, area in enumerate(THANE_AREAS_LIST)]
+thane = list(THANE_AREAS_LIST)
+
+# Collapsed padded names → canonical key (merge society lists when regenerating).
+THANE_MERGE_ALIASES = {
+    "Kopri East": "Kopri",
+    "Naupada East": "Naupada",
+    "Charai West": "Charai",
+    "Panchpakhadi North": "Panchpakhadi",
+    "Vartak Nagar East": "Vartak Nagar",
+    "Vartak Nagar West": "Vartak Nagar",
+    "Hiranandani Estate West": "Hiranandani Estate",
+    "Ghodbunder Village": "Ghodbunder Road",
+    "Waghbil Naka": "Waghbil",
+    "Manpada Hills": "Manpada",
+    "Bhayandarpada East": "Bhayandarpada",
+    "Majiwada East": "Majiwada",
+    "Kolshet Road": "Kolshet",
+    "Kolshet Industrial": "Kolshet",
+    "Kolshet West": "Kolshet",
+    "Balkum Naka": "Balkum",
+    "Mumbra Devi": "Mumbra",
+    "Diva East": "Diva",
+    "Shil Phata": "Shil",
+    "Kausa East": "Kausa",
+    "Jambli Naka West": "Jambli Naka",
+}
 
 # ---------------------------------------------------------------------------
 # Mumbai — BMC alphabetical wards with real localities / societies / landmarks
@@ -1169,9 +1191,16 @@ def gen_pune(name: str) -> list[str]:
 
 
 def gen_thane(name: str) -> list[str]:
+    """Build suggestions for a canonical Thane area; merge lists from collapsed aliases."""
     area = name.split(" — ")[-1] if " — " in name else name
+    merged: list[str] = []
     if area in THANE_AREAS:
-        return _dedupe(THANE_AREAS[area])
+        merged.extend(THANE_AREAS[area])
+    for alias, canonical in THANE_MERGE_ALIASES.items():
+        if canonical == area and alias in THANE_AREAS:
+            merged.extend(THANE_AREAS[alias])
+    if merged:
+        return _dedupe(merged)
     return _dedupe([
         f"{area} CHS", f"{area} RWA", f"{area} Housing Society", f"{area} Nagar CHS",
         f"{area} Colony", f"{area} Residents Association", f"TMC {area} CHS",
