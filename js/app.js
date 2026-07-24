@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v422';
+  const CIVIC_APP_VERSION = 'v424';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -35068,8 +35068,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', softHint);
 
-    // Auto-expand map when accuracy is poor / provisional; once expanded, stay open.
-    if (confirmPinAccuracyIsPoor()) {
+    // Auto-expand only for settled poor GPS — stay collapsed during "Finding…"
+    const mapEl = $('#reportPinMap');
+    const stillLocating = mapEl?.classList.contains('report-pin-map--loading');
+    if (!stillLocating && !confirmPinProvisional && confirmPinAccuracyIsPoor()) {
       setReportPinMapExpanded(true);
     }
 

@@ -632,41 +632,43 @@
 
       <!-- Screen B: confirm — photo thumb → hazard → ward → collapsed map → landmark → submit -->
       <div class="report-step" id="reportStepConfirm" data-step="confirm" hidden>
-        <div class="report-photo-hero" id="reportPhotoHero" tabindex="-1">
-          <canvas id="imageCanvas" width="640" height="480"></canvas>
-        </div>
-        <div class="form-group hazard-picker-group hazard-picker-group--compact">
-          <label id="hazardTypeLabel" class="visually-hidden" data-i18n="report.hazardType">Hazard Type</label>
-          <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
-          <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
-          <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
-        </div>
-        <div class="report-ward-chip" id="reportWardChip" role="status">
-          <i class="ph ph-map-pin" aria-hidden="true"></i>
-          <span id="reportWardChipLabel"></span>
-        </div>
-        <div class="report-pin-confirm" id="reportPinConfirm">
-          <div class="report-pin-confirm__head">
-            <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
-            <button type="button" class="btn btn--ghost btn--sm report-pin-adjust" id="btnReportPinAdjust" aria-expanded="false" aria-controls="reportPinMap">
-              <i class="ph ph-map-pin-line" aria-hidden="true"></i>
-              <span data-i18n="report.adjustPin">Adjust pin</span>
+        <div class="report-confirm-scroll">
+          <div class="report-photo-hero" id="reportPhotoHero" tabindex="-1">
+            <canvas id="imageCanvas" width="640" height="480"></canvas>
+          </div>
+          <div class="form-group hazard-picker-group hazard-picker-group--compact">
+            <label id="hazardTypeLabel" class="visually-hidden" data-i18n="report.hazardType">Hazard Type</label>
+            <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
+            <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
+            <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
+          </div>
+          <div class="report-ward-chip" id="reportWardChip" role="status">
+            <i class="ph ph-map-pin" aria-hidden="true"></i>
+            <span id="reportWardChipLabel"></span>
+          </div>
+          <div class="report-pin-confirm" id="reportPinConfirm">
+            <div class="report-pin-confirm__head">
+              <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
+              <button type="button" class="btn btn--ghost btn--sm report-pin-adjust" id="btnReportPinAdjust" aria-expanded="false" aria-controls="reportPinMap">
+                <i class="ph ph-map-pin-line" aria-hidden="true"></i>
+                <span data-i18n="report.adjustPin">Adjust pin</span>
+              </button>
+            </div>
+            <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
+            <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+            <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
+              <i class="ph ph-map-trifold" aria-hidden="true"></i>
+              <span data-i18n="report.placePinOnMap">Place pin on map</span>
             </button>
           </div>
-          <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
-          <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
-          <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
-            <i class="ph ph-map-trifold" aria-hidden="true"></i>
-            <span data-i18n="report.placePinOnMap">Place pin on map</span>
-          </button>
-        </div>
-        <div class="report-notes-accordion" id="reportNotesAccordion">
-          <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
-            <span data-i18n="report.addNote">+ Near which shop/building?</span>
-          </button>
-          <div class="report-notes-body hidden" id="reportNotesBody">
-            <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
-            <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
+          <div class="report-notes-accordion" id="reportNotesAccordion">
+            <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
+              <span data-i18n="report.addNote">+ Near which shop/building?</span>
+            </button>
+            <div class="report-notes-body hidden" id="reportNotesBody">
+              <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
+              <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
+            </div>
           </div>
         </div>
         <div class="modal__sticky-footer modal__sticky-footer--glass">
@@ -725,7 +727,7 @@
         </button>
       </div>
       <div class="success-footer">
-        <button type="button" class="btn btn--ghost btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
       </div>
       <div class="success-more" id="successMore">
         <button type="button" class="btn btn--ghost btn--sm success-more__toggle" id="btnSuccessMoreToggle" aria-expanded="false" aria-controls="successMoreBody">

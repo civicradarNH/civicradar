@@ -3509,16 +3509,15 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-/* Sticky CTA sheets: last inputs must clear the sticky footer (v241) */
+/* Sticky CTA sheets: last inputs must clear the sticky footer (v241).
+   Confirm uses a docked footer + .report-confirm-scroll — no spacer there. */
 .modal:has(> .modal__sticky-footer),
-#onboardingModal,
-#reportStepConfirm.report-step--active {
+#onboardingModal {
   scroll-padding-bottom: 96px;
 }
 
 .modal > *:has(+ .modal__sticky-footer),
-#onboardingModal > *:has(+ .modal__sticky-footer),
-#reportStepConfirm > *:has(+ .modal__sticky-footer) {
+#onboardingModal > *:has(+ .modal__sticky-footer) {
   margin-bottom: 96px;
 }
 
@@ -5050,7 +5049,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .success-footer {
-  margin-top: 4px;
+  margin-top: 12px;
   padding-top: 0;
   padding-bottom: 0;
   border-top: none;
@@ -10591,7 +10590,7 @@ a,
 #reportModal.report-modal--confirm {
   display: flex;
   flex-direction: column;
-  /* Clip the sheet; scrolling lives on #reportStepConfirm so title/steps stay put. */
+  /* Clip the sheet; scrolling lives on .report-confirm-scroll so Submit stays docked. */
   overflow: hidden;
   padding-bottom: 0;
 }
@@ -10601,8 +10600,16 @@ a,
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  /* Scroll pane + docked footer; overflow must not live on this node. */
+  overflow: hidden;
+}
+
+.report-confirm-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  /* Photo + hazards + pin map + notes exceed ~390×844; must scroll independently of body lock. */
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -11117,8 +11124,9 @@ html.sheet-hud-quiet #mapHud {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  margin: auto -24px -32px;
-  margin-top: 12px;
+  position: relative;
+  /* Docked under .report-confirm-scroll — not sticky inside a tall scroll stream. */
+  margin: 0 -24px -32px;
   padding-top: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   gap: 10px;
@@ -11348,19 +11356,7 @@ html.sheet-hud-quiet #mapHud {
   }
 }
 
-/* Success modal — one primary action (WhatsApp). Done is quiet exit. */
-.success-footer .btn--primary {
-  background: transparent;
-  color: var(--text-muted);
-    border: none;
-  font-weight: 600;
-}
-.success-footer .btn--primary:hover:not(:disabled):not(.is-loading) {
-  background: var(--bg-main);
-  color: var(--text-dark);
-  filter: none;
-    transform: none;
-}
+/* Success modal — WhatsApp primary (growth); Done = bordered secondary dismiss. */
 .success-share-block--primary .btn--whatsapp {
   animation: none; /* restraint: no competing pulse vs FAB */
 }
@@ -11438,8 +11434,9 @@ html.sheet-hud-quiet #mapHud {
   box-shadow: var(--shadow-2) !important;
 }
 .success-share-block--primary .btn--whatsapp .ph { color: #fff !important; }
-.success-footer .btn--ghost {
-  color: var(--ink-600);
+.success-footer .btn--secondary {
+  min-height: var(--touch-min, 44px);
+  font-weight: 600;
 }
 
 /* ---- Spec Pass 5a: submit success flash ---- */
@@ -11929,9 +11926,12 @@ html[lang="gu"] body {
 }
 
 #reportModal.report-modal--confirm #reportStepConfirm.report-step--active {
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  scroll-padding-bottom: 96px;
+  padding-bottom: 0;
   animation: report-step-in 0.22s ease-out both;
+}
+
+#reportModal.report-modal--confirm .report-confirm-scroll {
+  padding-bottom: 8px;
 }
 
 @keyframes report-step-in {
@@ -12707,9 +12707,9 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--on-primary) !important;
     filter: brightness(1.06);
   }
-  .success-footer .btn--primary,
-  .success-footer .btn--primary:hover:not(:disabled):not(.is-loading) {
-    color: var(--ink-600) !important;
+  .success-footer .btn--secondary,
+  .success-footer .btn--secondary:hover:not(:disabled) {
+    color: var(--text) !important;
   }
   #btnCamera,
   .fab {
