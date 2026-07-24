@@ -1091,10 +1091,12 @@
 
   <!-- Profile Modal -->
   <div class="modal-overlay" id="profileOverlay" aria-hidden="true">
-    <div class="modal modal--tall" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="modal modal--tall modal--sheet-flex" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="profile" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <h2 id="profileTitle" class="visually-hidden" data-i18n="profile.title">Your Profile</h2>
+      <h2 id="profileTitle" data-i18n="profile.title">Your Profile</h2>
+
+      <div class="modal__sheet-body">
       <p class="persona-tag persona-tag--citizen visually-hidden" id="profilePersonaTag" data-i18n="profile.persona">Citizen</p>
 
       <div class="profile-card">
@@ -1204,6 +1206,13 @@
         </button>
         <div class="cr-section__body" id="profileNotificationsBody" inert aria-hidden="true">
           <div class="cr-section__body-inner">
+          <div class="profile-notif-banner hidden" id="profileNotifBlockedBanner" role="status" aria-live="polite">
+            <i class="ph ph-bell-slash profile-notif-banner__icon" aria-hidden="true"></i>
+            <p class="profile-notif-banner__text" id="profileNotifBlockedText" data-i18n="settings.nbh.denied">Notifications blocked — we'll show updates in the app instead.</p>
+            <button type="button" class="profile-notif-banner__dismiss" id="btnDismissNotifBanner" data-i18n-aria="appOpen.dismiss" aria-label="Dismiss banner">
+              <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+          </div>
           <div class="profile-settings">
             <label class="toggle-row" for="nbhNewAlertToggle">
               <span class="toggle-row__text">
@@ -1312,6 +1321,7 @@
           </button>
         </div>
       </div>
+      </div><!-- /.modal__sheet-body -->
     </div>
   </div>
 

@@ -12,13 +12,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   'use strict';
 
-
+  // Splash clock starts at DOMContentLoaded (splash is already painted from HTML).
+  const _launchShownAt = (typeof performance !== 'undefined' && performance.now)
+    ? performance.now()
+    : Date.now();
 
   /* ---------- Constants ---------- */
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v411';
+  const CIVIC_APP_VERSION = 'v414';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -19411,6 +19414,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // Inline banner in Notifications & Privacy (avoids floating toast over Activity titles).
+
+  function showProfileNotifBlockedBanner(i18nKey) {
+
+    const banner = $('#profileNotifBlockedBanner');
+
+    const textEl = $('#profileNotifBlockedText');
+
+    if (!banner) return;
+
+    const key = i18nKey || 'settings.nbh.denied';
+
+    if (textEl) {
+
+      textEl.setAttribute('data-i18n', key);
+
+      textEl.textContent = t(key);
+
+    }
+
+    banner.classList.remove('hidden');
+
+  }
+
+
+
+  function hideProfileNotifBlockedBanner() {
+
+    const banner = $('#profileNotifBlockedBanner');
+
+    if (banner) banner.classList.add('hidden');
+
+  }
+
+
+
+  function syncProfileNotifBlockedBanner() {
+
+    if (!notificationsSupported()) {
+
+      // Unsupported API: only show after a toggle attempt, not on every Profile open.
+
+      return;
+
+    }
+
+    let denied = false;
+
+    try { denied = Notification.permission === 'denied'; } catch { denied = false; }
+
+    if (denied) showProfileNotifBlockedBanner('settings.nbh.denied');
+
+    else hideProfileNotifBlockedBanner();
+
+  }
+
+
+
   // Wired from the Profile toggle. Requesting permission requires a user gesture,
 
   // which the toggle click provides. Feature-detected so headless/iOS never hangs.
@@ -19429,7 +19490,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!notificationsSupported()) {
 
-      showToast(t('settings.reminder.denied'), 'info', 4200);
+      showProfileNotifBlockedBanner('settings.reminder.denied');
 
       return;
 
@@ -19439,6 +19500,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (result === 'granted') {
 
+        hideProfileNotifBlockedBanner();
+
         showToast(t('settings.reminder.on'), 'success', 3600);
 
         return;
@@ -19447,7 +19510,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (result === 'denied') {
 
-        showToast(t('settings.reminder.denied'), 'info', 4200);
+        showProfileNotifBlockedBanner('settings.reminder.denied');
 
         return;
 
@@ -19467,6 +19530,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (perm === 'granted') {
 
+      hideProfileNotifBlockedBanner();
+
       showToast(t('settings.reminder.on'), 'success', 3600);
 
       return;
@@ -19475,7 +19540,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (perm === 'denied') {
 
-      showToast(t('settings.reminder.denied'), 'info', 4200);
+      showProfileNotifBlockedBanner('settings.reminder.denied');
 
       return;
 
@@ -19701,28 +19766,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function requestNotificationForNbhToggle(showOnToast) {
     if (!notificationsSupported()) {
-      if (showOnToast) showToast(t('settings.nbh.denied'), 'info', 4200);
+      if (showOnToast) showProfileNotifBlockedBanner('settings.nbh.denied');
       return;
     }
     let perm = 'default';
     try { perm = Notification.permission; } catch {}
     if (perm === 'granted') {
+      hideProfileNotifBlockedBanner();
       if (showOnToast) showToast(t('settings.nbh.on'), 'success', 3600);
       return;
     }
     if (perm === 'denied') {
-      showToast(t('settings.nbh.denied'), 'info', 4200);
+      showProfileNotifBlockedBanner('settings.nbh.denied');
       return;
     }
     try {
       const req = Notification.requestPermission();
       if (req && typeof req.then === 'function') {
         req.then((result) => {
-          showToast(
-            result === 'granted' ? t('settings.nbh.on') : t('settings.nbh.denied'),
-            result === 'granted' ? 'success' : 'info',
-            result === 'granted' ? 3600 : 4200
-          );
+          if (result === 'granted') {
+            hideProfileNotifBlockedBanner();
+            showToast(t('settings.nbh.on'), 'success', 3600);
+          } else {
+            showProfileNotifBlockedBanner('settings.nbh.denied');
+          }
         }).catch(() => { if (showOnToast) showToast(t('settings.nbh.on'), 'success', 3600); });
       } else if (showOnToast) showToast(t('settings.nbh.on'), 'success', 3600);
     } catch {
@@ -27851,6 +27918,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Always open at the greeting — prior scroll + focus must not leave the sheet mid-way.
     resetProfileModalScroll();
 
+    syncProfileNotifBlockedBanner();
+
     // Let the skeleton paint one frame before sync list fill.
     requestAnimationFrame(() => {
 
@@ -27861,6 +27930,8 @@ document.addEventListener('DOMContentLoaded', function () {
       updateProfileUI();
 
       pulseProfilePointsStat();
+
+      syncProfileNotifBlockedBanner();
 
     });
 
@@ -28717,13 +28788,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Init ---------- */
 
+  // First Drop splash: warm cache can ready the map in <1s, which clips the
+  // drop→ripple→pin beats. Hold at least through pin settle (~56% of 4.4s),
+  // but do not force a full loop on repeat visits. Cap so a hung map never
+  // leaves the splash forever.
+  const LAUNCH_SPLASH_MIN_MS = 2500;
+  const LAUNCH_SPLASH_MIN_REDUCED_MS = 900;
+  const LAUNCH_SPLASH_MAX_MS = 8000;
   let _launchHideScheduled = false;
+  let _launchAppReady = false;
+  let _launchHideTimer = null;
+
+  function _launchNow() {
+    return (typeof performance !== 'undefined' && performance.now)
+      ? performance.now()
+      : Date.now();
+  }
+
+  function _launchMinMs() {
+    return prefersReducedMotion() ? LAUNCH_SPLASH_MIN_REDUCED_MS : LAUNCH_SPLASH_MIN_MS;
+  }
 
   function hideAppLaunch() {
+    _launchAppReady = true;
+    _tryHideAppLaunch(false);
+  }
 
+  function _tryHideAppLaunch(force) {
     const el = document.getElementById('appLaunch');
-
     if (!el || el.classList.contains('app-launch--done') || _launchHideScheduled) return;
+
+    const elapsed = _launchNow() - _launchShownAt;
+    const minMs = _launchMinMs();
+
+    if (!force) {
+      if (!_launchAppReady) return;
+      if (elapsed < minMs) {
+        if (_launchHideTimer == null) {
+          _launchHideTimer = setTimeout(() => {
+            _launchHideTimer = null;
+            _tryHideAppLaunch(false);
+          }, Math.ceil(minMs - elapsed));
+        }
+        return;
+      }
+    }
+
+    if (_launchHideTimer != null) {
+      clearTimeout(_launchHideTimer);
+      _launchHideTimer = null;
+    }
 
     _launchHideScheduled = true;
 
@@ -28731,55 +28845,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // app-booting (indigo canvas) until the fade finishes — removing it at
     // fade-start exposed --bg-main (#f8fafc) through a translucent splash.
     requestAnimationFrame(() => {
-
       requestAnimationFrame(() => {
-
         if (!el.parentNode || el.classList.contains('app-launch--done')) return;
-
         el.classList.add('app-launch--done');
-
         let finished = false;
-
         const onEnd = (e) => {
-
           if (e.target === el) finish();
-
         };
-
         const finish = () => {
-
           if (finished) return;
-
           finished = true;
-
           el.removeEventListener('transitionend', onEnd);
-
           document.documentElement.classList.remove('app-booting');
-
           document.body.classList.remove('app-booting');
-
           document.documentElement.style.removeProperty('background-color');
-
           document.body.style.removeProperty('background-color');
-
           document.body.style.removeProperty('margin');
-
           if (el.parentNode) el.remove();
-
           // Nav was visibility:hidden during boot — measure pill once visible.
           if (typeof syncNavPill === 'function') requestAnimationFrame(syncNavPill);
-
         };
-
         el.addEventListener('transitionend', onEnd);
-
         setTimeout(finish, 400);
-
       });
-
     });
-
   }
+
+  // Failsafe: never hang on splash if map init stalls.
+  setTimeout(() => { _tryHideAppLaunch(true); }, LAUNCH_SPLASH_MAX_MS);
 
 
 
@@ -31452,6 +31545,20 @@ document.addEventListener('DOMContentLoaded', function () {
       reportReminderToggle.addEventListener('change', (e) => {
 
         handleReportReminderToggle(e.target.checked);
+
+      });
+
+    }
+
+
+
+    const btnDismissNotifBanner = $('#btnDismissNotifBanner');
+
+    if (btnDismissNotifBanner) {
+
+      btnDismissNotifBanner.addEventListener('click', () => {
+
+        hideProfileNotifBlockedBanner();
 
       });
 

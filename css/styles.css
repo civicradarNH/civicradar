@@ -3545,6 +3545,49 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   );
 }
 
+/* Profile: sheet-flex — sticky handle/title/close; body scrolls (no stat-card clip) */
+#profileModal.modal--sheet-flex {
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+#profileModal.modal--sheet-flex > h2 {
+  position: relative;
+  top: auto;
+  z-index: auto;
+  flex-shrink: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 4px;
+  padding-bottom: 12px;
+  min-height: var(--touch-min, 44px);
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#profileModal .modal__sheet-body {
+  padding-top: 16px;
+  /* Dock clearance lives on the scroller, not the clipped sheet chrome */
+  padding-bottom: calc(
+    100px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+  );
+  scroll-padding-bottom: calc(
+    48px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
+  );
+}
+
+/* Keep Profile sheet scrollable; auto scroll-behavior avoids open-time jump */
+#profileModal:not(.modal--sheet-flex) {
+  overflow-y: auto;
+  scroll-behavior: auto;
+}
+
+#profileModal.modal--sheet-flex .modal__sheet-body {
+  scroll-behavior: auto;
+}
+
 /* Resources: sheet-flex — header stays put; body scrolls (no sticky-h2 clip) */
 #resourcesModal.modal--sheet-flex {
   padding-bottom: 0;
@@ -3573,12 +3616,6 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   scroll-padding-bottom: calc(
     48px + env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height)
   );
-}
-
-/* Keep Profile sheet scrollable; auto scroll-behavior avoids open-time jump */
-#profileModal {
-  overflow-y: auto;
-  scroll-behavior: auto;
 }
 
 .modal {
@@ -10421,6 +10458,59 @@ body.map-popup-open #map .leaflet-tile-pane {
 .profile-settings--consent {
   padding-top: 8px;
   border-top: 1px solid var(--border);
+}
+
+/* Inline notice when OS notifications are blocked (replaces floating toast) */
+.profile-notif-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 12px 12px 12px 14px;
+  background: var(--warning-soft-bg);
+  border: 1px solid var(--warning-soft-border);
+  border-radius: var(--radius-md);
+  color: var(--warning-dark);
+}
+.profile-notif-banner.hidden {
+  display: none;
+}
+.profile-notif-banner__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: var(--text-lg, 1.125rem);
+  color: var(--warning-fg);
+}
+.profile-notif-banner__text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--warning-dark);
+}
+.profile-notif-banner__dismiss {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: -6px -4px -6px 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--warning-fg);
+  cursor: pointer;
+}
+.profile-notif-banner__dismiss:hover {
+  background: rgba(var(--warning-rgb), 0.12);
+}
+.profile-notif-banner__dismiss:focus-visible {
+  outline: 2px solid var(--brand-600, var(--primary));
+  outline-offset: 2px;
 }
 .profile-resource-link {
   margin-bottom: 16px;
