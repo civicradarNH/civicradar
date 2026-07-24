@@ -239,6 +239,165 @@ body.app-booting {
 }
 
 /* ============================================
+   "The First Drop" — signature splash loader
+   Scoped under .app-launch to avoid style leaks.
+   Critical FOUC (indigo bg + stage size) lives in index.html.
+   ============================================ */
+
+.app-launch .lh-stage {
+  width: min(200px, 72vw);
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.app-launch .lh-drop,
+.app-launch .lh-flash,
+.app-launch .lh-ripple,
+.app-launch .lh-firefly,
+.app-launch .lh-pin,
+.app-launch .lh-pin-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.app-launch .lh-drop {
+  animation: lh-drop-fall 4.4s ease-out infinite;
+}
+
+@keyframes lh-drop-fall {
+  0%    { transform: translateY(-70px) scaleY(1); opacity: 0; }
+  4%    { opacity: 1; }
+  11%   { transform: translateY(0) scaleY(1.12); opacity: 1; }
+  12.5% { transform: translateY(2px) scaleY(0.4) scaleX(1.3); opacity: 1; }
+  14%   { transform: translateY(2px) scaleY(0.2) scaleX(1.6); opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-flash {
+  animation: lh-flash-pop 4.4s ease-out infinite;
+}
+
+@keyframes lh-flash-pop {
+  0%, 11.5% { opacity: 0; transform: scale(0.3); }
+  13%   { opacity: 1; transform: scale(2.2); }
+  18%   { opacity: 0; transform: scale(3); }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-ripple {
+  animation: lh-ripple-expand 4.4s ease-out infinite;
+}
+
+@keyframes lh-ripple-expand {
+  0%, 12% { r: 6; opacity: 0; }
+  14%   { opacity: 0.9; }
+  55%   { r: 62; opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-ripple--2 { animation-delay: 0.15s; }
+.app-launch .lh-ripple--3 { animation-delay: 0.3s; }
+
+.app-launch .lh-firefly {
+  animation: lh-firefly-in 4.4s ease-out infinite;
+}
+
+@keyframes lh-firefly-in {
+  0%, 26% { opacity: 0; transform: scale(0.3); }
+  30%   { opacity: 1; transform: scale(1.3); }
+  36%   { opacity: 1; transform: scale(1); }
+  62%   { opacity: 1; }
+  70%   { opacity: 0; transform: scale(0.6); }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-firefly--2 { animation-delay: 0.08s; }
+.app-launch .lh-firefly--3 { animation-delay: 0.16s; }
+.app-launch .lh-firefly--4 { animation-delay: 0.24s; }
+
+.app-launch .lh-pin {
+  animation: lh-pin-in 4.4s cubic-bezier(0.34, 1.4, 0.64, 1) infinite;
+}
+
+@keyframes lh-pin-in {
+  0%, 40% { opacity: 0; transform: translateY(10px) scale(0.5); }
+  50%   { opacity: 1; transform: translateY(0) scale(1.08); }
+  56%   { transform: translateY(0) scale(1); }
+  88%   { opacity: 1; }
+  96%   { opacity: 0; transform: scale(0.92); }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-pin-glow {
+  animation: lh-pin-glow 4.4s ease-out infinite;
+}
+
+@keyframes lh-pin-glow {
+  0%, 48% { opacity: 0; transform: scale(0.6); }
+  55%   { opacity: 0.55; transform: scale(1); }
+  75%   { opacity: 0.25; transform: scale(1.3); }
+  90%   { opacity: 0; transform: scale(1.5); }
+  100%  { opacity: 0; }
+}
+
+.app-launch .lh-word,
+.app-launch .lh-tag {
+  animation: lh-word-in 4.4s ease-out infinite;
+  fill: #fff;
+  font-family: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.app-launch .lh-word {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.app-launch .lh-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  fill: rgba(224, 231, 255, 0.82);
+  animation-delay: 0.12s;
+}
+
+@keyframes lh-word-in {
+  0%, 54% { opacity: 0; transform: translateY(8px); }
+  64%   { opacity: 1; transform: translateY(0); }
+  88%   { opacity: 1; }
+  96%   { opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-launch .lh-drop,
+  .app-launch .lh-flash,
+  .app-launch .lh-ripple,
+  .app-launch .lh-firefly,
+  .app-launch .lh-pin,
+  .app-launch .lh-pin-glow,
+  .app-launch .lh-word,
+  .app-launch .lh-tag {
+    animation: none !important;
+  }
+  .app-launch .lh-drop,
+  .app-launch .lh-flash,
+  .app-launch .lh-ripple {
+    opacity: 0;
+  }
+  .app-launch .lh-firefly,
+  .app-launch .lh-pin,
+  .app-launch .lh-word,
+  .app-launch .lh-tag {
+    opacity: 1;
+    transform: none;
+  }
+  .app-launch .lh-pin-glow {
+    opacity: 0.3;
+    transform: none;
+  }
+}
+
+/* ============================================
    Header
    ============================================ */
 
@@ -3182,6 +3341,16 @@ body.toast-fab-quiet #btnCamera {
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(12px);
+}
+
+/* Collapse persona / “N open… share” while WA snackbar owns the message */
+body.toast-fab-quiet {
+  --persona-bar-height: 0px;
+}
+
+body.toast-fab-quiet #personaBar {
+  display: none !important;
+  pointer-events: none;
 }
 
 body.toast-fab-quiet .toast-container:has(> .toast--snackbar),
@@ -8642,7 +8811,9 @@ body.persona-lead .app-open-banner { display: none; }
   font-size: var(--fs-lg);
 }
 .cr-section__toggle i.ph-caret-down { transition: transform 0.2s ease; color: var(--primary); }
-.cr-section:not(.cr-section--collapsed) .cr-section__toggle i.ph-caret-down { transform: rotate(180deg); }
+/* chevron rotate: see Round 3 aria-expanded rule */
+.cr-section:not(.cr-section--collapsed):not(.cr-section--expanded) .cr-section__toggle i.ph-caret-down,
+.cr-section--expanded .cr-section__toggle i.ph-caret-down { transform: rotate(180deg); }
 .cr-section__body { padding-top: 14px; }
 .cr-section__body.hidden { display: none; }
 
@@ -14295,7 +14466,7 @@ body::after {
 
 /* Live sync status: tiny opacity pulse on the cloud/Live dot only —
    brand-mark already has radar ping; do not add a second wave layer. */
-.header__sync--cloud::before {
+.header__sync--cloud:not(.header__sync--live):not(.header__sync--syncing)::before {
   animation: sync-live-dot 2.6s ease-in-out infinite;
 }
 
@@ -14781,5 +14952,205 @@ html.modal-open #btnCamera::after {
   #btnCamera::after {
     animation: none !important;
     opacity: 0;
+  }
+}
+
+
+/* ============================================================
+   Animation polish Round 3 (9.1–9.8) — accordion, meters, toggles,
+   recenter, sync breathe, esc ladder, lang swap, badge stagger.
+   All motion gated by prefers-reduced-motion.
+   ============================================================ */
+
+/* 9.1 Accordion expand/collapse */
+.cr-section__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-out-soft);
+  padding-top: 0;
+}
+.cr-section__body-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding-top: 14px;
+}
+.cr-section--expanded .cr-section__body {
+  grid-template-rows: 1fr;
+}
+.cr-section__toggle .ph-caret-down {
+  transition: transform 0.3s var(--ease-out-soft);
+}
+.cr-section__toggle[aria-expanded="true"] .ph-caret-down {
+  transform: rotate(180deg);
+}
+.cr-section__body.hidden { display: none; } /* legacy safety */
+
+/* 9.2 Ward pulse meter fill */
+.ward-pulse__meter-open,
+.ward-pulse__meter-fixed {
+  transition: width 0.6s var(--ease-out-soft);
+  position: relative;
+  overflow: hidden;
+}
+.ward-pulse__meter-open.is-updated::after,
+.ward-pulse__meter-fixed.is-updated::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: meter-sweep 0.6s ease-out;
+  pointer-events: none;
+}
+@keyframes meter-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* 9.3 Toggle switch spring-pop (knob travel matches translateX(18px)) */
+.toggle-row__switch::after {
+  transition: transform 0.28s var(--ease-spring), background 0.2s;
+}
+.toggle-row__input:checked ~ .toggle-row__switch::after {
+  transform: translateX(18px);
+  animation: toggle-knob-pop 0.28s var(--ease-spring);
+}
+@keyframes toggle-knob-pop {
+  0% { transform: translateX(0) scale(1); }
+  55% { transform: translateX(20px) scale(1.15); }
+  100% { transform: translateX(18px) scale(1); }
+}
+
+/* 9.4 Recenter compass spin */
+#btnRecenter.is-locating i {
+  animation: compass-spin 1s linear infinite;
+}
+#btnRecenter.is-located i {
+  animation: compass-settle 0.4s var(--ease-spring) both;
+}
+@keyframes compass-spin { to { transform: rotate(360deg); } }
+@keyframes compass-settle {
+  from { transform: rotate(45deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* 9.5 Live sync-status breathing dot */
+.header__sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.header__sync::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-400, #94a3b8);
+  flex: none;
+}
+.header__sync--syncing::before {
+  background: var(--primary);
+  animation: sync-breathe 1.6s ease-in-out infinite;
+}
+.header__sync--live::before {
+  background: var(--success);
+  animation: none;
+  opacity: 1;
+}
+@keyframes sync-breathe {
+  0%, 100% { opacity: 0.45; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* 9.6 Escalation ladder timeline */
+.esc-ladder {
+  position: relative;
+  padding-left: 24px;
+  --ladder-fill: 0%;
+}
+.esc-ladder::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+.esc-ladder::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 2px;
+  background: var(--success);
+  height: var(--ladder-fill, 0%);
+  transition: height 0.5s var(--ease-out-soft);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+.esc-ladder > .esc-step {
+  position: relative;
+}
+.esc-ladder > .esc-step::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s, transform 0.3s var(--ease-spring);
+  z-index: 1;
+}
+.esc-ladder > .esc-step.is-complete::before {
+  background: var(--success);
+  animation: ladder-dot-pop 0.3s var(--ease-spring);
+}
+@keyframes ladder-dot-pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* 9.7 Language switch cross-fade */
+.lang-swap {
+  animation: lang-cross-fade 0.28s ease-out;
+}
+@keyframes lang-cross-fade {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 9.8 Profile badge grid stagger-in */
+.profile-card__badges > * {
+  opacity: 0;
+  transform: translateY(6px) scale(0.9);
+  animation: badge-pop-in 0.35s var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes badge-pop-in {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-section__body { transition: none; }
+  .ward-pulse__meter-open,
+  .ward-pulse__meter-fixed { transition: none; }
+  .ward-pulse__meter-open.is-updated::after,
+  .ward-pulse__meter-fixed.is-updated::after { animation: none; }
+  .toggle-row__switch::after { transition: none; animation: none !important; }
+  #btnRecenter.is-locating i,
+  #btnRecenter.is-located i { animation: none; }
+  .header__sync--syncing::before { animation: none; opacity: 0.8; }
+  .esc-ladder::after { transition: none; }
+  .esc-ladder > .esc-step.is-complete::before { animation: none; }
+  .lang-swap { animation: none; }
+  .profile-card__badges > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

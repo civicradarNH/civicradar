@@ -7,26 +7,11 @@
        Inline style on <html> + this block before any external CSS/fonts. -->
   <style id="critical-splash">
     html,body{margin:0;min-height:100%;background:#6366f1}
-    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(130% 95% at 50% 28%,#6366f1 0%,#4f46e5 52%,#3730a3 100%);transition:opacity .32s ease,visibility .32s ease}
-    .app-launch__mark{position:relative;width:108px;height:108px;display:flex;align-items:center;justify-content:center}
-    .app-launch__ring{position:absolute;inset:0;border:1.5px solid rgba(34,211,238,.5);border-radius:50%;animation:launch-ring 2.4s ease-out infinite}
-    .app-launch__ring--2{animation-delay:.8s}
-    .app-launch__ring--3{animation-delay:1.6s}
-    .app-launch__logo{position:relative;width:80px;height:80px;border-radius:20px;box-shadow:0 14px 34px rgba(15,23,42,.35);animation:launch-logo-pulse 2.4s ease-in-out infinite}
-    .app-launch__word{display:flex;flex-direction:column;align-items:center;gap:5px}
-    .app-launch__title{font:700 22px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#fff;letter-spacing:.01em}
-    .app-launch__tag{font:500 12.5px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:rgba(224,231,255,.8);letter-spacing:.01em}
-    .app-launch__dots{display:flex;gap:6px;height:6px;margin-top:2px}
-    .app-launch__dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);animation:launch-dot 1.3s ease-in-out infinite}
-    .app-launch__dots span:nth-child(2){animation-delay:.16s}
-    .app-launch__dots span:nth-child(3){animation-delay:.32s}
+    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(130% 95% at 50% 30%,#6366f1 0%,#4f46e5 52%,#3730a3 100%);transition:opacity .32s ease,visibility .32s ease}
+    .app-launch .lh-stage{width:min(200px,72vw);height:auto;display:block}
     .app-launch--done{opacity:0;visibility:hidden;pointer-events:none}
     html.app-booting .header,html.app-booting #personaBar,html.app-booting #mapHud,html.app-booting #wardPulse,html.app-booting #main,html.app-booting #bottomNav,html.app-booting #btnCamera,html.app-booting #roleBadges,
     body.app-booting .header,body.app-booting #personaBar,body.app-booting #mapHud,body.app-booting #wardPulse,body.app-booting #main,body.app-booting #bottomNav,body.app-booting #btnCamera,body.app-booting #roleBadges{visibility:hidden}
-    @keyframes launch-logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
-    @keyframes launch-ring{0%{transform:scale(.78);opacity:.9}100%{transform:scale(1.55);opacity:0}}
-    @keyframes launch-dot{0%,80%,100%{opacity:.4;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
-    @media (prefers-reduced-motion:reduce){.app-launch__logo,.app-launch__ring,.app-launch__dots span{animation:none}.app-launch__ring{opacity:.35}}
   </style>
   <meta name="theme-color" content="#6366f1">
   <meta name="color-scheme" content="light dark">
@@ -79,17 +64,30 @@
 <body class="app-booting" style="background-color:#6366f1;margin:0">
 
   <div id="appLaunch" class="app-launch" role="status" aria-live="polite" aria-label="Loading CivicRadar">
-    <div class="app-launch__mark">
-      <span class="app-launch__ring" aria-hidden="true"></span>
-      <span class="app-launch__ring app-launch__ring--2" aria-hidden="true"></span>
-      <span class="app-launch__ring app-launch__ring--3" aria-hidden="true"></span>
-      <img class="app-launch__logo" src="assets/icon-192.png" width="80" height="80" alt="" fetchpriority="high" decoding="async">
-    </div>
-    <div class="app-launch__word">
-      <span class="app-launch__title">CivicRadar</span>
-      <span class="app-launch__tag" data-i18n="tagline.threeBeat">Spot it. Snap it. Sorted.</span>
-    </div>
-    <div class="app-launch__dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    <svg class="lh-stage" viewBox="0 0 200 220" fill="none" aria-hidden="true">
+      <circle class="lh-ripple lh-ripple--1" cx="100" cy="92" r="6" fill="none" stroke="#6366F1" stroke-width="2"/>
+      <circle class="lh-ripple lh-ripple--2" cx="100" cy="92" r="6" fill="none" stroke="#22D3EE" stroke-width="1.6"/>
+      <circle class="lh-ripple lh-ripple--3" cx="100" cy="92" r="6" fill="none" stroke="#A5B4FC" stroke-width="1.2"/>
+
+      <circle class="lh-firefly lh-firefly--1" cx="100" cy="52" r="4.4" fill="#22D3EE"/>
+      <circle class="lh-firefly lh-firefly--2" cx="140" cy="92" r="4.4" fill="#4ADE80"/>
+      <circle class="lh-firefly lh-firefly--3" cx="100" cy="132" r="4.4" fill="#FB923C"/>
+      <circle class="lh-firefly lh-firefly--4" cx="60" cy="92" r="4.4" fill="#FCD34D"/>
+
+      <circle class="lh-flash" cx="100" cy="92" r="4" fill="#fff"/>
+
+      <path class="lh-drop" d="M100 20c0 0 9 11 9 18.5a9 9 0 1 1-18 0C91 31 100 20 100 20z" fill="#22D3EE"/>
+
+      <g class="lh-pin">
+        <circle class="lh-pin-glow" cx="100" cy="92" r="18" fill="#A5B4FC"/>
+        <path d="M100 76c-6.6 0-12 5-12 11.5 0 8 9.2 17 11.3 19.1a1 1 0 0 0 1.4 0C102.8 104.5 112 95.5 112 87.5 112 81 106.6 76 100 76z"
+              fill="#fff" fill-opacity=".96" stroke="#fff" stroke-width="1"/>
+        <circle cx="100" cy="87.5" r="4.4" fill="#4F46E5"/>
+      </g>
+
+      <text class="lh-word" x="100" y="176" text-anchor="middle">CivicRadar</text>
+      <text class="lh-tag" x="100" y="193" text-anchor="middle">Spot it. Snap it. Sorted.</text>
+    </svg>
   </div>
 
   <a href="#main" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
@@ -718,19 +716,16 @@
             </div>
           </div>
           <div class="success-reward-panel">
-            <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite"></p>
+            <!-- celebrate/streak live on #successGamifyLine (main surface); More keeps bar + one progress line only -->
+            <p class="success-celebrate hidden" id="successCelebrate" aria-live="polite" hidden></p>
             <div class="success-progress-wrap hidden" id="successProgressWrap">
               <div class="success-progress-bar" id="successProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div class="success-progress-fill" id="successProgressFill"></div>
               </div>
               <p class="success-progress" id="successProgress" aria-live="polite"></p>
             </div>
-            <p class="success-streak hidden" id="successStreak" aria-live="polite"></p>
+            <p class="success-streak hidden" id="successStreak" aria-live="polite" hidden></p>
           </div>
-          <p class="success-share-prompt" data-i18n="success.sharePrompt">Help your community stay safe — share this update with your WhatsApp group.</p>
-          <button type="button" class="success-native-share hidden" id="btnSuccessNativeShare" data-i18n-aria="share.nativeShare" aria-label="Share">
-            <i class="ph ph-share-network" aria-hidden="true"></i> <span data-i18n="share.nativeShare">Share</span>
-          </button>
           <div class="success-optional-block">
             <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
               <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
@@ -864,7 +859,8 @@
           <span><i class="ph ph-map-trifold" aria-hidden="true"></i> <span data-i18n="community.thisWeekTitle">Your ward this week</span></span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body hidden" id="communityWardImpactBody">
+        <div class="cr-section__body" id="communityWardImpactBody" inert aria-hidden="true">
+          <div class="cr-section__body-inner">
           <!-- Seasonal monsoon / festival hook (date-aware, dismissible) -->
           <div class="season-hook hidden" id="seasonHook" role="note">
             <i class="ph ph-cloud-rain season-hook__icon" id="seasonHookIcon" aria-hidden="true"></i>
@@ -877,6 +873,7 @@
           <button type="button" class="btn btn--whatsapp btn--full ward-recap-share hidden" id="btnShareWeeklyRecap">
             <i class="ph ph-chart-line-up"></i> <span data-i18n="recap.share">Share weekly recap</span>
           </button>
+          </div>
         </div>
       </div>
 
@@ -885,7 +882,8 @@
           <span><i class="ph ph-trophy" aria-hidden="true"></i> <span data-i18n="community.leaderboardTitle">Ward leaderboard</span></span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body hidden" id="communityLeaderboardBody">
+        <div class="cr-section__body" id="communityLeaderboardBody" inert aria-hidden="true">
+          <div class="cr-section__body-inner">
           <div class="segment-control" id="leaderboardToggle">
             <button type="button" class="segment-control__btn active" data-view="wards" data-i18n="community.topWards">Top Wards</button>
             <button type="button" class="segment-control__btn" data-view="citizens" data-i18n="community.localCitizens">Local Citizens</button>
@@ -901,6 +899,7 @@
           <div class="leaderboard-panel hidden" id="citizensPanel">
             <ul class="leaderboard-list" id="citizensList"></ul>
           </div>
+          </div>
         </div>
       </div>
 
@@ -909,7 +908,8 @@
           <span><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="community.getInvolvedTitle">Get involved</span></span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body hidden" id="getInvolvedBody">
+        <div class="cr-section__body" id="getInvolvedBody" inert aria-hidden="true">
+          <div class="cr-section__body-inner">
 
           <section class="success-stories" id="successStoriesSection" aria-labelledby="successStoriesTitle">
             <h3 class="success-stories__title" id="successStoriesTitle">
@@ -944,7 +944,7 @@
               <i class="ph ph-hand-heart"></i> <span data-i18n="lead.becomeCta">Become a community lead</span>
             </button>
           </section>
-
+          </div>
         </div>
       </div>
     </div>
@@ -1173,7 +1173,8 @@
           </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body hidden" id="profileActivityBody">
+        <div class="cr-section__body" id="profileActivityBody" inert aria-hidden="true">
+          <div class="cr-section__body-inner">
           <div class="profile-resource-link" id="profileCommunityLinkBlock">
             <button type="button" class="btn btn--secondary btn--full" id="btnProfileCommunityHelp">
               <i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="profile.communityLink">Volunteer &amp; pledges</span>
@@ -1189,6 +1190,7 @@
             </div>
             <p class="empty-state hidden" data-i18n="profile.emptyList">No reports yet. Tap Report to pin hazards near you.</p>
           </div>
+          </div>
         </div>
       </div>
 
@@ -1200,7 +1202,8 @@
           </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
-        <div class="cr-section__body hidden" id="profileNotificationsBody">
+        <div class="cr-section__body" id="profileNotificationsBody" inert aria-hidden="true">
+          <div class="cr-section__body-inner">
           <div class="profile-settings">
             <label class="toggle-row" for="nbhNewAlertToggle">
               <span class="toggle-row__text">
@@ -1245,6 +1248,7 @@
             <h3 class="section-title"><i class="ph ph-eye-slash" aria-hidden="true"></i><span data-i18n="mute.sectionTitle">Hidden reporters</span></h3>
             <p class="field-hint" data-i18n="mute.sectionHint">Reports from these users are hidden on your map. Tap to show again.</p>
             <div class="profile-muted-list" id="profileMutedList"></div>
+          </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v406';
+  const CIVIC_APP_VERSION = 'v411';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1034,6 +1034,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Session: success-modal WhatsApp share — skip map WA snackbar for that report.
   const sharedFromSuccessSession = new Set();
+  // Report already offered a share surface this session (success WA or Done/X).
+  const shareSurfaceSeenSession = new Set();
+  // Map post-report WA share nudge — at most once per page session.
+  let mapWaShareNudgeShownSession = false;
 
   let reportPinAttentionTimer = null;
 
@@ -3468,7 +3472,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'Share on WhatsApp',
 
-      'share.wardMapMsg': '{ward}: {pending} open hazard(s) — beat us on CivicRadar!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🎯 {ward} has {pending}! Can your ward do better? Spot, report, and track fixes on CivicRadar:\n\n{link}\n\n{hashtags}',
 
       'share.cleanupMsg': 'Volunteers cleared {hazard} in {ward}! Before → after on the ward map:\n{link}\n{hashtags}',
 
@@ -3590,7 +3594,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.kudos5': 'Another pin down — your street thanks you.',
 
-      'success.streakWeek': '{n} report(s) this week — keep it up!',
+      'success.streakWeekOne': '1 report this week — keep it up!',
+
+      'success.streakWeekMany': '{n} reports this week — keep it up!',
 
 
       'profile.milestoneOne': '1 more report to your next milestone',
@@ -6067,7 +6073,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp पर साझा करें',
 
-      'share.wardMapMsg': '{ward}: {pending} खुले खतरे — CivicRadar पर हमें हराएँ!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🎯 {ward} में {pending} खुले खतरे हैं! क्या आपका वार्ड बेहतर कर सकता है? CivicRadar पर स्पॉट करें, रिपोर्ट करें और सुधार ट्रैक करें:\n\n{link}\n\n{hashtags}',
 
       'share.cleanupMsg': 'स्वयंसेवकों ने {ward} में {hazard} साफ किया! पहले → बाद मानचित्र पर:\n{link}\n{hashtags}',
 
@@ -6191,7 +6197,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.kudos5': 'एक और पिन — आपकी गली धन्यवाद कहती है।',
 
-      'success.streakWeek': 'इस हफ़्ते {n} रिपोर्ट — बढ़िया!',
+      'success.streakWeekOne': 'इस हफ़्ते 1 रिपोर्ट — बढ़िया!',
+
+      'success.streakWeekMany': 'इस हफ़्ते {n} रिपोर्ट — बढ़िया!',
 
 
       'profile.milestoneOne': 'अगले माइलस्टोन तक 1 रिपोर्ट और',
@@ -8666,7 +8674,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp वर शेअर करा',
 
-      'share.wardMapMsg': '{ward}: {pending} उघडे धोके — CivicRadar वर आम्हाला हरवा!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🎯 {ward} मध्ये {pending} उघडे धोके आहेत! तुमचा वॉर्ड चांगले करू शकतो का? CivicRadar वर स्पॉट करा, रिपोर्ट करा आणि दुरुस्त्या ट्रॅक करा:\n\n{link}\n\n{hashtags}',
 
       'share.cleanupMsg': 'स्वयंसेवकांनी {ward} मध्ये {hazard} साफ केले! आधी → नंतर नकाशावर:\n{link}\n{hashtags}',
 
@@ -8790,7 +8798,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.kudos5': 'आणखी एक पिन — तुमच्या गल्लीला धन्यवाद वाटतो!',
 
-      'success.streakWeek': 'या आठवड्यात {n} तक्रार — छान!',
+      'success.streakWeekOne': 'या आठवड्यात 1 तक्रार — छान!',
+
+      'success.streakWeekMany': 'या आठवड्यात {n} तक्रारी — छान!',
 
 
       'profile.milestoneOne': 'पुढच्या milestone साठी आणखी 1 तक्रार',
@@ -11264,7 +11274,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'share.meTooBtn': 'WhatsApp પર શેર કરો',
 
-      'share.wardMapMsg': '🗺️ {ward}: {pending} ખુલ્લા જોખમ — CivicRadar પર અમને હરાવો!\n{link}\n{hashtags}',
+      'share.wardMapMsg': '🎯 {ward}માં {pending} ખુલ્લા જોખમ છે! શું તમારો વોર્ડ વધુ સારું કરી શકે? CivicRadar પર સ્પોટ કરો, રિપોર્ટ કરો અને સુધારા ટ્રૅક કરો:\n\n{link}\n\n{hashtags}',
 
       'share.cleanupMsg': '🧹 {ward} માં સ્વયંસેવકોએ {hazard} સાફ કર્યું! પહેલાં → પછી:\n{link}\n{hashtags}',
 
@@ -11388,7 +11398,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.kudos5': 'વધુ એક પિન — તમારી ગલી તમારો આભાર માને છે.',
 
-      'success.streakWeek': 'આ અઠવાડિયે {n} રિપોર્ટ — સરસ!',
+      'success.streakWeekOne': 'આ અઠવાડિયે 1 રિપોર્ટ — સરસ!',
+
+      'success.streakWeekMany': 'આ અઠવાડિયે {n} રિપોર્ટ — સરસ!',
 
 
       'profile.milestoneOne': 'આગલા milestone માટે 1 રિપોર્ટ બાકી',
@@ -13911,14 +13923,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof syncNavPill === 'function') requestAnimationFrame(syncNavPill);
   }
 
-  function updateSyncStatus() {
+  function updateSyncStatus(opts) {
     const el = $('#syncStatus');
     if (!el) return;
+    const syncing = !!(opts && opts.syncing);
     const connected = Backend.enabled;
+    el.classList.toggle('header__sync--syncing', syncing);
+    el.classList.toggle('header__sync--live', connected && !syncing);
     el.classList.toggle('header__sync--cloud', connected);
     el.classList.toggle('header__sync--local', !connected);
-    el.textContent = connected ? t('sync.cloud') : t('sync.local');
-    el.title = connected ? t('sync.cloudTitle') : t('sync.localTitle');
+    el.textContent = connected || syncing ? t('sync.cloud') : t('sync.local');
+    el.title = connected || syncing ? t('sync.cloudTitle') : t('sync.localTitle');
   }
 
   function loadHiddenReportIds() {
@@ -14100,6 +14115,13 @@ document.addEventListener('DOMContentLoaded', function () {
     )).filter((el) => el.offsetParent !== null || el === document.activeElement);
   }
 
+  function flashLangSwap(root) {
+    if (!root || !root.classList || prefersReducedMotion()) return;
+    root.classList.remove('lang-swap');
+    void root.offsetWidth;
+    root.classList.add('lang-swap');
+  }
+
   function setLanguage(code) {
     if (!I18N[code]) return;
     const prev = currentLang;
@@ -14107,8 +14129,14 @@ document.addEventListener('DOMContentLoaded', function () {
     safeLocalSet(LANG_KEY, currentLang);
     applyTranslations();
     updatePersonaUI();
-    if (prev !== code && window.CivicAnalytics) {
-      CivicAnalytics.track('language_change', { from: prev, to: code });
+    if (prev !== code) {
+      const header = document.querySelector('.header');
+      if (header) flashLangSwap(header);
+      const openModal = document.querySelector('.modal-overlay.open .modal');
+      if (openModal) flashLangSwap(openModal);
+      if (window.CivicAnalytics) {
+        CivicAnalytics.track('language_change', { from: prev, to: code });
+      }
     }
     rerenderDynamicViews();
   }
@@ -14810,6 +14838,7 @@ document.addEventListener('DOMContentLoaded', function () {
         adoptBackendUserId(uid);
 
         this.enabled = true;
+        updateSyncStatus({ syncing: true });
         await this.pullAll();
         await this.pushLocalOwned();
         this.flushPendingFeedback();
@@ -22490,9 +22519,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const mine = getUserReports();
 
-      const pendingReports = mine.filter((r) => r.status === 'pending');
+      const unfiled = mine.filter((r) => r.status === 'pending' && !r.complaintId).length;
 
-      const unfiled = pendingReports.filter((r) => !r.complaintId).length;
+      // Same open-count source as ward pulse (active ward, city-scoped, public map).
+      const wardOpen = (typeof getUserWardPulseStats === 'function')
+        ? (getUserWardPulseStats().open || 0)
+        : 0;
 
       headerCtx.textContent = user.ward
 
@@ -22502,13 +22534,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       barIcon.className = 'ph ph-camera persona-bar__icon';
 
-      if (unfiled > 0) {
+      if (wardOpen > 0) {
 
-        barText.textContent = t('persona.unfiled').replace('{n}', String(unfiled));
-
-      } else if (pendingReports.length > 0) {
-
-        barText.textContent = t('persona.pendingFiled').replace('{n}', String(pendingReports.length));
+        barText.textContent = (unfiled > 0 ? t('persona.unfiled') : t('persona.pendingFiled'))
+          .replace('{n}', String(wardOpen));
 
       } else {
 
@@ -23560,18 +23589,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Toast Notifications ---------- */
 
-  // Generic collapsible-section toggle (Community modal's "Get involved" /
-  // "Resources" groups) — mirrors the existing official-channels accordion
-  // pattern (button + .hidden body + --collapsed modifier + aria-expanded).
+  // Generic collapsible-section toggle — grid-rows expand via .cr-section--expanded
+  // (no instant .hidden cut). Chevron follows aria-expanded.
   function wireCollapsibleSection(toggleId, bodyId, sectionId) {
     const btn = $('#' + toggleId);
     if (!btn) return;
     btn.addEventListener('click', () => {
-      const body = $('#' + bodyId);
       const section = $('#' + sectionId);
-      const open = body && body.classList.toggle('hidden') === false;
-      if (section) section.classList.toggle('cr-section--collapsed', !open);
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!section) return;
+      const open = !section.classList.contains('cr-section--expanded');
+      setCollapsibleSectionOpen(sectionId, bodyId, toggleId, open);
     });
   }
 
@@ -23579,9 +23606,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const section = $('#' + sectionId);
     const body = $('#' + bodyId);
     const btn = $('#' + toggleId);
-    if (!section || !body || !btn) return;
-    body.classList.toggle('hidden', !open);
+    if (!section || !btn) return;
+    section.classList.toggle('cr-section--expanded', !!open);
     section.classList.toggle('cr-section--collapsed', !open);
+    if (body) {
+      body.classList.remove('hidden');
+      body.toggleAttribute('inert', !open);
+      body.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
@@ -23825,6 +23857,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Snackbar gone — may restore parked GPS chip (still gated by pin popup / modals).
         flushPendingLocationBanner();
         syncToastFabQuietFromDom();
+        // Restore persona idle / open-count policy after WA snackbar hid the bar.
+        if (isWaSnackbar && typeof updatePersonaUI === 'function') {
+          try { updatePersonaUI(); } catch (_) { /* ignore */ }
+        }
       };
 
       if (instant) {
@@ -23877,6 +23913,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         flushPendingLocationBanner();
         syncToastFabQuietFromDom();
+        if (isWaSnackbar && typeof updatePersonaUI === 'function') {
+          try { updatePersonaUI(); } catch (_) { /* ignore */ }
+        }
 
       });
 
@@ -26723,6 +26762,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+  }
+
+  /** Mark that this report already had a share surface (success WA / Done / X). */
+  function markShareSurfaceSeen(reportId) {
+    if (!reportId) return;
+    shareSurfaceSeenSession.add(String(reportId));
+  }
+
+  /**
+   * Legacy / never-saw-success-WA path only. Success modal is the primary share
+   * surface — dismissSuccessModal must not call this. Cap: once per page session.
+   */
+  function scheduleMapWaShareNudge(reportId, delayMs) {
+    if (!reportId) return false;
+    if (mapWaShareNudgeShownSession) return false;
+    if (shareSurfaceSeenSession.has(String(reportId))) return false;
+    if (sharedFromSuccessSession.has(String(reportId))) return false;
+    const report = findReportById(reportId);
+    if (report && report.communityShared) return false;
+    cancelPendingShareNudge();
+    shareNudgeTimer = setTimeout(() => {
+      shareNudgeTimer = null;
+      if (mapWaShareNudgeShownSession) return;
+      if (isReportFlowBusy()) return;
+      if (shareSurfaceSeenSession.has(String(reportId))) return;
+      if (sharedFromSuccessSession.has(String(reportId))) return;
+      const latest = findReportById(reportId);
+      if (latest && latest.communityShared) return;
+      mapWaShareNudgeShownSession = true;
+      markShareSurfaceSeen(reportId);
+      showToast(t('success.shareNudge'), 'info', 5500, {
+        label: t('success.shareWhatsapp'),
+        variant: 'whatsapp',
+        onClick: () => shareReportWhatsApp(reportId),
+      });
+    }, typeof delayMs === 'number' ? delayMs : 450);
+    return true;
   }
 
 
@@ -30294,6 +30370,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (recenter && map) map.setView([currentLat, currentLng], zoomForAccuracy(GEO_ACCURACY_POOR_M));
 
+      try { window.dispatchEvent(new CustomEvent('civicradar:locate-done')); } catch (_) { /* ignore */ }
+
       return;
 
     }
@@ -30323,6 +30401,12 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(() => {
 
         showLocationBanner(t('location.bannerNearby'));
+
+      })
+
+      .finally(() => {
+
+        try { window.dispatchEvent(new CustomEvent('civicradar:locate-done')); } catch (_) { /* ignore */ }
 
       });
 
@@ -30998,6 +31082,13 @@ document.addEventListener('DOMContentLoaded', function () {
     return { open, fixedWeek, meToo };
   }
 
+  function pulseMeterUpdate(el) {
+    if (!el || !el.classList || prefersReducedMotion()) return;
+    el.classList.remove('is-updated');
+    void el.offsetWidth;
+    el.classList.add('is-updated');
+  }
+
   function renderWardPulse() {
     const el = $('#wardPulse');
     if (!el) return;
@@ -31017,8 +31108,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const meterOpen = $('#wardPulseMeterOpen');
     const meterFixed = $('#wardPulseMeterFixed');
     const total = Math.max(1, (stats.open || 0) + (stats.fixedWeek || 0));
-    if (meterOpen) meterOpen.style.width = `${Math.round(((stats.open || 0) / total) * 100)}%`;
-    if (meterFixed) meterFixed.style.width = `${Math.round(((stats.fixedWeek || 0) / total) * 100)}%`;
+    if (meterOpen) {
+      meterOpen.style.width = `${Math.round(((stats.open || 0) / total) * 100)}%`;
+      pulseMeterUpdate(meterOpen);
+    }
+    if (meterFixed) {
+      meterFixed.style.width = `${Math.round(((stats.fixedWeek || 0) / total) * 100)}%`;
+      pulseMeterUpdate(meterFixed);
+    }
     el.setAttribute('aria-label', t('pulse.aria'));
   }
 
@@ -32376,6 +32473,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (lastReportId) {
         sharedFromSuccessSession.add(String(lastReportId));
+        markShareSurfaceSeen(lastReportId);
         cancelPendingShareNudge();
         shareReportWhatsApp(lastReportId);
       }
@@ -32776,7 +32874,28 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#btnRecenter').addEventListener('click', () => {
 
       // Re-acquire GPS — panning to a stale WiFi fix keeps the half-mile error.
-
+      const btn = $('#btnRecenter');
+      if (btn) {
+        btn.classList.add('is-locating');
+        btn.classList.remove('is-located');
+      }
+      let settled = false;
+      const settle = () => {
+        if (settled || !btn) return;
+        settled = true;
+        btn.classList.remove('is-locating');
+        if (!prefersReducedMotion()) {
+          btn.classList.add('is-located');
+          setTimeout(() => btn.classList.remove('is-located'), 450);
+        }
+      };
+      const onDone = () => {
+        settle();
+        window.removeEventListener('civicradar:locate-done', onDone);
+      };
+      window.addEventListener('civicradar:locate-done', onDone, { once: true });
+      // Soft cap (≥ forceFresh watchMaxMs) so the spinner never sticks.
+      setTimeout(onDone, 40000);
       requestLocation(true, true);
 
     });
@@ -36417,7 +36536,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  /** Pick ONE secondary gamification line (streak OR badge OR celebrate) for the main surface. */
+  /** Format week-streak line with proper pluralization. */
+
+  function formatSuccessStreakWeek(weekCount) {
+
+    const n = Number(weekCount) || 0;
+
+    if (n === 1) return t('success.streakWeekOne');
+
+    return t('success.streakWeekMany').replace('{n}', String(n));
+
+  }
+
+
+
+  /** Pick ONE secondary gamification line for the main surface (not badge-bar copy). */
 
   function pickSuccessGamifyLine(reportCount, weekBonus) {
 
@@ -36425,22 +36558,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const weekCount = getReportsThisWeek();
 
-    const progressMsg = buildSuccessProgress(n);
-
-    const mile = getReportMilestoneProgress(n);
-
     const isMilestone = REPORT_CELEBRATION_MILESTONES.includes(n) && n > 1;
 
     const isFirst = n === 1;
 
     const candidates = [];
 
-    // Points always shown separately; score secondary tracks by "how much changed".
+    // Points always shown separately. Badge Progress bar+line lives under More only.
+
     if (isFirst || isMilestone) {
 
       candidates.push({
 
-        kind: 'badge',
+        kind: 'celebrate',
 
         score: isFirst ? 100 : 90,
 
@@ -36452,14 +36582,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       });
 
-    } else if (progressMsg && mile && typeof mile.remaining === 'number' && mile.remaining > 0 && mile.remaining <= 2) {
-
-      candidates.push({ kind: 'badge', score: 70 - mile.remaining * 10, text: progressMsg });
-
-    } else if (progressMsg) {
-
-      candidates.push({ kind: 'badge', score: 35, text: progressMsg });
-
     }
 
     if (weekCount >= 2) {
@@ -36470,7 +36592,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         score: 40 + weekCount * 8,
 
-        text: t('success.streakWeek').replace('{n}', String(weekCount)),
+        text: formatSuccessStreakWeek(weekCount),
 
       });
 
@@ -36490,7 +36612,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!candidates.length) return null;
+    // Rotating kudos so collapsed surface always has one warm line when nothing stronger wins.
+
+    candidates.push({
+
+      kind: 'kudos',
+
+      score: 20,
+
+      text: getRotatingKudos(n),
+
+    });
 
     candidates.sort((a, b) => b.score - a.score);
 
@@ -36518,11 +36650,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function refreshSuccessModalStrings() {
+  function refreshSuccessModalStrings(weekBonusHint = 0) {
 
     const reportCount = getUserReports().length;
-
-    const weekBonusHint = 0;
 
     const clockEl = $('#successClock');
 
@@ -36556,47 +36686,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Celebrate / streak / kudos: one line on main surface only (#successGamifyLine).
+
+    // More keeps thumb + badge progress bar/line — never repeat the same metric.
+
     const celebrateEl = $('#successCelebrate');
 
     if (celebrateEl) {
 
-      const wardConfirms = user.ward
+      celebrateEl.textContent = '';
 
-        ? loadReports()
+      celebrateEl.classList.add('hidden');
 
-          .filter((r) => r.ward === user.ward && r.status === 'pending')
-
-          .reduce((sum, r) => sum + (Number(r.confirmations) || 0), 0)
-
-        : 0;
-
-      if (reportCount === 1) {
-
-        celebrateEl.textContent = t('success.celebrateFirst');
-
-        celebrateEl.classList.remove('hidden');
-
-      } else if (REPORT_CELEBRATION_MILESTONES.includes(reportCount) && reportCount > 1) {
-
-        celebrateEl.textContent = t('success.celebrateMilestone').replace('{n}', String(reportCount));
-
-        celebrateEl.classList.remove('hidden');
-
-      } else if (wardConfirms > 0) {
-
-        celebrateEl.textContent = t('success.taglineNeighbours').replace('{n}', String(wardConfirms));
-
-        celebrateEl.classList.remove('hidden');
-
-      } else {
-
-        celebrateEl.textContent = getRotatingKudos(reportCount);
-
-        celebrateEl.classList.remove('hidden');
-
-      }
+      celebrateEl.setAttribute('hidden', '');
 
     }
+
+
 
     const progressEl = $('#successProgress');
 
@@ -36644,27 +36750,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+
+
     const streakEl = $('#successStreak');
 
     if (streakEl) {
 
-      const weekCount = getReportsThisWeek();
+      streakEl.textContent = '';
 
-      if (weekCount >= 2) {
+      streakEl.classList.add('hidden');
 
-        streakEl.textContent = t('success.streakWeek').replace('{n}', String(weekCount));
-
-        streakEl.classList.remove('hidden');
-
-      } else {
-
-        streakEl.textContent = '';
-
-        streakEl.classList.add('hidden');
-
-      }
+      streakEl.setAttribute('hidden', '');
 
     }
+
+
 
     const gamifyEl = $('#successGamifyLine');
 
@@ -36672,7 +36772,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const pick = pickSuccessGamifyLine(reportCount, weekBonusHint);
 
-      // Prefer streak/badge over generic celebrate on the main surface; details stay under More.
+      // Prefer streak/celebrate/kudos on the main surface; badge bar stays under More.
+
       if (pick && pick.kind !== 'points') {
 
         gamifyEl.textContent = pick.text;
@@ -36689,13 +36790,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const sharePromptEl = document.querySelector('#successModal .success-share-prompt');
 
-    if (sharePromptEl) {
-
-      sharePromptEl.textContent = t('success.sharePrompt');
-
-    }
 
     const moreToggle = $('#btnSuccessMoreToggle');
 
@@ -36734,10 +36829,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!overlays.success || !overlays.success.classList.contains('open')) return;
 
     const reportId = lastReportId;
-
-    const report = reportId ? findReportById(reportId) : null;
-
-    const notShared = report && !report.communityShared;
 
     closeModal('success');
 
@@ -36778,43 +36869,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    let shareNudgeShown = false;
-
     cancelPendingShareNudge();
 
-    const sharedThisSession = reportId && sharedFromSuccessSession.has(String(reportId));
+    // One share surface max per report: success modal already offered WhatsApp
+    // (whether they tapped Share or dismissed via Done/X). Do not follow with map snackbar.
+    if (reportId) markShareSurfaceSeen(reportId);
 
-    if (notShared && reportId && !sharedThisSession) {
-
-      shareNudgeShown = true;
-
-      shareNudgeTimer = setTimeout(() => {
-
-        shareNudgeTimer = null;
-
-        // Never show over an in-progress report (FAB reopen right after Done).
-        if (isReportFlowBusy()) return;
-
-        // Re-check: user may have shared from success before Done.
-        if (sharedFromSuccessSession.has(String(reportId))) return;
-        const latest = findReportById(reportId);
-        if (latest && latest.communityShared) return;
-
-        showToast(t('success.shareNudge'), 'info', 5500, {
-
-          label: t('success.shareWhatsapp'),
-
-          variant: 'whatsapp',
-
-          onClick: () => shareReportWhatsApp(reportId),
-
-        });
-
-      }, 450);
-
-    }
-
-    maybeShowLeadVolunteerNudge(getUserReports().length, shareNudgeShown ? 6200 : 450);
+    maybeShowLeadVolunteerNudge(getUserReports().length, 450);
 
     // Prevent a later success dismiss / stale id from re-firing the neighbour share nudge
     // while the user is already starting another report.
@@ -36860,37 +36921,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setSuccessMoreExpanded(false);
 
-    refreshSuccessModalStrings();
-
-    // Re-pick gamify with the real weekBonus from this submission.
-    const gamifyEl = $('#successGamifyLine');
-
-    if (gamifyEl) {
-
-      const pick = pickSuccessGamifyLine(getUserReports().length, weekBonus);
-
-      if (pick && pick.kind !== 'points') {
-
-        gamifyEl.textContent = pick.text;
-
-        gamifyEl.classList.remove('hidden');
-
-      } else if (pick && pick.kind === 'points' && weekBonus > 0) {
-
-        // Week bonus already appears under +N points; keep main surface clean.
-        gamifyEl.textContent = '';
-
-        gamifyEl.classList.add('hidden');
-
-      } else {
-
-        gamifyEl.textContent = '';
-
-        gamifyEl.classList.add('hidden');
-
-      }
-
-    }
+    // Pass weekBonus so gamify pick matches this submission (points line stays separate).
+    refreshSuccessModalStrings(weekBonus);
 
     const successIcon = document.querySelector('#successModal .success-icon');
 
@@ -36937,8 +36969,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     syncHasReportedClass();
-
-    updateSuccessNativeButton();
 
     const reportCount = getUserReports().length;
 
@@ -37027,13 +37057,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const short = getWardShortName(ward);
 
-    if (!short) return `#${getCityLabel().replace(/\s+/g, '')}`;
+    const cityTag = () => `#${getCityLabel().replace(/[^a-zA-Z0-9]/g, '')}`;
 
-    const slug = short.replace(/[^a-zA-Z0-9]/g, '') + 'Ward';
+    if (!short) return cityTag();
 
-    return `#${slug}`;
+    // "A Ward" → #AWard (not #AWardWard); "K West Ward" → #KWestWard; "G/N Ward" → #GNWard
+    let sanitized = short.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+
+    sanitized = sanitized.replace(/Ward$/i, '');
+
+    if (!sanitized) return cityTag();
+
+    return `#${sanitized}Ward`;
 
   }
+
 
 
 
@@ -37399,11 +37437,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pending = userStat ? userStat.pending : loadReports().filter((r) => r.status === 'pending').length;
 
+    // EN: full phrase for pluralization; hi/mr/gu templates keep the noun around {pending}
+    const pendingLabel = currentLang === 'en'
+
+      ? (pending === 1 ? '1 open hazard' : `${pending} open hazards`)
+
+      : String(pending);
+
     return fillShareTemplate(t('share.wardMapMsg'), {
 
       ward: wardLabel,
 
-      pending: String(pending),
+      pending: pendingLabel,
 
       link: getShareAppUrl(),
 
@@ -41797,7 +41842,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return `
 
-          <li class="esc-step esc-step--${state}" data-esc-tier="${escapeHtml(tobj.key)}">
+          <li class="esc-step esc-step--${state}${state === 'done' ? ' is-complete' : ''}" data-esc-tier="${escapeHtml(tobj.key)}">
 
             <i class="ph ph-${icon}"></i>
 
@@ -41816,6 +41861,16 @@ document.addEventListener('DOMContentLoaded', function () {
       })
 
       .join('');
+
+    const ladderEl = $('#escLadder');
+    if (ladderEl) {
+      const doneCount = tiers.filter((tobj) => (tierStates[tobj.key] || 'locked') === 'done').length;
+      const pct = tiers.length ? Math.round((doneCount / tiers.length) * 100) : 0;
+      ladderEl.style.setProperty('--ladder-fill', pct + '%');
+      ladderEl.querySelectorAll('.esc-step').forEach((li) => {
+        li.classList.toggle('is-complete', li.classList.contains('esc-step--done'));
+      });
+    }
 
   }
 
@@ -43863,6 +43918,10 @@ document.addEventListener('DOMContentLoaded', function () {
           .map((b) => `<span class="profile-badge"><i class="ph ${b.icon}"></i> ${escapeHtml(t(b.key))}</span>`)
 
           .join('');
+
+        Array.from(badgesEl.children).forEach((child, i) => {
+          child.style.setProperty('--i', String(i));
+        });
 
       } else {
 

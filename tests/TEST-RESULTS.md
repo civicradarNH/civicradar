@@ -1,9 +1,9 @@
 # CivicRadar Test Results
 
-**Run:** 2026-07-23 07:53:39
+**Run:** 2026-07-23 22:29:27
 **Server:** http://localhost:8095/
 **Script:** `tests/e2e_comprehensive.py`
-**Total:** 42 | **Pass:** 42 | **Fail:** 0
+**Total:** 43 | **Pass:** 43 | **Fail:** 0
 
 ## Fixes applied this run
 
@@ -79,7 +79,7 @@
 - **Citizen:** 22 pass / 0 fail
 - **DeepLink:** 1 pass / 0 fail
 - **PWA:** 1 pass / 0 fail
-- **Report:** 11 pass / 0 fail
+- **Report:** 12 pass / 0 fail
 - **Store:** 1 pass / 0 fail
 - **UI:** 2 pass / 0 fail
 - **iOS:** 4 pass / 0 fail
@@ -106,8 +106,8 @@ _None_
 | C04b | Citizen | City picker defaults to Mumbai | PASS | city=mumbai |
 | C05 | Citizen | GPS consent after ward detect | PASS |  |
 | C06 | Citizen | Ward auto-detected on onboarding | PASS | ward=L Ward — Kurla, Sakinaka |
-| C06b | Citizen | Empty ward rejected | PASS |  |
-| C07 | Citizen | Invalid/XSS ward rejected | PASS |  |
+| C06b | Citizen | Continue disabled without ward | PASS |  |
+| C07 | Citizen | Continue disabled for invalid/XSS ward | PASS |  |
 | C07b | Citizen | Join disabled without Terms checkbox | PASS |  |
 | C07c | Citizen | Join enabled after Terms accept | PASS |  |
 | C08 | Citizen | Valid ward onboarding | PASS |  |
@@ -115,9 +115,9 @@ _None_
 | C09 | Citizen | XSS display name sanitized | PASS |  |
 | C14 | Citizen | Report blocked without photo | PASS |  |
 | C15 | Citizen | GPS denied still submits with provisional pin | PASS | success=True stored=True |
-| C16 | Citizen | Report submit success modal | PASS | rid=4728769d-d639-405e-8266-0332cccc5a32 |
+| C16 | Citizen | Report submit success modal | PASS | rid=e3d27039-9a0a-44de-823f-80f375001ec2 |
 | C17 | Citizen | Success modal WhatsApp primary + More (official filing) | PASS |  |
-| C17b | Citizen | Native share button feature-detect gating | PASS |  |
+| C17b | Citizen | Success More has no native Share / share prompt | PASS |  |
 | C18 | Citizen | App origin for deep links | PASS |  |
 | DL01 | DeepLink | WhatsApp share URL is canonical HTTPS ?report= | PASS |  |
 | C19b | Citizen | PWA nudge after first report | PASS |  |
@@ -128,6 +128,7 @@ _None_
 | RP04 | Report | Photo input accepts images | PASS |  |
 | RP05 | Report | Capture photo button present | PASS |  |
 | RP22 | Report | Photo-first opens capture step | PASS |  |
+| RP22b | Report | Confirm locked until photo; gallery + hazard chip + report-open HUD | PASS |  |
 | RP06 | Report | Close without submit saves nothing | PASS |  |
 | RP21 | Report | Draft restores report modal after reload | PASS |  |
 | RP07 | Report | Report stored in localStorage | PASS |  |

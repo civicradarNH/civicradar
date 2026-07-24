@@ -813,6 +813,382 @@ function playShutterEffect(cameraAreaEl, flashEl) {
 
 ---
 
+## 9. Custom SVGs & animations — Round 3 (accordions, toggles, status, timeline)
+
+Third pass, deliberately covering UI that Rounds 1–2 didn't touch: the `cr-section`
+accordions used across Community/Profile/Resources, notification toggles, the
+recenter button, the sync-status indicator, the escalation ladder, language
+switching, and the profile badge grid. Same rules as before — existing tokens,
+`prefers-reduced-motion` guarded, proposals only (nothing wired into the app).
+
+### 9.1 Accordion expand/collapse (`cr-section` — Community/Profile/Resources)
+
+Every collapsible section (`getInvolvedSection`, `profileActivitySection`,
+`communityLeaderboardSection`, etc.) currently hard-toggles a `.hidden` class — an
+instant cut, not a reveal. The CSS grid-rows trick animates height without
+measuring it in JS, and the chevron rotates to match state.
+
+```css
+.cr-section__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .35s var(--ease-out-soft);
+}
+.cr-section__body-inner { overflow: hidden; min-height: 0; }
+.cr-section--expanded .cr-section__body { grid-template-rows: 1fr; }
+.cr-section__toggle .ph-caret-down {
+  transition: transform .3s var(--ease-out-soft);
+}
+.cr-section__toggle[aria-expanded="true"] .ph-caret-down { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .cr-section__body { transition: none; }
+}
+```
+
+Markup change needed: wrap the existing `.cr-section__body` children in one
+`.cr-section__body-inner` div (grid-rows animates the row track, not the content,
+so the overflow-hidden wrapper is what clips it). Swap `.hidden` toggling for
+`.cr-section--expanded` on the parent.
+
+### 9.2 Ward pulse meter fill (Map HUD · `wardPulseMeterOpen`/`Fixed`)
+
+The open/fixed split bar already sets `style.width` from JS on load — but jumps
+instantly. A transition plus a one-time light sweep on update makes new data feel
+like it *arrived* rather than teleported in.
+
+```css
+.ward-pulse__meter-open, .ward-pulse__meter-fixed {
+  transition: width .6s var(--ease-out-soft);
+  position: relative; overflow: hidden;
+}
+.ward-pulse__meter-open.is-updated::after,
+.ward-pulse__meter-fixed.is-updated::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  animation: meter-sweep .6s ease-out;
+}
+@keyframes meter-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+```
+
+```js
+// After setting the new width, toggle the sweep class once:
+function pulseMeterUpdate(el) {
+  el.classList.remove('is-updated'); void el.offsetWidth;
+  el.classList.add('is-updated');
+}
+```
+
+### 9.3 Toggle switch spring-pop (Profile · Notifications & Privacy)
+
+The three `.toggle-row` switches (new-reports, resolved-nearby, report-reminder)
+use a standard flat slide today. A spring easing plus a brief scale-pop on the
+knob at the moment of check reads as more tactile — closer to iOS's switch feel.
+
+```css
+.toggle-row__switch::after {
+  transition: transform .28s var(--ease-spring), background .2s;
+}
+.toggle-row__input:checked + .toggle-row__switch::after {
+  animation: toggle-knob-pop .28s var(--ease-spring);
+}
+@keyframes toggle-knob-pop {
+  0%   { transform: translateX(0) scale(1); }
+  55%  { transform: translateX(20px) scale(1.15); }
+  100% { transform: translateX(18px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toggle-row__switch::after { animation: none; }
+}
+```
+
+### 9.4 Recenter compass spin (`#btnRecenter`)
+
+The recenter button currently just triggers a map pan with no feedback while GPS
+resolves. A spin-while-locating, snap-to-north-on-success treatment borrows the
+compass metaphor already implied by the crosshair icon.
+
+```css
+#btnRecenter.is-locating i { animation: compass-spin 1s linear infinite; }
+#btnRecenter.is-located i { animation: compass-settle .4s var(--ease-spring) both; }
+@keyframes compass-spin { to { transform: rotate(360deg); } }
+@keyframes compass-settle { from { transform: rotate(45deg); } to { transform: rotate(0deg); } }
+@media (prefers-reduced-motion: reduce) {
+  #btnRecenter.is-locating i, #btnRecenter.is-located i { animation: none; }
+}
+```
+
+```js
+// Toggle `.is-locating` when the GPS request starts; swap to `.is-located`
+// (briefly, then remove) when the position resolves.
+```
+
+### 9.5 Live sync-status breathing dot (`#syncStatus`)
+
+`.header__sync` currently renders as plain text (`header__sync--local` etc.). A
+small status dot that breathes while syncing and sits solid-still once live gives
+at-a-glance confidence the app isn't stuck — same register as Slack/Linear's
+connection indicators.
+
+```css
+.header__sync { display: inline-flex; align-items: center; gap: 5px; }
+.header__sync::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-muted); flex: none;
+}
+.header__sync--syncing::before {
+  background: var(--accent);
+  animation: sync-breathe 1.6s ease-in-out infinite;
+}
+.header__sync--live::before { background: var(--success); }
+@keyframes sync-breathe {
+  0%, 100% { opacity: .45; transform: scale(.8); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) { .header__sync--syncing::before { animation: none; opacity: .8; } }
+```
+
+### 9.6 Escalation ladder timeline unlock (`#escLadder`)
+
+The escalation ladder (`esc.ladderTitle`) lists steps as plain `<li>`s today. A
+connecting vertical line that fills as steps complete, with each newly-unlocked
+step popping its dot, turns a checklist into a visible timeline — reinforces that
+filing is a process with momentum, not a static list.
+
+```css
+.esc-ladder { position: relative; padding-left: 24px; }
+.esc-ladder::before {
+  content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px;
+  width: 2px; background: var(--border);
+}
+.esc-ladder__fill {
+  position: absolute; left: 8px; top: 4px; width: 2px;
+  background: var(--success); height: 0%;
+  transition: height .5s var(--ease-out-soft);
+}
+.esc-ladder li::before {
+  content: ''; position: absolute; left: -24px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--border);
+  transition: background .3s, transform .3s var(--ease-spring);
+}
+.esc-ladder li.is-complete::before {
+  background: var(--success);
+  animation: ladder-dot-pop .3s var(--ease-spring);
+}
+@keyframes ladder-dot-pop { 0% { transform: scale(.4); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+```
+
+```js
+// Set .esc-ladder__fill height to (completeSteps / totalSteps * 100)%
+// whenever escalation state changes; add .is-complete to each completed <li>.
+```
+
+### 9.7 Language switch cross-fade (header lang button + i18n text)
+
+Switching EN → हिन्दी → मराठी → ગુજરાતી today swaps text instantly — with four
+different scripts, an instant cut reads as a glitch rather than a deliberate
+change. A quick fade+shift on the label being swapped makes the script change
+register as intentional.
+
+```css
+.lang-swap {
+  animation: lang-cross-fade .28s ease-out;
+}
+@keyframes lang-cross-fade {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .lang-swap { animation: none; } }
+```
+
+```js
+// On language change, after re-rendering data-i18n text nodes, add the class
+// and let it self-remove (or just re-trigger via reflow) — scope to the header
+// title + currently-open modal to avoid a page-wide flash:
+function flashLangSwap(root) {
+  root.classList.remove('lang-swap'); void root.offsetWidth;
+  root.classList.add('lang-swap');
+}
+```
+
+### 9.8 Profile badge grid stagger-in (`#profileBadges`)
+
+Reporter badges currently all appear at once when the section renders. A short
+stagger (each badge popping in ~45ms after the last) reads as a collection being
+revealed rather than a static image dump — appropriate weight for something meant
+to feel earned.
+
+```css
+.profile-card__badges > * {
+  opacity: 0;
+  transform: translateY(6px) scale(.9);
+  animation: badge-pop-in .35s var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes badge-pop-in { to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .profile-card__badges > * { animation: none; opacity: 1; transform: none; }
+}
+```
+
+```js
+// When rendering the badges list, set the stagger index per child:
+badges.forEach((el, i) => el.style.setProperty('--i', i));
+```
+
+---
+
+## 10. "The First Drop" — a signature splash-screen loader
+
+Today's splash (`#appLaunch` in index.html) is three pulsing rings around a static
+logo, a bouncing three-dot loader, and a tagline — functional, but it's the same
+generic "loading spinner" pattern any app could ship. This is a replacement concept
+that tells CivicRadar's actual story in one continuous loop instead: a raindrop
+falls and lands, the impact radiates outward radar-style, the four real hazard
+types light up along the ripple like signals being detected (the same idea as the
+live ward pulse, just as the very first thing a user sees), and the brand pin
+resolves at the center as the wordmark settles in.
+
+It deliberately reuses the app's **real** splash gradient (`radial-gradient(130% 95%
+at 50% 30%, #6366f1 0%, #4f46e5 52%, #3730a3 100%)`, straight from the existing
+`.app-launch` critical CSS) and the four real hazard colors — so this is a preview
+of the actual thing, not a themed mockup with invented colors.
+
+Sequence (single 4.4s loop, all keyframes share the duration so they stay in sync
+via `animation-delay`):
+
+1. **0–14%** — droplet falls, squash-lands, flashes on impact.
+2. **12–55%** — three concentric rings expand outward and fade (indigo → cyan →
+   light indigo, echoing the radar-sweep motif from §5.1 without repeating it).
+3. **26–70%**, staggered — four hazard-colored dots (water/garbage/pothole/
+   streetlight) pop in along the ripple front, one after another, like sonar
+   contacts being detected.
+4. **40–96%** — the brand pin resolves at the center with a soft glow halo.
+5. **54–96%** — wordmark + tagline fade up beneath the pin.
+6. Everything is invisible at both 0% and 100%, so the loop has no visible seam.
+
+```html
+<svg class="lh-stage" viewBox="0 0 200 220" fill="none" aria-hidden="true">
+  <circle class="lh-ripple lh-ripple--1" cx="100" cy="92" r="6" fill="none" stroke="#6366F1" stroke-width="2"/>
+  <circle class="lh-ripple lh-ripple--2" cx="100" cy="92" r="6" fill="none" stroke="#22D3EE" stroke-width="1.6"/>
+  <circle class="lh-ripple lh-ripple--3" cx="100" cy="92" r="6" fill="none" stroke="#A5B4FC" stroke-width="1.2"/>
+
+  <circle class="lh-firefly lh-firefly--1" cx="100" cy="52"  r="4.4" fill="#22D3EE"/> <!-- water -->
+  <circle class="lh-firefly lh-firefly--2" cx="140" cy="92"  r="4.4" fill="#4ADE80"/> <!-- garbage -->
+  <circle class="lh-firefly lh-firefly--3" cx="100" cy="132" r="4.4" fill="#FB923C"/> <!-- potholes -->
+  <circle class="lh-firefly lh-firefly--4" cx="60"  cy="92"  r="4.4" fill="#FCD34D"/> <!-- streetlight -->
+
+  <circle class="lh-flash" cx="100" cy="92" r="4" fill="#fff"/>
+
+  <path class="lh-drop" d="M100 20c0 0 9 11 9 18.5a9 9 0 1 1-18 0C91 31 100 20 100 20z" fill="#22D3EE"/>
+
+  <g class="lh-pin">
+    <circle class="lh-pin-glow" cx="100" cy="92" r="18" fill="#A5B4FC"/>
+    <path d="M100 76c-6.6 0-12 5-12 11.5 0 8 9.2 17 11.3 19.1a1 1 0 0 0 1.4 0C102.8 104.5 112 95.5 112 87.5 112 81 106.6 76 100 76z"
+          fill="#fff" fill-opacity=".96" stroke="#fff" stroke-width="1"/>
+    <circle cx="100" cy="87.5" r="4.4" fill="#4F46E5"/>
+  </g>
+
+  <text class="lh-word" x="100" y="176" text-anchor="middle">CivicRadar</text>
+  <text class="lh-tag" x="100" y="193" text-anchor="middle">Spot it. Snap it. Sorted.</text>
+</svg>
+```
+
+```css
+.lh-drop, .lh-flash, .lh-ripple, .lh-firefly, .lh-pin, .lh-pin-glow {
+  transform-box: fill-box; transform-origin: center;
+}
+
+.lh-drop { animation: lh-drop-fall 4.4s ease-out infinite; }
+@keyframes lh-drop-fall {
+  0%    { transform: translateY(-70px) scaleY(1); opacity: 0; }
+  4%    { opacity: 1; }
+  11%   { transform: translateY(0) scaleY(1.12); opacity: 1; }
+  12.5% { transform: translateY(2px) scaleY(.4) scaleX(1.3); opacity: 1; }
+  14%   { transform: translateY(2px) scaleY(.2) scaleX(1.6); opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+.lh-flash { animation: lh-flash-pop 4.4s ease-out infinite; }
+@keyframes lh-flash-pop {
+  0%, 11.5% { opacity: 0; transform: scale(.3); }
+  13%   { opacity: 1; transform: scale(2.2); }
+  18%   { opacity: 0; transform: scale(3); }
+  100%  { opacity: 0; }
+}
+
+.lh-ripple { animation: lh-ripple-expand 4.4s ease-out infinite; }
+@keyframes lh-ripple-expand {
+  0%, 12% { r: 6; opacity: 0; }
+  14%   { opacity: .9; }
+  55%   { r: 62; opacity: 0; }
+  100%  { opacity: 0; }
+}
+.lh-ripple--2 { animation-delay: .15s; }
+.lh-ripple--3 { animation-delay: .3s; }
+
+.lh-firefly { animation: lh-firefly-in 4.4s ease-out infinite; }
+@keyframes lh-firefly-in {
+  0%, 26% { opacity: 0; transform: scale(.3); }
+  30%   { opacity: 1; transform: scale(1.3); }
+  36%   { opacity: 1; transform: scale(1); }
+  62%   { opacity: 1; }
+  70%   { opacity: 0; transform: scale(.6); }
+  100%  { opacity: 0; }
+}
+.lh-firefly--2 { animation-delay: .08s; }
+.lh-firefly--3 { animation-delay: .16s; }
+.lh-firefly--4 { animation-delay: .24s; }
+
+.lh-pin { animation: lh-pin-in 4.4s cubic-bezier(.34,1.4,.64,1) infinite; }
+@keyframes lh-pin-in {
+  0%, 40% { opacity: 0; transform: translateY(10px) scale(.5); }
+  50%   { opacity: 1; transform: translateY(0) scale(1.08); }
+  56%   { transform: translateY(0) scale(1); }
+  88%   { opacity: 1; }
+  96%   { opacity: 0; transform: scale(.92); }
+  100%  { opacity: 0; }
+}
+.lh-pin-glow { animation: lh-pin-glow 4.4s ease-out infinite; }
+@keyframes lh-pin-glow {
+  0%, 48% { opacity: 0; transform: scale(.6); }
+  55%   { opacity: .55; transform: scale(1); }
+  75%   { opacity: .25; transform: scale(1.3); }
+  90%   { opacity: 0; transform: scale(1.5); }
+  100%  { opacity: 0; }
+}
+
+.lh-word, .lh-tag { animation: lh-word-in 4.4s ease-out infinite; fill: #fff; font-family: 'Outfit', system-ui, sans-serif; }
+.lh-word { font-size: 20px; font-weight: 800; }
+.lh-tag  { font-size: 10.5px; font-weight: 600; fill: rgba(224,231,255,.82); animation-delay: .12s; }
+@keyframes lh-word-in {
+  0%, 54% { opacity: 0; transform: translateY(8px); }
+  64%   { opacity: 1; transform: translateY(0); }
+  88%   { opacity: 1; }
+  96%   { opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lh-drop, .lh-flash, .lh-ripple, .lh-firefly, .lh-pin, .lh-pin-glow, .lh-word, .lh-tag {
+    animation: none !important;
+  }
+  .lh-drop, .lh-flash, .lh-ripple { opacity: 0; }
+  .lh-firefly, .lh-pin, .lh-word, .lh-tag { opacity: 1; transform: none; }
+  .lh-pin-glow { opacity: .3; transform: none; }
+}
+```
+
+**Implementation note:** the real splash markup (`#appLaunch` in index.html) already
+has its own `app-launch--done` fade-out handled in JS (see `hideAppLaunch()` in
+app.js) — this SVG would replace the current `.app-launch__mark` rings + logo +
+dots block inside the existing `.app-launch` container, keeping the surrounding
+fade-to-app transition untouched. Since the real splash typically shows for well
+under one loop (~500ms–1.5s on a warm cache), most users will see roughly the drop
+→ ripple → pin beats and rarely the full wordmark settle — which is fine, the
+sequence front-loads the most legible motion first.
+
+---
+
 ## Suggested implementation order
 
 1. **Week 1 (P0):** dark-mode map tiles (§6a) + tagline unification + success-modal
