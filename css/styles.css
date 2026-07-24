@@ -7229,8 +7229,16 @@ body.persona-lead .app-open-banner { display: none; }
   font-size: var(--text-xs, var(--fs-xs));
   font-weight: 600;
   line-height: 1.2;
+  text-align: center;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Text-only chip: keep label optically centered (no leading icon gap). */
+.profile-header-compact__edit {
+  gap: 0;
+  min-width: auto;
+  padding-inline: 14px;
 }
 
 .btn-ghost-sm:hover,
