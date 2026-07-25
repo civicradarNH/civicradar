@@ -77,6 +77,8 @@
   --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
   --toast-error-bg: rgba(153, 27, 27, 0.92);
   --toast-info-bg: rgba(15, 23, 42, 0.92);
+  --toast-warning-bg: rgba(146, 64, 14, 0.92);
+  --toast-warning-border: rgba(245, 158, 11, 0.42);
   /* Float above pin cards — soft drop + subtle teal ambient */
   --toast-shadow:
     0 12px 40px -8px rgba(15, 23, 42, 0.38),
@@ -134,11 +136,16 @@
   --z-map-chrome-top: 1003;   /* legend / recenter cluster */
   --z-sheet-tab: 2000;        /* Community / Resources / Profile under nav */
   --z-nav: 2100;
-  --z-toast: 2150;            /* snackbars; below --z-modal */
+  /* Toasts sit above modals so validation/errors stay visible while a sheet is open */
+  --z-toast: 9999;
   --z-modal: 2200;            /* blocking sheets (ToS, onboarding, report, success) */
   --z-modal-nested: 2350;     /* camera / geo / confirm above report */
   --z-first-run: 2500;        /* purpose sheet + replay tour — above leaflet popup pane */
   --z-coach: var(--z-first-run); /* alias */
+  /* Banner z-tiers (floating nudges — not map chrome pins) */
+  --z-banner-dock: 900;       /* bottom deep-link open-in-app */
+  --z-banner-map: 1002;       /* top-anchored: location / ios install / manual pin */
+  --z-banner-nudge: 1500;     /* bottom install nudge above FAB dock */
   --first-run-scrim: rgba(15, 23, 42, 0.94);
 
   /* Radii */
@@ -226,175 +233,12 @@ textarea {
   font-family: inherit;
 }
 
-/* Launch splash — critical rules are inlined in index.html for first paint.
-   styles.css loads async and would otherwise overwrite html/body to --bg-main
-   (#f8fafc ≈ white) while the splash is still up — keep indigo until boot ends. */
+/* Launch splash — First Drop animations + indigo first-paint live in
+   index.html #critical-splash (styles.css loads async). Keep indigo on
+   html/body while booting so deferred --bg-main does not flash white. */
 html.app-booting,
 body.app-booting {
   background: #6366f1;
-}
-
-.app-launch {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ============================================
-   "The First Drop" — signature splash loader
-   Scoped under .app-launch to avoid style leaks.
-   Critical FOUC (indigo bg + stage size) lives in index.html.
-   ============================================ */
-
-.app-launch .lh-stage {
-  width: min(200px, 72vw);
-  height: auto;
-  display: block;
-  overflow: visible;
-}
-
-.app-launch .lh-drop,
-.app-launch .lh-flash,
-.app-launch .lh-ripple,
-.app-launch .lh-firefly,
-.app-launch .lh-pin,
-.app-launch .lh-pin-glow {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.app-launch .lh-drop {
-  animation: lh-drop-fall 4.4s ease-out infinite;
-}
-
-@keyframes lh-drop-fall {
-  0%    { transform: translateY(-70px) scaleY(1); opacity: 0; }
-  4%    { opacity: 1; }
-  11%   { transform: translateY(0) scaleY(1.12); opacity: 1; }
-  12.5% { transform: translateY(2px) scaleY(0.4) scaleX(1.3); opacity: 1; }
-  14%   { transform: translateY(2px) scaleY(0.2) scaleX(1.6); opacity: 0; }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-flash {
-  animation: lh-flash-pop 4.4s ease-out infinite;
-}
-
-@keyframes lh-flash-pop {
-  0%, 11.5% { opacity: 0; transform: scale(0.3); }
-  13%   { opacity: 1; transform: scale(2.2); }
-  18%   { opacity: 0; transform: scale(3); }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-ripple {
-  animation: lh-ripple-expand 4.4s ease-out infinite;
-}
-
-@keyframes lh-ripple-expand {
-  0%, 12% { r: 6; opacity: 0; }
-  14%   { opacity: 0.9; }
-  55%   { r: 62; opacity: 0; }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-ripple--2 { animation-delay: 0.15s; }
-.app-launch .lh-ripple--3 { animation-delay: 0.3s; }
-
-.app-launch .lh-firefly {
-  animation: lh-firefly-in 4.4s ease-out infinite;
-}
-
-@keyframes lh-firefly-in {
-  0%, 26% { opacity: 0; transform: scale(0.3); }
-  30%   { opacity: 1; transform: scale(1.3); }
-  36%   { opacity: 1; transform: scale(1); }
-  62%   { opacity: 1; }
-  70%   { opacity: 0; transform: scale(0.6); }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-firefly--2 { animation-delay: 0.08s; }
-.app-launch .lh-firefly--3 { animation-delay: 0.16s; }
-.app-launch .lh-firefly--4 { animation-delay: 0.24s; }
-
-.app-launch .lh-pin {
-  animation: lh-pin-in 4.4s cubic-bezier(0.34, 1.4, 0.64, 1) infinite;
-}
-
-@keyframes lh-pin-in {
-  0%, 40% { opacity: 0; transform: translateY(10px) scale(0.5); }
-  50%   { opacity: 1; transform: translateY(0) scale(1.08); }
-  56%   { transform: translateY(0) scale(1); }
-  88%   { opacity: 1; }
-  96%   { opacity: 0; transform: scale(0.92); }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-pin-glow {
-  animation: lh-pin-glow 4.4s ease-out infinite;
-}
-
-@keyframes lh-pin-glow {
-  0%, 48% { opacity: 0; transform: scale(0.6); }
-  55%   { opacity: 0.55; transform: scale(1); }
-  75%   { opacity: 0.25; transform: scale(1.3); }
-  90%   { opacity: 0; transform: scale(1.5); }
-  100%  { opacity: 0; }
-}
-
-.app-launch .lh-word,
-.app-launch .lh-tag {
-  animation: lh-word-in 4.4s ease-out infinite;
-  fill: #fff;
-  font-family: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
-}
-
-.app-launch .lh-word {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.app-launch .lh-tag {
-  font-size: 10.5px;
-  font-weight: 600;
-  fill: rgba(224, 231, 255, 0.82);
-  animation-delay: 0.12s;
-}
-
-@keyframes lh-word-in {
-  0%, 54% { opacity: 0; transform: translateY(8px); }
-  64%   { opacity: 1; transform: translateY(0); }
-  88%   { opacity: 1; }
-  96%   { opacity: 0; }
-  100%  { opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .app-launch .lh-drop,
-  .app-launch .lh-flash,
-  .app-launch .lh-ripple,
-  .app-launch .lh-firefly,
-  .app-launch .lh-pin,
-  .app-launch .lh-pin-glow,
-  .app-launch .lh-word,
-  .app-launch .lh-tag {
-    animation: none !important;
-  }
-  .app-launch .lh-drop,
-  .app-launch .lh-flash,
-  .app-launch .lh-ripple {
-    opacity: 0;
-  }
-  .app-launch .lh-firefly,
-  .app-launch .lh-pin,
-  .app-launch .lh-word,
-  .app-launch .lh-tag {
-    opacity: 1;
-    transform: none;
-  }
-  .app-launch .lh-pin-glow {
-    opacity: 0.3;
-    transform: none;
-  }
 }
 
 /* ============================================
@@ -947,6 +791,7 @@ body.app-booting {
   color: var(--primary-dark, #6366f1);
 }
 
+/* Field-level validation (tied to one input). Form-level summaries use .form-error. */
 .field-error {
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -1543,8 +1388,48 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--danger);
 }
 
+/* Single muted tone for low-priority Profile lists (Roles + Legal) */
+.profile-row-icon--muted {
+  background: rgba(71, 85, 105, 0.1);
+  color: var(--ink-400, #94a3b8);
+}
+
+.profile-list-group--muted > button:not(.btn--danger-text),
+.profile-list-group--muted > a:not(.profile-list-row--stacked) {
+  color: var(--ink-900, var(--text-dark));
+}
+
+.profile-row-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.profile-row-sub {
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink-400, #94a3b8);
+}
+
 .profile-list-group .btn--danger-text {
   color: var(--danger);
+}
+
+.profile-list-group .btn--danger-text .profile-row-sub,
+.profile-list-group a.profile-list-row--stacked .profile-row-sub {
+  color: var(--ink-400, #94a3b8);
+}
+
+.profile-list-row--stacked {
+  align-items: flex-start;
+  min-height: 56px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 /* Partner CTAs inside list groups share the same row chrome */
@@ -1617,6 +1502,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   .profile-row-icon--danger {
     background: rgba(248, 113, 113, 0.18);
     color: #f87171;
+  }
+  .profile-row-icon--muted {
+    background: rgba(148, 163, 184, 0.14);
+    color: var(--ink-400, #94a3b8);
   }
 }
 
@@ -2255,7 +2144,7 @@ body.manual-pin-mode #map .leaflet-container {
   top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 8px);
   left: 12px;
   right: 12px;
-  z-index: 1003;
+  z-index: var(--z-map-chrome-top, 1003);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2264,7 +2153,7 @@ body.manual-pin-mode #map .leaflet-container {
   border: 1px solid rgba(245, 158, 11, 0.45);
   border-radius: var(--radius-md);
   background: rgba(255, 251, 235, 0.97);
-    color: #92400e;
+  color: #92400e;
   font-size: var(--fs-base);
   font-weight: 600;
 }
@@ -2435,38 +2324,42 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast-container {
   position: fixed;
-  /* Base stack — later block (v248+) refines with --map-chrome-stack-gap */
+  /* Clear header + persona + ward pulse (same stack as map chrome / v348) */
   top: calc(
     env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
     + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap, 12px)
     + var(--ward-pulse-height) + var(--map-chrome-stack-gap, 12px)
   );
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
-  /* Above map chrome + nav; below blocking modals (--z-modal 2200) */
-  z-index: var(--z-toast, 2150);
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: min(420px, calc(100vw - 24px));
+  align-items: center;
+  gap: 0;
+  width: auto;
+  max-width: min(420px, calc(100vw - 24px));
   pointer-events: none;
 }
 
 .toast {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  width: fit-content;
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 8px 14px 8px 16px;
   background: var(--toast-glass-bg);
   color: var(--toast-fg);
   border: 1px solid var(--toast-glass-border);
   border-radius: var(--radius-pill);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   line-height: 1.4;
   backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   -webkit-backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
   box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  animation: toast-in 0.3s var(--ease-spring, ease);
+  animation: snackbar-in 0.28s var(--ease-sheet) both;
   pointer-events: auto;
 }
 
@@ -2476,6 +2369,10 @@ body.manual-pin-mode #map .leaflet-container {
   color: var(--toast-success-fg, var(--toast-fg));
 }
 .toast--error { background: var(--toast-error-bg); }
+.toast--warning {
+  background: var(--toast-warning-bg);
+  border-color: var(--toast-warning-border, var(--toast-glass-border));
+}
 .toast--info {
   background: var(--toast-info-bg);
   border-color: var(--toast-action-border, var(--toast-glass-border));
@@ -2665,11 +2562,6 @@ body.manual-pin-mode #map .leaflet-container {
   color: var(--whatsapp, #25D366);
 }
 
-@keyframes toast-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Language switch button in header */
 .header__btn--lang {
   width: auto;
@@ -2723,6 +2615,7 @@ body.manual-pin-mode #map .leaflet-container {
 .map-empty-cta.hidden { display: none; }
 
 .map-empty-cta__sheet {
+  position: relative;
   pointer-events: auto;
   width: 100%;
   max-width: 480px;
@@ -2734,6 +2627,39 @@ body.manual-pin-mode #map .leaflet-container {
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   box-shadow: var(--shadow-lg);
   animation: sheet-rise-in 0.32s var(--ease-sheet) both;
+}
+
+.map-empty-cta__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--ink-600);
+  font-size: var(--text-xl, var(--fs-xl));
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.map-empty-cta__close:hover {
+  background: rgba(15, 23, 42, 0.1);
+  color: var(--ink-900);
+}
+
+.map-empty-cta__close:focus-visible {
+  outline: 2px solid var(--brand-600, var(--primary));
+  outline-offset: 2px;
+}
+
+.map-empty-cta__close:active {
+  background: rgba(15, 23, 42, 0.12);
 }
 
 .map-empty-cta__handle {
@@ -2795,6 +2721,19 @@ body.manual-pin-mode #map .leaflet-container {
   min-height: var(--touch-min);
   border-radius: var(--radius-md);
   margin: 0;
+}
+
+.map-empty-cta__explore {
+  width: 100%;
+  min-height: var(--touch-min);
+  margin-top: 4px;
+  border-radius: var(--radius-md);
+  color: var(--ink-600);
+  font-weight: 600;
+}
+
+.map-empty-cta__explore:hover {
+  color: var(--ink-900);
 }
 
 /* Secondary WhatsApp invite — text row, not a competing bordered box */
@@ -3024,7 +2963,7 @@ body.persona-lead .home-hero {
   top: calc(var(--header-height) + var(--persona-bar-height) + var(--ward-pulse-height) + env(safe-area-inset-top, 0px) + 8px);
   left: 12px;
   right: 12px;
-  z-index: 1001;
+  z-index: var(--z-banner-map, 1002);
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -3032,7 +2971,7 @@ body.persona-lead .home-hero {
   background: var(--surface);
   border: 1px solid rgba(99, 102, 241, 0.22);
   border-radius: var(--radius);
-    pointer-events: auto;
+  pointer-events: auto;
 }
 
 .ios-install-hint.hidden { display: none; }
@@ -3379,7 +3318,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   left: max(var(--hud-inset), env(safe-area-inset-left, 0px));
   right: max(var(--hud-inset), env(safe-area-inset-right, 0px));
   bottom: calc(env(safe-area-inset-bottom, 0px) + var(--dock-float) + var(--nav-height) + 8px);
-  z-index: 1500;
+  z-index: var(--z-banner-nudge, 1500);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -3401,8 +3340,34 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   display: none;
 }
 
+.pwa-nudge__dismiss {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--chip-muted);
+  font-size: var(--fs-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pwa-nudge__dismiss:hover {
+  background: var(--chip-ghost-hover);
+  color: var(--chip-fg);
+}
+
+.pwa-nudge__dismiss:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .pwa-nudge__copy {
   min-width: 0;
+  padding-right: 36px;
 }
 
 .pwa-nudge__title {
@@ -3635,16 +3600,15 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-/* Sticky CTA sheets: last inputs must clear the sticky footer (v241) */
+/* Sticky CTA sheets: last inputs must clear the sticky footer (v241).
+   Confirm uses a docked footer + .report-confirm-scroll — no spacer there. */
 .modal:has(> .modal__sticky-footer),
-#onboardingModal,
-#reportStepConfirm.report-step--active {
+#onboardingModal {
   scroll-padding-bottom: 96px;
 }
 
 .modal > *:has(+ .modal__sticky-footer),
-#onboardingModal > *:has(+ .modal__sticky-footer),
-#reportStepConfirm > *:has(+ .modal__sticky-footer) {
+#onboardingModal > *:has(+ .modal__sticky-footer) {
   margin-bottom: 96px;
 }
 
@@ -4998,11 +4962,12 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .profile-xp__total {
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
 }
 
 .profile-xp__track {
@@ -5159,10 +5124,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .resources-file-hint {
-  margin: 0 0 12px;
-  font-size: var(--text-sm, var(--fs-sm));
-  color: var(--ink-600, var(--text-muted));
-  line-height: 1.4;
+  display: none; /* v426: section subtitle removed from Resources */
 }
 
 .success-optional-block .accountability-clock {
@@ -5176,7 +5138,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .success-footer {
-  margin-top: 4px;
+  margin-top: 12px;
   padding-top: 0;
   padding-bottom: 0;
   border-top: none;
@@ -5507,7 +5469,7 @@ body.persona-lead .ref-welcome { display: none; }
   left: max(var(--hud-inset), 12px);
   right: max(var(--hud-inset), 12px);
   bottom: calc(var(--bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 76px);
-  z-index: 900;
+  z-index: var(--z-banner-dock, 900);
   padding: 12px 14px;
   border-radius: var(--radius-xl);
   border: 1px solid var(--chip-border);
@@ -7273,11 +7235,12 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 /* v305 — chunked identity / progress / stats
-   v343 — compact greeting header (reclaim vertical chrome) */
+   v343 — compact greeting header (reclaim vertical chrome)
+   v427 — three visual beats with hairline dividers */
 .profile-card__identity {
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-header-compact {
@@ -7355,8 +7318,16 @@ body.persona-lead .app-open-banner { display: none; }
   font-size: var(--text-xs, var(--fs-xs));
   font-weight: 600;
   line-height: 1.2;
+  text-align: center;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Text-only chip: keep label optically centered (no leading icon gap). */
+.profile-header-compact__edit {
+  gap: 0;
+  min-width: auto;
+  padding-inline: 14px;
 }
 
 .btn-ghost-sm:hover,
@@ -7510,9 +7481,9 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .profile-card__progress {
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-card__progress:empty,
@@ -8284,16 +8255,10 @@ body.persona-lead .app-open-banner { display: none; }
   letter-spacing: 0.01em;
 }
 
-#resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
+#resourcesModal .resources-section--official .resources-section__title i { color: var(--primary, #6366f1); }
 
 
-#resourcesModal .resources-section--community .resources-section__title i { color: var(--success); }
-
-#resourcesModal .resources-section--community .pledge-card {
-  margin-top: 12px;
-}
-
-#resourcesModal .resources-section--community .pledge-card:first-of-type { margin-top: 0; }
+#resourcesModal .resources-section--community .resources-section__title i { color: var(--success, #059669); }
 
 #resourcesModal .resources-section--sponsors {
   padding: 0;
@@ -8319,57 +8284,10 @@ body.persona-lead .app-open-banner { display: none; }
   margin: 0 0 0.75rem;
 }
 
-/* Per-corp channel cards (Resources modal only) */
-#resourcesModal .esc-channel[data-official-channel="marg"],
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"],
-#resourcesModal .esc-channel[data-official-channel="bmc_call"],
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] {
-  background: var(--corp-bmc-bg);
-  border-color: var(--corp-bmc-border);
+/* Resources official channels: one indigo cluster (not per-corp rainbow) */
+#resourcesModal .esc-channel[data-official-channel] > i:not(.esc-channel__external) {
+  color: var(--primary, #6366f1);
 }
-
-#resourcesModal .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external) {
-  color: var(--corp-bmc);
-}
-
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"],
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"] {
-  background: var(--corp-pmc-bg);
-  border-color: var(--corp-pmc-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external) { color: var(--corp-pmc); }
-
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"],
-#resourcesModal .esc-channel[data-official-channel="tmc_call"] {
-  background: var(--corp-tmc-bg);
-  border-color: var(--corp-tmc-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external) {
-  color: var(--corp-tmc);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"] {
-  background: var(--corp-swachhata-bg);
-  border-color: var(--corp-swachhata-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external) { color: var(--corp-swachhata); }
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] {
-  background: var(--corp-aaple-bg);
-  border-color: var(--corp-aaple-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external) { color: var(--corp-aaple); }
 
 #resourcesModal .esc-channel--recommended {
   box-shadow: none;
@@ -8380,6 +8298,25 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .esc-channel-wrap--recommended {
   background: rgba(99, 102, 241, 0.05);
   border-radius: var(--radius-md);
+}
+
+#resourcesModal .resources-more-channels {
+  margin: 4px 0 0;
+}
+
+#resourcesModal .resources-more-channels > summary {
+  font-size: var(--text-sm, var(--fs-sm));
+  color: var(--ink-600, var(--text-muted));
+}
+
+#resourcesModal .resources-more-channels .resources-more-channels__list {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#resourcesModal .resources-more-channels .esc-channel-wrap:last-child {
+  border-bottom: none;
 }
 
 #resourcesModal .official-channels .esc-channel__badge {
@@ -8418,102 +8355,85 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--ink-600, var(--text-muted));
 }
 
-/* Horizontal Volunteer / Pledge rows (icon | copy | CTA) — not stacked full-width buttons */
-#resourcesModal .resources-section--community .pledge-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
+/* Help in Your Ward: same compact icon-row + chevron as official channels */
+#resourcesModal .resources-help-list {
+  display: block;
 }
 
-#resourcesModal .resources-section--community .pledge-card__icon {
-  flex-shrink: 0;
+#resourcesModal .resources-help-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 20px;
+  column-gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 4px;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+#resourcesModal .resources-help-row:last-child {
+  border-bottom: none;
+}
+
+#resourcesModal .resources-help-row__icon {
+  grid-column: 1;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(5, 150, 105, 0.12);
+  color: var(--success, #059669);
   font-size: var(--fs-md);
 }
 
-#resourcesModal .resources-section--community .pledge-card--volunteer .pledge-card__icon {
-  background: rgba(4, 120, 87, 0.12);
-}
-
-#resourcesModal .resources-section--community .pledge-card--pledge .pledge-card__icon {
-  background: rgba(236, 72, 153, 0.12);
-}
-
-#resourcesModal .resources-section--community .pledge-card__body {
-  flex: 1;
+#resourcesModal .resources-help-row__body {
+  grid-column: 2;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn {
-  flex-shrink: 0;
-  width: auto;
-  min-width: 72px;
-}
-
-/* Option-card CTAs: matching outlined glass secondary (not solid primary) */
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
-  background: var(--glass-hud-bg, rgba(255, 255, 255, 0.88)) !important;
-  color: var(--ink-900, var(--text)) !important;
-  border: 1px solid var(--glass-hud-border, rgba(226, 232, 240, 0.9)) !important;
-  box-shadow:
-    inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.52)),
-    var(--shadow-sm);
-  backdrop-filter: blur(var(--glass-hud-blur, 22px));
-  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
+#resourcesModal .resources-help-row__title {
   font-weight: 600;
+  font-size: var(--fs-base);
+  color: var(--ink-900, var(--text));
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--glass-hud-bg, rgba(255, 255, 255, 0.92)) 70%, var(--canvas, #F8FAFC)) !important;
-  border-color: var(--border) !important;
-  filter: none !important;
-  transform: none;
+#resourcesModal .resources-help-row__meta {
+  font-size: var(--fs-xs);
+  color: var(--ink-400, var(--text-muted));
+  line-height: 1.35;
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
-  background: var(--canvas, #F8FAFC) !important;
+#resourcesModal .resources-help-row::after {
+  content: '\276F';
+  grid-column: 3;
+  justify-self: end;
+  align-self: center;
+  color: var(--ink-400, var(--text-muted));
+  font-size: var(--fs-sm);
+}
+
+#resourcesModal .resources-help-row:hover,
+#resourcesModal .resources-help-row:focus-visible {
+  background: rgba(5, 150, 105, 0.04);
 }
 
 #resourcesModal .esc-channel:hover,
 #resourcesModal .esc-channel:focus-visible {
   filter: brightness(0.97);
-}
-
-#resourcesModal .esc-channel[data-official-channel="marg"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
-  border-color: var(--corp-bmc);
-  background: rgba(29, 78, 216, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
-  border-color: var(--corp-pmc);
-  background: rgba(234, 88, 12, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
-#resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
-  border-color: var(--corp-tmc);
-  background: rgba(21, 128, 61, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"]:hover {
-  border-color: var(--corp-swachhata);
-  background: rgba(8, 145, 178, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"]:hover {
-  border-color: var(--corp-aaple);
-  background: rgba(124, 58, 237, 0.11);
+  background: rgba(99, 102, 241, 0.04) !important;
 }
 
 .official-channels-block__toggle {
@@ -8647,43 +8567,10 @@ body.persona-lead .app-open-banner { display: none; }
   object-fit: contain;
 }
 
-/* Soft per-channel icon tiles (calm 0.12–0.14 alpha — not full-row fills) */
-#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] .esc-channel__glyph {
-  background: rgba(29, 78, 216, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] .esc-channel__glyph {
-  background: rgba(37, 211, 102, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] .esc-channel__glyph {
-  background: rgba(234, 88, 12, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] .esc-channel__glyph {
-  background: rgba(21, 128, 61, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] .esc-channel__glyph {
-  background: rgba(8, 145, 178, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] .esc-channel__glyph {
-  background: rgba(124, 58, 237, 0.14);
+/* Soft indigo icon tiles — one cluster for all official channels */
+#resourcesModal .official-channels .esc-channel[data-official-channel] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel] .esc-channel__glyph {
+  background: rgba(99, 102, 241, 0.12);
 }
 
 /* List rows stay hairline — corp tints stay on the leading icon only */
@@ -8845,6 +8732,45 @@ body.persona-lead .app-open-banner { display: none; }
   background: rgba(71, 85, 105, 0.12);
   color: var(--ink-600);
 }
+
+/* Collapsed-section count badge (Activity open reports) */
+.cr-section__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  margin-left: 4px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--primary, #6366f1);
+  color: #fff;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cr-section__count.hidden {
+  display: none;
+}
+
+/* Community Roles accordion inside Profile footer */
+#profileModal .profile-footer__roles.cr-section {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+#profileModal .profile-footer__roles .cr-section__toggle {
+  background: var(--canvas, #f8fafc);
+  border-color: var(--border);
+}
+#profileModal .profile-footer__roles .cr-section__body {
+  padding-top: 10px;
+}
+#profileModal .profile-footer__roles .cr-section__body-inner {
+  padding: 0;
+}
+
 /* Community (and other) toggles that still use bare Phosphor icons */
 .cr-section__toggle > span > i.ph-hand-heart,
 .cr-section__toggle > span > i.ph-info,
@@ -9090,10 +9016,12 @@ body.persona-lead .app-open-banner { display: none; }
 .esc-ladder {
   list-style: none;
   margin: 8px 0 16px;
-  padding: 0;
+  padding: 0 0 0 24px; /* room for timeline track + dots */
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  --ladder-fill: 0%;
 }
 
 .esc-step {
@@ -9912,7 +9840,7 @@ a:focus-visible {
   font-size: var(--fs-md);
 }
 
-/* ---- Inline form error (aria-live region) ---- */
+/* Form-level validation summary (not tied to a single field). Field-level uses .field-error. */
 .form-error {
   display: flex;
   align-items: flex-start;
@@ -10709,7 +10637,7 @@ a,
 #reportModal.report-modal--confirm {
   display: flex;
   flex-direction: column;
-  /* Clip the sheet; scrolling lives on #reportStepConfirm so title/steps stay put. */
+  /* Clip the sheet; scrolling lives on .report-confirm-scroll so Submit stays docked. */
   overflow: hidden;
   padding-bottom: 0;
 }
@@ -10719,8 +10647,16 @@ a,
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  /* Scroll pane + docked footer; overflow must not live on this node. */
+  overflow: hidden;
+}
+
+.report-confirm-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  /* Photo + hazards + pin map + notes exceed ~390×844; must scroll independently of body lock. */
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -11235,8 +11171,9 @@ html.sheet-hud-quiet #mapHud {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  margin: auto -24px -32px;
-  margin-top: 12px;
+  position: relative;
+  /* Docked under .report-confirm-scroll — not sticky inside a tall scroll stream. */
+  margin: 0 -24px -32px;
   padding-top: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   gap: 10px;
@@ -11359,38 +11296,14 @@ html.sheet-hud-quiet #mapHud {
     background: var(--surface);
   }
 
-  #resourcesModal .esc-channel[data-official-channel="marg"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
-    background: rgba(29, 78, 216, 0.2);
+  #resourcesModal .esc-channel[data-official-channel]:hover,
+  #resourcesModal .esc-channel[data-official-channel]:focus-visible {
+    background: rgba(99, 102, 241, 0.1) !important;
   }
 
-  #resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
-    background: rgba(234, 88, 12, 0.18);
-  }
-
-  #resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
-    background: rgba(21, 128, 61, 0.18);
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
-    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.88)) !important;
-    color: var(--text-primary, #f1f5f9) !important;
-    border-color: var(--glass-hud-border, rgba(148, 163, 184, 0.28)) !important;
-    box-shadow:
-      inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.08)),
-      var(--shadow-sm);
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--glass-hud-bg, rgba(17, 24, 39, 0.9)) 80%, #0f172a) !important;
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
-    background: rgba(15, 23, 42, 0.95) !important;
+  #resourcesModal .resources-help-row:hover,
+  #resourcesModal .resources-help-row:focus-visible {
+    background: rgba(5, 150, 105, 0.08);
   }
 }
 
@@ -11466,19 +11379,7 @@ html.sheet-hud-quiet #mapHud {
   }
 }
 
-/* Success modal — one primary action (WhatsApp). Done is quiet exit. */
-.success-footer .btn--primary {
-  background: transparent;
-  color: var(--text-muted);
-    border: none;
-  font-weight: 600;
-}
-.success-footer .btn--primary:hover:not(:disabled):not(.is-loading) {
-  background: var(--bg-main);
-  color: var(--text-dark);
-  filter: none;
-    transform: none;
-}
+/* Success modal — WhatsApp primary (growth); Done = bordered secondary dismiss. */
 .success-share-block--primary .btn--whatsapp {
   animation: none; /* restraint: no competing pulse vs FAB */
 }
@@ -11556,8 +11457,9 @@ html.sheet-hud-quiet #mapHud {
   box-shadow: var(--shadow-2) !important;
 }
 .success-share-block--primary .btn--whatsapp .ph { color: #fff !important; }
-.success-footer .btn--ghost {
-  color: var(--ink-600);
+.success-footer .btn--secondary {
+  min-height: var(--touch-min, 44px);
+  font-weight: 600;
 }
 
 /* ---- Spec Pass 5a: submit success flash ---- */
@@ -12047,9 +11949,12 @@ html[lang="gu"] body {
 }
 
 #reportModal.report-modal--confirm #reportStepConfirm.report-step--active {
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  scroll-padding-bottom: 96px;
+  padding-bottom: 0;
   animation: report-step-in 0.22s ease-out both;
+}
+
+#reportModal.report-modal--confirm .report-confirm-scroll {
+  padding-bottom: 8px;
 }
 
 @keyframes report-step-in {
@@ -12182,23 +12087,7 @@ html[lang="gu"] body {
   transform: scale(0.96);
 }
 
-/* ---- Toast → top snackbar (v248; glass pill polish v262; GPS chip v286) ---- */
-.toast-container {
-  /* Clear header + persona + ward pulse (same stack as map chrome / v348) */
-  top: calc(
-    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
-    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap)
-    + var(--ward-pulse-height) + var(--map-chrome-stack-gap)
-  );
-  bottom: auto;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  max-width: min(420px, calc(100vw - 24px));
-  align-items: center;
-  gap: 0;
-  z-index: 9999;
-}
+/* ---- Toast refinements (dock/out/GPS; base .toast/.toast-container above) ---- */
 
 /* WA / already-pinned snackbars stay above FAB + bottom nav — not forced top */
 .toast-container:has(> .toast--snackbar),
@@ -12208,17 +12097,6 @@ html[lang="gu"] body {
     env(safe-area-inset-bottom, 0px) + var(--dock-float, 12px) + var(--nav-height)
     + var(--fab-size) + 18px
   );
-}
-
-.toast {
-  width: fit-content;
-  max-width: min(420px, calc(100vw - 24px));
-  padding: 8px 14px 8px 16px;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-sm);
-  box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  animation: snackbar-in 0.28s var(--ease-sheet) both;
-  align-items: center;
 }
 
 .toast.toast--out {
@@ -12510,6 +12388,8 @@ body.pwa-nudge-visible .toast-container:has(> .toast--dock-bottom) {
     --toast-success-fg: #f8fafc;
     --toast-action-border: rgba(129, 140, 248, 0.45);
     --toast-error-bg: rgba(153, 27, 27, 0.94);
+    --toast-warning-bg: rgba(146, 64, 14, 0.94);
+    --toast-warning-border: rgba(245, 158, 11, 0.48);
     --toast-wa-btn-bg: rgba(30, 41, 59, 0.92);
     --toast-wa-btn-border: rgba(255, 255, 255, 0.18);
     --toast-wa-btn-inset: rgba(255, 255, 255, 0.08);
@@ -12850,9 +12730,9 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--on-primary) !important;
     filter: brightness(1.06);
   }
-  .success-footer .btn--primary,
-  .success-footer .btn--primary:hover:not(:disabled):not(.is-loading) {
-    color: var(--ink-600) !important;
+  .success-footer .btn--secondary,
+  .success-footer .btn--secondary:hover:not(:disabled) {
+    color: var(--text) !important;
   }
   #btnCamera,
   .fab {
@@ -13025,7 +12905,6 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--primary);
   }
 
-  .snackbar,
   .toast {
     border-color: var(--border);
   }
@@ -15156,12 +15035,7 @@ html.modal-open #btnCamera::after {
   50% { opacity: 1; transform: scale(1.15); }
 }
 
-/* 9.6 Escalation ladder timeline */
-.esc-ladder {
-  position: relative;
-  padding-left: 24px;
-  --ladder-fill: 0%;
-}
+/* 9.6 Escalation ladder timeline (track + fill + step dots) */
 .esc-ladder::before {
   content: '';
   position: absolute;
@@ -15171,6 +15045,7 @@ html.modal-open #btnCamera::after {
   width: 2px;
   background: var(--border);
   border-radius: 1px;
+  z-index: 0;
 }
 .esc-ladder::after {
   content: '';
@@ -15180,6 +15055,7 @@ html.modal-open #btnCamera::after {
   width: 2px;
   background: var(--success);
   height: var(--ladder-fill, 0%);
+  max-height: calc(100% - 8px);
   transition: height 0.5s var(--ease-out-soft);
   border-radius: 1px;
   pointer-events: none;
@@ -15187,6 +15063,7 @@ html.modal-open #btnCamera::after {
 }
 .esc-ladder > .esc-step {
   position: relative;
+  z-index: 1;
 }
 .esc-ladder > .esc-step::before {
   content: '';
@@ -15197,11 +15074,17 @@ html.modal-open #btnCamera::after {
   height: 10px;
   border-radius: 50%;
   background: var(--border);
-  transition: background 0.3s, transform 0.3s var(--ease-spring);
+  box-sizing: border-box;
+  transition: background 0.3s, transform 0.3s var(--ease-spring), box-shadow 0.3s;
   z-index: 1;
+}
+.esc-ladder > .esc-step.esc-step--active::before {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 99, 102, 241), 0.22);
 }
 .esc-ladder > .esc-step.is-complete::before {
   background: var(--success);
+  box-shadow: none;
   animation: ladder-dot-pop 0.3s var(--ease-spring);
 }
 @keyframes ladder-dot-pop {
@@ -15210,7 +15093,7 @@ html.modal-open #btnCamera::after {
   100% { transform: scale(1); }
 }
 
-/* 9.7 Language switch cross-fade */
+/* 9.7 Language switch cross-fade (header brand/lang + open modals + nav chrome) */
 .lang-swap {
   animation: lang-cross-fade 0.28s ease-out;
 }
@@ -15241,6 +15124,7 @@ html.modal-open #btnCamera::after {
   #btnRecenter.is-located i { animation: none; }
   .header__sync--syncing::before { animation: none; opacity: 0.8; }
   .esc-ladder::after { transition: none; }
+  .esc-ladder > .esc-step::before { transition: background 0.15s; }
   .esc-ladder > .esc-step.is-complete::before { animation: none; }
   .lang-swap { animation: none; }
   .profile-card__badges > * {

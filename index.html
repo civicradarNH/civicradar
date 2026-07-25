@@ -6,12 +6,41 @@
   <!-- Critical splash — FIRST paint must be brand indigo (TWA/Play WSOD).
        Inline style on <html> + this block before any external CSS/fonts. -->
   <style id="critical-splash">
+    /* Indigo first paint + First Drop animations (must not wait for deferred styles.css). */
     html,body{margin:0;min-height:100%;background:#6366f1}
-    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(130% 95% at 50% 30%,#6366f1 0%,#4f46e5 52%,#3730a3 100%);transition:opacity .32s ease,visibility .32s ease}
-    .app-launch .lh-stage{width:min(200px,72vw);height:auto;display:block}
+    .app-launch{position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(130% 95% at 50% 30%,#6366f1 0%,#4f46e5 52%,#3730a3 100%);transition:opacity .32s ease,visibility .32s ease;-webkit-tap-highlight-color:transparent}
+    .app-launch .lh-stage{width:min(200px,72vw);height:auto;display:block;overflow:visible}
     .app-launch--done{opacity:0;visibility:hidden;pointer-events:none}
     html.app-booting .header,html.app-booting #personaBar,html.app-booting #mapHud,html.app-booting #wardPulse,html.app-booting #main,html.app-booting #bottomNav,html.app-booting #btnCamera,html.app-booting #roleBadges,
     body.app-booting .header,body.app-booting #personaBar,body.app-booting #mapHud,body.app-booting #wardPulse,body.app-booting #main,body.app-booting #bottomNav,body.app-booting #btnCamera,body.app-booting #roleBadges{visibility:hidden}
+    .app-launch .lh-drop,.app-launch .lh-flash,.app-launch .lh-ripple,.app-launch .lh-firefly,.app-launch .lh-pin,.app-launch .lh-pin-glow{transform-box:fill-box;transform-origin:center}
+    .app-launch .lh-drop{animation:lh-drop-fall 2.3s ease-out infinite}
+    @keyframes lh-drop-fall{0%{transform:translateY(-70px) scaleY(1);opacity:0}4%{opacity:1}11%{transform:translateY(0) scaleY(1.12);opacity:1}12.5%{transform:translateY(2px) scaleY(0.4) scaleX(1.3);opacity:1}14%{transform:translateY(2px) scaleY(0.2) scaleX(1.6);opacity:0}100%{opacity:0}}
+    .app-launch .lh-flash{animation:lh-flash-pop 2.3s ease-out infinite}
+    @keyframes lh-flash-pop{0%,11.5%{opacity:0;transform:scale(0.3)}13%{opacity:1;transform:scale(2.2)}18%{opacity:0;transform:scale(3)}100%{opacity:0}}
+    .app-launch .lh-ripple{animation:lh-ripple-expand 2.3s ease-out infinite}
+    @keyframes lh-ripple-expand{0%,12%{r:6;opacity:0}14%{opacity:0.9}55%{r:62;opacity:0}100%{opacity:0}}
+    .app-launch .lh-ripple--2{animation-delay:0.15s}
+    .app-launch .lh-ripple--3{animation-delay:0.3s}
+    .app-launch .lh-firefly{animation:lh-firefly-in 2.3s ease-out infinite}
+    @keyframes lh-firefly-in{0%,26%{opacity:0;transform:scale(0.3)}30%{opacity:1;transform:scale(1.3)}36%{opacity:1;transform:scale(1)}62%{opacity:1}70%{opacity:0;transform:scale(0.6)}100%{opacity:0}}
+    .app-launch .lh-firefly--2{animation-delay:0.08s}
+    .app-launch .lh-firefly--3{animation-delay:0.16s}
+    .app-launch .lh-firefly--4{animation-delay:0.24s}
+    .app-launch .lh-pin{animation:lh-pin-in 2.3s cubic-bezier(0.34,1.4,0.64,1) infinite}
+    @keyframes lh-pin-in{0%,40%{opacity:0;transform:translateY(10px) scale(0.5)}50%{opacity:1;transform:translateY(0) scale(1.08)}56%{transform:translateY(0) scale(1)}88%{opacity:1}96%{opacity:0;transform:scale(0.92)}100%{opacity:0}}
+    .app-launch .lh-pin-glow{animation:lh-pin-glow 2.3s ease-out infinite}
+    @keyframes lh-pin-glow{0%,48%{opacity:0;transform:scale(0.6)}55%{opacity:0.55;transform:scale(1)}75%{opacity:0.25;transform:scale(1.3)}90%{opacity:0;transform:scale(1.5)}100%{opacity:0}}
+    .app-launch .lh-word,.app-launch .lh-tag{animation:lh-word-in 2.3s ease-out infinite;fill:#fff;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif}
+    .app-launch .lh-word{font-size:20px;font-weight:700}
+    .app-launch .lh-tag{font-size:10.5px;font-weight:600;fill:rgba(224,231,255,0.82);animation-delay:0.12s}
+    @keyframes lh-word-in{0%,54%{opacity:0;transform:translateY(8px)}64%{opacity:1;transform:translateY(0)}88%{opacity:1}96%{opacity:0}100%{opacity:0}}
+    @media (prefers-reduced-motion:reduce){
+      .app-launch .lh-drop,.app-launch .lh-flash,.app-launch .lh-ripple,.app-launch .lh-firefly,.app-launch .lh-pin,.app-launch .lh-pin-glow,.app-launch .lh-word,.app-launch .lh-tag{animation:none!important}
+      .app-launch .lh-drop,.app-launch .lh-flash,.app-launch .lh-ripple{opacity:0}
+      .app-launch .lh-firefly,.app-launch .lh-pin,.app-launch .lh-word,.app-launch .lh-tag{opacity:1;transform:none}
+      .app-launch .lh-pin-glow{opacity:0.3;transform:none}
+    }
   </style>
   <meta name="theme-color" content="#6366f1">
   <meta name="color-scheme" content="light dark">
@@ -186,13 +215,14 @@
     <i class="ph ph-device-mobile ios-install-hint__icon" aria-hidden="true"></i>
     <div class="ios-install-hint__copy">
       <p class="ios-install-hint__title" data-i18n="iosInstall.title">Install on iPhone</p>
-      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">No App Store needed. In Safari: Share → Add to Home Screen.</p>
+      <p class="ios-install-hint__text" id="iosInstallHintText" data-i18n="iosInstall.hint">One-tap reporting from your home screen. No App Store needed — in Safari: Share → Add to Home Screen.</p>
     </div>
     <button type="button" class="ios-install-hint__dismiss" id="btnIosInstallDismiss" data-i18n-aria="iosInstall.dismiss" aria-label="Dismiss">&times;</button>
   </div>
 
-  <div id="mapEmptyCta" class="map-empty-cta hidden" role="status" aria-labelledby="mapEmptyText">
+  <div id="mapEmptyCta" class="map-empty-cta hidden" role="region" aria-labelledby="mapEmptyText">
     <div class="map-empty-cta__sheet">
+      <button type="button" class="map-empty-cta__close" id="btnMapEmptyDismiss" data-i18n-aria="map.emptyDismiss" aria-label="Dismiss">&times;</button>
       <div class="map-empty-cta__handle" aria-hidden="true"></div>
       <div class="map-empty-cta__icon-wrap" aria-hidden="true">
         <img src="assets/brand/empty-pin.svg" alt="" width="84" height="84">
@@ -200,6 +230,7 @@
       <h2 class="map-empty-cta__title" id="mapEmptyText" data-i18n="map.empty">Be the first pin in your ward.</h2>
       <p class="map-empty-cta__hint" data-i18n="map.emptyHint">Spot a hazard, snap a photo — neighbours see it too.</p>
       <button type="button" class="btn btn--primary btn--full" id="btnMapEmptyReport" data-i18n="map.emptyAction">Report the first hazard</button>
+      <button type="button" class="btn btn--ghost btn--full map-empty-cta__explore" id="btnMapEmptyExplore" data-i18n="map.emptyExplore">Explore map</button>
       <button type="button" class="map-empty-cta__share hidden" id="btnMapEmptyShare">
         <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
         <span data-i18n="map.emptyShare">Share on WhatsApp</span>
@@ -307,6 +338,7 @@
 
   <!-- PWA install nudge — glass chip (v288; matches GPS tip quality bar) -->
   <div id="pwaInstallNudge" class="pwa-nudge hidden" role="region" aria-labelledby="pwaNudgeTitle">
+    <button type="button" class="pwa-nudge__dismiss" id="btnPwaNudgeClose" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
     <div class="pwa-nudge__copy">
       <p class="pwa-nudge__title" id="pwaNudgeTitle" data-i18n="pwa.nudgeTitle">Add to Home Screen</p>
       <p class="pwa-nudge__text" id="pwaNudgeText" data-i18n="pwa.nudge">One-tap reporting from your home screen.</p>
@@ -602,41 +634,43 @@
 
       <!-- Screen B: confirm — photo thumb → hazard → ward → collapsed map → landmark → submit -->
       <div class="report-step" id="reportStepConfirm" data-step="confirm" hidden>
-        <div class="report-photo-hero" id="reportPhotoHero" tabindex="-1">
-          <canvas id="imageCanvas" width="640" height="480"></canvas>
-        </div>
-        <div class="form-group hazard-picker-group hazard-picker-group--compact">
-          <label id="hazardTypeLabel" class="visually-hidden" data-i18n="report.hazardType">Hazard Type</label>
-          <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
-          <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
-          <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
-        </div>
-        <div class="report-ward-chip" id="reportWardChip" role="status">
-          <i class="ph ph-map-pin" aria-hidden="true"></i>
-          <span id="reportWardChipLabel"></span>
-        </div>
-        <div class="report-pin-confirm" id="reportPinConfirm">
-          <div class="report-pin-confirm__head">
-            <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
-            <button type="button" class="btn btn--ghost btn--sm report-pin-adjust" id="btnReportPinAdjust" aria-expanded="false" aria-controls="reportPinMap">
-              <i class="ph ph-map-pin-line" aria-hidden="true"></i>
-              <span data-i18n="report.adjustPin">Adjust pin</span>
+        <div class="report-confirm-scroll">
+          <div class="report-photo-hero" id="reportPhotoHero" tabindex="-1">
+            <canvas id="imageCanvas" width="640" height="480"></canvas>
+          </div>
+          <div class="form-group hazard-picker-group hazard-picker-group--compact">
+            <label id="hazardTypeLabel" class="visually-hidden" data-i18n="report.hazardType">Hazard Type</label>
+            <p class="hazard-picker__hint" id="hazardPickerHint" data-i18n="report.hazardHint">Tap the hazard you're reporting</p>
+            <div class="hazard-grid" id="hazardGrid" role="radiogroup" aria-labelledby="hazardTypeLabel"></div>
+            <p class="hazard-selected-cue hidden" id="hazardSelectedCue" role="status" aria-live="polite"></p>
+          </div>
+          <div class="report-ward-chip" id="reportWardChip" role="status">
+            <i class="ph ph-map-pin" aria-hidden="true"></i>
+            <span id="reportWardChipLabel"></span>
+          </div>
+          <div class="report-pin-confirm" id="reportPinConfirm">
+            <div class="report-pin-confirm__head">
+              <p class="report-pin-accuracy" id="reportPinAccuracy" role="status" aria-live="polite"></p>
+              <button type="button" class="btn btn--ghost btn--sm report-pin-adjust" id="btnReportPinAdjust" aria-expanded="false" aria-controls="reportPinMap">
+                <i class="ph ph-map-pin-line" aria-hidden="true"></i>
+                <span data-i18n="report.adjustPin">Adjust pin</span>
+              </button>
+            </div>
+            <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
+            <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+            <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
+              <i class="ph ph-map-trifold" aria-hidden="true"></i>
+              <span data-i18n="report.placePinOnMap">Place pin on map</span>
             </button>
           </div>
-          <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
-          <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
-          <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
-            <i class="ph ph-map-trifold" aria-hidden="true"></i>
-            <span data-i18n="report.placePinOnMap">Place pin on map</span>
-          </button>
-        </div>
-        <div class="report-notes-accordion" id="reportNotesAccordion">
-          <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
-            <span data-i18n="report.addNote">+ Near which shop/building?</span>
-          </button>
-          <div class="report-notes-body hidden" id="reportNotesBody">
-            <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
-            <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
+          <div class="report-notes-accordion" id="reportNotesAccordion">
+            <button type="button" class="btn btn--ghost btn--sm report-notes-toggle" id="btnReportNotesToggle" aria-expanded="false" aria-controls="reportNotesBody">
+              <span data-i18n="report.addNote">+ Near which shop/building?</span>
+            </button>
+            <div class="report-notes-body hidden" id="reportNotesBody">
+              <label for="reportNotes" class="visually-hidden" data-i18n="report.notes">Landmark (optional)</label>
+              <textarea id="reportNotes" rows="2" maxlength="500" placeholder="Near which shop/building? e.g. opposite Sai Medical" data-i18n-ph="report.notesPh"></textarea>
+            </div>
           </div>
         </div>
         <div class="modal__sticky-footer modal__sticky-footer--glass">
@@ -695,7 +729,7 @@
         </button>
       </div>
       <div class="success-footer">
-        <button type="button" class="btn btn--ghost btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
+        <button type="button" class="btn btn--secondary btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
       </div>
       <div class="success-more" id="successMore">
         <button type="button" class="btn btn--ghost btn--sm success-more__toggle" id="btnSuccessMoreToggle" aria-expanded="false" aria-controls="successMoreBody">
@@ -961,29 +995,28 @@
       <div class="modal__sheet-body">
         <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
           <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-          <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals for your city.</p>
           <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
         </div>
 
         <div class="resources-section resources-section--community">
           <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in Your Ward</span></h3>
 
-          <div class="pledge-card pledge-card--volunteer">
-            <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-              <p data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
-          </div>
+          <div class="resources-help-list">
+            <button type="button" class="resources-help-row" id="btnOpenVolunteer">
+              <span class="resources-help-row__icon" aria-hidden="true"><i class="ph ph-broom"></i></span>
+              <span class="resources-help-row__body">
+                <span class="resources-help-row__title" data-i18n="community.volunteerTitle">Volunteer in my ward</span>
+                <small class="resources-help-row__meta" data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</small>
+              </span>
+            </button>
 
-          <div class="pledge-card pledge-card--pledge">
-            <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-              <p data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+            <button type="button" class="resources-help-row" id="btnOpenPledge">
+              <span class="resources-help-row__icon" aria-hidden="true"><i class="ph ph-hand-heart"></i></span>
+              <span class="resources-help-row__body">
+                <span class="resources-help-row__title" data-i18n="community.supportTitle">Support Volunteers</span>
+                <small class="resources-help-row__meta" data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</small>
+              </span>
+            </button>
           </div>
         </div>
 
@@ -1113,7 +1146,6 @@
               <span id="profileSubBadge" class="profile-header-compact__badge">Citizen · Mumbai</span>
             </div>
             <button type="button" id="btnEditProfile" class="btn-ghost-sm profile-header-compact__edit" data-i18n-aria="aria.editProfile" aria-label="Edit profile" aria-haspopup="dialog" aria-controls="profileEditModal">
-              <i class="ph ph-pencil-simple" aria-hidden="true"></i>
               <span data-i18n="profile.editName">Edit</span>
             </button>
           </div>
@@ -1130,12 +1162,13 @@
             <div class="profile-xp" id="profileXp" aria-label="Civic Points level">
               <div class="profile-xp__header">
                 <span class="profile-xp__badge" id="profileLevelBadge">Local Observer</span>
+                <span class="profile-xp__total" id="profileXpTotal"></span>
               </div>
               <div class="profile-xp__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="profileXpTrack">
                 <div class="profile-xp__fill" id="profileXpProgress"></div>
               </div>
               <p class="profile-xp__hint" id="profileXpHint"></p>
-</div>
+            </div>
             <div class="profile-rewards__streak hidden" id="profileStreakLine">
               <svg class="streak-flame" width="14" height="18" viewBox="0 0 24 32" aria-hidden="true" focusable="false">
                 <path class="streak-flame__core" fill="#f97316" d="M12 1.5C9.2 6.2 5 11.4 5 18.2c0 4.6 3.1 8.3 7 8.3s7-3.7 7-8.3C19 11.4 14.8 6.2 12 1.5z"/>
@@ -1176,6 +1209,7 @@
           <span class="profile-nav-label">
             <span class="profile-nav-icon profile-nav-icon--activity" aria-hidden="true"><i class="ph ph-list-checks"></i></span>
             <span data-i18n="profile.section.activity">Activity</span>
+            <span class="cr-section__count hidden" id="profileActivityCount" aria-hidden="true"></span>
           </span>
           <i class="ph ph-caret-down" aria-hidden="true"></i>
         </button>
@@ -1282,46 +1316,64 @@
             <span data-i18n="tour.replay">Replay tour</span>
           </button>
         </div>
-        <p class="profile-list-label" id="profileRolesLabel" data-i18n="profile.section.communityRoles">Community Roles</p>
-        <div class="profile-list-group" role="group" aria-labelledby="profileRolesLabel">
-          <button type="button" class="partner-link" id="btnPartnerAccess">
-            <span class="profile-row-icon profile-row-icon--green" aria-hidden="true"><i class="ph ph-buildings"></i></span>
-            <span data-i18n="profile.partner">Volunteer / NGO login</span>
+        <div class="cr-section cr-section--collapsed profile-footer__roles" id="profileRolesSection">
+          <button type="button" class="cr-section__toggle" id="btnProfileRolesToggle" aria-expanded="false" aria-controls="profileRolesBody">
+            <span class="profile-nav-label">
+              <span class="profile-nav-icon profile-nav-icon--support" aria-hidden="true"><i class="ph ph-users-three"></i></span>
+              <span data-i18n="profile.section.communityRoles">Community Roles</span>
+            </span>
+            <i class="ph ph-caret-down" aria-hidden="true"></i>
           </button>
-          <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
-            <span class="profile-row-icon profile-row-icon--amber" aria-hidden="true"><i class="ph ph-hand-heart"></i></span>
-            <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
-          </button>
-          <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
-            <span class="profile-row-icon profile-row-icon--blue" aria-hidden="true"><i class="ph ph-handshake"></i></span>
-            <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
-          </button>
-          <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
-            <span class="profile-row-icon profile-row-icon--slate" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
-            <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
-          </button>
+          <div class="cr-section__body" id="profileRolesBody" inert aria-hidden="true">
+            <div class="cr-section__body-inner">
+              <div class="profile-list-group profile-list-group--muted" role="group" aria-labelledby="btnProfileRolesToggle">
+                <button type="button" class="partner-link" id="btnPartnerAccess">
+                  <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-buildings"></i></span>
+                  <span data-i18n="profile.partner">Volunteer / NGO login</span>
+                </button>
+                <button type="button" class="partner-link partner-link--cta" id="btnProfileLeadNominate">
+                  <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-hand-heart"></i></span>
+                  <span data-i18n="lead.profileCta">Become a ward or neighbourhood lead</span>
+                </button>
+                <button type="button" class="partner-link partner-link--muted" id="btnPartnerInquiry">
+                  <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-handshake"></i></span>
+                  <span data-i18n="profile.sponsor">Sponsor or partner with us</span>
+                </button>
+                <button type="button" class="partner-link partner-link--muted" id="btnProfileBmcAccess">
+                  <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
+                  <span data-i18n="access.profileBmcCta">BMC official? Request access</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <p class="profile-list-label" id="profileLegalLabel" data-i18n="profile.section.accountLegal">Account &amp; Legal</p>
-        <div class="profile-list-group" role="group" aria-labelledby="profileLegalLabel">
+        <div class="profile-list-group profile-list-group--muted" role="group" aria-labelledby="profileLegalLabel">
           <a href="terms.html" target="_blank" rel="noopener noreferrer">
-            <span class="profile-row-icon profile-row-icon--indigo" aria-hidden="true"><i class="ph ph-seal-check"></i></span>
+            <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-seal-check"></i></span>
             <span data-i18n="legal.terms">Terms of Service</span>
           </a>
           <a href="privacy.html" target="_blank" rel="noopener noreferrer">
-            <span class="profile-row-icon profile-row-icon--teal" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
+            <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
             <span data-i18n="legal.privacy">Privacy Policy</span>
           </a>
           <a id="btnPrivacyContact" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance">
-            <span class="profile-row-icon profile-row-icon--blue" aria-hidden="true"><i class="ph ph-envelope"></i></span>
+            <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-envelope"></i></span>
             <span data-i18n="profile.privacyContact">Privacy / grievance contact</span>
           </a>
-          <a href="delete-account.html" target="_blank" rel="noopener noreferrer">
+          <a href="delete-account.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--stacked">
             <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-user"></i></span>
-            <span data-i18n="legal.deleteAccount">Delete account</span>
+            <span class="profile-row-copy">
+              <span data-i18n="legal.deleteAccount">Delete account</span>
+              <small class="profile-row-sub" data-i18n="legal.deleteAccountSub">How to close your account</small>
+            </span>
           </a>
-          <button type="button" class="btn btn--ghost btn--full btn--danger-text" id="btnDeleteData">
+          <button type="button" class="btn btn--ghost btn--full btn--danger-text profile-list-row--stacked" id="btnDeleteData">
             <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-trash"></i></span>
-            <span data-i18n="profile.deleteData">Delete my data</span>
+            <span class="profile-row-copy">
+              <span data-i18n="profile.deleteData">Delete my data</span>
+              <small class="profile-row-sub" data-i18n="profile.deleteDataSub">Erases reports, points and profile</small>
+            </span>
           </button>
         </div>
       </div>
@@ -1379,6 +1431,7 @@
   <div class="modal-overlay" id="deleteConfirmOverlay" aria-hidden="true">
     <div class="modal modal--sm modal--alert delete-confirm-modal" id="deleteConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
       <div class="modal__handle"></div>
+      <button type="button" class="modal__close" id="btnDeleteConfirmClose" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
       <div class="modal__header-icon delete-confirm__icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></div>
       <h2 id="deleteConfirmTitle" data-i18n="profile.deleteConfirmTitle">Delete your data?</h2>
       <p class="modal__subtitle" id="deleteConfirmDesc" data-i18n="profile.deleteConfirmBody">This permanently removes your CivicRadar data from this device and our servers. This cannot be undone.</p>
@@ -1774,7 +1827,7 @@
           <input type="text" id="escComplaintId" data-i18n-ph="esc.complaintPh" placeholder="e.g. N/2026/123456" autocomplete="off">
           <button type="button" class="btn btn--primary btn--sm" id="btnEscSaveId" data-i18n="esc.save" disabled>Save</button>
         </div>
-        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
+        <p class="field-hint hidden esc-complaint-warn" id="escComplaintWarn" role="status" aria-live="polite" data-i18n="esc.complaintWarn">This doesn’t look like a typical BMC number — you can still save if it’s correct.</p>
         <p class="field-hint" data-i18n="esc.complaintHint">Saving starts the official clock and unlocks the escalation ladder, days-since-filed tracker, and follow-up templates.</p>
         <p class="field-hint hidden" id="escFiledNote"><i class="ph ph-check-circle"></i> <span id="escFiledNoteText" data-i18n="esc.filedNote">Filed with BMC — escalation steps unlock as deadlines pass.</span></p>
         <p class="field-hint hidden" id="escDaysSince"></p>

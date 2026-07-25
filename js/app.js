@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v416';
+  const CIVIC_APP_VERSION = 'v432';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -577,6 +577,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const HERO_DISMISSED_KEY = 'civicradar_hero_dismissed';
 
+  const MAP_EMPTY_DISMISSED_KEY = 'civicradar_map_empty_dismissed';
+
   const LANG_KEY = 'civicradar_lang';
 
   const INTEREST_KEY = 'civicradar_interest';
@@ -667,6 +669,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const PWA_NUDGE_KEY = 'civicradar_pwa_nudge_dismissed';
 
+  // sessionStorage (not localStorage): deep-link open-in-app is per browsing session
+  // so a new tab can re-offer on a different ?report= / ?ref= URL. Permanent localStorage
+  // dismiss would hide it across sessions even when the deep link is new.
   const APP_OPEN_BANNER_KEY = 'civicradar_app_open_banner_dismiss';
 
   const SEASON_HOOK_DISMISS_KEY = 'civicradar_season_hook_dismissed';
@@ -1770,6 +1775,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function pickResourcesPrimaryChannel(channels) {
+
+    if (!channels || !channels.length) return null;
+
+    const wa = channels.find((c) => c.urlKind === 'whatsapp' || c.id === 'bmc_whatsapp' || c.id === 'pmc_wa');
+
+    if (wa) return wa;
+
+    const rec = channels.find((c) => c.recommended);
+
+    return rec || channels[0];
+
+  }
+
+
+
   function renderOfficialChannelButtons(container, cityId, hazard, report, opts) {
 
     if (!container) return;
@@ -1805,9 +1826,9 @@ document.addEventListener('DOMContentLoaded', function () {
       aaple_sarkar: 'assets/channel-icons/govt-emblem.svg',
     };
 
-    container.innerHTML = channels.map((ch) => {
+    function officialChannelRowHtml(ch, isRecommended) {
 
-      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
+      const recCls = isRecommended ? ' esc-channel--recommended' : '';
 
       const hintAttr = ch.categoryHint
 
@@ -1815,7 +1836,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      const badge = ch.recommended
+      const badge = isRecommended
 
         ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
 
@@ -1846,7 +1867,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ? '<i class="ph ph-arrow-square-out esc-channel__external" aria-hidden="true"></i>'
         : '';
 
-      return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
+      return `<div class="esc-channel-wrap${isRecommended ? ' esc-channel-wrap--recommended' : ''}">
 
         <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
@@ -1858,7 +1879,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
       </div>`;
 
-    }).join('');
+    }
+
+    if (ctx === 'resources') {
+
+      const primary = pickResourcesPrimaryChannel(channels);
+
+      const rest = channels.filter((c) => c.id !== primary.id);
+
+      let html = officialChannelRowHtml(primary, true);
+
+      if (rest.length) {
+
+        const listId = 'resourcesMoreChannelsList';
+
+        const label = t('resources.moreChannels').replace('{n}', String(rest.length));
+
+        html += `<details class="esc-more-ways resources-more-channels">
+
+        <summary aria-controls="${listId}" aria-expanded="false">${escapeHtml(label)}</summary>
+
+        <div class="esc-channels official-channels resources-more-channels__list" id="${listId}">${rest.map((c) => officialChannelRowHtml(c, false)).join('')}</div>
+
+      </details>`;
+
+      }
+
+      container.innerHTML = html;
+
+      const details = container.querySelector('.resources-more-channels');
+
+      if (details) {
+
+        const summary = details.querySelector('summary');
+
+        const syncExpanded = () => {
+
+          if (summary) summary.setAttribute('aria-expanded', details.open ? 'true' : 'false');
+
+        };
+
+        syncExpanded();
+
+        details.addEventListener('toggle', syncExpanded);
+
+      }
+
+    } else {
+
+      container.innerHTML = channels.map((ch) => officialChannelRowHtml(ch, !!ch.recommended)).join('');
+
+    }
 
     container.dataset.officialReportId = report && report.id ? String(report.id) : '';
 
@@ -2404,6 +2475,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+  }
+
+
+
+  /** Tracks last ward text per ward input so dependent society fields clear only on real changes. */
+  const _wardSocietyPairPrev = new WeakMap();
+
+  /** Seed baseline after hydrate / programmatic ward set — does not clear society. */
+  function syncWardSocietyPairBaseline(wardEl, wardValue) {
+    if (!wardEl) return;
+    const w = String(wardValue == null ? wardEl.value : wardValue).trim();
+    _wardSocietyPairPrev.set(wardEl, w);
+  }
+
+  /**
+   * When ward text actually changes, clear the paired society/neighbourhood combobox.
+   * Skips identical re-fires and first observation if baseline was never seeded
+   * (call syncWardSocietyPairBaseline on hydrate so the first user edit still clears).
+   */
+  function clearSocietyOnWardChange(wardEl, societyEl) {
+    if (!wardEl || !societyEl) return;
+    const next = String(wardEl.value || '').trim();
+    if (!_wardSocietyPairPrev.has(wardEl)) {
+      _wardSocietyPairPrev.set(wardEl, next);
+      return;
+    }
+    const prev = _wardSocietyPairPrev.get(wardEl);
+    if (prev === next) return;
+    _wardSocietyPairPrev.set(wardEl, next);
+    if (window.CivicSearchableSelect) {
+      CivicSearchableSelect.setValueQuiet(societyEl, '');
+    } else {
+      societyEl.value = '';
+      societyEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 
 
@@ -3218,6 +3324,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'Approximate area from your location — you can change it.',
 
+      'onboard.wardDetectedHintCheck': 'Estimated area only — please double-check and change if it looks wrong.',
+
       'onboard.wardManual': 'Not right? Pick manually',
 
       'onboard.pickManually': 'Or pick manually',
@@ -3553,7 +3661,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'Install on iPhone',
 
-      'iosInstall.hint': 'No App Store needed. In Safari: Share → Add to Home Screen.',
+      'iosInstall.hint': 'One-tap reporting from your home screen. No App Store needed — in Safari: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'Dismiss install hint',
 
@@ -3641,6 +3749,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.emptyHint': 'Spot a hazard, snap a photo — neighbours see it too.',
 
       'map.emptyAction': 'Report the first hazard',
+
+      'map.emptyExplore': 'Explore map',
+
+      'map.emptyDismiss': 'Dismiss empty-ward tip',
 
       'map.emptyShare': 'Share on WhatsApp',
 
@@ -3930,6 +4042,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'Help in Your Ward',
 
+      'resources.moreChannels': '{n} more official channels',
+
       'community.supportTitle': 'Support Volunteers',
 
       'community.supportBody': 'Pledge supplies for cleanup crews in your ward.',
@@ -4065,7 +4179,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{n} pts to {level} (+{pts}/report)',
 
+      'profile.xpProgressOf': '{current} of {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'Max level — Community Leader!',
+
+      'profile.activityCountAria': 'Activity, {n} open reports',
 
       'xp.level.observer': 'Local Observer',
 
@@ -4121,6 +4241,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'Delete my data',
 
+      'profile.deleteDataSub': 'Erases reports, points and profile',
+
       'profile.deleteConfirmTitle': 'Delete your data?',
 
       'profile.deleteConfirmBody': 'Permanently removes your CivicRadar data from this device and our servers. Cannot be undone.',
@@ -4143,6 +4265,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.removeConfirm': 'Remove your volunteer signup? This cannot be undone.',
 
+      'volunteer.removeAction': 'Remove signup',
+
       'profile.deleteDone': 'Your data has been deleted. You can start fresh.',
       'profile.deleteFail': "Couldn't delete your data — nothing was removed. Please try again, or email us if it keeps failing.",
 
@@ -4161,6 +4285,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'Terms of Service',
 
       'legal.deleteAccount': 'Delete account',
+
+      'legal.deleteAccountSub': 'How to close your account',
 
       'legal.officialSources': 'Official government sources',
 
@@ -4789,9 +4915,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'Hide this pin and flag it for our team to review? (Does not delete the report immediately.)',
 
+      'safety.hideAction': 'Hide pin',
+
       'mute.hideReporter': 'Hide reports from this reporter',
 
       'mute.hideConfirm': 'Hide all pins from this reporter on your device? You can undo in Profile → Hidden reporters.',
+
+      'mute.hideAction': 'Hide all from reporter',
 
       'mute.hidden': 'Reports from this reporter are hidden on your map.',
 
@@ -5003,7 +5133,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'Choose what you\'re reporting before submitting.',
 
-      'toast.storageFull': 'Storage full — oldest report removed. Try again.',
+      'toast.storageFull': 'Storage full — could not free enough space. Try again.',
+
+      'toast.storageFreed': 'Freed up space by removing {n} old cached reports.',
 
       'toast.gpsFail': 'Could not get GPS. Turn on location and try again.',
 
@@ -5063,9 +5195,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'Community cleanup logged. BMC complaint stays open until officially resolved.',
 
-      'pledge.deliverConfirm': 'Mark this pledge as delivered? This cannot be undone.',
+      'pledge.deliverConfirm': 'Mark this pledge as delivered?',
 
-      'pledge.verifyConfirm': 'Verify these volunteer hours? This cannot be undone.',
+      'pledge.deliverAction': 'Mark delivered',
+
+      'pledge.verifyConfirm': 'Verify these volunteer hours?',
+
+      'pledge.verifyAction': 'Verify hours',
 
       'toast.pledgeDelivered': 'Supplies marked delivered. Verify hours next.',
 
@@ -5118,6 +5254,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'Remove content',
 
       'admin.removeConfirm': 'Remove this report from the public map? Use this for content that violates guidelines — the reporter can still see it was removed.',
+
+      'admin.removeAction': 'Remove report',
 
       'admin.removeSuccess': 'Report removed from the public map.',
 
@@ -5804,6 +5942,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'आपके स्थान से अनुमानित इलाका — आप इसे बदल सकते हैं।',
 
+      'onboard.wardDetectedHintCheck': 'केवल अनुमानित इलाका — कृपया दोबारा जाँचें; गलत लगे तो बदल दें।',
+
       'onboard.wardManual': 'सही नहीं है? खुद चुनें',
 
       'onboard.pickManually': 'या खुद चुनें',
@@ -6141,7 +6281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone पर इंस्टॉल करें',
 
-      'iosInstall.hint': 'App Store की ज़रूरत नहीं। Safari में: Share → Add to Home Screen.',
+      'iosInstall.hint': 'एक टैप में रिपोर्ट — होम स्क्रीन से। App Store की ज़रूरत नहीं। Safari में: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'इंस्टॉल सुझाव बंद करें',
 
@@ -6229,6 +6369,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.emptyHint': 'खतरा देखें, फोटो लें — पड़ोसी भी देखेंगे।',
 
       'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
+
+      'map.emptyExplore': 'मानचित्र देखें',
+
+      'map.emptyDismiss': 'खाली वार्ड सुझाव बंद करें',
 
       'map.emptyShare': 'WhatsApp पर साझा करें',
 
@@ -6518,6 +6662,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
+      'resources.moreChannels': '{n} और आधिकारिक चैनल',
+
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
       'community.supportBody': 'वार्ड के सफ़ाई दल के लिए सामग्री दें।',
@@ -6653,7 +6799,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} तक {n} pts (+{pts}/रिपोर्ट)',
 
+      'profile.xpProgressOf': '{current} / {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'अधिकतम स्तर — Community Leader!',
+
+      'profile.activityCountAria': 'गतिविधि, {n} खुली रिपोर्ट',
 
       'xp.level.observer': 'स्थानीय पर्यवेक्षक',
 
@@ -6709,6 +6861,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'मेरा डेटा हटाएँ',
 
+      'profile.deleteDataSub': 'रिपोर्ट, अंक और प्रोफ़ाइल मिटाता है',
+
       'profile.deleteConfirmTitle': 'अपना डेटा हटाएँ?',
 
       'profile.deleteConfirmBody': 'इस डिवाइस और हमारे सर्वर से आपका CivicRadar डेटा स्थायी रूप से हटाता है। वापस नहीं होता।',
@@ -6731,6 +6885,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.removeConfirm': 'आपका स्वयंसेवक पंजीकरण हटाएँ? इसे पूर्ववत नहीं किया जा सकता।',
 
+      'volunteer.removeAction': 'पंजीकरण हटाएँ',
+
       'profile.deleteDone': 'आपका डेटा हटा दिया गया। आप नए सिरे से शुरू कर सकते हैं।',
       'profile.deleteFail': 'आपका डेटा हटाया नहीं जा सका — कुछ भी नहीं हटाया गया। कृपया फिर कोशिश करें, या समस्या बनी रहे तो हमें ईमेल करें।',
 
@@ -6749,6 +6905,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'Terms of Service',
 
       'legal.deleteAccount': 'खाता हटाएँ',
+
+      'legal.deleteAccountSub': 'खाता बंद करने का तरीका',
 
       'legal.officialSources': 'आधिकारिक सरकारी स्रोत',
 
@@ -7375,9 +7533,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'इस पिन को छिपाएँ और समीक्षा के लिए हमारी टीम को भेजें? (रिपोर्ट तुरंत हटती नहीं।)',
 
+      'safety.hideAction': 'पिन छिपाएँ',
+
       'mute.hideReporter': 'इस रिपोर्टर की रिपोर्ट छिपाएँ',
 
       'mute.hideConfirm': 'अपने डिवाइस पर इस रिपोर्टर की सभी पिन छिपाएँ? प्रोफ़ाइल → छिपे रिपोर्टर में वापस ला सकते हैं।',
+
+      'mute.hideAction': 'रिपोर्टर की सभी छिपाएँ',
 
       'mute.hidden': 'इस रिपोर्टर की रिपोर्ट आपके मानचित्र पर छिपी हैं।',
 
@@ -7590,7 +7752,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'सबमिट से पहले खतरे का प्रकार चुनें।',
 
-      'toast.storageFull': 'स्टोरेज भरा — पुरानी रिपोर्ट हटाई। फिर कोशिश करें।',
+      'toast.storageFull': 'स्टोरेज भरा — पर्याप्त जगह नहीं खाली हो सकी। फिर कोशिश करें।',
+
+      'toast.storageFreed': '{n} पुरानी कैश रिपोर्ट हटाकर जगह खाली की।',
 
       'toast.gpsFail': 'GPS नहीं मिला। लोकेशन चालू करके फिर कोशिश करें।',
 
@@ -7650,9 +7814,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत आधिकारिक रूप से खुली रह सकती है।',
 
-      'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें? इसे पूर्ववत नहीं किया जा सकता।',
+      'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें?',
 
-      'pledge.verifyConfirm': 'इन स्वयंसेवक घंटों को सत्यापित करें? इसे पूर्ववत नहीं किया जा सकता।',
+      'pledge.deliverAction': 'वितरित चिह्नित करें',
+
+      'pledge.verifyConfirm': 'इन स्वयंसेवक घंटों को सत्यापित करें?',
+
+      'pledge.verifyAction': 'घंटे सत्यापित करें',
 
       'toast.pledgeDelivered': 'सामान वितरित चिह्नित — अब घंटे सत्यापित करें।',
 
@@ -7705,6 +7873,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'सामग्री हटाएँ',
 
       'admin.removeConfirm': 'इस रिपोर्ट को सार्वजनिक मानचित्र से हटाएँ? दिशानिर्देशों का उल्लंघन करने वाली सामग्री के लिए उपयोग करें — रिपोर्टर देख सकेगा कि इसे हटाया गया।',
+
+      'admin.removeAction': 'रिपोर्ट हटाएँ',
 
       'admin.removeSuccess': 'रिपोर्ट सार्वजनिक मानचित्र से हटा दी गई।',
 
@@ -8390,6 +8560,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'तुमच्या स्थानावरून अंदाजे परिसर — तुम्ही तो बदलू शकता.',
 
+      'onboard.wardDetectedHintCheck': 'फक्त अंदाजे परिसर — कृपया तपासा; चुकीचे वाटत असल्यास बदला.',
+
       'onboard.wardManual': 'बरोबर नाही? स्वतः निवडा',
 
       'onboard.pickManually': 'किंवा स्वतः निवडा',
@@ -8727,7 +8899,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone वर इंस्टॉल करा',
 
-      'iosInstall.hint': 'App Storeची गरज नाही. Safari मध्ये: Share → Add to Home Screen.',
+      'iosInstall.hint': 'एक टॅपमध्ये रिपोर्ट — होम स्क्रीनवरून. App Storeची गरज नाही — Safari मध्ये: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'इंस्टॉल सूचना बंद करा',
 
@@ -8815,6 +8987,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.emptyHint': 'धोका पहा, फोटो काढा — शेजारीही पाहतील.',
 
       'map.emptyAction': 'पहिला धोका नोंदवा',
+
+      'map.emptyExplore': 'नकाशा पाहा',
+
+      'map.emptyDismiss': 'रिकाम्या वॉर्डचा सल्ला बंद करा',
 
       'map.emptyShare': 'WhatsApp वर शेअर करा',
 
@@ -9104,6 +9280,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
+      'resources.moreChannels': '{n} अधिक अधिकृत चॅनेल',
+
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
       'community.supportBody': 'वॉर्ड स्वच्छता पथकांसाठी साहित्य द्या.',
@@ -9239,7 +9417,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} पर्यंत {n} pts (+{pts}/तक्रार)',
 
+      'profile.xpProgressOf': '{next} पैकी {current} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'कमाल स्तर — Community Leader!',
+
+      'profile.activityCountAria': 'कृती, {n} खुल्या तक्रारी',
 
       'xp.level.observer': 'स्थानिक निरीक्षक',
 
@@ -9295,6 +9479,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'माझा डेटा हटवा',
 
+      'profile.deleteDataSub': 'तक्रारी, गुण आणि प्रोफाइल पुसते',
+
       'profile.deleteConfirmTitle': 'तुमचा डेटा हटवायचा?',
 
       'profile.deleteConfirmBody': 'या डिव्हाइस आणि आमच्या सर्व्हरवरून तुमचा CivicRadar डेटा कायमचा काढतो. परत येत नाही.',
@@ -9317,6 +9503,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.removeConfirm': 'तुमची स्वयंसेवक नोंदणी काढायची? हे पूर्ववत करता येणार नाही.',
 
+      'volunteer.removeAction': 'नोंदणी काढा',
+
       'profile.deleteDone': 'तुमचा डेटा हटवला. तुम्ही पुन्हा सुरू करू शकता.',
       'profile.deleteFail': 'तुमचा डेटा हटवता आला नाही — काहीही हटवले गेले नाही. कृपया पुन्हा प्रयत्न करा, किंवा समस्या राहिल्यास आम्हाला ईमेल करा.',
 
@@ -9335,6 +9523,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'सेवा अटी',
 
       'legal.deleteAccount': 'खाते हटवा',
+
+      'legal.deleteAccountSub': 'खाते बंद करण्याची पद्धत',
 
       'legal.officialSources': 'अधिकृत सरकारी स्रोत',
 
@@ -9961,9 +10151,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'हा पिन लपवायचा आणि आमच्या टीमकडे पुनरावलोकनासाठी पाठवायचा? (तक्रार लगेच हटत नाही.)',
 
+      'safety.hideAction': 'पिन लपवा',
+
       'mute.hideReporter': 'या तक्रारकर्त्याच्या तक्रारी लपवा',
 
       'mute.hideConfirm': 'तुमच्या डिव्हाइसवर या तक्रारकर्त्याचे सर्व पिन लपवायचे? प्रोफाइल → लपलेले तक्रारकर्ते मध्ये परत दाखवता येते.',
+
+      'mute.hideAction': 'तक्रारकर्त्याचे सर्व लपवा',
 
       'mute.hidden': 'या तक्रारकर्त्याच्या तक्रारी तुमच्या नकाशावर लपवल्या.',
 
@@ -10175,7 +10369,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'पाठवण्यापूर्वी धोक्याचा प्रकार निवडा.',
 
-      'toast.storageFull': 'स्टोरेज भरले — जुनी तक्रार काढली. पुन्हा प्रयत्न करा.',
+      'toast.storageFull': 'स्टोरेज भरले — पुरेशी जागा मोकळी करता आली नाही. पुन्हा प्रयत्न करा.',
+
+      'toast.storageFreed': '{n} जुन्या कॅश तक्रारी काढून जागा मोकळी केली.',
 
       'toast.gpsFail': 'GPS मिळाला नाही. लोकेशन चालू करून पुन्हा प्रयत्न करा.',
 
@@ -10235,9 +10431,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार अधिकृतपणे उघडी राहू शकते.',
 
-      'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची? हे पूर्ववत करता येणार नाही.',
+      'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची?',
 
-      'pledge.verifyConfirm': 'हे स्वयंसेवक तास सत्यापित करायचे? हे पूर्ववत करता येणार नाही.',
+      'pledge.deliverAction': 'वितरित चिन्हांकित करा',
+
+      'pledge.verifyConfirm': 'हे स्वयंसेवक तास सत्यापित करायचे?',
+
+      'pledge.verifyAction': 'तास सत्यापित करा',
 
       'toast.pledgeDelivered': 'साहित्य वितरित — आता तास सत्यापित करा.',
 
@@ -10290,6 +10490,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'मजकूर काढा',
 
       'admin.removeConfirm': 'ही तक्रार सार्वजनिक नकाशावरून काढायची? मार्गदर्शक तत्त्वांचे उल्लंघन करणाऱ्या मजकुरासाठी वापरा — तक्रारदाराला ती काढल्याचे दिसेल.',
+
+      'admin.removeAction': 'तक्रार काढा',
 
       'admin.removeSuccess': 'तक्रार सार्वजनिक नकाशावरून काढली.',
 
@@ -10975,6 +11177,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectedHint': 'તમારા સ્થાનથી અંદાજિત વિસ્તાર — તમે તે બદલી શકો છો.',
 
+      'onboard.wardDetectedHintCheck': 'ફક્ત અંદાજિત વિસ્તાર — કૃપા કરીને ચકાસો; ખોટું લાગે તો બદલો.',
+
       'onboard.wardManual': 'બરાબર નથી? જાતે પસંદ કરો',
 
       'onboard.pickManually': 'અથવા જાતે પસંદ કરો',
@@ -11312,7 +11516,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'iosInstall.title': 'iPhone પર ઇન્સ્ટોલ કરો',
 
-      'iosInstall.hint': 'Android જેવી જ એપ — App Store જરૂરી નથી. જરૂર પડે તો Safari માં ખોલો, પછી Share → Add to Home Screen.',
+      'iosInstall.hint': 'એક ટૅપમાં રિપોર્ટ — હોમ સ્ક્રીનથી. App Store જરૂરી નથી — Safari માં: Share → Add to Home Screen.',
 
       'iosInstall.dismiss': 'ઇન્સ્ટોલ સૂચન બંધ કરો',
 
@@ -11400,6 +11604,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.emptyHint': 'જોખમ જુઓ, ફોટો લો — પડોશીઓ પણ જોશે.',
 
       'map.emptyAction': 'પહેલું જોખમ રિપોર્ટ કરો',
+
+      'map.emptyExplore': 'નકશો જુઓ',
+
+      'map.emptyDismiss': 'ખાલી વોર્ડ સૂચન બંધ કરો',
 
       'map.emptyShare': 'WhatsApp પર શેર કરો',
 
@@ -11689,6 +11897,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
+      'resources.moreChannels': '{n} વધુ અધિકૃત ચેનલ્સ',
+
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
       'community.supportBody': 'વોર્ડ સફાઈ દળો માટે સામગ્રી આપો.',
@@ -11824,7 +12034,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} સુધી {n} pts (+{pts}/ફરિયાદ)',
 
+      'profile.xpProgressOf': '{current} / {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'મહત્તમ સ્તર — Community Leader!',
+
+      'profile.activityCountAria': 'પ્રવૃત્તિ, {n} ખુલ્લી ફરિયાદો',
 
       'xp.level.observer': 'સ્થાનિક નિરીક્ષક',
 
@@ -11880,6 +12096,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'મારો ડેટા કાઢી નાખો',
 
+      'profile.deleteDataSub': 'રિપોર્ટ, પોઇન્ટ્સ અને પ્રોફાઇલ કાઢે છે',
+
       'profile.deleteConfirmTitle': 'તમારો ડેટા કાઢી નાખો?',
 
       'profile.deleteConfirmBody': 'આ તમારો CivicRadar ડેટા આ ઉપકરણ અને અમારા સર્વરમાંથી કાયમી કાઢી નાખશે. પાછું લાવી શકાશે નહીં.',
@@ -11902,6 +12120,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.removeConfirm': 'તમારી સ્વયંસેવક નોંધણી કાઢી નાખીએ? આ પાછું ફેરવી શકાશે નહીં.',
 
+      'volunteer.removeAction': 'નોંધણી કાઢો',
+
       'profile.deleteDone': 'તમારો ડેટા કાઢી નાખ્યો. તમે ફરી શરૂ કરી શકો.',
       'profile.deleteFail': 'તમારો ડેટા કાઢી શકાયો નહીં — કંઈ પણ કાઢવામાં આવ્યું નથી. કૃપા કરી ફરી પ્રયાસ કરો, અથવા સમસ્યા રહે તો અમને ઈમેલ કરો.',
 
@@ -11920,6 +12140,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'સેવાની શરતો',
 
       'legal.deleteAccount': 'એકાઉન્ટ કાઢો',
+
+      'legal.deleteAccountSub': 'એકાઉન્ટ બંધ કરવાની રીત',
 
       'legal.officialSources': 'અધિકૃત સરકારી સ્રોતો',
 
@@ -12546,9 +12768,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'safety.hideConfirm': 'આ પિન છુપાવીએ અને સમીક્ષા માટે અમારી ટીમને મોકલીએ? (ફરિયાદ તરત ડિલીટ થતી નથી.)',
 
+      'safety.hideAction': 'પિન છુપાવો',
+
       'mute.hideReporter': 'આ રિપોર્ટરની રિપોર્ટ છુપાવો',
 
       'mute.hideConfirm': 'તમારા ડિવાઇસ પર આ રિપોર્ટરની બધી પિન છુપાવીએ? પ્રોફાઇલ → છુપાયેલા રિપોર્ટરમાં પાછા લાવી શકાય.',
+
+      'mute.hideAction': 'રિપોર્ટરની બધી છુપાવો',
 
       'mute.hidden': 'આ રિપોર્ટરની રિપોર્ટ તમારા નકશાથી છુપાઈ.',
 
@@ -12760,7 +12986,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'સબમિટ પહેલાં જોખમનો પ્રકાર પસંદ કરો.',
 
-      'toast.storageFull': 'સ્ટોરેજ ભરેલું — જૂની ફરિયાદ કાઢી. ફરી પ્રયાસ કરો.',
+      'toast.storageFull': 'સ્ટોરેજ ભરેલું — પૂરતી જગ્યા ખાલી કરી શકાઈ નહીં. ફરી પ્રયાસ કરો.',
+
+      'toast.storageFreed': '{n} જૂની કૅશ ફરિયાદો કાઢીને જગ્યા ખાલી કરી.',
 
       'toast.gpsFail': 'GPS મળ્યું નહીં. લોકેશન ચાલુ કરી ફરી પ્રયાસ કરો.',
 
@@ -12820,9 +13048,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.cleanupLogged': 'સમુદાય સફાઈ લોગ — BMC ફરિયાદ અધિકૃત રીતે ખુલ્લી રહી શકે.',
 
-      'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ? આ પાછું ફેરવી શકાશે નહીં.',
+      'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ?',
 
-      'pledge.verifyConfirm': 'આ સ્વયંસેવક કલાકો ચકાસીએ? આ પાછું ફેરવી શકાશે નહીં.',
+      'pledge.deliverAction': 'વિતરિત ચિહ્નિત કરો',
+
+      'pledge.verifyConfirm': 'આ સ્વયંસેવક કલાકો ચકાસીએ?',
+
+      'pledge.verifyAction': 'કલાકો ચકાસો',
 
       'toast.pledgeDelivered': 'સામગ્રી વિતરિત — હવે કલાક ચકાસો.',
 
@@ -12875,6 +13107,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'admin.removeContent': 'સામગ્રી દૂર કરો',
 
       'admin.removeConfirm': 'આ ફરિયાદ જાહેર નકશા પરથી દૂર કરીએ? માર્ગદર્શિકાનું ઉલ્લંઘન કરતી સામગ્રી માટે વાપરો — ફરિયાદ કરનારને દેખાશે કે તે દૂર કરવામાં આવી.',
+
+      'admin.removeAction': 'ફરિયાદ દૂર કરો',
 
       'admin.removeSuccess': 'ફરિયાદ જાહેર નકશા પરથી દૂર કરવામાં આવી.',
 
@@ -14064,11 +14298,33 @@ document.addEventListener('DOMContentLoaded', function () {
     )).filter((el) => el.offsetParent !== null || el === document.activeElement);
   }
 
+  /** Brief cross-fade after script/language change — scoped chrome only (not map). */
   function flashLangSwap(root) {
     if (!root || !root.classList || prefersReducedMotion()) return;
     root.classList.remove('lang-swap');
     void root.offsetWidth;
     root.classList.add('lang-swap');
+    const done = () => {
+      root.classList.remove('lang-swap');
+      root.removeEventListener('animationend', done);
+    };
+    root.addEventListener('animationend', done);
+    setTimeout(done, 350);
+  }
+
+  function flashLanguageChrome() {
+    if (prefersReducedMotion()) return;
+    const brand = document.querySelector('.header__brand');
+    if (brand) flashLangSwap(brand);
+    const langBtn = $('#btnLang');
+    if (langBtn) flashLangSwap(langBtn);
+    const nav = $('#bottomNav');
+    if (nav) flashLangSwap(nav);
+    const persona = $('#personaBar');
+    if (persona && !persona.classList.contains('hidden') && persona.offsetParent !== null) {
+      flashLangSwap(persona);
+    }
+    $$('.modal-overlay.open .modal').forEach((modal) => flashLangSwap(modal));
   }
 
   function setLanguage(code) {
@@ -14078,16 +14334,14 @@ document.addEventListener('DOMContentLoaded', function () {
     safeLocalSet(LANG_KEY, currentLang);
     applyTranslations();
     updatePersonaUI();
+    rerenderDynamicViews();
     if (prev !== code) {
-      const header = document.querySelector('.header');
-      if (header) flashLangSwap(header);
-      const openModal = document.querySelector('.modal-overlay.open .modal');
-      if (openModal) flashLangSwap(openModal);
+      // After i18n + dynamic re-render so the fade reveals the new script.
+      flashLanguageChrome();
       if (window.CivicAnalytics) {
         CivicAnalytics.track('language_change', { from: prev, to: code });
       }
     }
-    rerenderDynamicViews();
   }
 
   function rerenderDynamicViews() {
@@ -14134,7 +14388,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', () => {
           setLanguage(btn.dataset.lang);
           closeModal('lang');
-          showToast(t('lang.native'), 'info', 1600);
+          showToast(t('lang.native'), 'info', TOAST_DURATION.SHORT);
         });
       });
     }
@@ -14188,8 +14442,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return _reportsCache;
   }
 
-  function trimReportsForDevice(reports) {
-    const max = SCALE_CFG.maxReportsPerDevice;
+  // Keep all of the current user's reports; drop oldest non-own first when over max.
+  // Optional maxOverride is used by the quota-eviction path in saveReports.
+  function trimReportsForDevice(reports, maxOverride) {
+    const max = maxOverride != null ? maxOverride : SCALE_CFG.maxReportsPerDevice;
     if (reports.length <= max) return reports;
     const uid = user.id;
     const own = reports.filter((r) => r.reporterId === uid);
@@ -14209,19 +14465,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveReports(reports) {
     reports = trimReportsForDevice(reports);
-    while (true) {
+    let evicted = 0;
+    // Bound: at most one safe eviction attempt per starting report (never infinite-pop).
+    const maxAttempts = reports.length + 1;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
         _reportsCache = reports;
+        if (evicted > 0) {
+          showToast(
+            t('toast.storageFreed').replace('{n}', String(evicted)),
+            'info',
+            4500
+          );
+        }
         return;
       } catch (err) {
-        if ((err.name === 'QuotaExceededError' || err.code === 22) && reports.length > 0) {
-          reports.pop();
-        } else {
-          throw err;
-        }
+        const quota = err && (err.name === 'QuotaExceededError' || err.code === 22);
+        if (!quota || reports.length === 0) throw err;
+        const before = reports.length;
+        // Reuse ownership-aware trim: keep own, drop oldest non-own until length-1.
+        const next = trimReportsForDevice(reports, before - 1);
+        if (next.length >= before) throw err; // nothing safe left to evict
+        evicted += before - next.length;
+        reports = next;
       }
     }
+    throw new Error('QuotaExceededError');
   }
 
   function loadUser() {
@@ -15941,6 +16211,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // gate reappearing is itself the confirmation that data was wiped.
       // profile.deleteDone remains for offline/tests that surface it elsewhere.
       try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(MAP_EMPTY_DISMISSED_KEY); } catch { /* ignore */ }
       try { localStorage.removeItem(ANALYTICS_PROMPT_KEY); } catch { /* ignore */ }
       openModal('onboarding');
 
@@ -16004,9 +16275,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getWeekImpactStats() {
 
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-
-    const reports = loadReports().filter((r) => new Date(r.timestamp).getTime() >= weekAgo);
+    const reports = loadReports().filter((r) => isInCurrentIsoWeek(r.timestamp));
 
     return {
 
@@ -17432,7 +17701,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wardEl = $('#leadNomWard');
 
-    if (wardEl && user.ward) wardEl.value = user.ward;
+    if (wardEl) {
+
+      if (user.ward) wardEl.value = user.ward;
+
+      syncWardSocietyPairBaseline(wardEl, wardEl.value);
+
+    }
 
     if (user.society) {
 
@@ -17886,7 +18161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (/self_vote/.test(msg)) { showToast(t('lead.errSelfVote'), 'error', 4000); return; }
 
-          if (/already_voted/.test(msg)) { showToast(t('lead.errAlreadyVoted'), 'info', 3500); return; }
+          if (/already_voted/.test(msg)) { showToast(t('lead.errAlreadyVoted'), 'warning'); return; }
 
           throw new Error(error.message || 'vote_failed');
 
@@ -17908,7 +18183,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (localIVoted(nominationId)) {
 
-          showToast(t('lead.errAlreadyVoted'), 'info', 3500);
+          showToast(t('lead.errAlreadyVoted'), 'warning');
 
           return;
 
@@ -18400,6 +18675,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 
     return `${date.getUTCFullYear()}-W${weekNo}`;
+
+  }
+
+
+
+  /** True when ts falls in the current ISO calendar week (same key as personal streak). */
+
+  function isInCurrentIsoWeek(ts) {
+
+    if (ts == null || ts === '') return false;
+
+    const d = new Date(ts);
+
+    if (Number.isNaN(d.getTime())) return false;
+
+    return getWeekKey(d) === getWeekKey();
 
   }
 
@@ -20719,13 +21010,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Mutual-exclusion guard for the stacked bottom/top attention banners — only one
-  // of appOpenBanner / referralWelcome / homeHero / iosInstallHint should be visible
-  // at a time. Boot order (setupAppOpenBanner -> maybeShowReferralWelcome ->
-  // updateHomeHero -> updateIosInstallHint) doubles as the priority order.
+  // Mutual-exclusion guard for stacked floating attention banners — only one should
+  // be visible at a time. Includes top-anchored map chrome (location / manualPin /
+  // iosInstall) plus bottom floating nudges so they cannot overlap. seasonHook is
+  // inline Community content (not floating) and is intentionally omitted. Boot order
+  // (setupAppOpenBanner -> maybeShowReferralWelcome -> updateHomeHero ->
+  // updateIosInstallHint) doubles as the priority order among those four.
   function isAnyBannerVisible(excludeId) {
 
-    const ids = ['appOpenBanner', 'referralWelcome', 'homeHero', 'iosInstallHint'];
+    const ids = [
+      'appOpenBanner',
+      'referralWelcome',
+      'homeHero',
+      'iosInstallHint',
+      'locationBanner',
+      'manualPinBanner',
+      'pwaInstallNudge',
+    ];
 
     return ids.some((id) => {
 
@@ -20742,11 +21043,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Empty-ward sheet content gate (overlays like coach/tour applied in updateMapEmptyCta).
+  function isMapEmptyCtaDismissed() {
+    try { return localStorage.getItem(MAP_EMPTY_DISMISSED_KEY) === '1'; } catch { return false; }
+  }
+
   function shouldOfferMapEmptyCta() {
+    if (isMapEmptyCtaDismissed()) return false;
     return getActivePersona() === 'citizen'
       && !!user.ward
       && getUserReports().length === 0
       && cityScopedReports(loadReports()).length === 0;
+  }
+
+  function dismissMapEmptyCta() {
+    try { safeLocalSet(MAP_EMPTY_DISMISSED_KEY, '1'); } catch { /* ignore */ }
+    // Avoid swapping in the home hero right after they asked to explore the map.
+    try { safeLocalSet(HERO_DISMISSED_KEY, '1'); } catch { /* ignore */ }
+    updateMapEmptyCta();
+    updateHomeHero();
+    if (window.CivicAnalytics) CivicAnalytics.track('map_empty_dismissed', {});
   }
 
   function shouldShowHomeHero() {
@@ -23627,11 +23942,39 @@ document.addEventListener('DOMContentLoaded', function () {
       body.setAttribute('aria-hidden', open ? 'false' : 'true');
     }
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (sectionId === 'profileActivitySection') syncProfileActivityCountBadge();
+  }
+
+  function syncProfileActivityCountBadge(openCount) {
+    const badge = $('#profileActivityCount');
+    const section = $('#profileActivitySection');
+    const btn = $('#btnProfileActivityToggle');
+    if (!badge || !section) return;
+    let n = openCount;
+    if (n == null) {
+      const raw = badge.dataset.count;
+      n = raw != null && raw !== '' ? parseInt(raw, 10) : 0;
+    }
+    if (!Number.isFinite(n) || n < 0) n = 0;
+    badge.dataset.count = String(n);
+    badge.textContent = String(n);
+    const collapsed = section.classList.contains('cr-section--collapsed');
+    const show = collapsed && n > 0;
+    badge.classList.toggle('hidden', !show);
+    badge.setAttribute('aria-hidden', show ? 'false' : 'true');
+    if (btn) {
+      if (n > 0) {
+        btn.setAttribute('aria-label', t('profile.activityCountAria').replace('{n}', String(n)));
+      } else {
+        btn.removeAttribute('aria-label');
+      }
+    }
   }
 
   function resetProfileSectionsOnOpen() {
     setCollapsibleSectionOpen('profileActivitySection', 'profileActivityBody', 'btnProfileActivityToggle', false);
     setCollapsibleSectionOpen('profileNotificationsSection', 'profileNotificationsBody', 'btnProfileNotificationsToggle', false);
+    setCollapsibleSectionOpen('profileRolesSection', 'profileRolesBody', 'btnProfileRolesToggle', false);
   }
 
   function formatWardPillLabel(ward) {
@@ -23721,10 +24064,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const input = $('#profileWardInput');
         if (ward && input) {
           input.value = ward;
+          clearSocietyOnWardChange(input, $('#profileSocietyInput'));
           refreshSocietyDatalist(city, ward);
           saveProfileWard();
           syncProfileIdentitySummary();
-          showToast(t('onboard.wardDetectedHint'), 'success', 2800);
+          showToast(t(getWardDetectedHintKey(city)), 'success', 2800);
         } else {
           showToast(t('onboard.wardDetectFailed'), 'error');
         }
@@ -23759,7 +24103,15 @@ document.addEventListener('DOMContentLoaded', function () {
   // One snackbar at a time — new toast instantly replaces previous (timers + DOM).
   let _activeToastDismiss = null;
 
-  function showToast(message, type = 'info', duration = 3500, action = null) {
+  // Named duration tiers — prefer these over bespoke ms at call sites.
+  const TOAST_DURATION = Object.freeze({
+    SHORT: 2500,
+    STANDARD: 4000,
+    WITH_ACTION: 9000,
+    STICKY: 0,
+  });
+
+  function showToast(message, type = 'info', duration = TOAST_DURATION.STANDARD, action = null) {
 
     debugLog('TOAST', 'showToast', { type, duration, msg: String(message).slice(0, 80), hasAction: !!action });
 
@@ -23785,7 +24137,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (type === 'error') Haptics.error();
 
-    const icons = { success: 'check-circle', error: 'warning-circle', info: 'info' };
+    const icons = {
+      success: 'check-circle',
+      error: 'warning-circle',
+      warning: 'warning',
+      info: 'info',
+    };
 
     // Instant replace: cancel prior timers and clear DOM (no stack, no fade race).
     if (typeof _activeToastDismiss === 'function') {
@@ -24646,6 +25003,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else if (mode === 'cityHint' && cityHint) cityHint.classList.remove('hidden');
 
+    else if (mode === 'detected' && detectedHint) detectedHint.classList.remove('hidden');
+
     // 'none' / 'chip' / 'error': no field-hint — status/chip/error carries the message
 
   }
@@ -24828,6 +25187,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Mumbai: approximate disclaimer. Pune/Thane: stronger double-check (locality boxes, not official wards). */
+  function getWardDetectedHintKey(cityId) {
+    if (cityId === 'pune' || cityId === 'thane') return 'onboard.wardDetectedHintCheck';
+    return 'onboard.wardDetectedHint';
+  }
+
+  function applyWardDetectedHintCopy(cityId) {
+    const hint = $('#wardDetectedHint');
+    if (!hint) return;
+    const key = getWardDetectedHintKey(cityId);
+    hint.setAttribute('data-i18n', key);
+    hint.textContent = t(key);
+  }
+
   function showOnboardingWardDetected(ward) {
 
     onboardingDetectedWard = ward;
@@ -24841,6 +25214,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const input = $('#wardInput');
 
     if (input) input.value = ward;
+
+    clearSocietyOnWardChange(input, $('#onboardSociety'));
 
     $('#wardDetectStatus')?.classList.add('hidden');
 
@@ -24860,7 +25235,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnWardRetry')?.classList.add('hidden');
 
-    setOnboardingWardHintMode('chip');
+    applyWardDetectedHintCopy(getOnboardingCity());
+
+    setOnboardingWardHintMode('detected');
 
     refreshSocietyForOnboarding();
 
@@ -25148,7 +25525,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch { /* ignore */ }
     if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
-    showToast(t('analytics.prompt'), 'info', 12000, {
+    showToast(t('analytics.prompt'), 'info', TOAST_DURATION.WITH_ACTION, {
       label: t('analytics.allow'),
       onClick: () => {
         user.analyticsConsent = true;
@@ -25623,7 +26000,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const wardIn = $('#wardInput');
 
-        if (wardIn) wardIn.value = user.ward;
+        if (wardIn) {
+
+          wardIn.value = user.ward;
+
+          // Seed before detected-chip path so hydrate does not wipe society.
+          syncWardSocietyPairBaseline(wardIn, user.ward);
+
+        }
 
         $('#wardDetectStatus')?.classList.add('hidden');
 
@@ -25632,6 +26016,8 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
 
         // Play / DPDP: do not call geolocation until the user taps Detect my area.
+        syncWardSocietyPairBaseline($('#wardInput'), '');
+
         showOnboardingWardDetectPrompt();
 
       }
@@ -26237,6 +26623,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hasReportPhotoPreview()) {
 
+      // Belt-and-suspenders with scheduleShowPhotoConfirm: if decode finished while
+      // backgrounded and the Capture step stuck, visibility/pageshow still lands Confirm.
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'confirm' });
 
       unparkReportOverlayForPicker();
@@ -27002,6 +27390,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // After native camera return, a single rAF can be skipped/delayed while the tab
+  // is still backgrounded or not compositing — photo stays in memory but UI stays
+  // on Capture. Schedule rAF + short timeouts; generation + confirm-step guards
+  // keep retries idempotent (stale captures / double-advance cannot re-enter).
+  function scheduleShowPhotoConfirm(via) {
+
+    const scheduleGen = reportPhotoCaptureGen;
+
+    const tryAdvance = (when) => {
+
+      if (scheduleGen !== reportPhotoCaptureGen) {
+
+        debugLog('PHOTO', 'scheduleShowPhotoConfirm stale', {
+
+          via: via || 'advance',
+
+          when,
+
+          scheduleGen,
+
+          reportPhotoCaptureGen,
+
+        });
+
+        return;
+
+      }
+
+      if (!hasReportPhotoPreview()) return;
+
+      if (reportFlowStep === 'confirm') {
+
+        const panel = $('#reportStepConfirm');
+
+        if (panel && !panel.hidden) return;
+
+      }
+
+      debugLog('PHOTO', 'scheduleShowPhotoConfirm fire', { via: via || 'advance', when });
+
+      showPhotoConfirm();
+
+    };
+
+    requestAnimationFrame(() => tryAdvance('raf'));
+
+    setTimeout(() => tryAdvance('timeout50'), 50);
+
+    setTimeout(() => tryAdvance('timeout320'), 320);
+
+  }
+
+
+
   function advanceReportPhotoReady() {
 
     clearReportPhotoError();
@@ -27019,7 +27461,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderHazardPicker();
 
-    requestAnimationFrame(() => showPhotoConfirm());
+    scheduleShowPhotoConfirm('advanceReportPhotoReady');
 
     requestAnimationFrame(() => {
 
@@ -28289,9 +28731,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nudgeDismiss = $('#btnPwaNudgeDismiss');
 
+    const nudgeClose = $('#btnPwaNudgeClose');
+
     if (nudgeInstall) nudgeInstall.addEventListener('click', () => triggerPwaInstall());
 
     if (nudgeDismiss) nudgeDismiss.addEventListener('click', () => dismissPwaNudge());
+
+    if (nudgeClose) nudgeClose.addEventListener('click', () => dismissPwaNudge());
 
     if (!canShowPwaNudge()) hidePwaInstallNudge();
 
@@ -31094,7 +31540,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getUserWardPulseStats() {
     const ward = user && user.ward;
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const hiddenIds = loadHiddenReportIds();
     const mutedIds = loadMutedReporterIds();
     let open = 0;
@@ -31108,7 +31553,7 @@ document.addEventListener('DOMContentLoaded', function () {
         meToo += Number(r.confirmations) || 0;
       } else if (r.status === 'resolved') {
         const ts = r.resolvedAt || r.timestamp;
-        if (ts && new Date(ts).getTime() >= weekAgo) fixedWeek += 1;
+        if (isInCurrentIsoWeek(ts)) fixedWeek += 1;
       }
     });
     return { open, fixedWeek, meToo };
@@ -31354,6 +31799,7 @@ document.addEventListener('DOMContentLoaded', function () {
       user.displayName = name;
 
       try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(MAP_EMPTY_DISMISSED_KEY); } catch { /* ignore */ }
 
       saveUser();
 
@@ -31424,11 +31870,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       onboardingDetectedWard = '';
 
+      clearSocietyOnWardChange($('#wardInput'), $('#onboardSociety'));
+
       refreshSocietyForOnboarding();
 
       syncOnboardingJoinCta();
 
     };
+
+    const onboardWardInput = $('#wardInput');
+
+    if (onboardWardInput) syncWardSocietyPairBaseline(onboardWardInput, onboardWardInput.value);
 
     $('#wardInput').addEventListener('input', onOnboardWardEdited);
 
@@ -31458,7 +31910,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         onboardingDetectedWard = '';
 
-        if ($('#wardInput')) $('#wardInput').value = '';
+        const wardIn = $('#wardInput');
+
+        if (wardIn) wardIn.value = '';
+
+        clearSocietyOnWardChange(wardIn, $('#onboardSociety'));
 
         clearOnboardingCityHighlight();
 
@@ -31817,7 +32273,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const leadNomWard = $('#leadNomWard');
 
-    if (leadNomWard) leadNomWard.addEventListener('input', refreshLeadNomNeighbourhoodDatalist);
+    if (leadNomWard) {
+
+      syncWardSocietyPairBaseline(leadNomWard, leadNomWard.value);
+
+      leadNomWard.addEventListener('input', () => {
+
+        clearSocietyOnWardChange(leadNomWard, $('#leadNomNeighbourhood'));
+
+        refreshLeadNomNeighbourhoodDatalist();
+
+      });
+
+    }
 
     const btnLeadNomDone = $('#btnLeadNomDone');
 
@@ -31931,6 +32399,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnDeleteData) btnDeleteData.addEventListener('click', () => { deleteMyData(); });
 
     $('#btnDeleteConfirmCancel').addEventListener('click', () => closeModal('deleteConfirm'));
+
+    // × mirrors Keep my data — dismissOverlayByName blocks deleteConfirm (intentional).
+    const btnDeleteConfirmClose = $('#btnDeleteConfirmClose');
+    if (btnDeleteConfirmClose) btnDeleteConfirmClose.addEventListener('click', () => closeModal('deleteConfirm'));
 
     $('#btnDeleteConfirmProceed').addEventListener('click', () => { executeDeleteMyData(); });
 
@@ -32203,6 +32675,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (mapEmptyBtn) mapEmptyBtn.addEventListener('click', () => window.openReportModal(true));
 
+    const mapEmptyDismiss = $('#btnMapEmptyDismiss');
+
+    if (mapEmptyDismiss) mapEmptyDismiss.addEventListener('click', dismissMapEmptyCta);
+
+    const mapEmptyExplore = $('#btnMapEmptyExplore');
+
+    if (mapEmptyExplore) mapEmptyExplore.addEventListener('click', dismissMapEmptyCta);
+
     const mapEmptyShare = $('#btnMapEmptyShare');
 
     if (mapEmptyShare) {
@@ -32437,6 +32917,8 @@ document.addEventListener('DOMContentLoaded', function () {
     wireCollapsibleSection('btnProfileActivityToggle', 'profileActivityBody', 'profileActivitySection');
 
     wireCollapsibleSection('btnProfileNotificationsToggle', 'profileNotificationsBody', 'profileNotificationsSection');
+
+    wireCollapsibleSection('btnProfileRolesToggle', 'profileRolesBody', 'profileRolesSection');
 
     const btnNotesToggle = $('#btnReportNotesToggle');
 
@@ -32721,7 +33203,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const hideId = hideBtn.dataset.hide;
 
-        confirmAction({ body: t('safety.hideConfirm') }).then((ok) => { if (ok) hideReportFromMap(hideId); });
+        confirmAction({ body: t('safety.hideConfirm'), confirmLabel: t('safety.hideAction') }).then((ok) => { if (ok) hideReportFromMap(hideId); });
 
         return;
 
@@ -32735,7 +33217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const muteId = muteBtn.dataset.muteReporter;
 
-        confirmAction({ body: t('mute.hideConfirm') }).then((ok) => { if (ok) muteReporter(muteId); });
+        confirmAction({ body: t('mute.hideConfirm'), confirmLabel: t('mute.hideAction') }).then((ok) => { if (ok) muteReporter(muteId); });
 
         return;
 
@@ -33261,9 +33743,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (profileWardInput) {
 
+      syncWardSocietyPairBaseline(profileWardInput, profileWardInput.value);
+
       profileWardInput.addEventListener('input', () => {
 
         $('#profileWardError')?.classList.add('hidden');
+
+        clearSocietyOnWardChange(profileWardInput, $('#profileSocietyInput'));
 
         const city = getProfileCity();
 
@@ -33612,6 +34098,21 @@ document.addEventListener('DOMContentLoaded', function () {
       updateReportFlowSteps('capture');
 
       return;
+
+    }
+
+    // Idempotent: rAF + timeout retries / syncReportPhotoReturn may re-enter.
+    if (reportFlowStep === 'confirm') {
+
+      const confirmPanel = $('#reportStepConfirm');
+
+      if (confirmPanel && !confirmPanel.hidden) {
+
+        debugLog('PHOTO', 'showPhotoConfirm skip', { reason: 'alreadyConfirm' });
+
+        return;
+
+      }
 
     }
 
@@ -34960,8 +35461,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', softHint);
 
-    // Auto-expand map when accuracy is poor / provisional; once expanded, stay open.
-    if (confirmPinAccuracyIsPoor()) {
+    // Auto-expand only for settled poor GPS — stay collapsed during "Finding…"
+    const mapEl = $('#reportPinMap');
+    const stillLocating = mapEl?.classList.contains('report-pin-map--loading');
+    if (!stillLocating && !confirmPinProvisional && confirmPinAccuracyIsPoor()) {
       setReportPinMapExpanded(true);
     }
 
@@ -41906,11 +42409,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+        const ariaCurrent = state === 'active' ? ' aria-current="step"' : '';
+
         return `
 
-          <li class="esc-step esc-step--${state}${state === 'done' ? ' is-complete' : ''}" data-esc-tier="${escapeHtml(tobj.key)}">
+          <li class="esc-step esc-step--${state}${state === 'done' ? ' is-complete' : ''}" data-esc-tier="${escapeHtml(tobj.key)}"${ariaCurrent}>
 
-            <i class="ph ph-${icon}"></i>
+            <i class="ph ph-${icon}" aria-hidden="true"></i>
 
             <div>
 
@@ -41932,10 +42437,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ladderEl) {
       const doneCount = tiers.filter((tobj) => (tierStates[tobj.key] || 'locked') === 'done').length;
       const pct = tiers.length ? Math.round((doneCount / tiers.length) * 100) : 0;
-      ladderEl.style.setProperty('--ladder-fill', pct + '%');
       ladderEl.querySelectorAll('.esc-step').forEach((li) => {
         li.classList.toggle('is-complete', li.classList.contains('esc-step--done'));
       });
+      // Grow the success track on paint so unlock/completion reads as momentum.
+      const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        ladderEl.style.setProperty('--ladder-fill', pct + '%');
+      } else {
+        const prev = ladderEl.style.getPropertyValue('--ladder-fill').trim();
+        const fromZero = !prev || prev === '0%';
+        if (fromZero && pct > 0) {
+          ladderEl.style.setProperty('--ladder-fill', '0%');
+          void ladderEl.offsetWidth;
+          requestAnimationFrame(() => {
+            ladderEl.style.setProperty('--ladder-fill', pct + '%');
+          });
+        } else {
+          ladderEl.style.setProperty('--ladder-fill', pct + '%');
+        }
+      }
     }
 
   }
@@ -42565,7 +43086,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hasDuplicatePendingPledge(type, ward)) {
 
-      showToast(t('toast.pledgeDuplicate'), 'error');
+      showToast(t('toast.pledgeDuplicate'), 'warning');
 
       return;
 
@@ -42575,7 +43096,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (user.ward && ward !== user.ward) {
 
-      showToast(t('toast.pledgeWardMismatch'), 'info', 4500);
+      showToast(t('toast.pledgeWardMismatch'), 'warning');
 
     }
 
@@ -43271,11 +43792,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Reports in a ward (or whole city when ward is empty) over the trailing 7 days.
+  // Reports in a ward (or whole city when ward is empty) in the current ISO week.
 
   function getWardWeekStats(ward) {
-
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
     const hiddenIds = loadHiddenReportIds();
 
@@ -43287,7 +43806,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (ward && r.ward !== ward) return false;
 
-      return new Date(r.timestamp).getTime() >= weekAgo;
+      return isInCurrentIsoWeek(r.timestamp);
 
     });
 
@@ -43956,6 +44475,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       profileWardInput.value = user.ward || '';
 
+      syncWardSocietyPairBaseline(profileWardInput, profileWardInput.value);
+
     }
 
     const societyInput = $('#profileSocietyInput');
@@ -44054,6 +44575,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const xpProgressEl = $('#profileXpProgress');
 
+    const xpTotalEl = $('#profileXpTotal');
+
     const xpHintEl = $('#profileXpHint');
 
     if (levelBadgeEl) levelBadgeEl.textContent = civicLevelName(xpInfo.level.id);
@@ -44064,6 +44587,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       xpTrackEl.setAttribute('aria-valuenow', String(xpInfo.pct));
 
+      if (xpInfo.next) {
+        xpTrackEl.setAttribute('aria-valuetext', t('profile.xpProgressOf')
+          .replace('{current}', String(xpInfo.xp))
+          .replace('{next}', String(xpInfo.next.min)));
+      } else {
+        xpTrackEl.setAttribute('aria-valuetext', t('profile.xpProgressMax')
+          .replace('{current}', String(xpInfo.xp)));
+      }
+
+    }
+
+    if (xpTotalEl) {
+      xpTotalEl.textContent = xpInfo.next
+        ? t('profile.xpProgressOf')
+          .replace('{current}', String(xpInfo.xp))
+          .replace('{next}', String(xpInfo.next.min))
+        : t('profile.xpProgressMax').replace('{current}', String(xpInfo.xp));
     }
 
     if (xpHintEl) {
@@ -44081,6 +44621,8 @@ document.addEventListener('DOMContentLoaded', function () {
         : t('profile.xpMax');
 
     }
+
+    syncProfileActivityCountBadge(pending.length);
 
 
 
@@ -44669,7 +45211,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const reportId = activeAdminReportId;
 
-    confirmAction({ body: t('admin.removeConfirm') }).then((ok) => {
+    confirmAction({ body: t('admin.removeConfirm'), confirmLabel: t('admin.removeAction') }).then((ok) => {
 
       if (!ok) return;
 
@@ -45968,7 +46510,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!existing) return;
 
-    confirmAction({ body: t('volunteer.removeConfirm') }).then((ok) => {
+    confirmAction({ body: t('volunteer.removeConfirm'), confirmLabel: t('volunteer.removeAction') }).then((ok) => {
 
       if (!ok) return;
 
@@ -46716,7 +47258,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    confirmAction({ body: t('pledge.deliverConfirm'), danger: false }).then((ok) => {
+    confirmAction({ body: t('pledge.deliverConfirm'), confirmLabel: t('pledge.deliverAction'), danger: false }).then((ok) => {
 
       if (!ok) return;
 
@@ -46774,7 +47316,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isLead) return;
 
-    confirmAction({ body: t('pledge.verifyConfirm'), danger: false }).then((ok) => {
+    confirmAction({ body: t('pledge.verifyConfirm'), confirmLabel: t('pledge.verifyAction'), danger: false }).then((ok) => {
 
       if (!ok) return;
 

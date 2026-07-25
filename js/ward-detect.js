@@ -14,13 +14,13 @@
   const SERVICE_BOUNDS = {
     minLat: 18.44,
     maxLat: 19.3,
-    minLng: 72.78,
+    minLng: 72.74,
     maxLng: 73.95,
   };
 
   const DEFAULT_CITY_BOUNDS = {
     mumbai: { minLat: 18.88, maxLat: 19.28, minLng: 72.78, maxLng: 73.0 },
-    pune: { minLat: 18.44, maxLat: 18.58, minLng: 73.78, maxLng: 73.95 },
+    pune: { minLat: 18.44, maxLat: 18.61, minLng: 73.74, maxLng: 73.95 },
     thane: { minLat: 19.15, maxLat: 19.28, minLng: 72.92, maxLng: 73.05 },
   };
 

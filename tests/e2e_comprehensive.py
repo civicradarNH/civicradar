@@ -52,9 +52,9 @@ BASE = f'http://localhost:{PORT}/'
 
 WARD = 'G/N Ward — Dadar, Shivaji Park'
 
-PUNE_WARD = 'Ward 1 — Kasba Vishrambag'
+PUNE_WARD = 'Kasba Vishrambag'
 
-THANE_WARD = 'TMC Ward 1 — Kopri'
+THANE_WARD = 'Kopri'
 
 
 
@@ -2602,6 +2602,30 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X13', 'Profile', 'Civic points numeric', '() => { window.openProfileModal(); const n = parseInt(document.getElementById("profilePoints").textContent.replace(/,/g,""),10); return Number.isFinite(n); }'),
 
+        ('X13b', 'Profile', 'Community Roles collapsed by default', '''() => {
+          window.openProfileModal();
+          const sec = document.getElementById('profileRolesSection');
+          const btn = document.getElementById('btnProfileRolesToggle');
+          return !!sec && sec.classList.contains('cr-section--collapsed')
+            && !!btn && btn.getAttribute('aria-expanded') === 'false'
+            && !!document.getElementById('btnProfileLeadNominate');
+        }'''),
+
+        ('X13c', 'Profile', 'Delete rows have differentiating captions', '''() => {
+          window.openProfileModal();
+          const delAcc = document.querySelector('a[href*="delete-account"] .profile-row-sub');
+          const delData = document.querySelector('#btnDeleteData .profile-row-sub');
+          return !!delAcc && delAcc.textContent.trim().length > 0
+            && !!delData && delData.textContent.trim().length > 0
+            && delAcc.textContent.trim() !== delData.textContent.trim();
+        }'''),
+
+        ('X13d', 'Profile', 'XP progress shows current of next', '''() => {
+          window.openProfileModal();
+          return !!document.getElementById('profileXpTotal')
+            && !!document.getElementById('profileActivityCount');
+        }'''),
+
         ('X14', 'Storage', 'Pledges JSON parse safe', '() => { try { JSON.parse(localStorage.getItem("mosquiTrackPledges")||"[]"); return true; } catch { return false; } }'),
 
         ('X15', 'Storage', 'Confirmed set parse safe', '() => { try { JSON.parse(localStorage.getItem("civicradar_confirmed")||"[]"); return true; } catch { return false; } }'),
@@ -2645,7 +2669,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X21', 'Escalation', 'PMC modal opens (Pune)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "pmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Aundh — Baner, Pashan", city: "pune", reporter: "Test", lat: 18.55, lng: 73.80, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
 
-        ('X22', 'Escalation', 'TMC modal opens (Thane)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "tmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "TMC Ward 1 — Kopri", city: "thane", reporter: "Test", lat: 19.20, lng: 72.98, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); const title = document.getElementById("escTitleText"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && title && title.textContent.includes("TMC") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
+        ('X22', 'Escalation', 'TMC modal opens (Thane)', '() => { const uid = JSON.parse(localStorage.getItem("civicradar_user")).id; const r = { id: "tmc-esc-test", reporterId: uid, hazard: "stagnant-water", ward: "Kopri", city: "thane", reporter: "Test", lat: 19.20, lng: 72.98, status: "pending", timestamp: new Date().toISOString() }; localStorage.setItem("mosquiTrackReports", JSON.stringify([r])); window.openEscalationModal(r.id); const o = document.getElementById("escalationOverlay"); const corp = document.getElementById("escCorpPanel"); const title = document.getElementById("escTitleText"); return o && o.classList.contains("open") && corp && !corp.classList.contains("hidden") && title && title.textContent.includes("TMC") && document.querySelectorAll("#escCorpChannels .esc-channel").length >= 1; }'),
 
         ('X23', 'Escalation', 'PMC complaint ID saved', """() => {
 
@@ -2683,7 +2707,7 @@ async def run_extra_scenarios(s: Suite, browser):
 
           const pmc = { id: 'pmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Aundh — Baner, Pashan', city: 'pune', reporter: 'Test', lat: 18.55, lng: 73.80, status: 'pending', timestamp: new Date().toISOString() };
 
-          const tmc = { id: 'tmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'TMC Ward 1 — Kopri', city: 'thane', reporter: 'Test', lat: 19.20, lng: 72.98, status: 'pending', timestamp: new Date().toISOString() };
+          const tmc = { id: 'tmc-aaple-test', reporterId: uid, hazard: 'stagnant-water', ward: 'Kopri', city: 'thane', reporter: 'Test', lat: 19.20, lng: 72.98, status: 'pending', timestamp: new Date().toISOString() };
 
           localStorage.setItem('mosquiTrackReports', JSON.stringify([pmc, tmc]));
 
@@ -2918,7 +2942,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     ctx = await new_ctx(
 
-        browser, lat=19.20, lng=72.98,
+        browser, lat=19.194, lng=72.978,
 
         storage={'civicradar_user': default_user(id='mc-wd', tosAccepted=True, ward='', displayName='', city='')},
 
@@ -2935,8 +2959,7 @@ async def run_extended_scenarios(s: Suite, browser):
     if await page.is_visible('#btnWardDetectGps'):
         await js_click(page, '#btnWardDetectGps')
 
-    # Must wait for Thane-specific result — Mumbai may already have filled wardDetectedName
-    # (19.20, 72.98 sits in Mumbai T Ward / Mulund before city switch).
+    # Kopri centroid (~19.194, 72.978) — real locality boxes (not synthetic grid).
     await page.wait_for_function(
 
         """() => {
@@ -2945,7 +2968,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
             || (document.getElementById('wardInput')?.value || '').trim();
 
-          return /TMC Ward|Kopri|Patlipada|Naupada/i.test(t);
+          return /Kopri|Naupada|Rabodi|Charai/i.test(t);
 
         }""",
 
@@ -2959,7 +2982,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
     )
 
-    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'TMC Ward' in detected or 'Kopri' in detected or 'Patlipada' in detected, detected[:40])
+    s.record('MC09', 'MultiCity', 'Thane GPS ward detect', 'Kopri' in detected or 'Naupada' in detected or 'Rabodi' in detected, detected[:40])
 
     await ctx.close()
 
@@ -4655,18 +4678,19 @@ async def run_extended_scenarios(s: Suite, browser):
     s.record('RP11', 'Report', 'Photo accept stays on confirm step', photo_ready)
 
     # Confirm sheet must scroll when photo + hazards + pin map exceed the viewport
-    # (body is scroll-locked; #reportStepConfirm is the overflow container).
+    # (body is scroll-locked; .report-confirm-scroll is the overflow container).
     confirm_scrollable = await page.evaluate(
         """() => {
           const panel = document.getElementById('reportStepConfirm');
-          if (!panel || panel.hidden) return false;
-          const style = window.getComputedStyle(panel);
+          const scroll = panel?.querySelector('.report-confirm-scroll');
+          if (!panel || panel.hidden || !scroll) return false;
+          const style = window.getComputedStyle(scroll);
           const canOverflow = /(auto|scroll)/.test(style.overflowY);
           // Force a mobile-ish height if the desktop test viewport is tall enough
           // that content still fits without overflow.
-          const tallerThanViewport = panel.scrollHeight > panel.clientHeight + 8;
+          const tallerThanViewport = scroll.scrollHeight > scroll.clientHeight + 8;
           const overflowRuleOk = canOverflow && parseFloat(style.flexGrow || '0') >= 1;
-          return overflowRuleOk && (tallerThanViewport || panel.clientHeight > 0);
+          return overflowRuleOk && (tallerThanViewport || scroll.clientHeight > 0);
         }"""
     )
     s.record('RP11b', 'Report', 'Confirm step is scrollable overflow container', confirm_scrollable)
@@ -5570,6 +5594,25 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await open_profile_edit_sheet(page)
 
+    # Hydrate guard: opening edit with saved ward+society must keep society until ward changes.
+    society_before_ward_change = await page.evaluate(
+
+        '() => (document.getElementById("profileSocietyInput")?.value || "").trim()'
+
+    )
+
+    s.record(
+
+        'SO11',
+
+        'Society',
+
+        'Profile hydrate keeps society until ward changes',
+
+        society_before_ward_change == custom_name,
+
+    )
+
     await page.fill('#profileWardInput', ward_b_profile)
 
     await page.evaluate(
@@ -5583,6 +5626,12 @@ async def run_extended_scenarios(s: Suite, browser):
     opts_after_ward_input = await page.evaluate(
 
         '() => Array.from(document.querySelectorAll("#societySuggestions option")).map(o => o.value)'
+
+    )
+
+    society_after_ward_change = await page.evaluate(
+
+        '() => (document.getElementById("profileSocietyInput")?.value || "").trim()'
 
     )
 
@@ -5615,6 +5664,18 @@ async def run_extended_scenarios(s: Suite, browser):
         'Society datalist refreshes when profile ward changes',
 
         len(opts_after_ward_input) >= 10 and opts_after_ward_input != opts_a,
+
+    )
+
+    s.record(
+
+        'SO12',
+
+        'Society',
+
+        'Society field clears when profile ward changes',
+
+        society_after_ward_change == '',
 
     )
 
@@ -5694,6 +5755,26 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('NB04', 'Neighbourhood', 'Volunteer ward-filter hint populated', nb_hint_ok)
 
+    # Lead nomination: changing ward clears dependent neighbourhood field.
+    # Profile ward is already ward_b after SO09 — switch back to ward_a to force a real change.
+    await page.evaluate(
+        """() => {
+          if (typeof window.openLeadNominationModal === 'function') window.openLeadNominationModal();
+        }"""
+    )
+    await page.wait_for_timeout(200)
+    await page.fill('#leadNomNeighbourhood', 'Lead Nbh Before Ward Change')
+    await page.fill('#leadNomWard', ward_a)
+    await page.evaluate(
+        '() => { document.getElementById("leadNomWard").dispatchEvent(new Event("input", { bubbles: true })); }'
+    )
+    await page.wait_for_timeout(100)
+    lead_nbh_cleared = await page.evaluate(
+        '() => (document.getElementById("leadNomNeighbourhood")?.value || "").trim() === ""'
+    )
+    s.record('NB05', 'Neighbourhood', 'Lead-nomination neighbourhood clears when ward changes', lead_nbh_cleared)
+    await page.evaluate('() => { if (typeof window.closeLeadNominationModal === "function") window.closeLeadNominationModal(); }')
+
     await ctx.close()
 
 
@@ -5750,7 +5831,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v416" in sw_src
+            "civicradar-v432" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8683,8 +8764,9 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
-    # Preferred Resources chrome (v325+): subtitle + Recommended (not Fastest) + Help cards;
-    # v344+: single footer catalogue link (no mid-block "All official sources" duplicate).
+    # Preferred Resources chrome (v426+): one Recommended (WhatsApp/fast), more-channels
+    # accordion, compact Help rows (no Sign up/Pledge buttons), no verified.gov section hint;
+    # single footer catalogue link (no mid-block "All official sources" duplicate).
     resources_ux_ok = await page.evaluate(
         """() => {
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
@@ -8695,12 +8777,28 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const badges = Array.from(el.querySelectorAll('.esc-channel__badge')).map(
             (b) => (b.textContent || '').trim().toLowerCase()
           );
-          const hasRecommended = badges.some((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
+          const recBadges = badges.filter((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
           const hasFastest = badges.some((b) => b.includes('fastest') || b.includes('तेज़') || b.includes('जलद') || b.includes('ઝડપી'));
+          const badgeOk = recBadges.length === 1 && !hasFastest;
+          const more = el.querySelector('details.resources-more-channels, details.esc-more-ways');
+          const moreSummary = more && more.querySelector('summary');
+          const moreOk = !!more && !!moreSummary
+            && moreSummary.getAttribute('aria-controls') === 'resourcesMoreChannelsList'
+            && moreSummary.getAttribute('aria-expanded') === 'false'
+            && /more official channels|आधिकारिक चैनल|अधिकृत चॅनेल|અધિકૃત ચેનલ/i.test((moreSummary.textContent || '').trim());
+          const primaryWa = el.querySelector(
+            '.esc-channel-wrap--recommended [data-official-channel="bmc_whatsapp"],'
+            + '.esc-channel-wrap--recommended [data-official-channel="pmc_wa"],'
+            + '.esc-channel-wrap--recommended [data-official-channel="tmc_portal"],'
+            + '.esc-channel-wrap--recommended [data-official-channel]'
+          );
+          const primaryOk = !!primaryWa;
+          const hintGone = !document.querySelector('#resourcesOfficialBlock .resources-file-hint');
           const help = document.querySelector('#resourcesModal .resources-section--community');
           const helpOk = !!help
-            && !!help.querySelector('#btnOpenVolunteer')
-            && !!help.querySelector('#btnOpenPledge');
+            && !!help.querySelector('#btnOpenVolunteer.resources-help-row')
+            && !!help.querySelector('#btnOpenPledge.resources-help-row')
+            && !help.querySelector('.pledge-card .btn');
           const footer = document.querySelector('#resourcesModal .resources-footer-link');
           const footerOk = !!footer
             && (footer.getAttribute('href') || '').includes('official-sources')
@@ -8708,10 +8806,10 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const fileTitle = document.querySelector('#resourcesOfficialBlock .resources-section__title');
           const fileTitleOk = !!fileTitle
             && !/official grievance/i.test((fileTitle.textContent || '').trim());
-          return subOk && hasRecommended && !hasFastest && helpOk && footerOk && fileTitleOk;
+          return subOk && badgeOk && moreOk && primaryOk && hintGone && helpOk && footerOk && fileTitleOk;
         }"""
     )
-    s.record('OC06', 'OfficialChannels', 'Resources grouping + Recommended + footer sources link', resources_ux_ok)
+    s.record('OC06', 'OfficialChannels', 'Resources single Recommended + more-channels + help rows', resources_ux_ok)
 
     await ctx.close()
 
@@ -9113,7 +9211,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v416" in sw_src
+            "civicradar-v432" in sw_src
 
             and "'/index.html'" not in sw_src
 
