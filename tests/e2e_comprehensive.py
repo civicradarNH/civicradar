@@ -3283,11 +3283,11 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('DF01', 'Differentiation', 'About features section has 4 bullets', diff_bullets == 4, f'count={diff_bullets}')
 
-    s.record('DF02', 'Differentiation', 'About subtitle states not a government channel',
+    s.record('DF02', 'Differentiation', 'About disclaimer states not a government channel',
 
              'government' in (await page.evaluate(
 
-                 '() => (document.getElementById("aboutSubtitle")?.textContent || "").toLowerCase()'
+                 '() => (document.getElementById("aboutDisclaimer")?.textContent || "").toLowerCase()'
 
              )))
 
@@ -5831,7 +5831,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v438" in sw_src
+            "civicradar-v439" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -9211,7 +9211,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v438" in sw_src
+            "civicradar-v439" in sw_src
 
             and "'/index.html'" not in sw_src
 

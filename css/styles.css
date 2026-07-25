@@ -7165,6 +7165,100 @@ body.persona-lead .app-open-banner { display: none; }
 .founder-card__role { font-size: var(--fs-sm); color: var(--primary); font-weight: 600; }
 .founder-card__school { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
 
+/* About sheet — scannable sections + gov disclaimer (v439) */
+.about-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--warning-soft-border);
+  background: var(--warning-soft-bg);
+}
+
+.about-notice__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(217, 119, 6, 0.14);
+  color: var(--warning-dark);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.about-notice__text {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  color: var(--text-dark);
+}
+
+.about-section {
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--canvas, #f8fafc);
+  box-shadow: var(--shadow-sm);
+}
+
+.about-section__title {
+  margin: 0 0 10px;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.3;
+}
+
+.about-section .about-story {
+  margin-bottom: 0;
+}
+
+.about-section .about-story + .about-story,
+.about-section .about-different + .about-story {
+  margin-top: 10px;
+}
+
+.about-section .about-different {
+  margin-bottom: 0;
+}
+
+.about-section .impact-stats--about {
+  margin-bottom: 0;
+}
+
+.about-story--link {
+  margin-top: 10px;
+}
+
+.about-story--link a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+.about-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 0;
+}
+
+#aboutModal {
+  /* Extra bottom room so Close clears device home indicator / nav */
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+#aboutModal .about-close,
+#btnAboutClose {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
 .about-story {
   font-size: var(--fs-base);
   line-height: 1.55;
@@ -12978,6 +13072,33 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   .modal a:not(.btn),
   .tos-summary a {
     color: var(--primary);
+  }
+
+  /* About sheet: indigo on navy fails WCAG — use high-contrast sky links */
+  #aboutModal a:not(.btn),
+  #aboutModal .about-story--link a,
+  #aboutModal .about-legal a {
+    color: #38bdf8;
+  }
+
+  #aboutModal .about-section {
+    background: var(--surface-light, #1f2937);
+    border-color: var(--border);
+    box-shadow: none;
+  }
+
+  #aboutModal .about-notice {
+    background: var(--warning-soft-bg);
+    border-color: var(--warning-soft-border);
+  }
+
+  #aboutModal .about-notice__badge {
+    color: var(--warning-fg, #fbbf24);
+    background: rgba(251, 191, 36, 0.12);
+  }
+
+  #aboutModal .about-notice__text {
+    color: var(--text-primary, #f9fafb);
   }
 
   .leaflet-container {

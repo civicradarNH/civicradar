@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v438';
+  const CIVIC_APP_VERSION = 'v439';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4316,7 +4316,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'About CivicRadar',
 
-      'about.subtitle': 'Free community app to report civic hazards on a live ward map in Mumbai, Pune, and Thane. Not a government service or official complaint channel.',
+      'about.subtitle': 'Free community app to report civic hazards on a live ward map in Mumbai, Pune, and Thane.',
+
+      'about.disclaimerBadge': 'Independent platform',
+
+      'about.disclaimer': 'CivicRadar is an independent community platform. It is not affiliated with BMC, PMC, TMC, or any government body, and is not an official municipal complaint channel.',
 
       'about.featuresTitle': 'What you can do',
 
@@ -6940,7 +6944,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar के बारे में',
 
-      'about.subtitle': 'मुंबई, पुणे व ठाणे में लाइव वार्ड मानचित्र पर नागरिक खतरे रिपोर्ट करने का मुफ़्त सामुदायिक ऐप। सरकारी सेवा या आधिकारिक शिकायत चैनल नहीं।',
+      'about.subtitle': 'मुंबई, पुणे व ठाणे में लाइव वार्ड मानचित्र पर नागरिक खतरे रिपोर्ट करने का मुफ़्त सामुदायिक ऐप।',
+
+      'about.disclaimerBadge': 'स्वतंत्र मंच',
+
+      'about.disclaimer': 'CivicRadar एक स्वतंत्र सामुदायिक मंच है। यह BMC, PMC, TMC या किसी भी सरकारी निकाय से संबद्ध नहीं है, और आधिकारिक नगर निगम शिकायत चैनल नहीं है।',
 
       'about.featuresTitle': 'आप क्या कर सकते हैं',
 
@@ -9562,7 +9570,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar बद्दल',
 
-      'about.subtitle': 'मुंबई, पुणे व ठाणेमध्ये लाइव्ह वॉर्ड नकाशावर नागरी धोके रिपोर्ट करण्याचे मोफत समुदाय अॅप. सरकारी सेवा किंवा अधिकृत तक्रार चॅनेल नाही.',
+      'about.subtitle': 'मुंबई, पुणे व ठाणेमध्ये लाइव्ह वॉर्ड नकाशावर नागरी धोके रिपोर्ट करण्याचे मोफत समुदाय अॅप.',
+
+      'about.disclaimerBadge': 'स्वतंत्र व्यासपीठ',
+
+      'about.disclaimer': 'CivicRadar हे स्वतंत्र समुदाय व्यासपीठ आहे. ते BMC, PMC, TMC किंवा कोणत्याही सरकारी संस्थेशी संबंधित नाही, आणि अधिकृत महानगरपालिका तक्रार चॅनेल नाही.',
 
       'about.featuresTitle': 'तुम्ही काय करू शकता',
 
@@ -12183,7 +12195,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.title': 'CivicRadar વિશે',
 
-      'about.subtitle': 'CivicRadar મુંબઈ, પુણે અને ઠાણેમાં નાગરિક જોખમોની રિપોર્ટ કરવા માટેનું મફત સામુદાયિક એપ છે — લાઇવ વોર્ડ નકશા પર. આ સરકારી સેવા કે અધિકૃત municipal ફરિયાદ ચેનલ નથી.',
+      'about.subtitle': 'મુંબઈ, પુણે અને ઠાણેમાં લાઇવ વોર્ડ નકશા પર નાગરિક જોખમોની રિપોર્ટ કરવા માટેનું મફત સામુદાયિક એપ.',
+
+      'about.disclaimerBadge': 'સ્વતંત્ર પ્લેટફોર્મ',
+
+      'about.disclaimer': 'CivicRadar એક સ્વતંત્ર સામુદાયિક પ્લેટફોર્મ છે. તે BMC, PMC, TMC કે કોઈપણ સરકારી સંસ્થા સાથે સંબંધિત નથી, અને અધિકૃત મ્યુનિસિપલ ફરિયાદ ચેનલ નથી.',
 
       'about.featuresTitle': 'તમે શું કરી શકો',
 
