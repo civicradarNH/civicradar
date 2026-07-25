@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v431';
+  const CIVIC_APP_VERSION = 'v432';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -576,6 +576,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const ANALYTICS_PROMPT_KEY = 'civicradar_analytics_prompt_seen';
 
   const HERO_DISMISSED_KEY = 'civicradar_hero_dismissed';
+
+  const MAP_EMPTY_DISMISSED_KEY = 'civicradar_map_empty_dismissed';
 
   const LANG_KEY = 'civicradar_lang';
 
@@ -3748,6 +3750,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'Report the first hazard',
 
+      'map.emptyExplore': 'Explore map',
+
+      'map.emptyDismiss': 'Dismiss empty-ward tip',
+
       'map.emptyShare': 'Share on WhatsApp',
 
       'map.emptyRival': '{ward} vs {rival} — {pending} open. Report one, or rally your street.',
@@ -6364,6 +6370,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'पहला खतरा रिपोर्ट करें',
 
+      'map.emptyExplore': 'मानचित्र देखें',
+
+      'map.emptyDismiss': 'खाली वार्ड सुझाव बंद करें',
+
       'map.emptyShare': 'WhatsApp पर साझा करें',
 
       'map.emptyRival': '{ward} बनाम {rival} — {pending} खुले। एक रिपोर्ट करें, या गली जुटाएँ।',
@@ -8978,6 +8988,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'map.emptyAction': 'पहिला धोका नोंदवा',
 
+      'map.emptyExplore': 'नकाशा पाहा',
+
+      'map.emptyDismiss': 'रिकाम्या वॉर्डचा सल्ला बंद करा',
+
       'map.emptyShare': 'WhatsApp वर शेअर करा',
 
       'map.emptyRival': '{ward} विरुद्ध {rival} — {pending} उघडे. एक रिपोर्ट करा, किंवा गल्ली गोळा करा.',
@@ -11590,6 +11604,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'map.emptyHint': 'જોખમ જુઓ, ફોટો લો — પડોશીઓ પણ જોશે.',
 
       'map.emptyAction': 'પહેલું જોખમ રિપોર્ટ કરો',
+
+      'map.emptyExplore': 'નકશો જુઓ',
+
+      'map.emptyDismiss': 'ખાલી વોર્ડ સૂચન બંધ કરો',
 
       'map.emptyShare': 'WhatsApp પર શેર કરો',
 
@@ -16193,6 +16211,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // gate reappearing is itself the confirmation that data was wiped.
       // profile.deleteDone remains for offline/tests that surface it elsewhere.
       try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(MAP_EMPTY_DISMISSED_KEY); } catch { /* ignore */ }
       try { localStorage.removeItem(ANALYTICS_PROMPT_KEY); } catch { /* ignore */ }
       openModal('onboarding');
 
@@ -21024,11 +21043,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Empty-ward sheet content gate (overlays like coach/tour applied in updateMapEmptyCta).
+  function isMapEmptyCtaDismissed() {
+    try { return localStorage.getItem(MAP_EMPTY_DISMISSED_KEY) === '1'; } catch { return false; }
+  }
+
   function shouldOfferMapEmptyCta() {
+    if (isMapEmptyCtaDismissed()) return false;
     return getActivePersona() === 'citizen'
       && !!user.ward
       && getUserReports().length === 0
       && cityScopedReports(loadReports()).length === 0;
+  }
+
+  function dismissMapEmptyCta() {
+    try { safeLocalSet(MAP_EMPTY_DISMISSED_KEY, '1'); } catch { /* ignore */ }
+    // Avoid swapping in the home hero right after they asked to explore the map.
+    try { safeLocalSet(HERO_DISMISSED_KEY, '1'); } catch { /* ignore */ }
+    updateMapEmptyCta();
+    updateHomeHero();
+    if (window.CivicAnalytics) CivicAnalytics.track('map_empty_dismissed', {});
   }
 
   function shouldShowHomeHero() {
@@ -31766,6 +31799,7 @@ document.addEventListener('DOMContentLoaded', function () {
       user.displayName = name;
 
       try { localStorage.removeItem(EXPLORE_MAP_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(MAP_EMPTY_DISMISSED_KEY); } catch { /* ignore */ }
 
       saveUser();
 
@@ -32640,6 +32674,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const mapEmptyBtn = $('#btnMapEmptyReport');
 
     if (mapEmptyBtn) mapEmptyBtn.addEventListener('click', () => window.openReportModal(true));
+
+    const mapEmptyDismiss = $('#btnMapEmptyDismiss');
+
+    if (mapEmptyDismiss) mapEmptyDismiss.addEventListener('click', dismissMapEmptyCta);
+
+    const mapEmptyExplore = $('#btnMapEmptyExplore');
+
+    if (mapEmptyExplore) mapEmptyExplore.addEventListener('click', dismissMapEmptyCta);
 
     const mapEmptyShare = $('#btnMapEmptyShare');
 
