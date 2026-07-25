@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v428';
+  const CIVIC_APP_VERSION = 'v430';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -14280,11 +14280,33 @@ document.addEventListener('DOMContentLoaded', function () {
     )).filter((el) => el.offsetParent !== null || el === document.activeElement);
   }
 
+  /** Brief cross-fade after script/language change — scoped chrome only (not map). */
   function flashLangSwap(root) {
     if (!root || !root.classList || prefersReducedMotion()) return;
     root.classList.remove('lang-swap');
     void root.offsetWidth;
     root.classList.add('lang-swap');
+    const done = () => {
+      root.classList.remove('lang-swap');
+      root.removeEventListener('animationend', done);
+    };
+    root.addEventListener('animationend', done);
+    setTimeout(done, 350);
+  }
+
+  function flashLanguageChrome() {
+    if (prefersReducedMotion()) return;
+    const brand = document.querySelector('.header__brand');
+    if (brand) flashLangSwap(brand);
+    const langBtn = $('#btnLang');
+    if (langBtn) flashLangSwap(langBtn);
+    const nav = $('#bottomNav');
+    if (nav) flashLangSwap(nav);
+    const persona = $('#personaBar');
+    if (persona && !persona.classList.contains('hidden') && persona.offsetParent !== null) {
+      flashLangSwap(persona);
+    }
+    $$('.modal-overlay.open .modal').forEach((modal) => flashLangSwap(modal));
   }
 
   function setLanguage(code) {
@@ -14294,16 +14316,14 @@ document.addEventListener('DOMContentLoaded', function () {
     safeLocalSet(LANG_KEY, currentLang);
     applyTranslations();
     updatePersonaUI();
+    rerenderDynamicViews();
     if (prev !== code) {
-      const header = document.querySelector('.header');
-      if (header) flashLangSwap(header);
-      const openModal = document.querySelector('.modal-overlay.open .modal');
-      if (openModal) flashLangSwap(openModal);
+      // After i18n + dynamic re-render so the fade reveals the new script.
+      flashLanguageChrome();
       if (window.CivicAnalytics) {
         CivicAnalytics.track('language_change', { from: prev, to: code });
       }
     }
-    rerenderDynamicViews();
   }
 
   function rerenderDynamicViews() {
@@ -42276,11 +42296,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+        const ariaCurrent = state === 'active' ? ' aria-current="step"' : '';
+
         return `
 
-          <li class="esc-step esc-step--${state}${state === 'done' ? ' is-complete' : ''}" data-esc-tier="${escapeHtml(tobj.key)}">
+          <li class="esc-step esc-step--${state}${state === 'done' ? ' is-complete' : ''}" data-esc-tier="${escapeHtml(tobj.key)}"${ariaCurrent}>
 
-            <i class="ph ph-${icon}"></i>
+            <i class="ph ph-${icon}" aria-hidden="true"></i>
 
             <div>
 
@@ -42302,10 +42324,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ladderEl) {
       const doneCount = tiers.filter((tobj) => (tierStates[tobj.key] || 'locked') === 'done').length;
       const pct = tiers.length ? Math.round((doneCount / tiers.length) * 100) : 0;
-      ladderEl.style.setProperty('--ladder-fill', pct + '%');
       ladderEl.querySelectorAll('.esc-step').forEach((li) => {
         li.classList.toggle('is-complete', li.classList.contains('esc-step--done'));
       });
+      // Grow the success track on paint so unlock/completion reads as momentum.
+      const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        ladderEl.style.setProperty('--ladder-fill', pct + '%');
+      } else {
+        const prev = ladderEl.style.getPropertyValue('--ladder-fill').trim();
+        const fromZero = !prev || prev === '0%';
+        if (fromZero && pct > 0) {
+          ladderEl.style.setProperty('--ladder-fill', '0%');
+          void ladderEl.offsetWidth;
+          requestAnimationFrame(() => {
+            ladderEl.style.setProperty('--ladder-fill', pct + '%');
+          });
+        } else {
+          ladderEl.style.setProperty('--ladder-fill', pct + '%');
+        }
+      }
     }
 
   }

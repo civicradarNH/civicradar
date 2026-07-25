@@ -8969,10 +8969,12 @@ body.persona-lead .app-open-banner { display: none; }
 .esc-ladder {
   list-style: none;
   margin: 8px 0 16px;
-  padding: 0;
+  padding: 0 0 0 24px; /* room for timeline track + dots */
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  --ladder-fill: 0%;
 }
 
 .esc-step {
@@ -14986,12 +14988,7 @@ html.modal-open #btnCamera::after {
   50% { opacity: 1; transform: scale(1.15); }
 }
 
-/* 9.6 Escalation ladder timeline */
-.esc-ladder {
-  position: relative;
-  padding-left: 24px;
-  --ladder-fill: 0%;
-}
+/* 9.6 Escalation ladder timeline (track + fill + step dots) */
 .esc-ladder::before {
   content: '';
   position: absolute;
@@ -15001,6 +14998,7 @@ html.modal-open #btnCamera::after {
   width: 2px;
   background: var(--border);
   border-radius: 1px;
+  z-index: 0;
 }
 .esc-ladder::after {
   content: '';
@@ -15010,6 +15008,7 @@ html.modal-open #btnCamera::after {
   width: 2px;
   background: var(--success);
   height: var(--ladder-fill, 0%);
+  max-height: calc(100% - 8px);
   transition: height 0.5s var(--ease-out-soft);
   border-radius: 1px;
   pointer-events: none;
@@ -15017,6 +15016,7 @@ html.modal-open #btnCamera::after {
 }
 .esc-ladder > .esc-step {
   position: relative;
+  z-index: 1;
 }
 .esc-ladder > .esc-step::before {
   content: '';
@@ -15027,11 +15027,17 @@ html.modal-open #btnCamera::after {
   height: 10px;
   border-radius: 50%;
   background: var(--border);
-  transition: background 0.3s, transform 0.3s var(--ease-spring);
+  box-sizing: border-box;
+  transition: background 0.3s, transform 0.3s var(--ease-spring), box-shadow 0.3s;
   z-index: 1;
+}
+.esc-ladder > .esc-step.esc-step--active::before {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 99, 102, 241), 0.22);
 }
 .esc-ladder > .esc-step.is-complete::before {
   background: var(--success);
+  box-shadow: none;
   animation: ladder-dot-pop 0.3s var(--ease-spring);
 }
 @keyframes ladder-dot-pop {
@@ -15040,7 +15046,7 @@ html.modal-open #btnCamera::after {
   100% { transform: scale(1); }
 }
 
-/* 9.7 Language switch cross-fade */
+/* 9.7 Language switch cross-fade (header brand/lang + open modals + nav chrome) */
 .lang-swap {
   animation: lang-cross-fade 0.28s ease-out;
 }
@@ -15071,6 +15077,7 @@ html.modal-open #btnCamera::after {
   #btnRecenter.is-located i { animation: none; }
   .header__sync--syncing::before { animation: none; opacity: 0.8; }
   .esc-ladder::after { transition: none; }
+  .esc-ladder > .esc-step::before { transition: background 0.15s; }
   .esc-ladder > .esc-step.is-complete::before { animation: none; }
   .lang-swap { animation: none; }
   .profile-card__badges > * {
