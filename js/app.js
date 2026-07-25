@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v442';
+  const CIVIC_APP_VERSION = 'v443';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -946,6 +946,9 @@ document.addEventListener('DOMContentLoaded', function () {
   let pendingFixPhotoReportId = null;
 
   let activeEscalationId = null;
+
+  /** Citizen-facing filing guidance channel: call | whatsapp | portal | marg */
+  let activeEscGuidanceChannel = 'whatsapp';
 
   let pendingShareWinReportId = null;
 
@@ -3862,7 +3865,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.participate.small': 'Volunteer — CSR — projects',
 
-      'esc.corpTitle': 'File with local corporation (optional)',
+      'esc.corpTitle': 'File with local corporation',
 
       'esc.corpHint': 'Use {corp}\'s official grievance portal for stagnant-water / pest-control complaints.',
 
@@ -3870,7 +3873,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.corpSubtitle': 'CivicRadar shows hazards on the community map. Filing with your local corporation is optional — it starts the official clock.',
 
-      'esc.titleCorp': 'File with {corp} (optional)',
+      'esc.titleCorp': 'File with {corp}',
 
       'esc.tmc.recommended': 'Recommended: file on thanecity.gov.in or call TMC helpline 022-25331590.',
 
@@ -3892,7 +3895,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.channelCitizenCall': 'Citizen Call Center (155300)',
 
-      'esc.tmc.copyBlock': 'Details for TMC portal / helpline / email',
+      'esc.tmc.copyBlock': 'Paste these details (TMC portal / email)',
 
       'esc.tmc.copyAllDone': 'Copied — paste when you file with TMC',
 
@@ -3968,7 +3971,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelAppSmall': 'Play Store — App Store (replaces PuneConnect)',
 
-      'esc.pmc.copyBlock': 'Details for PMC CARE / WhatsApp / helpline',
+      'esc.pmc.copyBlock': 'Paste these details (PMC CARE / WhatsApp)',
 
       'esc.pmc.copyAllDone': 'Copied — paste when you file on PMC CARE, WhatsApp, or the helpline',
 
@@ -4667,7 +4670,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.shareResolvedMsg': 'FIXED in {ward}! Before → after proof on CivicRadar:\n{link}\n{hashtags}',
 
-      'esc.title': 'File with BMC (optional)',
+      'esc.title': 'File with BMC',
 
       'esc.subtitle': 'CivicRadar shows hazards on the community map. Filing with BMC is your choice — it starts the official clock. This is not a BMC channel.',
 
@@ -4707,13 +4710,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.margAppSmall': 'Official grievance app',
 
-      'esc.copyBlock': 'Details for 1916 / portal / app',
+      'esc.callSpeak': 'Say this when you call',
+
+      'esc.copyCall': 'Copy what to say',
+
+      'esc.copyCallDone': 'Copied — say this on the call',
+
+      'esc.copyBlock': 'Paste these details (portal / app / WhatsApp)',
 
       'esc.copyAll': 'Copy all details',
 
-      'esc.copyAllDone': 'Copied — paste when you file on 1916, MyBMC, or the portal',
+      'esc.copyAllDone': 'Copied — paste when you file on MyBMC, WhatsApp, or the portal',
 
-      'esc.copyBilingual': 'For the call centre: read the Marathi section at the bottom of the text block.',
+      'esc.copyBilingual': 'For the call centre: you can also read the Marathi line below.',
+
+      'esc.waHint': 'On WhatsApp: paste the details below into the chat, then send.',
 
       'esc.portalHint': 'On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.',
 
@@ -5045,7 +5056,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.message': 'Message',
 
-      'pledge.messagePh': 'Note for volunteers—',
+      'pledge.messagePh': 'e.g. Leave supplies at the society gate',
 
       'pledge.notice': 'Seen only by your ward coordinator. Follow-up happens in-app.',
 
@@ -6490,7 +6501,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.participate.small': 'स्वयंसेवा · CSR · परियोजनाएँ',
 
-      'esc.corpTitle': 'स्थानीय नगर निगम में दर्ज करें (वैकल्पिक)',
+      'esc.corpTitle': 'स्थानीय नगर निगम में दर्ज करें',
 
       'esc.corpHint': '{corp} के आधिकारिक पोर्टल पर ठहरा पानी / कीट नियंत्रण शिकायत दर्ज करें।',
 
@@ -6498,7 +6509,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.corpSubtitle': 'CivicRadar खतरे सामुदायिक मानचित्र पर दिखाता है। नगर निगम में दर्ज करना वैकल्पिक है — यह आधिकारिक घड़ी शुरू करता है।',
 
-      'esc.titleCorp': '{corp} में दर्ज करें (वैकल्पिक)',
+      'esc.titleCorp': '{corp} में दर्ज करें',
 
       'esc.tmc.recommended': 'अनुशंसित: thanecity.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
 
@@ -6520,7 +6531,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.channelCitizenCall': 'नागरिक कॉल सेंटर (155300)',
 
-      'esc.tmc.copyBlock': 'TMC पोर्टल / हेल्पलाइन / ईमेल के लिए विवरण',
+      'esc.tmc.copyBlock': 'ये विवरण चिपकाएँ (TMC पोर्टल / ईमेल)',
 
       'esc.tmc.copyAllDone': 'कॉपी हो गया — TMC में दर्ज करते समय चिपकाएँ',
 
@@ -6596,7 +6607,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelAppSmall': 'Play Store · App Store',
 
-      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / हेल्पलाइन के लिए विवरण',
+      'esc.pmc.copyBlock': 'ये विवरण चिपकाएँ (PMC CARE / WhatsApp)',
 
       'esc.pmc.copyAllDone': 'कॉपी हो गया — PMC CARE / WhatsApp पर दर्ज करते समय चिपकाएँ',
 
@@ -7333,13 +7344,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.margAppSmall': 'आधिकारिक शिकायत ऐप',
 
-      'esc.copyBlock': '1916 / पोर्टल / ऐप के लिए विवरण',
+      'esc.callSpeak': 'कॉल पर यह बताएँ',
+
+      'esc.copyCall': 'बोलने वाला पाठ कॉपी करें',
+
+      'esc.copyCallDone': 'कॉपी हो गया — कॉल पर यही कहें',
+
+      'esc.copyBlock': 'ये विवरण चिपकाएँ (पोर्टल / ऐप / WhatsApp)',
 
       'esc.copyAll': 'सभी विवरण कॉपी करें',
 
-      'esc.copyAllDone': 'कॉपी हो गया — आधिकारिक चैनल पर दर्ज करते समय चिपकाएँ',
+      'esc.copyAllDone': 'कॉपी हो गया — MyBMC, WhatsApp या पोर्टल पर चिपकाएँ',
 
-      'esc.copyBilingual': 'कॉल सेंटर: टेक्स्ट ब्लॉक में मराठी पंक्ति पढ़ सकते हैं।',
+      'esc.copyBilingual': 'कॉल सेंटर: नीचे मराठी पंक्ति भी पढ़ सकते हैं।',
+
+      'esc.waHint': 'WhatsApp पर: नीचे विवरण चैट में चिपकाएँ और भेजें।',
 
       'esc.portalHint': 'पोर्टल या MARG ऐप: Public Health → Pest Control → stagnant water चुनें। नीचे विवरण चिपकाएँ।',
 
@@ -7671,7 +7690,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.message': 'संदेश',
 
-      'pledge.messagePh': 'स्वयंसेवकों के लिए नोट…',
+      'pledge.messagePh': 'उदा. सप्लाई सोसायटी गेट पर छोड़ दें',
 
       'pledge.notice': 'केवल आपके वार्ड समन्वयक देखते हैं। फॉलो-अप ऐप में होता है।',
 
@@ -9116,7 +9135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.participate.small': 'स्वयंसेवा · CSR · प्रकल्प',
 
-      'esc.corpTitle': 'स्थानिक महानगरपालिकेत नोंदवा (पर्यायी)',
+      'esc.corpTitle': 'स्थानिक महानगरपालिकेत नोंदवा',
 
       'esc.corpHint': '{corp} च्या अधिकृत पोर्टलवर ठिबकलेले पाणी / कीट नियंत्रण तक्रार नोंदवा.',
 
@@ -9124,7 +9143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.corpSubtitle': 'CivicRadar धोके समुदाय नकाशावर दाखवते. महानगरपालिकेत नोंदवणे पर्यायी — अधिकृत घड्याळ सुरू होते.',
 
-      'esc.titleCorp': '{corp} मध्ये नोंदवा (पर्यायी)',
+      'esc.titleCorp': '{corp} मध्ये नोंदवा',
 
       'esc.tmc.recommended': 'शिफारस: thanecity.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
 
@@ -9146,7 +9165,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.channelCitizenCall': 'नागरिक कॉल सेंटर (155300)',
 
-      'esc.tmc.copyBlock': 'TMC पोर्टल / हेल्पलाइन / ईमेलसाठी तपशील',
+      'esc.tmc.copyBlock': 'हे तपशील पेस्ट करा (TMC पोर्टल / ईमेल)',
 
       'esc.tmc.copyAllDone': 'कॉपी झाले — TMC मध्ये नोंदवताना पेस्ट करा',
 
@@ -9222,7 +9241,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelAppSmall': 'Play Store · App Store',
 
-      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / हेल्पलाइनसाठी तपशील',
+      'esc.pmc.copyBlock': 'हे तपशील पेस्ट करा (PMC CARE / WhatsApp)',
 
       'esc.pmc.copyAllDone': 'कॉपी झाले — PMC CARE / WhatsApp वर नोंदवताना पेस्ट करा',
 
@@ -9959,13 +9978,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.margAppSmall': 'अधिकृत तक्रार अॅप',
 
-      'esc.copyBlock': '1916 / पोर्टल / अॅपसाठी तपशील',
+      'esc.callSpeak': 'कॉलवर हे सांगा',
+
+      'esc.copyCall': 'सांगायचा मजकूर कॉपी करा',
+
+      'esc.copyCallDone': 'कॉपी झाले — कॉलवर हेच सांगा',
+
+      'esc.copyBlock': 'हे तपशील पेस्ट करा (पोर्टल / अॅप / WhatsApp)',
 
       'esc.copyAll': 'सर्व तपशील कॉपी',
 
-      'esc.copyAllDone': 'कॉपी झाले — अधिकृत चॅनेलवर नोंदवताना पेस्ट करा',
+      'esc.copyAllDone': 'कॉपी झाले — MyBMC, WhatsApp किंवा पोर्टलवर पेस्ट करा',
 
-      'esc.copyBilingual': 'कॉल सेंटर: मजकुरात मराठी ओळ वाचू शकता.',
+      'esc.copyBilingual': 'कॉल सेंटर: खालील मराठी ओळही वाचू शकता.',
+
+      'esc.waHint': 'WhatsApp वर: खालील तपशील चॅटमध्ये पेस्ट करून पाठवा.',
 
       'esc.portalHint': 'पोर्टल किंवा MARG: Public Health → Pest Control → stagnant water. खाली तपशील पेस्ट करा.',
 
@@ -10297,7 +10324,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.message': 'संदेश',
 
-      'pledge.messagePh': 'स्वयंसेवकांसाठी टीप…',
+      'pledge.messagePh': 'उदा. साहित्य सोसायटी गेटवर ठेवा',
 
       'pledge.notice': 'फक्त तुमचे वॉर्ड समन्वयक पाहतात. फॉलो-अप अॅपमध्ये होतो.',
 
@@ -11741,7 +11768,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.participate.small': 'સ્વયંસેવા · CSR · પ્રોજેક્ટ',
 
-      'esc.corpTitle': 'સ્થાનિક મહાનગરપાલિકામાં નોંધાવો (વૈકલ્પિક)',
+      'esc.corpTitle': 'સ્થાનિક મહાનગરપાલિકામાં નોંધાવો',
 
       'esc.corpHint': '{corp} ના અધિકૃત પોર્ટલ પર ઠેર પાણી / કીટ નિયંત્રણ ફરિયાદ નોંધાવો.',
 
@@ -11749,7 +11776,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.corpSubtitle': 'CivicRadar જોખમો સમુદાય નકશા પર બતાવે છે. મહાનગરપાલિકામાં નોંધવું વૈકલ્પિક — અધિકૃત ઘડિયાળ શરૂ થાય.',
 
-      'esc.titleCorp': '{corp} માં નોંધાવો (વૈકલ્પિક)',
+      'esc.titleCorp': '{corp} માં નોંધાવો',
 
       'esc.tmc.recommended': 'ભલામણ: thanecity.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
 
@@ -11771,7 +11798,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.channelCitizenCall': 'નાગરિક કૉલ સેન્ટર (155300)',
 
-      'esc.tmc.copyBlock': 'TMC પોર્ટલ / હેલ્પલાઇન / ઈમેલ માટે વિગતો',
+      'esc.tmc.copyBlock': 'આ વિગતો પેસ્ટ કરો (TMC પોર્ટલ / ઈમેલ)',
 
       'esc.tmc.copyAllDone': 'કૉપી થયું — TMC માં નોંધાવતી વખતે પેસ્ટ કરો',
 
@@ -11847,7 +11874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.channelAppSmall': 'Play Store · App Store',
 
-      'esc.pmc.copyBlock': 'PMC CARE / WhatsApp / હેલ્પલાઇન માટે વિગતો',
+      'esc.pmc.copyBlock': 'આ વિગતો પેસ્ટ કરો (PMC CARE / WhatsApp)',
 
       'esc.pmc.copyAllDone': 'કૉપી થયું — PMC CARE / WhatsApp પર નોંધાવતી વખતે પેસ્ટ કરો',
 
@@ -12584,13 +12611,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.margAppSmall': 'અધિકૃત ફરિયાદ એપ',
 
-      'esc.copyBlock': '1916 / પોર્ટલ / એપ માટે વિગતો',
+      'esc.callSpeak': 'કૉલ પર આ કહો',
+
+      'esc.copyCall': 'કહેવાનું લખાણ કૉપી કરો',
+
+      'esc.copyCallDone': 'કૉપી થઈ — કૉલ પર આ જ કહો',
+
+      'esc.copyBlock': 'આ વિગતો પેસ્ટ કરો (પોર્ટલ / એપ / WhatsApp)',
 
       'esc.copyAll': 'બધી વિગતો કૉપી',
 
-      'esc.copyAllDone': 'કૉપી થઈ — અધિકૃત ચેનલ પર નોંધાવતી વખતે પેસ્ટ કરો',
+      'esc.copyAllDone': 'કૉપી થઈ — MyBMC, WhatsApp અથવા પોર્ટલ પર પેસ્ટ કરો',
 
-      'esc.copyBilingual': 'કોલ સેન્ટર: ટેક્સ્ટ બ્લોકમાં મરાઠી લીટી વાંચી શકો.',
+      'esc.copyBilingual': 'કૉલ સેન્ટર: નીચેની મરાઠી લીટી પણ વાંચી શકો.',
+
+      'esc.waHint': 'WhatsApp પર: નીચેની વિગતો ચેટમાં પેસ્ટ કરીને મોકલો.',
 
       'esc.portalHint': 'પોર્ટલ અથવા MARG: Public Health → Pest Control → stagnant water. નીચે વિગતો પેસ્ટ કરો.',
 
@@ -12922,7 +12957,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'pledge.message': 'સંદેશ',
 
-      'pledge.messagePh': 'સ્વયંસેવકો માટે નોંધ…',
+      'pledge.messagePh': 'દા.ત. સપ્લાય સોસાયટી ગેટ પર મૂકો',
 
       'pledge.notice': 'ફક્ત તમારા વોર્ડ સંકલક જુએ છે. ફોલો-અપ એપમાં થાય છે.',
 
@@ -33190,11 +33225,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#btnEscCopyAll').addEventListener('click', copyEscAllDetails);
 
+    $('#btnEscCopyCall')?.addEventListener('click', copyEscCallSpeak);
+
     $('#btnEscSaveId').addEventListener('click', saveComplaintId);
 
     $('#btnEscAaple').addEventListener('click', escalationOpenAapleSarkar);
-
-    $('#btnEscParticipate').addEventListener('click', escalationOpenParticipateMumbai);
 
     const btnEscCorp = $('#btnEscCorpPortal');
 
@@ -41091,19 +41126,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!container || !report) return;
 
-    const { steps, done, active } = getFilingProgress(report);
-
-    container.innerHTML = steps.map((key) => {
-
-      let cls = '';
-
-      if (done.has(key)) cls = 'is-done';
-
-      else if (key === active) cls = 'is-active';
-
-      return `<div class="esc-progress__step ${cls}">${escapeHtml(t(`esc.progress.${key}`))}</div>`;
-
-    }).join('');
+    // Citizen-facing tracker matches Profile Activity (Reported → Pending → Resolved).
+    // Shared / Escalating stay in getFilingProgress for ladder logic only.
+    container.innerHTML = renderReportCardProgress(report);
 
   }
 
@@ -41134,6 +41159,133 @@ document.addEventListener('DOMContentLoaded', function () {
   function buildCitizenComplaintText(report) {
 
     return buildBmcComplaintCopyText(report);
+
+  }
+
+
+
+  /** Speakable call-centre script — category, ward, landmark only (no lat/lng). */
+  function buildCitizenCallSpeakText(report) {
+
+    if (!report) return '';
+
+    const wardParts = parseWardParts(report.ward);
+
+    const wardLine = formatWardForCopy(wardParts);
+
+    const category = bmcCategoryLabel(report.hazard);
+
+    const lines = [
+
+      `${te('copy1916.categoryLabel')}: ${category}`,
+
+      `${te('copy1916.wardLabel')}: ${wardLine}`,
+
+    ];
+
+    if (report.notes) lines.push(`${te('copy1916.landmarkLabel')}: ${report.notes}`);
+
+    const marathiLead = I18N.mr[`copy1916.marathiLead.${report.hazard}`];
+
+    const marathiAction = I18N.mr[`copy1916.marathiAction.${report.hazard}`];
+
+    if (marathiLead || marathiAction) {
+
+      lines.push('');
+
+      lines.push(te('copy1916.marathiHeader'));
+
+      if (marathiLead) lines.push(marathiLead.replace('{ward}', wardLine));
+
+      if (marathiAction) lines.push(marathiAction);
+
+      if (report.notes && I18N.mr['copy1916.marathiLandmark']) {
+
+        lines.push(I18N.mr['copy1916.marathiLandmark'].replace('{notes}', report.notes));
+
+      }
+
+    }
+
+    return lines.join('\n');
+
+  }
+
+
+
+  function setEscGuidanceChannel(channel) {
+
+    const next = channel === 'call' || channel === 'whatsapp' || channel === 'portal' || channel === 'marg'
+
+      ? channel
+
+      : 'whatsapp';
+
+    activeEscGuidanceChannel = next;
+
+    updateEscGuidanceUI();
+
+  }
+
+
+
+  function updateEscGuidanceUI() {
+
+    const isCall = activeEscGuidanceChannel === 'call';
+
+    const callBlock = $('#escCallSpeakBlock');
+
+    const pasteBlock = $('#escPasteBlock');
+
+    if (callBlock) callBlock.classList.toggle('hidden', !isCall);
+
+    if (pasteBlock) pasteBlock.classList.toggle('hidden', isCall);
+
+    const portalHint = $('#escPortalHint');
+
+    const waHint = $('#escWaHint');
+
+    if (portalHint) {
+
+      portalHint.classList.toggle(
+
+        'hidden',
+
+        activeEscGuidanceChannel !== 'portal' && activeEscGuidanceChannel !== 'marg'
+
+      );
+
+    }
+
+    if (waHint) waHint.classList.toggle('hidden', activeEscGuidanceChannel !== 'whatsapp');
+
+    const modal = $('#escalationModal');
+
+    if (modal) {
+
+      modal.querySelectorAll('.esc-channel.is-selected').forEach((el) => el.classList.remove('is-selected'));
+
+      const sel =
+
+        activeEscGuidanceChannel === 'call' ? '#btnEscCall'
+
+          : activeEscGuidanceChannel === 'whatsapp' ? '#btnEscWhatsApp'
+
+            : activeEscGuidanceChannel === 'portal' ? '#btnEscPortal'
+
+              : activeEscGuidanceChannel === 'marg' ? '#btnEscMarg'
+
+                : null;
+
+      if (sel) $(sel)?.classList.add('is-selected');
+
+      modal.querySelectorAll(`[data-corp-channel="${activeEscGuidanceChannel}"]`).forEach((el) => {
+
+        el.classList.add('is-selected');
+
+      });
+
+    }
 
   }
 
@@ -41997,6 +42149,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const corp = getCityCorpChannels(city);
 
+    if (ch === 'call' || ch === 'whatsapp' || ch === 'portal' || ch === 'app') {
+
+      setEscGuidanceChannel(ch === 'app' ? 'portal' : ch);
+
+    }
+
     if (ch === 'portal') escalationOpenCorpPortal();
 
     else if (ch === 'whatsapp') openCorpWhatsApp(report, corp);
@@ -42197,13 +42355,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const corpPanel = $('#escCorpPanel');
 
-    const participateBlock = $('#escParticipateBlock');
-
     if (bmcPanel) bmcPanel.classList.toggle('hidden', !isMumbai);
 
     if (corpPanel) corpPanel.classList.toggle('hidden', isMumbai);
-
-    if (participateBlock) participateBlock.classList.toggle('hidden', !isMumbai);
 
     $('#btnEscAaple')?.classList.toggle('hidden', !isMumbai);
 
@@ -42287,13 +42441,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const stage = getReportStage(report);
 
-    $('#escClock').textContent = getClockLine(report);
-
     $('#escComplaintId').value = report.complaintId || '';
 
     const textEl = $('#escComplaintText');
 
     if (textEl) textEl.value = buildCitizenComplaintText(report);
+
+    const callSpeakEl = $('#escCallSpeakText');
+
+    if (callSpeakEl) callSpeakEl.value = buildCitizenCallSpeakText(report);
+
+    setEscGuidanceChannel(city === 'thane' ? 'portal' : 'whatsapp');
 
     $('#escFiledNote').classList.toggle('hidden', !stage.filed);
 
@@ -42619,6 +42777,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function escalationFileCall() {
 
+    setEscGuidanceChannel('call');
+
     trackBmcEvent('bmc_channel_opened', { channel: 'call' }, findReportById(activeEscalationId)?.ward);
 
     window.open(`tel:${BMC.helpline}`, '_self');
@@ -42628,6 +42788,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function escalationFileWhatsApp() {
+
+    setEscGuidanceChannel('whatsapp');
 
     const report = findReportById(activeEscalationId);
 
@@ -42643,6 +42805,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function escalationFilePortal() {
 
+    setEscGuidanceChannel('portal');
+
     trackBmcEvent('bmc_channel_opened', { channel: 'portal' }, findReportById(activeEscalationId)?.ward);
 
     window.open(BMC.portalUrl, '_blank');
@@ -42652,6 +42816,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function escalationFileMargApp() {
+
+    setEscGuidanceChannel('marg');
 
     const report = findReportById(activeEscalationId);
 
@@ -42856,6 +43022,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const copyKey = city === 'thane' ? 'esc.tmc.copyAllDone' : city === 'pune' ? 'esc.pmc.copyAllDone' : 'esc.copyAllDone';
 
     copyEscText(buildCitizenComplaintText(report), copyKey);
+
+  }
+
+
+
+  function copyEscCallSpeak() {
+
+    const report = findReportById(activeEscalationId);
+
+    if (!report) return;
+
+    copyEscText(buildCitizenCallSpeakText(report), 'esc.copyCallDone');
 
   }
 

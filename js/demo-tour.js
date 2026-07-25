@@ -349,13 +349,13 @@
     {
       audioId: '08-participate',
       narrateMs: 35000,
-      caption: 'Save your complaint number here. Participate Mumbai is for volunteering and ward projects — not pest-control filing.',
+      caption: 'Save your complaint number here. Filing starts the official clock — volunteering lives under Resources → Help in Your Ward.',
       run: async () => {
-        await tourScroll($('#btnEscParticipate'));
-        await highlight($('#btnEscParticipate'), true);
+        await tourScroll($('#escComplaintId'));
+        await highlight($('#escComplaintId'), true);
         await sleep(1800);
-        await highlight($('#btnEscParticipate'), false);
-        await moveTo($('#escComplaintId'), 500);
+        await highlight($('#escComplaintId'), false);
+        await moveTo($('#btnEscSaveId'), 500);
         await sleep(1200);
       },
     },

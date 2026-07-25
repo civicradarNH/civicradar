@@ -1123,7 +1123,7 @@
       </div>
       <div class="form-group">
         <label for="pledgeMessage" data-i18n="pledge.message">Message</label>
-        <textarea id="pledgeMessage" rows="3" maxlength="300" placeholder="Note for volunteers…" data-i18n-ph="pledge.messagePh"></textarea>
+        <textarea id="pledgeMessage" rows="3" maxlength="300" placeholder="e.g. Leave supplies at the society gate" data-i18n-ph="pledge.messagePh"></textarea>
       </div>
       <div class="modal__sticky-footer">
         <button type="button" class="btn btn--primary btn--full" id="btnSubmitPledge" data-i18n="pledge.submit">Submit pledge</button>
@@ -1758,9 +1758,8 @@
     <div class="modal modal--tall" id="escalationModal" role="dialog" aria-modal="true" aria-labelledby="escalationTitle">
       <div class="modal__handle"></div>
       <button type="button" class="modal__close" data-close="escalation" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
-      <h2 id="escalationTitle"><i class="ph ph-megaphone"></i> <span id="escTitleText" data-i18n="esc.title">File with BMC (optional)</span></h2>
+      <h2 id="escalationTitle"><i class="ph ph-megaphone"></i> <span id="escTitleText" data-i18n="esc.title">File with BMC</span></h2>
       <p class="modal__subtitle" id="escSubtitle" data-i18n="esc.subtitle">CivicRadar shows hazards on the community map. Filing with BMC is your choice — it starts the official clock. This is not a BMC channel.</p>
-      <p class="accountability-clock" id="escClock"></p>
 
       <div class="esc-progress" id="escProgress" aria-label="Filing progress"></div>
 
@@ -1798,7 +1797,7 @@
 
       <div id="escCorpPanel" class="hidden">
         <p class="esc-step-label" data-i18n="esc.step1">Step 1 · File</p>
-        <h3 class="section-title" id="escCorpTitle" data-i18n="esc.corpTitle">File with local corporation (optional)</h3>
+        <h3 class="section-title" id="escCorpTitle" data-i18n="esc.corpTitle">File with local corporation</h3>
         <p class="field-hint esc-recommended hidden" id="escCorpRecommended"></p>
         <p class="field-hint" id="escCorpHint" data-i18n="esc.corpHint">Use your city's official grievance portal to file stagnant-water / pest-control complaints.</p>
         <div id="escCorpChannels"></div>
@@ -1820,11 +1819,20 @@
       <p class="field-hint hidden" id="escOfficialCategoryHint"></p>
       <div class="esc-channels official-channels hidden" id="escOfficialExtras" data-official-context="escalation"></div>
 
-      <div class="esc-copy-block">
-        <label for="escComplaintText" class="esc-copy-block__label" id="escCopyBlockLabel" data-i18n="esc.copyBlock">Details for 1916 / portal / app</label>
+      <div class="esc-copy-block hidden" id="escCallSpeakBlock">
+        <label for="escCallSpeakText" class="esc-copy-block__label" id="escCallSpeakLabel" data-i18n="esc.callSpeak">Say this when you call</label>
+        <textarea id="escCallSpeakText" class="esc-copy-block__text" rows="4" readonly aria-readonly="true"></textarea>
+        <p class="field-hint" id="escCallHint" data-i18n="esc.copyBilingual">For the call centre: read the Marathi section at the bottom of the text block.</p>
+        <button type="button" class="btn btn--secondary btn--sm btn--full" id="btnEscCopyCall">
+          <i class="ph ph-copy"></i> <span data-i18n="esc.copyCall">Copy what to say</span>
+        </button>
+      </div>
+
+      <div class="esc-copy-block" id="escPasteBlock">
+        <label for="escComplaintText" class="esc-copy-block__label" id="escCopyBlockLabel" data-i18n="esc.copyBlock">Paste these details (portal / app / WhatsApp)</label>
         <textarea id="escComplaintText" class="esc-copy-block__text" rows="7" readonly aria-readonly="true"></textarea>
-        <p class="field-hint" data-i18n="esc.copyBilingual">For the call centre: you can read the Marathi line in the text block.</p>
-        <p class="field-hint" id="escPortalHint" data-i18n="esc.portalHint">On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.</p>
+        <p class="field-hint hidden" id="escPortalHint" data-i18n="esc.portalHint">On the portal or MARG app: choose Public Health → Pest Control → stagnant water. Paste the details below.</p>
+        <p class="field-hint hidden" id="escWaHint" data-i18n="esc.waHint">On WhatsApp: paste the details below into the chat, then send.</p>
         <button type="button" class="btn btn--secondary btn--sm btn--full" id="btnEscCopyAll">
           <i class="ph ph-copy"></i> <span data-i18n="esc.copyAll">Copy all details</span>
         </button>
@@ -1850,16 +1858,6 @@
         <p class="esc-step-label" data-i18n="esc.step2">Step 2 · Track &amp; escalate</p>
         <h3 class="section-title" data-i18n="esc.ladderTitle">Escalation ladder</h3>
         <ul class="esc-ladder" id="escLadder"></ul>
-      </div>
-
-      <div id="escParticipateBlock" class="esc-participate">
-        <h3 class="section-title" data-i18n="esc.participate.title">Community action (optional)</h3>
-        <p class="field-hint" data-i18n="esc.participate.hint">Participate Mumbai is BMC’s official portal for volunteering and CSR — not for filing pest-control complaints. Use it to join clean-ups or propose ward projects.</p>
-        <button type="button" class="esc-channel esc-channel--wide" id="btnEscParticipate">
-          <i class="ph ph-hand-heart"></i>
-          <span data-i18n="esc.participate.btn">Participate Mumbai</span>
-          <small data-i18n="esc.participate.small">Volunteer · CSR · projects</small>
-        </button>
       </div>
 
       <div class="modal__sticky-footer">

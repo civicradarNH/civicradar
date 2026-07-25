@@ -397,7 +397,7 @@
         await sleep(900);
         await moveTo($('#btnEscWhatsApp'), 450);
         await sleep(900);
-        await moveTo($('#btnEscParticipate'), 450);
+        await moveTo($('#escComplaintId'), 450);
         await sleep(800);
       },
     },

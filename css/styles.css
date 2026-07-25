@@ -9133,6 +9133,16 @@ body.persona-lead .app-open-banner { display: none; }
   margin: 10px 0 14px;
 }
 
+.esc-progress .status-stepper {
+  width: 100%;
+  margin: 0;
+}
+
+.esc-channel.is-selected {
+  border-color: var(--primary, #6366f1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+}
+
 .esc-progress__step {
   flex: 1;
   text-align: center;
