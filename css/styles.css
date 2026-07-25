@@ -8062,6 +8062,12 @@ body.persona-lead .app-open-banner { display: none; }
   border-radius: var(--radius);
 }
 
+.report-card--file-next {
+  border-color: rgba(99, 102, 241, 0.45);
+  background: rgba(99, 102, 241, 0.05);
+  box-shadow: var(--shadow-sm);
+}
+
 .report-card__thumb {
   width: 64px;
   height: 64px;

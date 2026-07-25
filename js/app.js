@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v440';
+  const CIVIC_APP_VERSION = 'v441';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4446,7 +4446,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.unfiledBanner': '{n} open — not filed with {corp} yet. Share helps; each spot needs its own complaint if you file.',
 
-      'profile.fileNext': 'File next',
+      'profile.fileNext': 'File next: {hazard} · {when}',
 
       'confirm.resolved': 'A hazard you backed in {ward} was fixed!',
 
@@ -7072,7 +7072,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.unfiledBanner': '{n} खुले — अभी {corp} में दर्ज नहीं। शेयर मदद करता है; दर्ज करें तो हर स्पॉट की अलग शिकायत।',
 
-      'profile.fileNext': 'अगली दर्ज करें',
+      'profile.fileNext': 'अगली दर्ज करें: {hazard} · {when}',
 
       'confirm.resolved': '{ward} में जिस खतरे का आपने समर्थन किया वह ठीक हो गया!',
 
@@ -9698,7 +9698,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.unfiledBanner': '{n} उघडे — अजून {corp} मध्ये दाखल नाही. शेअर मदत करते; दाखल केल्यास प्रत्येक स्पॉटची वेगळी तक्रार.',
 
-      'profile.fileNext': 'पुढील नोंदवा',
+      'profile.fileNext': 'पुढील नोंदवा: {hazard} · {when}',
 
       'confirm.resolved': '{ward} मधील ज्या धोक्याला तुम्ही पाठिंबा दिला तो सोडवला गेला!',
 
@@ -12323,7 +12323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.unfiledBanner': '{n} ખુલ્લા — {corp} પર હજુ નોંધાયા નથી. શેર કરવું પણ મદદ કરે; અધિકૃત નોંધાવો તો દરેક સ્થળ માટે અલગ ફરિયાદ.',
 
-      'profile.fileNext': 'આગળની નોંધાવો',
+      'profile.fileNext': 'આગળની નોંધાવો: {hazard} · {when}',
 
       'confirm.resolved': '{ward} માં તમે ટેકો આપેલ જોખમ ઠીક થઈ ગયું!',
 
@@ -44892,22 +44892,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const unfiledReports = getUnfiledReports();
 
+    const nextUnfiled = unfiledReports[0] || null;
+
     let batchBanner = '';
 
-    if (unfiledReports.length > 1) {
+    if (nextUnfiled) {
+
+      const fileNextLabel = t('profile.fileNext')
+
+        .replace('{hazard}', hazardLabel(nextUnfiled.hazard))
+
+        .replace('{when}', formatRelativeTime(nextUnfiled.timestamp));
+
+      const bannerText = unfiledReports.length > 1
+
+        ? `<p>${escapeHtml(t('profile.unfiledBanner')
+
+            .replace('{n}', String(unfiledReports.length))
+
+            .replace('{corp}', getCorpShortName(getUserCity())))}</p>`
+
+        : '';
 
       batchBanner = `
 
         <div class="profile-batch-banner">
 
-          <p>${escapeHtml(t('profile.unfiledBanner').replace('{n}', String(unfiledReports.length)))}</p>
+          ${bannerText}
 
-          <button type="button" class="btn btn--primary btn--sm" id="btnFileNextUnfiled">${escapeHtml(t('profile.fileNext'))}</button>
+          <button type="button" class="btn btn--primary btn--sm" id="btnFileNextUnfiled">${escapeHtml(fileNextLabel)}</button>
 
         </div>`;
 
     }
-
 
 
     list.innerHTML = batchBanner + reports
@@ -44918,57 +44935,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const resolved = r.status === 'resolved';
 
-        const statusClass = r.removed
+        const isFileNextTarget = !!(nextUnfiled && String(r.id) === String(nextUnfiled.id));
 
-          ? 'status-badge--removed'
+        // Status pill + clock: skip unfiled "open on map" / "logged today" —
 
-          : resolved
+        // relative time + stepper carry status; File next is the filing CTA.
 
-            ? 'status-badge--resolved'
+        let statusHtml = '';
 
-            : stage.filed
+        if (r.removed) {
 
-              ? 'status-badge--filed'
+          statusHtml = `<div class="report-card__status"><span class="status-badge status-badge--removed">${escapeHtml(t('profile.status.removed'))}</span></div>`;
 
-              : 'status-badge--pending';
+        } else if (resolved) {
 
-        const statusText = r.removed
+          statusHtml = `<div class="report-card__status"><span class="status-badge status-badge--resolved">${escapeHtml(resolutionStatusLabel(r))}</span></div>`;
 
-          ? t('profile.status.removed')
+        } else if (stage.filed) {
 
-          : resolved
+          const ref = `${getComplaintRefPrefix(getReportCity(r))} #${escapeHtml(r.complaintId)}`;
 
-            ? resolutionStatusLabel(r)
+          statusHtml = `<div class="report-card__status"><span class="status-badge status-badge--filed">${ref}</span><span class="report-card__clock">${escapeHtml(getClockLine(r))}</span></div>`;
 
-            : stage.filed
-
-              ? `${getComplaintRefPrefix(getReportCity(r))} #${escapeHtml(r.complaintId)}`
-
-              : t('profile.status.notFiled');
-
-        const clock = !resolved && !r.removed
-
-          ? `<span class="report-card__clock">${escapeHtml(getClockLine(r))}</span>`
-
-          : '';
+        }
 
         let action = '';
 
-        if (!resolved && !r.removed) {
+        // Unfiled filing CTA lives on File next only; keep track/escalate per card.
 
-          const rCity = getReportCity(r);
-
-          const label = stage.filed
-
-            ? t('profile.trackEscalate')
-
-            : (rCity === 'mumbai' ? t('profile.fileBmc') : t('profile.fileCorp').replace('{corp}', getCorpShortName(rCity)));
+        if (!resolved && !r.removed && stage.filed) {
 
           const cls = stage.key === 'matrix' || stage.key === 'zonal' || stage.key === 'grievance'
 
             ? 'btn--primary' : 'btn--secondary';
 
-          action = `<button type="button" class="btn ${cls} btn--sm report-card__cta" data-escalate="${escapeHtml(String(r.id))}">${label}</button>`;
+          action = `<button type="button" class="btn ${cls} btn--sm report-card__cta" data-escalate="${escapeHtml(String(r.id))}">${escapeHtml(t('profile.trackEscalate'))}</button>`;
 
         }
 
@@ -45020,7 +45021,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return `
 
-          <article class="report-card">
+          <article class="report-card${isFileNextTarget ? ' report-card--file-next' : ''}">
 
             ${thumb}
 
@@ -45030,13 +45031,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="report-card__meta">${escapeHtml(formatRelativeTime(r.timestamp))}${r.notes ? ` — ${escapeHtml(r.notes)}` : ''}</div>
 
-              <div class="report-card__status">
-
-                <span class="status-badge ${statusClass}">${statusText}</span>
-
-                ${clock}
-
-              </div>
+              ${statusHtml}
 
               ${renderReportCardProgress(r)}
 
@@ -45057,7 +45052,6 @@ document.addEventListener('DOMContentLoaded', function () {
       })
 
       .join('');
-
 
 
     list.querySelectorAll('[data-escalate]').forEach((btn) => {
