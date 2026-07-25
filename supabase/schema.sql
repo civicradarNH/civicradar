@@ -1733,6 +1733,48 @@ end $$;
 
 grant execute on function public.resolve_own_report(uuid, text) to authenticated;
 
+-- Reopen: lets the reporter, or a neighbour who corroborated (Me too) or
+-- fix-confirmed the hazard, dispute a wrongly-resolved report. Deliberately
+-- symmetric with resolve_own_report — same one-tap trust level, no evidence
+-- required, because this dispute path IS the safety net, not a formality.
+create or replace function public.reopen_report(p_report_id uuid)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  rep record;
+  has_stake boolean;
+begin
+  select * into rep from public.reports where id = p_report_id and status = 'resolved';
+  if not found then raise exception 'not_resolved'; end if;
+
+  if rep.reporter_id = auth.uid() then
+    has_stake := true;
+  else
+    select exists(
+      select 1 from public.report_confirmations
+      where report_id = p_report_id and user_id = auth.uid()
+    ) or exists(
+      select 1 from public.report_fix_confirmations
+      where report_id = p_report_id and user_id = auth.uid()
+    ) into has_stake;
+  end if;
+
+  if not has_stake then
+    raise exception 'not_authorized';
+  end if;
+
+  update public.reports set
+    status = 'pending',
+    resolved_by = null,
+    resolved_at = null,
+    resolution_source = null,
+    resolution_image = null,
+    community_verified_at = null
+  where id = p_report_id;
+end $$;
+
+grant execute on function public.reopen_report(uuid) to authenticated;
+
 -- Community "looks fixed" photo: confirm_fix() already resolved the report;
 -- this only attaches the "after" photo. Caller must have a real stake in this
 -- report (the reporter, or one of the neighbours who confirmed the fix) and

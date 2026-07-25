@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v443';
+  const CIVIC_APP_VERSION = 'v444';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4461,6 +4461,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.looksFixed': 'Looks fixed now',
 
+      'fix.markFixed': 'Mark as fixed',
+
+      'fix.reopen': 'Still there? Reopen',
+
       'fix.done': 'You said looks fixed',
 
       'fix.thanks': 'Thanks — when enough neighbours agree, we mark it fixed.',
@@ -5217,6 +5221,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.complaintFirst': 'Add your complaint number first — it\'s your proof.',
 
       'toast.selfResolved': 'Marked resolved — thanks for following up!',
+
+      'toast.reopened': 'Reopened — thanks for keeping the map accurate.',
 
       'toast.shareWin': 'Share the win with neighbours.',
 
@@ -7095,6 +7101,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.looksFixed': 'अब ठीक लगता है',
 
+      'fix.markFixed': 'ठीक चिह्नित करें',
+
+      'fix.reopen': 'अभी भी है? फिर खोलें',
+
       'fix.done': 'आपने ठीक कहा',
 
       'fix.thanks': 'धन्यवाद — पर्याप्त पड़ोसी सहमत होने पर हम इसे ठीक चिह्नित करेंगे।',
@@ -7852,6 +7862,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.complaintFirst': 'पहले शिकायत नंबर जोड़ें — यही आपका प्रमाण।',
 
       'toast.selfResolved': 'ठीक चिह्नित — फॉलो-अप के लिए धन्यवाद!',
+
+      'toast.reopened': 'फिर खोला — मानचित्र सटीक रखने के लिए धन्यवाद।',
 
       'toast.shareWin': 'पड़ोसियों के साथ जीत शेयर करें।',
 
@@ -9729,6 +9741,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.looksFixed': 'आता ठीक दिसते',
 
+      'fix.markFixed': 'ठीक चिन्हांकित करा',
+
+      'fix.reopen': 'अजून आहे? पुन्हा उघडा',
+
       'fix.done': 'तुम्ही ठीक म्हणालात',
 
       'fix.thanks': 'धन्यवाद — पुरेसे शेजारी सहमत झाले की आम्ही ठीक चिन्हांकित करू.',
@@ -10485,6 +10501,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.complaintFirst': 'प्रथम तक्रार क्रमांक जोडा — तोच पुरावा.',
 
       'toast.selfResolved': 'निराकरण चिन्हांकित — फॉलो-अपसाठी धन्यवाद!',
+
+      'toast.reopened': 'पुन्हा उघडले — नकाशा अचूक ठेवल्याबद्दल धन्यवाद.',
 
       'toast.shareWin': 'शेजाऱ्यांसोबत विजय शेअर करा.',
 
@@ -12362,6 +12380,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'fix.looksFixed': 'હવે ઠીક લાગે છે',
 
+      'fix.markFixed': 'ઠીક ચિહ્નિત કરો',
+
+      'fix.reopen': 'હજુ છે? ફરી ખોલો',
+
       'fix.done': 'તમે ઠીક કહ્યું',
 
       'fix.thanks': 'આભાર — પૂરતા પડોશીઓ સહમત થાય ત્યારે ઠીક ચિહ્નિત કરીશું.',
@@ -13118,6 +13140,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'toast.complaintFirst': 'પહેલા ફરિયાદ નંબર ઉમેરો — તે જ પુરાવો.',
 
       'toast.selfResolved': 'ઉકેલ ચિહ્નિત — ફોલો-અપ માટે આભાર!',
+
+      'toast.reopened': 'ફરી ખોલ્યું — નકશો સચોટ રાખવા બદલ આભાર.',
 
       'toast.shareWin': 'પડોશીઓ સાથે જીત શેર કરો.',
 
@@ -15675,6 +15699,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }));
       }
       if (error) console.warn('Resolution sync failed:', error.message);
+    },
+
+    async reopenReport(id) {
+      if (!this.enabled) return;
+      const { error } = await this.client.rpc('reopen_report', { p_report_id: id });
+      if (error) console.warn('Reopen sync failed:', error.message);
     },
 
     async updateReportFiling(id, complaintId, filedAt) {
@@ -21541,14 +21571,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const track = t('confirm.trackProfile');
     let ownerAction = '';
     if (ownsReport(report) && report.status === 'pending') {
+      // One tap, same trust level as reporting itself — no complaint ID or
+      // photo required. The server (resolve_own_report RPC) never required
+      // one either; this used to be a stricter client-only gate. Accuracy
+      // is protected by reopenReport() below, not by upfront friction here.
       const rid = escapeHtml(String(report.id));
-      if (report.complaintId) {
-        ownerAction = `<button type="button" class="popup__btn popup__btn--secondary" data-resolve-own="${rid}">`
-          + `<i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(t('esc.selfBtn'))}</button>`;
-      } else {
-        ownerAction = `<button type="button" class="popup__btn popup__btn--secondary" data-open-escalation="${rid}">`
-          + `<i class="ph ph-buildings" aria-hidden="true"></i> ${escapeHtml(t('esc.fileTitle'))}</button>`;
-      }
+      ownerAction = `<button type="button" class="popup__btn popup__btn--secondary" data-resolve-own="${rid}">`
+        + `<i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(t('fix.markFixed'))}</button>`;
     }
     return `<div class="popup__already-pinned">`
       + `<button type="button" class="popup__btn popup__btn--primary popup__btn--backed" disabled aria-disabled="true" aria-label="${escapeHtml(label)}">`
@@ -31251,6 +31280,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
+    } else if (
+      report.status === 'resolved'
+      && (ownsReport(report) || hasConfirmed(report.id) || hasFixConfirmed(report.id))
+    ) {
+      action = `<button type="button" class="popup__btn popup__btn--ghost" data-reopen="${escapeHtml(String(report.id))}">`
+        + `<i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i> ${escapeHtml(t('fix.reopen'))}</button>`;
     }
 
     const clearedLine = report.communityCleared
@@ -33308,6 +33343,20 @@ document.addEventListener('DOMContentLoaded', function () {
         e.stopPropagation();
 
         resolveOwnReport(resolveOwnBtn.dataset.resolveOwn);
+
+        return;
+
+      }
+
+      const reopenBtn = e.target.closest && e.target.closest('[data-reopen]');
+
+      if (reopenBtn) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        reopenReport(reopenBtn.dataset.reopen);
 
         return;
 
@@ -45474,6 +45523,98 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function applyReopen(reportId) {
+
+    const reports = loadReports();
+
+    const idx = reports.findIndex((r) => String(r.id) === String(reportId));
+
+    if (idx === -1) return false;
+
+    if (reports[idx].status !== 'resolved') return false;
+
+    reports[idx].status = 'pending';
+
+    reports[idx].resolvedBy = null;
+
+    reports[idx].resolvedAt = null;
+
+    reports[idx].resolutionSource = null;
+
+    reports[idx].resolutionImage = null;
+
+    reports[idx].communityVerifiedAt = null;
+
+    try {
+
+      saveReports(reports);
+
+    } catch (err) {
+
+      showToast(t('toast.resolveFail'), 'error');
+
+      return false;
+
+    }
+
+    Backend.reopenReport(reportId);
+
+    if (window.CivicAnalytics) {
+
+      CivicAnalytics.track('report_reopened', { reportId: String(reportId) }, reports[idx].ward);
+
+    }
+
+    if (reportMarkerLayer) refreshReportMarkers();
+
+    updateProfileUI();
+
+    updateCommunitySubtitle();
+
+    renderWardChallenge();
+
+    renderLeaderboard('wards');
+
+    renderLeaderboard('citizens');
+
+    updatePersonaUI();
+
+    updateCommunityWinBadge();
+
+    return true;
+
+  }
+
+
+
+  function reopenReport(reportId) {
+
+    const report = findReportById(reportId);
+
+    if (!report) return;
+
+    const stake = ownsReport(report) || hasConfirmed(report.id) || hasFixConfirmed(report.id);
+
+    if (!stake) {
+
+      showToast(t('toast.ownReportOnly'), 'error');
+
+      return;
+
+    }
+
+    if (applyReopen(reportId)) {
+
+      try { closeMapPinPopup(); } catch { /* ignore */ }
+
+      showToast(t('toast.reopened'), 'info', 4000);
+
+    }
+
+  }
+
+
+
   function markReportResolved() {
 
     if (!activeAdminReportId) return;
@@ -45601,9 +45742,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Citizen self-confirmation: the report owner confirms BMC fixed it.
+  // Citizen self-confirmation: the report owner marks their pin fixed.
 
-  // Requires a filed complaint number as proof, and is tagged as citizen-confirmed.
+  // One-tap, no complaint ID — tagged as citizen-confirmed (resolution_source self).
 
   function resolveOwnReport(reportId) {
 
@@ -45621,15 +45762,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (!report.complaintId) {
-
-      showToast(t('toast.complaintFirst'), 'error', 4500);
-
-      return;
-
-    }
-
     if (applyResolution(reportId, 'citizen', null, 'self')) {
+
+      try { closeMapPinPopup(); } catch { /* ignore */ }
 
       closeModal('escalation');
 
