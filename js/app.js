@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v435';
+  const CIVIC_APP_VERSION = 'v436';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -796,7 +796,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const GEO_LOCATE_TIMEOUT_MS = 20000;
 
-  const GEO_REFINE_MS = 45000;
+  // Short refine window — long watch + noisy GPS was panning the map for ~45s.
+  const GEO_REFINE_MS = 18000;
+  // Urban/indoor GPS often jumps 100–250m; only chase real relocations.
+  const GEO_REFINE_PAN_JUMP_M = 280;
+  // Two consecutive fixes must agree within this before panTo.
+  const GEO_REFINE_PAN_AGREE_M = 40;
 
   // App URL is used for shareable deep links. Set to your deployed origin in production.
 
@@ -921,6 +926,9 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   let locationRefineUntil = 0;
+  /** @type {{ lat: number, lng: number } | null} */
+  let locationRefinePendingPan = null;
+  let locationRefineDidPan = false;
 
   // Atmospheric swoop: first cold GPS center only (not every pan / modal / refine).
   let mapLocateSwoopDone = false;
@@ -30476,11 +30484,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     locationRefineUntil = 0;
 
+    locationRefinePendingPan = null;
+
+    locationRefineDidPan = false;
+
   }
 
 
 
   // After the first fix, keep listening briefly — WiFi/IP often jumps to real GPS within ~10–30s.
+
+  // Marker may update often; panTo at most once, and only after two agreeing jump samples.
 
   function startUserLocationRefine() {
 
@@ -30489,6 +30503,10 @@ document.addEventListener('DOMContentLoaded', function () {
     stopUserLocationRefine();
 
     locationRefineUntil = Date.now() + GEO_REFINE_MS;
+
+    locationRefinePendingPan = null;
+
+    locationRefineDidPan = false;
 
     locationRefineWatchId = navigator.geolocation.watchPosition(
 
@@ -30528,7 +30546,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         );
 
-        if (!betterAcc && !bigJumpWithBetterOrSimilar) return;
+        const agreeWithPending = !!(
+
+          locationRefinePendingPan &&
+
+          !locationRefineDidPan &&
+
+          getDistanceInMeters(locationRefinePendingPan.lat, locationRefinePendingPan.lng, lat, lng) <= GEO_REFINE_PAN_AGREE_M
+
+        );
+
+        // Allow a confirming sample through even when accuracy/jump gates would skip it.
+
+        if (!betterAcc && !bigJumpWithBetterOrSimilar && !agreeWithPending) return;
 
         currentLat = lat;
 
@@ -30538,9 +30568,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateUserLocationMarker(lat, lng, acc);
 
-        if (moved > 120) {
+        if (!locationRefineDidPan) {
 
-          try { map.panTo([lat, lng], { animate: true }); } catch { /* ignore */ }
+          if (agreeWithPending) {
+
+            try { map.panTo([lat, lng], { animate: true }); } catch { /* ignore */ }
+
+            locationRefineDidPan = true;
+
+            locationRefinePendingPan = null;
+
+          } else if (moved > GEO_REFINE_PAN_JUMP_M) {
+
+            locationRefinePendingPan = { lat, lng };
+
+          }
 
         }
 
