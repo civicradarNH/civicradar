@@ -993,29 +993,28 @@
       <div class="modal__sheet-body">
         <div class="resources-section resources-section--official official-channels-block" id="resourcesOfficialBlock">
           <h3 class="section-title resources-section__title"><img src="assets/channel-icons/verified-gov.svg" alt="" width="22" height="22"> <span data-i18n="resources.fileTitle">File with Corporation</span></h3>
-          <p class="field-hint resources-file-hint" data-i18n="official.subtitle">Verified .gov apps and portals for your city.</p>
           <div class="esc-channels official-channels" id="resourcesOfficialChannels" data-official-context="resources"></div>
         </div>
 
         <div class="resources-section resources-section--community">
           <h3 class="section-title resources-section__title resources-action-title"><i class="ph ph-hand-heart" aria-hidden="true"></i> <span data-i18n="resources.actionTitle">Help in Your Ward</span></h3>
 
-          <div class="pledge-card pledge-card--volunteer">
-            <div class="pledge-card__icon"><i class="ph ph-broom"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.volunteerTitle">Volunteer in my ward</h3>
-              <p data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenVolunteer" data-i18n="community.volunteerCta">Sign up</button>
-          </div>
+          <div class="resources-help-list">
+            <button type="button" class="resources-help-row" id="btnOpenVolunteer">
+              <span class="resources-help-row__icon" aria-hidden="true"><i class="ph ph-broom"></i></span>
+              <span class="resources-help-row__body">
+                <span class="resources-help-row__title" data-i18n="community.volunteerTitle">Volunteer in my ward</span>
+                <small class="resources-help-row__meta" data-i18n="community.volunteerBody">Join local cleanup crews in your ward.</small>
+              </span>
+            </button>
 
-          <div class="pledge-card pledge-card--pledge">
-            <div class="pledge-card__icon"><i class="ph ph-hand-heart"></i></div>
-            <div class="pledge-card__body">
-              <h3 data-i18n="community.supportTitle">Support Volunteers</h3>
-              <p data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btnOpenPledge" data-i18n="community.pledge">Pledge</button>
+            <button type="button" class="resources-help-row" id="btnOpenPledge">
+              <span class="resources-help-row__icon" aria-hidden="true"><i class="ph ph-hand-heart"></i></span>
+              <span class="resources-help-row__body">
+                <span class="resources-help-row__title" data-i18n="community.supportTitle">Support Volunteers</span>
+                <small class="resources-help-row__meta" data-i18n="community.supportBody">Pledge supplies for cleanup crews in your ward.</small>
+              </span>
+            </button>
           </div>
         </div>
 

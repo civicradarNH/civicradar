@@ -5032,10 +5032,7 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .resources-file-hint {
-  margin: 0 0 12px;
-  font-size: var(--text-sm, var(--fs-sm));
-  color: var(--ink-600, var(--text-muted));
-  line-height: 1.4;
+  display: none; /* v426: section subtitle removed from Resources */
 }
 
 .success-optional-block .accountability-clock {
@@ -8165,16 +8162,10 @@ body.persona-lead .app-open-banner { display: none; }
   letter-spacing: 0.01em;
 }
 
-#resourcesModal .resources-section--official .resources-section__title i { color: var(--corp-bmc); }
+#resourcesModal .resources-section--official .resources-section__title i { color: var(--primary, #6366f1); }
 
 
-#resourcesModal .resources-section--community .resources-section__title i { color: var(--success); }
-
-#resourcesModal .resources-section--community .pledge-card {
-  margin-top: 12px;
-}
-
-#resourcesModal .resources-section--community .pledge-card:first-of-type { margin-top: 0; }
+#resourcesModal .resources-section--community .resources-section__title i { color: var(--success, #059669); }
 
 #resourcesModal .resources-section--sponsors {
   padding: 0;
@@ -8200,57 +8191,10 @@ body.persona-lead .app-open-banner { display: none; }
   margin: 0 0 0.75rem;
 }
 
-/* Per-corp channel cards (Resources modal only) */
-#resourcesModal .esc-channel[data-official-channel="marg"],
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"],
-#resourcesModal .esc-channel[data-official-channel="bmc_call"],
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] {
-  background: var(--corp-bmc-bg);
-  border-color: var(--corp-bmc-border);
+/* Resources official channels: one indigo cluster (not per-corp rainbow) */
+#resourcesModal .esc-channel[data-official-channel] > i:not(.esc-channel__external) {
+  color: var(--primary, #6366f1);
 }
-
-#resourcesModal .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external) {
-  color: var(--corp-bmc);
-}
-
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"],
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"] {
-  background: var(--corp-pmc-bg);
-  border-color: var(--corp-pmc-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external) { color: var(--corp-pmc); }
-
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external) { color: var(--whatsapp); }
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"],
-#resourcesModal .esc-channel[data-official-channel="tmc_call"] {
-  background: var(--corp-tmc-bg);
-  border-color: var(--corp-tmc-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external) {
-  color: var(--corp-tmc);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"] {
-  background: var(--corp-swachhata-bg);
-  border-color: var(--corp-swachhata-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external) { color: var(--corp-swachhata); }
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] {
-  background: var(--corp-aaple-bg);
-  border-color: var(--corp-aaple-border);
-}
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external) { color: var(--corp-aaple); }
 
 #resourcesModal .esc-channel--recommended {
   box-shadow: none;
@@ -8261,6 +8205,25 @@ body.persona-lead .app-open-banner { display: none; }
 #resourcesModal .esc-channel-wrap--recommended {
   background: rgba(99, 102, 241, 0.05);
   border-radius: var(--radius-md);
+}
+
+#resourcesModal .resources-more-channels {
+  margin: 4px 0 0;
+}
+
+#resourcesModal .resources-more-channels > summary {
+  font-size: var(--text-sm, var(--fs-sm));
+  color: var(--ink-600, var(--text-muted));
+}
+
+#resourcesModal .resources-more-channels .resources-more-channels__list {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#resourcesModal .resources-more-channels .esc-channel-wrap:last-child {
+  border-bottom: none;
 }
 
 #resourcesModal .official-channels .esc-channel__badge {
@@ -8299,102 +8262,85 @@ body.persona-lead .app-open-banner { display: none; }
   color: var(--ink-600, var(--text-muted));
 }
 
-/* Horizontal Volunteer / Pledge rows (icon | copy | CTA) — not stacked full-width buttons */
-#resourcesModal .resources-section--community .pledge-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
+/* Help in Your Ward: same compact icon-row + chevron as official channels */
+#resourcesModal .resources-help-list {
+  display: block;
 }
 
-#resourcesModal .resources-section--community .pledge-card__icon {
-  flex-shrink: 0;
+#resourcesModal .resources-help-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 20px;
+  column-gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 4px;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+#resourcesModal .resources-help-row:last-child {
+  border-bottom: none;
+}
+
+#resourcesModal .resources-help-row__icon {
+  grid-column: 1;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(5, 150, 105, 0.12);
+  color: var(--success, #059669);
   font-size: var(--fs-md);
 }
 
-#resourcesModal .resources-section--community .pledge-card--volunteer .pledge-card__icon {
-  background: rgba(4, 120, 87, 0.12);
-}
-
-#resourcesModal .resources-section--community .pledge-card--pledge .pledge-card__icon {
-  background: rgba(236, 72, 153, 0.12);
-}
-
-#resourcesModal .resources-section--community .pledge-card__body {
-  flex: 1;
+#resourcesModal .resources-help-row__body {
+  grid-column: 2;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn {
-  flex-shrink: 0;
-  width: auto;
-  min-width: 72px;
-}
-
-/* Option-card CTAs: matching outlined glass secondary (not solid primary) */
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
-  background: var(--glass-hud-bg, rgba(255, 255, 255, 0.88)) !important;
-  color: var(--ink-900, var(--text)) !important;
-  border: 1px solid var(--glass-hud-border, rgba(226, 232, 240, 0.9)) !important;
-  box-shadow:
-    inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.52)),
-    var(--shadow-sm);
-  backdrop-filter: blur(var(--glass-hud-blur, 22px));
-  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
+#resourcesModal .resources-help-row__title {
   font-weight: 600;
+  font-size: var(--fs-base);
+  color: var(--ink-900, var(--text));
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--glass-hud-bg, rgba(255, 255, 255, 0.92)) 70%, var(--canvas, #F8FAFC)) !important;
-  border-color: var(--border) !important;
-  filter: none !important;
-  transform: none;
+#resourcesModal .resources-help-row__meta {
+  font-size: var(--fs-xs);
+  color: var(--ink-400, var(--text-muted));
+  line-height: 1.35;
 }
 
-#resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
-  background: var(--canvas, #F8FAFC) !important;
+#resourcesModal .resources-help-row::after {
+  content: '\276F';
+  grid-column: 3;
+  justify-self: end;
+  align-self: center;
+  color: var(--ink-400, var(--text-muted));
+  font-size: var(--fs-sm);
+}
+
+#resourcesModal .resources-help-row:hover,
+#resourcesModal .resources-help-row:focus-visible {
+  background: rgba(5, 150, 105, 0.04);
 }
 
 #resourcesModal .esc-channel:hover,
 #resourcesModal .esc-channel:focus-visible {
   filter: brightness(0.97);
-}
-
-#resourcesModal .esc-channel[data-official-channel="marg"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
-#resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
-  border-color: var(--corp-bmc);
-  background: rgba(29, 78, 216, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
-#resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
-  border-color: var(--corp-pmc);
-  background: rgba(234, 88, 12, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
-#resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
-  border-color: var(--corp-tmc);
-  background: rgba(21, 128, 61, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="swachhata"]:hover {
-  border-color: var(--corp-swachhata);
-  background: rgba(8, 145, 178, 0.11);
-}
-
-#resourcesModal .esc-channel[data-official-channel="aaple_sarkar"]:hover {
-  border-color: var(--corp-aaple);
-  background: rgba(124, 58, 237, 0.11);
+  background: rgba(99, 102, 241, 0.04) !important;
 }
 
 .official-channels-block__toggle {
@@ -8528,43 +8474,10 @@ body.persona-lead .app-open-banner { display: none; }
   object-fit: contain;
 }
 
-/* Soft per-channel icon tiles (calm 0.12–0.14 alpha — not full-row fills) */
-#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="marg"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_portal"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_call"] .esc-channel__glyph {
-  background: rgba(29, 78, 216, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="bmc_whatsapp"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_wa"] .esc-channel__glyph {
-  background: rgba(37, 211, 102, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="pmc_care"] .esc-channel__glyph {
-  background: rgba(234, 88, 12, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_portal"] .esc-channel__glyph,
-#resourcesModal .official-channels .esc-channel[data-official-channel="tmc_call"] .esc-channel__glyph {
-  background: rgba(21, 128, 61, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="swachhata"] .esc-channel__glyph {
-  background: rgba(8, 145, 178, 0.14);
-}
-
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] > i:not(.esc-channel__external),
-#resourcesModal .official-channels .esc-channel[data-official-channel="aaple_sarkar"] .esc-channel__glyph {
-  background: rgba(124, 58, 237, 0.14);
+/* Soft indigo icon tiles — one cluster for all official channels */
+#resourcesModal .official-channels .esc-channel[data-official-channel] > i:not(.esc-channel__external),
+#resourcesModal .official-channels .esc-channel[data-official-channel] .esc-channel__glyph {
+  background: rgba(99, 102, 241, 0.12);
 }
 
 /* List rows stay hairline — corp tints stay on the leading icon only */
@@ -11249,38 +11162,14 @@ html.sheet-hud-quiet #mapHud {
     background: var(--surface);
   }
 
-  #resourcesModal .esc-channel[data-official-channel="marg"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_portal"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_call"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="bmc_whatsapp"]:hover {
-    background: rgba(29, 78, 216, 0.2);
+  #resourcesModal .esc-channel[data-official-channel]:hover,
+  #resourcesModal .esc-channel[data-official-channel]:focus-visible {
+    background: rgba(99, 102, 241, 0.1) !important;
   }
 
-  #resourcesModal .esc-channel[data-official-channel="pmc_care"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="pmc_wa"]:hover {
-    background: rgba(234, 88, 12, 0.18);
-  }
-
-  #resourcesModal .esc-channel[data-official-channel="tmc_portal"]:hover,
-  #resourcesModal .esc-channel[data-official-channel="tmc_call"]:hover {
-    background: rgba(21, 128, 61, 0.18);
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary {
-    background: var(--glass-hud-bg, rgba(17, 24, 39, 0.88)) !important;
-    color: var(--text-primary, #f1f5f9) !important;
-    border-color: var(--glass-hud-border, rgba(148, 163, 184, 0.28)) !important;
-    box-shadow:
-      inset 0 0 0 1px var(--glass-hud-inset, rgba(255, 255, 255, 0.08)),
-      var(--shadow-sm);
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--glass-hud-bg, rgba(17, 24, 39, 0.9)) 80%, #0f172a) !important;
-  }
-
-  #resourcesModal .resources-section--community .pledge-card .btn.btn--secondary:active:not(:disabled) {
-    background: rgba(15, 23, 42, 0.95) !important;
+  #resourcesModal .resources-help-row:hover,
+  #resourcesModal .resources-help-row:focus-visible {
+    background: rgba(5, 150, 105, 0.08);
   }
 }
 

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v424';
+  const CIVIC_APP_VERSION = 'v426';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1773,6 +1773,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function pickResourcesPrimaryChannel(channels) {
+
+    if (!channels || !channels.length) return null;
+
+    const wa = channels.find((c) => c.urlKind === 'whatsapp' || c.id === 'bmc_whatsapp' || c.id === 'pmc_wa');
+
+    if (wa) return wa;
+
+    const rec = channels.find((c) => c.recommended);
+
+    return rec || channels[0];
+
+  }
+
+
+
   function renderOfficialChannelButtons(container, cityId, hazard, report, opts) {
 
     if (!container) return;
@@ -1808,9 +1824,9 @@ document.addEventListener('DOMContentLoaded', function () {
       aaple_sarkar: 'assets/channel-icons/govt-emblem.svg',
     };
 
-    container.innerHTML = channels.map((ch) => {
+    function officialChannelRowHtml(ch, isRecommended) {
 
-      const recCls = ch.recommended ? ' esc-channel--recommended' : '';
+      const recCls = isRecommended ? ' esc-channel--recommended' : '';
 
       const hintAttr = ch.categoryHint
 
@@ -1818,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : '';
 
-      const badge = ch.recommended
+      const badge = isRecommended
 
         ? `<em class="esc-channel__badge">${escapeHtml(t('official.recommended'))}</em>`
 
@@ -1849,7 +1865,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ? '<i class="ph ph-arrow-square-out esc-channel__external" aria-hidden="true"></i>'
         : '';
 
-      return `<div class="esc-channel-wrap${ch.recommended ? ' esc-channel-wrap--recommended' : ''}">
+      return `<div class="esc-channel-wrap${isRecommended ? ' esc-channel-wrap--recommended' : ''}">
 
         <button type="button" class="esc-channel${recCls}${extCls}" data-official-channel="${escapeHtml(ch.id)}"${hintAttr}>
 
@@ -1861,7 +1877,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
       </div>`;
 
-    }).join('');
+    }
+
+    if (ctx === 'resources') {
+
+      const primary = pickResourcesPrimaryChannel(channels);
+
+      const rest = channels.filter((c) => c.id !== primary.id);
+
+      let html = officialChannelRowHtml(primary, true);
+
+      if (rest.length) {
+
+        const listId = 'resourcesMoreChannelsList';
+
+        const label = t('resources.moreChannels').replace('{n}', String(rest.length));
+
+        html += `<details class="esc-more-ways resources-more-channels">
+
+        <summary aria-controls="${listId}" aria-expanded="false">${escapeHtml(label)}</summary>
+
+        <div class="esc-channels official-channels resources-more-channels__list" id="${listId}">${rest.map((c) => officialChannelRowHtml(c, false)).join('')}</div>
+
+      </details>`;
+
+      }
+
+      container.innerHTML = html;
+
+      const details = container.querySelector('.resources-more-channels');
+
+      if (details) {
+
+        const summary = details.querySelector('summary');
+
+        const syncExpanded = () => {
+
+          if (summary) summary.setAttribute('aria-expanded', details.open ? 'true' : 'false');
+
+        };
+
+        syncExpanded();
+
+        details.addEventListener('toggle', syncExpanded);
+
+      }
+
+    } else {
+
+      container.innerHTML = channels.map((ch) => officialChannelRowHtml(ch, !!ch.recommended)).join('');
+
+    }
 
     container.dataset.officialReportId = report && report.id ? String(report.id) : '';
 
@@ -3935,6 +4001,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'Help in Your Ward',
 
+      'resources.moreChannels': '{n} more official channels',
+
       'community.supportTitle': 'Support Volunteers',
 
       'community.supportBody': 'Pledge supplies for cleanup crews in your ward.',
@@ -5014,7 +5082,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'Choose what you\'re reporting before submitting.',
 
-      'toast.storageFull': 'Storage full — oldest report removed. Try again.',
+      'toast.storageFull': 'Storage full — could not free enough space. Try again.',
+
+      'toast.storageFreed': 'Freed up space by removing {n} old cached reports.',
 
       'toast.gpsFail': 'Could not get GPS. Turn on location and try again.',
 
@@ -6537,6 +6607,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
+      'resources.moreChannels': '{n} और आधिकारिक चैनल',
+
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
       'community.supportBody': 'वार्ड के सफ़ाई दल के लिए सामग्री दें।',
@@ -7615,7 +7687,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'सबमिट से पहले खतरे का प्रकार चुनें।',
 
-      'toast.storageFull': 'स्टोरेज भरा — पुरानी रिपोर्ट हटाई। फिर कोशिश करें।',
+      'toast.storageFull': 'स्टोरेज भरा — पर्याप्त जगह नहीं खाली हो सकी। फिर कोशिश करें।',
+
+      'toast.storageFreed': '{n} पुरानी कैश रिपोर्ट हटाकर जगह खाली की।',
 
       'toast.gpsFail': 'GPS नहीं मिला। लोकेशन चालू करके फिर कोशिश करें।',
 
@@ -9137,6 +9211,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
+      'resources.moreChannels': '{n} अधिक अधिकृत चॅनेल',
+
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
       'community.supportBody': 'वॉर्ड स्वच्छता पथकांसाठी साहित्य द्या.',
@@ -10214,7 +10290,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'पाठवण्यापूर्वी धोक्याचा प्रकार निवडा.',
 
-      'toast.storageFull': 'स्टोरेज भरले — जुनी तक्रार काढली. पुन्हा प्रयत्न करा.',
+      'toast.storageFull': 'स्टोरेज भरले — पुरेशी जागा मोकळी करता आली नाही. पुन्हा प्रयत्न करा.',
+
+      'toast.storageFreed': '{n} जुन्या कॅश तक्रारी काढून जागा मोकळी केली.',
 
       'toast.gpsFail': 'GPS मिळाला नाही. लोकेशन चालू करून पुन्हा प्रयत्न करा.',
 
@@ -11736,6 +11814,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
+      'resources.moreChannels': '{n} વધુ અધિકૃત ચેનલ્સ',
+
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
       'community.supportBody': 'વોર્ડ સફાઈ દળો માટે સામગ્રી આપો.',
@@ -12813,7 +12893,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hazardTypeRequired': 'સબમિટ પહેલાં જોખમનો પ્રકાર પસંદ કરો.',
 
-      'toast.storageFull': 'સ્ટોરેજ ભરેલું — જૂની ફરિયાદ કાઢી. ફરી પ્રયાસ કરો.',
+      'toast.storageFull': 'સ્ટોરેજ ભરેલું — પૂરતી જગ્યા ખાલી કરી શકાઈ નહીં. ફરી પ્રયાસ કરો.',
+
+      'toast.storageFreed': '{n} જૂની કૅશ ફરિયાદો કાઢીને જગ્યા ખાલી કરી.',
 
       'toast.gpsFail': 'GPS મળ્યું નહીં. લોકેશન ચાલુ કરી ફરી પ્રયાસ કરો.',
 
@@ -14247,8 +14329,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return _reportsCache;
   }
 
-  function trimReportsForDevice(reports) {
-    const max = SCALE_CFG.maxReportsPerDevice;
+  // Keep all of the current user's reports; drop oldest non-own first when over max.
+  // Optional maxOverride is used by the quota-eviction path in saveReports.
+  function trimReportsForDevice(reports, maxOverride) {
+    const max = maxOverride != null ? maxOverride : SCALE_CFG.maxReportsPerDevice;
     if (reports.length <= max) return reports;
     const uid = user.id;
     const own = reports.filter((r) => r.reporterId === uid);
@@ -14268,19 +14352,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveReports(reports) {
     reports = trimReportsForDevice(reports);
-    while (true) {
+    let evicted = 0;
+    // Bound: at most one safe eviction attempt per starting report (never infinite-pop).
+    const maxAttempts = reports.length + 1;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
         _reportsCache = reports;
+        if (evicted > 0) {
+          showToast(
+            t('toast.storageFreed').replace('{n}', String(evicted)),
+            'info',
+            4500
+          );
+        }
         return;
       } catch (err) {
-        if ((err.name === 'QuotaExceededError' || err.code === 22) && reports.length > 0) {
-          reports.pop();
-        } else {
-          throw err;
-        }
+        const quota = err && (err.name === 'QuotaExceededError' || err.code === 22);
+        if (!quota || reports.length === 0) throw err;
+        const before = reports.length;
+        // Reuse ownership-aware trim: keep own, drop oldest non-own until length-1.
+        const next = trimReportsForDevice(reports, before - 1);
+        if (next.length >= before) throw err; // nothing safe left to evict
+        evicted += before - next.length;
+        reports = next;
       }
     }
+    throw new Error('QuotaExceededError');
   }
 
   function loadUser() {
@@ -16063,9 +16161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getWeekImpactStats() {
 
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-
-    const reports = loadReports().filter((r) => new Date(r.timestamp).getTime() >= weekAgo);
+    const reports = loadReports().filter((r) => isInCurrentIsoWeek(r.timestamp));
 
     return {
 
@@ -18459,6 +18555,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 
     return `${date.getUTCFullYear()}-W${weekNo}`;
+
+  }
+
+
+
+  /** True when ts falls in the current ISO calendar week (same key as personal streak). */
+
+  function isInCurrentIsoWeek(ts) {
+
+    if (ts == null || ts === '') return false;
+
+    const d = new Date(ts);
+
+    if (Number.isNaN(d.getTime())) return false;
+
+    return getWeekKey(d) === getWeekKey();
 
   }
 
@@ -31198,7 +31310,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getUserWardPulseStats() {
     const ward = user && user.ward;
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const hiddenIds = loadHiddenReportIds();
     const mutedIds = loadMutedReporterIds();
     let open = 0;
@@ -31212,7 +31323,7 @@ document.addEventListener('DOMContentLoaded', function () {
         meToo += Number(r.confirmations) || 0;
       } else if (r.status === 'resolved') {
         const ts = r.resolvedAt || r.timestamp;
-        if (ts && new Date(ts).getTime() >= weekAgo) fixedWeek += 1;
+        if (isInCurrentIsoWeek(ts)) fixedWeek += 1;
       }
     });
     return { open, fixedWeek, meToo };
@@ -43381,11 +43492,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  // Reports in a ward (or whole city when ward is empty) over the trailing 7 days.
+  // Reports in a ward (or whole city when ward is empty) in the current ISO week.
 
   function getWardWeekStats(ward) {
-
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
     const hiddenIds = loadHiddenReportIds();
 
@@ -43397,7 +43506,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (ward && r.ward !== ward) return false;
 
-      return new Date(r.timestamp).getTime() >= weekAgo;
+      return isInCurrentIsoWeek(r.timestamp);
 
     });
 

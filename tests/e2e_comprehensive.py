@@ -5750,7 +5750,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v424" in sw_src
+            "civicradar-v426" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -8683,8 +8683,9 @@ async def run_official_channels_scenarios(s: Suite, browser):
 
     s.record('OC05', 'OfficialChannels', 'Resources tab renders channel buttons', community_ok)
 
-    # Preferred Resources chrome (v325+): subtitle + Recommended (not Fastest) + Help cards;
-    # v344+: single footer catalogue link (no mid-block "All official sources" duplicate).
+    # Preferred Resources chrome (v426+): one Recommended (WhatsApp/fast), more-channels
+    # accordion, compact Help rows (no Sign up/Pledge buttons), no verified.gov section hint;
+    # single footer catalogue link (no mid-block "All official sources" duplicate).
     resources_ux_ok = await page.evaluate(
         """() => {
           if (typeof renderOfficialChannelsSurfaces === 'function') renderOfficialChannelsSurfaces(null);
@@ -8695,12 +8696,28 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const badges = Array.from(el.querySelectorAll('.esc-channel__badge')).map(
             (b) => (b.textContent || '').trim().toLowerCase()
           );
-          const hasRecommended = badges.some((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
+          const recBadges = badges.filter((b) => b.includes('recommended') || b.includes('अनुशंसित') || b.includes('शिफारस') || b.includes('ભલામણ'));
           const hasFastest = badges.some((b) => b.includes('fastest') || b.includes('तेज़') || b.includes('जलद') || b.includes('ઝડપી'));
+          const badgeOk = recBadges.length === 1 && !hasFastest;
+          const more = el.querySelector('details.resources-more-channels, details.esc-more-ways');
+          const moreSummary = more && more.querySelector('summary');
+          const moreOk = !!more && !!moreSummary
+            && moreSummary.getAttribute('aria-controls') === 'resourcesMoreChannelsList'
+            && moreSummary.getAttribute('aria-expanded') === 'false'
+            && /more official channels|आधिकारिक चैनल|अधिकृत चॅनेल|અધિકૃત ચેનલ/i.test((moreSummary.textContent || '').trim());
+          const primaryWa = el.querySelector(
+            '.esc-channel-wrap--recommended [data-official-channel="bmc_whatsapp"],'
+            + '.esc-channel-wrap--recommended [data-official-channel="pmc_wa"],'
+            + '.esc-channel-wrap--recommended [data-official-channel="tmc_portal"],'
+            + '.esc-channel-wrap--recommended [data-official-channel]'
+          );
+          const primaryOk = !!primaryWa;
+          const hintGone = !document.querySelector('#resourcesOfficialBlock .resources-file-hint');
           const help = document.querySelector('#resourcesModal .resources-section--community');
           const helpOk = !!help
-            && !!help.querySelector('#btnOpenVolunteer')
-            && !!help.querySelector('#btnOpenPledge');
+            && !!help.querySelector('#btnOpenVolunteer.resources-help-row')
+            && !!help.querySelector('#btnOpenPledge.resources-help-row')
+            && !help.querySelector('.pledge-card .btn');
           const footer = document.querySelector('#resourcesModal .resources-footer-link');
           const footerOk = !!footer
             && (footer.getAttribute('href') || '').includes('official-sources')
@@ -8708,10 +8725,10 @@ async def run_official_channels_scenarios(s: Suite, browser):
           const fileTitle = document.querySelector('#resourcesOfficialBlock .resources-section__title');
           const fileTitleOk = !!fileTitle
             && !/official grievance/i.test((fileTitle.textContent || '').trim());
-          return subOk && hasRecommended && !hasFastest && helpOk && footerOk && fileTitleOk;
+          return subOk && badgeOk && moreOk && primaryOk && hintGone && helpOk && footerOk && fileTitleOk;
         }"""
     )
-    s.record('OC06', 'OfficialChannels', 'Resources grouping + Recommended + footer sources link', resources_ux_ok)
+    s.record('OC06', 'OfficialChannels', 'Resources single Recommended + more-channels + help rows', resources_ux_ok)
 
     await ctx.close()
 
@@ -9113,7 +9130,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v424" in sw_src
+            "civicradar-v426" in sw_src
 
             and "'/index.html'" not in sw_src
 
