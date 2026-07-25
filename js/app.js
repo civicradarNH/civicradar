@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v432';
+  const CIVIC_APP_VERSION = 'v433';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -21246,6 +21246,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!el) return;
 
+    const wasEmptyVisible = document.body.classList.contains('map-empty-visible');
+
     const show = shouldOfferMapEmptyCta();
 
     const coachEl = $('#coachMark');
@@ -21283,6 +21285,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         : t('map.empty').replace('{ward}', wardLabel);
 
+    }
+
+    // Analytics opt-in docks under empty sheet — defer until sheet leaves.
+    if (wasEmptyVisible && !visible && typeof maybePromptAnalyticsConsent === 'function') {
+      setTimeout(() => maybePromptAnalyticsConsent(), 400);
     }
 
   }
@@ -25525,6 +25532,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch { /* ignore */ }
     if (typeof isPrimaryOverlayBlocking === 'function' && isPrimaryOverlayBlocking()) return;
+    // Empty-ward sheet owns the bottom dock — do not stack analytics toast under it.
+    if (document.body.classList.contains('map-empty-visible')) return;
+    const mapEmptyEl = $('#mapEmptyCta');
+    if (mapEmptyEl && !mapEmptyEl.classList.contains('hidden')) return;
     showToast(t('analytics.prompt'), 'info', TOAST_DURATION.WITH_ACTION, {
       label: t('analytics.allow'),
       onClick: () => {
