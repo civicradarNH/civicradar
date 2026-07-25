@@ -10397,7 +10397,9 @@ body.map-popup-open #map .leaflet-tile-pane {
   gap: 8px;
 }
 .profile-settings--consent {
-  padding-top: 8px;
+  /* Clear break from notification toggles so the blocked banner doesn't read as analytics copy */
+  margin-top: 8px;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 
