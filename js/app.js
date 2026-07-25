@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v441';
+  const CIVIC_APP_VERSION = 'v442';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -20843,8 +20843,10 @@ document.addEventListener('DOMContentLoaded', function () {
       maxWidth: sheet ? Math.min(420, (window.innerWidth || 360) - 24) : 320,
       minWidth: 180,
       maxHeight: maxH,
-      autoPan: true,
-      keepInView: true,
+      // Sheet mode reparents the popup to a CSS-fixed card and zeros Leaflet
+      // position — keepInView/autoPan can never be satisfied and loop-pan.
+      autoPan: !sheet,
+      keepInView: !sheet,
       className: sheet ? 'map-pin-popup map-pin-popup--sheet' : 'map-pin-popup',
       autoPanPaddingTopLeft: (typeof L !== 'undefined' && L.point)
         ? L.point(16, top)
@@ -21499,12 +21501,24 @@ document.addEventListener('DOMContentLoaded', function () {
     showAlreadyPinnedInline(el);
   }
 
-  function alreadyPinnedBlockHtml() {
+  function alreadyPinnedBlockHtml(report) {
     const label = t('confirm.alreadyPinned');
     const track = t('confirm.trackProfile');
+    let ownerAction = '';
+    if (ownsReport(report) && report.status === 'pending') {
+      const rid = escapeHtml(String(report.id));
+      if (report.complaintId) {
+        ownerAction = `<button type="button" class="popup__btn popup__btn--secondary" data-resolve-own="${rid}">`
+          + `<i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(t('esc.selfBtn'))}</button>`;
+      } else {
+        ownerAction = `<button type="button" class="popup__btn popup__btn--secondary" data-open-escalation="${rid}">`
+          + `<i class="ph ph-buildings" aria-hidden="true"></i> ${escapeHtml(t('esc.fileTitle'))}</button>`;
+      }
+    }
     return `<div class="popup__already-pinned">`
       + `<button type="button" class="popup__btn popup__btn--primary popup__btn--backed" disabled aria-disabled="true" aria-label="${escapeHtml(label)}">`
       + `<i class="ph ph-check-circle" aria-hidden="true"></i> ${escapeHtml(label)}</button>`
+      + ownerAction
       + `<button type="button" class="popup__track-profile" data-goto-profile data-i18n="confirm.trackProfile">${escapeHtml(track)}</button>`
       + `</div>`;
   }
@@ -31151,7 +31165,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (ownsReport(report) || hasConfirmed(report.id)) {
 
-        action = alreadyPinnedBlockHtml();
+        action = alreadyPinnedBlockHtml(report);
 
       } else {
 
@@ -33245,6 +33259,36 @@ document.addEventListener('DOMContentLoaded', function () {
         e.stopPropagation();
 
         goToProfileFromAlreadyPinned();
+
+        return;
+
+      }
+
+      const resolveOwnBtn = e.target.closest && e.target.closest('[data-resolve-own]');
+
+      if (resolveOwnBtn) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        resolveOwnReport(resolveOwnBtn.dataset.resolveOwn);
+
+        return;
+
+      }
+
+      const openEscBtn = e.target.closest && e.target.closest('[data-open-escalation]');
+
+      if (openEscBtn) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        try { closeMapPinPopup(); } catch { /* ignore */ }
+
+        openEscalationModal(openEscBtn.dataset.openEscalation);
 
         return;
 
