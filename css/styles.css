@@ -1390,15 +1390,36 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--danger);
 }
 
-/* Single muted tone for low-priority Profile lists (Roles + Legal) */
-.profile-row-icon--muted {
+/* Single muted tone for low-priority Profile lists (Roles + Legal).
+   Compound selector beats base .profile-row-icon (+ dark-mode) so rainbow
+   tints cannot leak back onto muted tiles. */
+.profile-row-icon--muted,
+.profile-list-group--muted .profile-row-icon.profile-row-icon--muted {
   background: rgba(71, 85, 105, 0.1);
   color: var(--ink-400, #94a3b8);
 }
 
-.profile-list-group--muted > button:not(.btn--danger-text),
-.profile-list-group--muted > a:not(.profile-list-row--stacked) {
+/*
+ * Account & Legal / muted Profile list text tiers (v437):
+ *  --external → blue/link (--primary): opens outside the app (Terms, Privacy, mailto)
+ *  --plain / default → ink/white: in-app or non-destructive help (e.g. delete-account instructions)
+ *  --danger / .btn--danger-text → danger red: true destructive actions only (Delete my data)
+ */
+.profile-list-group--muted > button,
+.profile-list-group--muted > a,
+.profile-list-group--muted > a.profile-list-row--plain,
+.profile-list-group--muted > button.profile-list-row--plain {
   color: var(--ink-900, var(--text-dark));
+}
+
+.profile-list-group--muted > a.profile-list-row--external {
+  color: var(--primary);
+}
+
+.profile-list-group--muted > button.profile-list-row--danger,
+.profile-list-group--muted > a.profile-list-row--danger,
+.profile-list-group .btn--danger-text {
+  color: var(--danger);
 }
 
 .profile-row-copy {
@@ -1418,12 +1439,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--ink-400, #94a3b8);
 }
 
-.profile-list-group .btn--danger-text {
-  color: var(--danger);
-}
-
 .profile-list-group .btn--danger-text .profile-row-sub,
-.profile-list-group a.profile-list-row--stacked .profile-row-sub {
+.profile-list-group a.profile-list-row--stacked .profile-row-sub,
+.profile-list-group .profile-list-row--plain .profile-row-sub,
+.profile-list-group .profile-list-row--danger .profile-row-sub {
   color: var(--ink-400, #94a3b8);
 }
 
@@ -1432,6 +1451,36 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   min-height: 56px;
   padding-top: 12px;
   padding-bottom: 12px;
+}
+
+/* Non-collapsible section card — matches Community Roles chrome, always open */
+.profile-static-card {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.profile-static-card__header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--canvas, #f8fafc);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.profile-list-group--embedded {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* Partner CTAs inside list groups share the same row chrome */
@@ -1505,9 +1554,29 @@ body.first-run-active .leaflet-marker-pane .marker-active {
     background: rgba(248, 113, 113, 0.18);
     color: #f87171;
   }
-  .profile-row-icon--muted {
+  .profile-row-icon--muted,
+  .profile-list-group--muted .profile-row-icon.profile-row-icon--muted {
     background: rgba(148, 163, 184, 0.14);
     color: var(--ink-400, #94a3b8);
+  }
+  .profile-static-card__header {
+    background: rgba(17, 24, 39, 0.55);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: var(--text-primary, #f9fafb);
+  }
+  .profile-list-group--muted > button,
+  .profile-list-group--muted > a,
+  .profile-list-group--muted > a.profile-list-row--plain,
+  .profile-list-group--muted > button.profile-list-row--plain {
+    color: var(--text-primary, #f9fafb);
+  }
+  .profile-list-group--muted > a.profile-list-row--external {
+    color: #a5b4fc;
+  }
+  .profile-list-group--muted > button.profile-list-row--danger,
+  .profile-list-group--muted > a.profile-list-row--danger,
+  .profile-list-group .btn--danger-text {
+    color: #f87171;
   }
 }
 
@@ -5871,10 +5940,16 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .success-stories__empty {
+  margin: 8px 0 12px;
+  list-style: none;
+}
+
+.success-stories__empty p {
+  margin: 0;
   font-size: var(--fs-sm);
   color: var(--text-muted);
   line-height: 1.45;
-  margin: 0;
+  max-width: 22rem;
 }
 
 .proof-compare__placeholder {
@@ -6720,9 +6795,10 @@ body.persona-lead .app-open-banner { display: none; }
    Community impact stats
    ============================================ */
 
+/* Always 2×2 — a 4-col row read as a second "pill" presentation of the same metrics. */
 .impact-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -7013,9 +7089,6 @@ body.persona-lead .app-open-banner { display: none; }
   padding: 8px 0;
 }
 
-@media (max-width: 380px) {
-  .impact-stats { grid-template-columns: repeat(2, 1fr); }
-}
 
 /* ============================================
    Impact Wall (Sponsored offers)
@@ -8773,6 +8846,12 @@ body.persona-lead .app-open-banner { display: none; }
   padding: 0;
 }
 
+/* Account & Legal static card — align spacing with Roles accordion */
+#profileModal .profile-footer__legal.profile-static-card {
+  margin: 12px 0 0;
+  padding-top: 12px;
+}
+
 /* Community (and other) toggles that still use bare Phosphor icons */
 .cr-section__toggle > span > i.ph-hand-heart,
 .cr-section__toggle > span > i.ph-info,
@@ -10273,10 +10352,26 @@ body.map-popup-open #map .leaflet-tile-pane {
 .lead-candidate--mine { border-color: rgba(6, 182, 212, 0.35); }
 .lead-candidate--voted .btn--support { opacity: 0.7; pointer-events: none; }
 .lead-candidates__empty {
-  font-size: var(--fs-base);
-  color: var(--text-muted);
-  text-align: center;
   margin: 8px 0 12px;
+  list-style: none;
+}
+
+.lead-candidates__empty span,
+.lead-candidates__empty p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.45;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.leaderboard-list > .empty-state--action {
+  list-style: none;
+}
+
+.leaderboard-list > .empty-state--action p {
+  margin: 0;
+  max-width: 22rem;
 }
 
 .badge-count {

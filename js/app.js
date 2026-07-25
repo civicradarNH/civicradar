@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v436';
+  const CIVIC_APP_VERSION = 'v437';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3689,6 +3689,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsEmpty': 'Fixed spots show here. Report one and rally neighbours.',
 
+      'community.winsEmptyAction': 'Report a hazard',
+
       'community.winsNeighbours': 'Neighbours in {ward}',
 
       'community.winsCleanup': '{hazard} cleared — {ward}',
@@ -4294,7 +4296,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'Delete account',
 
-      'legal.deleteAccountSub': 'How to close your account',
+      'legal.deleteAccountSub': 'Instructions to close your account',
 
       'legal.officialSources': 'Official government sources',
 
@@ -4570,6 +4572,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.clock': 'On the community map — not filed with {corp} yet.',
 
       'community.challenge.empty': '{ward} isn\'t ranked yet — report a hazard to get on the board.',
+
+      'community.challenge.noFixesYet': 'No ward has logged a fix yet — be the first.',
 
       'community.challenge.beat': '{ward}: {pending} open — beat {rival} ({rivalPending} pending)! Report or rally.',
 
@@ -6309,6 +6313,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsEmpty': 'ठीक हुए स्पॉट यहाँ दिखते हैं। एक रिपोर्ट करें और पड़ोसी जुटाएँ।',
 
+      'community.winsEmptyAction': 'खतरा रिपोर्ट करें',
+
       'community.winsNeighbours': '{ward} में पड़ोसी',
 
       'community.winsCleanup': '{hazard} साफ · {ward}',
@@ -6914,7 +6920,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'खाता हटाएँ',
 
-      'legal.deleteAccountSub': 'खाता बंद करने का तरीका',
+      'legal.deleteAccountSub': 'खाता बंद करने के निर्देश',
 
       'legal.officialSources': 'आधिकारिक सरकारी स्रोत',
 
@@ -7188,6 +7194,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.clock': 'सामुदायिक नक्शे पर — {corp} में अभी दर्ज नहीं।',
 
       'community.challenge.empty': '{ward} अभी रैंक में नहीं — बोर्ड पर आने के लिए रिपोर्ट करें।',
+
+      'community.challenge.noFixesYet': 'अभी किसी वार्ड में हल दर्ज नहीं — पहले बनें।',
 
       'community.challenge.beat': '{ward}: {pending} खुले — {rival} को हराएँ ({rivalPending} लंबित)! रिपोर्ट या जुटाएँ।',
 
@@ -8927,6 +8935,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsEmpty': 'दुरुस्त स्पॉट इथे दिसतात. एक रिपोर्ट करा आणि शेजारी गोळा करा.',
 
+      'community.winsEmptyAction': 'धोका नोंदवा',
+
       'community.winsNeighbours': '{ward} मधील शेजारी',
 
       'community.winsCleanup': '{hazard} साफ · {ward}',
@@ -9532,7 +9542,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'खाते हटवा',
 
-      'legal.deleteAccountSub': 'खाते बंद करण्याची पद्धत',
+      'legal.deleteAccountSub': 'खाते बंद करण्याच्या सूचना',
 
       'legal.officialSources': 'अधिकृत सरकारी स्रोत',
 
@@ -9806,6 +9816,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.clock': 'सामुदायिक नकाशावर — {corp} मध्ये अजून दाखल नाही.',
 
       'community.challenge.empty': '{ward} अजून रँकमध्ये नाही — बोर्डवर येण्यासाठी रिपोर्ट करा.',
+
+      'community.challenge.noFixesYet': 'अद्याप कोणत्याही वॉर्डने दुरुस्ती नोंदवली नाही — पहिले व्हा.',
 
       'community.challenge.beat': '{ward}: {pending} उघडे — {rival} ला हरवा ({rivalPending} प्रलंबित)! रिपोर्ट किंवा गोळा करा.',
 
@@ -12149,7 +12161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'legal.deleteAccount': 'એકાઉન્ટ કાઢો',
 
-      'legal.deleteAccountSub': 'એકાઉન્ટ બંધ કરવાની રીત',
+      'legal.deleteAccountSub': 'એકાઉન્ટ બંધ કરવાની સૂચનાઓ',
 
       'legal.officialSources': 'અધિકૃત સરકારી સ્રોતો',
 
@@ -32367,6 +32379,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnWinsEmptyReport = $('#btnWinsEmptyReport');
+
+    if (btnWinsEmptyReport) {
+
+      btnWinsEmptyReport.addEventListener('click', () => {
+
+        if (typeof window.openReportModal === 'function') window.openReportModal(true);
+
+      });
+
+    }
+
     const btnCommunityBecomeLead = $('#btnCommunityBecomeLead');
 
     if (btnCommunityBecomeLead) {
@@ -43770,6 +43794,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+    const totalResolved = stats.reduce((sum, s) => sum + (Number(s.resolved) || 0), 0);
+
+    if (totalResolved === 0) {
+
+      el.hidden = false;
+
+      el.innerHTML = `<i class="ph ph-lightning"></i><p class="ward-challenge__text">${escapeHtml(t('community.challenge.noFixesYet'))}</p>`;
+
+      const shareBtn = $('#btnShareWardChallenge');
+
+      if (shareBtn) shareBtn.classList.remove('hidden');
+
+      return;
+
+    }
+
+
+
     const sorted = [...stats].sort((a, b) => b.resolved - a.resolved || b.reports - a.reports);
 
     const leader = sorted[0];
@@ -44236,7 +44278,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const emptyMsg = user.ward ? t('leaderboard.emptyFirst') : t('leaderboard.emptyWards');
 
-        listEl.innerHTML = `<li class="empty-state"><p>${escapeHtml(emptyMsg)}</p></li>`;
+        listEl.innerHTML = `<li class="empty-state empty-state--action"><i class="ph ph-trophy" aria-hidden="true"></i><p>${escapeHtml(emptyMsg)}</p></li>`;
 
         return;
 
@@ -44244,7 +44286,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!wards.length) {
 
-        listEl.innerHTML = `<li class="empty-state"><p>${escapeHtml(t('leaderboard.emptyWards'))}</p></li>`;
+        listEl.innerHTML = `<li class="empty-state empty-state--action"><i class="ph ph-trophy" aria-hidden="true"></i><p>${escapeHtml(t('leaderboard.emptyWards'))}</p></li>`;
 
         return;
 
@@ -44350,7 +44392,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (liveBackend && realCitizens.length === 0) {
 
-        listEl.innerHTML = `<li class="empty-state"><p>${escapeHtml(user.ward ? t('leaderboard.emptyFirst') : t('leaderboard.emptyCitizens'))}</p></li>`;
+        listEl.innerHTML = `<li class="empty-state empty-state--action"><i class="ph ph-users" aria-hidden="true"></i><p>${escapeHtml(user.ward ? t('leaderboard.emptyFirst') : t('leaderboard.emptyCitizens'))}</p></li>`;
 
         return;
 
@@ -44358,7 +44400,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (citizens.length <= 1 && !usingDemo) {
 
-        listEl.innerHTML = `<li class="empty-state"><p>${escapeHtml(t('leaderboard.emptyCitizens'))}</p></li>`;
+        listEl.innerHTML = `<li class="empty-state empty-state--action"><i class="ph ph-users" aria-hidden="true"></i><p>${escapeHtml(t('leaderboard.emptyCitizens'))}</p></li>`;
 
         return;
 
