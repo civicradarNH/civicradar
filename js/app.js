@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v426';
+  const CIVIC_APP_VERSION = 'v427';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4138,7 +4138,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{n} pts to {level} (+{pts}/report)',
 
+      'profile.xpProgressOf': '{current} of {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'Max level — Community Leader!',
+
+      'profile.activityCountAria': 'Activity, {n} open reports',
 
       'xp.level.observer': 'Local Observer',
 
@@ -4194,6 +4200,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'Delete my data',
 
+      'profile.deleteDataSub': 'Erases reports, points and profile',
+
       'profile.deleteConfirmTitle': 'Delete your data?',
 
       'profile.deleteConfirmBody': 'Permanently removes your CivicRadar data from this device and our servers. Cannot be undone.',
@@ -4236,6 +4244,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'Terms of Service',
 
       'legal.deleteAccount': 'Delete account',
+
+      'legal.deleteAccountSub': 'How to close your account',
 
       'legal.officialSources': 'Official government sources',
 
@@ -6744,7 +6754,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} तक {n} pts (+{pts}/रिपोर्ट)',
 
+      'profile.xpProgressOf': '{current} / {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'अधिकतम स्तर — Community Leader!',
+
+      'profile.activityCountAria': 'गतिविधि, {n} खुली रिपोर्ट',
 
       'xp.level.observer': 'स्थानीय पर्यवेक्षक',
 
@@ -6800,6 +6816,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'मेरा डेटा हटाएँ',
 
+      'profile.deleteDataSub': 'रिपोर्ट, अंक और प्रोफ़ाइल मिटाता है',
+
       'profile.deleteConfirmTitle': 'अपना डेटा हटाएँ?',
 
       'profile.deleteConfirmBody': 'इस डिवाइस और हमारे सर्वर से आपका CivicRadar डेटा स्थायी रूप से हटाता है। वापस नहीं होता।',
@@ -6842,6 +6860,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'Terms of Service',
 
       'legal.deleteAccount': 'खाता हटाएँ',
+
+      'legal.deleteAccountSub': 'खाता बंद करने का तरीका',
 
       'legal.officialSources': 'आधिकारिक सरकारी स्रोत',
 
@@ -9348,7 +9368,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} पर्यंत {n} pts (+{pts}/तक्रार)',
 
+      'profile.xpProgressOf': '{next} पैकी {current} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'कमाल स्तर — Community Leader!',
+
+      'profile.activityCountAria': 'कृती, {n} खुल्या तक्रारी',
 
       'xp.level.observer': 'स्थानिक निरीक्षक',
 
@@ -9404,6 +9430,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'माझा डेटा हटवा',
 
+      'profile.deleteDataSub': 'तक्रारी, गुण आणि प्रोफाइल पुसते',
+
       'profile.deleteConfirmTitle': 'तुमचा डेटा हटवायचा?',
 
       'profile.deleteConfirmBody': 'या डिव्हाइस आणि आमच्या सर्व्हरवरून तुमचा CivicRadar डेटा कायमचा काढतो. परत येत नाही.',
@@ -9446,6 +9474,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'सेवा अटी',
 
       'legal.deleteAccount': 'खाते हटवा',
+
+      'legal.deleteAccountSub': 'खाते बंद करण्याची पद्धत',
 
       'legal.officialSources': 'अधिकृत सरकारी स्रोत',
 
@@ -11951,7 +11981,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.xpToNext': '{level} સુધી {n} pts (+{pts}/ફરિયાદ)',
 
+      'profile.xpProgressOf': '{current} / {next} pts',
+
+      'profile.xpProgressMax': '{current} pts',
+
       'profile.xpMax': 'મહત્તમ સ્તર — Community Leader!',
+
+      'profile.activityCountAria': 'પ્રવૃત્તિ, {n} ખુલ્લી ફરિયાદો',
 
       'xp.level.observer': 'સ્થાનિક નિરીક્ષક',
 
@@ -12007,6 +12043,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'profile.deleteData': 'મારો ડેટા કાઢી નાખો',
 
+      'profile.deleteDataSub': 'રિપોર્ટ, પોઇન્ટ્સ અને પ્રોફાઇલ કાઢે છે',
+
       'profile.deleteConfirmTitle': 'તમારો ડેટા કાઢી નાખો?',
 
       'profile.deleteConfirmBody': 'આ તમારો CivicRadar ડેટા આ ઉપકરણ અને અમારા સર્વરમાંથી કાયમી કાઢી નાખશે. પાછું લાવી શકાશે નહીં.',
@@ -12049,6 +12087,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'legal.terms': 'સેવાની શરતો',
 
       'legal.deleteAccount': 'એકાઉન્ટ કાઢો',
+
+      'legal.deleteAccountSub': 'એકાઉન્ટ બંધ કરવાની રીત',
 
       'legal.officialSources': 'અધિકૃત સરકારી સ્રોતો',
 
@@ -23808,11 +23848,39 @@ document.addEventListener('DOMContentLoaded', function () {
       body.setAttribute('aria-hidden', open ? 'false' : 'true');
     }
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (sectionId === 'profileActivitySection') syncProfileActivityCountBadge();
+  }
+
+  function syncProfileActivityCountBadge(openCount) {
+    const badge = $('#profileActivityCount');
+    const section = $('#profileActivitySection');
+    const btn = $('#btnProfileActivityToggle');
+    if (!badge || !section) return;
+    let n = openCount;
+    if (n == null) {
+      const raw = badge.dataset.count;
+      n = raw != null && raw !== '' ? parseInt(raw, 10) : 0;
+    }
+    if (!Number.isFinite(n) || n < 0) n = 0;
+    badge.dataset.count = String(n);
+    badge.textContent = String(n);
+    const collapsed = section.classList.contains('cr-section--collapsed');
+    const show = collapsed && n > 0;
+    badge.classList.toggle('hidden', !show);
+    badge.setAttribute('aria-hidden', show ? 'false' : 'true');
+    if (btn) {
+      if (n > 0) {
+        btn.setAttribute('aria-label', t('profile.activityCountAria').replace('{n}', String(n)));
+      } else {
+        btn.removeAttribute('aria-label');
+      }
+    }
   }
 
   function resetProfileSectionsOnOpen() {
     setCollapsibleSectionOpen('profileActivitySection', 'profileActivityBody', 'btnProfileActivityToggle', false);
     setCollapsibleSectionOpen('profileNotificationsSection', 'profileNotificationsBody', 'btnProfileNotificationsToggle', false);
+    setCollapsibleSectionOpen('profileRolesSection', 'profileRolesBody', 'btnProfileRolesToggle', false);
   }
 
   function formatWardPillLabel(ward) {
@@ -32656,6 +32724,8 @@ document.addEventListener('DOMContentLoaded', function () {
     wireCollapsibleSection('btnProfileActivityToggle', 'profileActivityBody', 'profileActivitySection');
 
     wireCollapsibleSection('btnProfileNotificationsToggle', 'profileNotificationsBody', 'profileNotificationsSection');
+
+    wireCollapsibleSection('btnProfileRolesToggle', 'profileRolesBody', 'profileRolesSection');
 
     const btnNotesToggle = $('#btnReportNotesToggle');
 
@@ -44273,6 +44343,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const xpProgressEl = $('#profileXpProgress');
 
+    const xpTotalEl = $('#profileXpTotal');
+
     const xpHintEl = $('#profileXpHint');
 
     if (levelBadgeEl) levelBadgeEl.textContent = civicLevelName(xpInfo.level.id);
@@ -44283,6 +44355,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       xpTrackEl.setAttribute('aria-valuenow', String(xpInfo.pct));
 
+      if (xpInfo.next) {
+        xpTrackEl.setAttribute('aria-valuetext', t('profile.xpProgressOf')
+          .replace('{current}', String(xpInfo.xp))
+          .replace('{next}', String(xpInfo.next.min)));
+      } else {
+        xpTrackEl.setAttribute('aria-valuetext', t('profile.xpProgressMax')
+          .replace('{current}', String(xpInfo.xp)));
+      }
+
+    }
+
+    if (xpTotalEl) {
+      xpTotalEl.textContent = xpInfo.next
+        ? t('profile.xpProgressOf')
+          .replace('{current}', String(xpInfo.xp))
+          .replace('{next}', String(xpInfo.next.min))
+        : t('profile.xpProgressMax').replace('{current}', String(xpInfo.xp));
     }
 
     if (xpHintEl) {
@@ -44300,6 +44389,8 @@ document.addEventListener('DOMContentLoaded', function () {
         : t('profile.xpMax');
 
     }
+
+    syncProfileActivityCountBadge(pending.length);
 
 
 

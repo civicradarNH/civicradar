@@ -1388,8 +1388,48 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   color: var(--danger);
 }
 
+/* Single muted tone for low-priority Profile lists (Roles + Legal) */
+.profile-row-icon--muted {
+  background: rgba(71, 85, 105, 0.1);
+  color: var(--ink-400, #94a3b8);
+}
+
+.profile-list-group--muted > button:not(.btn--danger-text),
+.profile-list-group--muted > a:not(.profile-list-row--stacked) {
+  color: var(--ink-900, var(--text-dark));
+}
+
+.profile-row-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.profile-row-sub {
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink-400, #94a3b8);
+}
+
 .profile-list-group .btn--danger-text {
   color: var(--danger);
+}
+
+.profile-list-group .btn--danger-text .profile-row-sub,
+.profile-list-group a.profile-list-row--stacked .profile-row-sub {
+  color: var(--ink-400, #94a3b8);
+}
+
+.profile-list-row--stacked {
+  align-items: flex-start;
+  min-height: 56px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 /* Partner CTAs inside list groups share the same row chrome */
@@ -1462,6 +1502,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   .profile-row-icon--danger {
     background: rgba(248, 113, 113, 0.18);
     color: #f87171;
+  }
+  .profile-row-icon--muted {
+    background: rgba(148, 163, 184, 0.14);
+    color: var(--ink-400, #94a3b8);
   }
 }
 
@@ -4871,11 +4915,12 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 }
 
 .profile-xp__total {
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
 }
 
 .profile-xp__track {
@@ -7143,11 +7188,12 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 /* v305 — chunked identity / progress / stats
-   v343 — compact greeting header (reclaim vertical chrome) */
+   v343 — compact greeting header (reclaim vertical chrome)
+   v427 — three visual beats with hairline dividers */
 .profile-card__identity {
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-header-compact {
@@ -7388,9 +7434,9 @@ body.persona-lead .app-open-banner { display: none; }
 }
 
 .profile-card__progress {
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-card__progress:empty,
@@ -8639,6 +8685,45 @@ body.persona-lead .app-open-banner { display: none; }
   background: rgba(71, 85, 105, 0.12);
   color: var(--ink-600);
 }
+
+/* Collapsed-section count badge (Activity open reports) */
+.cr-section__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  margin-left: 4px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--primary, #6366f1);
+  color: #fff;
+  font-size: var(--text-xs, var(--fs-xs));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cr-section__count.hidden {
+  display: none;
+}
+
+/* Community Roles accordion inside Profile footer */
+#profileModal .profile-footer__roles.cr-section {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+#profileModal .profile-footer__roles .cr-section__toggle {
+  background: var(--canvas, #f8fafc);
+  border-color: var(--border);
+}
+#profileModal .profile-footer__roles .cr-section__body {
+  padding-top: 10px;
+}
+#profileModal .profile-footer__roles .cr-section__body-inner {
+  padding: 0;
+}
+
 /* Community (and other) toggles that still use bare Phosphor icons */
 .cr-section__toggle > span > i.ph-hand-heart,
 .cr-section__toggle > span > i.ph-info,

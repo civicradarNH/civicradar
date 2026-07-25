@@ -2602,6 +2602,30 @@ async def run_extra_scenarios(s: Suite, browser):
 
         ('X13', 'Profile', 'Civic points numeric', '() => { window.openProfileModal(); const n = parseInt(document.getElementById("profilePoints").textContent.replace(/,/g,""),10); return Number.isFinite(n); }'),
 
+        ('X13b', 'Profile', 'Community Roles collapsed by default', '''() => {
+          window.openProfileModal();
+          const sec = document.getElementById('profileRolesSection');
+          const btn = document.getElementById('btnProfileRolesToggle');
+          return !!sec && sec.classList.contains('cr-section--collapsed')
+            && !!btn && btn.getAttribute('aria-expanded') === 'false'
+            && !!document.getElementById('btnProfileLeadNominate');
+        }'''),
+
+        ('X13c', 'Profile', 'Delete rows have differentiating captions', '''() => {
+          window.openProfileModal();
+          const delAcc = document.querySelector('a[href*="delete-account"] .profile-row-sub');
+          const delData = document.querySelector('#btnDeleteData .profile-row-sub');
+          return !!delAcc && delAcc.textContent.trim().length > 0
+            && !!delData && delData.textContent.trim().length > 0
+            && delAcc.textContent.trim() !== delData.textContent.trim();
+        }'''),
+
+        ('X13d', 'Profile', 'XP progress shows current of next', '''() => {
+          window.openProfileModal();
+          return !!document.getElementById('profileXpTotal')
+            && !!document.getElementById('profileActivityCount');
+        }'''),
+
         ('X14', 'Storage', 'Pledges JSON parse safe', '() => { try { JSON.parse(localStorage.getItem("mosquiTrackPledges")||"[]"); return true; } catch { return false; } }'),
 
         ('X15', 'Storage', 'Confirmed set parse safe', '() => { try { JSON.parse(localStorage.getItem("civicradar_confirmed")||"[]"); return true; } catch { return false; } }'),
@@ -5750,7 +5774,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v426" in sw_src
+            "civicradar-v427" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -9130,7 +9154,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v426" in sw_src
+            "civicradar-v427" in sw_src
 
             and "'/index.html'" not in sw_src
 
