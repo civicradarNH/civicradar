@@ -1391,19 +1391,18 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 }
 
 /* Single muted tone for low-priority Profile lists (Roles + Legal).
-   Compound selector beats base .profile-row-icon (+ dark-mode) so rainbow
-   tints cannot leak back onto muted tiles. */
+   !important beats later rainbow / dark-mode .profile-row-icon--* rules. */
 .profile-row-icon--muted,
 .profile-list-group--muted .profile-row-icon.profile-row-icon--muted {
-  background: rgba(71, 85, 105, 0.1);
-  color: var(--ink-400, #94a3b8);
+  background: rgba(71, 85, 105, 0.12) !important;
+  color: var(--ink-400, #94a3b8) !important;
 }
 
 /*
- * Account & Legal / muted Profile list text tiers (v437):
+ * Account & Legal / muted Profile list text tiers (v437→v440):
  *  --external → blue/link (--primary): opens outside the app (Terms, Privacy, mailto)
- *  --plain / default → ink/white: in-app or non-destructive help (e.g. delete-account instructions)
- *  --danger / .btn--danger-text → danger red: true destructive actions only (Delete my data)
+ *  --plain / default → ink/white: instructions (Delete account → delete-account.html)
+ *  --danger / .btn--danger-text → danger red: true destructive only (Delete my data)
  */
 .profile-list-group--muted > button,
 .profile-list-group--muted > a,
@@ -1414,6 +1413,10 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 
 .profile-list-group--muted > a.profile-list-row--external {
   color: var(--primary);
+}
+
+.profile-list-group--muted > a.profile-list-row--plain {
+  color: var(--ink-900, var(--text-dark));
 }
 
 .profile-list-group--muted > button.profile-list-row--danger,
@@ -1453,12 +1456,20 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   padding-bottom: 12px;
 }
 
-/* Non-collapsible section card — matches Community Roles chrome, always open */
+/* Non-collapsible section card — one shell matches Roles accordion chrome */
 .profile-static-card {
   margin: 12px 0 0;
   padding-top: 12px;
   border-top: 1px solid var(--border);
   text-align: left;
+}
+
+.profile-static-card__shell {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .profile-static-card__header {
@@ -1467,9 +1478,9 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   width: 100%;
   min-height: var(--touch-min);
   padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-bottom: none;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   background: var(--canvas, #f8fafc);
   font-family: var(--font);
   font-size: var(--fs-base);
@@ -1479,14 +1490,20 @@ body.first-run-active .leaflet-marker-pane .marker-active {
 
 .profile-list-group--embedded {
   margin-top: 0;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
-/* Partner CTAs inside list groups share the same row chrome */
+/* Partner CTAs inside list groups share the same row chrome.
+   Must beat later .partner-link--cta dashed primary treatment. */
 .profile-list-group > .partner-link,
 .profile-list-group > .partner-link--cta,
-.profile-list-group > .partner-link--muted {
+.profile-list-group > .partner-link--muted,
+#profileModal .profile-list-group--muted > .partner-link,
+#profileModal .profile-list-group--muted > .partner-link--cta,
+#profileModal .profile-list-group--muted > .partner-link--muted {
   text-decoration: none;
   justify-content: flex-start;
   opacity: 1;
@@ -1494,12 +1511,21 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   font-weight: 500;
   color: var(--text-dark);
   border: none;
+  border-bottom: 1px solid var(--border);
   border-radius: 0;
   margin: 0;
   min-height: 48px;
+  background: transparent;
 }
 
-.profile-list-group > .partner-link--cta {
+#profileModal .profile-list-group--muted > .partner-link:last-child,
+#profileModal .profile-list-group--muted > .partner-link--cta:last-child,
+#profileModal .profile-list-group--muted > .partner-link--muted:last-child {
+  border-bottom: none;
+}
+
+.profile-list-group > .partner-link--cta,
+#profileModal .profile-list-group--muted > .partner-link--cta {
   color: var(--text-dark);
   font-weight: 500;
 }
@@ -1556,11 +1582,16 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   }
   .profile-row-icon--muted,
   .profile-list-group--muted .profile-row-icon.profile-row-icon--muted {
-    background: rgba(148, 163, 184, 0.14);
-    color: var(--ink-400, #94a3b8);
+    background: rgba(148, 163, 184, 0.16) !important;
+    color: var(--ink-400, #94a3b8) !important;
+  }
+  .profile-static-card__shell {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: var(--surface, #111827);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 4px 6px rgba(0, 0, 0, 0.2);
   }
   .profile-static-card__header {
-    background: rgba(17, 24, 39, 0.55);
+    background: rgba(17, 24, 39, 0.75);
     border-color: rgba(148, 163, 184, 0.28);
     color: var(--text-primary, #f9fafb);
   }
@@ -1573,10 +1604,18 @@ body.first-run-active .leaflet-marker-pane .marker-active {
   .profile-list-group--muted > a.profile-list-row--external {
     color: #a5b4fc;
   }
+  .profile-list-group--muted > a.profile-list-row--plain {
+    color: var(--text-primary, #f9fafb);
+  }
   .profile-list-group--muted > button.profile-list-row--danger,
   .profile-list-group--muted > a.profile-list-row--danger,
   .profile-list-group .btn--danger-text {
     color: #f87171;
+  }
+  #profileModal .profile-list-group--muted > .partner-link,
+  #profileModal .profile-list-group--muted > .partner-link--cta,
+  #profileModal .profile-list-group--muted > .partner-link--muted {
+    color: var(--text-primary, #f9fafb);
   }
 }
 
@@ -6795,8 +6834,11 @@ body.persona-lead .app-open-banner { display: none; }
    Community impact stats
    ============================================ */
 
-/* Always 2×2 — a 4-col row read as a second "pill" presentation of the same metrics. */
-.impact-stats {
+/* Always 2×2 — never a 4-col “pill” row (including skeleton / wide phones). */
+.impact-stats,
+#communityModal .impact-stats,
+.community-summary .impact-stats,
+.impact-stats--about {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
@@ -8923,7 +8965,7 @@ body.persona-lead .app-open-banner { display: none; }
   display: none;
 }
 
-/* Community Roles accordion inside Profile footer */
+/* Community Roles accordion inside Profile footer — one shell when expanded (matches Legal) */
 #profileModal .profile-footer__roles.cr-section {
   margin: 12px 0 0;
   padding-top: 12px;
@@ -8932,12 +8974,24 @@ body.persona-lead .app-open-banner { display: none; }
 #profileModal .profile-footer__roles .cr-section__toggle {
   background: var(--canvas, #f8fafc);
   border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+#profileModal .profile-footer__roles .cr-section__toggle[aria-expanded="true"] {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom-color: transparent;
+  box-shadow: none;
 }
 #profileModal .profile-footer__roles .cr-section__body {
-  padding-top: 10px;
+  padding-top: 0;
 }
 #profileModal .profile-footer__roles .cr-section__body-inner {
   padding: 0;
+}
+#profileModal .profile-footer__roles .cr-section__toggle[aria-expanded="true"] + .cr-section__body .profile-list-group {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-color: var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Account & Legal static card — align spacing with Roles accordion */
@@ -10244,6 +10298,19 @@ body.map-popup-open #map .leaflet-tile-pane {
 }
 .partner-link--cta:hover { background: rgba(99, 102, 241, 0.06); }
 
+/* Profile Roles list: never reintroduce dashed CTA chrome inside muted groups */
+#profileModal .profile-list-group--muted > .partner-link--cta,
+#profileModal .profile-list-group--muted > .partner-link--cta:hover {
+  color: var(--text-dark);
+  font-weight: 500;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  margin-top: 0;
+  background: transparent;
+  text-decoration: none;
+}
+
 /* How-it-works explainer */
 .access-steps {
   counter-reset: access-step;
@@ -10974,6 +11041,12 @@ a,
   line-height: 1.35;
 }
 
+/* Locating / unset: calm ink (not alarm-red), still readable on Confirm */
+.report-pin-confirm:has(.report-pin-map--loading) .report-pin-accuracy,
+.report-pin-accuracy:not([class*="--"]) {
+  color: var(--ink-600, #475569);
+}
+
 .report-pin-accuracy--good {
   color: var(--success);
 }
@@ -11603,7 +11676,35 @@ html.sheet-hud-quiet #mapHud {
 .empty-state--action i {
   background: var(--primary-50);
   color: var(--primary);
-  }
+}
+
+/* Recent wins / leads-style empties: keep the illustrated circle (not Spec Pass flat). */
+.success-stories__empty.empty-state--action i,
+#successStoriesEmpty.empty-state--action i,
+.lead-candidates__empty.empty-state--action i {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--grad-brand-cyan, linear-gradient(145deg, #6366f1, #22d3ee));
+  color: #fff;
+  font-size: var(--fs-2xl);
+}
+
+.success-stories__empty.empty-state--action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 16px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+.success-stories__empty.empty-state--action p {
+  max-width: 22rem;
+  text-align: center;
+}
 
 /* ---- Spec Pass 3: button hierarchy ---- */
 .btn--secondary {
@@ -13548,9 +13649,9 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 4px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0;
   background: var(--surface);
   border-radius: var(--radius-md);
   z-index: 1;

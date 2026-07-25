@@ -1350,41 +1350,43 @@
             </div>
           </div>
         </div>
-        <!-- Account & Legal: same card chrome as Community Roles, always expanded (no chevron) -->
+        <!-- Account & Legal: one bordered shell (same chrome as Roles), always open — no chevron -->
         <section class="profile-static-card profile-footer__legal" aria-labelledby="profileLegalLabel">
-          <div class="profile-static-card__header" id="profileLegalLabel">
-            <span class="profile-nav-label">
-              <span class="profile-nav-icon profile-nav-icon--support" aria-hidden="true"><i class="ph ph-scales"></i></span>
-              <span data-i18n="profile.section.accountLegal">Account &amp; Legal</span>
-            </span>
-          </div>
-          <div class="profile-list-group profile-list-group--muted profile-list-group--embedded" role="group" aria-labelledby="profileLegalLabel">
-            <a href="terms.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--external">
-              <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-seal-check"></i></span>
-              <span data-i18n="legal.terms">Terms of Service</span>
-            </a>
-            <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--external">
-              <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
-              <span data-i18n="legal.privacy">Privacy Policy</span>
-            </a>
-            <a id="btnPrivacyContact" class="profile-list-row--external" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance">
-              <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-envelope"></i></span>
-              <span data-i18n="profile.privacyContact">Privacy / grievance contact</span>
-            </a>
-            <a href="delete-account.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--stacked profile-list-row--plain">
-              <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-user"></i></span>
-              <span class="profile-row-copy">
-                <span data-i18n="legal.deleteAccount">Delete account</span>
-                <small class="profile-row-sub" data-i18n="legal.deleteAccountSub">Instructions to close your account</small>
+          <div class="profile-static-card__shell">
+            <div class="profile-static-card__header" id="profileLegalLabel">
+              <span class="profile-nav-label">
+                <span class="profile-nav-icon profile-nav-icon--support" aria-hidden="true"><i class="ph ph-scales"></i></span>
+                <span data-i18n="profile.section.accountLegal">Account &amp; Legal</span>
               </span>
-            </a>
-            <button type="button" class="btn btn--ghost btn--full btn--danger-text profile-list-row--stacked profile-list-row--danger" id="btnDeleteData">
-              <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-trash"></i></span>
-              <span class="profile-row-copy">
-                <span data-i18n="profile.deleteData">Delete my data</span>
-                <small class="profile-row-sub" data-i18n="profile.deleteDataSub">Erases reports, points and profile</small>
-              </span>
-            </button>
+            </div>
+            <div class="profile-list-group profile-list-group--muted profile-list-group--embedded" role="group" aria-labelledby="profileLegalLabel">
+              <a href="terms.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--external">
+                <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-seal-check"></i></span>
+                <span data-i18n="legal.terms">Terms of Service</span>
+              </a>
+              <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--external">
+                <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
+                <span data-i18n="legal.privacy">Privacy Policy</span>
+              </a>
+              <a id="btnPrivacyContact" class="profile-list-row--external" href="mailto:civicradarnh@gmail.com?subject=CivicRadar%20%E2%80%94%20privacy%20/%20DPDP%20grievance">
+                <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-envelope"></i></span>
+                <span data-i18n="profile.privacyContact">Privacy / grievance contact</span>
+              </a>
+              <a href="delete-account.html" target="_blank" rel="noopener noreferrer" class="profile-list-row--stacked profile-list-row--plain">
+                <span class="profile-row-icon profile-row-icon--muted" aria-hidden="true"><i class="ph ph-user"></i></span>
+                <span class="profile-row-copy">
+                  <span data-i18n="legal.deleteAccount">Delete account</span>
+                  <small class="profile-row-sub" data-i18n="legal.deleteAccountSub">Instructions to close your account</small>
+                </span>
+              </a>
+              <button type="button" class="btn btn--ghost btn--full btn--danger-text profile-list-row--stacked profile-list-row--danger" id="btnDeleteData">
+                <span class="profile-row-icon profile-row-icon--danger" aria-hidden="true"><i class="ph ph-trash"></i></span>
+                <span class="profile-row-copy">
+                  <span data-i18n="profile.deleteData">Delete my data</span>
+                  <small class="profile-row-sub" data-i18n="profile.deleteDataSub">Erases reports, points and profile</small>
+                </span>
+              </button>
+            </div>
           </div>
         </section>
       </div>
