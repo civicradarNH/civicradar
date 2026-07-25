@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v430';
+  const CIVIC_APP_VERSION = 'v431';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -26590,6 +26590,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hasReportPhotoPreview()) {
 
+      // Belt-and-suspenders with scheduleShowPhotoConfirm: if decode finished while
+      // backgrounded and the Capture step stuck, visibility/pageshow still lands Confirm.
       debugLog('PHOTO', 'syncReportPhotoReturn branch', { branch: 'confirm' });
 
       unparkReportOverlayForPicker();
@@ -27355,6 +27357,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  // After native camera return, a single rAF can be skipped/delayed while the tab
+  // is still backgrounded or not compositing — photo stays in memory but UI stays
+  // on Capture. Schedule rAF + short timeouts; generation + confirm-step guards
+  // keep retries idempotent (stale captures / double-advance cannot re-enter).
+  function scheduleShowPhotoConfirm(via) {
+
+    const scheduleGen = reportPhotoCaptureGen;
+
+    const tryAdvance = (when) => {
+
+      if (scheduleGen !== reportPhotoCaptureGen) {
+
+        debugLog('PHOTO', 'scheduleShowPhotoConfirm stale', {
+
+          via: via || 'advance',
+
+          when,
+
+          scheduleGen,
+
+          reportPhotoCaptureGen,
+
+        });
+
+        return;
+
+      }
+
+      if (!hasReportPhotoPreview()) return;
+
+      if (reportFlowStep === 'confirm') {
+
+        const panel = $('#reportStepConfirm');
+
+        if (panel && !panel.hidden) return;
+
+      }
+
+      debugLog('PHOTO', 'scheduleShowPhotoConfirm fire', { via: via || 'advance', when });
+
+      showPhotoConfirm();
+
+    };
+
+    requestAnimationFrame(() => tryAdvance('raf'));
+
+    setTimeout(() => tryAdvance('timeout50'), 50);
+
+    setTimeout(() => tryAdvance('timeout320'), 320);
+
+  }
+
+
+
   function advanceReportPhotoReady() {
 
     clearReportPhotoError();
@@ -27372,7 +27428,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderHazardPicker();
 
-    requestAnimationFrame(() => showPhotoConfirm());
+    scheduleShowPhotoConfirm('advanceReportPhotoReady');
 
     requestAnimationFrame(() => {
 
@@ -34000,6 +34056,21 @@ document.addEventListener('DOMContentLoaded', function () {
       updateReportFlowSteps('capture');
 
       return;
+
+    }
+
+    // Idempotent: rAF + timeout retries / syncReportPhotoReturn may re-enter.
+    if (reportFlowStep === 'confirm') {
+
+      const confirmPanel = $('#reportStepConfirm');
+
+      if (confirmPanel && !confirmPanel.hidden) {
+
+        debugLog('PHOTO', 'showPhotoConfirm skip', { reason: 'alreadyConfirm' });
+
+        return;
+
+      }
 
     }
 
