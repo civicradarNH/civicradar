@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v437';
+  const CIVIC_APP_VERSION = 'v438';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -11556,6 +11556,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'community.winsEmpty': 'ઠીક થયેલા સ્પોટ અહીં દેખાશે. એક ફરિયાદ નોંધો, પડોશીઓને સાથે લો, અને તમારી શેરી સુધરતી જુઓ.',
 
+      'community.winsEmptyAction': 'જોખમ રિપોર્ટ કરો',
+
       'community.winsNeighbours': '{ward} માં પડોશીઓ',
 
       'community.winsCleanup': '{hazard} સાફ · {ward}',
@@ -12435,6 +12437,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'success.clock': 'સામુદાયિક નકશા પર — {corp} માં હજુ દાખલ નથી.',
 
       'community.challenge.empty': '{ward} હજુ બોર્ડ પર નથી — જોખમની જાણ કરો અને તેને બોર્ડ પર લાવો.',
+
+      'community.challenge.noFixesYet': 'હજુ કોઈ વોર્ડે ઉકેલ નોંધાવ્યો નથી — પહેલા બનો.',
 
       'community.challenge.beat': '{ward}: {pending} ખુલ્લા જોખમ — {rival} ({rivalPending} બાકી) કરતાં આગળ! રિપોર્ટ કે રેલી 👋',
 
