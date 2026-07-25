@@ -5594,6 +5594,25 @@ async def run_extended_scenarios(s: Suite, browser):
 
     await open_profile_edit_sheet(page)
 
+    # Hydrate guard: opening edit with saved ward+society must keep society until ward changes.
+    society_before_ward_change = await page.evaluate(
+
+        '() => (document.getElementById("profileSocietyInput")?.value || "").trim()'
+
+    )
+
+    s.record(
+
+        'SO11',
+
+        'Society',
+
+        'Profile hydrate keeps society until ward changes',
+
+        society_before_ward_change == custom_name,
+
+    )
+
     await page.fill('#profileWardInput', ward_b_profile)
 
     await page.evaluate(
@@ -5607,6 +5626,12 @@ async def run_extended_scenarios(s: Suite, browser):
     opts_after_ward_input = await page.evaluate(
 
         '() => Array.from(document.querySelectorAll("#societySuggestions option")).map(o => o.value)'
+
+    )
+
+    society_after_ward_change = await page.evaluate(
+
+        '() => (document.getElementById("profileSocietyInput")?.value || "").trim()'
 
     )
 
@@ -5639,6 +5664,18 @@ async def run_extended_scenarios(s: Suite, browser):
         'Society datalist refreshes when profile ward changes',
 
         len(opts_after_ward_input) >= 10 and opts_after_ward_input != opts_a,
+
+    )
+
+    s.record(
+
+        'SO12',
+
+        'Society',
+
+        'Society field clears when profile ward changes',
+
+        society_after_ward_change == '',
 
     )
 
@@ -5718,6 +5755,26 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('NB04', 'Neighbourhood', 'Volunteer ward-filter hint populated', nb_hint_ok)
 
+    # Lead nomination: changing ward clears dependent neighbourhood field.
+    # Profile ward is already ward_b after SO09 — switch back to ward_a to force a real change.
+    await page.evaluate(
+        """() => {
+          if (typeof window.openLeadNominationModal === 'function') window.openLeadNominationModal();
+        }"""
+    )
+    await page.wait_for_timeout(200)
+    await page.fill('#leadNomNeighbourhood', 'Lead Nbh Before Ward Change')
+    await page.fill('#leadNomWard', ward_a)
+    await page.evaluate(
+        '() => { document.getElementById("leadNomWard").dispatchEvent(new Event("input", { bubbles: true })); }'
+    )
+    await page.wait_for_timeout(100)
+    lead_nbh_cleared = await page.evaluate(
+        '() => (document.getElementById("leadNomNeighbourhood")?.value || "").trim() === ""'
+    )
+    s.record('NB05', 'Neighbourhood', 'Lead-nomination neighbourhood clears when ward changes', lead_nbh_cleared)
+    await page.evaluate('() => { if (typeof window.closeLeadNominationModal === "function") window.closeLeadNominationModal(); }')
+
     await ctx.close()
 
 
@@ -5774,7 +5831,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v427" in sw_src
+            "civicradar-v428" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -9154,7 +9211,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v427" in sw_src
+            "civicradar-v428" in sw_src
 
             and "'/index.html'" not in sw_src
 

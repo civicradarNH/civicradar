@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v427';
+  const CIVIC_APP_VERSION = 'v428';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2473,6 +2473,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+  }
+
+
+
+  /** Tracks last ward text per ward input so dependent society fields clear only on real changes. */
+  const _wardSocietyPairPrev = new WeakMap();
+
+  /** Seed baseline after hydrate / programmatic ward set — does not clear society. */
+  function syncWardSocietyPairBaseline(wardEl, wardValue) {
+    if (!wardEl) return;
+    const w = String(wardValue == null ? wardEl.value : wardValue).trim();
+    _wardSocietyPairPrev.set(wardEl, w);
+  }
+
+  /**
+   * When ward text actually changes, clear the paired society/neighbourhood combobox.
+   * Skips identical re-fires and first observation if baseline was never seeded
+   * (call syncWardSocietyPairBaseline on hydrate so the first user edit still clears).
+   */
+  function clearSocietyOnWardChange(wardEl, societyEl) {
+    if (!wardEl || !societyEl) return;
+    const next = String(wardEl.value || '').trim();
+    if (!_wardSocietyPairPrev.has(wardEl)) {
+      _wardSocietyPairPrev.set(wardEl, next);
+      return;
+    }
+    const prev = _wardSocietyPairPrev.get(wardEl);
+    if (prev === next) return;
+    _wardSocietyPairPrev.set(wardEl, next);
+    if (window.CivicSearchableSelect) {
+      CivicSearchableSelect.setValueQuiet(societyEl, '');
+    } else {
+      societyEl.value = '';
+      societyEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 
 
@@ -17627,7 +17662,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wardEl = $('#leadNomWard');
 
-    if (wardEl && user.ward) wardEl.value = user.ward;
+    if (wardEl) {
+
+      if (user.ward) wardEl.value = user.ward;
+
+      syncWardSocietyPairBaseline(wardEl, wardEl.value);
+
+    }
 
     if (user.society) {
 
@@ -23970,6 +24011,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const input = $('#profileWardInput');
         if (ward && input) {
           input.value = ward;
+          clearSocietyOnWardChange(input, $('#profileSocietyInput'));
           refreshSocietyDatalist(city, ward);
           saveProfileWard();
           syncProfileIdentitySummary();
@@ -25120,6 +25162,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (input) input.value = ward;
 
+    clearSocietyOnWardChange(input, $('#onboardSociety'));
+
     $('#wardDetectStatus')?.classList.add('hidden');
 
     const chip = $('#wardDetected');
@@ -25903,7 +25947,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const wardIn = $('#wardInput');
 
-        if (wardIn) wardIn.value = user.ward;
+        if (wardIn) {
+
+          wardIn.value = user.ward;
+
+          // Seed before detected-chip path so hydrate does not wipe society.
+          syncWardSocietyPairBaseline(wardIn, user.ward);
+
+        }
 
         $('#wardDetectStatus')?.classList.add('hidden');
 
@@ -25912,6 +25963,8 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
 
         // Play / DPDP: do not call geolocation until the user taps Detect my area.
+        syncWardSocietyPairBaseline($('#wardInput'), '');
+
         showOnboardingWardDetectPrompt();
 
       }
@@ -31707,11 +31760,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       onboardingDetectedWard = '';
 
+      clearSocietyOnWardChange($('#wardInput'), $('#onboardSociety'));
+
       refreshSocietyForOnboarding();
 
       syncOnboardingJoinCta();
 
     };
+
+    const onboardWardInput = $('#wardInput');
+
+    if (onboardWardInput) syncWardSocietyPairBaseline(onboardWardInput, onboardWardInput.value);
 
     $('#wardInput').addEventListener('input', onOnboardWardEdited);
 
@@ -31741,7 +31800,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         onboardingDetectedWard = '';
 
-        if ($('#wardInput')) $('#wardInput').value = '';
+        const wardIn = $('#wardInput');
+
+        if (wardIn) wardIn.value = '';
+
+        clearSocietyOnWardChange(wardIn, $('#onboardSociety'));
 
         clearOnboardingCityHighlight();
 
@@ -32100,7 +32163,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const leadNomWard = $('#leadNomWard');
 
-    if (leadNomWard) leadNomWard.addEventListener('input', refreshLeadNomNeighbourhoodDatalist);
+    if (leadNomWard) {
+
+      syncWardSocietyPairBaseline(leadNomWard, leadNomWard.value);
+
+      leadNomWard.addEventListener('input', () => {
+
+        clearSocietyOnWardChange(leadNomWard, $('#leadNomNeighbourhood'));
+
+        refreshLeadNomNeighbourhoodDatalist();
+
+      });
+
+    }
 
     const btnLeadNomDone = $('#btnLeadNomDone');
 
@@ -33550,9 +33625,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (profileWardInput) {
 
+      syncWardSocietyPairBaseline(profileWardInput, profileWardInput.value);
+
       profileWardInput.addEventListener('input', () => {
 
         $('#profileWardError')?.classList.add('hidden');
+
+        clearSocietyOnWardChange(profileWardInput, $('#profileSocietyInput'));
 
         const city = getProfileCity();
 
@@ -44244,6 +44323,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (profileWardInput && document.activeElement !== profileWardInput) {
 
       profileWardInput.value = user.ward || '';
+
+      syncWardSocietyPairBaseline(profileWardInput, profileWardInput.value);
 
     }
 
