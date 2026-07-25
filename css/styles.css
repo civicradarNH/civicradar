@@ -126,6 +126,8 @@
   --hud-gap: 6px;
   --dock-float: 16px; /* Living Map HUD: command strip float from bottom */
   --attr-clearance: 28px;
+  /* Clearance under top-anchored attention banners (location / iOS / manual pin) */
+  --top-banner-clearance: 72px;
 
   /* Z-index scale (v321 / pin sheet v395) — map (+ pin popup pane / sheet) →
      map chrome (header / persona / ward pulse) → tab sheets → nav → toasts →
@@ -12361,6 +12363,32 @@ body.pwa-nudge-visible .toast-container {
   bottom: auto;
 }
 
+/* Top-anchored banners share the toast band — push chips below while visible */
+body.location-banner-visible .toast-container,
+body.ios-install-hint-visible .toast-container,
+body.manual-pin-banner-visible .toast-container {
+  top: calc(
+    env(safe-area-inset-top, 0px) + var(--hud-gap) + var(--header-height)
+    + var(--hud-gap) + var(--persona-bar-height) + var(--map-chrome-stack-gap, 12px)
+    + var(--ward-pulse-height) + var(--map-chrome-stack-gap, 12px)
+    + var(--top-banner-clearance)
+  );
+  bottom: auto;
+}
+
+body.location-banner-visible .toast-container:has(> .toast--snackbar),
+body.location-banner-visible .toast-container:has(> .toast--dock-bottom),
+body.ios-install-hint-visible .toast-container:has(> .toast--snackbar),
+body.ios-install-hint-visible .toast-container:has(> .toast--dock-bottom),
+body.manual-pin-banner-visible .toast-container:has(> .toast--snackbar),
+body.manual-pin-banner-visible .toast-container:has(> .toast--dock-bottom) {
+  top: auto;
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--dock-float, 12px) + var(--nav-height)
+    + var(--fab-size) + 18px
+  );
+}
+
 body.home-hero-visible .toast-container:has(> .toast--snackbar),
 body.home-hero-visible .toast-container:has(> .toast--dock-bottom),
 body.persona-admin .toast-container:has(> .toast--snackbar),
@@ -14244,10 +14272,12 @@ body::after {
   font-weight: 700;
 }
 
-/* ---- Empty-ward sheet: quieter chrome (coach glass lives above) ---- */
+/* ---- Empty-ward sheet: quieter chrome (coach glass lives above) ----
+   border-color intentionally omitted here — the dark-mode block above
+   (~line 2793) already sets it for dark mode; this rule used to duplicate
+   it with equal specificity and silently win by source order. */
 .map-empty-cta__sheet {
   box-shadow: var(--shadow-lg);
-  border-color: var(--border);
 }
 
 .map-empty-cta__handle {
@@ -14257,12 +14287,8 @@ body::after {
   height: 4px;
 }
 
-.coach-mark__handle {
-  background: var(--ink-400);
-  opacity: 0.55;
-  width: 44px;
-  height: 5px;
-}
+/* .coach-mark__handle light values live at the base rule (~901); dark-mode
+   override (~1173) must not be shadowed by a later unconditional duplicate. */
 
 .map-empty-cta__title,
 .coach-mark__card h3 {

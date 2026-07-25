@@ -5,8 +5,7 @@
       "namespace": "android_app",
       "package_name": "in.civicradar.app",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_PLAY_APP_SIGNING_SHA256",
-        "REPLACE_WITH_UPLOAD_KEY_SHA256_IF_DIFFERENT"
+        "F5:60:31:34:A2:89:3D:B1:A8:9A:20:1C:08:52:84:FD:E6:3F:57:99:C2:2E:A9:72:0E:40:9F:D9:D6:BB:7F:F1"
       ]
     }
   }

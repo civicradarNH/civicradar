@@ -5,6 +5,10 @@ video/
 *.wav
 *.webm
 
+# Local scratch / investigation notes (do not ship)
+scratchpad_darkblocks.txt
+scratchpad*.txt
+
 # Python / test artifacts
 __pycache__/
 *.py[cod]

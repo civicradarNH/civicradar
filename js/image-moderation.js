@@ -11,8 +11,8 @@
     maxUploadBytes: 5 * 1024 * 1024,
     minWidth: 120,
     minHeight: 120,
-    minColorVariance: 7,
-    minUniqueColors: 12,
+    minColorVariance: 4,
+    minUniqueColors: 8,
     maxSkinRatio: 0.52,
     minOutdoorRatio: 0.08,
     maxDocumentScore: 0.42,
@@ -176,7 +176,13 @@
       return fail('irrelevant', 'Photo looks blank or unusable. Capture the actual hazard.', 'moderation.blocked.irrelevant');
     }
 
-    if (uniqueColors < cfg.minUniqueColors && lumStd < cfg.minColorVariance + 6) {
+    // Flat outdoor/wet scenes (stagnant water) can sit under the color-variety
+    // bar; require a weak outdoor-color signal too before rejecting as irrelevant.
+    if (
+      uniqueColors < cfg.minUniqueColors
+      && lumStd < cfg.minColorVariance + 6
+      && outdoorRatio < cfg.minOutdoorRatio
+    ) {
       return fail('irrelevant', 'Photo does not look like outdoor hazard evidence.', 'moderation.blocked.irrelevant');
     }
 

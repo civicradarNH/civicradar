@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v433';
+  const CIVIC_APP_VERSION = 'v434';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -21172,6 +21172,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (isAnyBannerVisible('iosInstallHint')) return false;
 
+    // Match location/PWA: top toast band owns attention while a chip is up.
+    if (typeof hasActiveToast === 'function' && hasActiveToast()) return false;
+
     return true;
 
   }
@@ -21189,6 +21192,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const wasHidden = el.classList.contains('hidden');
 
     el.classList.toggle('hidden', !show);
+
+    document.body.classList.toggle('ios-install-hint-visible', show);
 
     if (show && wasHidden && window.CivicAnalytics) CivicAnalytics.track('ios_install_hint_shown', {});
 
@@ -24232,6 +24237,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const afterRemove = () => {
         // Snackbar gone — may restore parked GPS chip (still gated by pin popup / modals).
         flushPendingLocationBanner();
+        if (typeof updateIosInstallHint === 'function') updateIosInstallHint();
         syncToastFabQuietFromDom();
         // Restore persona idle / open-count policy after WA snackbar hid the bar.
         if (isWaSnackbar && typeof updatePersonaUI === 'function') {
@@ -24288,6 +24294,7 @@ document.addEventListener('DOMContentLoaded', function () {
         toast.remove();
 
         flushPendingLocationBanner();
+        if (typeof updateIosInstallHint === 'function') updateIosInstallHint();
         syncToastFabQuietFromDom();
         if (isWaSnackbar && typeof updatePersonaUI === 'function') {
           try { updatePersonaUI(); } catch (_) { /* ignore */ }
@@ -24422,6 +24429,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Snackbar / toast owns attention — park GPS chip so it cannot stack under Me too.
     parkLocationBannerForAttention();
+    // Re-evaluate iOS install hint (gated on hasActiveToast) so it yields the top band.
+    if (typeof updateIosInstallHint === 'function') updateIosInstallHint();
 
     if (isWaSnackbar || (action && action.fabQuiet) || toast.classList.contains('toast--fab-quiet')) {
       setToastFabQuiet(true);
@@ -36102,6 +36111,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (el) el.classList.remove('hidden');
 
+    document.body.classList.toggle('manual-pin-banner-visible', !!(el && !el.classList.contains('hidden')));
+
   }
 
 
@@ -36109,6 +36120,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function hideManualPinBanner() {
 
     $('#manualPinBanner')?.classList.add('hidden');
+
+    document.body.classList.remove('manual-pin-banner-visible');
 
   }
 
