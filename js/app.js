@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v452';
+  const CIVIC_APP_VERSION = 'v453';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3321,6 +3321,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'location.bannerNearby': 'Turn on location to pin hazards and see nearby issues.',
 
+      'location.bannerBlocked': 'Location is blocked in your browser settings — allow it there, then reload.',
+
       'location.unavailable': 'Location unavailable in this browser.',
 
       'location.withdrawn': 'Location off. Turn it on again when you report.',
@@ -5278,6 +5280,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'Could not get GPS. Turn on location and try again.',
 
+      'toast.gpsBlocked': 'Location is blocked in your browser settings — allow it there, then try again.',
+
       'toast.gpsFailAction': 'GPS unavailable',
 
       'toast.gpsFailHint': 'Place a pin or turn location on in settings.',
@@ -5828,6 +5832,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.claimErrUsed': 'That code has already been used.',
 
+      'access.claimErrOffline': 'Could not reach the server — check your connection and try again.',
+
       'access.claimedNgo': 'Access unlocked — welcome, coordinator!',
 
       'access.claimedBmc': 'BMC access unlocked — review your ward queue.',
@@ -5968,6 +5974,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'location.bannerCompact': 'अपने पास के खतरे देखें — लोकेशन चालू करें।',
 
       'location.bannerNearby': 'पिन लगाने और पास की समस्याएँ देखने के लिए लोकेशन चालू करें।',
+
+      'location.bannerBlocked': 'लोकेशन आपके ब्राउज़र सेटिंग्स में ब्लॉक है — वहाँ अनुमति दें, फिर पेज रीलोड करें।',
 
       'location.unavailable': 'इस ब्राउज़र में स्थान उपलब्ध नहीं है।',
 
@@ -7927,6 +7935,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS नहीं मिला। लोकेशन चालू करके फिर कोशिश करें।',
 
+      'toast.gpsBlocked': 'लोकेशन आपके ब्राउज़र सेटिंग्स में ब्लॉक है — वहाँ अनुमति दें, फिर कोशिश करें।',
+
       'toast.gpsFailAction': 'GPS उपलब्ध नहीं',
 
       'toast.gpsFailHint': 'पिन लगाएँ या सेटिंग में लोकेशन चालू करें।',
@@ -8477,6 +8487,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.claimErrUsed': 'यह कोड पहले ही उपयोग हो चुका है।',
 
+      'access.claimErrOffline': 'सर्वर तक पहुँच नहीं सके — कनेक्शन जाँचें और फिर कोशिश करें।',
+
       'access.claimedNgo': 'एक्सेस अनलॉक — स्वागत है, समन्वयक!',
 
       'access.claimedBmc': 'BMC एक्सेस अनलॉक — अपनी वार्ड कतार देखें।',
@@ -8616,6 +8628,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'location.bannerCompact': 'जवळचे धोके पहा — लोकेशन चालू करा.',
 
       'location.bannerNearby': 'पिन लावण्यासाठी आणि जवळच्या समस्या पाहण्यासाठी लोकेशन चालू करा.',
+
+      'location.bannerBlocked': 'तुमच्या ब्राउझर सेटिंग्जमध्ये लोकेशन ब्लॉक आहे — तिथे परवानगी द्या, मग पेज रीलोड करा.',
 
       'location.unavailable': 'या ब्राउझरमध्ये स्थान उपलब्ध नाही.',
 
@@ -10574,6 +10588,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS मिळाला नाही. लोकेशन चालू करून पुन्हा प्रयत्न करा.',
 
+      'toast.gpsBlocked': 'तुमच्या ब्राउझर सेटिंग्जमध्ये लोकेशन ब्लॉक आहे — तिथे परवानगी द्या, मग पुन्हा प्रयत्न करा.',
+
       'toast.gpsFailAction': 'GPS उपलब्ध नाही',
 
       'toast.gpsFailHint': 'पिन लावा किंवा सेटिंगमध्ये स्थान चालू करा.',
@@ -11124,6 +11140,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.claimErrUsed': 'हा कोड आधीच वापरला गेला आहे.',
 
+      'access.claimErrOffline': 'सर्व्हरपर पोहोचता आले नाही — कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.',
+
       'access.claimedNgo': 'प्रवेश अनलॉक — स्वागत आहे, समन्वयक!',
 
       'access.claimedBmc': 'BMC प्रवेश अनलॉक — तुमची वॉर्ड रांग पाहा.',
@@ -11263,6 +11281,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'location.bannerCompact': 'નજીકના જોખમો જુઓ — સ્થાન ચાલુ કરો.',
 
       'location.bannerNearby': 'જોખમો પિન કરવા અને નજીકની સમસ્યાઓ જોવા માટે સ્થાન ચાલુ કરો.',
+
+      'location.bannerBlocked': 'તમારા બ્રાઉઝર સેટિંગ્સમાં લોકેશન બ્લોક છે — ત્યાં મંજૂરી આપો, પછી પેજ રીલોડ કરો.',
 
       'location.unavailable': 'આ બ્રાઉઝરમાં સ્થાન ઉપલબ્ધ નથી.',
 
@@ -13221,6 +13241,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsFail': 'GPS મળ્યું નહીં. લોકેશન ચાલુ કરી ફરી પ્રયાસ કરો.',
 
+      'toast.gpsBlocked': 'તમારા બ્રાઉઝર સેટિંગ્સમાં લોકેશન બ્લોક છે — ત્યાં મંજૂરી આપો, પછી ફરી પ્રયાસ કરો.',
+
       'toast.gpsFailAction': 'GPS ઉપલબ્ધ નથી',
 
       'toast.gpsFailHint': 'પિન મૂકો અથવા સેટિંગમાં લોકેશન ચાલુ કરો.',
@@ -13770,6 +13792,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'access.claimErrInvalid': 'આ કોડ માન્ય નથી અથવા હજુ મંજૂર થયો નથી.',
 
       'access.claimErrUsed': 'આ કોડ પહેલેથી વપરાઈ ગયો છે.',
+
+      'access.claimErrOffline': 'સર્વર સુધી પહોંચી શકાયું નહીં — કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.',
 
       'access.claimedNgo': 'ઍક્સેસ અનલૉક — સ્વાગત છે, સંયોજક!',
 
@@ -15756,7 +15780,7 @@ document.addEventListener('DOMContentLoaded', function () {
     },
 
     async claimAccess(code) {
-      if (!this.enabled) return { data: null, error: { message: 'offline' } };
+      if (!this.enabled) return { data: null, error: { message: 'offline', code: 'backend_offline' } };
       const { data, error } = await this.client.rpc('claim_access', { p_code: code });
       return { data, error: error || null };
     },
@@ -17608,9 +17632,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const used = /code_used/i.test((error && error.message) || '');
 
+          const offline = error && error.code === 'backend_offline';
+
           if (errEl) {
 
-            errEl.textContent = used ? t('access.claimErrUsed') : t('access.claimErrInvalid');
+            errEl.textContent = used
+              ? t('access.claimErrUsed')
+              : offline
+                ? t('access.claimErrOffline')
+                : t('access.claimErrInvalid');
 
             errEl.classList.remove('hidden');
 
@@ -17670,7 +17700,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } catch (e) {
 
-      if (errEl) { errEl.textContent = t('access.claimErrInvalid'); errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = t('access.claimErrOffline'); errEl.classList.remove('hidden'); }
 
       console.warn('Claim access failed:', (e && e.message) || e);
 
@@ -24326,8 +24356,8 @@ document.addEventListener('DOMContentLoaded', function () {
           showToast(t('onboard.wardDetectFailed'), 'error');
         }
       })
-      .catch(() => {
-        showToast(t('toast.gpsFail'), 'error');
+      .catch((err) => {
+        showToast(err && err.code === 1 ? t('toast.gpsBlocked') : t('toast.gpsFail'), 'error');
       })
       .finally(() => {
         if (btn) {
@@ -25932,17 +25962,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       })
 
-      .catch(() => {
+      .catch((err) => {
+
+        const blocked = err && err.code === 1;
 
         if (!(input && input.value.trim())) {
 
           showOnboardingWardDetectFailed();
 
+          if (blocked) $('#btnWardRetry')?.classList.add('hidden');
+
         } else {
 
           $('#wardDetectStatus')?.classList.add('hidden');
 
-          $('#btnWardRetry')?.classList.remove('hidden');
+          if (blocked) {
+
+            $('#btnWardRetry')?.classList.add('hidden');
+
+          } else {
+
+            $('#btnWardRetry')?.classList.remove('hidden');
+
+          }
 
         }
 
@@ -31171,9 +31213,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       })
 
-      .catch(() => {
+      .catch((err) => {
 
-        showLocationBanner(t('location.bannerNearby'));
+        showLocationBanner(err && err.code === 1 ? t('location.bannerBlocked') : t('location.bannerNearby'));
 
       })
 
