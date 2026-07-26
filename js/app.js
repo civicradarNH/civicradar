@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v453';
+  const CIVIC_APP_VERSION = 'v454';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2979,7 +2979,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // public Supabase Storage URL (post-sync, see Backend.uploadReportImage) —
   // never anything else, so <img src> never renders an attacker-supplied URL.
   function isSafeReportImage(src) {
-    if (!src) return false;
+    if (!src || typeof src !== 'string') return false;
+    // Reject attribute-breakout / whitespace smuggling before any allowlist match.
+    if (/["'\s]/.test(src) || /[\r\n]/.test(src)) return false;
     if (/^data:image\//.test(src)) return true;
     const cfg = window.CIVICRADAR_CONFIG || {};
     return !!(cfg.supabaseUrl && src.indexOf(cfg.supabaseUrl + '/storage/v1/object/public/report-photos/') === 0);
@@ -7893,7 +7895,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHintIos': 'Safari Share → Add to Home Screen.',
 
-      'toast.wardRequired': 'मुंबई की आधिकारिक सूची से वार्ड चुनें।',
+      'toast.wardRequired': '{city} की आधिकारिक सूची से वार्ड चुनें।',
 
       'toast.contactConfig': 'संपर्क ईमेल सेट नहीं — js/config.js देखें',
 
@@ -10546,7 +10548,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHintIos': 'Safari Share → Add to Home Screen.',
 
-      'toast.wardRequired': 'मुंबईच्या अधिकृत यादीतून वॉर्ड निवडा.',
+      'toast.wardRequired': '{city} च्या अधिकृत यादीतून वॉर्ड निवडा.',
 
       'toast.contactConfig': 'संपर्क ईमेल सेट नाही — js/config.js पाहा',
 
@@ -13199,7 +13201,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.installHintIos': 'Safari Share → Add to Home Screen.',
 
-      'toast.wardRequired': 'મુંબઈની અધિકૃત યાદીમાંથી વોર્ડ પસંદ કરો.',
+      'toast.wardRequired': '{city} ની અધિકૃત યાદીમાંથી વોર્ડ પસંદ કરો.',
 
       'toast.contactConfig': 'સંપર્ક ઇમેઇલ સેટ નથી — js/config.js જુઓ',
 
@@ -14402,7 +14404,9 @@ document.addEventListener('DOMContentLoaded', function () {
         reports[idx].flagCount = (Number(reports[idx].flagCount) || 0) + 1;
         try { saveReports(reports); } catch { /* ignore */ }
       }
-      Backend.flagReport(id);
+      Backend.flagReport(id).then((ok) => {
+        if (!ok) showToast(t('toast.syncLocal'), 'info', 3500);
+      });
     }
     if (map) map.closePopup();
     refreshReportMarkers();
@@ -15804,19 +15808,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Peer voting for NGO / neighbourhood leads ----
     async nominateForLead(payload) {
-      if (!this.enabled) return { data: null, error: { message: 'offline' } };
+      if (!this.enabled) return { data: null, error: { message: 'offline', code: 'backend_offline' } };
       const { data, error } = await this.client.rpc('nominate_for_lead', payload);
       return { data, error: error || null };
     },
 
     async voteForLead(nominationId) {
-      if (!this.enabled) return { data: null, error: { message: 'offline' } };
+      if (!this.enabled) return { data: null, error: { message: 'offline', code: 'backend_offline' } };
       const { data, error } = await this.client.rpc('vote_for_lead', { p_nomination_id: nominationId });
       return { data, error: error || null };
     },
 
     async listLeadNominations(city, ward, neighbourhood) {
-      if (!this.enabled) return { data: [], error: { message: 'offline' } };
+      if (!this.enabled) return { data: [], error: { message: 'offline', code: 'backend_offline' } };
       const { data, error } = await this.client.rpc('list_lead_nominations', {
         p_city: city || 'mumbai',
         p_ward: ward || null,
@@ -15831,7 +15835,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // role/ownership server-side, so a client can't fake e.g. by:'bmc' the way
     // a raw .update() with a client-supplied `by` string previously could.
     async updateReportResolution(id, status, by, at, resolutionImage, resolutionSource, communityVerifiedAt) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       // Path is scoped to the *uploader's* (this session's) own auth.uid(), not the
       // original reporter's — an admin/coordinator resolving someone else's report
       // still writes to their own Storage folder per the report_photos RLS policy.
@@ -15854,43 +15858,49 @@ document.addEventListener('DOMContentLoaded', function () {
           p_report_id: id, p_image: imageUrl,
         }));
       }
-      if (error) console.warn('Resolution sync failed:', error.message);
+      if (error) { console.warn('Resolution sync failed:', error.message); return false; }
+      return true;
     },
 
     async reopenReport(id) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       const { error } = await this.client.rpc('reopen_report', { p_report_id: id });
-      if (error) console.warn('Reopen sync failed:', error.message);
+      if (error) { console.warn('Reopen sync failed:', error.message); return false; }
+      return true;
     },
 
     async updateReportFiling(id, complaintId, filedAt) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       const { error } = await this.client.rpc('bmc_set_report_status', {
         p_report_id: id, p_complaint_id: complaintId, p_filed_at: filedAt,
       });
-      if (error) console.warn('Filing sync failed:', error.message);
+      if (error) { console.warn('Filing sync failed:', error.message); return false; }
+      return true;
     },
 
     async updateReportCleanup(id, cleared, by) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       const { error } = await this.client.rpc('ngo_mark_cleared', {
         p_report_id: id, p_cleared: cleared, p_cleared_by: by,
       });
-      if (error) console.warn('Cleanup sync failed:', error.message);
+      if (error) { console.warn('Cleanup sync failed:', error.message); return false; }
+      return true;
     },
 
     // Atomic, dedup-by-user corroboration via RPC (see schema.sql).
     async confirmReport(id) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       const { error } = await this.client.rpc('confirm_report', { p_report_id: id });
-      if (error) console.warn('Confirm sync failed:', error.message);
+      if (error) { console.warn('Confirm sync failed:', error.message); return false; }
+      return true;
     },
 
     // Content-moderation flag (UGC compliance) — atomic, dedup-by-user via RPC.
     async flagReport(id) {
-      if (!this.enabled) return;
+      if (!this.enabled) return true;
       const { error } = await this.client.rpc('flag_report', { p_report_id: id });
-      if (error) console.warn('Flag sync failed:', error.message);
+      if (error) { console.warn('Flag sync failed:', error.message); return false; }
+      return true;
     },
 
     // BMC/admin takedown of objectionable content. Soft-delete: the row stays
@@ -18136,6 +18146,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (error) {
 
+          if (error.code === 'backend_offline') {
+
+            if (errEl) { errEl.textContent = t('access.claimErrOffline'); errEl.classList.remove('hidden'); }
+
+            return;
+
+          }
+
           const msg = (error.message || '').toLowerCase();
 
           if (/already_nominated/.test(msg)) {
@@ -18423,6 +18441,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const { data, error } = await Backend.voteForLead(nominationId);
 
         if (error) {
+
+          if (error.code === 'backend_offline') {
+
+            showToast(t('access.claimErrOffline'), 'error', 4000);
+
+            return;
+
+          }
 
           const msg = (error.message || '').toLowerCase();
 
@@ -21639,6 +21665,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function unclaimMeTooConfirmation(reportId) {
+
+    const id = String(reportId);
+
+    unclaimConfirmation(id);
+
+    const reports = loadReports();
+
+    const idx = reports.findIndex((r) => String(r.id) === id);
+
+    if (idx !== -1) {
+
+      reports[idx].confirmations = Math.max(0, (Number(reports[idx].confirmations) || 0) - 1);
+
+      try { saveReports(reports); } catch { /* best effort */ }
+
+    }
+
+    addPointsCache(-POINTS_ME_TOO);
+
+    if (reportMarkerLayer) refreshReportMarkers();
+
+    updateProfileUI();
+
+    showToast(t('toast.syncLocal'), 'info', 3500);
+
+  }
+
+
+
   function disableMeTooControl(el) {
 
     if (!el) return;
@@ -21886,7 +21942,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    Backend.confirmReport(reportId);
+    Backend.confirmReport(reportId).then((ok) => {
+
+      if (!ok) unclaimMeTooConfirmation(reportId);
+
+    });
 
     addPointsCache(POINTS_ME_TOO);
 
@@ -21940,6 +22000,38 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   window.confirmReport = confirmReport;
+
+
+
+  function unclaimFixConfirmation(reportId) {
+
+    const id = String(reportId);
+
+    const set = loadFixConfirmedSet();
+
+    set.delete(id);
+
+    try { safeLocalSet(FIX_CONFIRMED_KEY, JSON.stringify(Array.from(set))); } catch {}
+
+    const reports = loadReports();
+
+    const idx = reports.findIndex((r) => String(r.id) === id);
+
+    if (idx !== -1) {
+
+      reports[idx].fixConfirmations = Math.max(0, (Number(reports[idx].fixConfirmations) || 0) - 1);
+
+      try { saveReports(reports); } catch { /* best effort */ }
+
+    }
+
+    addPointsCache(-POINTS_FIX_CONFIRM);
+
+    if (reportMarkerLayer) refreshReportMarkers();
+
+    updateProfileUI();
+
+  }
 
 
 
@@ -22230,7 +22322,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!result) {
 
-          finishResolve(opts.staleCheck ? 'stale_verified' : 'community_verified');
+          // RPC failed (network/server error) — not "threshold not yet reached".
+          // Do not locally resolve on an unconfirmed count; roll optimistic confirm back.
+          unclaimFixConfirmation(reportId);
+
+          showToast(t('toast.syncLocal'), 'info', 3500);
 
           return;
 
@@ -25970,7 +26066,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
           showOnboardingWardDetectFailed();
 
-          if (blocked) $('#btnWardRetry')?.classList.add('hidden');
+          if (blocked) {
+
+            $('#btnWardRetry')?.classList.add('hidden');
+
+            const errEl = $('#wardError');
+
+            if (errEl) errEl.textContent = t('location.bannerBlocked');
+
+          }
 
         } else {
 
@@ -25979,6 +26083,10 @@ document.addEventListener('DOMContentLoaded', function () {
           if (blocked) {
 
             $('#btnWardRetry')?.classList.add('hidden');
+
+            const errEl = $('#wardError');
+
+            if (errEl) errEl.textContent = t('location.bannerBlocked');
 
           } else {
 
@@ -39408,11 +39516,11 @@ document.addEventListener('DOMContentLoaded', function () {
         `<div class="proof-flip-scene success-story-card__flip" data-proof-flip role="button" tabindex="0" aria-pressed="false" aria-label="${escapeHtml(t('community.proofShowAfter'))}">` +
           `<div class="proof-flip-card">` +
             `<div class="proof-flip-face proof-flip-face--front">` +
-              `<img src="${report.image}" alt="">` +
+              `<img src="${escapeHtml(report.image)}" alt="">` +
               `<span class="proof-flip-label">${beforeLabel}</span>` +
             `</div>` +
             `<div class="proof-flip-face proof-flip-face--back">` +
-              `<img src="${report.resolutionImage}" alt="">` +
+              `<img src="${escapeHtml(report.resolutionImage)}" alt="">` +
               `<span class="proof-flip-label">${afterLabel}</span>` +
             `</div>` +
           `</div>` +
@@ -39421,7 +39529,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const thumb = hasAfter ? report.resolutionImage : (hasBefore ? report.image : '');
     if (thumb) {
-      return `<img class="success-story-card__thumb" src="${thumb}" alt="">`;
+      return `<img class="success-story-card__thumb" src="${escapeHtml(thumb)}" alt="">`;
     }
     return '<div class="success-story-card__thumb success-story-card__thumb--empty"><i class="ph ph-trophy" aria-hidden="true"></i></div>';
   }
@@ -39715,9 +39823,9 @@ document.addEventListener('DOMContentLoaded', function () {
     return `
       <div class="ba-slider" role="group" aria-label="${hint}">
         <div class="ba-slider__frame">
-          <img class="ba-slider__img ba-slider__img--after" src="${afterSrc}" alt="${afterLabel}" draggable="false">
+          <img class="ba-slider__img ba-slider__img--after" src="${escapeHtml(afterSrc)}" alt="${afterLabel}" draggable="false">
           <div class="ba-slider__before-wrap" style="clip-path: inset(0 50% 0 0)">
-            <img class="ba-slider__img ba-slider__img--before" src="${beforeSrc}" alt="${beforeLabel}" draggable="false">
+            <img class="ba-slider__img ba-slider__img--before" src="${escapeHtml(beforeSrc)}" alt="${beforeLabel}" draggable="false">
           </div>
           <div class="ba-slider__divider" style="left: 50%" aria-hidden="true"></div>
           <button type="button" class="ba-slider__handle" style="left: 50%" aria-label="${hint}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" role="slider"></button>
@@ -40828,7 +40936,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <span class="proof-compare__label">${escapeHtml(t('profile.proofBefore'))}</span>
 
-            ${hasBefore ? `<img src="${report.image}" alt="">` : '<div class="proof-compare__placeholder">—</div>'}
+            ${hasBefore ? `<img src="${escapeHtml(report.image)}" alt="">` : '<div class="proof-compare__placeholder">—</div>'}
 
           </div>
 
@@ -40836,7 +40944,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <span class="proof-compare__label">${escapeHtml(t('profile.proofAfter'))}</span>
 
-            ${hasAfter ? `<img src="${report.resolutionImage}" alt="">` : `<div class="proof-compare__placeholder proof-compare__placeholder--fixed"><span class="proof-compare__check">✓</span><span>${escapeHtml(t('shareWin.fixedLabel'))}</span></div>`}
+            ${hasAfter ? `<img src="${escapeHtml(report.resolutionImage)}" alt="">` : `<div class="proof-compare__placeholder proof-compare__placeholder--fixed"><span class="proof-compare__check">✓</span><span>${escapeHtml(t('shareWin.fixedLabel'))}</span></div>`}
 
           </div>`;
 
@@ -43316,7 +43424,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    Backend.updateReportFiling(activeEscalationId, val, reports[idx].filedAt);
+    Backend.updateReportFiling(activeEscalationId, val, reports[idx].filedAt).then((ok) => {
+
+      if (!ok) {
+
+        Backend.markReportSyncPending(activeEscalationId, true);
+
+        showToast(t('toast.syncLocal'), 'info', 3500);
+
+      }
+
+    });
 
     markEscTierDone(activeEscalationId, 'file');
 
@@ -44129,7 +44247,12 @@ document.addEventListener('DOMContentLoaded', function () {
         Backend.updateReportResolution(
           reportId, r.status, r.resolvedBy || 'community', r.resolvedAt || new Date().toISOString(),
           dataUrl, r.resolutionSource || 'community_verified', r.communityVerifiedAt || ''
-        );
+        ).then((ok) => {
+          if (!ok) {
+            Backend.markReportSyncPending(reportId, true);
+            showToast(t('toast.syncLocal'), 'info', 3500);
+          }
+        });
       }
       if (reportMarkerLayer) refreshReportMarkers();
       showToast(t('toast.fixPhotoAdded'), 'success', 3000);
@@ -45408,9 +45531,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-        const safeImg = isSafeReportImage(r.image) ? r.image : '';
+        const safeImg = isSafeReportImage(r.image) ? escapeHtml(r.image) : '';
 
-        const safeAfter = isSafeReportImage(r.resolutionImage) ? r.resolutionImage : '';
+        const safeAfter = isSafeReportImage(r.resolutionImage) ? escapeHtml(r.resolutionImage) : '';
 
         let thumb;
 
@@ -45641,7 +45764,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
       reports[idx].communityVerifiedAt || null
 
-    );
+    ).then((ok) => {
+
+      if (!ok) {
+
+        // syncPending flags visibility for future work — pushLocalOwned only retries inserts via insert_report, not updates.
+        Backend.markReportSyncPending(reportId, true);
+
+        showToast(t('toast.syncLocal'), 'info', 3500);
+
+      }
+
+    });
 
     fanOutLocalNbhResolved(reports[idx]);
 
@@ -45721,7 +45855,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    Backend.reopenReport(reportId);
+    Backend.reopenReport(reportId).then((ok) => {
+
+      if (!ok) {
+
+        Backend.markReportSyncPending(reportId, true);
+
+        showToast(t('toast.syncLocal'), 'info', 3500);
+
+      }
+
+    });
 
     if (window.CivicAnalytics) {
 
@@ -46964,7 +47108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const flagBadge = flagCount > 0 ? `<span class="status-badge status-badge--flagged"><i class="ph ph-flag"></i> ${t('admin.flagged')}</span>` : '';
 
-        const safeImg = isSafeReportImage(r.image) ? r.image : '';
+        const safeImg = isSafeReportImage(r.image) ? escapeHtml(r.image) : '';
 
         const thumb = safeImg ? `<img class="queue-item__thumb" src="${safeImg}" alt="">` : '<div class="queue-item__thumb"></div>';
 
@@ -47730,7 +47874,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       saveReports(reports);
 
-      Backend.updateReportCleanup(reports[rIdx].id, true, reports[rIdx].clearedBy);
+      Backend.updateReportCleanup(reports[rIdx].id, true, reports[rIdx].clearedBy).then((ok) => {
+
+        if (!ok) {
+
+          Backend.markReportSyncPending(reports[rIdx].id, true);
+
+          showToast(t('toast.syncLocal'), 'info', 3500);
+
+        }
+
+      });
 
     }
 
@@ -47876,7 +48030,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    Backend.updateReportCleanup(reports[idx].id, true, reports[idx].clearedBy);
+    Backend.updateReportCleanup(reports[idx].id, true, reports[idx].clearedBy).then((ok) => {
+
+      if (!ok) {
+
+        Backend.markReportSyncPending(reports[idx].id, true);
+
+        showToast(t('toast.syncLocal'), 'info', 3500);
+
+      }
+
+    });
 
     if (window.CivicAnalytics) {
 

@@ -1805,6 +1805,13 @@ begin
     end if;
   end if;
 
+  if p_image is not null
+     and p_image !~ '^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$'
+     and p_image !~ '^https://[a-z0-9-]+\.supabase\.co/storage/v1/object/public/report-photos/'
+  then
+    raise exception 'invalid_image_format';
+  end if;
+
   update public.reports set resolution_image = p_image where id = p_report_id;
 end $$;
 
@@ -2069,6 +2076,14 @@ begin
 
   if p_hazard is null or p_hazard not in ('stagnant-water', 'garbage', 'potholes', 'streetlight') then
     raise exception 'invalid_hazard';
+  end if;
+
+  if p_image is not null
+     and btrim(p_image) <> ''
+     and p_image !~ '^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$'
+     and p_image !~ '^https://[a-z0-9-]+\.supabase\.co/storage/v1/object/public/report-photos/'
+  then
+    raise exception 'invalid_image_format';
   end if;
 
   cid := coalesce(nullif(left(btrim(coalesce(p_city, '')), 32), ''), 'mumbai');
