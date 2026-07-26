@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v451';
+  const CIVIC_APP_VERSION = 'v452';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -19769,7 +19769,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
           updateCommunityWinBadge();
 
-          setTimeout(() => showShareWinModal(report.id, 'cleanup'), 800);
+          const claimedByResolvedCheck = report.status === 'resolved' && loadResolvedSeen().includes(id);
+          setTimeout(() => showShareWinModal(report.id, 'cleanup', { celebrate: !claimedByResolvedCheck }), 800);
 
         },
 
@@ -44090,7 +44091,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (reportMarkerLayer) refreshReportMarkers();
       showToast(t('toast.fixPhotoAdded'), 'success', 3000);
-      setTimeout(() => showShareWinModal(reportId, 'community'), 500);
+      setTimeout(() => showShareWinModal(reportId, 'community', { celebrate: false }), 500);
     } catch {
       showToast(t('moderation.blocked.fileType'), 'error');
     }
@@ -45897,6 +45898,8 @@ document.addEventListener('DOMContentLoaded', function () {
         seen.push(id);
         saveResolvedSeen(seen);
       }
+
+      addPointsCache(POINTS_REPORT_RESOLVED);
 
       setTimeout(() => showShareWinModal(reportId, 'resolved'), 600);
 
