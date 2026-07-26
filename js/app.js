@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v444';
+  const CIVIC_APP_VERSION = 'v445';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -2056,9 +2056,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getCorpShortName(cityId) {
 
-    const corp = getCityCorpChannels(cityId);
+    const id = cityId || getUserCity();
 
-    return corp.name || getCityLabel(cityId);
+    if (id === 'mumbai') return 'BMC';
+
+    const corp = getCityCorpChannels(id);
+
+    return corp.name || getCityLabel(id);
 
   }
 
@@ -3351,7 +3355,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'Couldn\'t find your area. Pick it, or turn on location.',
 
-      'onboard.outOfBounds': 'CivicRadar currently serves Mumbai, Pune, and Thane only. Please select one of these cities manually to explore.',
+      'onboard.outOfBounds': 'CivicRadar covers Mumbai, Pune, and Thane. Select one to explore.',
 
       'onboard.gpsDisclosure': 'Used once to suggest your ward. Never shown on the map until you report.',
 
@@ -3466,7 +3470,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitleHazard': 'Photo for {hazard}',
 
-      'report.cameraDisclosureBody': 'Camera is only for hazard evidence. Photos show on the community map. EXIF location is stripped on-device. Avoid faces and documents.',
+      'report.cameraDisclosureBody': 'Camera is only for hazard evidence. Photos show on the community map — location data is removed automatically. Avoid faces and documents.',
 
       'report.cameraDisclosure.verify': 'Used only to verify this hazard',
 
@@ -3474,7 +3478,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'Exact location stripped automatically',
 
-      'report.cameraDisclosure.noSell': 'Used only for this hazard report',
+      'report.cameraDisclosure.noSell': 'Never sold or used for marketing.',
 
       'report.cameraDisclosureContinue': 'Continue to camera',
 
@@ -3546,7 +3550,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.lowQuality': 'Photo is too small or unclear. Move closer to the hazard.',
 
-      'moderation.blocked.irrelevant': 'Use a photo of the hazard — not a selfie, document, or blank image.',
+      'moderation.blocked.irrelevant': 'That doesn\'t look like a hazard photo — retake it showing the hazard, not a selfie or document.',
 
       'moderation.blocked.sensitive': 'Avoid IDs, documents, or screenshots. Show the hazard only.',
 
@@ -3875,7 +3879,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': 'File with {corp}',
 
-      'esc.tmc.recommended': 'Recommended: file on thanecity.gov.in or call TMC helpline 022-25331590.',
+      'esc.tmc.subtitle': 'CivicRadar shows hazards on the community map. Filing with TMC is your choice — it starts the official clock. This is not a TMC channel.',
+
+      'esc.tmc.recommended': 'Recommended: TMC portal — fastest for most Thane wards.',
 
       'esc.tmc.fileHint': 'Stagnant water / mosquito breeding — start with the recommended channel, or open more ways below.',
 
@@ -3899,15 +3905,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'Copied — paste when you file with TMC',
 
-      'esc.tmc.portalHint': 'On thanecity.gov.in: login → Online citizen services → File a complaint. Paste details below.',
+      'esc.tmc.portalHint': 'On thanecity.gov.in: login → Online citizen services → File a complaint. Paste the details below.',
 
-      'esc.tmc.filedConsent': 'I filed on an official TMC channel (portal / helpline / email / 155300 / Aaple Sarkar)',
+      'esc.tmc.filedConsent': 'I filed on an official TMC channel (portal / helpline / email / 155300)',
 
       'esc.tmc.complaintLabel': 'TMC complaint / reference number',
 
       'esc.tmc.complaintPh': 'e.g. TMC/2026/123456',
 
-      'esc.tmc.complaintWarn': 'This doesn\'t look like a typical TMC reference — you can still save if it\'s correct.',
+      'esc.tmc.complaintWarn': 'This doesn\'t look like a typical TMC reference — save anyway if it\'s correct.',
 
       'esc.tmc.filedNote': 'Filed with TMC — escalation steps unlock as deadlines pass.',
 
@@ -3921,7 +3927,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.deptTitle': 'Department contacts (escalation)',
 
-      'esc.tmc.deptHint': 'For stagnant-water follow-ups — Water, Health, or Pollution Control.',
+      'esc.tmc.deptHint': 'Follow-up contacts — Water, Health, or Pollution Control.',
 
       'esc.tmc.dept.water': 'Water',
 
@@ -3929,9 +3935,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'Pollution Control',
 
-      'esc.tmc.tier.file.body': 'File on thanecity.gov.in, call 022-25331590 / 022-25331211, email mc@thanecity.gov.in, or use Citizen Call Center 155300. Save your reference number here.',
+      'esc.tmc.tier.file.body': 'Free. Use any channel above, then save your reference number here so the official clock starts.',
 
-      'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department (022-25331590). Quote your TMC reference number.',
+      'esc.tmc.tier.matrix.body': 'Follow up with your ward office or Health department, quoting your TMC reference number.',
 
       'esc.tmc.tier.zonal.body': 'Escalate to the Municipal Commissioner (mc@thanecity.gov.in). Tag @TMCaTweetAway on X with the photo for public visibility.',
 
@@ -3951,13 +3957,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'Recommended: PMC CARE WhatsApp — fastest for most Pune wards.',
 
-      'esc.pmc.fileHint': 'Stagnant water and mosquito breeding go through PMC CARE. Start with the recommended channel — or open more ways below.',
+      'esc.pmc.fileHint': 'Stagnant water and mosquito breeding — start with the recommended channel, or open more ways below.',
 
-      'esc.pmc.fileHint.garbage': 'Garbage and solid waste go through PMC CARE. Start with the recommended channel — or open more ways below.',
+      'esc.pmc.fileHint.garbage': 'Garbage and solid waste — start with the recommended channel, or open more ways below.',
 
-      'esc.pmc.fileHint.potholes': 'Potholes and road damage go through PMC CARE. Start with the recommended channel — or open more ways below.',
+      'esc.pmc.fileHint.potholes': 'Potholes and road damage — start with the recommended channel, or open more ways below.',
 
-      'esc.pmc.fileHint.streetlight': 'Broken streetlights go through PMC CARE. Start with the recommended channel — or open more ways below.',
+      'esc.pmc.fileHint.streetlight': 'Broken streetlights — start with the recommended channel, or open more ways below.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -3973,7 +3979,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.copyBlock': 'Paste these details (PMC CARE / WhatsApp)',
 
-      'esc.pmc.copyAllDone': 'Copied — paste when you file on PMC CARE, WhatsApp, or the helpline',
+      'esc.pmc.copyAllDone': 'Copied — paste when you file with PMC',
 
       'esc.pmc.portalHint': 'On PMC CARE portal or app: register a grievance for stagnant water / mosquito breeding. Paste the details below.',
 
@@ -3983,7 +3989,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.complaintPh': 'e.g. PMC/2026/123456',
 
-      'esc.pmc.complaintWarn': 'This doesn\'t look like a typical PMC reference — you can still save if it\'s correct.',
+      'esc.pmc.complaintWarn': 'This doesn\'t look like a typical PMC reference — save anyway if it\'s correct.',
 
       'esc.pmc.filedNote': 'Filed with PMC — escalation steps unlock as deadlines pass.',
 
@@ -3993,7 +3999,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.selfBody': 'Confirm yourself once PMC fixes it (your complaint number is proof). Turns the pin green for everyone.',
 
-      'esc.pmc.tier.file.body': 'Free. File on PMC CARE portal, WhatsApp, toll-free 1800 1030 222, or the PMC CARE app. Save your reference number here.',
+      'esc.pmc.tier.file.body': 'Free. Use any channel above, then save your reference number here so the official clock starts.',
 
       'esc.pmc.tier.matrix.body': 'Follow up via PMC CARE or the toll-free helpline, quoting your complaint number.',
 
@@ -4083,7 +4089,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.neighbourhoodHintWard': 'Showing {n} neighbourhoods in {ward} — type to add yours.',
 
-      'volunteer.neighbourhoodHintCustom': 'Type your neighbourhood, society, or lane if not listed.',
+      'volunteer.neighbourhoodHintCustom': 'Not listed? Type it in.',
 
       'volunteer.hours': 'Hours available this monsoon',
 
@@ -4099,10 +4105,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contact': 'Phone / WhatsApp (optional)',
 
-      'volunteer.contactHint': 'Optional — shared with your coordinator only if you enter it. Never auto-called.',
+      'volunteer.contactHint': 'Shared with your coordinator, never auto-called.',
 
       'volunteer.ageToggle': 'Age requirement (18+)',
-      'volunteer.ageNote': '18+ required. Under-18? Only with a parent/guardian or school NSS coordinator who accepts Terms.',
+      'volunteer.ageNote': 'Under 18? Needs a parent, guardian, or NSS coordinator to accept Terms.',
 
       'volunteer.submit': 'Save volunteer signup',
 
@@ -4144,7 +4150,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.coordTitle': 'Become a ward or neighbourhood coordinator',
 
-      'inquiry.coordBody': 'Lead your RWA/society or ward NGO — see volunteers, match cleanup offers, verify pledge hours. Request an invite code from the operator.',
+      'inquiry.coordBody': 'See volunteers, match cleanup offers, verify pledge hours. Request an invite code from the operator.',
 
       'about.becomeCoord': 'Become a ward or neighbourhood coordinator',
 
@@ -4345,7 +4351,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.privacyTitle': 'Privacy & data',
 
-      'about.privacyNote': 'EXIF location is stripped before upload. GPS places your pin only when you allow it. Reports show on the community map. See the Privacy Policy for full details.',
+      'about.privacyNote': 'Location data is removed from photos before upload. GPS places your pin only when you allow it. Reports show on the community map. See the Privacy Policy for full details.',
 
       'about.officialSourcesTitle': 'Official information sources',
 
@@ -4373,7 +4379,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.title': 'Partner with CivicRadar',
 
-      'inquiry.subtitle': 'Reach citizens in Mumbai, Pune, or Thane — in the wards that matter to you.',
+      'inquiry.subtitle': 'Reach citizens in Mumbai, Pune, or Thane, ward by ward.',
 
       'inquiry.localTitle': 'Local business sponsor',
 
@@ -4724,7 +4730,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.copyAll': 'Copy all details',
 
-      'esc.copyAllDone': 'Copied — paste when you file on MyBMC, WhatsApp, or the portal',
+      'esc.copyAllDone': 'Copied — paste when you file with BMC',
 
       'esc.copyBilingual': 'For the call centre: you can also read the Marathi line below.',
 
@@ -4742,11 +4748,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.filedConsent': 'I filed on an official BMC channel (1916 / MyBMC / portal / app)',
 
-      'esc.complaintWarn': 'This doesn\'t look like a typical BMC number — you can still save if it\'s correct.',
+      'esc.complaintWarn': 'This doesn\'t look like a typical {corp} {term} — save anyway if it\'s correct.',
+
+      'esc.complaintTerm.number': 'number',
+
+      'esc.complaintTerm.reference': 'reference',
 
       'esc.closeNudge': 'No complaint number saved yet — you can file and save anytime from Profile.',
 
-      'esc.daysSince': '{n} days since you filed with BMC',
+      'esc.daysSince': '{n} days since you filed with {corp}',
 
       'esc.progress.reported': 'Reported',
 
@@ -4772,23 +4782,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.rtiDisclaimer': 'Informational RTI template only — not legal advice.',
 
-      'esc.consentRequired': 'Confirm you filed on an official BMC channel before saving.',
+      'esc.consentRequired': 'Confirm you filed on an official {corp} channel before saving.',
 
-      'esc.complaintLabel': 'Complaint number',
+      'esc.complaintLabel': 'BMC complaint number',
 
       'esc.complaintPh': 'e.g. N/2026/123456',
 
       'esc.complaintHint': 'Saving starts the official clock and unlocks the escalation ladder, days-since-filed tracker, and follow-up templates.',
 
-      'esc.filedNote': 'Filed with BMC — escalation steps unlock as deadlines pass.',
+      'esc.filedNote': 'Filed with {corp} — escalation steps unlock as deadlines pass.',
 
       'esc.step2': 'Step 2 · Track & escalate',
 
       'esc.ladderTitle': 'Escalation ladder',
 
-      'esc.selfTitle': 'BMC fixed it?',
+      'esc.selfTitle': '{corp} fixed it?',
 
-      'esc.selfBody': 'Confirm yourself once BMC fixes it (your complaint number is proof). Turns the pin green for everyone.',
+      'esc.selfBody': 'Confirm yourself once {corp} fixes it (your complaint number is proof). Turns the pin green for everyone.',
 
       'esc.selfBtn': 'Mark resolved',
 
@@ -4878,7 +4888,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.title': '4 — Day {n}+ — Grievance / RTI',
 
-      'esc.tier.grievance.body': 'Still ignored after a month? File with the Public Grievance Cell via Aaple Sarkar (Maharashtra state portal), or file an RTI on the complaint status.',
+      'esc.tier.grievance.body': 'Still ignored after a month? File with Aaple Sarkar (pgportal.gov.in) — select BMC as local body, or file an RTI on the complaint status.',
 
       'profile.empty': 'No reports yet. Hazards near you?',
 
@@ -5158,7 +5168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'GPS is required to pin the hazard.',
 
-      'toast.gpsOutsideCity': 'Location is outside your selected city. Move the pin inside city limits or update your city in Profile.',
+      'toast.gpsOutsideCity': 'Location is outside your city — drag the pin inside city limits, or change your city in Profile.',
 
       'toast.pinConfirmRequired': 'You can drag the pin on the map if the location isn\'t exact.',
 
@@ -5192,7 +5202,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeWardRequired': 'Select a target ward for your pledge.',
 
-      'toast.pledgeSaved': 'Pledge recorded — your ward coordinator will see it in their hub.',
+      'toast.pledgeSaved': 'Pledge recorded — your ward coordinator will see it.',
 
       'toast.pledgeDuplicate': 'You already have an open pledge for this ward and supply type.',
 
@@ -5226,7 +5236,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.shareWin': 'Share the win with neighbours.',
 
-      'toast.cleanupLogged': 'Community cleanup logged. BMC complaint stays open until officially resolved.',
+      'toast.cleanupLogged': 'Community cleanup logged — BMC complaint stays open until resolved.',
 
       'pledge.deliverConfirm': 'Mark this pledge as delivered?',
 
@@ -5240,7 +5250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'Hours verified! +200 Civic Points credited.',
 
-      'toast.hoursVerifiedOther': 'Hours verified for {name}. +{points} Civic Points credited to them.',
+      'toast.hoursVerifiedOther': 'Hours verified for {name} — +{points} Civic Points credited.',
 
       'toast.saving': 'Saving—',
 
@@ -5562,7 +5572,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.title': 'Send feedback',
 
-      'feedback.subtitle': 'Found a bug or have an idea? Tell us — it goes straight to the team.',
+      'feedback.subtitle': 'Found a bug or have an idea? Tell us.',
 
       'feedback.categoryLabel': 'What kind of feedback?',
 
@@ -5580,13 +5590,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.contactPh': 'Email or phone',
 
-      'feedback.privacy': 'We never share your contact. Used only to reply to this feedback.',
+      'feedback.privacy': 'We never share your contact.',
 
       'feedback.submit': 'Send feedback',
 
-      'feedback.errorEmpty': 'Please write a short message first.',
+      'feedback.errorEmpty': 'Write a short message first.',
 
-      'feedback.error': 'Could not send — your text is safe. Please try again.',
+      'feedback.error': 'Could not send — your text is safe. Try again.',
 
       'feedback.success': 'Thanks! Your feedback was sent.',
 
@@ -5630,7 +5640,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.phonePh': 'Phone',
 
-      'access.contactHint': 'Give at least one. Claim codes go to email; phone-only means we contact you there.',
+      'access.contactHint': 'Give at least one — codes go to email, or we\'ll call if phone-only.',
 
       'access.proofLabel': 'ID / proof',
 
@@ -5648,7 +5658,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.confirmTitle': 'Request received',
 
-      'access.confirmBody': 'Thanks! We will review and reach you with a claim code, usually within a few days. Enter it in the app to unlock access.',
+      'access.confirmBody': 'We\'ll review your request and send a claim code within a few days. Enter it in the app to unlock access.',
 
       'access.confirmLocal': 'Saved on this device — syncs to the team when you\'re back online.',
 
@@ -5704,7 +5714,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.statusPending': 'Pending',
 
-      'access.errName': 'Please add your name.',
+      'access.errName': 'Add your name.',
 
       'access.errContact': 'Add an email or phone so we can reach you.',
 
@@ -5766,7 +5776,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.neighbourhoodHintWard': 'Showing {n} neighbourhoods in {ward} — type to add yours.',
 
-      'lead.neighbourhoodHintCustom': 'Type your neighbourhood, society, or lane if not listed.',
+      'lead.neighbourhoodHintCustom': 'Not listed? Type it in.',
 
       'lead.pitchLabel': 'Why you?',
 
@@ -5776,7 +5786,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmTitle': "You're on the ballot!",
 
-      'lead.confirmBody': 'Share CivicRadar with neighbours — 2 supports unlock coordinator tools. If someone else runs too, you both need 5.',
+      'lead.confirmBody': 'Share CivicRadar with neighbours — you need 2 supports (5 if there\'s a rival candidate).',
 
       'lead.confirmLocal': "Saved on this device — syncs when you're online.",
 
@@ -5788,7 +5798,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityTitle': 'Community leads',
 
-      'lead.communityHint': 'Support neighbours who volunteer to coordinate cleanups. 2 supports grants the role; 5 each if multiple candidates.',
+      'lead.communityHint': 'Support a neighbour coordinating cleanups — 2 backers grant the role (5 if there\'s competition).',
 
       'lead.communityEmpty': 'No candidates yet in your ward — nominate yourself to get started.',
 
@@ -5808,7 +5818,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.you': 'You',
 
-      'lead.errName': 'Please add your name.',
+      'lead.errName': 'Add your name.',
 
       'lead.errWard': 'Pick your ward.',
 
@@ -5991,7 +6001,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'इलाका नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
 
-      'onboard.outOfBounds': 'CivicRadar अभी केवल मुंबई, पुणे और ठाणे में उपलब्ध है। कृपया इनमें से कोई शहर खुद चुनकर देखें।',
+      'onboard.outOfBounds': 'CivicRadar मुंबई, पुणे और ठाणे में उपलब्ध है। देखने के लिए एक चुनें।',
 
       'onboard.gpsDisclosure': 'आपका वार्ड सुझाने के लिए एक बार उपयोग। रिपोर्ट करने तक मानचित्र पर नहीं दिखता।',
 
@@ -6106,7 +6116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitleHazard': '{hazard} के लिए फ़ोटो',
 
-      'report.cameraDisclosureBody': 'कैमरा केवल खतरे के प्रमाण के लिए। फोटो सामुदायिक मानचित्र पर दिखते हैं। EXIF लोकेशन डिवाइस पर हटाई जाती है। चेहरे और दस्तावेज़ न लें।',
+      'report.cameraDisclosureBody': 'कैमरा केवल खतरे के प्रमाण के लिए। फोटो सामुदायिक मानचित्र पर दिखते हैं — लोकेशन डेटा अपने आप हटाया जाता है। चेहरे और दस्तावेज़ न लें।',
 
       'report.cameraDisclosure.verify': 'केवल इस खतरे की पुष्टि के लिए उपयोग होता है',
 
@@ -6114,7 +6124,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'सटीक लोकेशन अपने आप हटाई जाती है',
 
-      'report.cameraDisclosure.noSell': 'केवल इस खतरा रिपोर्ट के लिए',
+      'report.cameraDisclosure.noSell': 'कभी बेचा या मार्केटिंग के लिए उपयोग नहीं।',
 
       'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
@@ -6186,7 +6196,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.lowQuality': 'फ़ोटो बहुत छोटी या अस्पष्ट है। खतरे के पास जाएँ।',
 
-      'moderation.blocked.irrelevant': 'खतरे की फ़ोटो लें — सेल्फ़ी, दस्तावेज़ या खाली चित्र नहीं।',
+      'moderation.blocked.irrelevant': 'यह खतरे की फ़ोटो नहीं लगती — खतरा दिखाकर फिर लें, सेल्फ़ी या दस्तावेज़ नहीं।',
 
       'moderation.blocked.sensitive': 'ID, दस्तावेज़ या स्क्रीनशॉट से बचें। केवल खतरा दिखाएँ।',
 
@@ -6517,7 +6527,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} में दर्ज करें',
 
-      'esc.tmc.recommended': 'अनुशंसित: thanecity.gov.in पर दर्ज करें या TMC हेल्पलाइन 022-25331590 पर कॉल करें।',
+      'esc.tmc.subtitle': 'CivicRadar खतरे सामुदायिक मानचित्र पर दिखाता है। TMC में दर्ज करना वैकल्पिक है — यह आधिकारिक घड़ी शुरू करता है। यह TMC चैनल नहीं है।',
+
+      'esc.tmc.recommended': 'अनुशंसित: TMC पोर्टल — अधिकांश ठाणे वार्डों के लिए सबसे तेज़।',
 
       'esc.tmc.fileHint': 'ठहरा पानी / मच्छर प्रजनन — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
@@ -6543,7 +6555,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
 
-      'esc.tmc.filedConsent': 'मैंने आधिकारिक TMC चैनल पर दर्ज किया (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
+      'esc.tmc.filedConsent': 'मैंने आधिकारिक TMC चैनल पर दर्ज किया (पोर्टल / हेल्पलाइन / ईमेल / 155300)',
 
       'esc.tmc.complaintLabel': 'TMC शिकायत / संदर्भ संख्या',
 
@@ -6563,7 +6575,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.deptTitle': 'विभाग संपर्क (एस्केलेशन)',
 
-      'esc.tmc.deptHint': 'ठहरा पानी फॉलो-अप — जल, स्वास्थ्य, या प्रदूषण नियंत्रण।',
+      'esc.tmc.deptHint': 'फॉलो-अप संपर्क — जल, स्वास्थ्य, या प्रदूषण नियंत्रण।',
 
       'esc.tmc.dept.water': 'जल',
 
@@ -6571,9 +6583,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
 
-      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, या 155300। संदर्भ संख्या यहाँ सहेजें।',
+      'esc.tmc.tier.file.body': 'निःशुल्क। ऊपर कोई भी चैनल इस्तेमाल करें, फिर संदर्भ संख्या यहाँ सहेजें ताकि आधिकारिक घड़ी शुरू हो।',
 
-      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय या स्वास्थ्य (022-25331590) से फॉलो-अप। TMC संदर्भ संख्या उद्धृत करें।',
+      'esc.tmc.tier.matrix.body': 'अपने वार्ड कार्यालय या स्वास्थ्य विभाग से संपर्क करें, TMC संदर्भ संख्या उद्धृत करते हुए।',
 
       'esc.tmc.tier.zonal.body': 'नगर आयुक्त (mc@thanecity.gov.in) तक एस्केलेट। @TMCaTweetAway पर फोटो के साथ टैग करें।',
 
@@ -6593,13 +6605,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'अनुशंसित: PMC CARE WhatsApp — अधिकांश Pune वार्डों के लिए सबसे तेज़।',
 
-      'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन PMC CARE के माध्यम से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+      'esc.pmc.fileHint': 'ठहरा पानी और मच्छर प्रजनन — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
-      'esc.pmc.fileHint.garbage': 'कचरा / ठोस अपशिष्ट PMC CARE के माध्यम से जाता है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+      'esc.pmc.fileHint.garbage': 'कचरा और ठोस अपशिष्ट — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
-      'esc.pmc.fileHint.potholes': 'गड्ढे और सड़क क्षति PMC CARE के माध्यम से जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+      'esc.pmc.fileHint.potholes': 'गड्ढे और सड़क क्षति — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
-      'esc.pmc.fileHint.streetlight': 'खराब स्ट्रीटलाइट PMC CARE के माध्यम से जाती है। अनुशंसित चैनल से शुरू करें — या नीचे और तरीके खोलें।',
+      'esc.pmc.fileHint.streetlight': 'खराब स्ट्रीटलाइट — अनुशंसित चैनल से शुरू करें, या नीचे और तरीके खोलें।',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -6615,7 +6627,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.copyBlock': 'ये विवरण चिपकाएँ (PMC CARE / WhatsApp)',
 
-      'esc.pmc.copyAllDone': 'कॉपी हो गया — PMC CARE / WhatsApp पर दर्ज करते समय चिपकाएँ',
+      'esc.pmc.copyAllDone': 'कॉपी हो गया — PMC में दर्ज करते समय चिपकाएँ',
 
       'esc.pmc.portalHint': 'PMC CARE पोर्टल या ऐप: ठहरा पानी / मच्छर शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
 
@@ -6635,7 +6647,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.selfBody': 'PMC द्वारा ठीक होने पर खुद पुष्टि करें — सभी के लिए हरा चिह्न।',
 
-      'esc.pmc.tier.file.body': 'निःशुल्क। PMC CARE पोर्टल, WhatsApp, 1800 1030 222, या PMC CARE ऐप। संदर्भ संख्या यहाँ सहेजें।',
+      'esc.pmc.tier.file.body': 'निःशुल्क। ऊपर कोई भी चैनल इस्तेमाल करें, फिर संदर्भ संख्या यहाँ सहेजें ताकि आधिकारिक घड़ी शुरू हो।',
 
       'esc.pmc.tier.matrix.body': 'PMC CARE या टोल-फ्री हेल्पलाइन से फॉलो-अप। शिकायत संख्या उद्धृत करें।',
 
@@ -6725,7 +6737,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.neighbourhoodHintWard': '{ward} में {n} पड़ोस/सोसाइटी — नहीं मिली तो टाइप करें।',
 
-      'volunteer.neighbourhoodHintCustom': 'सूची में न हो तो पड़ोस, सोसाइटी या गली लिखें।',
+      'volunteer.neighbourhoodHintCustom': 'सूची में नहीं? लिख दें।',
 
       'volunteer.hours': 'इस मानसून में उपलब्ध घंटे',
 
@@ -6741,10 +6753,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contact': 'फ़ोन / WhatsApp (वैकल्पिक)',
 
-      'volunteer.contactHint': 'वैकल्पिक — दर्ज करने पर ही समन्वयक से साझा। कभी ऑटो-कॉल नहीं।',
+      'volunteer.contactHint': 'केवल समन्वयक से साझा — कभी ऑटो-कॉल नहीं।',
 
       'volunteer.ageToggle': 'आयु सीमा (18+)',
-      'volunteer.ageNote': '18+ आवश्यक। 18 से कम? केवल माता-पिता/अभिभावक या स्कूल NSS समन्वयक जो नियम स्वीकार करें।',
+      'volunteer.ageNote': '18 से कम? माता-पिता, अभिभावक या NSS समन्वयक को नियम स्वीकार करने होंगे।',
 
       'volunteer.submit': 'स्वयंसेवक जानकारी सहेजें',
 
@@ -6786,7 +6798,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.coordTitle': 'वार्ड या पड़ोस समन्वयक बनें',
 
-      'inquiry.coordBody': 'अपनी RWA/सोसायटी या वार्ड NGO की अगुवाई करें — स्वयंसेवक देखें, सफ़ाई मिलाएँ, दान घंटे सत्यापित करें। ऑपरेटर से इनवाइट कोड लें।',
+      'inquiry.coordBody': 'स्वयंसेवक देखें, सफ़ाई मिलाएँ, दान घंटे सत्यापित करें। ऑपरेटर से इनवाइट कोड लें।',
 
       'about.becomeCoord': 'वार्ड या पड़ोस समन्वयक बनें',
 
@@ -6987,7 +6999,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.privacyTitle': 'गोपनीयता और डेटा',
 
-      'about.privacyNote': 'अपलोड से पहले EXIF लोकेशन हटाई जाती है। GPS पिन तभी जब आप अनुमति दें। रिपोर्ट सामुदायिक मानचित्र पर दिखती हैं। पूरी जानकारी गोपनीयता नीति में।',
+      'about.privacyNote': 'अपलोड से पहले फोटो से लोकेशन डेटा हटाया जाता है। GPS पिन तभी जब आप अनुमति दें। रिपोर्ट सामुदायिक मानचित्र पर दिखती हैं। पूरी जानकारी गोपनीयता नीति में।',
 
       'about.officialSourcesTitle': 'आधिकारिक सूचना स्रोत',
 
@@ -7013,7 +7025,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.title': 'CivicRadar के साथ साझेदारी',
 
-      'inquiry.subtitle': 'मुंबई, पुणे या ठाणे के नागरिकों तक पहुँचें — उन वार्डों में जो आपके लिए महत्वपूर्ण हैं।',
+      'inquiry.subtitle': 'मुंबई, पुणे या ठाणे के नागरिकों तक पहुँचें, वार्ड दर वार्ड।',
 
       'inquiry.localTitle': 'स्थानीय व्यवसाय प्रायोजक',
 
@@ -7364,7 +7376,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.copyAll': 'सभी विवरण कॉपी करें',
 
-      'esc.copyAllDone': 'कॉपी हो गया — MyBMC, WhatsApp या पोर्टल पर चिपकाएँ',
+      'esc.copyAllDone': 'कॉपी हो गया — BMC में दर्ज करते समय चिपकाएँ',
 
       'esc.copyBilingual': 'कॉल सेंटर: नीचे मराठी पंक्ति भी पढ़ सकते हैं।',
 
@@ -7382,11 +7394,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.filedConsent': 'मैंने आधिकारिक BMC चैनल पर दर्ज किया (1916 / MyBMC / पोर्टल / ऐप)',
 
-      'esc.complaintWarn': 'यह सामान्य BMC नंबर जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
+      'esc.complaintWarn': 'यह सामान्य {corp} {term} जैसा नहीं लगता — सही हो तो फिर भी सहेजें।',
+
+      'esc.complaintTerm.number': 'नंबर',
+
+      'esc.complaintTerm.reference': 'संदर्भ',
 
       'esc.closeNudge': 'शिकायत नंबर अभी सहेजा नहीं — Profile से कभी भी दर्ज कर सकते हैं।',
 
-      'esc.daysSince': 'BMC में दर्ज किए {n} दिन',
+      'esc.daysSince': '{corp} में दर्ज किए {n} दिन',
 
       'esc.progress.reported': 'रिपोर्ट',
 
@@ -7412,7 +7428,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.rtiDisclaimer': 'केवल सूचनात्मक RTI टेम्पलेट — कानूनी सलाह नहीं।',
 
-      'esc.consentRequired': 'सहेजने से पहले आधिकारिक BMC चैनल पर दर्ज की पुष्टि करें।',
+      'esc.consentRequired': 'सहेजने से पहले आधिकारिक {corp} चैनल पर दर्ज की पुष्टि करें।',
 
       'esc.complaintLabel': 'BMC शिकायत नंबर',
 
@@ -7420,15 +7436,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintHint': 'नंबर सहेजने से जवाबदेही घड़ी शुरू होती है और एस्केलेशन सीढ़ी, दिन-गिनती व फॉलो-अप टेम्पलेट अनलॉक होते हैं।',
 
-      'esc.filedNote': 'BMC में दर्ज — समय सीमा पर आगे बढ़ाएँ।',
+      'esc.filedNote': '{corp} में दर्ज — समय सीमा पर आगे बढ़ाएँ।',
 
       'esc.step2': 'चरण 2 · ट्रैक करें और आगे बढ़ाएँ',
 
       'esc.ladderTitle': 'आगे बढ़ाने की सीढ़ी',
 
-      'esc.selfTitle': 'BMC ने ठीक किया?',
+      'esc.selfTitle': '{corp} ने ठीक किया?',
 
-      'esc.selfBody': 'खुद पुष्टि करें — सभी के लिए हरा चिह्न।',
+      'esc.selfBody': '{corp} द्वारा ठीक होने पर खुद पुष्टि करें (शिकायत नंबर प्रमाण)। सभी के लिए हरा चिह्न।',
 
       'esc.selfBtn': 'हल चिह्नित करें',
 
@@ -7518,7 +7534,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.title': '4 · दिन {n}+ — शिकायत / RTI',
 
-      'esc.tier.grievance.body': 'एक महीने बाद भी? Aaple Sarkar या RTI।',
+      'esc.tier.grievance.body': 'एक महीने बाद भी नज़रअंदाज़? Aaple Sarkar (pgportal.gov.in) पर दर्ज करें — स्थानीय निकाय BMC चुनें, या शिकायत स्थिति पर RTI दर्ज करें।',
 
       'profile.empty': 'अभी कोई रिपोर्ट नहीं। पास कोई खतरा?',
 
@@ -7799,7 +7815,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'खतरा पिन के लिए GPS ज़रूरी।',
 
-      'toast.gpsOutsideCity': 'स्थान आपके चुने शहर के बाहर है। पिन शहर की सीमा में लगाएँ या प्रोफ़ाइल में शहर बदलें।',
+      'toast.gpsOutsideCity': 'स्थान आपके शहर के बाहर है — पिन शहर की सीमा में खींचें, या प्रोफ़ाइल में शहर बदलें।',
 
       'toast.pinConfirmRequired': 'जगह ठीक न हो तो मैप पर पिन खींच सकते हैं।',
 
@@ -7833,7 +7849,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeWardRequired': 'दान के लिए लक्ष्य वार्ड चुनें।',
 
-      'toast.pledgeSaved': 'दान दर्ज — आपके वार्ड समन्वयक को हब में दिखेगा।',
+      'toast.pledgeSaved': 'दान दर्ज — आपके वार्ड समन्वयक को दिखेगा।',
 
       'toast.pledgeDuplicate': 'इस वार्ड और सामग्री के लिए पहले से खुली प्रतिज्ञा है।',
 
@@ -7867,7 +7883,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.shareWin': 'पड़ोसियों के साथ जीत शेयर करें।',
 
-      'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत आधिकारिक रूप से खुली रह सकती है।',
+      'toast.cleanupLogged': 'समुदाय सफ़ाई लॉग — BMC शिकायत हल होने तक खुली रहती है।',
 
       'pledge.deliverConfirm': 'इस प्रतिज्ञा को वितरित के रूप में चिह्नित करें?',
 
@@ -7881,7 +7897,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'घंटे सत्यापित! +200 Civic Points मिले।',
 
-      'toast.hoursVerifiedOther': '{name} के घंटे सत्यापित हुए। उन्हें +{points} Civic Points मिले।',
+      'toast.hoursVerifiedOther': '{name} के घंटे सत्यापित — +{points} Civic Points जमा।',
 
       'toast.saving': 'सहेजा जा रहा…',
 
@@ -8203,7 +8219,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.title': 'सुझाव भेजें',
 
-      'feedback.subtitle': 'कोई गड़बड़ी मिली या कोई सुझाव है? हमें बताएं — यह सीधे टीम तक पहुंचता है।',
+      'feedback.subtitle': 'कोई गड़बड़ी मिली या कोई सुझाव है? हमें बताएं।',
 
       'feedback.categoryLabel': 'किस तरह का सुझाव?',
 
@@ -8221,13 +8237,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.contactPh': 'ईमेल या फ़ोन',
 
-      'feedback.privacy': 'हम आपका संपर्क कभी साझा नहीं करते। केवल इस सुझाव का जवाब देने के लिए उपयोग होता है।',
+      'feedback.privacy': 'हम आपका संपर्क कभी साझा नहीं करते।',
 
       'feedback.submit': 'सुझाव भेजें',
 
-      'feedback.errorEmpty': 'कृपया पहले एक छोटा संदेश लिखें।',
+      'feedback.errorEmpty': 'पहले एक छोटा संदेश लिखें।',
 
-      'feedback.error': 'भेजा नहीं जा सका — आपका टेक्स्ट सुरक्षित है। कृपया फिर से प्रयास करें।',
+      'feedback.error': 'भेजा नहीं जा सका — आपका टेक्स्ट सुरक्षित है। फिर से प्रयास करें।',
 
       'feedback.success': 'धन्यवाद! आपका सुझाव भेज दिया गया।',
 
@@ -8271,7 +8287,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.phonePh': 'फ़ोन',
 
-      'access.contactHint': 'कम से कम एक दें। दावा कोड ईमेल पर; केवल फोन हो तो वहीं संपर्क।',
+      'access.contactHint': 'कम से कम एक दें — कोड ईमेल पर जाते हैं, या केवल फोन हो तो वहाँ कॉल।',
 
       'access.proofLabel': 'पहचान / प्रमाण',
 
@@ -8289,7 +8305,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.confirmTitle': 'अनुरोध प्राप्त हुआ',
 
-      'access.confirmBody': 'धन्यवाद! हम समीक्षा कर दावा कोड के साथ आप तक पहुँचेंगे, आमतौर पर कुछ दिनों में। ऐप में दर्ज कर पहुँच खोलें।',
+      'access.confirmBody': 'हम आपके अनुरोध की समीक्षा कर कुछ दिनों में दावा कोड भेजेंगे। ऐप में दर्ज कर पहुँच खोलें।',
 
       'access.confirmLocal': 'इस डिवाइस पर सहेजा — ऑनलाइन होने पर टीम तक सिंक होगा।',
 
@@ -8345,7 +8361,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.statusPending': 'लंबित',
 
-      'access.errName': 'कृपया अपना नाम जोड़ें।',
+      'access.errName': 'अपना नाम जोड़ें।',
 
       'access.errContact': 'संपर्क के लिए ईमेल या फ़ोन जोड़ें।',
 
@@ -8407,7 +8423,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.neighbourhoodHintWard': '{ward} में {n} पड़ोस/सोसाइटी — नहीं मिली तो टाइप करें।',
 
-      'lead.neighbourhoodHintCustom': 'सूची में न हो तो पड़ोस, सोसाइटी या गली लिखें।',
+      'lead.neighbourhoodHintCustom': 'सूची में नहीं? लिख दें।',
 
       'lead.pitchLabel': 'आप क्यों?',
 
@@ -8417,7 +8433,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmTitle': 'आप मतदान में हैं!',
 
-      'lead.confirmBody': 'पड़ोसियों के साथ CivicRadar शेयर करें — 2 समर्थन से समन्वयक टूल खुलते हैं। कोई और भी हो तो दोनों को 5 चाहिए।',
+      'lead.confirmBody': 'पड़ोसियों के साथ CivicRadar शेयर करें — 2 समर्थन चाहिए (प्रतिद्वंद्वी हो तो 5)।',
 
       'lead.confirmLocal': 'इस डिवाइस पर सहेजा गया — ऑनलाइन होने पर सिंक होगा।',
 
@@ -8429,7 +8445,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityTitle': 'सामुदायिक लीड',
 
-      'lead.communityHint': 'सफ़ाई समन्वय के लिए स्वयंसेवक पड़ोसियों को Support करें। 2 समर्थन = भूमिका; कई उम्मीदवार = हर एक को 5।',
+      'lead.communityHint': 'सफ़ाई समन्वय करने वाले पड़ोसी को Support करें — 2 समर्थक भूमिका देते हैं (प्रतिस्पर्धा हो तो 5)।',
 
       'lead.communityEmpty': 'आपके वार्ड में अभी कोई उम्मीदवार नहीं — खुद नामांकित करें।',
 
@@ -8449,7 +8465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.you': 'आप',
 
-      'lead.errName': 'कृपया अपना नाम जोड़ें।',
+      'lead.errName': 'अपना नाम जोड़ें।',
 
       'lead.errWard': 'अपना वार्ड चुनें।',
 
@@ -8631,7 +8647,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'परिसर सापडला नाही. स्वतः निवडा, किंवा लोकेशन चालू करा.',
 
-      'onboard.outOfBounds': 'CivicRadar सध्या फक्त मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. कृपया यातील एक शहर स्वतः निवडून पाहा.',
+      'onboard.outOfBounds': 'CivicRadar मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. पाहण्यासाठी एक निवडा.',
 
       'onboard.gpsDisclosure': 'तुमचा वॉर्ड सुचवण्यासाठी एकदा वापर. तक्रार करेपर्यंत नकाशावर दिसणार नाही.',
 
@@ -8746,7 +8762,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitleHazard': '{hazard} साठी फोटो',
 
-      'report.cameraDisclosureBody': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी. फोटो समुदाय नकाशावर दिसतात. EXIF लोकेशन डिव्हाइसवर काढली जाते. चेहरे व कागदपत्रे टाळा.',
+      'report.cameraDisclosureBody': 'कॅमेरा फक्त धोक्याच्या पुराव्यासाठी. फोटो समुदाय नकाशावर दिसतात — लोकेशन डेटा आपोआप काढला जातो. चेहरे व कागदपत्रे टाळा.',
 
       'report.cameraDisclosure.verify': 'फक्त या धोक्याची खात्री करण्यासाठी वापरले जाते',
 
@@ -8754,7 +8770,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'अचूक लोकेशन आपोआप काढली जाते',
 
-      'report.cameraDisclosure.noSell': 'फक्त या धोका तक्रारीसाठी',
+      'report.cameraDisclosure.noSell': 'कधीही विकले किंवा मार्केटिंगसाठी वापरले जात नाही.',
 
       'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
@@ -8826,7 +8842,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.lowQuality': 'फोटो खूप लहान किंवा अस्पष्ट आहे. धोक्याजवळ जा.',
 
-      'moderation.blocked.irrelevant': 'धोक्याचा फोटो घ्या — सेल्फी, कागदपत्रे किंवा रिकामे चित्र नाहीत.',
+      'moderation.blocked.irrelevant': 'हे धोक्याचा फोटो वाटत नाही — धोका दाखवून पुन्हा घ्या, सेल्फी किंवा कागदपत्र नाही.',
 
       'moderation.blocked.sensitive': 'ID, कागदपत्रे किंवा स्क्रीनशॉट टाळा. फक्त धोक्याचे दाखवा.',
 
@@ -9157,7 +9173,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} मध्ये नोंदवा',
 
-      'esc.tmc.recommended': 'शिफारस: thanecity.gov.in वर नोंदवा किंवा TMC हेल्पलाइन 022-25331590 वर कॉल करा.',
+      'esc.tmc.subtitle': 'CivicRadar धोके सामुदायिक नकाशावर दाखवते. TMC मध्ये नोंदवणे पर्यायी — अधिकृत घड्याळ सुरू करते. हे TMC चॅनेल नाही.',
+
+      'esc.tmc.recommended': 'शिफारस: TMC पोर्टल — बहुतेक ठाणे वॉर्डांसाठी सर्वात जलद.',
 
       'esc.tmc.fileHint': 'स्थिर पाणी / डास प्रजनन — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
@@ -9183,7 +9201,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
 
-      'esc.tmc.filedConsent': 'मी अधिकृत TMC चॅनेलवर नोंदवले (पोर्टल / हेल्पलाइन / ईमेल / 155300 / Aaple Sarkar)',
+      'esc.tmc.filedConsent': 'मी अधिकृत TMC चॅनेलवर नोंदवले (पोर्टल / हेल्पलाइन / ईमेल / 155300)',
 
       'esc.tmc.complaintLabel': 'TMC तक्रार / संदर्भ क्रमांक',
 
@@ -9203,7 +9221,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.deptTitle': 'विभाग संपर्क (एस्केलेशन)',
 
-      'esc.tmc.deptHint': 'स्थिर पाणी फॉलो-अप — पाणी, आरोग्य, प्रदूषण नियंत्रण.',
+      'esc.tmc.deptHint': 'फॉलो-अप संपर्क — पाणी, आरोग्य, प्रदूषण नियंत्रण.',
 
       'esc.tmc.dept.water': 'पाणी',
 
@@ -9211,9 +9229,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'प्रदूषण नियंत्रण',
 
-      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, किंवा 155300. संदर्भ क्रमांक येथे जतन करा.',
+      'esc.tmc.tier.file.body': 'मोफत. वरचे कोणतेही चॅनेल वापरा, मग संदर्भ क्रमांक येथे जतन करा जेणेकरून अधिकृत घड्याळ सुरू होईल.',
 
-      'esc.tmc.tier.matrix.body': 'वार्ड कार्यालय किंवा आरोग्य (022-25331590) यांना फॉलो-अप. TMC संदर्भ क्रमांक द्या.',
+      'esc.tmc.tier.matrix.body': 'तुमच्या वॉर्ड कार्यालय किंवा आरोग्य विभागाशी संपर्क साधा, TMC संदर्भ क्रमांक उद्धृत करून.',
 
       'esc.tmc.tier.zonal.body': 'महापालिका आयुक्त (mc@thanecity.gov.in) पर्यंत वाढवा. @TMCaTweetAway वर फोटोसह टॅग.',
 
@@ -9233,13 +9251,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'शिफारस: PMC CARE WhatsApp — बहुतेक Pune वॉर्डांसाठी सर्वात जलद.',
 
-      'esc.pmc.fileHint': 'साचलेले पाणी आणि डास PMC CARE मार्फत जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+      'esc.pmc.fileHint': 'साचलेले पाणी आणि डास प्रजनन — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.pmc.fileHint.garbage': 'कचरा / घन कचरा PMC CARE मार्फत जातो. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+      'esc.pmc.fileHint.garbage': 'कचरा आणि घन कचरा — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.pmc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान PMC CARE मार्फत जाते. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+      'esc.pmc.fileHint.potholes': 'खड्डे आणि रस्त्याचे नुकसान — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
-      'esc.pmc.fileHint.streetlight': 'बंद पथदिवे PMC CARE मार्फत जातात. शिफारस केलेल्या चॅनेलने सुरू करा — किंवा खाली अधिक मार्ग उघडा.',
+      'esc.pmc.fileHint.streetlight': 'बंद पथदिवे — शिफारस केलेल्या चॅनेलने सुरू करा, किंवा खाली अधिक मार्ग उघडा.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -9255,7 +9273,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.copyBlock': 'हे तपशील पेस्ट करा (PMC CARE / WhatsApp)',
 
-      'esc.pmc.copyAllDone': 'कॉपी झाले — PMC CARE / WhatsApp वर नोंदवताना पेस्ट करा',
+      'esc.pmc.copyAllDone': 'कॉपी झाले — PMC मध्ये नोंदवताना पेस्ट करा',
 
       'esc.pmc.portalHint': 'PMC CARE पोर्टल किंवा अॅप: साचलेले पाणी / डास तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
 
@@ -9275,7 +9293,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.selfBody': 'PMC ने सोडवल्यावर स्वतः पुष्टी करा — सर्वांसाठी हिरवा चिन्ह.',
 
-      'esc.pmc.tier.file.body': 'मोफत. PMC CARE पोर्टल, WhatsApp, 1800 1030 222, किंवा PMC CARE अॅप. संदर्भ क्रमांक येथे जतन करा.',
+      'esc.pmc.tier.file.body': 'मोफत. वरचे कोणतेही चॅनेल वापरा, मग संदर्भ क्रमांक येथे जतन करा जेणेकरून अधिकृत घड्याळ सुरू होईल.',
 
       'esc.pmc.tier.matrix.body': 'PMC CARE किंवा टोल-फ्री हेल्पलाइनद्वारे फॉलो-अप. तक्रार क्रमांक द्या.',
 
@@ -9365,7 +9383,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.neighbourhoodHintWard': '{ward} मध्ये {n} परिसर/सोसायटी — नसेल तर टाइप करा.',
 
-      'volunteer.neighbourhoodHintCustom': 'यादीत नसेल तर परिसर, सोसायटी किंवा लेन लिहा.',
+      'volunteer.neighbourhoodHintCustom': 'यादीत नाही? लिहा.',
 
       'volunteer.hours': 'या पावसाळ्यात उपलब्ध तास',
 
@@ -9381,10 +9399,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contact': 'फोन / WhatsApp (पर्यायी)',
 
-      'volunteer.contactHint': 'पर्यायी — टाकल्यासच समन्वयकाशी शेअर. कधीही ऑटो-कॉल नाही.',
+      'volunteer.contactHint': 'समन्वयकाशी शेअर — कधीही ऑटो-कॉल नाही.',
 
       'volunteer.ageToggle': 'वय मर्यादा (१८+)',
-      'volunteer.ageNote': '१८+ आवश्यक. १८ पेक्षा कमी? फक्त पालक/पालकत्व किंवा शाळा NSS समन्वयक जे अटी स्वीकारतील.',
+      'volunteer.ageNote': '१८ पेक्षा कमी? पालक, पालकत्व किंवा NSS समन्वयकाने अटी स्वीकारणे आवश्यक.',
 
       'volunteer.submit': 'स्वयंसेवक नोंद जतन',
 
@@ -9426,7 +9444,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.coordTitle': 'वार्ड किंवा परिसर समन्वयक व्हा',
 
-      'inquiry.coordBody': 'RWA/सोसायटी किंवा वॉर्ड NGO चे नेतृत्व करा — स्वयंसेवक पाहा, सफाई जुळवा, देणगी तास सत्यापित करा. ऑपरेटरकडून इनवाइट कोड मागा.',
+      'inquiry.coordBody': 'स्वयंसेवक पाहा, सफाई जुळवा, देणगी तास सत्यापित करा. ऑपरेटरकडून इनवाइट कोड मागा.',
 
       'about.becomeCoord': 'वार्ड किंवा परिसर समन्वयक व्हा',
 
@@ -9627,7 +9645,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.privacyTitle': 'गोपनीयता आणि डेटा',
 
-      'about.privacyNote': 'अपलोडपूर्वी EXIF लोकेशन काढली जाते. GPS पिन फक्त तुम्ही परवानगी दिल्यावर. रिपोर्ट समुदाय नकाशावर दिसतात. पूर्ण तपशील गोपनीयता धोरणात.',
+      'about.privacyNote': 'अपलोडपूर्वी फोटोमधून लोकेशन डेटा काढला जातो. GPS पिन फक्त तुम्ही परवानगी दिल्यावर. रिपोर्ट समुदाय नकाशावर दिसतात. पूर्ण तपशील गोपनीयता धोरणात.',
 
       'about.officialSourcesTitle': 'अधिकृत माहिती स्रोत',
 
@@ -9653,7 +9671,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.title': 'CivicRadar सोबत भागीदारी',
 
-      'inquiry.subtitle': 'मुंबई, पुणे किंवा ठाण्यातील नागरिकांपर्यंत पोहोचा — तुमच्यासाठी महत्त्वाचे वॉर्ड.',
+      'inquiry.subtitle': 'मुंबई, पुणे किंवा ठाण्यातील नागरिकांपर्यंत पोहोचा, वॉर्डनुसार.',
 
       'inquiry.localTitle': 'स्थानिक व्यवसाय प्रायोजक',
 
@@ -10004,7 +10022,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.copyAll': 'सर्व तपशील कॉपी',
 
-      'esc.copyAllDone': 'कॉपी झाले — MyBMC, WhatsApp किंवा पोर्टलवर पेस्ट करा',
+      'esc.copyAllDone': 'कॉपी झाले — BMC मध्ये नोंदवताना पेस्ट करा',
 
       'esc.copyBilingual': 'कॉल सेंटर: खालील मराठी ओळही वाचू शकता.',
 
@@ -10022,11 +10040,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.filedConsent': 'मी अधिकृत BMC चॅनेलवर नोंदवले (1916 / MyBMC / पोर्टल / अॅप)',
 
-      'esc.complaintWarn': 'सामान्य BMC क्रमांक सारखे दिसत नाही — बरोबर असेल तर जतन करा.',
+      'esc.complaintWarn': 'हे सामान्य {corp} {term} सारखे नाही — बरोबर असल्यास जतन करा.',
+
+      'esc.complaintTerm.number': 'क्रमांक',
+
+      'esc.complaintTerm.reference': 'संदर्भ',
 
       'esc.closeNudge': 'तक्रार क्रमांक अजून जतन नाही — Profile मधून कधीही नोंदवा.',
 
-      'esc.daysSince': 'BMC नोंद {n} दिवस',
+      'esc.daysSince': '{corp} मध्ये नोंदवल्यापासून {n} दिवस',
 
       'esc.progress.reported': 'नोंद',
 
@@ -10052,23 +10074,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.rtiDisclaimer': 'फक्त माहिती RTI नमुना — कायदेशीर सल्ला नाही.',
 
-      'esc.consentRequired': 'जतन करण्यापूर्वी अधिकृत BMC चॅनेलवर नोंदवल्याची खात्री करा.',
+      'esc.consentRequired': 'जतन करण्यापूर्वी अधिकृत {corp} चॅनेलवर नोंदवल्याची खात्री करा.',
 
-      'esc.complaintLabel': 'तक्रार क्रमांक',
+      'esc.complaintLabel': 'BMC तक्रार क्रमांक',
 
       'esc.complaintPh': 'उदा. N/2026/123456',
 
       'esc.complaintHint': 'क्रमांक जतन केल्यावर जबाबदारी घड्याळ सुरू होते आणि पायऱ्या, दिवस मोजणी व फॉलो-अप टेम्पलेट अनलॉक होतात.',
 
-      'esc.filedNote': 'BMC कडे नोंद — मुदतीनुसार पुढे न्या.',
+      'esc.filedNote': '{corp} मध्ये नोंदवले — मुदतीनुसार पुढे वाढवा.',
 
       'esc.step2': 'टप्पा 2 · ट्रॅक करा आणि पुढे न्या',
 
       'esc.ladderTitle': 'पुढे नेण्याची पायऱ्या',
 
-      'esc.selfTitle': 'BMC ने सोडवले?',
+      'esc.selfTitle': '{corp} ने सोडवले?',
 
-      'esc.selfBody': 'स्वतः पुष्टी करा — सर्वांसाठी हिरवा.',
+      'esc.selfBody': '{corp} ने सोडवल्यावर स्वतः पुष्टी करा (तक्रार क्रमांक पुरावा). सर्वांसाठी हिरवा चिन्ह.',
 
       'esc.selfBtn': 'सोडवले चिन्हांकित',
 
@@ -10158,7 +10180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.title': '4 · दिवस {n}+ — तक्रार / RTI',
 
-      'esc.tier.grievance.body': 'महिना झाला? Aaple Sarkar किंवा RTI.',
+      'esc.tier.grievance.body': 'एक महिन्यानंतरही दुर्लक्षित? Aaple Sarkar (pgportal.gov.in) वर नोंदवा — स्थानिक संस्था BMC निवडा, किंवा तक्रार स्थितीवर RTI नोंदवा.',
 
       'profile.empty': 'अद्याप तक्रार नाही. जवळ कोणता धोका?',
 
@@ -10438,7 +10460,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'धोका पिनसाठी GPS आवश्यक.',
 
-      'toast.gpsOutsideCity': 'स्थान तुमच्या निवडलेल्या शहराच्या बाहेर आहे. पिन शहराच्या मर्यादेत ठेवा किंवा प्रोफाइलमध्ये शहर बदला.',
+      'toast.gpsOutsideCity': 'स्थान तुमच्या शहराच्या बाहेर आहे — पिन शहराच्या मर्यादेत ओढा, किंवा प्रोफाइलमध्ये शहर बदला.',
 
       'toast.pinConfirmRequired': 'जागा बरोबर नसेल तर नकाशावर पिन ओढू शकता.',
 
@@ -10472,7 +10494,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeWardRequired': 'देणगीसाठी लक्ष्य वॉर्ड निवडा.',
 
-      'toast.pledgeSaved': 'देणगी नोंद — वॉर्ड समन्वयकाला हबमध्ये दिसेल.',
+      'toast.pledgeSaved': 'देणगी नोंद — वॉर्ड समन्वयकाला दिसेल.',
 
       'toast.pledgeDuplicate': 'या वॉर्ड आणि साहित्यासाठी आधीच खुली प्रतिज्ञा आहे.',
 
@@ -10506,7 +10528,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.shareWin': 'शेजाऱ्यांसोबत विजय शेअर करा.',
 
-      'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार अधिकृतपणे उघडी राहू शकते.',
+      'toast.cleanupLogged': 'समुदाय सफाई लॉग — BMC तक्रार सोडवले जाईपर्यंत उघडी राहते.',
 
       'pledge.deliverConfirm': 'ही प्रतिज्ञा वितरित म्हणून चिन्हांकित करायची?',
 
@@ -10520,7 +10542,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'तास सत्यापित! +200 Civic Points.',
 
-      'toast.hoursVerifiedOther': '{name} चे तास सत्यापित झाले. त्यांना +{points} Civic Points मिळाले.',
+      'toast.hoursVerifiedOther': '{name} चे तास सत्यापित — +{points} Civic Points जमा.',
 
       'toast.saving': 'जतन होत आहे…',
 
@@ -10842,7 +10864,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.title': 'अभिप्राय पाठवा',
 
-      'feedback.subtitle': 'एखादी अडचण आढळली किंवा कल्पना आहे? आम्हाला सांगा — ते थेट टीमकडे जाते.',
+      'feedback.subtitle': 'एखादी अडचण आढळली किंवा कल्पना आहे? आम्हाला सांगा.',
 
       'feedback.categoryLabel': 'कोणत्या प्रकारचा अभिप्राय?',
 
@@ -10860,13 +10882,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.contactPh': 'ईमेल किंवा फोन',
 
-      'feedback.privacy': 'आम्ही तुमचा संपर्क कधीही शेअर करत नाही. फक्त या अभिप्रायाला उत्तर देण्यासाठी वापरला जातो.',
+      'feedback.privacy': 'आम्ही तुमचा संपर्क कधीही शेअर करत नाही.',
 
       'feedback.submit': 'अभिप्राय पाठवा',
 
-      'feedback.errorEmpty': 'कृपया प्रथम एक छोटा संदेश लिहा.',
+      'feedback.errorEmpty': 'प्रथम एक छोटा संदेश लिहा.',
 
-      'feedback.error': 'पाठवता आले नाही — तुमचा मजकूर सुरक्षित आहे. कृपया पुन्हा प्रयत्न करा.',
+      'feedback.error': 'पाठवता आले नाही — तुमचा मजकूर सुरक्षित आहे. पुन्हा प्रयत्न करा.',
 
       'feedback.success': 'धन्यवाद! तुमचा अभिप्राय पाठवला गेला.',
 
@@ -10910,7 +10932,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.phonePh': 'फोन',
 
-      'access.contactHint': 'किमान एक द्या. क्लेम कोड ईमेलवर; फक्त फोन असल्यास तिथे संपर्क.',
+      'access.contactHint': 'किमान एक द्या — कोड ईमेलवर जातात, किंवा फक्त फोन असल्यास कॉल.',
 
       'access.proofLabel': 'ओळख / पुरावा',
 
@@ -10928,7 +10950,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.confirmTitle': 'विनंती मिळाली',
 
-      'access.confirmBody': 'धन्यवाद! आम्ही पुनरावलोकन करून क्लेम कोडसह तुमच्यापर्यंत पोहोचू, साधारण काही दिवसांत. अॅपमध्ये टाकून प्रवेश उघडा.',
+      'access.confirmBody': 'आम्ही तुमच्या विनंतीचे पुनरावलोकन करून काही दिवसांत क्लेम कोड पाठवू. अॅपमध्ये टाकून प्रवेश उघडा.',
 
       'access.confirmLocal': 'या डिव्हाइसवर जतन — ऑनलाइन झाल्यावर टीमपर्यंत सिंक होईल.',
 
@@ -10984,7 +11006,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.statusPending': 'प्रलंबित',
 
-      'access.errName': 'कृपया तुमचे नाव जोडा.',
+      'access.errName': 'तुमचे नाव जोडा.',
 
       'access.errContact': 'संपर्कासाठी ईमेल किंवा फोन जोडा.',
 
@@ -11046,7 +11068,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.neighbourhoodHintWard': '{ward} मध्ये {n} परिसर/सोसायटी — नसेल तर टाइप करा.',
 
-      'lead.neighbourhoodHintCustom': 'यादीत नसेल तर परिसर, सोसायटी किंवा लेन लिहा.',
+      'lead.neighbourhoodHintCustom': 'यादीत नाही? लिहा.',
 
       'lead.pitchLabel': 'तुम्ही का?',
 
@@ -11056,7 +11078,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmTitle': 'तुम्ही मतदानात आहात!',
 
-      'lead.confirmBody': 'शेजाऱ्यांसोबत CivicRadar शेअर करा — २ पाठिंब्याने समन्वयक साधने उघडतात. दुसराही असेल तर दोघांना ५ लागतात.',
+      'lead.confirmBody': 'शेजाऱ्यांसोबत CivicRadar शेअर करा — २ पाठिंबे हवे (स्पर्धक असेल तर ५).',
 
       'lead.confirmLocal': 'या डिव्हाइसवर जतन — ऑनलाइन झाल्यावर सिंक होईल.',
 
@@ -11068,7 +11090,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityTitle': 'समुदाय लीड',
 
-      'lead.communityHint': 'सफाई समन्वयासाठी स्वयंसेवक शेजाऱ्यांना Support करा. 2 समर्थन = भूमिका; अनेक उमेदवार = प्रत्येकाला 5.',
+      'lead.communityHint': 'सफाई समन्वय करणाऱ्या शेजाऱ्याला Support करा — २ पाठिंबे भूमिका देतात (स्पर्धा असेल तर ५).',
 
       'lead.communityEmpty': 'तुमच्या वॉर्डमध्ये अजून उमेदवार नाही — स्वतःला नामांकित करा.',
 
@@ -11088,7 +11110,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.you': 'तुम्ही',
 
-      'lead.errName': 'कृपया नाव जोडा.',
+      'lead.errName': 'नाव जोडा.',
 
       'lead.errWard': 'वॉर्ड निवडा.',
 
@@ -11270,7 +11292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'તમારો વિસ્તાર મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
-      'onboard.outOfBounds': 'CivicRadar હાલમાં ફક્ત મુંબઈ, પુણે અને ઠાણેમાં જ ઉપલબ્ધ છે. કૃપા કરીને આમાંથી એક શહેર જાતે પસંદ કરીને જુઓ.',
+      'onboard.outOfBounds': 'CivicRadar મુંબઈ, પુણે અને ઠાણેમાં ઉપલબ્ધ છે. જોવા માટે એક પસંદ કરો.',
 
       'onboard.gpsDisclosure': 'તમારો વોર્ડ સૂચવવા એક વાર ઉપયોગ. ફરિયાદ કરતાં પહેલાં નકશા પર નહીં દેખાય.',
 
@@ -11385,7 +11407,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureTitleHazard': '{hazard} માટે ફોટો',
 
-      'report.cameraDisclosureBody': 'કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે. ફોટો સમુદાય નકશા પર દેખાય છે. EXIF સ્થાન ડિવાઇસ પર દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
+      'report.cameraDisclosureBody': 'કૅમેરા ફક્ત જોખમનો પુરાવો લેવા માટે. ફોટો સમુદાય નકશા પર દેખાય છે — સ્થાન ડેટા આપમેળે દૂર થાય છે. ચહેરા અને દસ્તાવેજો ટાળો.',
 
       'report.cameraDisclosure.verify': 'ફક્ત આ જોખમની ખાતરી કરવા માટે વપરાય છે',
 
@@ -11393,7 +11415,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosure.location': 'ચોક્કસ સ્થાન આપમેળે દૂર કરવામાં આવે છે',
 
-      'report.cameraDisclosure.noSell': 'ફક્ત આ જોખમ ફરિયાદ માટે',
+      'report.cameraDisclosure.noSell': 'ક્યારેય વેચાતું નથી કે માર્કેટિંગ માટે વપરાતું નથી.',
 
       'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
@@ -11465,7 +11487,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'moderation.blocked.lowQuality': 'ફોટો ખૂબ નાનો અથવા અસ્પષ્ટ છે. ખતરાની નજીક જાઓ.',
 
-      'moderation.blocked.irrelevant': 'ખતરાનો ફોટો લો — સેલ્ફી, દસ્તાવેજો અથવા ખાલી ચિત્રો નહીં.',
+      'moderation.blocked.irrelevant': 'આ જોખમનો ફોટો લાગતો નથી — જોખમ બતાવીને ફરી લો, સેલ્ફી અથવા દસ્તાવેજ નહીં.',
 
       'moderation.blocked.sensitive': 'ID, દસ્તાવેજો અથવા સ્ક્રીનશોટ ટાળો. ફક્ત ખતરો બતાવો.',
 
@@ -11796,7 +11818,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.titleCorp': '{corp} માં નોંધાવો',
 
-      'esc.tmc.recommended': 'ભલામણ: thanecity.gov.in પર નોંધાવો અથવા TMC હેલ્પલાઇન 022-25331590 પર કૉલ કરો.',
+      'esc.tmc.subtitle': 'CivicRadar જોખમો સમુદાય નકશા પર બતાવે છે. TMC માં નોંધાવવું વૈકલ્પિક છે — અધિકૃત ઘડિયાળ શરૂ થાય. આ TMC ચેનલ નથી.',
+
+      'esc.tmc.recommended': 'ભલામણ: TMC પોર્ટલ — મોટાભાગના ઠાણે વોર્ડ માટે સೌથી ઝડપી.',
 
       'esc.tmc.fileHint': 'અટકેલું પાણી / મચ્છર — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રીતો ખોલો.',
 
@@ -11822,13 +11846,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.portalHint': 'thanecity.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
 
-      'esc.tmc.filedConsent': 'મેં અધિકૃત TMC ચેનલ પર નોંધાવ્યું (પોર્ટલ / હેલ્પલાઇન / ઈમેલ / 155300 / Aaple Sarkar)',
+      'esc.tmc.filedConsent': 'મેં અધિકૃત TMC ચેનલ પર નોંધાવ્યું (પોર્ટલ / હેલ્પલાઇન / ઇમેઇલ / 155300)',
 
       'esc.tmc.complaintLabel': 'TMC ફરિયાદ / સંદર્ભ નંબર',
 
       'esc.tmc.complaintPh': 'ઉદા. TMC/2026/123456',
 
-      'esc.tmc.complaintWarn': 'આ સામાન્ય TMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવી શકો.',
+      'esc.tmc.complaintWarn': 'આ સામાન્ય TMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવો.',
 
       'esc.tmc.filedNote': 'TMC માં નોંધાવ્યું — મુદત પસાર થતાં આગળ વધારો.',
 
@@ -11842,7 +11866,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.deptTitle': 'વિભાગ સંપર્ક (એસ્કેલેશન)',
 
-      'esc.tmc.deptHint': 'અટકેલા પાણી માટે — પાણી, આરોગ્ય, પ્રદૂષણ નિયંત્રણ.',
+      'esc.tmc.deptHint': 'ફોલો-અપ સંપર્કો — પાણી, આરોગ્ય, અથવા પ્રદૂષણ નિયંત્રણ.',
 
       'esc.tmc.dept.water': 'પાણી',
 
@@ -11850,9 +11874,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.dept.pollution': 'પ્રદૂષણ નિયંત્રણ',
 
-      'esc.tmc.tier.file.body': 'thanecity.gov.in, 022-25331590 / 022-25331211, mc@thanecity.gov.in, અથવા 155300. સંદર્ભ અહીં સાચવો.',
+      'esc.tmc.tier.file.body': 'મફત. ઉપરની કોઈપણ ચેનલ વાપરો, પછી સંદર્ભ નંબર અહીં સાચવો જેથી અધિકૃત ઘડિયાળ શરૂ થાય.',
 
-      'esc.tmc.tier.matrix.body': 'વોર્ડ ઑફિસ અથવા આરોગ્ય (022-25331590) ને ફોલો-અપ. TMC સંદર્ભ આપો.',
+      'esc.tmc.tier.matrix.body': 'તમારા વોર્ડ કાર્યાલય અથવા આરોગ્ય વિભાગને અનુસરો, TMC સંદર્ભ નંબર ટાંકીને.',
 
       'esc.tmc.tier.zonal.body': 'મ્યુનિસિપલ કમિશનર (mc@thanecity.gov.in) સુધી એસ્કેલેટ. @TMCaTweetAway પર ફોટો સાથે ટૅગ.',
 
@@ -11872,13 +11896,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.recommended': 'ભલામણ: PMC CARE WhatsApp — મોટાભાગના Pune વોર્ડ માટે સૌથી ઝડપી.',
 
-      'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+      'esc.pmc.fileHint': 'અટકેલું પાણી અને મચ્છર પ્રજનન — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રસ્તા ખોલો.',
 
-      'esc.pmc.fileHint.garbage': 'કચરો / ઘન કચરો PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+      'esc.pmc.fileHint.garbage': 'કચરો અને ઘન કચરો — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રસ્તા ખોલો.',
 
-      'esc.pmc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+      'esc.pmc.fileHint.potholes': 'ખાડા અને રસ્તાનું નુકસાન — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રસ્તા ખોલો.',
 
-      'esc.pmc.fileHint.streetlight': 'બંધ સ્ટ્રીટલાઇટ PMC CARE દ્વારા જાય છે. ભલામણ કરેલી ચેનલથી શરૂ કરો — અથવા નીચે વધુ રીતો ખોલો.',
+      'esc.pmc.fileHint.streetlight': 'તૂટેલી સ્ટ્રીટલાઇટ — ભલામણ કરેલી ચેનલથી શરૂ કરો, અથવા નીચે વધુ રસ્તા ખોલો.',
 
       'esc.pmc.channelWa': 'PMC CARE WhatsApp',
 
@@ -11894,7 +11918,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.copyBlock': 'આ વિગતો પેસ્ટ કરો (PMC CARE / WhatsApp)',
 
-      'esc.pmc.copyAllDone': 'કૉપી થયું — PMC CARE / WhatsApp પર નોંધાવતી વખતે પેસ્ટ કરો',
+      'esc.pmc.copyAllDone': 'કૉપિ થયું — PMC માં નોંધાવતી વખતે પેસ્ટ કરો',
 
       'esc.pmc.portalHint': 'PMC CARE પોર્ટલ અથવા એપ: અટકેલા પાણી / મચ્છર ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
 
@@ -11904,7 +11928,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.complaintPh': 'ઉદા. PMC/2026/123456',
 
-      'esc.pmc.complaintWarn': 'આ સામાન્ય PMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવી શકો.',
+      'esc.pmc.complaintWarn': 'આ સામાન્ય PMC સંદર્ભ જેવું નથી — સાચું હોય તો પણ સાચવો.',
 
       'esc.pmc.filedNote': 'PMC માં નોંધાવ્યું — મુદત પસાર થતાં આગળ વધારો.',
 
@@ -11914,7 +11938,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.pmc.selfBody': 'PMC ઠીક કરે ત્યારે પુષ્ટિ કરો — બધા માટે લીલો ચિહ્ન.',
 
-      'esc.pmc.tier.file.body': 'મફત. PMC CARE પોર્ટલ, WhatsApp, 1800 1030 222, અથવા PMC CARE એપ. સંદર્ભ અહીં સાચવો.',
+      'esc.pmc.tier.file.body': 'મફત. ઉપરની કોઈપણ ચેનલ વાપરો, પછી સંદર્ભ નંબર અહીં સાચવો જેથી અધિકૃત ઘડિયાળ શરૂ થાય.',
 
       'esc.pmc.tier.matrix.body': 'PMC CARE અથવા ટોલ-ફ્રી હેલ્પલાઇન દ્વારા ફોલો-અપ. ફરિયાદ નંબર આપો.',
 
@@ -12004,7 +12028,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.neighbourhoodHintWard': '{ward} માં {n} પડોશ/સોસાયટી — ન મળે તો ટાઇપ કરો.',
 
-      'volunteer.neighbourhoodHintCustom': 'યાદીમાં ન હોય તો પડોશ, સોસાયટી અથવા ગલી લખો.',
+      'volunteer.neighbourhoodHintCustom': 'યાદીમાં નથી? લખો.',
 
       'volunteer.hours': 'આ ચોમાસે ઉપલબ્ધ કલાક',
 
@@ -12020,10 +12044,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'volunteer.contact': 'ફોન / WhatsApp (વૈકલ્પિક)',
 
-      'volunteer.contactHint': 'વૈકલ્પિક — ફક્ત વોર્ડ/પડોશ સંકલકને દેખાશે. CivicRadar ઑટો-કૉલ કરતું નથી.',
+      'volunteer.contactHint': 'સંકલક સાથે શેર — ક્યારેય ઑટો-કૉલ નહીં.',
 
       'volunteer.ageToggle': 'ઉંમર જરૂરિયાત (18+)',
-      'volunteer.ageNote': 'Terms મુજબ 18+ જરૂરી. 18 થી ઓછી ઉંમર? માતા-પિતા/સંભાળક અથવા NSS સંકલક સાથે જ.',
+      'volunteer.ageNote': '18 થી ઓછી ઉંમર? માતા-પિતા, સંભાળક અથવા NSS સંકલકે Terms સ્વીકારવા જોઈએ.',
 
       'volunteer.submit': 'સ્વયંસેવક નોંધ સાચવો',
 
@@ -12065,7 +12089,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.coordTitle': 'વોર્ડ અથવા પડોશ સમન્વયક બનો',
 
-      'inquiry.coordBody': 'RWA/સોસાયટી અથવા વોર્ડ NGO નું નેતૃત્વ કરો — સ્વયંસેવક જુઓ, સફાઈ મેળવો, દાન કલાક ચકાસો. ઑપરેટર પાસેથી ઇનવાઇટ કોડ માંગો.',
+      'inquiry.coordBody': 'સ્વયંસેવક જુઓ, સફાઈ મેળવો, દાન કલાક ચકાસો. ઑપરેટર પાસેથી ઇનવાઇટ કોડ માંગો.',
 
       'about.becomeCoord': 'વોર્ડ અથવા પડોશ સમન્વયક બનો',
 
@@ -12266,7 +12290,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.privacyTitle': 'ગોપનીયતા અને ડેટા',
 
-      'about.privacyNote': 'અપલોડ પહેલાં EXIF સ્થાન દૂર થાય છે. GPS ફક્ત તમારી પરવાનગીથી પિન મૂકે છે. રિપોર્ટ સમુદાય નકશા પર દેખાય છે. સંપૂર્ણ વિગતો ગોપનીયતા નીતિમાં.',
+      'about.privacyNote': 'અપલોડ પહેલાં ફોટોમાંથી સ્થાન ડેટા દૂર થાય છે. GPS પિન ત્યારે જ જ્યારે તમે પરવાનગી આપો. રિપોર્ટ સમુદાય નકશા પર દેખાય છે. સંપૂર્ણ વિગતો ગોપનીયતા નીતિમાં.',
 
       'about.officialSourcesTitle': 'અધિકૃત માહિતી સ્રોતો',
 
@@ -12292,7 +12316,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'inquiry.title': 'CivicRadar સાથે ભાગીદારી',
 
-      'inquiry.subtitle': 'મુંબઈ, પુણે અથવા ઠાણેના નાગરિકો સુધી પહોંચો — તમારા માટે મહત્વના વોર્ડમાં.',
+      'inquiry.subtitle': 'મુંબઈ, પુણે અથવા ઠાણેના નાગરિકો સુધી પહોંચો, વોર્ડ દર વોર્ડ.',
 
       'inquiry.localTitle': 'સ્થાનિક વ્યવસાય પ્રાયોજક',
 
@@ -12643,7 +12667,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.copyAll': 'બધી વિગતો કૉપી',
 
-      'esc.copyAllDone': 'કૉપી થઈ — MyBMC, WhatsApp અથવા પોર્ટલ પર પેસ્ટ કરો',
+      'esc.copyAllDone': 'કૉપિ થયું — BMC માં નોંધાવતી વખતે પેસ્ટ કરો',
 
       'esc.copyBilingual': 'કૉલ સેન્ટર: નીચેની મરાઠી લીટી પણ વાંચી શકો.',
 
@@ -12661,11 +12685,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.filedConsent': 'મેં અધિકૃત BMC ચેનલ પર નોંધાવ્યું (1916 / MyBMC / પોર્ટલ / એપ)',
 
-      'esc.complaintWarn': 'સામાન્ય BMC નંબર જેવું લાગતું નથી — સાચું હોય તો સાચવો.',
+      'esc.complaintWarn': 'આ સામાન્ય {corp} {term} જેવું નથી — સાચું હોય તો પણ સાચવો.',
+
+      'esc.complaintTerm.number': 'નંબર',
+
+      'esc.complaintTerm.reference': 'સંદર્ભ',
 
       'esc.closeNudge': 'ફરિયાદ નંબર હજુ સાચવ્યો નથી — Profile માંથી ક્યારે પણ નોંધાવો.',
 
-      'esc.daysSince': 'BMC નોંધ {n} દિવસ',
+      'esc.daysSince': '{corp} માં નોંધાવ્યાના {n} દિવસ',
 
       'esc.progress.reported': 'રિપોર્ટ',
 
@@ -12691,7 +12719,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.rtiDisclaimer': 'માત્ર માહિતી RTI ટેમ્પલેટ — કાનૂની સલાહ નહીં.',
 
-      'esc.consentRequired': 'સાચવતા પહેલાં અધિકૃત BMC ચેનલ પર નોંધાવ્યાની પુષ્ટિ કરો.',
+      'esc.consentRequired': 'સાચવતા પહેલાં અધિકૃત {corp} ચેનલ પર નોંધાવ્યાની પુષ્ટિ કરો.',
 
       'esc.complaintLabel': 'BMC ફરિયાદ નંબર',
 
@@ -12699,15 +12727,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.complaintHint': 'નંબર સાચવતાં જવાબદારી ઘડિયાળ શરૂ થાય છે અને પગથિયાં, દિવસ ગણતરી તથા ફોલો-અપ ટેમ્પલેટ અનલૉક થાય છે.',
 
-      'esc.filedNote': 'BMC માં નોંધ — મુદત પર આગળ.',
+      'esc.filedNote': '{corp} માં નોંધાવ્યું — મુદત પસાર થતાં આગળ વધારો.',
 
       'esc.step2': 'પગલું 2 · ટ્રેક કરો અને આગળ વધારો',
 
       'esc.ladderTitle': 'એસ્કેલેશન પગથિયાં',
 
-      'esc.selfTitle': 'BMC એ ઠીક કર્યું?',
+      'esc.selfTitle': '{corp} એ ઠીક કર્યું?',
 
-      'esc.selfBody': 'પોતે પુષ્ટિ કરો — બધા માટે લીલું.',
+      'esc.selfBody': '{corp} ઠીક કરે ત્યારે પુષ્ટિ કરો (ફરિયાદ નંબર પુરાવો). બધા માટે લીલો ચિહ્ન.',
 
       'esc.selfBtn': 'ઉકેલ ચિહ્નિત',
 
@@ -12797,7 +12825,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tier.grievance.title': '4 · દિવસ {n}+ — ફરિયાદ / RTI',
 
-      'esc.tier.grievance.body': 'એક મહિના પછી? Aaple Sarkar અથવા RTI.',
+      'esc.tier.grievance.body': 'એક મહિના પછી પણ અવગણના? Aaple Sarkar (pgportal.gov.in) પર નોંધાવો — સ્થાનિક સંસ્થા BMC પસંદ કરો, અથવા ફરિયાદ સ્થિતિ પર RTI નોંધાવો.',
 
       'profile.empty': 'હજુ ફરિયાદ નથી. નજીક કોઈ જોખમ?',
 
@@ -13077,7 +13105,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
-      'toast.gpsOutsideCity': 'સ્થાન તમારા પસંદ કરેલા શહેરની બહાર છે. પિન શહેરની સીમામાં મૂકો અથવા પ્રોફાઇલમાં શહેર બદલો.',
+      'toast.gpsOutsideCity': 'સ્થાન તમારા શહેરની બહાર છે — પિન શહેરની મર્યાદામાં ખેંચો, અથવા પ્રોફાઇલમાં શહેર બદલો.',
 
       'toast.pinConfirmRequired': 'જરૂર હોય તો નકશા પર પિન ખેંચીને ઠીક કરો — વૈકલ્પિક.',
 
@@ -13111,7 +13139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.pledgeWardRequired': 'દાન માટે લક્ષ્ય વોર્ડ પસંદ કરો.',
 
-      'toast.pledgeSaved': 'પ્રતિજ્ઞા નોંધ — વોર્ડ સંકલકને હબમાં દેખાશે.',
+      'toast.pledgeSaved': 'દાન નોંધાયું — તમારા વોર્ડ સંકલકને દેખાશે.',
 
       'toast.pledgeDuplicate': 'આ વોર્ડ અને સામગ્રી માટે પહેલેથી ખુલ્લી પ્રતિજ્ઞા છે.',
 
@@ -13145,7 +13173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.shareWin': 'પડોશીઓ સાથે જીત શેર કરો.',
 
-      'toast.cleanupLogged': 'સમુદાય સફાઈ લોગ — BMC ફરિયાદ અધિકૃત રીતે ખુલ્લી રહી શકે.',
+      'toast.cleanupLogged': 'સમુદાય સફાઈ લૉગ — BMC ફરિયાદ ઉકેલાય ત્યાં સુધી ખુલ્લી રહે છે.',
 
       'pledge.deliverConfirm': 'આ પ્રતિજ્ઞાને વિતરિત તરીકે ચિહ્નિત કરીએ?',
 
@@ -13159,7 +13187,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.hoursVerified': 'કલાક ચકાસાયા! +200 Civic Points.',
 
-      'toast.hoursVerifiedOther': '{name} ના કલાક ચકાસાયા. તેમને +{points} Civic Points મળ્યા.',
+      'toast.hoursVerifiedOther': '{name} ના કલાક ચકાસાયા — +{points} Civic Points જમા.',
 
       'toast.saving': 'સાચવી રહ્યા છીએ…',
 
@@ -13481,7 +13509,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.title': 'પ્રતિસાદ મોકલો',
 
-      'feedback.subtitle': 'કોઈ ભૂલ મળી કે કોઈ વિચાર છે? અમને જણાવો — તે સીધું ટીમ સુધી પહોંચે છે.',
+      'feedback.subtitle': 'બગ મળ્યો કે વિચાર છે? અમને કહો.',
 
       'feedback.categoryLabel': 'કયા પ્રકારનો પ્રતિસાદ?',
 
@@ -13499,13 +13527,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'feedback.contactPh': 'ઈમેલ અથવા ફોન',
 
-      'feedback.privacy': 'અમે તમારો સંપર્ક ક્યારેય શેર કરતા નથી. ફક્ત આ પ્રતિસાદનો જવાબ આપવા માટે વપરાય છે.',
+      'feedback.privacy': 'અમે તમારો સંપર્ક ક્યારેય શેર કરતા નથી.',
 
       'feedback.submit': 'પ્રતિસાદ મોકલો',
 
-      'feedback.errorEmpty': 'કૃપા કરીને પહેલા એક ટૂંકો સંદેશ લખો.',
+      'feedback.errorEmpty': 'પહેલા ટૂંકો સંદેશ લખો.',
 
-      'feedback.error': 'મોકલી શકાયું નહીં — તમારો ટેક્સ્ટ સુરક્ષિત છે. કૃપા કરીને ફરી પ્રયાસ કરો.',
+      'feedback.error': 'મોકલી શકાયું નહીં — તમારો ટેક્સ્ટ સુરક્ષિત છે. ફરી પ્રયાસ કરો.',
 
       'feedback.success': 'આભાર! તમારો પ્રતિસાદ મોકલાઈ ગયો.',
 
@@ -13549,7 +13577,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.phonePh': 'ફોન',
 
-      'access.contactHint': 'ઓછામાં ઓછું એક આપો. ક્લેમ કોડ ઈમેલ પર; ફક્ત ફોન આપશો તો ત્યાં જ સંપર્ક કરીશું.',
+      'access.contactHint': 'ઓછામાં ઓછું એક આપો — કોડ ઇમેઇલ પર જાય, અથવા ફક્ત ફોન હોય તો કૉલ.',
 
       'access.proofLabel': 'ઓળખ / પુરાવો',
 
@@ -13567,7 +13595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.confirmTitle': 'વિનંતી મળી',
 
-      'access.confirmBody': 'આભાર! CivicRadar ટીમ તમારી વિનંતીની સમીક્ષા કરશે અને સામાન્ય રીતે થોડા દિવસોમાં તમને ક્લેમ કોડ મોકલશે (ઈમેલ અથવા ફોન). ઍક્સેસ અનલૉક કરવા તે કોડ ઍપમાં દાખલ કરો.',
+      'access.confirmBody': 'અમે તમારી વિનંતીની સમીક્ષા કરીને થોડા દિવસમાં ક્લેમ કોડ મોકલીશું. એપમાં દાખલ કરીને ઑક્સેસ ખોલો.',
 
       'access.confirmLocal': 'આ ડિવાઇસ પર સાચવ્યું — ઓનલાઈન થશો ત્યારે ટીમ સુધી સિંક થશે.',
 
@@ -13623,7 +13651,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'access.statusPending': 'બાકી',
 
-      'access.errName': 'કૃપા કરી તમારું નામ ઉમેરો.',
+      'access.errName': 'તમારું નામ ઉમેરો.',
 
       'access.errContact': 'સંપર્ક માટે ઈમેલ અથવા ફોન ઉમેરો.',
 
@@ -13685,7 +13713,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.neighbourhoodHintWard': '{ward} માં {n} પડોશ/સોસાયટી — ન મળે તો ટાઇપ કરો.',
 
-      'lead.neighbourhoodHintCustom': 'યાદીમાં ન હોય તો પડોશ, સોસાયટી અથવા ગલી લખો.',
+      'lead.neighbourhoodHintCustom': 'યાદીમાં નથી? લખો.',
 
       'lead.pitchLabel': 'તમે શા માટે?',
 
@@ -13695,7 +13723,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.confirmTitle': 'તમે મતપેટી પર છો!',
 
-      'lead.confirmBody': 'CivicRadar પડોશીઓ સાથે શેર કરો — સંકલક સાધનો માટે 2 સમર્થન જોઈએ. એક જ જગ્યા માટે બે ઉમેદવાર હોય તો બંનેને 5 જોઈએ.',
+      'lead.confirmBody': 'પડોશીઓ સાથે CivicRadar શેર કરો — 2 સમર્થન જોઈએ (સ્પર્ધક હોય તો 5).',
 
       'lead.confirmLocal': 'આ ડિવાઇસ પર સાચવ્યું — ઓનલાઈન થશો ત્યારે સિંક થશે.',
 
@@ -13707,7 +13735,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.communityTitle': 'સામુદાયિક લીડ',
 
-      'lead.communityHint': 'સફાઈ સંકલન માટે સ્વયંસેવક પડોશીઓને Support કરો. 2 સમર્થન = ભૂમિકા; ઘણા ઉમેદવારો = દરેકને 5.',
+      'lead.communityHint': 'સફાઈ સંકલન કરતા પડોશીને Support કરો — 2 સમર્થક ભૂમિકા આપે (સ્પર્ધા હોય તો 5).',
 
       'lead.communityEmpty': 'તમારા વોર્ડમાં હજુ ઉમેદવાર નથી — પોતાની ઉમેદવારી નોંધાવો.',
 
@@ -13727,7 +13755,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'lead.you': 'તમે',
 
-      'lead.errName': 'કૃપા કરીને નામ ઉમેરો.',
+      'lead.errName': 'તમારું નામ ઉમેરો.',
 
       'lead.errWard': 'વોર્ડ પસંદ કરો.',
 
@@ -35183,9 +35211,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const bodyVerify = $('#reportCameraBodyVerify');
       const bodyVisible = $('#reportCameraBodyVisible');
       const bodyLocation = $('#reportCameraBodyLocation');
+      const bodyNoSell = $('#reportCameraBodyNoSell');
       if (bodyVerify) bodyVerify.textContent = t('report.cameraDisclosure.verify');
       if (bodyVisible) bodyVisible.textContent = t('report.cameraDisclosure.visible');
       if (bodyLocation) bodyLocation.textContent = t('report.cameraDisclosure.location');
+      if (bodyNoSell) bodyNoSell.textContent = t('report.cameraDisclosure.noSell');
       if (btnContinue) btnContinue.textContent = t('report.cameraDisclosureContinue');
       if (btnGallery) btnGallery.textContent = t('report.chooseGallery');
       if (btnCancel) btnCancel.textContent = t('common.cancel');
@@ -41446,7 +41476,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (tier === 'zonal') {
 
-      return `@${BMC.twitter} Complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to Zonal DMC and depute Pest Control Officer. ${link} #CivicRadar #MumbaiMonsoon`;
+      const monsoonTag = report.hazard === 'stagnant-water' ? ' #MumbaiMonsoon' : '';
+
+      return `@${BMC.twitter} Complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to Zonal DMC and depute Pest Control Officer. ${link} #CivicRadar${monsoonTag}`;
 
     }
 
@@ -41508,7 +41540,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (tier === 'zonal') {
 
-      return `@TMCaTweetAway Complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to Municipal Commissioner (mc@thanecity.gov.in). ${link} #CivicRadar #ThaneMonsoon`;
+      const monsoonTag = report.hazard === 'stagnant-water' ? ' #ThaneMonsoon' : '';
+
+      return `@TMCaTweetAway Complaint ${cid} — ${hazard} in ${wardName} still unresolved after ${ESCALATION_DAYS.zonal}+ days. Please escalate to Municipal Commissioner (mc@thanecity.gov.in). ${link} #CivicRadar${monsoonTag}`;
 
     }
 
@@ -41658,19 +41692,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (filedNoteText) filedNoteText.textContent = isThane ? t('esc.tmc.filedNote') : isPune ? t('esc.pmc.filedNote') : isMumbai ? t('esc.filedNote') : t('esc.filedNote').replace('BMC', corp.name || getCityLabel(city));
+    const corpShort = (corp && corp.name) || getCorpShortName(city) || getCityLabel(city);
 
-    if (selfTitle) selfTitle.textContent = isThane ? t('esc.tmc.selfTitle') : isPune ? t('esc.pmc.selfTitle') : isMumbai ? t('esc.selfTitle') : t('esc.selfTitle').replace('BMC', corp.name || getCityLabel(city));
+    const complaintTerm = isMumbai ? t('esc.complaintTerm.number') : t('esc.complaintTerm.reference');
 
-    if (selfBody) selfBody.textContent = isThane ? t('esc.tmc.selfBody') : isPune ? t('esc.pmc.selfBody') : isMumbai ? t('esc.selfBody') : t('esc.selfBody').replace('BMC', corp.name || getCityLabel(city));
+    if (filedNoteText) filedNoteText.textContent = t('esc.filedNote').replace('{corp}', corpShort);
+
+    if (selfTitle) selfTitle.textContent = t('esc.selfTitle').replace('{corp}', corpShort);
+
+    if (selfBody) selfBody.textContent = t('esc.selfBody').replace('{corp}', corpShort);
 
     const warnEl = $('#escComplaintWarn');
 
-    if (warnEl && isThane) warnEl.textContent = t('esc.tmc.complaintWarn');
-
-    else if (warnEl && isPune) warnEl.textContent = t('esc.pmc.complaintWarn');
-
-    else if (warnEl && isMumbai) warnEl.textContent = t('esc.complaintWarn');
+    if (warnEl) warnEl.textContent = t('esc.complaintWarn').replace('{corp}', corpShort).replace('{term}', complaintTerm);
 
     const input = $('#escComplaintId');
 
@@ -42430,6 +42464,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       else if (city === 'pune') subtitleEl.textContent = t('esc.pmc.subtitle');
 
+      else if (city === 'thane') subtitleEl.textContent = t('esc.tmc.subtitle');
+
       else subtitleEl.textContent = t('esc.corpSubtitle');
 
     }
@@ -42510,9 +42546,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (stage.filed && report.status === 'pending') {
 
-        const daysKey = city === 'thane' ? 'esc.tmc.daysSince' : city === 'pune' ? 'esc.pmc.daysSince' : 'esc.daysSince';
+        const corpShort = getCorpShortName(city) || getCityLabel(city);
 
-        daysEl.textContent = t(daysKey).replace('{n}', String(stage.days));
+        daysEl.textContent = t('esc.daysSince').replace('{n}', String(stage.days)).replace('{corp}', corpShort);
 
         daysEl.classList.remove('hidden');
 
@@ -43112,9 +43148,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!alreadyFiled && consent && !consent.checked) {
 
-      const consentKey = city === 'thane' ? 'esc.tmc.consentRequired' : city === 'pune' ? 'esc.pmc.consentRequired' : 'esc.consentRequired';
+      const corpShort = getCorpShortName(city) || getCityLabel(city);
 
-      showToast(t(consentKey), 'error', 4000);
+      showToast(t('esc.consentRequired').replace('{corp}', corpShort), 'error', 4000);
 
       return;
 
@@ -43122,9 +43158,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!looksLikeBmcComplaintId(val)) {
 
-      const warnKey = city === 'thane' ? 'esc.tmc.complaintWarn' : city === 'pune' ? 'esc.pmc.complaintWarn' : 'esc.complaintWarn';
+      const corpShort = getCorpShortName(city) || getCityLabel(city);
 
-      showToast(t(warnKey), 'info', 4500);
+      const term = city === 'mumbai' ? t('esc.complaintTerm.number') : t('esc.complaintTerm.reference');
+
+      showToast(t('esc.complaintWarn').replace('{corp}', corpShort).replace('{term}', term), 'info', 4500);
 
     }
 

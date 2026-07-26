@@ -70,14 +70,12 @@
     <p>We do <strong>not</strong> sell your personal data. Future local business sponsorships may show ward-targeted offers in-app; sponsors do not receive your raw GPS, photos, or contact details.</p>
 
     <h2>4. Legal basis &amp; DPDP (India)</h2>
-    <p>Under the DPDP Act, we process personal data based on your <strong>consent</strong> (GPS, photo uploads, optional volunteer contact, optional analytics) and <strong>legitimate uses</strong> such as compliance with law and responding to grievances. Consent is collected separately where required — Terms acceptance, GPS enablement, and analytics are not bundled into a single mandatory checkbox.</p>
-    <p>You may <strong>withdraw consent</strong> for GPS in device settings or via Profile → Withdraw location consent; for analytics via Profile → Withdraw analytics consent; or erase all data via Profile → Delete my data.</p>
+    <p>Under the DPDP Act, we process personal data based on your <strong>consent</strong> (GPS, photo uploads, optional volunteer contact, optional analytics) and <strong>legitimate uses</strong> such as compliance with law and responding to grievances. Consent is collected separately where required — Terms acceptance, GPS enablement, and analytics are not bundled into a single mandatory checkbox. You can withdraw or erase any of this from Profile (see Your Rights, below).</p>
     <p>As an intermediary under the Information Technology Act, 2000, users are responsible for content they upload. We may remove content that violates our Terms or applicable law.</p>
 
     <h2>5. Storage, processors &amp; cross-border transfer</h2>
     <ul>
       <li><strong>On your device</strong> — reports, profile, and preferences in browser storage when offline or in local-only mode.</li>
-      <li><strong>Supabase</strong> (when configured) — cloud database for report/pledge/volunteer records and analytics, plus a separate object storage bucket for hazard photos (see below). Our backend is hosted in the <strong>Mumbai (ap-south-1) region in India</strong>, so your data is primarily stored on servers in India. Supabase Inc. is a United States company acting as our data processor. Because project maintainers may administer the service from outside India, some processing involves <strong>cross-border transfer</strong> under the DPDP Act — we rely on your consent and on our contract with the processor for this. See <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</li>
       <li><strong>Third-party CDNs</strong> (loaded when online):
         <ul>
           <li><strong>unpkg.com</strong> — Phosphor icons and Leaflet map library</li>
@@ -87,6 +85,8 @@
         </ul>
       </li>
     </ul>
+    <h3>Cross-border data transfer</h3>
+    <p><strong>Supabase</strong> (when configured) — cloud database for report/pledge/volunteer records and analytics, plus a separate object storage bucket for hazard photos (see below). Our backend is hosted in the <strong>Mumbai (ap-south-1) region in India</strong>, so your data is primarily stored on servers in India. Supabase Inc. is a United States company acting as our data processor. Because project maintainers may administer the service from outside India, some processing involves <strong>cross-border transfer</strong> under the DPDP Act — we rely on your consent and on our contract with the processor for this. See <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</p>
     <p>Hazard photos are uploaded to a dedicated Supabase Storage bucket (not embedded in database rows) in the same Mumbai (ap-south-1) region. Once stored, photo URLs are <strong>publicly accessible</strong> so they can appear on the community map for all users — this is intentional for ward visibility. Upload is restricted by authentication and storage policies; only signed-in reporters can upload, and access policies govern who can read or delete objects.</p>
     <p><strong>Security note:</strong> BMC partner accounts with official <code>*.gov.in</code> email domains may receive elevated dashboard access automatically when signing in — this is role assignment only, not a claim of government endorsement of CivicRadar.</p>
 
@@ -114,7 +114,7 @@
     <p>We use HTTPS in production, row-level security on the backend, on-device EXIF stripping, and on-device photo checks. No system is perfectly secure; do not upload sensitive documents or selfies with ID cards.</p>
 
     <h2>11. Government information sources</h2>
-    <p>CivicRadar references official municipal and state channels (BMC/MCGM, PMC, TMC, Aaple Sarkar, Swachhata) for your convenience. We do <strong>not</strong> publish government data as authoritative, operate any government system, or file complaints on your behalf. Verified source URLs are listed on our <a href="official-sources.html">Official Government Sources</a> page.</p>
+    <p>CivicRadar references official municipal and state channels (BMC/MCGM, PMC, TMC, Aaple Sarkar, Swachhata) for your convenience and does not publish government data as authoritative. Verified source URLs are listed on our <a href="official-sources.html">Official Government Sources</a> page.</p>
 
     <h2>12. Your rights</h2>
     <p>Under the DPDP Act you may request access, correction, erasure, or withdrawal of consent. In the app:</p>
