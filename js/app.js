@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v450';
+  const CIVIC_APP_VERSION = 'v451';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -36897,6 +36897,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const detectedWard = resolveReportWard(lat, lng);
+
     const draft = {
 
       id: generateId(),
@@ -36907,11 +36909,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       image: lastReportDataUrl,
 
-      ward: resolveReportWard(lat, lng),
+      ward: detectedWard,
 
       city: getUserCity(),
 
-      society: user.society || '',
+      society: (detectedWard && detectedWard === user.ward) ? (user.society || '') : '',
 
       reporter: user.displayName || 'Citizen',
 
@@ -45886,6 +45888,15 @@ document.addEventListener('DOMContentLoaded', function () {
       try { closeMapPinPopup(); } catch { /* ignore */ }
 
       closeModal('escalation');
+
+      // Mark seen before share-win so checkResolvedWins does not re-celebrate
+      // (same gate as handleCommunityAutoResolve).
+      const id = String(reportId);
+      const seen = loadResolvedSeen();
+      if (!seen.includes(id)) {
+        seen.push(id);
+        saveResolvedSeen(seen);
+      }
 
       setTimeout(() => showShareWinModal(reportId, 'resolved'), 600);
 
