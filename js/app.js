@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v446';
+  const CIVIC_APP_VERSION = 'v448';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3690,13 +3690,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'Your neighbours may not know yet — share on WhatsApp.',
 
-      'success.shareMsg': '⚠️ *{hazard} spotted in {location}*\nPinned on the CivicRadar community map.\n\nBack this spot with \'Me too\' so local officials take action faster:\n👉 {link}\n\n{hashtags}',
+      'success.shareMsg': '⚠️ *{hazard} spotted in {location}*\nPinned on the CivicRadar community map.\n\nBack this spot with \'Me too\' so it\'s harder to ignore:\n👉 {link}\n\n{hashtags}',
 
-      'share.appMsg': '{city} ward hazard map — pin garbage, potholes, streetlights & stagnant water. Me too, beat rival wards!\n{link}\n{hashtags}',
+      'share.appMsg': 'Free {city} ward hazard map — pin garbage, potholes, streetlights & stagnant water in 30 sec. Me too, beat rival wards.\nBuilt for Mumbai, Pune & Thane. No login, 4 languages.\n{link}\nForward to your RWA / society WhatsApp group\n{hashtags}',
 
       'share.defaultArea': 'my area',
 
-      'share.meTooMsg': '⚠️ Me too — *{hazard} in {location}*\n{n} neighbour(s) already backing this spot on CivicRadar.\n\nJoin in so local officials take action faster:\n👉 {link}\n\n{hashtags}',
+      'share.meTooMsg': '⚠️ Me too — *{hazard} in {location}*\n{n} neighbour(s) already backing this spot on CivicRadar.\n\nJoin in — more neighbours means more weight when someone files:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'Share on WhatsApp',
 
@@ -4324,7 +4324,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.date': '{date}',
 
-      'cert.tagline': 'Protecting our ward this monsoon',
+      'cert.tagline': 'Keeping our ward safer',
 
       'cert.download': 'Download certificate',
 
@@ -4332,7 +4332,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.copyCaption': 'Copy caption',
 
-      'cert.caption': 'I earned {level} on CivicRadar — join me protecting {ward} this monsoon!\n{link}',
+      'cert.caption': 'I earned {level} on CivicRadar — join me keeping {ward} safer!\n{link}',
 
       'cert.captionCopied': 'Caption copied — paste on social media',
 
@@ -5662,7 +5662,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'Share weekly recap',
 
-      'share.weeklyRecap': '{ward} this week: {reports} new, {resolved} fixed, {backed} backed. Join on CivicRadar\n{link}\n{hashtags}',
+      'share.weeklyRecap': '{ward} this week: {reports} new, {resolved} fixed, {backed} backed. Join CivicRadar\n{link}\n{hashtags}',
 
       'feedback.menu': 'Send feedback',
 
@@ -6336,13 +6336,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'पड़ोसियों को अभी ख़बर न हो — WhatsApp पर शेयर करें।',
 
-      'success.shareMsg': '⚠️ *{location} में {hazard}*\nCivicRadar सामुदायिक मानचित्र पर पिन।\n\n\'Me too\' से इस स्पॉट का समर्थन करें — स्थानीय अधिकारी तेज़ी से कार्रवाई करें:\n👉 {link}\n\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} में {hazard}*\nCivicRadar सामुदायिक मानचित्र पर पिन।\n\n\'Me too\' से इस स्पॉट का समर्थन करें — नज़रअंदाज़ करना और मुश्किल हो:\n👉 {link}\n\n{hashtags}',
 
-      'share.appMsg': '{city} वार्ड खतरा मानचित्र — कचरा, गड्ढे, स्ट्रीटलाइट, जमा पानी पिन करें। Me too, वार्डों से आगे!\n{link}\n{hashtags}',
+      'share.appMsg': 'मुफ़्त {city} वार्ड खतरा मानचित्र — 30 सेकंड में कचरा, गड्ढे, स्ट्रीटलाइट, जमा पानी पिन करें। Me too, वार्डों से आगे।\nमुंबई, पुणे व ठाणे के लिए। लॉगिन नहीं, 4 भाषाएँ।\n{link}\nअपने RWA / सोसाइटी WhatsApp ग्रुप में भेजें\n{hashtags}',
 
       'share.defaultArea': 'मेरे इलाके',
 
-      'share.meTooMsg': '⚠️ मुझे भी — *{location} में {hazard}*\n{n} पड़ोसी पहले से CivicRadar पर इस स्पॉट का समर्थन कर रहे हैं।\n\nऔर आवाज़ जोड़ें — स्थानीय अधिकारी तेज़ी से कार्रवाई करें:\n👉 {link}\n\n{hashtags}',
+      'share.meTooMsg': '⚠️ मुझे भी — *{location} में {hazard}*\n{n} पड़ोसी पहले से CivicRadar पर इस स्पॉट का समर्थन कर रहे हैं।\n\nजुड़ें — ज़्यादा पड़ोसी मतलब किसी के दायर करने पर ज़्यादा वज़न:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp पर साझा करें',
 
@@ -6972,7 +6972,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.date': '{date}',
 
-      'cert.tagline': 'इस मानसून में हमारे वार्ड की रक्षा',
+      'cert.tagline': 'हमारे वार्ड को सुरक्षित रखना',
 
       'cert.download': 'प्रमाणपत्र डाउनलोड',
 
@@ -6980,7 +6980,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.copyCaption': 'कैप्शन कॉपी',
 
-      'cert.caption': 'मैंने CivicRadar पर {level} अर्जित किया — {ward} की रक्षा में जुड़ें!\n{link}',
+      'cert.caption': 'मैंने CivicRadar पर {level} अर्जित किया — मेरे साथ {ward} को और सुरक्षित रखने में जुड़ें!\n{link}',
 
       'cert.captionCopied': 'कैप्शन कॉपी — सोशल पर पेस्ट करें',
 
@@ -8309,7 +8309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'साप्ताहिक सारांश शेयर करें',
 
-      'share.weeklyRecap': '{ward} इस सप्ताह: {reports} नई, {resolved} ठीक, {backed} समर्थित। CivicRadar पर जुड़ें\n{link}\n{hashtags}',
+      'share.weeklyRecap': '{ward} इस सप्ताह: {reports} नई, {resolved} ठीक, {backed} समर्थित। CivicRadar से जुड़ें\n{link}\n{hashtags}',
 
       'feedback.menu': 'सुझाव भेजें',
 
@@ -8982,13 +8982,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'शेजाऱ्यांना अजून माहीत नसेल — WhatsApp वर शेअर करा.',
 
-      'success.shareMsg': '⚠️ *{location} मध्ये {hazard}*\nCivicRadar सामुदायिक नकाशावर पिन.\n\n\'Me too\' ने या ठिकाणाला पाठिंबा द्या — स्थानिक अधिकारी जलद कारवाई करतील:\n👉 {link}\n\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} मध्ये {hazard}*\nCivicRadar सामुदायिक नकाशावर पिन.\n\n\'Me too\' ने या ठिकाणाला पाठिंबा द्या — दुर्लक्ष करणे कठीण होईल:\n👉 {link}\n\n{hashtags}',
 
-      'share.appMsg': '{city} वॉर्ड धोका नकाशा — कचरा, खड्डे, स्ट्रीटलाइट, साचलेले पाणी पिन करा. Me too, वॉर्ड जिंका!\n{link}\n{hashtags}',
+      'share.appMsg': 'मोफत {city} वॉर्ड धोका नकाशा — ३० सेकंदांत कचरा, खड्डे, स्ट्रीटलाइट, साचलेले पाणी पिन करा. Me too, वॉर्ड जिंका.\nमुंबई, पुणे व ठाणेसाठी. लॉगिन नाही, ४ भाषा.\n{link}\nतुमच्या RWA / सोसायटी WhatsApp गटात पाठवा\n{hashtags}',
 
       'share.defaultArea': 'माझ्या भागात',
 
-      'share.meTooMsg': '⚠️ मला पण — *{location} मध्ये {hazard}*\n{n} शेजारी आधीच CivicRadar वर या ठिकाणाला पाठिंबा देत आहेत.\n\nआवाज वाढवा — स्थानिक अधिकारी जलद कारवाई करतील:\n👉 {link}\n\n{hashtags}',
+      'share.meTooMsg': '⚠️ मला पण — *{location} मध्ये {hazard}*\n{n} शेजारी आधीच CivicRadar वर या ठिकाणाला पाठिंबा देत आहेत.\n\nसामील व्हा — अधिक शेजारी म्हणजे कोणी फाइल केल्यावर जास्त वजन:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp वर शेअर करा',
 
@@ -9618,7 +9618,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.date': '{date}',
 
-      'cert.tagline': 'या पावसाळ्यात आमच्या वार्डाचे रक्षण',
+      'cert.tagline': 'आमचा वार्ड सुरक्षित ठेवणे',
 
       'cert.download': 'प्रमाणपत्र डाउनलोड',
 
@@ -9626,7 +9626,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.copyCaption': 'कॅप्शन कॉपी',
 
-      'cert.caption': 'मी CivicRadar वर {level} मिळवले — {ward} चे रक्षण करा!\n{link}',
+      'cert.caption': 'मी CivicRadar वर {level} मिळवले — माझ्यासोबत {ward} अधिक सुरक्षित ठेवण्यात सामील व्हा!\n{link}',
 
       'cert.captionCopied': 'कॅप्शन कॉपी — सोशलवर पेस्ट',
 
@@ -10954,7 +10954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'साप्ताहिक आढावा शेअर करा',
 
-      'share.weeklyRecap': '{ward} या आठवड्यात: {reports} नवी, {resolved} दुरुस्त, {backed} पाठिंबा. CivicRadar वर या\n{link}\n{hashtags}',
+      'share.weeklyRecap': '{ward} या आठवड्यात: {reports} नवी, {resolved} दुरुस्त, {backed} पाठिंबा. CivicRadar मध्ये सामील व्हा\n{link}\n{hashtags}',
 
       'feedback.menu': 'अभिप्राय पाठवा',
 
@@ -11627,13 +11627,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'success.shareNudge': 'પાડોશીઓને હજુ ખબર ન હોય — WhatsApp પર શેર કરો.',
 
-      'success.shareMsg': '⚠️ *{location} માં {hazard}*\nCivicRadar સામુદાયિક નકશા પર પિન.\n\n\'Me too\' થી આ સ્પોટને ટેકો આપો — સ્થાનિક અધિકારીઓ ઝડપથી કાર્યવાહી કરે:\n👉 {link}\n\n{hashtags}',
+      'success.shareMsg': '⚠️ *{location} માં {hazard}*\nCivicRadar સામુદાયિક નકશા પર પિન.\n\n\'Me too\' થી આ સ્પોટને ટેકો આપો — અવગણવું મુશ્કેલ બને:\n👉 {link}\n\n{hashtags}',
 
-      'share.appMsg': '🗺️ {city} વોર્ડ જોખમ નકશો — કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો!\n{link}\n{hashtags}',
+      'share.appMsg': 'મફત {city} વોર્ડ જોખમ નકશો — 30 સેકમાં કચરો, ખાડા, સ્ટ્રીટલાઇટ અને ભરાયેલું પાણી પિન. Me too, પ્રતિસ્પર્ધી વોર્ડને હરાવો.\nમુંબઈ, પુણે અને ઠાણે માટે બનાવ્યું. લોગિન નહીં, 4 ભાષાઓ.\n{link}\nRWA / સોસાયટી WhatsApp ગ્રુપમાં ફોરવર્ડ કરો →\n{hashtags}',
 
       'share.defaultArea': 'મારા વિસ્તારમાં',
 
-      'share.meTooMsg': '⚠️ મને પણ — *{location} માં {hazard}*\n{n} પડોશી પહેલેથી CivicRadar પર આ સ્પોટને ટેકો આપે છે.\n\nઅવાજ ઉમેરો — સ્થાનિક અધિકારીઓ ઝડપથી કાર્યવાહી કરે:\n👉 {link}\n\n{hashtags}',
+      'share.meTooMsg': '⚠️ મને પણ — *{location} માં {hazard}*\n{n} પડોશી પહેલેથી CivicRadar પર આ સ્પોટને ટેકો આપે છે.\n\nજોડાઓ — વધુ પડોશીઓ એટલે કોઈ ફાઇલ કરે ત્યારે વધુ વજન:\n👉 {link}\n\n{hashtags}',
 
       'share.meTooBtn': 'WhatsApp પર શેર કરો',
 
@@ -12263,7 +12263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.date': '{date}',
 
-      'cert.tagline': 'આ ચોમાસામાં અમારા વાર્ડનું રક્ષણ',
+      'cert.tagline': 'અમારા વાર્ડને સુરક્ષિત રાખવું',
 
       'cert.download': 'પ્રમાણપત્ર ડાઉનલોડ',
 
@@ -12271,7 +12271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'cert.copyCaption': 'કેપ્શન કૉપી',
 
-      'cert.caption': 'મેં CivicRadar પર {level} મેળવ્યું — {ward} નું રક્ષણ કરો!\n{link}',
+      'cert.caption': 'મેં CivicRadar પર {level} મેળવ્યું — મારી સાથે {ward} ને વધુ સુરક્ષિત રાખવામાં જોડાઓ!\n{link}',
 
       'cert.captionCopied': 'કેપ્શન કૉપી — સોશલ પર પેસ્ટ',
 
@@ -12496,7 +12496,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'confirm.shareBtn': 'શેર કરો',
 
-      'confirm.shareMsg': '✅ {ward} માં જોખમ CivicRadar પર ઠીક! સામૂહિક દબાણ કામ કરે છે:\n{link}\n{hashtags}',
+      'confirm.shareMsg': '{ward} માં જોખમ CivicRadar પર ઠીક! સામૂહિક દબાણ કામ કરે છે:\n{link}\n{hashtags}',
 
       'fix.looksFixed': 'હવે ઠીક લાગે છે',
 
@@ -13599,7 +13599,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'recap.share': 'સાપ્તાહિક સારાંશ શેર કરો',
 
-      'share.weeklyRecap': '📊 આ અઠવાડિયે {ward}: {reports} નવી ફરિયાદ, {resolved} ઠીક, {backed} પડોશીઓનું સમર્થન. CivicRadar પર જોડાઓ 👇\n{link}\n{hashtags}',
+      'share.weeklyRecap': 'આ અઠવાડિયે {ward}: {reports} નવી ફરિયાદ, {resolved} ઠીક, {backed} પડોશીઓનું સમર્થન. CivicRadarમાં જોડાઓ\n{link}\n{hashtags}',
 
       'feedback.menu': 'પ્રતિસાદ મોકલો',
 
@@ -18770,17 +18770,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function copySharePitch() {
-
-    const pitch = t('about.sharePitch')
-
-      .replace(/\{city\}/g, getCityLabel())
-
-      .replace(/\{link\}/g, shareAppLink('about'))
-
-      + '\n' + buildHashtagLine(user.ward);
-
-    copyTextSafe(pitch, 'about.pitchCopied');
-
+    copyTextSafe(buildDefaultShareMessage('about'), 'about.pitchCopied');
   }
 
 
@@ -29747,7 +29737,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setMetaContent('meta[property="og:description"]',
 
-        `${ward}: ${openCount} open hazard(s) on the map — pin, Me too, beat other wards. Free PWA — #MonsoonGuardian`);
+        `${ward}: ${openCount} open hazard(s) on the map — pin, Me too, beat other wards. Free PWA — #CivicRadar`);
 
     }
 
@@ -38152,7 +38142,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wh = getWardHashtag(ward || user.ward);
 
-    return `#CivicRadar #MonsoonGuardian ${wh}`;
+    return `#CivicRadar ${wh}`;
 
   }
 
@@ -38270,22 +38260,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function buildDefaultShareMessage() {
-
+  function buildDefaultShareMessage(utmSource) {
     const ward = user.ward ? getWardShortName(user.ward) : getCityLabel();
-
-    return fillShareTemplate(t('share.appMsg'), {
-
+    // Canonical invite pitch = about.sharePitch (+ hashtags). share.appMsg mirrors it.
+    return fillShareTemplate(t('about.sharePitch') + '\n{hashtags}', {
       city: getCityLabel(),
-
       ward,
-
-      link: shareAppLink(getMyReferralCode()),
-
+      link: shareAppLink(utmSource != null ? utmSource : getMyReferralCode()),
       wardFull: user.ward,
-
     });
-
   }
 
 
@@ -39970,19 +39953,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function buildCertificateCaption(levelId) {
-
     const levelTitle = civicLevelName(levelId);
-
     const ward = getWardShortName(user.ward) || getCityLabel();
-
     return t('cert.caption')
-
       .replace('{level}', levelTitle)
-
       .replace('{ward}', ward)
-
-      .replace('{link}', shareAppLink('cert'));
-
+      .replace('{link}', shareAppLink('cert'))
+      + '\n' + buildHashtagLine(user.ward);
   }
 
 
@@ -40243,7 +40220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ctx.font = '500 24px Outfit, system-ui, sans-serif';
 
-    ctx.fillText('#MonsoonGuardian', W - 72 - ctx.measureText('#MonsoonGuardian').width, isStory ? 120 : 96);
+    ctx.fillText('#CivicRadar', W - 72 - ctx.measureText('#CivicRadar').width, isStory ? 120 : 96);
 
 
 
@@ -40943,7 +40920,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hazard = hazardLabel(report.hazard);
 
-    const title = `${hazard} — ${ward} | CivicRadar #MonsoonGuardian`;
+    const title = `${hazard} — ${ward} | #CivicRadar ${getWardHashtag(report.ward)}`.replace(/\s+/g, ' ').trim();
 
     const desc = fillShareTemplate(t('success.shareMsg'), {
 
