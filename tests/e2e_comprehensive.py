@@ -1450,21 +1450,25 @@ async def run_citizen_tests(s: Suite, browser):
     except Exception:
         pass
 
-    # v386+ pin-drop: WhatsApp is the only primary CTA; official filing lives under More.
+    # v449+: WhatsApp primary; File with corp between WA and Done (not under More).
     c17_ok = await page.evaluate(
         """() => {
           const wa = document.getElementById('btnShareWhatsApp');
           const more = document.getElementById('btnSuccessMoreToggle');
           const official = document.getElementById('btnSuccessOfficialToggle');
           const moreBody = document.getElementById('successMoreBody');
+          const footer = document.querySelector('#successModal .success-footer');
           const waOk = !!(wa && wa.getBoundingClientRect().width > 0);
           const moreOk = !!(more && more.getBoundingClientRect().width > 0);
-          const officialInMore = !!(official && moreBody && moreBody.contains(official)
-            && moreBody.classList.contains('hidden'));
-          return waOk && moreOk && officialInMore;
+          const officialVisible = !!(official && official.getBoundingClientRect().width > 0
+            && moreBody && !moreBody.contains(official));
+          const betweenWaAndDone = !!(wa && official && footer
+            && (wa.compareDocumentPosition(official) & Node.DOCUMENT_POSITION_FOLLOWING)
+            && (official.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING));
+          return waOk && moreOk && officialVisible && betweenWaAndDone;
         }"""
     )
-    s.record('C17', 'Citizen', 'Success modal WhatsApp primary + More (official filing)', c17_ok)
+    s.record('C17', 'Citizen', 'Success modal WhatsApp primary + File with corp + More', c17_ok)
 
     # v407+: native Share removed from success More — WhatsApp is the sole share CTA.
     native_share_ok = await page.evaluate("""() => {
@@ -5831,7 +5835,7 @@ async def run_extended_scenarios(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v448" in sw_src
+            "civicradar-v449" in sw_src
 
             and "'/index.html'" not in sw_src
 
@@ -6251,17 +6255,18 @@ async def run_extended_scenarios(s: Suite, browser):
 
     s.record('CL02', 'Celebration', 'WhatsApp share btn present', await page.is_visible('#btnShareWhatsApp'))
 
-    # Official filing is nested under the collapsed More accordion (pin-drop v386+).
+    # v449+: official filing sits on main surface (between WA and Done), not under More.
     cl03_ok = await page.evaluate(
         """() => {
           const more = document.getElementById('btnSuccessMoreToggle');
           const official = document.getElementById('btnSuccessOfficialToggle');
           const moreBody = document.getElementById('successMoreBody');
           return !!(more && more.getBoundingClientRect().width > 0
-            && official && moreBody && moreBody.contains(official));
+            && official && official.getBoundingClientRect().width > 0
+            && moreBody && !moreBody.contains(official));
         }"""
     )
-    s.record('CL03', 'Celebration', 'More accordion hosts official filing', cl03_ok)
+    s.record('CL03', 'Celebration', 'File with corp visible outside More', cl03_ok)
 
     s.record('CL04', 'Celebration', 'Success close btn present', await page.is_visible('#btnSuccessClose'))
 
@@ -9211,7 +9216,7 @@ async def run_smoke_extended_tests(s: Suite, browser):
 
         sw_ok = (
 
-            "civicradar-v448" in sw_src
+            "civicradar-v449" in sw_src
 
             and "'/index.html'" not in sw_src
 

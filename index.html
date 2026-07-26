@@ -729,6 +729,33 @@
           <i class="ph ph-whatsapp-logo"></i> <span data-i18n="success.shareWhatsapp">Share on WhatsApp</span>
         </button>
       </div>
+      <div class="success-optional-block">
+        <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
+          <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
+            <span data-i18n="success.alsoOfficial">File with {corp}</span>
+            <i class="ph ph-caret-down" aria-hidden="true"></i>
+          </button>
+          <div class="official-channels-block__body hidden" id="successOfficialBody">
+            <p class="field-hint success-official-hint" data-i18n="success.subtitle">Filing with {corp} starts the official clock — you file, we track.</p>
+            <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
+            <div class="esc-channels official-channels official-channels--success" id="successOfficialChannels" data-official-context="success"></div>
+            <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
+              <i class="ph ph-list-checks"></i> <span data-i18n="success.filingGuide">How to file &amp; copy text</span>
+            </button>
+            <p class="official-sources-all">
+              <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
+                <i class="ph ph-books" aria-hidden="true"></i>
+                <span data-i18n="official.viewAllSources">More filing links</span>
+              </a>
+            </p>
+            <div class="share-buttons">
+              <button type="button" class="btn btn--ghost btn--full" id="btnShareTwitter">
+                <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="success-footer">
         <button type="button" class="btn btn--secondary btn--full" id="btnSuccessClose" data-i18n="success.done">Done</button>
       </div>
@@ -760,33 +787,6 @@
               <p class="success-progress" id="successProgress" aria-live="polite"></p>
             </div>
             <p class="success-streak hidden" id="successStreak" aria-live="polite" hidden></p>
-          </div>
-          <div class="success-optional-block">
-            <div class="official-channels-block official-channels-block--collapsed" id="successOfficialBlock">
-              <button type="button" class="official-channels-block__toggle" id="btnSuccessOfficialToggle" aria-expanded="false" aria-controls="successOfficialBody">
-                <span data-i18n="success.alsoOfficial">File with {corp}</span>
-                <i class="ph ph-caret-down" aria-hidden="true"></i>
-              </button>
-              <div class="official-channels-block__body hidden" id="successOfficialBody">
-                <p class="field-hint success-official-hint" data-i18n="success.subtitle">Filing with {corp} starts the official clock — you file, we track.</p>
-                <p class="accountability-clock accountability-clock--warn" id="successClock"></p>
-                <div class="esc-channels official-channels official-channels--success" id="successOfficialChannels" data-official-context="success"></div>
-                <button type="button" class="btn btn--ghost btn--full success-filing-guide" id="btnSuccessFilingGuide">
-                  <i class="ph ph-list-checks"></i> <span data-i18n="success.filingGuide">How to file &amp; copy text</span>
-                </button>
-                <p class="official-sources-all">
-                  <a href="official-sources.html" class="official-sources-link" target="_blank" rel="noopener noreferrer">
-                    <i class="ph ph-books" aria-hidden="true"></i>
-                    <span data-i18n="official.viewAllSources">More filing links</span>
-                  </a>
-                </p>
-                <div class="share-buttons">
-                  <button type="button" class="btn btn--ghost btn--full" id="btnShareTwitter">
-                    <i class="ph ph-x-logo"></i> <span data-i18n="success.tag">Tag @mybmc</span>
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
