@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v449';
+  const CIVIC_APP_VERSION = 'v450';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4666,7 +4666,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.subtitleCommunity': 'Neighbours confirmed this spot looks fixed — not an official BMC record.',
 
-      'shareWin.impact': '{n} neighbours backed this — {ward} — screenshot this win!',
+      'shareWin.impact': '{n} neighbours backed this in {ward}.',
+
+      'shareWin.impactZero': 'Share so more of {ward} sees it fixed.',
 
       'toast.fixConfirmed': '+10 Civic Points — thanks for checking!',
 
@@ -7312,7 +7314,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.subtitleCommunity': 'पड़ोसियों ने पुष्टि की — आधिकारिक BMC रिकॉर्ड नहीं।',
 
-      'shareWin.impact': '{n} पड़ोसियों ने समर्थन किया — {ward} — यह जीत स्क्रीनशॉट करें!',
+      'shareWin.impact': '{n} पड़ोसियों ने {ward} में समर्थन किया।',
+
+      'shareWin.impactZero': '{ward} में और लोगों तक पहुँचाने के लिए शेयर करें।',
 
       'toast.fixConfirmed': '+10 Civic Points — जाँच के लिए धन्यवाद!',
 
@@ -9958,7 +9962,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.subtitleCommunity': 'शेजाऱ्यांनी पुष्टी केली — अधिकृत BMC नोंद नाही.',
 
-      'shareWin.impact': '{n} शेजाऱ्यांनी पाठिंबा दिला — {ward} — हा विजय स्क्रीनशॉट करा!',
+      'shareWin.impact': '{n} शेजाऱ्यांनी {ward} मध्ये पाठिंबा दिला.',
+
+      'shareWin.impactZero': '{ward} मध्ये अधिक लोकांपर्यंत पोहोचण्यासाठी शेअर करा.',
 
       'toast.fixConfirmed': '+10 Civic Points — तपासणीसाठी धन्यवाद!',
 
@@ -12603,7 +12609,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'shareWin.subtitleCommunity': 'પડોશીઓએ પુષ્ટિ કરી — અધિકૃત BMC રેકોર્ડ નહીં.',
 
-      'shareWin.impact': '{n} પડોશીઓએ ટેકો · {ward} — આ જીત સ્ક્રીનશોટ કરો! 🏆',
+      'shareWin.impact': '{n} પડોશીઓએ {ward} માં ટેકો આપ્યો.',
+
+      'shareWin.impactZero': '{ward} માં વધુ લોકો સુધી પહોંચાડવા શેર કરો.',
 
       'toast.fixConfirmed': '+10 Civic Points — તપાસ માટે આભાર!',
 
@@ -40733,13 +40741,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const ward = getWardShortName(report.ward) || getCityLabel();
 
-      impactEl.textContent = t('shareWin.impact')
+      impactEl.textContent = n > 0
 
-        .replace('{n}', String(n))
+        ? t('shareWin.impact').replace('{n}', String(n)).replace('{ward}', ward)
 
-        .replace('{ward}', ward);
+        : t('shareWin.impactZero').replace('{ward}', ward);
 
-      impactEl.classList.toggle('hidden', n <= 0 && !ward);
+      impactEl.classList.remove('hidden');
 
     }
 
@@ -45878,8 +45886,6 @@ document.addEventListener('DOMContentLoaded', function () {
       try { closeMapPinPopup(); } catch { /* ignore */ }
 
       closeModal('escalation');
-
-      showToast(t('toast.selfResolved'), 'success', 4000);
 
       setTimeout(() => showShareWinModal(reportId, 'resolved'), 600);
 
