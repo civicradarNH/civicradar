@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v445';
+  const CIVIC_APP_VERSION = 'v446';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1486,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           small: BMC.whatsapp ? ('+' + String(BMC.whatsapp).replace(/^\+/, '')) : '',
 
-          url: `https://wa.me/${BMC.whatsapp}`,
+          url: `https://api.whatsapp.com/send?phone=${BMC.whatsapp}`,
 
           urlKind: 'whatsapp',
 
@@ -1554,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           small: t('esc.pmc.channelWaSmall'),
 
-          url: `https://wa.me/${corp.whatsapp}`,
+          url: `https://api.whatsapp.com/send?phone=${corp.whatsapp}`,
 
           urlKind: 'whatsapp',
 
@@ -1734,6 +1734,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function buildWhatsappComplaintText(report, channelId) {
+
+    if (!report) return '';
+
+    const city = getReportCity(report);
+
+    const wardParts = parseWardParts(report.ward);
+
+    const wardLine = formatWardForCopy(wardParts);
+
+    const category = bmcCategoryLabel(report.hazard);
+
+    const complaintFiledKey = city === 'pune' ? 'copy1916.pmc.complaintFiled' : city === 'thane' ? 'copy1916.tmc.complaintFiled' : 'copy1916.complaintFiled';
+
+    const complaintNotFiledKey = city === 'pune' ? 'copy1916.pmc.complaintNotFiled' : city === 'thane' ? 'copy1916.tmc.complaintNotFiled' : 'copy1916.complaintNotFiled';
+
+    const dateStr = new Date(report.timestamp).toLocaleDateString('en-IN', {
+
+      day: 'numeric', month: 'short', year: 'numeric',
+
+    });
+
+    const lines = [
+
+      `${te('copy1916.categoryLabel')}: ${category}`,
+
+      `${te('copy1916.wardLabel')}: ${wardLine}`,
+
+    ];
+
+    if (report.notes) lines.push(`${te('copy1916.landmarkLabel')}: ${report.notes}`);
+
+    if (report.lat != null && report.lng != null) {
+
+      lines.push(`${te('copy1916.gpsLabel')}: ${report.lat.toFixed(6)}, ${report.lng.toFixed(6)}`);
+
+      if (isGpsOutsideCity(report.lat, report.lng, city)) {
+
+        lines.push(te('copy1916.gpsWarning').replace('{city}', getCityLabel(city)));
+
+      }
+
+      lines.push(`${te('copy1916.mapsLabel')}: https://maps.google.com/?q=${report.lat},${report.lng}`);
+
+    }
+
+    lines.push(`${te('copy1916.dateLabel')}: ${dateStr}`);
+
+    lines.push(
+
+      report.complaintId
+
+        ? te(complaintFiledKey).replace('{id}', report.complaintId)
+
+        : te(complaintNotFiledKey)
+
+    );
+
+    const hint = getOfficialCategoryHint(channelId, report.hazard, city);
+
+    if (hint) lines.push(te('official.categoryHint').replace('{hint}', hint));
+
+    lines.push(te('copy1916.refId').replace('{id}', report.id));
+
+    lines.push(te('official.photoGuidance'));
+
+    return lines.join('\n');
+
+  }
+
+
+
+  function openWhatsAppUrl(phone, text) {
+
+    const params = new URLSearchParams();
+
+    if (phone) params.set('phone', String(phone).replace(/^\+/, ''));
+
+    if (text) params.set('text', text);
+
+    const qs = params.toString();
+
+    window.open(`https://api.whatsapp.com/send${qs ? '?' + qs : ''}`, '_blank');
+
+  }
+
+
+
   function trackOfficialChannelOpen(channelId, context, ward, hazard) {
 
     trackBmcEvent('official_channel_open', {
@@ -1762,17 +1850,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!meta || !meta.url) return;
 
+    const isWhatsapp = meta.urlKind === 'whatsapp';
+
+    const summaryText = report
+
+      ? (isWhatsapp ? buildWhatsappComplaintText(report, channelId) : buildOfficialSummaryText(report, channelId))
+
+      : '';
+
     let url = meta.url;
 
-    if (meta.urlKind === 'whatsapp' && report) {
+    if (isWhatsapp && report) {
 
-      url = `${meta.url}?text=${encodeURIComponent(buildOfficialSummaryText(report, channelId))}`;
+      url = `${meta.url}${meta.url.includes('?') ? '&' : '?'}text=${encodeURIComponent(summaryText)}`;
 
     }
 
     if (options.copySummary !== false && report) {
 
-      copyTextSafe(buildOfficialSummaryText(report, channelId), 'official.copyDone');
+      copyTextSafe(summaryText || buildOfficialSummaryText(report, channelId), 'official.copyDone');
 
     }
 
@@ -38971,7 +39067,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const text = encodeURIComponent(base);
 
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
 
   }
 
@@ -42154,9 +42250,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!wa) return;
 
-    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Hazard report — CivicRadar');
+    const text = report ? buildWhatsappComplaintText(report, 'pmc_wa') : 'Hazard report — CivicRadar';
 
-    window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
+    openWhatsAppUrl(wa, text);
 
   }
 
@@ -42880,9 +42976,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'whatsapp' }, report?.ward);
 
-    const text = encodeURIComponent(report ? buildCitizenComplaintText(report) : 'Hazard report — CivicRadar');
+    const text = report ? buildWhatsappComplaintText(report, 'bmc_whatsapp') : 'Hazard report — CivicRadar';
 
-    window.open(`https://wa.me/${BMC.whatsapp}?text=${text}`, '_blank');
+    openWhatsAppUrl(BMC.whatsapp, text);
 
   }
 
