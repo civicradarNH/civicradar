@@ -831,6 +831,18 @@
     </div>
   </div>
 
+  <!-- WhatsApp: which report is this about? -->
+  <div class="modal-overlay" id="waReportPickerOverlay" aria-hidden="true">
+    <div class="modal" id="waReportPickerModal" role="dialog" aria-modal="true" aria-labelledby="waReportPickerTitle">
+      <div class="modal__handle"></div>
+      <button type="button" class="modal__close" data-close="waReportPicker" data-i18n-aria="aria.close" aria-label="Close">&times;</button>
+      <h2 id="waReportPickerTitle" data-i18n="waPicker.title">Which report is this about?</h2>
+      <p class="modal__subtitle" data-i18n="waPicker.subtitle">We'll include its details in the WhatsApp message.</p>
+      <div class="esc-channels" id="waReportPickerList"></div>
+      <button type="button" class="btn btn--ghost btn--full" id="btnWaReportPickerSkip" data-i18n="waPicker.skip">Not about a specific report</button>
+    </div>
+  </div>
+
   <!-- Civic Points level-up certificate -->
   <div class="modal-overlay" id="certificateOverlay" aria-hidden="true">
     <div class="modal" id="certificateModal" role="dialog" aria-modal="true" aria-labelledby="certificateTitle">

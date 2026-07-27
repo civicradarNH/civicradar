@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v456';
+  const CIVIC_APP_VERSION = 'v457';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -950,6 +950,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Citizen-facing filing guidance channel: call | whatsapp | portal | marg */
   let activeEscGuidanceChannel = 'whatsapp';
 
+  let pendingWaChannelId = null;
+
+  let pendingWaContext = 'resources';
+
   let pendingShareWinReportId = null;
 
   let pendingShareWinType = 'resolved';
@@ -1203,6 +1207,8 @@ document.addEventListener('DOMContentLoaded', function () {
     partner: $('#partnerOverlay'),
 
     escalation: $('#escalationOverlay'),
+
+    waReportPicker: $('#waReportPickerOverlay'),
 
     lang: $('#langOverlay'),
 
@@ -1894,6 +1900,66 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function renderWaReportPickerList(reports) {
+
+    const list = $('#waReportPickerList');
+
+    if (!list) return;
+
+    list.innerHTML = reports.map((r) => {
+
+      const cat = HAZARD_CATEGORIES.find((c) => c.key === r.hazard);
+
+      const icon = cat ? cat.icon : 'ph-warning';
+
+      return `<button type="button" class="esc-channel wa-report-picker__row" data-wa-report-id="${escapeHtml(r.id)}">
+        <i class="ph ${icon}" aria-hidden="true"></i><span>${escapeHtml(hazardLabel(r.hazard))}${r.ward ? ` — ${escapeHtml(r.ward)}` : ''}</span><small>${escapeHtml(formatRelativeTime(r.timestamp))}</small>
+      </button>`;
+
+    }).join('');
+
+  }
+
+
+
+  function openWaReportPicker(channelId, context) {
+
+    pendingWaChannelId = channelId;
+
+    pendingWaContext = context || 'resources';
+
+    renderWaReportPickerList(getEscalatableUserReports());
+
+    openModal('waReportPicker');
+
+  }
+
+
+
+  function handleWaReportPickerClick(e) {
+
+    const row = e.target.closest('[data-wa-report-id]');
+
+    const skip = e.target.closest('#btnWaReportPickerSkip');
+
+    if (!row && !skip) return;
+
+    const report = row ? findReportById(row.dataset.waReportId) : null;
+
+    const channelId = pendingWaChannelId;
+
+    const context = pendingWaContext;
+
+    closeModal('waReportPicker');
+
+    pendingWaChannelId = null;
+
+    if (channelId) openOfficialChannel(channelId, { report, context });
+
+  }
+
+
+
   function pickResourcesPrimaryChannel(channels) {
 
     if (!channels || !channels.length) return null;
@@ -2148,15 +2214,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!reportId && lastReportId) reportId = lastReportId;
 
-    const report = reportId ? findReportById(reportId) : null;
+    let report = reportId ? findReportById(reportId) : null;
 
-    openOfficialChannel(channelId, {
+    const context = (wrap && wrap.dataset.officialContext) || (btn.closest('#escOfficialExtras') ? 'escalation' : 'panel');
 
-      report,
+    const isWaChannel = channelId === 'bmc_whatsapp' || channelId === 'pmc_wa';
 
-      context: (wrap && wrap.dataset.officialContext) || (btn.closest('#escOfficialExtras') ? 'escalation' : 'panel'),
+    if (!report && isWaChannel) {
 
-    });
+      const candidates = getEscalatableUserReports();
+
+      if (candidates.length > 1) {
+
+        openWaReportPicker(channelId, context);
+
+        return;
+
+      }
+
+      if (candidates.length === 1) report = candidates[0];
+
+    }
+
+    openOfficialChannel(channelId, { report, context });
 
   }
 
@@ -4962,6 +5042,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
+      'waPicker.title': 'Which report is this about?',
+
+      'waPicker.subtitle': "We'll include its details in the WhatsApp message.",
+
+      'waPicker.skip': 'Not about a specific report',
+
       'official.bmcPortal.label': 'BMC online portal',
 
       'official.hint.marg.stagnant-water': 'Public Health → Pest Control → stagnant water / mosquito breeding',
@@ -7615,6 +7701,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
+
+      'waPicker.title': 'यह किस रिपोर्ट के बारे में है?',
+
+      'waPicker.subtitle': 'हम इसका विवरण WhatsApp संदेश में शामिल करेंगे।',
+
+      'waPicker.skip': 'किसी खास रिपोर्ट के बारे में नहीं',
 
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
@@ -10270,6 +10362,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
+      'waPicker.title': 'हे कोणत्या रिपोर्टबद्दल आहे?',
+
+      'waPicker.subtitle': 'आम्ही त्याचे तपशील WhatsApp संदेशात समाविष्ट करू.',
+
+      'waPicker.skip': 'विशिष्ट रिपोर्टबद्दल नाही',
+
       'official.bmcPortal.label': 'BMC ऑनलाइन पोर्टल',
 
       'official.hint.marg.stagnant-water': 'सार्वजनिक आरोग्य → कीटक नियंत्रण → stagnant water / डास प्रजनन',
@@ -12922,6 +13020,12 @@ document.addEventListener('DOMContentLoaded', function () {
       'official.tmc.small': 'thanecity.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
+
+      'waPicker.title': 'આ કઈ ફરિયાદ વિશે છે?',
+
+      'waPicker.subtitle': 'અમે તેની વિગતો WhatsApp સંદેશમાં સામેલ કરીશું.',
+
+      'waPicker.skip': 'કોઈ ચોક્કસ ફરિયાદ વિશે નથી',
 
       'official.bmcPortal.label': 'BMC ઑનલાઇન પોર્ટલ',
 
@@ -22429,6 +22533,18 @@ document.addEventListener('DOMContentLoaded', function () {
       return false;
 
     });
+
+  }
+
+
+
+  function getEscalatableUserReports() {
+
+    return getUserReports()
+
+      .filter((r) => r.status !== 'resolved')
+
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   }
 
@@ -33566,6 +33682,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('click', (e) => {
 
       if (e.target.closest('[data-official-channel]')) handleOfficialChannelClick(e);
+
+      if (e.target.closest('#waReportPickerList, #btnWaReportPickerSkip')) handleWaReportPickerClick(e);
 
     });
 
