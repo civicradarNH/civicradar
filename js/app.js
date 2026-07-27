@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v454';
+  const CIVIC_APP_VERSION = 'v455';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1860,9 +1860,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let url = meta.url;
 
-    if (isWhatsapp && report) {
+    if (isWhatsapp) {
 
-      url = `${meta.url}${meta.url.includes('?') ? '&' : '?'}text=${encodeURIComponent(summaryText)}`;
+      const waText = report ? summaryText : 'Hazard report — CivicRadar';
+
+      url = `${meta.url}${meta.url.includes('?') ? '&' : '?'}text=${encodeURIComponent(waText)}`;
 
     }
 
