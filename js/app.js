@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v455';
+  const CIVIC_APP_VERSION = 'v456';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1806,6 +1806,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function buildGenericWhatsappIntro() {
+
+    const wardLine = user && user.ward ? ` Ward: ${user.ward}.` : '';
+
+    return `Hi, I'd like to report a civic hazard (garbage / pothole / waterlogging / streetlight) via CivicRadar.${wardLine} Please guide me on how to file this.`;
+
+  }
+
+
+
   function openWhatsAppUrl(phone, text) {
 
     const params = new URLSearchParams();
@@ -1862,7 +1872,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (isWhatsapp) {
 
-      const waText = report ? summaryText : 'Hazard report — CivicRadar';
+      const waText = report ? summaryText : buildGenericWhatsappIntro();
 
       url = `${meta.url}${meta.url.includes('?') ? '&' : '?'}text=${encodeURIComponent(waText)}`;
 
@@ -42390,7 +42400,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!wa) return;
 
-    const text = report ? buildWhatsappComplaintText(report, 'pmc_wa') : 'Hazard report — CivicRadar';
+    const text = report ? buildWhatsappComplaintText(report, 'pmc_wa') : buildGenericWhatsappIntro();
 
     openWhatsAppUrl(wa, text);
 
@@ -43116,7 +43126,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'whatsapp' }, report?.ward);
 
-    const text = report ? buildWhatsappComplaintText(report, 'bmc_whatsapp') : 'Hazard report — CivicRadar';
+    const text = report ? buildWhatsappComplaintText(report, 'bmc_whatsapp') : buildGenericWhatsappIntro();
 
     openWhatsAppUrl(BMC.whatsapp, text);
 
