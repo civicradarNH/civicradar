@@ -1,9 +1,60 @@
 # CivicRadar — cross-screen consistency review
 
-Report only, no code changed. Six screens reviewed together: Profile (Community
-Roles + Account & Legal), Community (impact stats, ward-this-week, leaderboard,
-get-involved), the report success screen, and the Report flow's Capture and
-Confirm steps.
+Report only, no code changed. Originally six screens (Profile, Community, the
+report success screen, Report flow Capture/Confirm); a follow-up round added
+Edit Profile, Resources, two more Community scroll states, and Terms of
+Service. §0 below tracks what's since landed against the original findings.
+
+---
+
+## 0. Status update (follow-up screenshots)
+
+**Confirmed fixed:**
+- **#6 Leaderboard zero-fixes copy** — now reads "No ward has logged a fix
+  yet this week — be the first." Exactly closes the "crowning a zero"
+  problem.
+- **#7 Illustrated empty states extended** — "Recent wins" now shows the
+  same generous treatment as "Community leads" (icon + "Fixed spots show
+  here. Report one and rally neighbours." + a direct CTA), instead of being
+  the one bare exception.
+- **Resources page** (separate report, several turns back) — now shows
+  exactly one "Recommended" channel, the other four collapsed behind
+  "4 more official channels," and both sections ("File with Corporation" /
+  "Help in Your Ward") use the same compact row style. This was fully
+  implemented, not partially.
+
+**Correction to #5 (duplicate stats):** the follow-up screenshots show this
+was very likely a false alarm on my part — the two earlier screenshots were
+just two different scroll positions of one 2×2 stat grid (Reports/Fixed on
+top, Me Too/Pledges below), not two separate components. Retracting that
+finding; no fix needed.
+
+**Still open:** #1 (Account & Legal isn't in a card like Community Roles),
+#2 (icon-color muting not applied to either Profile section). #3 (text-color
+rule) may be partially resolved — the latest screenshot shows Terms of
+Service, Privacy Policy, and Privacy/grievance contact all in the same blue
+link style now, which reads as a real rule ("blue = leaves the app") rather
+than three arbitrary treatments; worth confirming that's deliberate and
+extending it explicitly rather than leaving it as a coincidence.
+
+---
+
+## New screens (Edit Profile, Terms of Service)
+
+**Edit profile** — clean, no real issues. One minor nit: "Detect with GPS"
+sits as a button in the middle of a field stack (Ward → GPS button → Society)
+rather than being visually attached to the ward field it acts on — works
+fine contextually, just breaks the field-field-field rhythm slightly. Not
+worth changing unless you're already touching this screen.
+
+**Terms of Service (terms.html)** — appropriately more sober/document-styled
+than the in-app modals, which is correct for a legal page, not an
+inconsistency to fix. The "Not an official municipal app" disclaimer being
+prominent and explicit here is *correct* — this is the one place that
+repetition earned earlier (About modal, escalation modal, volunteer
+subtitle) is the authoritative source, not redundant. No changes suggested.
+
+---
 
 ---
 
