@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v457';
+  const CIVIC_APP_VERSION = 'v458';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1666,7 +1666,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = cityId || getUserCity();
 
-    const order = (OFFICIAL.cityOrder && OFFICIAL.cityOrder[city]) || [];
+    // Ward not on this city's official list → can't confirm which municipal body
+    // covers the user (e.g. PCMC). Offer only corporation-agnostic channels.
+    const genericOnly = !!(user && user.ward && !isValidWard(user.ward, city));
+
+    const GENERIC_CHANNEL_IDS = new Set(['swachhata', 'aaple_sarkar']);
+
+    const fullOrder = (OFFICIAL.cityOrder && OFFICIAL.cityOrder[city]) || [];
+
+    const order = genericOnly ? fullOrder.filter((id) => GENERIC_CHANNEL_IDS.has(id)) : fullOrder;
 
     const exclude = new Set((opts && opts.exclude) || []);
 
@@ -1705,6 +1713,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     entries.sort((a, b) => b.score - a.score || order.indexOf(a.id) - order.indexOf(b.id));
+
+    entries.genericOnly = genericOnly;
 
     return entries;
 
@@ -2087,6 +2097,12 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="esc-channels official-channels resources-more-channels__list" id="${listId}">${rest.map((c) => officialChannelRowHtml(c, false)).join('')}</div>
 
       </details>`;
+
+      }
+
+      if (channels.genericOnly) {
+
+        html = `<p class="field-hint">${escapeHtml(t('resources.areaUnverifiedNote'))}</p>` + html;
 
       }
 
@@ -2802,6 +2818,8 @@ document.addEventListener('DOMContentLoaded', function () {
     user.city = city;
 
     user.ward = ward;
+
+    user.areaOutsideBounds = false;
 
     saveUser();
 
@@ -3547,7 +3565,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'Couldn\'t find your area. Pick it, or turn on location.',
 
-      'onboard.outOfBounds': 'CivicRadar covers Mumbai, Pune, and Thane. Select one to explore.',
+      'onboard.outOfBounds': "We couldn't match your exact area to Mumbai, Pune, or Thane. Pick the closest city, then type your area below to continue.",
 
       'onboard.gpsDisclosure': 'Used once to suggest your ward. Never shown on the map until you report.',
 
@@ -4254,6 +4272,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'resources.actionTitle': 'Help in Your Ward',
 
       'resources.moreChannels': '{n} more official channels',
+
+      'resources.areaUnverifiedNote': "We couldn't confirm your exact municipal corporation, so we're showing statewide filing options instead.",
 
       'community.supportTitle': 'Support Volunteers',
 
@@ -6207,7 +6227,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'इलाका नहीं मिला। खुद चुनें, या लोकेशन चालू करें।',
 
-      'onboard.outOfBounds': 'CivicRadar मुंबई, पुणे और ठाणे में उपलब्ध है। देखने के लिए एक चुनें।',
+      'onboard.outOfBounds': 'हम आपके क्षेत्र को मुंबई, पुणे या ठाणे से ठीक से नहीं जोड़ पाए। सबसे नज़दीकी शहर चुनें, फिर नीचे अपना क्षेत्र लिखकर आगे बढ़ें।',
 
       'onboard.gpsDisclosure': 'आपका वार्ड सुझाने के लिए एक बार उपयोग। रिपोर्ट करने तक मानचित्र पर नहीं दिखता।',
 
@@ -6916,6 +6936,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'resources.actionTitle': 'अपने वार्ड में मदद करें',
 
       'resources.moreChannels': '{n} और आधिकारिक चैनल',
+
+      'resources.areaUnverifiedNote': 'हम आपकी सटीक नगर निगम की पुष्टि नहीं कर पाए, इसलिए राज्यव्यापी विकल्प दिखा रहे हैं।',
 
       'community.supportTitle': 'स्वयंसेवकों का साथ दें',
 
@@ -8867,7 +8889,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'परिसर सापडला नाही. स्वतः निवडा, किंवा लोकेशन चालू करा.',
 
-      'onboard.outOfBounds': 'CivicRadar मुंबई, पुणे आणि ठाणे मध्ये उपलब्ध आहे. पाहण्यासाठी एक निवडा.',
+      'onboard.outOfBounds': 'तुमचा भाग मुंबई, पुणे किंवा ठाणेशी नेमका जुळवता आला नाही. सर्वात जवळचे शहर निवडा, नंतर खाली तुमचा भाग लिहून पुढे जा.',
 
       'onboard.gpsDisclosure': 'तुमचा वॉर्ड सुचवण्यासाठी एकदा वापर. तक्रार करेपर्यंत नकाशावर दिसणार नाही.',
 
@@ -9576,6 +9598,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'resources.actionTitle': 'तुमच्या वॉर्डमध्ये मदत करा',
 
       'resources.moreChannels': '{n} अधिक अधिकृत चॅनेल',
+
+      'resources.areaUnverifiedNote': 'तुमची नेमकी महानगरपालिका निश्चित करता आली नाही, म्हणून राज्यव्यापी पर्याय दाखवत आहोत.',
 
       'community.supportTitle': 'स्वयंसेवकांना साथ द्या',
 
@@ -11526,7 +11550,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'onboard.wardDetectFailed': 'તમારો વિસ્તાર મળ્યો નહીં. જાતે પસંદ કરો, અથવા લોકેશન ચાલુ કરો.',
 
-      'onboard.outOfBounds': 'CivicRadar મુંબઈ, પુણે અને ઠાણેમાં ઉપલબ્ધ છે. જોવા માટે એક પસંદ કરો.',
+      'onboard.outOfBounds': 'તમારો વિસ્તાર મુંબઈ, પુણે અથવા ઠાણે સાથે બરાબર મેળ ખાતો નથી. સૌથી નજીકનું શહેર પસંદ કરો, પછી નીચે તમારો વિસ્તાર લખીને આગળ વધો.',
 
       'onboard.gpsDisclosure': 'તમારો વોર્ડ સૂચવવા એક વાર ઉપયોગ. ફરિયાદ કરતાં પહેલાં નકશા પર નહીં દેખાય.',
 
@@ -12235,6 +12259,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'resources.actionTitle': 'તમારા વોર્ડમાં મદદ કરો',
 
       'resources.moreChannels': '{n} વધુ અધિકૃત ચેનલ્સ',
+
+      'resources.areaUnverifiedNote': 'તમારી ચોક્કસ મહાનગરપાલિકાની ખાતરી કરી શકાયું નથી, તેથી રાજ્યવ્યાપી વિકલ્પો બતાવી રહ્યાં છીએ.',
 
       'community.supportTitle': 'સ્વયંસેવકોને ટેકો આપો',
 
@@ -25940,6 +25966,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** Onboarding only: allow free-text area when GPS is confirmed outside Mumbai/Pune/Thane. */
+  function isOnboardingWardAcceptable(ward, cityId) {
+
+    if (isValidWard(ward, cityId)) return true;
+
+    return typeof currentLat === 'number' && typeof currentLng === 'number'
+      && isGpsOutsideSupportedCities(currentLat, currentLng);
+
+  }
+
+
+
   function getOnboardingWard() {
 
     const manual = ($('#wardInput') && $('#wardInput').value.trim()) || '';
@@ -25950,13 +25988,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   }
 
-  // Continue stays disabled until city+ward are valid (Explore map stays enabled).
+  // Continue stays disabled until city+ward are acceptable (Explore map stays enabled).
   function syncOnboardingJoinCta() {
     const btn = $('#btnOnboardingContinue');
     if (!btn) return;
     const ward = getOnboardingWard().trim();
     const city = getOnboardingCity();
-    const ready = !!(ward && isValidWard(ward, city));
+    const ready = !!(ward && isOnboardingWardAcceptable(ward, city));
     btn.disabled = !ready;
     btn.classList.toggle('btn--primary', ready);
     btn.classList.toggle('btn--secondary', !ready);
@@ -29973,7 +30011,8 @@ document.addEventListener('DOMContentLoaded', function () {
     try { populateWardDatalists(); } catch { /* ignore */ }
 
     try {
-      if (user && user.ward && !isValidWard(user.ward, user.city)) {
+      // Keep free-text areas for confirmed out-of-bounds users (e.g. PCMC).
+      if (user && user.ward && !isValidWard(user.ward, user.city) && !user.areaOutsideBounds) {
         user.ward = '';
         saveUser();
       }
@@ -32305,7 +32344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      if (!isValidWard(ward, getOnboardingCity())) {
+      if (!isOnboardingWardAcceptable(ward, getOnboardingCity())) {
 
         revealFieldError($('#wardError'));
 
@@ -32335,7 +32374,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       $('#onboardTosError')?.classList.add('hidden');
 
-      if (!ward || !isValidWard(ward, getOnboardingCity())) {
+      if (!ward || !isOnboardingWardAcceptable(ward, getOnboardingCity())) {
 
         setOnboardingStep(1, { skipFocus: false });
 
@@ -32370,6 +32409,9 @@ document.addEventListener('DOMContentLoaded', function () {
       user.city = getOnboardingCity();
 
       user.ward = ward;
+
+      // Persist free-text area for GPS-outside users so reload doesn't wipe it.
+      user.areaOutsideBounds = !isValidWard(ward, user.city);
 
       user.society = sanitizeText($('#onboardSociety')?.value || '', 120);
 
