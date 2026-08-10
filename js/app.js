@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v458';
+  const CIVIC_APP_VERSION = 'v459';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -4543,6 +4543,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.disclaimer': 'CivicRadar is an independent community platform. It is not affiliated with BMC, PMC, TMC, or any government body, and is not an official municipal complaint channel.',
 
+      'about.whatsNewTitle': "What's new",
+
+      'about.whatsNew1': 'Fixed onboarding for testers just outside Mumbai, Pune, or Thane (like Pimpri-Chinchwad).',
+
+      'about.whatsNew2': 'WhatsApp filing now lets you pick which report to attach.',
+
+      'about.whatsNew3': 'Fixed a blank WhatsApp message when filing with BMC or PMC.',
+
       'about.featuresTitle': 'What you can do',
 
       'about.feature1': 'Report hazards with a photo pin — water, garbage, potholes, streetlights',
@@ -7207,6 +7215,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.disclaimer': 'CivicRadar एक स्वतंत्र सामुदायिक मंच है। यह BMC, PMC, TMC या किसी भी सरकारी निकाय से संबद्ध नहीं है, और आधिकारिक नगर निगम शिकायत चैनल नहीं है।',
 
+      'about.whatsNewTitle': 'नया क्या है',
+
+      'about.whatsNew1': 'मुंबई, पुणे या ठाणे की सीमा के ठीक बाहर के टेस्टर्स (जैसे पिंपरी-चिंचवड) के लिए ऑनबोर्डिंग ठीक की।',
+
+      'about.whatsNew2': 'WhatsApp पर फाइल करते समय अब आप चुन सकते हैं कि कौन-सी रिपोर्ट भेजनी है।',
+
+      'about.whatsNew3': 'BMC या PMC पर फाइल करते समय खाली WhatsApp संदेश की समस्या ठीक की।',
+
       'about.featuresTitle': 'आप क्या कर सकते हैं',
 
       'about.feature1': 'फोटो पिन से खतरा रिपोर्ट करें — पानी, कचरा, गड्ढे, स्ट्रीटलाइट',
@@ -9869,6 +9885,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.disclaimer': 'CivicRadar हे स्वतंत्र समुदाय व्यासपीठ आहे. ते BMC, PMC, TMC किंवा कोणत्याही सरकारी संस्थेशी संबंधित नाही, आणि अधिकृत महानगरपालिका तक्रार चॅनेल नाही.',
 
+      'about.whatsNewTitle': 'नवीन काय आहे',
+
+      'about.whatsNew1': 'मुंबई, पुणे किंवा ठाण्याच्या सीमेबाहेरील टेस्टर्ससाठी (उदा. पिंपरी-चिंचवड) ऑनबोर्डिंग दुरुस्त केले.',
+
+      'about.whatsNew2': 'WhatsApp वर फाइल करताना आता कोणता रिपोर्ट पाठवायचा ते निवडता येते.',
+
+      'about.whatsNew3': 'BMC किंवा PMC वर फाइल करताना रिकामा WhatsApp संदेश येण्याची समस्या दुरुस्त केली.',
+
       'about.featuresTitle': 'तुम्ही काय करू शकता',
 
       'about.feature1': 'फोटो पिनने धोका रिपोर्ट करा — पाणी, कचरा, खड्डे, स्ट्रीटलाइट',
@@ -12529,6 +12553,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.disclaimerBadge': 'સ્વતંત્ર પ્લેટફોર્મ',
 
       'about.disclaimer': 'CivicRadar એક સ્વતંત્ર સામુદાયિક પ્લેટફોર્મ છે. તે BMC, PMC, TMC કે કોઈપણ સરકારી સંસ્થા સાથે સંબંધિત નથી, અને અધિકૃત મ્યુનિસિપલ ફરિયાદ ચેનલ નથી.',
+
+      'about.whatsNewTitle': 'નવું શું છે',
+
+      'about.whatsNew1': 'મુંબઈ, પુણે અથવા ઠાણેની હદની બહારના ટેસ્ટર્સ માટે (દા.ત. પિંપરી-ચિંચવડ) ઓનબોર્ડિંગ સુધાર્યું.',
+
+      'about.whatsNew2': 'WhatsApp પર ફાઇલ કરતી વખતે હવે તમે કઈ ફરિયાદ મોકલવી તે પસંદ કરી શકો છો.',
+
+      'about.whatsNew3': 'BMC અથવા PMC પર ફાઇલ કરતી વખતે ખાલી WhatsApp સંદેશની સમસ્યા સુધારી.',
 
       'about.featuresTitle': 'તમે શું કરી શકો',
 
