@@ -260,6 +260,18 @@
     <button type="button" class="manual-pin-banner__btn" id="btnManualPinCancel" data-i18n="report.manualPinCancel">Cancel</button>
   </div>
 
+  <!-- Full-screen precise pin placement (report confirm → Expand map) -->
+  <div class="modal-overlay manual-pin-overlay" id="manualPinOverlay" aria-hidden="true">
+    <div class="manual-pin-sheet" id="manualPinSheet" role="dialog" aria-modal="true" aria-labelledby="manualPinTitle">
+      <div id="manualPinMap" class="manual-pin-sheet__map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+      <div class="manual-pin-sheet__footer">
+        <p class="manual-pin-sheet__hint" id="manualPinTitle" data-i18n="report.manualPinBanner">Tap the map where the hazard is</p>
+        <button type="button" class="btn btn--primary btn--full" id="btnManualPinConfirm" data-i18n="report.manualPinConfirm">Confirm this location</button>
+        <button type="button" class="btn btn--ghost btn--full" id="btnManualPinCancelOverlay" data-i18n="report.manualPinCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <button type="button" id="btnRecenter" class="map-recenter" data-i18n-aria="aria.recenter" aria-label="Recenter map on your location">
     <i class="ph ph-crosshair"></i>
   </button>
@@ -658,10 +670,15 @@
               </button>
             </div>
             <p class="report-pin-drag-hint" id="reportPinDragHint" data-i18n="report.pinDragHint">Drag the pin if it&rsquo;s not exactly right</p>
-            <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+            <div class="report-pin-map-wrap">
+              <div id="reportPinMap" class="report-pin-map" role="application" data-i18n-aria="report.pinMapAria" aria-label="Adjust hazard location on map"></div>
+              <button type="button" class="report-pin-map__expand" id="btnReportPinMapExpand" data-i18n-aria="report.expandMapAria" aria-label="Expand map">
+                <i class="ph ph-arrows-out" aria-hidden="true"></i>
+              </button>
+            </div>
             <button type="button" class="btn btn--ghost btn--sm report-pin-fullmap" id="btnReportPinFullMap">
-              <i class="ph ph-map-trifold" aria-hidden="true"></i>
-              <span data-i18n="report.placePinOnMap">Place pin on map</span>
+              <i class="ph ph-arrows-out" aria-hidden="true"></i>
+              <span data-i18n="report.expandMap">Expand map for precise pin</span>
             </button>
           </div>
           <div class="report-notes-accordion" id="reportNotesAccordion">

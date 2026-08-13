@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v459';
+  const CIVIC_APP_VERSION = 'v461';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1027,6 +1027,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let manualPinMapClickHandler = null;
 
+  let manualPinOverlayMap = null;
+
+  let manualPinOverlayMarker = null;
+
+  let manualPinOverlayClickHandler = null;
+
   let confirmPinLat = null;
 
   let confirmPinLng = null;
@@ -1209,6 +1215,8 @@ document.addEventListener('DOMContentLoaded', function () {
     escalation: $('#escalationOverlay'),
 
     waReportPicker: $('#waReportPickerOverlay'),
+
+    manualPin: $('#manualPinOverlay'),
 
     lang: $('#langOverlay'),
 
@@ -3247,21 +3255,112 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  /** City ids that share a metroGroup with cityId (includes self). */
+  function getMetroPeerCityIds(cityId) {
+
+    const id = cityId || getUserCity();
+
+    const group = (CITIES[id] && CITIES[id].metroGroup) || (getCityConfig(id).metroGroup) || null;
+
+    if (!group) return [id];
+
+    const peers = Object.keys(CITIES).filter((cid) => CITIES[cid] && CITIES[cid].metroGroup === group);
+
+    return peers.length ? peers : [id];
+
+  }
+
+
+
+  /** Union bounding box of all metro peers — used to sanitize report coords. */
+  function reportMetroBounds(cityId) {
+
+    const peers = getMetroPeerCityIds(cityId);
+
+    let minLat = 90;
+
+    let maxLat = -90;
+
+    let minLng = 180;
+
+    let maxLng = -180;
+
+    let any = false;
+
+    for (let i = 0; i < peers.length; i++) {
+
+      const b = (CITIES[peers[i]] && CITIES[peers[i]].bounds) || null;
+
+      if (!b) continue;
+
+      any = true;
+
+      if (b.minLat < minLat) minLat = b.minLat;
+
+      if (b.maxLat > maxLat) maxLat = b.maxLat;
+
+      if (b.minLng < minLng) minLng = b.minLng;
+
+      if (b.maxLng > maxLng) maxLng = b.maxLng;
+
+    }
+
+    return any ? { minLat, maxLat, minLng, maxLng } : reportCityBounds(cityId);
+
+  }
+
+
+
+  function coordsInConfiguredCityBounds(lat, lng, cityId) {
+
+    if (lat == null || lng == null || !cityId) return false;
+
+    if (window.CivicWardDetect && CivicWardDetect.inCityBounds && CITY_IDS.indexOf(cityId) !== -1) {
+
+      if (CivicWardDetect.inCityBounds(lat, lng, cityId)) return true;
+
+    }
+
+    const b = (CITIES[cityId] && CITIES[cityId].bounds) || (getCityConfig(cityId).bounds);
+
+    if (!b) return false;
+
+    return lat >= b.minLat && lat <= b.maxLat && lng >= b.minLng && lng <= b.maxLng;
+
+  }
+
+
+
   function sanitizeReportInput(r) {
 
-    const city = r.city && CITIES[r.city] ? r.city : getReportCity(r);
+    const city = r.city && CITIES[r.city] && CITIES[r.city].selectable !== false
+      ? r.city
+      : (CITY_IDS.indexOf(r.city) !== -1 ? r.city : getReportCity(r));
 
     const hazard = REPORT_HAZARDS.includes(r.hazard) ? r.hazard : 'stagnant-water';
 
-    const bounds = reportCityBounds(city);
+    const bounds = reportMetroBounds(city);
 
     let lat = r.lat != null ? Number(r.lat) : null;
 
     let lng = r.lng != null ? Number(r.lng) : null;
 
-    if (lat != null && (!Number.isFinite(lat) || lat < bounds.minLat || lat > bounds.maxLat)) lat = null;
+    // User-confirmed out-of-metro pins keep coords; never silent-null after confirm.
+    const allowOutside = !!r.allowOutsideCity;
 
-    if (lng != null && (!Number.isFinite(lng) || lng < bounds.minLng || lng > bounds.maxLng)) lng = null;
+    if (!allowOutside) {
+
+      if (lat != null && (!Number.isFinite(lat) || lat < bounds.minLat || lat > bounds.maxLat)) lat = null;
+
+      if (lng != null && (!Number.isFinite(lng) || lng < bounds.minLng || lng > bounds.maxLng)) lng = null;
+
+    } else {
+
+      if (lat != null && !Number.isFinite(lat)) lat = null;
+
+      if (lng != null && !Number.isFinite(lng)) lng = null;
+
+    }
 
     return {
 
@@ -3692,11 +3791,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureContinue': 'Continue to camera',
 
-      'report.manualPinBanner': 'Tap the map where the hazard is',
+      'report.manualPinBanner': 'Drag the pin or tap the map, then confirm',
 
       'report.manualPinCancel': 'Cancel',
 
-      'report.placePinOnMap': 'Place pin on map',
+      'report.manualPinConfirm': 'Confirm this location',
+
+      'report.placePinOnMap': 'Expand map for precise pin',
+
+      'report.expandMap': 'Expand map for precise pin',
+
+      'report.expandMapAria': 'Expand map',
 
       'report.geoEnableHint': 'How to enable location',
 
@@ -5396,7 +5501,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'GPS is required to pin the hazard.',
 
-      'toast.gpsOutsideCity': 'Location is outside your city — drag the pin inside city limits, or change your city in Profile.',
+      'toast.gpsOutsideCity': 'This spot looks outside {city}. Is the pin in the right place?',
+
+      'toast.gpsOutsideCityConfirm': 'This spot looks outside {city}. Is the pin in the right place?',
+
+      'toast.gpsOutsideCityYes': "Yes, it's correct",
+
+      'toast.gpsOutsideCityAdjust': 'Let me adjust',
 
       'toast.pinConfirmRequired': 'You can drag the pin on the map if the location isn\'t exact.',
 
@@ -6362,11 +6473,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureContinue': 'कैमरे पर जाएँ',
 
-      'report.manualPinBanner': 'जहाँ खतरा है वहाँ मैप पर टैप करें',
+      'report.manualPinBanner': 'पिन खींचें या मैप पर टैप करें, फिर पुष्टि करें',
 
       'report.manualPinCancel': 'रद्द करें',
 
-      'report.placePinOnMap': 'मैप पर पिन लगाएँ',
+      'report.manualPinConfirm': 'इस जगह की पुष्टि करें',
+
+      'report.placePinOnMap': 'सटीक पिन के लिए मैप बड़ा करें',
+
+      'report.expandMap': 'सटीक पिन के लिए मैप बड़ा करें',
+
+      'report.expandMapAria': 'मैप बड़ा करें',
 
       'report.geoEnableHint': 'लोकेशन कैसे चालू करें',
 
@@ -8067,7 +8184,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'खतरा पिन के लिए GPS ज़रूरी।',
 
-      'toast.gpsOutsideCity': 'स्थान आपके शहर के बाहर है — पिन शहर की सीमा में खींचें, या प्रोफ़ाइल में शहर बदलें।',
+      'toast.gpsOutsideCity': 'यह जगह {city} के बाहर लगती है। क्या पिन सही जगह पर है?',
+
+      'toast.gpsOutsideCityConfirm': 'यह जगह {city} के बाहर लगती है। क्या पिन सही जगह पर है?',
+
+      'toast.gpsOutsideCityYes': 'हाँ, सही है',
+
+      'toast.gpsOutsideCityAdjust': 'मैं ठीक करूँगा',
 
       'toast.pinConfirmRequired': 'जगह ठीक न हो तो मैप पर पिन खींच सकते हैं।',
 
@@ -9032,11 +9155,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureContinue': 'कॅमेऱ्याकडे जा',
 
-      'report.manualPinBanner': 'धोका जिथे आहे तिथे नकाशावर टॅप करा',
+      'report.manualPinBanner': 'पिन ओढा किंवा नकाशावर टॅप करा, नंतर पुष्टी करा',
 
       'report.manualPinCancel': 'रद्द करा',
 
-      'report.placePinOnMap': 'नकाशावर पिन लावा',
+      'report.manualPinConfirm': 'ही जागा पुष्टी करा',
+
+      'report.placePinOnMap': 'अचूक पिनसाठी नकाशा मोठा करा',
+
+      'report.expandMap': 'अचूक पिनसाठी नकाशा मोठा करा',
+
+      'report.expandMapAria': 'नकाशा मोठा करा',
 
       'report.geoEnableHint': 'स्थान कसे चालू करावे',
 
@@ -10736,7 +10865,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'धोका पिनसाठी GPS आवश्यक.',
 
-      'toast.gpsOutsideCity': 'स्थान तुमच्या शहराच्या बाहेर आहे — पिन शहराच्या मर्यादेत ओढा, किंवा प्रोफाइलमध्ये शहर बदला.',
+      'toast.gpsOutsideCity': 'ही जागा {city} च्या बाहेर दिसते. पिन बरोबर जागी आहे का?',
+
+      'toast.gpsOutsideCityConfirm': 'ही जागा {city} च्या बाहेर दिसते. पिन बरोबर जागी आहे का?',
+
+      'toast.gpsOutsideCityYes': 'होय, बरोबर आहे',
+
+      'toast.gpsOutsideCityAdjust': 'मी दुरुस्त करतो',
 
       'toast.pinConfirmRequired': 'जागा बरोबर नसेल तर नकाशावर पिन ओढू शकता.',
 
@@ -11701,11 +11836,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.cameraDisclosureContinue': 'કૅમેરા પર જાઓ',
 
-      'report.manualPinBanner': 'જોખમ જ્યાં છે ત્યાં નકશા પર ટૅપ કરો',
+      'report.manualPinBanner': 'પિન ખેંચો અથવા નકશા પર ટૅપ કરો, પછી પુષ્ટિ કરો',
 
       'report.manualPinCancel': 'રદ કરો',
 
-      'report.placePinOnMap': 'નકશા પર પિન મૂકો',
+      'report.manualPinConfirm': 'આ સ્થાનની પુષ્ટિ કરો',
+
+      'report.placePinOnMap': 'ચોક્કસ પિન માટે નકશો મોટો કરો',
+
+      'report.expandMap': 'ચોક્કસ પિન માટે નકશો મોટો કરો',
+
+      'report.expandMapAria': 'નકશો મોટો કરો',
 
       'report.geoEnableHint': 'લોકેશન કેવી રીતે ચાલુ કરવું',
 
@@ -13405,7 +13546,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsRequired': 'જોખમ પિન માટે GPS જરૂરી.',
 
-      'toast.gpsOutsideCity': 'સ્થાન તમારા શહેરની બહાર છે — પિન શહેરની મર્યાદામાં ખેંચો, અથવા પ્રોફાઇલમાં શહેર બદલો.',
+      'toast.gpsOutsideCity': 'આ સ્થાન {city}ની બહાર લાગે છે. પિન સાચી જગ્યાએ છે?',
+
+      'toast.gpsOutsideCityConfirm': 'આ સ્થાન {city}ની બહાર લાગે છે. પિન સાચી જગ્યાએ છે?',
+
+      'toast.gpsOutsideCityYes': 'હા, સાચું છે',
+
+      'toast.gpsOutsideCityAdjust': 'હું સુધારું',
 
       'toast.pinConfirmRequired': 'જરૂર હોય તો નકશા પર પિન ખેંચીને ઠીક કરો — વૈકલ્પિક.',
 
@@ -27192,6 +27339,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (detectWardFromCoords(lat, lng, getUserCity())) return true;
 
+    // Inside any metro-peer box (e.g. PCMC while registered in Pune).
+    if (!isGpsOutsideCity(lat, lng, getUserCity())) return true;
+
     const center = getCityCenter();
 
     return getDistanceInMeters(lat, lng, center[0], center[1]) <= GEO_CITY_RADIUS_M;
@@ -33621,6 +33771,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnPinMapExpand = $('#btnReportPinMapExpand');
+
+    if (btnPinMapExpand) {
+
+      btnPinMapExpand.addEventListener('click', (e) => {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        startManualPinMode();
+
+      });
+
+    }
+
+    const btnManualPinConfirm = $('#btnManualPinConfirm');
+
+    if (btnManualPinConfirm) {
+
+      btnManualPinConfirm.addEventListener('click', () => confirmManualPinSelection());
+
+    }
+
+    const btnManualPinCancelOverlay = $('#btnManualPinCancelOverlay');
+
+    if (btnManualPinCancelOverlay) {
+
+      btnManualPinCancelOverlay.addEventListener('click', () => cancelManualPinMode());
+
+    }
+
     const btnPinAdjust = $('#btnReportPinAdjust');
 
     if (btnPinAdjust) {
@@ -34100,11 +34282,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       btnManualPinCancel.addEventListener('click', () => {
 
-        stopManualPinMode(true);
-
-        ensureReportModalOpen();
-
-        updateReportFlowSteps('confirm');
+        cancelManualPinMode();
 
       });
 
@@ -36064,8 +36242,11 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.toggle('hidden', next);
       btn.hidden = next;
     }
-    if (next && (!was || (opts && opts.resize !== false))) {
+    // Taller expanded map needs invalidateSize whenever we show it.
+    if (next && (opts && opts.resize === false) === false) {
       scheduleReportPinMapResize();
+    } else if (!next && was) {
+      /* collapsed — no resize required */
     }
   }
 
@@ -36792,19 +36973,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showManualPinBanner() {
 
-    const el = $('#manualPinBanner');
-
-    const text = $('#manualPinBannerText');
-
-    const cancel = $('#btnManualPinCancel');
-
-    if (text) text.textContent = t('report.manualPinBanner');
-
-    if (cancel) cancel.textContent = t('report.manualPinCancel');
-
-    if (el) el.classList.remove('hidden');
-
-    document.body.classList.toggle('manual-pin-banner-visible', !!(el && !el.classList.contains('hidden')));
+    // Legacy top banner kept for CSS/body class hooks; full-screen overlay owns the UI.
+    hideManualPinBanner();
 
   }
 
@@ -36862,6 +37032,248 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function renderManualPinOverlayIcon() {
+
+    return L.divIcon({
+
+      className: 'report-pin-marker report-pin-marker--lg',
+
+      html: '<span class="report-pin-marker__dot report-pin-marker__dot--adjusted" aria-hidden="true"></span>',
+
+      iconSize: [44, 44],
+
+      iconAnchor: [22, 22],
+
+    });
+
+  }
+
+
+
+  function scheduleManualPinOverlayResize() {
+
+    if (!manualPinOverlayMap) return;
+
+    const run = () => {
+
+      try { manualPinOverlayMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+
+    };
+
+    requestAnimationFrame(() => {
+
+      run();
+
+      requestAnimationFrame(() => {
+
+        run();
+
+        setTimeout(run, 50);
+
+        setTimeout(run, 250);
+
+      });
+
+    });
+
+  }
+
+
+
+  function seedManualPinOverlayCoords() {
+
+    if (confirmPinLat != null && confirmPinLng != null && isValidGpsCoords(confirmPinLat, confirmPinLng)) {
+
+      return { lat: confirmPinLat, lng: confirmPinLng };
+
+    }
+
+    if (manualPinLat != null && manualPinLng != null && isValidGpsCoords(manualPinLat, manualPinLng)) {
+
+      return { lat: manualPinLat, lng: manualPinLng };
+
+    }
+
+    if (currentLat != null && currentLng != null && isValidGpsCoords(currentLat, currentLng)) {
+
+      return { lat: currentLat, lng: currentLng };
+
+    }
+
+    const center = getCityCenter();
+
+    return { lat: center[0], lng: center[1] };
+
+  }
+
+
+
+  function initManualPinOverlayMap() {
+
+    if (typeof L === 'undefined') return;
+
+    const host = $('#manualPinMap');
+
+    if (!host) return;
+
+    const seed = seedManualPinOverlayCoords();
+
+    if (!manualPinOverlayMap) {
+
+      manualPinOverlayMap = L.map(host, {
+
+        zoomControl: true,
+
+        attributionControl: false,
+
+        dragging: true,
+
+        scrollWheelZoom: true,
+
+        doubleClickZoom: true,
+
+        boxZoom: false,
+
+        keyboard: true,
+
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        maxZoom: 19,
+
+      }).addTo(manualPinOverlayMap);
+
+      manualPinOverlayMarker = L.marker([seed.lat, seed.lng], {
+
+        draggable: true,
+
+        autoPan: true,
+
+        icon: renderManualPinOverlayIcon(),
+
+      }).addTo(manualPinOverlayMap);
+
+      manualPinOverlayMarker.on('dragend', () => {
+
+        const p = manualPinOverlayMarker.getLatLng();
+
+        if (!isValidGpsCoords(p.lat, p.lng)) return;
+
+        manualPinLat = p.lat;
+
+        manualPinLng = p.lng;
+
+      });
+
+    } else {
+
+      manualPinOverlayMarker.setLatLng([seed.lat, seed.lng]);
+
+      try { manualPinOverlayMarker.setIcon(renderManualPinOverlayIcon()); } catch { /* ignore */ }
+
+    }
+
+    manualPinLat = seed.lat;
+
+    manualPinLng = seed.lng;
+
+    manualPinOverlayMap.setView([seed.lat, seed.lng], 18, { animate: false });
+
+    if (manualPinOverlayClickHandler) {
+
+      manualPinOverlayMap.off('click', manualPinOverlayClickHandler);
+
+    }
+
+    manualPinOverlayClickHandler = (e) => {
+
+      if (!manualPinModeActive || !e || !e.latlng) return;
+
+      const lat = e.latlng.lat;
+
+      const lng = e.latlng.lng;
+
+      if (!isValidGpsCoords(lat, lng)) return;
+
+      manualPinLat = lat;
+
+      manualPinLng = lng;
+
+      if (manualPinOverlayMarker) manualPinOverlayMarker.setLatLng([lat, lng]);
+
+    };
+
+    manualPinOverlayMap.on('click', manualPinOverlayClickHandler);
+
+    scheduleManualPinOverlayResize();
+
+  }
+
+
+
+  function confirmManualPinSelection() {
+
+    if (!manualPinModeActive) return false;
+
+    let lat = manualPinLat;
+
+    let lng = manualPinLng;
+
+    if (manualPinOverlayMarker) {
+
+      const p = manualPinOverlayMarker.getLatLng();
+
+      lat = p.lat;
+
+      lng = p.lng;
+
+    }
+
+    if (!isValidGpsCoords(lat, lng)) return false;
+
+    manualPinLat = lat;
+
+    manualPinLng = lng;
+
+    setConfirmPinCoords(lat, lng, null, true);
+
+    setManualPinPreviewMarker(lat, lng);
+
+    stopManualPinMode(false);
+
+    ensureReportModalOpen();
+
+    updateReportFlowSteps('confirm');
+
+    updateReportWardChip();
+
+    prepareConfirmPin();
+
+    setReportPinMapExpanded(true);
+
+    showToast(t('toast.manualPinReady'), 'success', 4500);
+
+    return true;
+
+  }
+
+
+
+  function cancelManualPinMode() {
+
+    stopManualPinMode(false);
+
+    ensureReportModalOpen();
+
+    updateReportFlowSteps('confirm');
+
+    prepareConfirmPin();
+
+  }
+
+
+
   function stopManualPinMode(clearCoords) {
 
     manualPinModeActive = false;
@@ -36875,6 +37287,20 @@ document.addEventListener('DOMContentLoaded', function () {
       map.off('click', manualPinMapClickHandler);
 
       manualPinMapClickHandler = null;
+
+    }
+
+    if (manualPinOverlayMap && manualPinOverlayClickHandler) {
+
+      manualPinOverlayMap.off('click', manualPinOverlayClickHandler);
+
+      manualPinOverlayClickHandler = null;
+
+    }
+
+    if (overlays.manualPin && overlays.manualPin.classList.contains('open')) {
+
+      closeModal('manualPin');
 
     }
 
@@ -36904,6 +37330,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function onManualPinMapClick(e) {
 
+    // E2E / legacy: place pin and confirm immediately.
     if (!manualPinModeActive || !e || !e.latlng) return;
 
     const lat = e.latlng.lat;
@@ -36916,21 +37343,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     manualPinLng = lng;
 
-    setConfirmPinCoords(lat, lng, null, true);
+    if (manualPinOverlayMarker) {
 
-    setManualPinPreviewMarker(lat, lng);
+      try { manualPinOverlayMarker.setLatLng([lat, lng]); } catch { /* ignore */ }
 
-    stopManualPinMode(false);
+    }
 
-    ensureReportModalOpen();
-
-    updateReportFlowSteps('confirm');
-
-    updateReportWardChip();
-
-    prepareConfirmPin();
-
-    showToast(t('toast.manualPinReady'), 'success', 4500);
+    confirmManualPinSelection();
 
   }
 
@@ -36957,37 +37376,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (target && typeof target.scrollIntoView === 'function') {
 
-      try { target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {
-
-        try { target.scrollIntoView(true); } catch { /* ignore */ }
-
-      }
+      try { target.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch { /* ignore */ }
 
     }
 
-    if (mapEl) {
-
-      if (!mapEl.hasAttribute('tabindex')) mapEl.setAttribute('tabindex', '-1');
-
-      mapEl.classList.add('report-pin-map--attention');
-
-      try { mapEl.focus({ preventScroll: true }); } catch {
-
-        try { mapEl.focus(); } catch { /* ignore */ }
-
-      }
-
-      if (reportPinAttentionTimer) clearTimeout(reportPinAttentionTimer);
-
-      reportPinAttentionTimer = setTimeout(() => {
-
-        reportPinAttentionTimer = null;
-
-        mapEl.classList.remove('report-pin-map--attention');
-
-      }, 1600);
-
-    }
+    setReportPinMapExpanded(true);
 
     if (hint) {
 
@@ -37027,25 +37420,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportManualPinDismiss = false;
 
-    setNavTab('map');
-
     manualPinModeActive = true;
 
     document.body.classList.add('manual-pin-mode');
 
-    showManualPinBanner();
+    openModal('manualPin');
 
-    scheduleMapResize();
-
-    if (map) {
-
-      if (manualPinMapClickHandler) map.off('click', manualPinMapClickHandler);
-
-      manualPinMapClickHandler = onManualPinMapClick;
-
-      map.on('click', manualPinMapClickHandler);
-
-    }
+    initManualPinOverlayMap();
 
   }
 
@@ -37110,6 +37491,63 @@ document.addEventListener('DOMContentLoaded', function () {
       hint: t('toast.gpsFailHint'),
 
     });
+
+  }
+
+
+
+  /** Soft confirm when pin is outside the user's metro area — never hard-block after Yes. */
+  function showOutsideCityPinConfirm(lat, lng, submitBtn, accuracyM, opts) {
+
+    showToast(
+
+      t('toast.gpsOutsideCityConfirm').replace('{city}', getCityLabel(getUserCity())),
+
+      'warning',
+
+      14000,
+
+      {
+
+        label: t('toast.gpsOutsideCityYes'),
+
+        onClick: () => {
+
+          finishReportSubmitWithCoords(
+
+            lat,
+
+            lng,
+
+            submitBtn,
+
+            accuracyM,
+
+            Object.assign({}, opts || {}, { outsideCityConfirmed: true })
+
+          );
+
+        },
+
+        secondary: {
+
+          label: t('toast.gpsOutsideCityAdjust'),
+
+          onClick: () => {
+
+            startManualPinMode();
+
+          },
+
+        },
+
+        toastClass: 'toast--gps',
+
+        dedupeKey: 'gps-outside-city-confirm',
+
+      }
+
+    );
 
   }
 
@@ -37252,6 +37690,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // Outside metro (e.g. Pune user pinning far from Pune+PCMC): soft confirm, never hard-block.
+    if (isGpsOutsideCity(lat, lng, getUserCity()) && !opts.outsideCityConfirmed) {
+
+      setButtonLoading(submitBtn, false);
+
+      finishReportSubmitWithCoords._busy = false;
+
+      debugLog('REPORT', 'outside city soft confirm', { lat, lng, city: getUserCity() });
+
+      showOutsideCityPinConfirm(lat, lng, submitBtn, accuracyM, opts);
+
+      return;
+
+    }
+
     const detectedWard = resolveReportWard(lat, lng);
 
     const draft = {
@@ -37280,6 +37733,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       timestamp: new Date().toISOString(),
 
+      allowOutsideCity: !!opts.outsideCityConfirmed,
+
     };
 
     const report = Object.assign({}, normalizeReport(draft, user.id), sanitizeReportInput(draft));
@@ -37288,9 +37743,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setButtonLoading(submitBtn, false);
 
-      debugLog('REPORT', 'submit blocked outside city', { lat, lng, city: getUserCity() });
+      finishReportSubmitWithCoords._busy = false;
 
-      showGpsRecoveryActions(t('toast.gpsOutsideCity'), 'error', 9000);
+      debugLog('REPORT', 'submit blocked invalid coords', { lat, lng, city: getUserCity() });
+
+      showOutsideCityPinConfirm(lat, lng, submitBtn, accuracyM, opts);
 
       return;
 
@@ -37599,8 +38056,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (confirmPinLat != null && confirmPinLng != null) {
 
-      // Provisional city-center / approximate GPS is allowed — drag-to-adjust is optional.
-      // Still sanitize in finishReportSubmitWithCoords (rejects truly out-of-city coords).
+      // Soft confirm / metro sanitize in finishReportSubmitWithCoords (never hard-block after Yes).
       markSubmit(confirmPinProvisional && !confirmPinUserAdjusted ? 'pin_provisional' : 'pin_ready');
 
       finishReportSubmitWithCoords(
@@ -37737,7 +38193,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
           setButtonLoading(submitBtn, false);
 
-          showGpsRecoveryActions(t('toast.gpsOutsideCity'), 'error', 9000);
+          // Soft confirm — never hard-block a GPS fix the user may still affirm.
+          showOutsideCityPinConfirm(lat, lng, submitBtn, pos.coords.accuracy, { manualPin: false });
 
           return;
 
@@ -41201,17 +41658,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const city = cityId || getUserCity();
 
-    if (window.CivicWardDetect && CivicWardDetect.inCityBounds) {
+    const peers = getMetroPeerCityIds(city);
 
-      return !CivicWardDetect.inCityBounds(lat, lng, city);
+    for (let i = 0; i < peers.length; i++) {
+
+      if (coordsInConfiguredCityBounds(lat, lng, peers[i])) return false;
 
     }
 
-    const b = getCityConfig(city).bounds;
-
-    if (!b) return false;
-
-    return lat < b.minLat || lat > b.maxLat || lng < b.minLng || lng > b.maxLng;
+    return true;
 
   }
 

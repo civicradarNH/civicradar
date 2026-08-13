@@ -2019,7 +2019,7 @@ alter table public.reports drop constraint if exists reports_lng_chk;
 alter table public.reports add constraint reports_lng_chk
   check (lng is null or (lng >= -180 and lng <= 180));
 
--- City bounds mirror js/config.js (Mumbai · Pune · Thane service areas).
+-- City bounds mirror js/config.js (Mumbai · Pune+PCMC metro · Thane).
 create or replace function public.validate_report_coords(p_city text, p_lat double precision, p_lng double precision)
 returns void
 language plpgsql immutable set search_path = public as $$
@@ -2034,7 +2034,8 @@ begin
         raise exception 'coords_out_of_city';
       end if;
     when 'pune' then
-      if p_lat < 18.44 or p_lat > 18.58 or p_lng < 73.78 or p_lng > 73.95 then
+      -- Union of PMC + PCMC (pune-metro) so twin-city pins sync.
+      if p_lat < 18.44 or p_lat > 18.72 or p_lng < 73.74 or p_lng > 73.95 then
         raise exception 'coords_out_of_city';
       end if;
     when 'thane' then

@@ -119,6 +119,7 @@
       center: [19.076, 72.8777],
       bounds: { minLat: 18.88, maxLat: 19.28, minLng: 72.78, maxLng: 73.0 },
       detectRadiusKm: 8,
+      metroGroup: 'mumbai-metro',
     },
     pune: {
       id: 'pune',
@@ -127,6 +128,8 @@
       // Expanded to cover west suburbs (Sus/Balewadi) and north (Dhanori).
       bounds: { minLat: 18.44, maxLat: 18.61, minLng: 73.74, maxLng: 73.95 },
       detectRadiusKm: 6,
+      // Twin urban area with PCMC — pins in either count as in-metro for reporting.
+      metroGroup: 'pune-metro',
       corpChannels: {
         name: 'PMC',
         fullName: 'Pune Municipal Corporation',
@@ -143,12 +146,23 @@
         aapleSarkarPlayStoreUrl: '',
       },
     },
+    // Bounds-only sibling for PMC users filing in PCMC. Not in CITY_IDS / onboarding picker.
+    'pimpri-chinchwad': {
+      id: 'pimpri-chinchwad',
+      label: 'Pimpri-Chinchwad',
+      center: [18.6298, 73.7997],
+      bounds: { minLat: 18.58, maxLat: 18.72, minLng: 73.74, maxLng: 73.92 },
+      detectRadiusKm: 6,
+      metroGroup: 'pune-metro',
+      selectable: false,
+    },
     thane: {
       id: 'thane',
       label: 'Thane',
       center: [19.2183, 72.9781],
       bounds: { minLat: 19.15, maxLat: 19.28, minLng: 72.92, maxLng: 73.05 },
       detectRadiusKm: 6,
+      metroGroup: 'thane-metro',
       corpChannels: {
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',

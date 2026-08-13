@@ -2240,13 +2240,69 @@ body.map-popup-open #btnCamera {
   }
 }
 
-/* Manual pin-drop mode — report GPS fallback (D-2) */
+/* Manual pin-drop mode — full-screen overlay for precise placement */
 body.manual-pin-mode #map {
   cursor: crosshair;
 }
 
 body.manual-pin-mode #map .leaflet-container {
   cursor: crosshair;
+}
+
+.manual-pin-overlay {
+  z-index: var(--z-modal-nested, 2350);
+}
+
+.manual-pin-overlay.open {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.manual-pin-sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  border-radius: 0;
+  background: var(--canvas, #f8fafc);
+  overflow: hidden;
+}
+
+.manual-pin-sheet__map {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+  background: var(--canvas);
+  touch-action: none;
+}
+
+.manual-pin-sheet__map .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.manual-pin-sheet__footer {
+  flex: 0 0 auto;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface, #fff);
+  border-top: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.manual-pin-sheet__hint {
+  margin: 0;
+  font-size: var(--fs-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ink-600, #475569);
+  line-height: 1.35;
+  text-align: center;
 }
 
 .manual-pin-banner {
@@ -3582,7 +3638,8 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
    report sheet, so Continue was unreachable and the OS picker felt "behind". */
 #reportCameraOverlay,
 #reportGeoOverlay,
-#genericConfirmOverlay {
+#genericConfirmOverlay,
+#manualPinOverlay {
   z-index: var(--z-modal-nested, 2350);
 }
 
@@ -11045,7 +11102,8 @@ a,
 }
 
 .report-pin-confirm--expanded .report-pin-map {
-  height: 160px;
+  height: min(42vh, 340px);
+  min-height: 240px;
   margin-bottom: 8px;
 }
 
@@ -11103,6 +11161,12 @@ a,
   color: var(--warning);
 }
 
+.report-pin-map-wrap {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
 .report-pin-map {
   width: 100%;
   height: 88px;
@@ -11115,6 +11179,45 @@ a,
   /* Confine map gestures to the mini-map; parent sheet uses touch-action: pan-y. */
   touch-action: none;
   position: relative;
+}
+
+.report-pin-map__expand {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1100;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min, 44px);
+  height: var(--touch-min, 44px);
+  min-width: var(--touch-min, 44px);
+  min-height: var(--touch-min, 44px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-900, #0f172a);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.report-pin-confirm--expanded .report-pin-map__expand {
+  display: flex;
+}
+
+.report-pin-confirm:not(.report-pin-confirm--expanded) .report-pin-map-wrap .report-pin-map__expand {
+  display: none;
+}
+
+.report-pin-map__expand i {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.report-pin-map__expand:focus-visible {
+  outline: 2px solid var(--brand-600, var(--primary));
+  outline-offset: 2px;
 }
 
 .report-pin-map--loading::after {
@@ -11185,6 +11288,13 @@ a,
   background: var(--danger);
   border: 3px solid #fff;
   box-shadow: var(--shadow-md);
+}
+
+.report-pin-marker--lg .report-pin-marker__dot {
+  width: 32px;
+  height: 32px;
+  margin: 6px;
+  border-width: 4px;
 }
 
 .report-pin-marker__dot--adjusted {
