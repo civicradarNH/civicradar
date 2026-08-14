@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v467';
+  const CIVIC_APP_VERSION = 'v468';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -34013,6 +34013,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    const btnPinGpsPlace = $('#btnReportPinGpsPlace');
+
+    if (btnPinGpsPlace) {
+
+      btnPinGpsPlace.addEventListener('click', (e) => {
+
+        e.preventDefault();
+
+        startManualPinMode();
+
+      });
+
+    }
+
     const btnPinMapExpand = $('#btnReportPinMapExpand');
 
     if (btnPinMapExpand) {
@@ -36416,6 +36430,7 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmPinProvisional = false;
 
     setReportPinMapExpanded(false, { resize: false });
+    setReportPinGpsBannerVisible(false);
 
     if (reportPinAttentionTimer) {
 
@@ -36472,6 +36487,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function setReportPinGpsBannerVisible(show) {
+    const el = $('#reportPinGpsBanner');
+    if (!el) return;
+    const on = !!show;
+    el.classList.toggle('hidden', !on);
+    el.hidden = !on;
+  }
+
   function setReportPinMapExpanded(expanded, opts) {
     const pinBlock = $('#reportPinConfirm');
     const btn = $('#btnReportPinAdjust');
@@ -36484,9 +36507,15 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.toggle('hidden', next);
       btn.hidden = next;
     }
-    // Taller expanded map needs invalidateSize whenever we show it.
+    // Never grow an empty box: seed city centre if Leaflet is not up yet.
+    if (next && !reportPinMap && typeof getCityCenter === 'function') {
+      const center = getCityCenter();
+      if (center && isValidGpsCoords(center[0], center[1])) {
+        initReportPinPreview(center[0], center[1], null, false);
+      }
+    }
     if (next && !(opts && opts.resize === false)) {
-      scheduleReportPinMapResize();
+      requestAnimationFrame(() => scheduleReportPinMapResize());
     } else if (!next && was) {
       /* collapsed — no resize required */
     }
@@ -36587,7 +36616,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const stillLocating = mapEl?.classList.contains('report-pin-map--loading');
 
-    if (!stillLocating && !confirmPinProvisional && confirmPinAccuracyIsPoor()) {
+    if (!stillLocating && !confirmPinProvisional && confirmPinAccuracyIsPoor() && reportPinMap) {
 
       setReportPinMapExpanded(true);
 
@@ -36628,6 +36657,8 @@ document.addEventListener('DOMContentLoaded', function () {
       confirmPinAccuracyM = null;
 
       confirmPinProvisional = false;
+
+      setReportPinGpsBannerVisible(false);
 
     } else if (!confirmPinUserAdjusted) {
 
@@ -36718,7 +36749,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Drop exclusive "Finding…" chrome; GPS may still settle in the background.
       setReportPinMapLoading(false);
       confirmPinProvisional = true;
-      setReportPinMapExpanded(true);
+      setReportPinGpsBannerVisible(true);
       const fullMapBtn = $('#btnReportPinFullMap');
       if (fullMapBtn) {
         fullMapBtn.classList.remove('btn--ghost');
@@ -36726,20 +36757,12 @@ document.addEventListener('DOMContentLoaded', function () {
         fullMapBtn.classList.remove('hidden');
         fullMapBtn.hidden = false;
       }
-      // If map somehow stayed collapsed, keep Adjust visible as a second escape.
       const adjustBtn = $('#btnReportPinAdjust');
-      const pinBlock = $('#reportPinConfirm');
-      if (adjustBtn && pinBlock && !pinBlock.classList.contains('report-pin-confirm--expanded')) {
+      if (adjustBtn) {
         adjustBtn.classList.remove('hidden');
         adjustBtn.hidden = false;
       }
       syncConfirmPinUiHints();
-      showToast(t('report.pinLocatingSlow'), 'info', 7000, {
-        label: t('report.placePinOnMap'),
-        onClick: () => startManualPinMode(),
-        toastClass: 'toast--gps',
-        dedupeKey: 'pin-gps-escape',
-      });
     }, GEO_PIN_ESCAPE_MS);
   }
 
@@ -37159,6 +37182,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!overlays.report || !overlays.report.classList.contains('open')) return;
 
       setReportPinMapLoading(false);
+
+      setReportPinGpsBannerVisible(false);
 
       debugLog('PIN', 'GPS refine settle', {
 
