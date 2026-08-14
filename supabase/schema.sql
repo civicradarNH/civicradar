@@ -2020,7 +2020,17 @@ alter table public.reports add constraint reports_lng_chk
   check (lng is null or (lng >= -180 and lng <= 180));
 
 -- City bounds mirror js/config.js (Mumbai · Pune+PCMC metro · Thane).
-create or replace function public.validate_report_coords(p_city text, p_lat double precision, p_lng double precision)
+-- p_allow_outside: user confirmed an out-of-metro pin; still reject invalid world coords.
+drop function if exists public.insert_report(uuid, text, text, text, double precision, double precision, text, text, text, text, text);
+drop function if exists public.insert_report(uuid, text, text, text, double precision, double precision, text, text, text, text, text, boolean);
+drop function if exists public.validate_report_coords(text, double precision, double precision);
+drop function if exists public.validate_report_coords(text, double precision, double precision, boolean);
+create or replace function public.validate_report_coords(
+  p_city text,
+  p_lat double precision,
+  p_lng double precision,
+  p_allow_outside boolean default false
+)
 returns void
 language plpgsql immutable set search_path = public as $$
 begin
@@ -2028,6 +2038,7 @@ begin
   if p_lat < -90 or p_lat > 90 or p_lng < -180 or p_lng > 180 then
     raise exception 'invalid_coords';
   end if;
+  if coalesce(p_allow_outside, false) then return; end if;
   case coalesce(nullif(btrim(p_city), ''), 'mumbai')
     when 'mumbai' then
       if p_lat < 18.88 or p_lat > 19.28 or p_lng < 72.78 or p_lng > 73.0 then
@@ -2048,6 +2059,8 @@ end $$;
 
 -- Guarded report INSERT — only citizen-supplied hazard/location fields accepted;
 -- reporter_id, status, confirmations, flag_count, removed, etc. are set server-side.
+drop function if exists public.insert_report(uuid, text, text, text, double precision, double precision, text, text, text, text, text);
+drop function if exists public.insert_report(uuid, text, text, text, double precision, double precision, text, text, text, text, text, boolean);
 create or replace function public.insert_report(
   p_id uuid,
   p_hazard text,
@@ -2059,7 +2072,8 @@ create or replace function public.insert_report(
   p_city text default null,
   p_society text default null,
   p_reporter_name text default null,
-  p_neighbourhood text default null
+  p_neighbourhood text default null,
+  p_allow_outside boolean default false
 )
 returns uuid
 language plpgsql security definer set search_path = public as $$
@@ -2090,7 +2104,7 @@ begin
   cid := coalesce(nullif(left(btrim(coalesce(p_city, '')), 32), ''), 'mumbai');
   if cid not in ('mumbai', 'pune', 'thane') then cid := 'mumbai'; end if;
 
-  perform public.validate_report_coords(cid, p_lat, p_lng);
+  perform public.validate_report_coords(cid, p_lat, p_lng, coalesce(p_allow_outside, false));
 
   rid := coalesce(p_id, gen_random_uuid());
 
@@ -2124,7 +2138,7 @@ begin
 end $$;
 
 grant execute on function public.insert_report(
-  uuid, text, text, text, double precision, double precision, text, text, text, text, text
+  uuid, text, text, text, double precision, double precision, text, text, text, text, text, boolean
 ) to authenticated;
 
 -- Direct INSERT allowed privileged-column mass-assignment (status, confirmations,

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v465';
+  const CIVIC_APP_VERSION = 'v466';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3399,6 +3399,8 @@ document.addEventListener('DOMContentLoaded', function () {
       lat,
 
       lng,
+
+      allowOutsideCity: allowOutside,
 
       status: 'pending',
 
@@ -15207,6 +15209,7 @@ document.addEventListener('DOMContentLoaded', function () {
       flagCount: Number(r.flagCount) || 0,
       removed: r.removed || false,
       removedAt: r.removedAt || '',
+      allowOutsideCity: !!r.allowOutsideCity,
     };
   }
 
@@ -15780,6 +15783,7 @@ document.addEventListener('DOMContentLoaded', function () {
         p_society: s.society || null,
         p_reporter_name: s.reporter || null,
         p_neighbourhood: s.neighbourhood || null,
+        p_allow_outside: !!s.allowOutsideCity,
       });
     },
 
@@ -36516,11 +36520,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (confirmPinUserAdjusted || (
-      !confirmPinProvisional
-      && Number.isFinite(confirmPinAccuracyM)
-      && confirmPinAccuracyM <= GEO_ACCURACY_GOOD_M
-    )) {
+    if (confirmPinUserAdjusted) {
 
       el.textContent = t('report.pinAccuracyAdjusted');
 
@@ -36530,9 +36530,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    el.textContent = t('report.pinProvisionalAccuracy');
+    if (!Number.isFinite(confirmPinAccuracyM)) {
 
-    el.classList.add('report-pin-accuracy--fair');
+      el.textContent = t('report.pinAccuracyUnknown');
+
+      el.classList.add('report-pin-accuracy--fair');
+
+      return;
+
+    }
+
+    const meters = String(Math.round(confirmPinAccuracyM));
+
+    if (confirmPinAccuracyM <= GEO_ACCURACY_GOOD_M) {
+
+      el.textContent = t('report.pinAccuracyGood').replace('{m}', meters);
+
+      el.classList.add('report-pin-accuracy--good');
+
+      return;
+
+    }
+
+    if (confirmPinAccuracyM <= GEO_ACCURACY_POOR_M) {
+
+      el.textContent = t('report.pinAccuracyFair').replace('{m}', meters);
+
+      el.classList.add('report-pin-accuracy--fair');
+
+      return;
+
+    }
+
+    el.textContent = t('report.pinAccuracyPoor').replace('{m}', meters);
+
+    el.classList.add('report-pin-accuracy--poor');
 
   }
 
@@ -42111,6 +42143,19 @@ document.addEventListener('DOMContentLoaded', function () {
     deferNonCritical(() => {
 
       map.setView([report.lat, report.lng], 17);
+
+      try {
+        if (isFirstRunOverlayVisible()
+          || !localStorage.getItem(COACH_KEY)
+          || !localStorage.getItem(FAB_SPOT_KEY)) {
+          if (typeof dismissCoachMark === 'function') dismissCoachMark();
+          else {
+            safeLocalSet(COACH_KEY, '1');
+            safeLocalSet(FAB_SPOT_KEY, '1');
+            if (typeof syncFirstRunActiveClass === 'function') syncFirstRunActiveClass();
+          }
+        }
+      } catch (_) { /* ignore */ }
 
       openReportMarkerPopup(report.id);
 
