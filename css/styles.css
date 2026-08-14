@@ -6232,9 +6232,7 @@ body.persona-lead .app-open-banner { display: none; }
   transform-origin: center bottom;
 }
 
-/* Pin cluster bloom hooks (UX-REVIEW 8.1) — ready for Leaflet.markercluster /
-   custom cluster path. No MarkerCluster in vendor yet; pins stay L.layerGroup.
-   Wire icons to .cluster-badge / .cluster-pin when clustering ships. */
+/* Pin cluster badges — overlapping reports share one count marker (tap to expand). */
 .cluster-pin {
   position: absolute;
   width: 22px;
@@ -9562,7 +9560,9 @@ body.persona-lead .app-open-banner { display: none; }
   line-height: 1.35;
   animation: hazard-cue-in 0.28s ease both;
 }
-.hazard-selected-cue.hidden { display: none; }
+#reportStepConfirm .hazard-selected-cue {
+  display: none !important;
+}
 @keyframes hazard-cue-in {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
@@ -11101,9 +11101,16 @@ a,
   display: none;
 }
 
+/* One pin-status line only — drag hint is folded into #reportPinAccuracy. */
+.report-pin-confirm .report-pin-drag-hint {
+  display: none;
+}
+
 .report-pin-confirm--expanded .report-pin-map {
-  height: min(42vh, 340px);
-  min-height: 240px;
+  /* Fixed height so Leaflet tiles cannot overflow after invalidateSize. */
+  height: 260px;
+  min-height: 260px;
+  max-height: 260px;
   margin-bottom: 8px;
 }
 
@@ -11165,6 +11172,8 @@ a,
   position: relative;
   width: 100%;
   flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
 .report-pin-map {
@@ -11179,6 +11188,7 @@ a,
   /* Confine map gestures to the mini-map; parent sheet uses touch-action: pan-y. */
   touch-action: none;
   position: relative;
+  isolation: isolate;
 }
 
 .report-pin-map__expand {
@@ -11197,7 +11207,7 @@ a,
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
-  color: var(--ink-900, #0f172a);
+  color: var(--primary);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
 }
@@ -11260,10 +11270,26 @@ a,
 }
 
 .report-pin-map .leaflet-container {
-  width: 100%;
-  height: 100%;
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100%;
   font-family: var(--font);
   touch-action: none;
+  overflow: hidden !important;
+  background: var(--canvas);
+}
+
+.report-pin-map .leaflet-pane,
+.report-pin-map .leaflet-map-pane,
+.report-pin-map .leaflet-tile-pane {
+  overflow: hidden;
+}
+
+/* Inline preview: tiles + pin only — hide zoom/attribution chrome. */
+.report-pin-map .leaflet-control-container {
+  display: none !important;
 }
 
 .report-pin-marker {
@@ -11285,7 +11311,7 @@ a,
   height: 22px;
   margin: 3px;
   border-radius: 50%;
-  background: var(--danger);
+  background: var(--primary);
   border: 3px solid #fff;
   box-shadow: var(--shadow-md);
 }
@@ -11299,6 +11325,10 @@ a,
 
 .report-pin-marker__dot--adjusted {
   background: var(--primary);
+}
+
+.report-pin-marker__dot--oob {
+  background: var(--danger);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -12686,6 +12716,93 @@ html[lang="gu"] body {
   filter: brightness(0.96);
   text-decoration: none !important;
   opacity: 1;
+}
+
+.toast__thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+}
+
+.toast.toast--gps.toast--stale-check {
+  width: min(300px, calc(100vw - 32px));
+  max-width: min(300px, calc(100vw - 32px));
+  padding: 8px 8px 8px 10px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-sm);
+  gap: 6px;
+}
+
+.toast.toast--gps.toast--stale-check .toast__gps-title {
+  font-size: var(--text-sm, var(--fs-sm));
+  font-weight: 600;
+}
+
+.toast.toast--gps.toast--stale-check .toast__gps-hint {
+  font-weight: 400;
+  color: var(--ink-400);
+}
+
+.toast.toast--gps.toast--stale-check .toast__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.toast.toast--gps.toast--stale-check .toast__action:not(.toast__action--quiet):not(.toast__action--whatsapp) {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.toast.toast--gps.toast--stale-check .toast__action:not(.toast__action--quiet):not(.toast__action--whatsapp):hover {
+  background: var(--brand-50, #f0fdfa);
+  border-color: var(--brand-100, #ccfbf1);
+  color: var(--ink-900);
+}
+
+.toast.toast--gps.toast--stale-check .toast__action--quiet {
+  grid-column: 1 / -1;
+  min-height: 36px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--ink-400);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.toast.toast--gps.toast--stale-check .toast__action--quiet:hover {
+  background: transparent;
+  color: var(--ink-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  .toast.toast--gps.toast--stale-check {
+    background: rgba(30, 41, 59, 0.88);
+    border-color: rgba(248, 250, 252, 0.1);
+  }
+  .toast.toast--gps.toast--stale-check .toast__action:not(.toast__action--quiet):not(.toast__action--whatsapp) {
+    background: rgba(15, 23, 42, 0.45);
+    border-color: rgba(248, 250, 252, 0.14);
+    color: #f8fafc;
+  }
 }
 
 .toast.toast--gps .toast__action:not(.toast__action--primary):not(.toast__action--whatsapp) {

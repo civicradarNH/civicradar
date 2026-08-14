@@ -307,7 +307,7 @@
     mapMarkerDebounceMs: 250,   // debounce marker refresh on pan/zoom
     geoThrottleMs: 15000,       // min interval between GPS refreshes (ms)
     fixConfirmThreshold: 2,     // neighbours saying "looks fixed" before community auto-resolve
-    staleCheckDays: 7,          // prompt reporter to re-check old pending spots
+    staleCheckDays: 3,          // min age before occasional resolution-check prompt
   },
 
   /* ----- Society / neighbourhood suggestions (ward-keyed; see js/society-suggestions-data.js) ----- */

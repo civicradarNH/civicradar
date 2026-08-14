@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v461';
+  const CIVIC_APP_VERSION = 'v464';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -86,7 +86,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function getReportMarkerIconEl(reportId) {
     if (reportId == null) return null;
     try {
-      const marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(String(reportId));
+      let marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(String(reportId));
+      if (!marker) {
+        const key = reportClusterIndex.get(String(reportId));
+        if (key) marker = reportClusterMarkerMap.get(key);
+      }
       if (!marker) return null;
       if (typeof marker.getElement === 'function') {
         const el = marker.getElement();
@@ -747,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       fixConfirmThreshold: 2,
 
-      staleCheckDays: 7,
+      staleCheckDays: 3,
 
     },
 
@@ -757,7 +761,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const FIX_CONFIRM_THRESHOLD = SCALE_CFG.fixConfirmThreshold || 2;
 
-  const STALE_CHECK_DAYS = SCALE_CFG.staleCheckDays || 7;
+  const STALE_CHECK_DAYS = SCALE_CFG.staleCheckDays || 3;
+  const STALE_SNOOZE_DAYS = 7;
+  const STALE_CHECK_GLOBAL_GAP_MS = 3 * 86400000;
+  const STALE_CHECK_NEAR_M = 900;
+  const STALE_CHECK_SHOWN_AT_KEY = 'civicradar_stale_check_shown_at';
+  const PIN_CLUSTER_RADIUS_M = 28;
 
   const CANVAS_MAX_WIDTH = SCALE_CFG.imageMaxWidth;
 
@@ -902,6 +911,9 @@ document.addEventListener('DOMContentLoaded', function () {
   let reportMarkerLayer = null;
 
   const reportMarkerMap = new Map();
+  const reportClusterMarkerMap = new Map();
+  const reportClusterIndex = new Map();
+  let spiderfiedClusterKey = null;
 
   let lastReportDataUrl = null;
 
@@ -3749,11 +3761,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinAccuracyUnknown': 'Check the pin is on the hazard — drag to adjust if needed',
 
-      'report.pinProvisionalAccuracy': 'Approximate location — drag the pin if it isn\'t on the hazard',
+      'report.pinAccuracyAdjusted': 'Pin looks good',
 
-      'report.pinAccuracyAdjusted': 'Pin adjusted — looks good',
+      'report.pinLocating': 'Finding location…',
 
-      'report.pinLocating': 'Finding your location…',
+      'report.pinProvisionalAccuracy': 'Drag the pin if it isn\'t on the hazard',
 
       'report.pinLocatingSlow': 'Still finding GPS — place the pin yourself if needed.',
 
@@ -4822,9 +4834,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.staleCheck': 'Spot near {ward} — still stagnant?',
 
+      'reminder.staleCheckTitle': '{hazard} near {place}',
+
+      'reminder.staleCheckHint': 'You reported this {n} days ago — seen it recently?',
+
+      'reminder.staleCheckHintOne': 'You reported this yesterday — seen it recently?',
+
       'reminder.stillThere': 'Still there',
 
       'reminder.looksFixed': 'Looks fixed',
+
+      'reminder.notSure': 'Not sure',
 
       'reminder.addPhoto': 'Add a photo',
 
@@ -6431,11 +6451,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinAccuracyUnknown': 'पिन खतरे पर है? ज़रूरत हो तो खींचें',
 
-      'report.pinProvisionalAccuracy': 'अनुमानित स्थान — पिन खतरे पर न हो तो खींचें',
+      'report.pinProvisionalAccuracy': 'पिन खतरे पर न हो तो खींचें',
 
-      'report.pinAccuracyAdjusted': 'पिन ठीक किया गया',
+      'report.pinAccuracyAdjusted': 'पिन सही लग रहा है',
 
-      'report.pinLocating': 'आपका स्थान खोज रहे हैं…',
+      'report.pinLocating': 'स्थान खोज रहे हैं…',
 
       'report.pinLocatingSlow': 'GPS अभी भी खोज रहा है — ज़रूरत हो तो पिन खुद लगाएँ।',
 
@@ -7504,9 +7524,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.staleCheck': '{ward} के पास — क्या पानी अभी भी रुका है?',
 
+      'reminder.staleCheckTitle': '{place} के पास {hazard}',
+
+      'reminder.staleCheckHint': 'आपने यह {n} दिन पहले रिपोर्ट किया था — हाल में देखा?',
+
+      'reminder.staleCheckHintOne': 'आपने यह कल रिपोर्ट किया था — हाल में देखा?',
+
       'reminder.stillThere': 'अभी भी है',
 
       'reminder.looksFixed': 'ठीक लगता है',
+
+      'reminder.notSure': 'पक्का नहीं',
 
       'reminder.addPhoto': 'फ़ोटो जोड़ें',
 
@@ -9113,11 +9141,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinAccuracyUnknown': 'पिन धोक्यावर आहे का? गरज असल्यास ओढा',
 
-      'report.pinProvisionalAccuracy': 'अंदाजे स्थान — पिन धोक्यावर नसेल तर ओढा',
+      'report.pinProvisionalAccuracy': 'पिन धोक्यावर नसेल तर ओढा',
 
-      'report.pinAccuracyAdjusted': 'पिन सुधारला',
+      'report.pinAccuracyAdjusted': 'पिन बरोबर दिसतो',
 
-      'report.pinLocating': 'तुमचे स्थान शोधत आहोत…',
+      'report.pinLocating': 'स्थान शोधत आहोत…',
 
       'report.pinLocatingSlow': 'GPS अजून शोधत आहे — गरज असल्यास पिन स्वतः लावा.',
 
@@ -10186,9 +10214,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.staleCheck': '{ward} जवळ — अजूनही पाणी साचलेले आहे का?',
 
+      'reminder.staleCheckTitle': '{place} जवळ {hazard}',
+
+      'reminder.staleCheckHint': 'तुम्ही हे {n} दिवसांपूर्वी नोंदवले — अलीकडे पाहिले का?',
+
+      'reminder.staleCheckHintOne': 'तुम्ही हे काल नोंदवले — अलीकडे पाहिले का?',
+
       'reminder.stillThere': 'अजून आहे',
 
       'reminder.looksFixed': 'ठीक दिसते',
+
+      'reminder.notSure': 'खात्री नाही',
 
       'reminder.addPhoto': 'फोटो जोडा',
 
@@ -11794,11 +11830,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'report.pinAccuracyUnknown': 'પિન જોખમ પર છે? જરૂર હોય તો ખેંચો',
 
-      'report.pinProvisionalAccuracy': 'અંદાજિત સ્થાન — જોખમ પર ન હોય તો પિન ખેંચો',
+      'report.pinProvisionalAccuracy': 'જોખમ પર ન હોય તો પિન ખેંચો',
 
-      'report.pinAccuracyAdjusted': 'પિન સમાયોજિત',
+      'report.pinAccuracyAdjusted': 'પિન સારું લાગે છે',
 
-      'report.pinLocating': 'તમારું સ્થાન શોધી રહ્યાં છીએ…',
+      'report.pinLocating': 'સ્થાન શોધી રહ્યાં છીએ…',
 
       'report.pinLocatingSlow': 'GPS હજુ શોધી રહ્યું છે — જરૂર હોય તો પિન પોતે મૂકો.',
 
@@ -12867,9 +12903,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'reminder.staleCheck': '{ward} પાસે — હજુ પાણી ભરાયેલું છે?',
 
+      'reminder.staleCheckTitle': '{place} પાસે {hazard}',
+
+      'reminder.staleCheckHint': 'તમે આ {n} દિવસ પહેલાં જાણ કરી હતી — તાજેતરમાં જોયું?',
+
+      'reminder.staleCheckHintOne': 'તમે આ ગઈકાલે જાણ કરી હતી — તાજેતરમાં જોયું?',
+
       'reminder.stillThere': 'હજુ છે',
 
       'reminder.looksFixed': 'ઠીક લાગે છે',
+
+      'reminder.notSure': 'ખાતરી નથી',
 
       'reminder.addPhoto': 'ફોટો ઉમેરો',
 
@@ -20034,80 +20078,159 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function isStaleCheckGlobalAllowed() {
+    try {
+      const raw = localStorage.getItem(STALE_CHECK_SHOWN_AT_KEY);
+      if (!raw) return true;
+      const ts = Number(raw) || Date.parse(raw);
+      if (!Number.isFinite(ts)) return true;
+      return (Date.now() - ts) >= STALE_CHECK_GLOBAL_GAP_MS;
+    } catch {
+      return true;
+    }
+  }
+
+  function markStaleCheckShownAt() {
+    try { sessionStorage.setItem('civicradar_stale_check_session', '1'); } catch (_) { /* ignore */ }
+    try { localStorage.setItem(STALE_CHECK_SHOWN_AT_KEY, String(Date.now())); } catch (_) { /* ignore */ }
+  }
+
+  function isStaleCheckGeoRelevant(report) {
+    if (report == null || report.lat == null || report.lng == null) return false;
+    if (map) {
+      try {
+        if (map.getBounds().pad(0.12).contains([report.lat, report.lng])) return true;
+      } catch (_) { /* ignore */ }
+      try {
+        const c = map.getCenter();
+        if (c && getDistanceInMeters(c.lat, c.lng, report.lat, report.lng) <= STALE_CHECK_NEAR_M) {
+          return true;
+        }
+      } catch (_) { /* ignore */ }
+    }
+    if (currentLat != null && currentLng != null) {
+      return getDistanceInMeters(currentLat, currentLng, report.lat, report.lng) <= STALE_CHECK_NEAR_M;
+    }
+    return false;
+  }
+
+  function staleCheckAnchorDist(report) {
+    let best = Infinity;
+    if (currentLat != null && currentLng != null) {
+      best = Math.min(best, getDistanceInMeters(currentLat, currentLng, report.lat, report.lng));
+    }
+    if (map) {
+      try {
+        const c = map.getCenter();
+        if (c) best = Math.min(best, getDistanceInMeters(c.lat, c.lng, report.lat, report.lng));
+      } catch (_) { /* ignore */ }
+    }
+    return best;
+  }
+
+  let staleCheckArmed = false;
+  let staleCheckDelayTimer = 0;
+
+  function staleCheckPlaceLabel(report) {
+    const notes = String((report && report.notes) || '').trim().split(/[\n\r]/)[0].trim();
+    if (notes.length >= 2) {
+      return notes.length > 48 ? notes.slice(0, 45).trim() + '…' : notes;
+    }
+    const soc = String((report && (report.society || report.neighbourhood)) || '').trim();
+    if (soc) return soc;
+    try {
+      const parts = typeof parseWardParts === 'function' ? parseWardParts(report && report.ward) : {};
+      if (parts && parts.area) return parts.area;
+    } catch (_) { /* ignore */ }
+    const loc = typeof getReportShareLocation === 'function' ? getReportShareLocation(report) : '';
+    return loc || t('header.context');
+  }
+
   function collectStaleCheckReminders() {
-
     if (isAdmin || isLead || !user.ward) return [];
-
-    if (sessionStorage.getItem('civicradar_stale_check_session')) return [];
-
-
+    try {
+      if (sessionStorage.getItem('civicradar_stale_check_session')) return [];
+    } catch (_) { /* ignore */ }
+    if (!isStaleCheckGlobalAllowed()) return [];
 
     const candidates = getUserReports()
-
       .filter((r) => {
-
         if (r.status !== 'pending') return false;
-
+        if (r.lat == null || r.lng == null) return false;
         if (isStaleReportSnoozed(r.id)) return false;
-
-        return getDaysPending(r.timestamp) >= STALE_CHECK_DAYS;
-
+        if (getDaysPending(r.timestamp) < STALE_CHECK_DAYS) return false;
+        return isStaleCheckGeoRelevant(r);
       })
-
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-
+      .sort((a, b) => staleCheckAnchorDist(a) - staleCheckAnchorDist(b));
 
     if (!candidates.length) return [];
-
     const report = candidates[0];
-
-    const ward = wardShortForReminder(report.ward) || t('header.context');
-
-
+    const days = getDaysPending(report.timestamp);
+    const place = staleCheckPlaceLabel(report);
+    const title = t('reminder.staleCheckTitle')
+      .replace('{hazard}', hazardLabel(report.hazard))
+      .replace('{place}', place);
+    const hint = days <= 1
+      ? t('reminder.staleCheckHintOne')
+      : t('reminder.staleCheckHint').replace('{n}', String(days));
+    const thumbUrl = isSafeReportImage(report.image) ? report.image : '';
 
     return [{
-
       priority: REMINDER_PRIORITY.staleCheck,
-
       type: 'stale_check',
-
-      meta: { reportId: String(report.id), days: getDaysPending(report.timestamp) },
-
+      meta: { reportId: String(report.id), days },
       show: () => {
-
-        sessionStorage.setItem('civicradar_stale_check_session', '1');
-
+        markStaleCheckShownAt();
         showToast(
-
-          t('reminder.staleCheck').replace('{ward}', ward),
-
+          title,
           'info',
-
-          9000,
-
+          0,
           {
-
-            label: t('reminder.looksFixed'),
-
-            onClick: () => confirmFix(report.id, { staleCheck: true }),
-
+            toastClass: 'toast--gps toast--dock-bottom toast--stale-check',
+            hint,
+            thumbUrl,
+            equalActions: true,
+            label: t('reminder.stillThere'),
+            onClick: () => snoozeStaleReport(report.id),
             secondary: [{
-
-              label: t('reminder.stillThere'),
-
-              onClick: () => snoozeStaleReport(report.id),
-
+              label: t('reminder.looksFixed'),
+              onClick: () => {
+                persistStaleReportSnooze(report.id);
+                confirmFix(report.id, { staleCheck: true });
+              },
+            }, {
+              label: t('reminder.notSure'),
+              variant: 'quiet',
+              onClick: () => snoozeStaleReport(report.id, 'stale_check_not_sure'),
             }],
-
+            onDismiss: () => snoozeStaleReport(report.id, 'stale_check_dismissed'),
           }
-
         );
-
       },
-
     }];
+  }
 
+  function tryShowStaleCheckPrompt() {
+    if (!user.ward || !user.tosAccepted) return;
+    if (isAdmin || isLead) return;
+    if (typeof shouldDeferFirstRunNudges === 'function' && shouldDeferFirstRunNudges()) return;
+    if (typeof isReportFlowBusy === 'function' && isReportFlowBusy()) return;
+    if (typeof isReportSessionBlockingMapPrompts === 'function' && isReportSessionBlockingMapPrompts()) return;
+    const candidates = collectStaleCheckReminders();
+    if (!candidates.length) return;
+    dispatchReminderQueue(candidates);
+  }
+
+  function armStaleCheckSurfacing() {
+    if (staleCheckArmed) return;
+    staleCheckArmed = true;
+    try {
+      const el = map && map.getContainer && map.getContainer();
+      if (el) {
+        el.addEventListener('pointerdown', tryShowStaleCheckPrompt, { once: true, passive: true });
+      }
+    } catch (_) { /* ignore */ }
+    staleCheckDelayTimer = setTimeout(tryShowStaleCheckPrompt, 25000);
   }
 
 
@@ -20170,8 +20293,6 @@ document.addEventListener('DOMContentLoaded', function () {
     dispatchReminderQueue([
 
       ...collectEscalationReminders(),
-
-      ...collectStaleCheckReminders(),
 
       ...collectUnfiledReminders(),
 
@@ -20727,8 +20848,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (r.lat != null && r.lng != null && map) {
       map.setView([r.lat, r.lng], 16);
       if (areMapPinsLockedForFirstRun()) return;
-      const marker = reportMarkerMap.get(String(reportId));
-      if (marker) marker.openPopup();
+      openReportMarkerPopup(reportId);
     }
   }
 
@@ -22691,20 +22811,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-  function snoozeStaleReport(reportId) {
-
+  function persistStaleReportSnooze(reportId) {
     const map = reminderJson(REMINDER_STALE_SNOOZE_KEY, {}) || {};
-
-    map[String(reportId)] = new Date(Date.now() + STALE_CHECK_DAYS * 86400000).toISOString();
-
+    map[String(reportId)] = new Date(Date.now() + STALE_SNOOZE_DAYS * 86400000).toISOString();
     setReminderJson(REMINDER_STALE_SNOOZE_KEY, map);
+  }
 
+  function snoozeStaleReport(reportId, analyticsType) {
+    persistStaleReportSnooze(reportId);
     if (window.CivicAnalytics) {
-
-      CivicAnalytics.track('stale_check_still_there', { reportId: String(reportId) }, user.ward);
-
+      CivicAnalytics.track(analyticsType || 'stale_check_still_there', { reportId: String(reportId) }, user.ward);
     }
-
   }
 
 
@@ -23072,6 +23189,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!cue) return;
 
+    // Confirm step: selected tile already shows a check — skip the extra category bar.
+    if (reportFlowStep === 'confirm') {
+
+      cue.classList.add('hidden');
+
+      cue.textContent = '';
+
+      if (pickerHint) pickerHint.classList.add('hidden');
+
+      return;
+
+    }
+
     if (!key) {
 
       cue.classList.add('hidden');
@@ -23084,15 +23214,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const pinNeeds = confirmPinProvisional && !confirmPinUserAdjusted;
-
-    const tpl = pinNeeds ? t('report.photoNextPin') : t('report.photoNext');
-
-    cue.textContent = tpl.replace('{hazard}', hazardLabel(key));
+    cue.textContent = t('report.photoNext').replace('{hazard}', hazardLabel(key));
 
     cue.classList.remove('hidden');
 
-    // Cue already names the selected hazard + next step — hide the generic tap hint.
     if (pickerHint) pickerHint.classList.add('hidden');
 
   }
@@ -24972,10 +25097,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Glass chip: title (+ optional hint) — no bulky info icon (Maps/Uber snackbar).
     if (useGlassChip) {
       const hint = action && action.hint ? String(action.hint) : '';
-      row.innerHTML = hint
+      const thumb = (action && action.thumbUrl && isSafeReportImage(action.thumbUrl))
+        ? `<img class="toast__thumb" src="${action.thumbUrl}" alt="" width="44" height="44">`
+        : '';
+      const copy = hint
         ? `<div class="toast__gps-copy"><span class="toast__gps-title">${escapeHtml(message)}</span>`
           + `<span class="toast__gps-hint">${escapeHtml(hint)}</span></div>`
         : `<span class="toast__gps-title">${escapeHtml(message)}</span>`;
+      row.innerHTML = thumb + copy;
     } else {
       row.innerHTML =
         `<i class="ph ph-${icons[type] || 'info'}" aria-hidden="true"></i><span>${escapeHtml(message)}</span>`;
@@ -25008,8 +25137,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // WA snackbar: CTA stacked under message (v293 — no clip/overlap).
     const paintToastAction = (btn, act, primary) => {
       const isWa = act.variant === 'whatsapp';
+      const isQuiet = act.variant === 'quiet';
       btn.className = 'toast__action'
-        + (isWa ? ' toast__action--whatsapp' : (primary ? ' toast__action--primary' : ''));
+        + (isWa ? ' toast__action--whatsapp' : '')
+        + (isQuiet ? ' toast__action--quiet' : '')
+        + (!isWa && !isQuiet && primary ? ' toast__action--primary' : '');
       if (isWa) {
         btn.innerHTML = `<i class="ph ph-whatsapp-logo" aria-hidden="true"></i><span>${escapeHtml(act.label)}</span>`;
       } else {
@@ -25039,7 +25171,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         btn.type = 'button';
 
-        paintToastAction(btn, act, i === 0);
+        paintToastAction(btn, act, !(action && action.equalActions) && i === 0);
 
         bindActionClick(btn, act);
 
@@ -25077,7 +25209,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         btn.type = 'button';
 
-        paintToastAction(btn, act, i === 0);
+        paintToastAction(btn, act, !(action && action.equalActions) && i === 0);
 
         bindActionClick(btn, act);
 
@@ -26669,6 +26801,10 @@ document.addEventListener('DOMContentLoaded', function () {
       syncReportConfirmStepLock();
 
       updateReportDraftResumeCue();
+
+      bindReportPinMapTransitionResize();
+
+      if (reportFlowStep === 'confirm') scheduleReportPinMapResize();
 
     }
 
@@ -29238,9 +29374,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (areMapPinsLockedForFirstRun()) return;
 
-      const marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(String(reportId));
-
-      if (marker) marker.openPopup();
+      openReportMarkerPopup(reportId);
 
     }, 450);
 
@@ -30421,9 +30555,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Report pins: plain LayerGroup (viewport-capped). Leaflet.markercluster is
-      // not in vendor — cluster bloom CSS (.cluster-badge / .cluster-pin) is ready
-      // for Stage 2 when the plugin ships; do not invent a heavy custom clusterer.
+      // Overlapping pins (same / near-identical coords) group into a count badge.
       reportMarkerLayer = L.layerGroup().addTo(map);
       try {
         refreshReportMarkers();
@@ -30432,6 +30564,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       map.on('moveend zoomend', scheduleRefreshReportMarkers);
+
+      try { armStaleCheckSurfacing(); } catch (_) { /* ignore */ }
 
       // GPS is requested only after explicit consent (DPDP). See maybeRequestLocation().
       try { maybeRequestLocation(true); } catch { /* ignore */ }
@@ -30452,6 +30586,9 @@ document.addEventListener('DOMContentLoaded', function () {
       try { if (map) { map.remove(); } } catch { /* ignore */ }
       map = null;
       reportMarkerLayer = null;
+      reportClusterMarkerMap.clear();
+      reportClusterIndex.clear();
+      spiderfiedClusterKey = null;
       showMapError('init');
       hideAppLaunch();
     }
@@ -30469,6 +30606,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (el) el.innerHTML = '';
     map = null;
     reportMarkerLayer = null;
+    reportClusterMarkerMap.clear();
+    reportClusterIndex.clear();
+    spiderfiedClusterKey = null;
     loadLeafletIfNeeded().then(() => {
       initMap();
       if (!map) {
@@ -32075,11 +32215,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (report.lat == null || report.lng == null) return null;
 
-
+    const latlng = (opts && opts.latlng) ? opts.latlng : [report.lat, report.lng];
 
     const pinKey = mapPinIconKey(report.status, report.hazard);
 
-    const marker = L.marker([report.lat, report.lng], {
+    const marker = L.marker(latlng, {
 
       icon: getReportMapIcon(report.status, report.hazard),
 
@@ -32193,6 +32333,103 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function clusterReportsByProximity(reports) {
+    const groups = [];
+    reports.forEach((r) => {
+      if (r.lat == null || r.lng == null) {
+        groups.push({ reports: [r], lat: r.lat, lng: r.lng });
+        return;
+      }
+      let best = null;
+      let bestD = PIN_CLUSTER_RADIUS_M;
+      groups.forEach((g) => {
+        if (g.lat == null || g.lng == null) return;
+        const d = getDistanceInMeters(g.lat, g.lng, r.lat, r.lng);
+        if (d < bestD) {
+          bestD = d;
+          best = g;
+        }
+      });
+      if (best) {
+        best.reports.push(r);
+        const n = best.reports.length;
+        best.lat = best.reports.reduce((s, x) => s + Number(x.lat), 0) / n;
+        best.lng = best.reports.reduce((s, x) => s + Number(x.lng), 0) / n;
+      } else {
+        groups.push({ reports: [r], lat: r.lat, lng: r.lng });
+      }
+    });
+    groups.forEach((g) => {
+      g.key = g.reports.map((r) => String(r.id)).sort().join('|');
+    });
+    return groups;
+  }
+
+  function spiderfyLatLngs(lat, lng, count) {
+    if (!map || count < 2) return [];
+    try {
+      const origin = map.latLngToLayerPoint([lat, lng]);
+      const radius = 26 + Math.min(count, 10) * 3;
+      const out = [];
+      for (let i = 0; i < count; i++) {
+        const a = ((Math.PI * 2) * i) / count - Math.PI / 2;
+        const pt = L.point(origin.x + radius * Math.cos(a), origin.y + radius * Math.sin(a));
+        out.push(map.layerPointToLatLng(pt));
+      }
+      return out;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function removeMapMarker(marker) {
+    if (!marker || !reportMarkerLayer) return;
+    try { reportMarkerLayer.removeLayer(marker); } catch (_) { /* ignore */ }
+  }
+
+  function createClusterCountMarker(group) {
+    const count = group.reports.length;
+    const icon = L.divIcon({
+      className: 'cluster-badge-wrap',
+      html: '<div class="cluster-badge cluster-badge--pop" aria-hidden="true">' + String(count) + '</div>',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+    const marker = L.marker([group.lat, group.lng], {
+      icon,
+      keyboard: true,
+      zIndexOffset: 420,
+      title: String(count),
+    });
+    marker._civicClusterKey = group.key;
+    marker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      if (areMapPinsLockedForFirstRun()) return;
+      spiderfiedClusterKey = (spiderfiedClusterKey === group.key) ? null : group.key;
+      refreshReportMarkers();
+    });
+    reportClusterMarkerMap.set(group.key, marker);
+    reportMarkerLayer.addLayer(marker);
+    return marker;
+  }
+
+  function openReportMarkerPopup(reportId) {
+    if (reportId == null || areMapPinsLockedForFirstRun()) return;
+    const sid = String(reportId);
+    let marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(sid);
+    if (!marker) {
+      const key = reportClusterIndex.get(sid);
+      if (key) {
+        spiderfiedClusterKey = key;
+        refreshReportMarkers();
+        marker = reportMarkerMap.get(reportId) || reportMarkerMap.get(sid);
+      }
+    }
+    if (marker && typeof marker.openPopup === 'function') {
+      try { marker.openPopup(); } catch (_) { /* ignore */ }
+    }
+  }
+
   function refreshReportMarkers() {
 
     if (!reportMarkerLayer) return;
@@ -32217,8 +32454,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (map) pool = reportsInViewport(pool);
 
-    // Keep an open popup pin mounted even if it briefly leaves the padded bounds.
-
     if (reopenId != null && !pool.some((r) => r.id === reopenId)) {
 
       const keep = reportsForMap().find((r) => r.id === reopenId);
@@ -32237,99 +32472,102 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    const nextIds = new Set(pool.map((r) => r.id));
+    const groups = clusterReportsByProximity(pool);
+    reportClusterIndex.clear();
+    const nextSingleIds = new Set();
+    const nextClusterKeys = new Set();
+    groups.forEach((g) => {
+      if (g.reports.length < 2) {
+        nextSingleIds.add(g.reports[0].id);
+      } else {
+        nextClusterKeys.add(g.key);
+        g.reports.forEach((r) => reportClusterIndex.set(String(r.id), g.key));
+      }
+    });
 
-    // Remove markers no longer in the visible pool (keeps open popup DOM when id stays).
+    if (spiderfiedClusterKey && !nextClusterKeys.has(spiderfiedClusterKey)) {
+      spiderfiedClusterKey = null;
+    }
+
+    const spiderGroup = groups.find((g) => g.key === spiderfiedClusterKey);
+    const spiderIds = new Set((spiderGroup ? spiderGroup.reports : []).map((r) => r.id));
+
     [...reportMarkerMap.keys()].forEach((id) => {
-
-      if (nextIds.has(id)) return;
-
+      if (nextSingleIds.has(id) || spiderIds.has(id)) return;
       const marker = reportMarkerMap.get(id);
-
-      try { if (marker) reportMarkerLayer.removeLayer(marker); } catch { /* ignore */ }
-
+      removeMapMarker(marker);
       reportMarkerMap.delete(id);
-
     });
 
-    pool.forEach((r) => {
-
-      const existing = reportMarkerMap.get(r.id);
-
-      if (!existing) {
-
-        createReportMarker(r);
-
-        return;
-
-      }
-
-      try {
-
-        if (typeof existing.setLatLng === 'function') existing.setLatLng([r.lat, r.lng]);
-
-        const nextPinKey = mapPinIconKey(r.status, r.hazard);
-
-        if (existing._civicPinKey !== nextPinKey && typeof existing.setIcon === 'function') {
-
-          existing.setIcon(getReportMapIcon(r.status, r.hazard));
-
-          existing._civicPinKey = nextPinKey;
-
-        }
-
-        // Lazy factory for next open; refresh live popup content without teardown.
-        existing.bindPopup(() => buildReportPopup(r), getReportPopupOptions());
-
-        if (typeof existing.isPopupOpen === 'function' && existing.isPopupOpen()) {
-
-          const popup = existing.getPopup && existing.getPopup();
-
-          if (popup && typeof popup.setContent === 'function') {
-
-            popup.setContent(buildReportPopup(r));
-
-            try { applyPinPopupSheetMode(popup); } catch (_) { /* ignore */ }
-
-            const el = popup.getElement && popup.getElement();
-
-            if (el) bindBeforeAfterSliders(el);
-
-          }
-
-        }
-
-      } catch {
-
-        try { reportMarkerLayer.removeLayer(existing); } catch { /* ignore */ }
-
-        reportMarkerMap.delete(r.id);
-
-        createReportMarker(r);
-
-      }
-
+    [...reportClusterMarkerMap.keys()].forEach((key) => {
+      if (nextClusterKeys.has(key) && key !== spiderfiedClusterKey) return;
+      const marker = reportClusterMarkerMap.get(key);
+      removeMapMarker(marker);
+      reportClusterMarkerMap.delete(key);
     });
 
-    // Fallback: reopen if the open pin was briefly removed (viewport cull) then returned.
-    if (reopenId != null && !areMapPinsLockedForFirstRun()) {
-
-      const marker = reportMarkerMap.get(reopenId);
-
-      if (marker) {
-
+    groups.forEach((g) => {
+      if (g.reports.length < 2) {
+        const r = g.reports[0];
+        const existing = reportMarkerMap.get(r.id);
+        if (!existing) {
+          createReportMarker(r);
+          return;
+        }
         try {
-
-          if (!(typeof marker.isPopupOpen === 'function' && marker.isPopupOpen())) {
-
-            marker.openPopup();
-
+          if (typeof existing.setLatLng === 'function') existing.setLatLng([r.lat, r.lng]);
+          const nextPinKey = mapPinIconKey(r.status, r.hazard);
+          if (existing._civicPinKey !== nextPinKey && typeof existing.setIcon === 'function') {
+            existing.setIcon(getReportMapIcon(r.status, r.hazard));
+            existing._civicPinKey = nextPinKey;
           }
-
-        } catch { /* ignore */ }
-
+          existing.bindPopup(() => buildReportPopup(r), getReportPopupOptions());
+          if (typeof existing.isPopupOpen === 'function' && existing.isPopupOpen()) {
+            const popup = existing.getPopup && existing.getPopup();
+            if (popup && typeof popup.setContent === 'function') {
+              popup.setContent(buildReportPopup(r));
+              try { applyPinPopupSheetMode(popup); } catch (_) { /* ignore */ }
+              const el = popup.getElement && popup.getElement();
+              if (el) bindBeforeAfterSliders(el);
+            }
+          }
+        } catch {
+          removeMapMarker(existing);
+          reportMarkerMap.delete(r.id);
+          createReportMarker(r);
+        }
+        return;
       }
 
+      if (g.key === spiderfiedClusterKey) {
+        const offsets = spiderfyLatLngs(g.lat, g.lng, g.reports.length);
+        g.reports.forEach((r, i) => {
+          const ll = offsets[i] || L.latLng(g.lat, g.lng);
+          const existing = reportMarkerMap.get(r.id);
+          if (!existing) {
+            createReportMarker(r, { latlng: ll });
+            return;
+          }
+          try {
+            if (typeof existing.setLatLng === 'function') existing.setLatLng(ll);
+            existing.bindPopup(() => buildReportPopup(r), getReportPopupOptions());
+          } catch {
+            removeMapMarker(existing);
+            reportMarkerMap.delete(r.id);
+            createReportMarker(r, { latlng: ll });
+          }
+        });
+        return;
+      }
+
+      const existingCluster = reportClusterMarkerMap.get(g.key);
+      if (!existingCluster) createClusterCountMarker(g);
+    });
+
+    if (reopenId != null && !areMapPinsLockedForFirstRun()) {
+      const openM = reportMarkerMap.get(reopenId) || reportMarkerMap.get(String(reopenId));
+      const alreadyOpen = openM && typeof openM.isPopupOpen === 'function' && openM.isPopupOpen();
+      if (!alreadyOpen) openReportMarkerPopup(reopenId);
     }
 
     if (typeof renderWardPulse === 'function') renderWardPulse();
@@ -36260,7 +36498,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     el.className = 'report-pin-accuracy';
 
-    if (confirmPinUserAdjusted) {
+    const mapEl = $('#reportPinMap');
+
+    const hasCoords = confirmPinLat != null && confirmPinLng != null
+      && (typeof isValidGpsCoords !== 'function' || isValidGpsCoords(confirmPinLat, confirmPinLng));
+
+    const stillLocating = !!(mapEl && mapEl.classList.contains('report-pin-map--loading'))
+      && !confirmPinUserAdjusted
+      && !Number.isFinite(confirmPinAccuracyM)
+      && !hasCoords;
+
+    if (stillLocating) {
+
+      el.textContent = t('report.pinLocating');
+
+      return;
+
+    }
+
+    if (confirmPinUserAdjusted || (
+      !confirmPinProvisional
+      && Number.isFinite(confirmPinAccuracyM)
+      && confirmPinAccuracyM <= GEO_ACCURACY_GOOD_M
+    )) {
 
       el.textContent = t('report.pinAccuracyAdjusted');
 
@@ -36270,96 +36530,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if (confirmPinProvisional) {
+    el.textContent = t('report.pinProvisionalAccuracy');
 
-      const mapEl = $('#reportPinMap');
-
-      if (mapEl && mapEl.classList.contains('report-pin-map--loading')) {
-
-        el.textContent = t('report.pinLocating');
-
-        return;
-
-      }
-
-      el.textContent = t('report.pinProvisionalAccuracy');
-
-      el.classList.add('report-pin-accuracy--poor');
-
-      return;
-
-    }
-
-    const acc = confirmPinAccuracyM;
-
-    if (!Number.isFinite(acc)) {
-
-      el.textContent = t('report.pinAccuracyUnknown');
-
-      return;
-
-    }
-
-    const m = String(Math.round(acc));
-
-    if (acc <= GEO_ACCURACY_GOOD_M) {
-
-      el.textContent = t('report.pinAccuracyGood').replace('{m}', m);
-
-      el.classList.add('report-pin-accuracy--good');
-
-    } else if (acc <= GEO_ACCURACY_POOR_M) {
-
-      el.textContent = t('report.pinAccuracyFair').replace('{m}', m);
-
-      el.classList.add('report-pin-accuracy--fair');
-
-    } else {
-
-      el.textContent = t('report.pinAccuracyPoor').replace('{m}', m);
-
-      el.classList.add('report-pin-accuracy--poor');
-
-    }
+    el.classList.add('report-pin-accuracy--fair');
 
   }
 
 
 
-  /** Inline confirm-step copy — drag is optional; soft hint when GPS is provisional. */
+  /** Inline confirm-step copy — one pin-status line; drag hint is CSS-hidden. */
   function syncConfirmPinUiHints() {
-
-    const softHint = confirmPinProvisional && !confirmPinUserAdjusted;
 
     const hint = $('#reportPinDragHint');
 
-    if (hint) {
-
-      // Accuracy line already says "drag the pin" for fair/poor/unknown —
-      // keep a separate drag hint only for good accuracy, or when provisional.
-      const acc = confirmPinAccuracyM;
-      const accuracyMentionsDrag = (!softHint && !confirmPinUserAdjusted)
-        && (!Number.isFinite(acc) || (Number.isFinite(acc) && acc > GEO_ACCURACY_GOOD_M));
-      if (accuracyMentionsDrag) {
-        hint.classList.add('hidden');
-      } else {
-        hint.classList.remove('hidden');
-        hint.textContent = t(softHint ? 'report.pinProvisionalDragHint' : 'report.pinDragHint');
-      }
-
-      hint.classList.toggle('report-pin-drag-hint--required', softHint);
-
-    }
+    if (hint) hint.classList.add('hidden');
 
     const pinBlock = $('#reportPinConfirm');
 
+    const softHint = confirmPinProvisional && !confirmPinUserAdjusted;
+
     if (pinBlock) pinBlock.classList.toggle('report-pin-confirm--needs-adjust', softHint);
 
-    // Auto-expand only for settled poor GPS — stay collapsed during "Finding…"
     const mapEl = $('#reportPinMap');
+
     const stillLocating = mapEl?.classList.contains('report-pin-map--loading');
+
     if (!stillLocating && !confirmPinProvisional && confirmPinAccuracyIsPoor()) {
+
       setReportPinMapExpanded(true);
+
     }
 
     const fullMapBtn = $('#btnReportPinFullMap');
@@ -36432,13 +36631,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderConfirmPinMarkerIcon() {
 
-    const adjusted = confirmPinUserAdjusted ? ' report-pin-marker__dot--adjusted' : '';
+    const oob = (typeof isGpsOutsideCity === 'function'
+      && confirmPinLat != null && confirmPinLng != null
+      && isGpsOutsideCity(confirmPinLat, confirmPinLng, getUserCity()));
+
+    const tone = oob ? ' report-pin-marker__dot--oob' : ' report-pin-marker__dot--adjusted';
 
     return L.divIcon({
 
       className: 'report-pin-marker',
 
-      html: '<span class="report-pin-marker__dot' + adjusted + '" aria-hidden="true"></span>',
+      html: '<span class="report-pin-marker__dot' + tone + '" aria-hidden="true"></span>',
 
       iconSize: [28, 28],
 
@@ -36517,11 +36720,19 @@ document.addEventListener('DOMContentLoaded', function () {
   // batch's later runs still cover any layout change that happened in between.
   let reportPinMapResizeScheduled = false;
 
+  let reportPinMapResizePending = false;
+
   function scheduleReportPinMapResize() {
 
     if (!reportPinMap) return;
 
-    if (reportPinMapResizeScheduled) return;
+    if (reportPinMapResizeScheduled) {
+
+      reportPinMapResizePending = true;
+
+      return;
+
+    }
 
     reportPinMapResizeScheduled = true;
 
@@ -36529,7 +36740,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const run = () => {
 
-      try { reportPinMap.invalidateSize({ pan: false }); } catch { /* ignore */ }
+      if (!reportPinMap) return;
+
+      try {
+
+        const host = reportPinMap.getContainer && reportPinMap.getContainer();
+
+        if (host) {
+
+          host.style.width = '100%';
+
+          host.style.height = '100%';
+
+        }
+
+        reportPinMap.invalidateSize({ pan: false, animate: false });
+
+      } catch { /* ignore */ }
 
     };
 
@@ -36543,13 +36770,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setTimeout(run, 50);
 
-        setTimeout(run, 250);
+        setTimeout(() => {
 
-        setTimeout(() => { run(); reportPinMapResizeScheduled = false; }, 600);
+          run();
+
+          reportPinMapResizeScheduled = false;
+
+          if (reportPinMapResizePending) {
+
+            reportPinMapResizePending = false;
+
+            scheduleReportPinMapResize();
+
+          }
+
+        }, 320);
 
       });
 
     });
+
+  }
+
+
+
+  function bindReportPinMapTransitionResize() {
+
+    const overlay = overlays.report;
+
+    if (!overlay || overlay.dataset.pinResizeBound === '1') return;
+
+    overlay.dataset.pinResizeBound = '1';
+
+    overlay.addEventListener('transitionend', (e) => {
+
+      if (!reportPinMap) return;
+
+      const prop = e.propertyName || '';
+
+      if (prop && prop !== 'height' && prop !== 'transform' && prop !== 'opacity' && prop !== 'max-height') return;
+
+      scheduleReportPinMapResize();
+
+    });
+
+    const mapEl = $('#reportPinMap');
+
+    if (mapEl) {
+
+      mapEl.addEventListener('transitionend', (e) => {
+
+        if (!reportPinMap) return;
+
+        if (e.propertyName && e.propertyName !== 'height' && e.propertyName !== 'max-height') return;
+
+        scheduleReportPinMapResize();
+
+      });
+
+    }
 
   }
 
@@ -36703,6 +36982,8 @@ document.addEventListener('DOMContentLoaded', function () {
     syncConfirmPinMarker();
 
     scheduleReportPinMapResize();
+
+    bindReportPinMapTransitionResize();
 
   }
 
@@ -41831,11 +42112,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       map.setView([report.lat, report.lng], 17);
 
+      openReportMarkerPopup(report.id);
+
       const marker = reportMarkerMap.get(report.id) || reportMarkerMap.get(String(report.id));
 
       if (marker) {
-
-        marker.openPopup();
 
         const el = marker.getElement && marker.getElement();
 
