@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v466';
+  const CIVIC_APP_VERSION = 'v467';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -36485,7 +36485,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.hidden = next;
     }
     // Taller expanded map needs invalidateSize whenever we show it.
-    if (next && (opts && opts.resize === false) === false) {
+    if (next && !(opts && opts.resize === false)) {
       scheduleReportPinMapResize();
     } else if (!next && was) {
       /* collapsed — no resize required */
