@@ -13494,7 +13494,7 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--text-primary, #f9fafb);
   }
 
-  .leaflet-container {
+  .leaflet-container:not(.report-pin-map) {
     background: #0b1220;
   }
 
