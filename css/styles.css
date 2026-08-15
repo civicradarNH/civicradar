@@ -11193,12 +11193,12 @@ a,
   margin-bottom: 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  overflow: hidden;
-  background: var(--canvas);
-  /* Confine map gestures to the mini-map; parent sheet uses touch-action: pan-y. */
+  /* Clip on the wrap only. overflow+isolation on this Leaflet host clips
+     transformed map-pane tiles on Android WebView (blank box, tiles still "loaded"). */
+  overflow: visible;
+  background: #d4dce8;
   touch-action: none;
   position: relative;
-  isolation: isolate;
 }
 
 .report-pin-gps-banner {
@@ -11282,14 +11282,17 @@ a,
 .report-pin-map--loading::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   z-index: 500;
   pointer-events: none;
   background: linear-gradient(
-    110deg,
-    rgba(248, 250, 252, 0.15) 0%,
-    rgba(248, 250, 252, 0.55) 45%,
-    rgba(248, 250, 252, 0.15) 90%
+    90deg,
+    transparent 0%,
+    var(--brand-600, #6366f1) 50%,
+    transparent 100%
   );
   background-size: 200% 100%;
   animation: report-pin-shimmer 1.2s ease-in-out infinite;
@@ -11309,7 +11312,8 @@ a,
 @media (prefers-reduced-motion: reduce) {
   .report-pin-map--loading::after {
     animation: none;
-    background: rgba(248, 250, 252, 0.35);
+    background: var(--brand-600, #6366f1);
+    opacity: 0.45;
   }
 }
 
@@ -11318,22 +11322,14 @@ a,
   100% { background-position: -100% 0; }
 }
 
+.report-pin-map.leaflet-container,
 .report-pin-map .leaflet-container {
-  position: absolute !important;
-  inset: 0;
+  position: relative;
   width: 100% !important;
   height: 100% !important;
-  max-height: 100%;
   font-family: var(--font);
   touch-action: none;
-  overflow: hidden !important;
-  background: var(--canvas);
-}
-
-.report-pin-map .leaflet-pane,
-.report-pin-map .leaflet-map-pane,
-.report-pin-map .leaflet-tile-pane {
-  overflow: hidden;
+  background: #d4dce8;
 }
 
 /* Inline preview: tiles + pin only — hide zoom/attribution chrome. */
@@ -13418,9 +13414,7 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
      Must beat light outdoor boost (#map .leaflet-tile-pane) and
      popup-open quieting (body.map-popup-open #map .leaflet-tile-pane). */
   #map .leaflet-tile-pane,
-  #reportPinMap .leaflet-tile-pane,
-  body.map-popup-open #map .leaflet-tile-pane,
-  body.map-popup-open #reportPinMap .leaflet-tile-pane {
+  body.map-popup-open #map .leaflet-tile-pane {
     filter: invert(1) hue-rotate(180deg) brightness(.91) contrast(.88) saturate(.65);
   }
 
@@ -15260,7 +15254,9 @@ body::after {
      · Global CartoDB Dark Matter basemap — dark-mode-first fights
        Clean SaaS light chrome; keep OSM standard tiles (JS unchanged).
        Dark chrome adapts via prefers-color-scheme; basemap darkens via
-       CSS filter on #map/#reportPinMap .leaflet-tile-pane (v433) — not a tile URL swap.
+       CSS filter on #map .leaflet-tile-pane (v433) — not a tile URL swap.
+       Confirm mini-map (#reportPinMap) stays unfiltered: invert+overflow on that
+       88px pane blanked tiles on Android while Leaflet still reported loaded.
    Basemap decision: OSM standard (tile.openstreetmap.org). SW stays
    same-origin-only (tiles never intercepted; v302 Leaflet network-first).
    ============================================================ */
