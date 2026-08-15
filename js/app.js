@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v471';
+  const CIVIC_APP_VERSION = 'v472';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -36818,6 +36818,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         reportPinMap.invalidateSize({ pan: false, animate: false });
+        if (host) {
+          try { renderPinMapDiag(host, host._reportPinInitErr || null); } catch { /* ignore */ }
+        }
 
       } catch { /* ignore */ }
 
@@ -36943,6 +36946,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  function renderPinMapDiag(host, errMsg) {
+    if (!host) return;
+    let el = document.getElementById('reportPinMapDiag');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'reportPinMapDiag';
+      el.style.cssText = 'position:absolute;left:4px;bottom:4px;z-index:2000;'
+        + 'background:rgba(0,0,0,0.75);color:#0f0;font:10px monospace;'
+        + 'padding:2px 4px;border-radius:3px;pointer-events:none;white-space:pre;';
+      const wrap = host.closest('.report-pin-map-wrap') || host.parentElement;
+      if (wrap) wrap.appendChild(el);
+    }
+    const rect = host.getBoundingClientRect();
+    const tiles = host.querySelectorAll('.leaflet-tile').length;
+    const tilesLoaded = host.querySelectorAll('.leaflet-tile-loaded').length;
+    const marker = host.querySelectorAll('.leaflet-marker-icon').length;
+    el.textContent = 'sz:' + Math.round(rect.width) + 'x' + Math.round(rect.height)
+      + ' map:' + (reportPinMap ? 'Y' : 'N')
+      + ' tiles:' + tilesLoaded + '/' + tiles
+      + ' mk:' + marker
+      + (errMsg ? ' ERR:' + String(errMsg).slice(0, 40) : '');
+  }
+
   function initReportPinPreview(lat, lng, accuracyM, userAdjusted) {
 
     debugLog('PIN', 'initReportPinPreview', { lat, lng, accuracyM, userAdjusted, provisional: confirmPinProvisional });
@@ -37033,6 +37059,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.error('Confirm-step pin map failed to initialise:', err);
 
+        host._reportPinInitErr = err.message || String(err);
+
         if (window.CivicAnalytics) {
 
           CivicAnalytics.trackError(err.message || 'confirm_pin_map_init_failed', {
@@ -37065,6 +37093,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+        try { renderPinMapDiag(host, host._reportPinInitErr || null); } catch { /* ignore */ }
+
         return;
 
       }
@@ -37074,6 +37104,8 @@ document.addEventListener('DOMContentLoaded', function () {
       wireReportPinMapKinetics();
 
     }
+
+    renderPinMapDiag(host, host._reportPinInitErr || null);
 
     const zoom = zoomForAccuracy(confirmPinAccuracyM);
 
