@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v470';
+  const CIVIC_APP_VERSION = 'v471';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -36391,6 +36391,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     reportPinMap = null;
 
+    try {
+
+      const host = $('#reportPinMap');
+
+      if (host) delete host._leaflet_id;
+
+    } catch { /* ignore */ }
+
   }
 
 
@@ -36949,78 +36957,117 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!reportPinMap) {
 
-      reportPinMap = L.map(host, {
+      try {
 
-        zoomControl: false,
+        reportPinMap = L.map(host, {
 
-        attributionControl: false,
+          zoomControl: false,
 
-        dragging: true,
+          attributionControl: false,
 
-        scrollWheelZoom: false,
+          dragging: true,
 
-        doubleClickZoom: false,
+          scrollWheelZoom: false,
 
-        boxZoom: false,
+          doubleClickZoom: false,
 
-        keyboard: false,
+          boxZoom: false,
 
-      });
+          keyboard: false,
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        });
 
-        maxZoom: 19,
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
-      }).addTo(reportPinMap);
+          maxZoom: 19,
 
-      reportPinMarker = L.marker([confirmPinLat, confirmPinLng], {
+        }).addTo(reportPinMap);
 
-        draggable: true,
+        reportPinMarker = L.marker([confirmPinLat, confirmPinLng], {
 
-        autoPan: true,
+          draggable: true,
 
-        icon: renderConfirmPinMarkerIcon(),
+          autoPan: true,
 
-      }).addTo(reportPinMap);
+          icon: renderConfirmPinMarkerIcon(),
 
-      wireReportPinMapKinetics();
+        }).addTo(reportPinMap);
 
-      reportPinMarker.on('dragstart', () => {
+        wireReportPinMapKinetics();
 
-        setConfirmPinPanning(true);
+        reportPinMarker.on('dragstart', () => {
 
-        if (reportPinAccuracyCircle) {
+          setConfirmPinPanning(true);
 
-          try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
+          if (reportPinAccuracyCircle) {
 
-          reportPinAccuracyCircle = null;
+            try { reportPinMap.removeLayer(reportPinAccuracyCircle); } catch { /* ignore */ }
+
+            reportPinAccuracyCircle = null;
+
+          }
+
+        });
+
+        reportPinMarker.on('dragend', () => {
+
+          setConfirmPinPanning(false);
+
+          const p = reportPinMarker.getLatLng();
+
+          setConfirmPinCoords(p.lat, p.lng, null, true);
+
+          manualPinLat = p.lat;
+
+          manualPinLng = p.lng;
+
+          syncConfirmPinMarker();
+
+          try { reportPinMap.panTo(p, { animate: true }); } catch { /* ignore */ }
+
+          playRadarPulse(host);
+
+        });
+
+      } catch (err) {
+
+        console.error('Confirm-step pin map failed to initialise:', err);
+
+        if (window.CivicAnalytics) {
+
+          CivicAnalytics.trackError(err.message || 'confirm_pin_map_init_failed', {
+
+            stack: err.stack, context: 'initReportPinPreview',
+
+          });
 
         }
 
-      });
+        try { if (reportPinMap) reportPinMap.remove(); } catch { /* ignore */ }
 
-      reportPinMarker.on('dragend', () => {
+        reportPinMap = null;
 
-        setConfirmPinPanning(false);
+        reportPinMarker = null;
 
-        const p = reportPinMarker.getLatLng();
+        try { delete host._leaflet_id; } catch { /* ignore */ }
 
-        setConfirmPinCoords(p.lat, p.lng, null, true);
+        if (!host._civicPinMapRetry) {
 
-        // Keep full-map manual pin in sync so existing submit path stays coherent.
+          host._civicPinMapRetry = 1;
 
-        manualPinLat = p.lat;
+          setTimeout(() => {
 
-        manualPinLng = p.lng;
+            try { delete host._civicPinMapRetry; } catch { /* ignore */ }
 
-        syncConfirmPinMarker();
+            initReportPinPreview(lat, lng, accuracyM, userAdjusted);
 
-        try { reportPinMap.panTo(p, { animate: true }); } catch { /* ignore */ }
+          }, 0);
 
-        // Pulse only — moveend already taps when the pin was lifted.
-        playRadarPulse(host);
+        }
 
-      });
+        return;
+
+      }
 
     } else {
 
