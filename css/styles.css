@@ -11156,8 +11156,11 @@ a,
   font-weight: 500;
 }
 
+/* Inline form notice (not floating glass HUD). Same recipe as
+   .report-pin-gps-banner: radius-md + border + shadow-sm. Surface (not tint)
+   so provisional-pin framing stays calmer than the GPS wait callout. */
 .report-pin-confirm--needs-adjust {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -11201,6 +11204,11 @@ a,
   position: relative;
 }
 
+/* Inline form callout in the report sheet — deliberately NOT glass-chip
+   (.toast--gps / .pwa-nudge / .app-open-banner / Leaflet popup). Those float
+   over the map; backdrop-blur is meaningless on a solid sheet and fights the
+   Clean SaaS card language (surface/tint + border + shadow-sm). Soft tint
+   marks temporary GPS wait + CTA; --needs-adjust above is the quieter twin. */
 .report-pin-gps-banner {
   display: flex;
   flex-direction: column;
