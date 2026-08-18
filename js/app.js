@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v475';
+  const CIVIC_APP_VERSION = 'v476';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -3251,7 +3251,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function sanitizeDisplayName(name) {
 
-    return sanitizeText(name, 30) || 'Citizen';
+    return sanitizeText(name, 30) || t('onboard.nameDefault');
 
   }
 
@@ -3496,7 +3496,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const fallback = t('onboard.nameDefault');
 
-      return sanitizeText(fallback, 30) || 'Neighbour';
+      return sanitizeText(fallback, 30) || fallback;
 
     }
 
@@ -3821,7 +3821,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsPlacePin': 'Place pin',
 
-      'toast.gpsEnableTip': 'Enable tip',
+      'toast.gpsEnableTip': 'How to enable',
 
       'report.geoEnableHelp': 'Site settings → Location → Allow, then Submit again.',
 
@@ -4664,11 +4664,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.whatsNewTitle': "What's new",
 
-      'about.whatsNew1': 'Fixed onboarding for testers just outside Mumbai, Pune, or Thane (like Pimpri-Chinchwad).',
+      'about.whatsNew1': 'Onboarding now works for areas just outside Mumbai, Pune, or Thane too, like Pimpri-Chinchwad.',
 
-      'about.whatsNew2': 'WhatsApp filing now lets you pick which report to attach.',
+      'about.whatsNew2': 'WhatsApp filing with BMC or PMC now includes your report’s details automatically.',
 
-      'about.whatsNew3': 'Fixed a blank WhatsApp message when filing with BMC or PMC.',
+      'email.hazardComplaintSubject': '{hazard} complaint — {location}',
 
       'about.featuresTitle': 'What you can do',
 
@@ -6511,7 +6511,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsPlacePin': 'पिन लगाएँ',
 
-      'toast.gpsEnableTip': 'सहायता',
+      'toast.gpsEnableTip': 'चालू कैसे करें',
 
       'report.geoEnableHelp': 'साइट सेटिंग → लोकेशन → अनुमति, फिर Submit।',
 
@@ -7356,11 +7356,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.whatsNewTitle': 'नया क्या है',
 
-      'about.whatsNew1': 'मुंबई, पुणे या ठाणे की सीमा के ठीक बाहर के टेस्टर्स (जैसे पिंपरी-चिंचवड) के लिए ऑनबोर्डिंग ठीक की।',
+      'about.whatsNew1': 'मुंबई, पुणे या ठाणे की सीमा के ठीक बाहर के इलाकों (जैसे पिंपरी-चिंचवड) के लिए भी अब ऑनबोर्डिंग काम करता है।',
 
-      'about.whatsNew2': 'WhatsApp पर फाइल करते समय अब आप चुन सकते हैं कि कौन-सी रिपोर्ट भेजनी है।',
+      'about.whatsNew2': 'BMC या PMC पर WhatsApp से फाइल करने पर अब आपकी रिपोर्ट की जानकारी अपने आप शामिल होती है।',
 
-      'about.whatsNew3': 'BMC या PMC पर फाइल करते समय खाली WhatsApp संदेश की समस्या ठीक की।',
+      'email.hazardComplaintSubject': '{hazard} शिकायत — {location}',
 
       'about.featuresTitle': 'आप क्या कर सकते हैं',
 
@@ -9201,7 +9201,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsPlacePin': 'पिन लावा',
 
-      'toast.gpsEnableTip': 'मदत',
+      'toast.gpsEnableTip': 'कसे चालू करावे',
 
       'report.geoEnableHelp': 'साइट सेटिंग → Location → Allow, मग Submit.',
 
@@ -10046,11 +10046,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.whatsNewTitle': 'नवीन काय आहे',
 
-      'about.whatsNew1': 'मुंबई, पुणे किंवा ठाण्याच्या सीमेबाहेरील टेस्टर्ससाठी (उदा. पिंपरी-चिंचवड) ऑनबोर्डिंग दुरुस्त केले.',
+      'about.whatsNew1': 'मुंबई, पुणे किंवा ठाण्याच्या सीमेबाहेरील भागांसाठी (उदा. पिंपरी-चिंचवड) आता ऑनबोर्डिंग काम करते.',
 
-      'about.whatsNew2': 'WhatsApp वर फाइल करताना आता कोणता रिपोर्ट पाठवायचा ते निवडता येते.',
+      'about.whatsNew2': 'BMC किंवा PMC वर WhatsApp द्वारे फाइल करताना आता तुमच्या रिपोर्टचा तपशील आपोआप समाविष्ट होतो.',
 
-      'about.whatsNew3': 'BMC किंवा PMC वर फाइल करताना रिकामा WhatsApp संदेश येण्याची समस्या दुरुस्त केली.',
+      'email.hazardComplaintSubject': '{hazard} तक्रार — {location}',
 
       'about.featuresTitle': 'तुम्ही काय करू शकता',
 
@@ -11890,7 +11890,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'toast.gpsPlacePin': 'પિન મૂકો',
 
-      'toast.gpsEnableTip': 'મદદ',
+      'toast.gpsEnableTip': 'કેવી રીતે ચાલુ કરવું',
 
       'report.geoEnableHelp': 'સાઇટ સેટિંગ → Location → Allow, પછી Submit.',
 
@@ -12735,11 +12735,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'about.whatsNewTitle': 'નવું શું છે',
 
-      'about.whatsNew1': 'મુંબઈ, પુણે અથવા ઠાણેની હદની બહારના ટેસ્ટર્સ માટે (દા.ત. પિંપરી-ચિંચવડ) ઓનબોર્ડિંગ સુધાર્યું.',
+      'about.whatsNew1': 'મુંબઈ, પુણે અથવા ઠાણેની હદની બહારના વિસ્તારો માટે (દા.ત. પિંપરી-ચિંચવડ) હવે ઓનબોર્ડિંગ કામ કરે છે.',
 
-      'about.whatsNew2': 'WhatsApp પર ફાઇલ કરતી વખતે હવે તમે કઈ ફરિયાદ મોકલવી તે પસંદ કરી શકો છો.',
+      'about.whatsNew2': 'BMC અથવા PMC પર WhatsApp થી ફાઇલ કરતી વખતે હવે તમારી ફરિયાદની વિગતો આપમેળે સામેલ થાય છે.',
 
-      'about.whatsNew3': 'BMC અથવા PMC પર ફાઇલ કરતી વખતે ખાલી WhatsApp સંદેશની સમસ્યા સુધારી.',
+      'email.hazardComplaintSubject': '{hazard} ફરિયાદ — {location}',
 
       'about.featuresTitle': 'તમે શું કરી શકો',
 
@@ -14875,7 +14875,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (isReportPubliclyHidden(r, hiddenIds, mutedIds)) return;
       if (sinceTs && Number(r.timestamp) < sinceTs) return;
       const key = r.reporterId || r.reporter || 'anon';
-      const name = r.reporter || 'Citizen';
+      const name = r.reporter || t('onboard.nameDefault');
       const ward = r.ward ? r.ward.split('—')[0].trim() : getCityLabel(getReportCity(r));
       if (!byCitizen[key]) {
         byCitizen[key] = { id: key, name, ward, points: 0, isUser: false, isDemo: false };
@@ -38110,7 +38110,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       society: (detectedWard && detectedWard === user.ward) ? (user.society || '') : '',
 
-      reporter: user.displayName || 'Citizen',
+      reporter: sanitizeDisplayName(user.displayName || ''),
 
       reporterId: user.id,
 
@@ -43489,7 +43489,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!email) return;
 
-    const subject = encodeURIComponent(`Stagnant water complaint — ${getWardShortName(report?.ward) || 'Thane'}`);
+    const hazardLabel = t('hazard.' + (report?.hazard || 'stagnant-water'));
+
+    const location = getWardShortName(report?.ward) || getCityLabel(report?.city);
+
+    const subject = encodeURIComponent(
+
+      t('email.hazardComplaintSubject').replace('{hazard}', hazardLabel).replace('{location}', location)
+
+    );
 
     const body = encodeURIComponent(report ? buildCitizenComplaintText(report) : '');
 
