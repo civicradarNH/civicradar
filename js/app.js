@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v476';
+  const CIVIC_APP_VERSION = 'v477';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -44854,7 +44854,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       message,
 
-      citizen: user.displayName || 'Citizen',
+      citizen: sanitizeDisplayName(user.displayName || ''),
 
       citizenId: user.id,
 
@@ -46737,7 +46737,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (captureBtn) captureBtn.classList.remove('hidden');
 
-    $('#adminReportReporter').textContent = report.reporter || 'Citizen';
+    $('#adminReportReporter').textContent = report.reporter || t('onboard.nameDefault');
 
     $('#adminReportWard').textContent = report.ward || '—';
 
@@ -48323,7 +48323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       userId: user.id,
 
-      displayName: user.displayName || 'Citizen',
+      displayName: sanitizeDisplayName(user.displayName || ''),
 
       ward: user.ward,
 
@@ -49267,7 +49267,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-          showToast(t('toast.hoursVerifiedOther').replace('{name}', p.citizen || 'Citizen').replace('{points}', String(VERIFY_HOURS_BONUS)), 'success');
+          showToast(t('toast.hoursVerifiedOther').replace('{name}', p.citizen || t('onboard.nameDefault')).replace('{points}', String(VERIFY_HOURS_BONUS)), 'success');
 
         }
 
