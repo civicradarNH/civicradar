@@ -65,14 +65,14 @@
   --warning-fg: #b45309;
 
   /* Toasts — deep slate glass cards (Clean SaaS; AA on light canvas via light fg).
-     Soft emerald / indigo border accents only — never solid WA-green fills.
-     Teal ambient in shadow is whisper-quiet (no neon glow). */
+     Success/error/warning use their own dark tinted fill. Info stays slate.
+     Soft emerald / indigo borders on snackbars — never solid WA-green fills. */
   --toast-glass-bg: rgba(15, 23, 42, 0.92);
   --toast-glass-border: rgba(255, 255, 255, 0.14);
   --toast-glass-inset: rgba(255, 255, 255, 0.08);
   --toast-fg: #f8fafc;
-  --toast-success-bg: rgba(15, 23, 42, 0.92);
-  --toast-success-border: rgba(52, 211, 153, 0.38); /* soft emerald accent */
+  --toast-success-bg: rgba(6, 95, 70, 0.92);
+  --toast-success-border: rgba(52, 211, 153, 0.38); /* snackbar success only */
   --toast-success-fg: #f8fafc;
   --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
   --toast-error-bg: rgba(153, 27, 27, 0.92);
@@ -2532,7 +2532,6 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast--success {
   background: var(--toast-success-bg);
-  border-color: var(--toast-success-border, var(--toast-glass-border));
   color: var(--toast-success-fg, var(--toast-fg));
 }
 .toast--error { background: var(--toast-error-bg); }
@@ -12669,7 +12668,6 @@ html[lang="gu"] body {
 
 .toast--success {
   background: var(--toast-success-bg);
-  border-color: var(--toast-success-border, var(--toast-glass-border));
   color: var(--toast-success-fg, var(--toast-fg));
 }
 
@@ -13032,8 +13030,7 @@ body.pwa-nudge-visible .toast-container:has(> .toast--dock-bottom) {
     --toast-glass-border: rgba(255, 255, 255, 0.16);
     --toast-glass-inset: rgba(255, 255, 255, 0.1);
     --toast-info-bg: rgba(15, 23, 42, 0.94);
-    /* Same deep slate family — emerald / indigo accents only */
-    --toast-success-bg: rgba(15, 23, 42, 0.94);
+    --toast-success-bg: rgba(6, 95, 70, 0.94);
     --toast-success-border: rgba(52, 211, 153, 0.42);
     --toast-success-fg: #f8fafc;
     --toast-action-border: rgba(129, 140, 248, 0.45);
