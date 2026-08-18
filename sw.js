@@ -2,7 +2,7 @@
  *
  * Ship checklist (any HTML/CSS/JS change):
  *   1. Bump CIVIC_APP_VERSION in js/app.js (e.g. v271)
- *   2. Set CACHE below to the same suffix: 'civicradar-v382'
+ *   2. Set CACHE below to the same suffix: 'civicradar-v480'
  *   3. Update SW06 expected string in tests/e2e_comprehensive.py
  *
  * Testers stuck on a stale build: open
@@ -10,7 +10,7 @@
  * (unregisters SW, clears caches, reloads once). Or Chrome → Clear site data.
  * GitHub Pages cannot set custom Cache-Control headers; versioned CACHE is the update lever.
  */
-const CACHE = 'civicradar-v479';
+const CACHE = 'civicradar-v480';
 const NETWORK_FIRST = [
   '/js/config.js', 'js/config.js',
   // Leaflet must not stick on a stale/broken cache entry (map empty state).
@@ -32,7 +32,7 @@ const SECONDARY_ASSETS = [
   'child-safety-standards.html', 'css/legal.css', 'js/analytics.js',
   'js/image-moderation.js', 'js/wards/mumbai.js', 'js/wards/pune.js', 'js/wards/thane.js',
   'js/ward-detect.js', 'js/society-suggestions-data.js', 'js/searchable-select.js',
-  'js/demo-cloud-v2.js', 'robots.txt', 'assets/og-civicradar.svg',
+  'robots.txt', 'assets/og-civicradar.svg',
   'assets/channel-icons/app-civic.svg', 'assets/channel-icons/chat-filing.svg',
   'assets/channel-icons/web-portal.svg', 'assets/channel-icons/helpline.svg',
   'assets/channel-icons/sanitation.svg', 'assets/channel-icons/govt-emblem.svg',

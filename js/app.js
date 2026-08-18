@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v479';
+  const CIVIC_APP_VERSION = 'v480';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1862,7 +1862,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const qs = params.toString();
 
-    window.open(`https://api.whatsapp.com/send${qs ? '?' + qs : ''}`, '_blank');
+    openExternal(`https://api.whatsapp.com/send${qs ? '?' + qs : ''}`);
 
   }
 
@@ -1924,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (meta.urlKind === 'tel') window.open(url, '_self');
 
-    else window.open(url, '_blank');
+    else openExternal(url);
 
   }
 
@@ -3133,6 +3133,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       .replace(/'/g, '&#39;');
 
+  }
+
+  function openExternal(url) {
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
 
@@ -29747,7 +29752,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (isAppleMobile() && appStore) {
 
-      window.open(appStore, '_blank');
+      openExternal(appStore);
 
       return;
 
@@ -29845,7 +29850,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       storeBtn.addEventListener('click', () => {
 
-        window.open(getPlayStoreUrl(), '_blank');
+        openExternal(getPlayStoreUrl());
 
         if (window.CivicAnalytics) CivicAnalytics.track('app_open_banner_store_click', {});
 
@@ -37034,8 +37039,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.error('Confirm-step pin map failed to initialise:', err);
 
-        host._reportPinInitErr = err.message || String(err);
-
         if (window.CivicAnalytics) {
 
           CivicAnalytics.trackError(err.message || 'confirm_pin_map_init_failed', {
@@ -40242,7 +40245,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const text = encodeURIComponent(base);
 
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    openExternal(`https://twitter.com/intent/tweet?text=${text}`);
 
   }
 
@@ -40260,7 +40263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const text = encodeURIComponent(base);
 
-    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    openExternal(`https://api.whatsapp.com/send?text=${text}`);
 
   }
 
@@ -43468,7 +43471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else if (/Android/i.test(ua) && corp.playStoreUrl) url = corp.playStoreUrl;
 
-    if (url) window.open(url, '_blank');
+    if (url) openExternal(url);
 
   }
 
@@ -43514,7 +43517,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const text = encodeURIComponent(report ? buildFollowUpText(report, tier || 'zonal') : `Hazard report — CivicRadar. @${h} #CivicRadar`);
 
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    openExternal(`https://twitter.com/intent/tweet?text=${text}`);
 
   }
 
@@ -43564,7 +43567,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const url = corp.aapleSarkarUrl || BMC.aapleSarkar;
 
-    window.open(url, '_blank');
+    openExternal(url);
 
   }
 
@@ -44196,7 +44199,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'portal' }, findReportById(activeEscalationId)?.ward);
 
-    window.open(BMC.portalUrl, '_blank');
+    openExternal(BMC.portalUrl);
 
   }
 
@@ -44220,7 +44223,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     else url = BMC.margAppStoreUrl;
 
-    window.open(url, '_blank');
+    openExternal(url);
 
   }
 
@@ -44234,7 +44237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const text = encodeURIComponent(buildFollowUpText(report || {}, 'zonal'));
 
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    openExternal(`https://twitter.com/intent/tweet?text=${text}`);
 
   }
 
@@ -44244,7 +44247,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'aaple_sarkar' }, findReportById(activeEscalationId)?.ward);
 
-    window.open(BMC.aapleSarkar, '_blank');
+    openExternal(BMC.aapleSarkar);
 
   }
 
@@ -44254,7 +44257,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     trackBmcEvent('bmc_channel_opened', { channel: 'participate_mumbai' }, findReportById(activeEscalationId)?.ward);
 
-    window.open(BMC.participateUrl, '_blank');
+    openExternal(BMC.participateUrl);
 
   }
 
@@ -44268,7 +44271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const corp = getCityCorpChannels(city);
 
-    if (corp.grievanceUrl) window.open(corp.grievanceUrl, '_blank');
+    if (corp.grievanceUrl) openExternal(corp.grievanceUrl);
 
     else showToast(t('esc.corpHint').replace('{corp}', corp.name || getCityLabel(city)), 'info', 4000);
 
