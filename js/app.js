@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v477';
+  const CIVIC_APP_VERSION = 'v478';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -25111,7 +25111,8 @@ document.addEventListener('DOMContentLoaded', function () {
       row.innerHTML = thumb + copy;
     } else {
       row.innerHTML =
-        `<i class="ph ph-${icons[type] || 'info'}" aria-hidden="true"></i><span>${escapeHtml(message)}</span>`;
+        `<span class="toast__icon" aria-hidden="true"><i class="ph ph-${icons[type] || 'info'}"></i></span>`
+        + `<span>${escapeHtml(message)}</span>`;
     }
 
     const bindActionClick = (btn, act) => {
