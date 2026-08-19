@@ -64,31 +64,24 @@
   --warning-dark: #92400e;
   --warning-fg: #b45309;
 
-  /* Toasts — deep slate glass cards (Clean SaaS; AA on light canvas via light fg).
-     Success/error/warning use their own dark tinted fill. Info stays slate.
-     Soft emerald / indigo borders on snackbars — never solid WA-green fills. */
-  --toast-glass-bg: rgba(15, 23, 42, 0.92);
-  --toast-glass-border: rgba(255, 255, 255, 0.14);
-  --toast-glass-inset: rgba(255, 255, 255, 0.08);
-  --toast-fg: #f8fafc;
-  --toast-success-bg: rgba(6, 95, 70, 0.92);
-  --toast-success-border: rgba(52, 211, 153, 0.38); /* snackbar success only */
-  --toast-success-fg: #f8fafc;
-  --toast-action-border: rgba(129, 140, 248, 0.42); /* soft indigo accent */
-  --toast-error-bg: rgba(153, 27, 27, 0.92);
-  --toast-info-bg: rgba(15, 23, 42, 0.92);
-  --toast-warning-bg: rgba(146, 64, 14, 0.92);
-  --toast-warning-border: rgba(245, 158, 11, 0.42);
-  /* Float above pin cards — soft drop + subtle teal ambient */
-  --toast-shadow:
-    0 12px 40px -8px rgba(15, 23, 42, 0.38),
-    0 4px 14px rgba(15, 23, 42, 0.2),
-    0 0 28px rgba(15, 118, 110, 0.1),
-    inset 0 0 0 1px var(--toast-glass-inset);
-  /* WA CTA inside toast — dark glass + brand-green icon (not #25D366 fill block) */
-  --toast-wa-btn-bg: rgba(30, 41, 59, 0.88);
-  --toast-wa-btn-border: rgba(255, 255, 255, 0.16);
-  --toast-wa-btn-inset: rgba(255, 255, 255, 0.06);
+  /* Toasts — light surface chips (same family as cards / GPS chips).
+     Type is a soft tint + icon, not a dark HUD fill. */
+  --toast-glass-bg: #ffffff;
+  --toast-glass-border: var(--border, #e2e8f0);
+  --toast-glass-inset: transparent;
+  --toast-fg: #0f172a;
+  --toast-success-bg: #ecfdf5;
+  --toast-success-border: rgba(4, 120, 87, 0.22);
+  --toast-success-fg: #0f172a;
+  --toast-action-border: var(--border, #e2e8f0);
+  --toast-error-bg: #fef2f2;
+  --toast-info-bg: #ffffff;
+  --toast-warning-bg: var(--warning-soft-bg, #fffbeb);
+  --toast-warning-border: var(--warning-soft-border, #fde68a);
+  --toast-shadow: var(--shadow-md);
+  --toast-wa-btn-bg: #ffffff;
+  --toast-wa-btn-border: var(--border, #e2e8f0);
+  --toast-wa-btn-inset: transparent;
 
   /* Leaderboard podium */
   --rank-gold-bg: #fef3c7;
@@ -2025,18 +2018,22 @@ body.persona-lead #wardPulse {
   padding: 10px 12px;
   background: var(--warning-soft-bg);
   border: 1px solid var(--warning-soft-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: var(--fs-sm);
   color: var(--warning-dark);
+  box-shadow: var(--shadow-md);
   }
 
-/* Compact chip — keeps map viewport clear after onboarding (Gemini 4 / P0) */
+/* Compact chip — same family as toasts, not a HUD pill */
 .location-banner--compact {
   flex-direction: row;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
+  width: min(360px, calc(100vw - 24px));
+  max-width: min(360px, calc(100vw - 24px));
+  right: auto;
 }
 
 .location-banner--compact .location-banner__msg {
@@ -2076,9 +2073,17 @@ body.persona-lead #wardPulse {
 }
 
 .location-banner__msg i {
-  font-size: var(--fs-lg);
+  width: 28px;
+  height: 28px;
+  font-size: var(--fs-md);
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(217, 119, 6, 0.12);
+  color: var(--warning);
 }
 
 .location-banner span#locationBannerText {
@@ -2519,29 +2524,32 @@ body.manual-pin-mode #map .leaflet-container {
   background: var(--toast-glass-bg);
   color: var(--toast-fg);
   border: 1px solid var(--toast-glass-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   font-size: var(--fs-sm);
   font-weight: 500;
   line-height: 1.4;
-  backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
-  -webkit-backdrop-filter: blur(var(--glass-hud-blur, var(--glass-blur)));
-  box-shadow: var(--toast-shadow, var(--shadow-overlay));
+  box-shadow: var(--toast-shadow, var(--shadow-md));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   animation: snackbar-in 0.28s var(--ease-sheet) both;
   pointer-events: auto;
 }
 
 .toast--success {
   background: var(--toast-success-bg);
+  border-color: var(--toast-success-border, var(--toast-glass-border));
   color: var(--toast-success-fg, var(--toast-fg));
 }
-.toast--error { background: var(--toast-error-bg); }
+.toast--error {
+  background: var(--toast-error-bg);
+  border-color: rgba(220, 38, 38, 0.22);
+}
 .toast--warning {
   background: var(--toast-warning-bg);
   border-color: var(--toast-warning-border, var(--toast-glass-border));
 }
 .toast--info {
   background: var(--toast-info-bg);
-  border-color: var(--toast-action-border, var(--toast-glass-border));
 }
 
 .toast i { font-size: var(--fs-md); margin-top: 0; flex-shrink: 0; }
@@ -2553,29 +2561,29 @@ body.manual-pin-mode #map .leaflet-container {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--toast-fg);
+  border-radius: var(--radius-sm);
+  background: var(--primary-50, #eef2ff);
+  color: var(--primary);
 }
 
 .toast--success .toast__icon {
-  background: rgba(52, 211, 153, 0.22);
-  color: #6ee7b7;
+  background: var(--success-soft-bg, rgba(4, 120, 87, 0.12));
+  color: var(--success);
 }
 
 .toast--error .toast__icon {
-  background: rgba(254, 202, 202, 0.18);
-  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--danger);
 }
 
 .toast--warning .toast__icon {
-  background: rgba(251, 191, 36, 0.22);
-  color: #fcd34d;
+  background: var(--warning-soft-bg);
+  color: var(--warning-fg);
 }
 
 .toast--info .toast__icon {
-  background: rgba(165, 180, 252, 0.22);
-  color: #c7d2fe;
+  background: var(--primary-50, #eef2ff);
+  color: var(--primary);
 }
 
 .toast span { flex: 1; }
@@ -2584,40 +2592,35 @@ body.manual-pin-mode #map .leaflet-container {
   flex-shrink: 0;
   border: none;
   background: transparent;
-  color: var(--toast-fg);
+  color: var(--primary-fill, var(--primary-dark));
   border-radius: var(--radius-sm);
-  padding: 6px 4px 6px 8px;
+  padding: 6px 8px;
   font-size: var(--fs-sm);
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  letter-spacing: 0;
   cursor: pointer;
   white-space: nowrap;
-  opacity: 0.95;
 }
 
 .toast__action:hover {
-  background: transparent;
-  opacity: 1;
-  text-decoration: underline;
+  background: var(--primary-50, #eef2ff);
+  text-decoration: none;
 }
 
 .toast--interactive { pointer-events: auto; }
 
-/* Compact snackbar (Me too / share + WhatsApp) — deep slate glass (v318+)
-   Layout preserved from v293: message row + full-width CTA stack. */
+/* Compact snackbar (Me too / share + WhatsApp) — light surface card, same as simple toasts. */
 .toast--snackbar {
   padding: 12px 14px;
   font-size: var(--fs-sm);
   line-height: 1.35;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-md);
   flex-direction: column;
   align-items: stretch;
   gap: 8px;
   width: min(360px, calc(100vw - 24px));
   max-width: min(360px, calc(100vw - 24px));
-  box-shadow: var(--toast-shadow, var(--shadow-overlay));
-  backdrop-filter: blur(var(--glass-hud-blur, 22px));
-  -webkit-backdrop-filter: blur(var(--glass-hud-blur, 22px));
+  box-shadow: var(--toast-shadow, var(--shadow-md));
 }
 
 .toast--snackbar.toast--success {
@@ -2626,9 +2629,7 @@ body.manual-pin-mode #map .leaflet-container {
   color: var(--toast-success-fg);
 }
 
-.toast--snackbar.toast--success .toast__row > span,
-.toast--snackbar.toast--success .toast__row > i,
-.toast--snackbar.toast--success .toast__icon {
+.toast--snackbar.toast--success .toast__row > span {
   color: var(--toast-success-fg);
 }
 
@@ -2709,7 +2710,7 @@ body.manual-pin-mode #map .leaflet-container {
 
 .toast__close:hover {
   opacity: 0.95;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.06);
 }
 
 .toast__close:focus-visible {
@@ -2736,21 +2737,21 @@ body.manual-pin-mode #map .leaflet-container {
   align-items: center;
   gap: 6px;
   background: var(--toast-wa-btn-bg);
-  color: #fff !important;
+  color: var(--ink-900) !important;
   border: 1px solid var(--toast-wa-btn-border);
   border-radius: var(--radius-md);
   padding: 8px 12px;
-  min-height: 36px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  min-height: 40px;
+  font-weight: 600;
+  letter-spacing: 0;
   opacity: 1;
   text-decoration: none !important;
-  box-shadow: inset 0 0 0 1px var(--toast-wa-btn-inset);
+  box-shadow: var(--shadow-sm);
 }
 
 .toast__action--whatsapp:hover {
-  background: rgba(51, 65, 85, 0.95);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--canvas, #f8fafc);
+  border-color: var(--border);
   opacity: 1;
   text-decoration: none !important;
   filter: none;
@@ -4396,12 +4397,10 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
   background: rgba(239, 68, 68, 0.08);
 }
 
-/* Alert / confirm pattern (v280→v283) — delete + genericConfirm only.
-   Calm civic sheet: circular icon, title, muted body, stacked actions.
-   No colored header bands; no WhatsApp-green success skin; no global pill CTAs. */
+/* Alert / confirm — delete + genericConfirm. Civic sheet, not iOS-centered alert. */
 .modal--alert,
 .delete-confirm-modal {
-  text-align: center;
+  text-align: left;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   border: 1px solid var(--border);
   border-bottom: none;
@@ -4411,14 +4410,15 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 
 .modal--alert h2,
 .delete-confirm-modal h2 {
-  font-size: var(--fs-xl);
-  font-weight: 700;
+  font-size: var(--text-xl, var(--fs-lg));
+  font-weight: 600;
   color: var(--ink-900);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   position: static;
   padding: 0;
   background: transparent;
   border: none;
+  line-height: 1.25;
 }
 
 .modal--alert .modal__subtitle,
@@ -4431,16 +4431,16 @@ body.toast-fab-quiet .toast-container:has(> .toast--fab-quiet) {
 
 .modal__header-icon,
 .delete-confirm__icon {
-  width: 52px;
-  height: 52px;
-  margin: 4px auto 14px;
+  width: 40px;
+  height: 40px;
+  margin: 4px 0 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-md);
   background: rgba(220, 38, 38, 0.1);
   color: var(--danger);
-  font-size: var(--fs-xl);
+  font-size: var(--fs-lg);
   line-height: 1;
 }
 
@@ -10111,7 +10111,7 @@ a:focus-visible {
   box-shadow: var(--shadow-3);
 }
 .toast {
-  box-shadow: var(--toast-shadow, var(--shadow-overlay));
+  box-shadow: var(--toast-shadow, var(--shadow-md));
 }
 .profile-card,
 .founder-card,
@@ -12552,23 +12552,26 @@ html[lang="gu"] body {
 }
 
 .location-banner {
-  background: rgba(255, 251, 235, 0.94);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  box-shadow: var(--shadow-overlay);
+  background: var(--toast-warning-bg, #fffbeb);
+  border: 1px solid var(--toast-warning-border, #fde68a);
+  box-shadow: var(--shadow-md);
 }
 
 @media (prefers-color-scheme: dark) {
-  .location-banner,
-  .location-banner * {
-    color: #ffffff !important;
-  }
   .location-banner {
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    box-shadow: var(--shadow-overlay);
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #0f172a;
+    box-shadow: var(--shadow-md);
+  }
+
+  .location-banner__msg i {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+  }
+
+  .location-banner__close {
+    color: #92400e;
   }
 }
 
@@ -12644,7 +12647,7 @@ html[lang="gu"] body {
 .toast--interactive {
   width: fit-content;
   max-width: min(420px, calc(100vw - 24px));
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   padding: 10px 14px;
   white-space: normal;
 }
@@ -12668,6 +12671,7 @@ html[lang="gu"] body {
 
 .toast--success {
   background: var(--toast-success-bg);
+  border-color: var(--toast-success-border, var(--toast-glass-border));
   color: var(--toast-success-fg, var(--toast-fg));
 }
 
@@ -12689,7 +12693,7 @@ html[lang="gu"] body {
   width: min(360px, calc(100vw - 24px));
   max-width: min(360px, calc(100vw - 24px));
   padding: 10px 10px 10px 14px;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-md);
   border: 1px solid var(--gps-chip-border);
   background: var(--gps-chip-bg);
   color: var(--gps-chip-fg);
@@ -12920,28 +12924,6 @@ html[lang="gu"] body {
   color: #fff !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  .toast.toast--gps {
-    --gps-chip-fg: #f8fafc;
-    --gps-chip-muted: #cbd5e1;
-    --gps-chip-bg: rgba(30, 41, 59, 0.94);
-    --gps-chip-border: rgba(248, 250, 252, 0.14);
-    --gps-chip-ghost: #e2e8f0;
-    --gps-chip-ghost-hover: rgba(248, 250, 252, 0.08);
-    --gps-chip-close: #94a3b8;
-  }
-
-  .toast.toast--gps.toast--error {
-    --gps-chip-bg: rgba(69, 10, 10, 0.94);
-    --gps-chip-border: rgba(252, 165, 165, 0.28);
-    --gps-chip-fg: #fecaca;
-    --gps-chip-muted: #fca5a5;
-    --gps-chip-ghost: #fecaca;
-    --gps-chip-ghost-hover: rgba(252, 165, 165, 0.12);
-    --gps-chip-close: #fca5a5;
-  }
-}
-
 @keyframes snackbar-in {
   from {
     opacity: 0;
@@ -13026,20 +13008,22 @@ body.pwa-nudge-visible .toast-container:has(> .toast--dock-bottom) {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --toast-glass-bg: rgba(15, 23, 42, 0.94);
-    --toast-glass-border: rgba(255, 255, 255, 0.16);
-    --toast-glass-inset: rgba(255, 255, 255, 0.1);
-    --toast-info-bg: rgba(15, 23, 42, 0.94);
-    --toast-success-bg: rgba(6, 95, 70, 0.94);
-    --toast-success-border: rgba(52, 211, 153, 0.42);
-    --toast-success-fg: #f8fafc;
-    --toast-action-border: rgba(129, 140, 248, 0.45);
-    --toast-error-bg: rgba(153, 27, 27, 0.94);
-    --toast-warning-bg: rgba(146, 64, 14, 0.94);
-    --toast-warning-border: rgba(245, 158, 11, 0.48);
-    --toast-wa-btn-bg: rgba(30, 41, 59, 0.92);
-    --toast-wa-btn-border: rgba(255, 255, 255, 0.18);
-    --toast-wa-btn-inset: rgba(255, 255, 255, 0.08);
+    /* Keep toast chips light on dark map / dark chrome — HUD fills were the ugly look. */
+    --toast-glass-bg: #ffffff;
+    --toast-glass-border: rgba(15, 23, 42, 0.12);
+    --toast-glass-inset: transparent;
+    --toast-fg: #0f172a;
+    --toast-info-bg: #ffffff;
+    --toast-success-bg: #ecfdf5;
+    --toast-success-border: rgba(4, 120, 87, 0.22);
+    --toast-success-fg: #0f172a;
+    --toast-action-border: rgba(15, 23, 42, 0.12);
+    --toast-error-bg: #fef2f2;
+    --toast-warning-bg: #fffbeb;
+    --toast-warning-border: #fde68a;
+    --toast-wa-btn-bg: #ffffff;
+    --toast-wa-btn-border: rgba(15, 23, 42, 0.12);
+    --toast-wa-btn-inset: transparent;
   }
 
   .toast--snackbar.toast--success .toast__row > span,
@@ -13466,17 +13450,20 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     color: var(--text-primary);
   }
 
-  .location-banner,
-  .location-banner * {
-    color: #ffffff !important;
+  .location-banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #0f172a;
+    box-shadow: var(--shadow-md);
   }
 
-  .location-banner {
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    box-shadow: var(--shadow-overlay);
+  .location-banner__msg i {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+  }
+
+  .location-banner__close {
+    color: #92400e;
   }
 
   .location-banner__btn {
@@ -13893,12 +13880,10 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
 }
 
 .location-banner {
-  background: rgba(255, 251, 235, 0.92);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(253, 230, 138, 0.85);
-  box-shadow: var(--shadow-overlay);
+  background: var(--toast-warning-bg, #fffbeb);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--toast-warning-border, #fde68a);
+  box-shadow: var(--shadow-md);
 }
 
 .map-locate-pill:active,
@@ -14108,11 +14093,31 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
   }
 
   #tosOverlay .modal,
-  #onboardingOverlay .modal,
-  #deleteConfirmOverlay .modal,
-  #genericConfirmOverlay .modal {
+  #onboardingOverlay .modal {
     background: var(--surface);
     border-color: var(--border);
+  }
+
+  #deleteConfirmOverlay .modal,
+  #genericConfirmOverlay .modal {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #e2e8f0;
+  }
+
+  #deleteConfirmOverlay .modal h2,
+  #genericConfirmOverlay .modal h2 {
+    color: #0f172a;
+  }
+
+  #deleteConfirmOverlay .modal .modal__subtitle,
+  #genericConfirmOverlay .modal .modal__subtitle {
+    color: #475569;
+  }
+
+  #deleteConfirmOverlay .btn--ghost,
+  #genericConfirmOverlay .btn--ghost {
+    color: #0f172a;
   }
 
   .ward-pulse,
@@ -14123,17 +14128,20 @@ body:has(#coachMark:not(.hidden)).map-empty-visible #btnCamera {
     border-color: rgba(148, 163, 184, 0.28);
   }
 
-  .location-banner,
-  .location-banner * {
-    color: #ffffff !important;
+  .location-banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #0f172a;
+    box-shadow: var(--shadow-md);
   }
 
-  .location-banner {
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    box-shadow: var(--shadow-overlay);
+  .location-banner__msg i {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+  }
+
+  .location-banner__close {
+    color: #92400e;
   }
 
   .location-banner__btn {
