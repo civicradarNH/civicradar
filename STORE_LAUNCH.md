@@ -137,9 +137,10 @@ Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links 
 ### What we fixed (paste in Play Console → Release notes)
 
 - Replaced broken or non-.gov source URLs in `official-sources.html`, `js/config.js`, in-app i18n, and store listing copy.
-- **Removed / replaced:** `pmccare.in` (non-.gov.in), `sbm.gov.in/sbmicc/ICT-platform` (404), `grievances.maharashtra.gov.in` (unreliable), the old dead TMC hostname, and the stale MoHUA CMS deep link.
-- **Current verified targets (match app + official-sources.html):** BMC `www.mcgm.gov.in` / Participate Mumbai; PMC `www.pmc.gov.in`; TMC `www.thanecity.gov.in`; Aaple Sarkar / CPGRAMS `pgportal.gov.in`; Swachhata-MoHUA `www.swachh.city`.
-- Official sources page shows contact email (`civicradarnh@gmail.com`) and source links in static HTML (no JS required).
+- **Removed / replaced:** `pmccare.in` (non-.gov.in), `sbm.gov.in/sbmicc/ICT-platform` (404), `grievances.maharashtra.gov.in` (unreliable), `thanecity.gov.in` (connection refused), `portal.mcgm.gov.in/irj/...` (Play-flagged), and `swachh.city` SPA as the primary Swachhata source.
+- **Current verified targets (match app + official-sources.html):** BMC website `www.mcgm.gov.in` / Participate Mumbai; PMC `www.pmc.gov.in`; TMC `tmc.gov.in`; CPGRAMS `pgportal.gov.in`; Swachhata programme source `mohua.gov.in`.
+- Do **not** label `pgportal.gov.in` as the “BMC portal” — that is the national CPGRAMS site (also linked from Aaple Sarkar in-app).
+- Official sources page shows contact email and source links in static HTML (no JS required).
 - In-app TMC / Swachhata channel labels match these URLs.
 
 ### Play Console fields
@@ -151,45 +152,48 @@ Community hazard map for Mumbai, Pune & Thane — not a gov app. Official links 
 ### Full description (paste into Play Console)
 
 ```
-CivicRadar — community hazard map for Mumbai, Pune & Thane
+CivicRadar is an independent community hazard map for residents of Mumbai, Pune, and Thane. Spot a hazard, snap a photo, and pin it to your ward map in seconds.
 
-Pin civic hazards on a live ward map with photo evidence. Rally neighbours with Me too corroboration. Optionally file official complaints with your municipal corporation when you choose.
-
-WHAT YOU CAN DO
-• Report stagnant water, garbage, potholes, and broken streetlights
-• See ward-level community map and leaderboards
-• Track your official complaint number after you file with BMC, PMC, or TMC
-• Volunteer pledges and neighbourhood cleanup coordination
-• 4 languages: English, Hindi, Marathi, Gujarati
-• Works offline as a PWA — install to Home Screen
+Core community features:
+• Map & report — stagnant water, garbage, potholes, broken streetlights
+• Me Too — corroborate pins your neighbours already reported
+• Track progress — see community fixes and resolved hazards
+• Coordinate — volunteer pledges and neighbourhood cleanups
+• Civic Points — earn levels as you help your area
+• Multilingual — English, Hindi, Marathi, and Gujarati support
 
 DISCLAIMER — NOT A GOVERNMENT APP
-CivicRadar is an independent community tool. It is NOT affiliated with, endorsed by, or operated by MCGM/BMC, PMC, TMC, or any government body. CivicRadar does not file complaints on your behalf.
+CivicRadar is a resident-led project. It is NOT affiliated with, endorsed by, or operated by MCGM/BMC, PMC, TMC, or any government body. CivicRadar does NOT submit complaints to government systems on your behalf. When you choose to file an official grievance, this app provides direct links to the relevant municipal portals.
 
-OFFICIAL SOURCES (where YOU file complaints)
-Full verified links: https://civicradarnh.github.io/civicradar/official-sources.html
+OFFICIAL SOURCES (for official municipal grievances)
+Full list: https://civicradarnh.github.io/civicradar/official-sources.html
 
 Mumbai (MCGM/BMC):
-• BMC online portal: https://www.mcgm.gov.in/
+• BMC website: https://www.mcgm.gov.in/
 • Participate Mumbai: https://participatemumbai.mcgm.gov.in/
 • Helpline: 1916
+• National grievance portal (select BMC as local body): https://pgportal.gov.in/
 
 Pune (PMC):
 • PMC citizen services: https://www.pmc.gov.in/
 • Helpline: 1800 1030 222
 
 Thane (TMC):
-• TMC official website: https://www.thanecity.gov.in/
+• TMC website: https://tmc.gov.in/
+• Helplines: 022-25331590 · 022-25331211 · 155300
 
 Maharashtra & national:
-• Aaple Sarkar / CPGRAMS: https://pgportal.gov.in/
-• Swachhata-MoHUA: https://www.swachh.city/
+• CPGRAMS / public grievances: https://pgportal.gov.in/
+• Swachhata-MoHUA (Ministry of Housing & Urban Affairs): https://mohua.gov.in/
+
+Privacy & data
+EXIF location metadata is stripped from photos before upload. Citizens are not required to provide Aadhaar, phone numbers, or payments for core features.
 
 Privacy: https://civicradarnh.github.io/civicradar/privacy.html
 Terms: https://civicradarnh.github.io/civicradar/terms.html
-Delete data: https://civicradarnh.github.io/civicradar/delete-account.html
+Delete account/data: https://civicradarnh.github.io/civicradar/delete-account.html
 
-Built by students for neighbours — not by BMC or any government body.
+Built by students for neighbours — independent of BMC or any government entity.
 ```
 
 **Short description (80 chars max):**  

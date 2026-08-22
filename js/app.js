@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Build tag attached to feedback rows. Kept in step with sw.js CACHE (civicradar-vNNN).
 
-  const CIVIC_APP_VERSION = 'v481';
+  const CIVIC_APP_VERSION = 'v482';
 
   const Haptics = {
     tap: () => { if (navigator.vibrate) navigator.vibrate(10); },
@@ -1448,11 +1448,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       case 'tmc_call':
 
-        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'thanecity.gov.in' } : null;
+        return corp.grievanceUrl ? { url: corp.grievanceUrl, label: 'tmc.gov.in' } : null;
 
       case 'swachhata':
 
-        return sw.infoUrl ? { url: sw.infoUrl, label: 'swachh.city' } : null;
+        return sw.infoUrl ? { url: sw.infoUrl, label: 'mohua.gov.in' } : null;
 
       case 'aaple_sarkar': {
 
@@ -4239,7 +4239,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'Copied — paste when you file with TMC',
 
-      'esc.tmc.portalHint': 'On thanecity.gov.in: login → Online citizen services → File a complaint. Paste the details below.',
+      'esc.tmc.portalHint': 'On tmc.gov.in: login → Online citizen services → File a complaint. Paste the details below.',
 
       'esc.tmc.filedConsent': 'I filed on an official TMC channel (portal / helpline / email / 155300)',
 
@@ -4357,7 +4357,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'copy1916.pmc.complaintFiled': 'PMC complaint #: {id}',
 
-      'copy1916.tmc.header': 'TMC complaint details (copy & paste for thanecity.gov.in / helpline / email)',
+      'copy1916.tmc.header': 'TMC complaint details (copy & paste for tmc.gov.in / helpline / email)',
 
       'copy1916.tmc.complaintNotFiled': 'TMC complaint / reference #: (not yet filed)',
 
@@ -5198,7 +5198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC citizen portal',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'tmc.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -6931,7 +6931,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'कॉपी हो गया — TMC में दर्ज करते समय चिपकाएँ',
 
-      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
+      'esc.tmc.portalHint': 'tmc.gov.in: लॉगिन → ऑनलाइन नागरिक सेवाएँ → शिकायत दर्ज करें। नीचे विवरण चिपकाएँ।',
 
       'esc.tmc.filedConsent': 'मैंने आधिकारिक TMC चैनल पर दर्ज किया (पोर्टल / हेल्पलाइन / ईमेल / 155300)',
 
@@ -7049,7 +7049,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'copy1916.pmc.complaintFiled': 'PMC शिकायत #: {id}',
 
-      'copy1916.tmc.header': 'TMC शिकायत विवरण (thanecity.gov.in / हेल्पलाइन / ईमेल के लिए कॉपी-पेस्ट)',
+      'copy1916.tmc.header': 'TMC शिकायत विवरण (tmc.gov.in / हेल्पलाइन / ईमेल के लिए कॉपी-पेस्ट)',
 
       'copy1916.tmc.complaintNotFiled': 'TMC शिकायत / संदर्भ #: (अभी दर्ज नहीं)',
 
@@ -7888,7 +7888,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'tmc.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -9621,7 +9621,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'कॉपी झाले — TMC मध्ये नोंदवताना पेस्ट करा',
 
-      'esc.tmc.portalHint': 'thanecity.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
+      'esc.tmc.portalHint': 'tmc.gov.in: लॉगिन → ऑनलाइन नागरिक सेवा → तक्रार नोंदवा. खाली तपशील पेस्ट करा.',
 
       'esc.tmc.filedConsent': 'मी अधिकृत TMC चॅनेलवर नोंदवले (पोर्टल / हेल्पलाइन / ईमेल / 155300)',
 
@@ -9739,7 +9739,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'copy1916.pmc.complaintFiled': 'PMC तक्रार #: {id}',
 
-      'copy1916.tmc.header': 'TMC तक्रार तपशील (thanecity.gov.in / हेल्पलाइन / ईमेलसाठी कॉपी-पेस्ट)',
+      'copy1916.tmc.header': 'TMC तक्रार तपशील (tmc.gov.in / हेल्पलाइन / ईमेलसाठी कॉपी-पेस्ट)',
 
       'copy1916.tmc.complaintNotFiled': 'TMC तक्रार / संदर्भ #: (अद्याप दाखल नाही)',
 
@@ -10578,7 +10578,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC नागरिक पोर्टल',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'tmc.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -12310,7 +12310,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'esc.tmc.copyAllDone': 'કૉપી થયું — TMC માં નોંધાવતી વખતે પેસ્ટ કરો',
 
-      'esc.tmc.portalHint': 'thanecity.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
+      'esc.tmc.portalHint': 'tmc.gov.in: લૉગિન → ઑનલાઇન નાગરિક સેવાઓ → ફરિયાદ નોંધાવો. નીચે વિગતો પેસ્ટ કરો.',
 
       'esc.tmc.filedConsent': 'મેં અધિકૃત TMC ચેનલ પર નોંધાવ્યું (પોર્ટલ / હેલ્પલાઇન / ઇમેઇલ / 155300)',
 
@@ -12428,7 +12428,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'copy1916.pmc.complaintFiled': 'PMC ફરિયાદ #: {id}',
 
-      'copy1916.tmc.header': 'TMC ફરિયાદ વિગત (thanecity.gov.in / હેલ્પલાઇન / ઈમેલ માટે કૉપી-પેસ્ટ)',
+      'copy1916.tmc.header': 'TMC ફરિયાદ વિગત (tmc.gov.in / હેલ્પલાઇન / ઈમેલ માટે કૉપી-પેસ્ટ)',
 
       'copy1916.tmc.complaintNotFiled': 'TMC ફરિયાદ / સંદર્ભ #: (હજી દાખલ નથી)',
 
@@ -13267,7 +13267,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       'official.tmc.label': 'TMC નાગરિક પોર્ટલ',
 
-      'official.tmc.small': 'thanecity.gov.in',
+      'official.tmc.small': 'tmc.gov.in',
 
       'official.bmcWa.label': 'MyBMC WhatsApp',
 
@@ -43143,7 +43143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         label: t('esc.tmc.channelPortal'),
 
-        small: 'thanecity.gov.in',
+        small: 'tmc.gov.in',
 
         recommended: true,
 

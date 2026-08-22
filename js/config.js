@@ -166,8 +166,8 @@
       corpChannels: {
         name: 'TMC',
         fullName: 'Thane Municipal Corporation',
-        // TMC official website — online citizen services and complaint filing
-        grievanceUrl: 'https://www.thanecity.gov.in/',
+        // TMC official website — thanecity.gov.in is currently unreachable; tmc.gov.in is the live host
+        grievanceUrl: 'https://tmc.gov.in/',
         // Maharashtra Aaple Sarkar — select TMC as local body when filing
         aapleSarkarUrl: 'https://pgportal.gov.in/',
         aapleSarkarPlayStoreUrl: '',
@@ -202,7 +202,8 @@
       id: 'swachhata',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.ichangemycity.swachhbharat',
       appStoreUrl: 'https://apps.apple.com/in/app/swachhata-mohua/id1124033628',
-      infoUrl: 'https://www.swachh.city/',
+      // swachh.city is a SPA that often stalls; MoHUA .gov.in is the stable public source
+      infoUrl: 'https://mohua.gov.in/',
       helpline: '1969',
     },
     aapleSarkar: {
